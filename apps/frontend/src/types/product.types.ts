@@ -1,0 +1,24 @@
+export type Product = {
+  id: string;
+  name: string;
+  description: string;
+  flavour: string;
+  unit: string;
+  price: number;
+  category: string[];
+  sub_category: string;
+  imageUrl: string;
+  refundPolicy: string;
+  disclaimer: string;
+  dietPreference: string;
+  discountPercent: number;
+  discountedPrice: number;
+  ean_code: number;
+  bestseller: boolean;
+  inStock: boolean;
+  shelfLife?: string;
+  tags?: string;
+  newLaunch?: boolean;
+  ranges?: string[];
+  title?: string[];
+};

@@ -1,0 +1,1096 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type CartItem {
+  productId: ID!
+  sku: String!
+  name: String!
+  quantity: Int!
+  unitPrice: Float!
+  totalPrice: Float!
+  mrp: Float!
+  imageUrl: String
+  attributes: JSON
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+type CartTotals {
+  subtotal: Float!
+  discountAmount: Float!
+  shippingCost: Float!
+  estimatedTax: Float!
+  handlingCharge: Float!
+  grandTotal: Float!
+}
+
+type Cart {
+  _id: ID!
+  identityId: String!
+  status: CartStatus!
+  couponCode: String
+  shippingMethodId: String
+  expiresAt: DateTime
+  totalsSummary: CartTotals!
+  items: [CartItem!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+enum CartStatus {
+  ACTIVE
+  ORDERED
+  EXPIRED
+  MERGED
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Address {
+  _id: ID!
+  identityId: ID!
+  addressType: String!
+  recipientPhone: String!
+  recipientName: String!
+  buildingName: String!
+  floor: String
+  streetArea: String
+  landmark: String
+  addressLocality: String!
+  addressRegion: String!
+  postalCode: String!
+  addressCountry: String!
+  isDefault: Boolean!
+  latitude: Float!
+  longitude: Float!
+  formattedAddress: String!
+  placeId: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type GoogleMapsAddressOutput {
+  formattedAddress: String!
+  streetAddress: String
+  extendedAddress: String
+  locality: String
+  region: String
+  postalCode: String
+  country: String
+  latitude: Float!
+  longitude: Float!
+}
+
+type PlacePredictionOutput {
+  placeId: String!
+  description: String!
+  mainText: String!
+  secondaryText: String!
+}
+
+type PlaceDetailsOutput {
+  placeId: String!
+  formattedAddress: String!
+  streetAddress: String
+  locality: String
+  region: String
+  postalCode: String
+  country: String
+  latitude: Float!
+  longitude: Float!
+}
+
+type PhoneCheckOutput {
+  exists: Boolean!
+  requiresLogin: Boolean!
+  message: String
+}
+
+type PaginationMeta {
+  totalCount: Int!
+  page: Int!
+  limit: Int!
+  totalPages: Int!
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+}
+
+type PaginatedProducts {
+  items: [Product!]!
+  meta: PaginationMeta!
+}
+
+type PaginatedCategories {
+  items: [Category!]!
+  meta: PaginationMeta!
+}
+
+type PlatformStats {
+  android: Int!
+  ios: Int!
+  web: Int!
+}
+
+type StatusStats {
+  guest: Int!
+  registered: Int!
+  verified: Int!
+  active: Int!
+  suspended: Int!
+}
+
+type CustomerSummary {
+  totalCustomers: Int!
+  totalGuests: Int!
+  totalRegistered: Int!
+  totalRevenue: Int!
+  newThisMonth: Int!
+  platformStats: PlatformStats!
+  statusStats: StatusStats!
+}
+
+type EnrichedCustomer {
+  _id: ID!
+  identityId: String!
+  status: IdentityStatus!
+  phoneNumber: String
+  firstName: String
+  lastName: String
+  email: String
+  isPhoneVerified: Boolean!
+  isEmailVerified: Boolean!
+  firebaseUid: String
+  sessionIds: [String!]!
+  currentSessionId: String
+  lastLoginAt: DateTime
+  registeredAt: DateTime
+  lastActiveAt: DateTime
+  lifetimeValue: Float!
+  marketingSmsOptIn: Boolean
+  signupSource: JSON
+  ipAddress: String
+  deviceInfo: JSON
+  lastIp: String
+  role: String!
+  mergedGuestIds: [String!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  totalOrders: Int!
+  totalSpent: Int!
+  activeCartItemsCount: Int
+  displayPhone: String
+  isGuest: Boolean!
+}
+
+enum IdentityStatus {
+  GUEST
+  REGISTERED
+  VERIFIED
+  ACTIVE
+  SUSPENDED
+  MERGED
+}
+
+type PaginatedCustomersResponse {
+  customers: [EnrichedCustomer!]!
+  meta: PaginationMeta!
+  summary: CustomerSummary!
+}
+
+type CustomerDetails {
+  _id: ID!
+  identityId: String!
+  status: IdentityStatus!
+  phoneNumber: String
+  firstName: String
+  lastName: String
+  email: String
+  isPhoneVerified: Boolean!
+  isEmailVerified: Boolean!
+  firebaseUid: String
+  sessionIds: [String!]!
+  currentSessionId: String
+  lastLoginAt: DateTime
+  registeredAt: DateTime
+  lastActiveAt: DateTime
+  lifetimeValue: Float!
+  marketingSmsOptIn: Boolean
+  signupSource: JSON
+  ipAddress: String
+  deviceInfo: JSON
+  lastIp: String
+  role: String!
+  mergedGuestIds: [String!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  totalOrders: Int!
+  totalSpent: Int!
+  isGuest: Boolean!
+  orders: JSON!
+  activeCart: JSON
+  addresses: JSON!
+}
+
+type Banner {
+  _id: ID!
+  name: String!
+  headline: String!
+  subheadline: String!
+  description: String
+  imageUrl: String!
+  mobileImageUrl: String!
+  thumbnailUrl: String
+  url: String!
+  ctaText: String!
+  position: Float!
+  isActive: Boolean!
+  startDate: DateTime
+  endDate: DateTime
+  backgroundColor: String
+  textColor: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type ProductSeo {
+  _id: ID!
+  productId: String!
+  metaTitle: String
+  metaDescription: String
+  metaKeywords: [String!]!
+  canonicalUrl: String
+  ogTitle: String
+  ogDescription: String
+  ogImage: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type ProductImage {
+  url: String!
+  alt: String!
+}
+
+type ProductVariant {
+  _id: ID!
+  sku: String!
+  name: String!
+  price: Float!
+  mrp: Float!
+  discountPercent: Float!
+  discountSource: String!
+  weight: Float!
+  weightUnit: String!
+  packageSize: String!
+  length: Float!
+  height: Float!
+  breadth: Float!
+  stockQuantity: Int!
+  availabilityStatus: String!
+  images: [ProductImage!]!
+  thumbnailUrl: String!
+  isDefault: Boolean!
+  isActive: Boolean!
+}
+
+type DashboardStats {
+  totalProducts: Float!
+  archivedProducts: Float!
+  inStockProducts: Float!
+  outOfStockProducts: Float!
+  totalCategories: Float!
+  activeBanners: Float!
+  totalAdmins: Float!
+  totalUsers: Float!
+}
+
+type Policy {
+  _id: ID!
+  title: String!
+  content: String!
+  type: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Coupon {
+  _id: ID!
+  name: String!
+  description: String!
+  code: String!
+  discountType: DiscountType!
+  discountValue: Float!
+  minCartValue: Float
+  maxDiscountAmount: Float
+  startDate: DateTime!
+  endDate: DateTime!
+  isActive: Boolean!
+  usageLimit: Int
+  usageCount: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED
+}
+
+type Charges {
+  _id: String!
+  active: Boolean!
+  handlingCharge: Float!
+  gstPercentage: Float!
+  freeDeliveryThreshold: Float!
+  deliveryDelhiBelowThreshold: Float!
+  deliveryRestBelowThreshold: Float!
+}
+
+type Product {
+  _id: ID!
+  name: String!
+  favourite: Boolean
+  slug: String!
+  description: String!
+  categoryIds: [String!]!
+  brand: String!
+  gtin: String
+  mpn: String
+  currency: String!
+  ingredients: String!
+  allergens: String
+  shelfLife: String!
+  isVegetarian: Boolean!
+  isGlutenFree: Boolean!
+  variants: [ProductVariant!]!
+  rating: Float
+  ratingCount: Int!
+  keywords: [String!]!
+  tags: [String!]!
+  isArchived: Boolean!
+  seo: ProductSeo
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  category: Category
+  categories: [Category!]
+  defaultVariant: ProductVariant
+  priceRange: PriceRange!
+  availableVariants: [ProductVariant!]!
+}
+
+type PriceRange {
+  min: Float!
+  max: Float!
+}
+
+type Category {
+  id: ID!
+  name: String!
+  slug: String!
+  description: String
+  parentId: String
+  favourite: Boolean
+  imageUrl: String
+  codeValue: String!
+  inCodeSet: String!
+  productCount: Float!
+  isArchived: Boolean!
+  products: [Product!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Guest {
+  _id: ID!
+  guestId: String!
+  sessionId: String!
+  createdAt: DateTime!
+  lastActiveAt: DateTime!
+  ipAddress: String
+  deviceInfo: JSON
+  convertedToUserId: ID
+}
+
+type PaymentOrderType {
+  _id: String!
+  paymentOrderId: String!
+  paymentEventId: String!
+  identityId: String!
+  orderId: String
+  amount: String!
+  currency: String!
+  paymentOrderStatus: PaymentStatus!
+  paymentMethod: PaymentMethod
+  zaakpayTxnId: String
+  zaakpayOrderId: String
+  zaakpayToken: String
+  pspResponseMessage: String
+  failureReason: String
+  executedAt: DateTime
+  completedAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+enum PaymentStatus {
+  NOT_STARTED
+  EXECUTING
+  SUCCESS
+  FAILED
+  PENDING
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  NET_BANKING
+  UPI
+  WALLET
+}
+
+type ChecksumDataType {
+  amount: String!
+  merchantIdentifier: String!
+  orderId: String!
+  returnUrl: String!
+  buyerEmail: String!
+  buyerFirstName: String!
+  buyerPhoneNumber: String!
+  currency: String!
+  txnType: String!
+  zpPayOption: String!
+  mode: String!
+  productDescription: String!
+  txnDate: String!
+  checksum: String!
+}
+
+type InitiatePaymentResponse {
+  paymentOrderId: String!
+  checkoutUrl: String!
+  checksumData: ChecksumDataType!
+}
+
+type InitiateUpiQrPaymentResponse {
+  paymentOrderId: String!
+  qrCodeData: String!
+  qrCodeUrl: String
+  expiresAt: String
+  zaakpayTxnId: String
+  amount: String!
+  currency: String!
+  responseCode: String
+  responseMessage: String
+}
+
+type PaymentStatusResponse {
+  paymentOrderId: String!
+  status: PaymentStatus!
+  message: String
+  paymentOrder: PaymentOrderType!
+}
+
+type RefundResponse {
+  refundId: String!
+  status: PaymentStatus!
+  message: String
+}
+
+type OrderItemType {
+  productId: String!
+  quantity: Float!
+  price: String!
+  totalPrice: String!
+  name: String!
+  sku: String!
+}
+
+type OrderUserInfo {
+  identityId: String!
+  phoneNumber: String
+  email: String
+  firstName: String
+  lastName: String
+  status: String!
+}
+
+type OrderType {
+  _id: String!
+  orderId: String!
+  identityId: String!
+  paymentOrderId: String!
+  cartId: String!
+  totalAmount: String!
+  currency: String!
+  orderStatus: OrderStatus!
+  shippingAddressId: String
+  items: [OrderItemType!]!
+  deliveredAt: DateTime
+  cancelledAt: DateTime
+  trackingNumber: String
+  cancellationReason: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+type OrderWithUserInfo {
+  _id: String!
+  orderId: String!
+  identityId: String!
+  paymentOrderId: String!
+  cartId: String!
+  totalAmount: String!
+  currency: String!
+  orderStatus: OrderStatus!
+  shippingAddressId: String
+  items: [OrderItemType!]!
+  deliveredAt: DateTime
+  cancelledAt: DateTime
+  trackingNumber: String
+  cancellationReason: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  userInfo: OrderUserInfo
+}
+
+type OrderStatusCount {
+  pending: Int!
+  confirmed: Int!
+  processing: Int!
+  shipped: Int!
+  delivered: Int!
+  cancelled: Int!
+  refunded: Int!
+}
+
+type OrdersSummary {
+  totalOrders: Int!
+  statusCounts: OrderStatusCount!
+}
+
+type PaginatedOrdersResponse {
+  orders: [OrderType!]!
+  total: Float!
+  page: Float!
+  limit: Float!
+  totalPages: Float!
+}
+
+type AdminOrdersResponse {
+  orders: [OrderWithUserInfo!]!
+  meta: PaginationMeta!
+  summary: OrdersSummary!
+}
+
+type NewsletterSubscription {
+  _id: ID!
+  email: String!
+  isActive: Boolean!
+  source: String
+  ipAddress: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type SubscribeNewsletterResponse {
+  success: Boolean!
+  message: String!
+  email: String
+}
+
+type Query {
+  hello: String!
+  products(pagination: PaginationInput! = {page: 1, limit: 10}, includeOutOfStock: Boolean! = false): PaginatedProducts!
+  product(id: ID!): Product
+  productBySlug(slug: String!): Product
+  productsByCategory(categoryId: ID!, pagination: PaginationInput! = {page: 1, limit: 10}): PaginatedProducts!
+  searchProducts(searchTerm: String!, pagination: PaginationInput! = {page: 1, limit: 10}): PaginatedProducts!
+  productVariant(productId: ID!, variantId: ID!): ProductVariant
+  categories(pagination: PaginationInput! = {page: 1, limit: 10}, includeArchived: Boolean! = false): PaginatedCategories!
+  rootCategories(pagination: PaginationInput! = {page: 1, limit: 10}, includeArchived: Boolean! = false): PaginatedCategories!
+  categoryChildren(parentId: ID!, pagination: PaginationInput! = {page: 1, limit: 10}, includeArchived: Boolean! = false): PaginatedCategories!
+  category(id: ID!, includeArchived: Boolean! = false): Category
+  categoryBySlug(slug: String!, includeArchived: Boolean! = false): Category
+  getAllCustomers(input: GetCustomersInput!): PaginatedCustomersResponse!
+  getCustomerDetails(id: ID!): CustomerDetails!
+  myAddresses: [Address!]!
+  address(id: ID!): Address!
+  geocodeAddress(input: GeocodeAddressInput!): GoogleMapsAddressOutput!
+  reverseGeocode(input: ReverseGeocodeInput!): GoogleMapsAddressOutput!
+  searchPlaces(input: SearchPlacesInput!): [PlacePredictionOutput!]!
+  getPlaceDetails(input: PlaceDetailsInput!): PlaceDetailsOutput!
+  checkPhoneExists(phoneNumber: String!): PhoneCheckOutput!
+  banners: [Banner!]!
+  activeBanners: [Banner!]!
+  banner(id: ID!): Banner
+  dashboardStats: DashboardStats!
+  policies: [Policy!]!
+  policiesByType(type: String!): [Policy!]!
+  policy(id: ID!): Policy
+  guest(id: ID!): Guest
+  guestByGuestId(guestId: String!): Guest
+  myCart: Cart
+  coupon(code: String!): Coupon!
+  coupons: [Coupon!]!
+  activeCoupons: [Coupon!]!
+  charges: Charges
+  getPaymentStatus(paymentOrderId: String!): PaymentStatusResponse!
+  myPayments: [PaymentOrderType!]!
+  getPaymentOrderById(paymentOrderId: String!): PaymentOrderType!
+  getMyOrders(input: GetMyOrdersInput!): PaginatedOrdersResponse!
+  getAllOrders(input: GetAllOrdersInput!): AdminOrdersResponse!
+  getOrderById(orderId: String!): OrderType!
+  getAllNewsletterSubscriptions(isActive: Boolean): [NewsletterSubscription!]!
+  getNewsletterSubscriptionCount(isActive: Boolean): Float!
+}
+
+input PaginationInput {
+  page: Int! = 1
+  limit: Int! = 10
+}
+
+input GetCustomersInput {
+  page: Int! = 1
+  limit: Int! = 10
+  status: String
+  platform: CustomerPlatform
+  searchTerm: String
+  startDate: JSON
+  endDate: JSON
+  sortBy: CustomerSortField
+  sortOrder: SortOrder
+  minSpent: Float
+  maxSpent: Float
+}
+
+enum CustomerPlatform {
+  ANDROID
+  IOS
+  WEB
+}
+
+enum CustomerSortField {
+  CREATED_AT
+  TOTAL_SPENT
+  TOTAL_ORDERS
+  LAST_ACTIVE
+}
+
+enum SortOrder {
+  ASC
+  DESC
+}
+
+input GeocodeAddressInput {
+  address: String!
+}
+
+input ReverseGeocodeInput {
+  latitude: Float!
+  longitude: Float!
+}
+
+input SearchPlacesInput {
+  query: String!
+  sessionToken: String
+}
+
+input PlaceDetailsInput {
+  placeId: String!
+  sessionToken: String
+}
+
+input GetMyOrdersInput {
+  page: Float
+  limit: Float
+  status: OrderStatus
+}
+
+input GetAllOrdersInput {
+  page: Int! = 1
+  limit: Int! = 10
+  status: OrderStatus
+  startDate: DateTime
+  endDate: DateTime
+  userSearch: String
+}
+
+type Mutation {
+  createProduct(input: CreateProductInput!): Product!
+  updateProduct(id: ID!, input: UpdateProductInput!): Product!
+  deleteProduct(id: ID!): Product!
+  archiveProduct(id: ID!): Product!
+  unarchiveProduct(id: ID!): Product!
+  updateProductStock(id: ID!, quantity: Int!): Product!
+  addProductVariant(productId: ID!, input: CreateProductVariantInput!): Product!
+  updateProductVariant(productId: ID!, variantId: ID!, input: UpdateProductVariantInput!): Product!
+  removeProductVariant(productId: ID!, variantId: ID!): Product!
+  setDefaultProductVariant(productId: ID!, variantId: ID!): Product!
+  updateProductVariantStock(productId: ID!, variantId: ID!, quantity: Int!): Product!
+  createCategory(input: CreateCategoryInput!): Category!
+  updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
+  archiveCategory(id: ID!): Category!
+  unarchiveCategory(id: ID!): Category!
+  addProductsToCategory(input: AddProductsToCategoryInput!): Boolean!
+  removeProductsFromCategory(input: RemoveProductsFromCategoryInput!): Boolean!
+  adminLogin(email: String!, password: String!): String!
+  createAdmin(email: String!, password: String!): String!
+  adminLogout: String!
+  updateUserActivity: Boolean!
+  createAddress(input: CreateAddressInput!): Address!
+  updateAddress(id: ID!, input: UpdateAddressInput!): Address!
+  deleteAddress(id: ID!): Address!
+  createBanner(input: CreateBannerInput!): Banner!
+  updateBanner(id: ID!, input: UpdateBannerInput!): Banner!
+  deleteBanner(id: ID!): Banner!
+  createPolicy(input: CreatePolicyInput!): Policy!
+  updatePolicy(id: ID!, input: UpdatePolicyInput!): Policy!
+  deletePolicy(id: ID!): Policy!
+  createGuest(input: CreateGuestInput!): Guest!
+  updateGuest(id: ID!, input: UpdateGuestInput!): Guest!
+  addToCart(input: AddToCartInput!): Cart!
+  updateCartItem(input: UpdateCartItemInput!): Cart!
+  removeFromCart(productId: ID!): Cart!
+  clearCart: Cart!
+  applyCoupon(code: String!): Cart!
+  removeCoupon: Cart!
+  createCoupon(input: CreateCouponInput!): Coupon!
+  createOrUpdateCharges(input: CreateChargesInput!): Charges!
+  initiatePayment(input: InitiatePaymentInput!): InitiatePaymentResponse!
+  initiateUpiQrPayment(input: InitiateUpiQrPaymentInput!): InitiateUpiQrPaymentResponse!
+  processRefund(input: ProcessRefundInput!): RefundResponse!
+  cancelOrder(input: CancelOrderInput!): OrderType!
+  subscribeNewsletter(input: SubscribeNewsletterInput!): SubscribeNewsletterResponse!
+  unsubscribeNewsletter(email: String!): SubscribeNewsletterResponse!
+  sendOtp(phoneNumber: String!): String!
+  verifyWhatsAppOtp(phoneNumber: String!, otp: String!, input: CreateUserInput): String!
+  verifyOtpAndLogin(idToken: String!, input: CreateUserInput): String!
+  logout: String!
+}
+
+input CreateProductInput {
+  name: String!
+  slug: String
+  favourite: Boolean
+  description: String!
+  categoryIds: [String!]!
+  brand: String!
+  gtin: String
+  mpn: String
+  currency: String = "INR"
+  ingredients: String!
+  allergens: String
+  shelfLife: String!
+  isVegetarian: Boolean = true
+  isGlutenFree: Boolean = false
+  rating: Float
+  ratingCount: Int = 0
+  keywords: [String!]
+  tags: [String!]
+  variants: [CreateProductVariantInput!]!
+  seo: ProductSeoInput
+}
+
+input CreateProductVariantInput {
+  sku: String!
+  name: String!
+  price: Float!
+  mrp: Float!
+  discountPercent: Float!
+  discountSource: String! = "product"
+  weight: Float!
+  weightUnit: String! = "g"
+  packageSize: String!
+  length: Float!
+  height: Float!
+  breadth: Float!
+  stockQuantity: Int! = 0
+  availabilityStatus: String! = "in_stock"
+  images: [ProductImageInput!]!
+  thumbnailUrl: String!
+  isDefault: Boolean! = false
+  isActive: Boolean! = true
+}
+
+input ProductImageInput {
+  url: String!
+  alt: String!
+}
+
+input ProductSeoInput {
+  metaTitle: String
+  metaDescription: String
+  metaKeywords: [String!]
+  canonicalUrl: String
+  ogTitle: String
+  ogDescription: String
+  ogImage: String
+}
+
+input UpdateProductInput {
+  name: String
+  slug: String
+  description: String
+  categoryIds: [String!]
+  favourite: Boolean
+  brand: String
+  gtin: String
+  mpn: String
+  currency: String
+  ingredients: String
+  allergens: String
+  shelfLife: String
+  isVegetarian: Boolean
+  isGlutenFree: Boolean
+  rating: Float
+  ratingCount: Int
+  keywords: [String!]
+  tags: [String!]
+  variants: [UpdateProductVariantInput!]
+  seo: ProductSeoInput
+}
+
+input UpdateProductVariantInput {
+  _id: String!
+  sku: String
+  name: String
+  price: Float
+  mrp: Float
+  discountPercent: Float
+  discountSource: String
+  weight: Float
+  weightUnit: String
+  packageSize: String
+  length: Float
+  height: Float
+  breadth: Float
+  stockQuantity: Int
+  availabilityStatus: String
+  images: [ProductImageInput!]
+  thumbnailUrl: String
+  isDefault: Boolean
+  isActive: Boolean
+}
+
+input CreateCategoryInput {
+  name: String!
+  slug: String
+  description: String
+  favourite: Boolean
+  parentId: String
+  imageUrl: String
+  codeValue: String!
+  inCodeSet: String!
+  isArchived: Boolean
+}
+
+input UpdateCategoryInput {
+  name: String
+  slug: String
+  description: String
+  favourite: Boolean
+  parentId: String
+  imageUrl: String
+  codeValue: String
+  inCodeSet: String
+  isArchived: Boolean
+}
+
+input AddProductsToCategoryInput {
+  categoryId: ID!
+  productIds: [ID!]!
+}
+
+input RemoveProductsFromCategoryInput {
+  categoryId: ID!
+  productIds: [ID!]!
+}
+
+input CreateAddressInput {
+  addressType: String!
+  recipientPhone: String!
+  recipientName: String!
+  buildingName: String!
+  floor: String
+  streetArea: String
+  landmark: String
+  addressLocality: String!
+  addressRegion: String!
+  postalCode: String!
+  addressCountry: String!
+  isDefault: Boolean
+  latitude: Float!
+  longitude: Float!
+  formattedAddress: String!
+  placeId: String
+}
+
+input UpdateAddressInput {
+  addressType: String
+  recipientPhone: String
+  recipientName: String
+  buildingName: String
+  floor: String
+  streetArea: String
+  landmark: String
+  addressLocality: String
+  addressRegion: String
+  postalCode: String
+  addressCountry: String
+  isDefault: Boolean
+  latitude: Float
+  longitude: Float
+  formattedAddress: String
+  placeId: String
+}
+
+input CreateBannerInput {
+  name: String!
+  headline: String!
+  subheadline: String!
+  description: String
+  imageUrl: String!
+  mobileImageUrl: String!
+  thumbnailUrl: String
+  url: String!
+  ctaText: String!
+  position: Float!
+  isActive: Boolean
+  startDate: DateTime
+  endDate: DateTime
+  backgroundColor: String
+  textColor: String
+}
+
+input UpdateBannerInput {
+  name: String
+  headline: String
+  subheadline: String
+  description: String
+  imageUrl: String
+  mobileImageUrl: String
+  thumbnailUrl: String
+  url: String
+  ctaText: String
+  position: Float
+  isActive: Boolean
+  startDate: DateTime
+  endDate: DateTime
+  backgroundColor: String
+  textColor: String
+}
+
+input CreatePolicyInput {
+  title: String!
+  content: String!
+  type: String!
+}
+
+input UpdatePolicyInput {
+  title: String
+  content: String
+  type: String
+}
+
+input CreateGuestInput {
+  ipAddress: String
+  deviceInfo: JSON
+}
+
+input UpdateGuestInput {
+  ipAddress: String
+  deviceInfo: JSON
+}
+
+input AddToCartInput {
+  productId: ID!
+  quantity: Int!
+  attributes: JSON
+}
+
+input UpdateCartItemInput {
+  productId: ID!
+  quantity: Int!
+}
+
+input CreateCouponInput {
+  name: String!
+  description: String!
+  code: String!
+  discountType: DiscountType!
+  discountValue: Float!
+  minCartValue: Float
+  maxDiscountAmount: Float
+  startDate: DateTime!
+  endDate: DateTime!
+  isActive: Boolean
+  usageLimit: Int
+}
+
+input CreateChargesInput {
+  active: Boolean
+  handlingCharge: Float!
+  gstPercentage: Float!
+  freeDeliveryThreshold: Float!
+  deliveryDelhiBelowThreshold: Float!
+  deliveryRestBelowThreshold: Float!
+}
+
+input InitiatePaymentInput {
+  cartId: String!
+  amount: String!
+  currency: String!
+}
+
+input InitiateUpiQrPaymentInput {
+  cartId: String!
+  buyerEmail: String!
+  buyerName: String!
+  buyerPhone: String!
+}
+
+input ProcessRefundInput {
+  paymentOrderId: String!
+  refundAmount: String!
+  reason: String
+}
+
+input CancelOrderInput {
+  orderId: String!
+  reason: String
+}
+
+input SubscribeNewsletterInput {
+  email: String!
+  source: String
+}
+
+input CreateUserInput {
+  phoneNumber: String!
+  firebaseUid: String!
+  firstName: String
+  lastName: String
+  email: String
+  marketingSmsOptIn: Boolean
+  signupSource: JSON
+  lastIp: String
+}

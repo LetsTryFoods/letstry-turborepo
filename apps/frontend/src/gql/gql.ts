@@ -1,0 +1,134 @@
+/* eslint-disable */
+import * as types from './graphql';
+
+
+
+/**
+ * Map of all GraphQL operations in the project.
+ *
+ * This map has several performance disadvantages:
+ * 1. It is not tree-shakeable, so it will include all operations in the project.
+ * 2. It is not minifiable, so the string of a GraphQL query will be multiple times inside the bundle.
+ * 3. It does not support dead code elimination, so it will add unused operations.
+ *
+ * Therefore it is highly recommended to use the babel or swc plugin for production.
+ * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
+ */
+type Documents = {
+    "\n  query SearchPlaces($query: String!, $sessionToken: String) {\n    searchPlaces(input: { query: $query, sessionToken: $sessionToken }) {\n      placeId\n      description\n      mainText\n      secondaryText\n    }\n  }\n": typeof types.SearchPlacesDocument,
+    "\n  query GetPlaceDetails($placeId: String!, $sessionToken: String) {\n    getPlaceDetails(input: { placeId: $placeId, sessionToken: $sessionToken }) {\n      placeId\n      formattedAddress\n      streetAddress\n      locality\n      region\n      postalCode\n      country\n      latitude\n      longitude\n    }\n  }\n": typeof types.GetPlaceDetailsDocument,
+    "\n  query GetMyAddresses {\n    myAddresses {\n      _id\n      addressType\n      recipientPhone\n      recipientName\n      buildingName\n      floor\n      streetArea\n      landmark\n      addressLocality\n      addressRegion\n      postalCode\n      addressCountry\n      isDefault\n      latitude\n      longitude\n      formattedAddress\n      placeId\n    }\n  }\n": typeof types.GetMyAddressesDocument,
+    "\n  mutation CreateAddress($input: CreateAddressInput!) {\n    createAddress(input: $input) {\n      _id\n      addressType\n      formattedAddress\n      isDefault\n    }\n  }\n": typeof types.CreateAddressDocument,
+    "\n  query CheckPhoneExists($phoneNumber: String!) {\n    checkPhoneExists(phoneNumber: $phoneNumber) {\n      exists\n      requiresLogin\n      message\n    }\n  }\n": typeof types.CheckPhoneExistsDocument,
+    "\n  query GetMyCart {\n    myCart {\n      _id\n      status\n      couponCode\n      items {\n        productId\n        sku\n        name\n        quantity\n        unitPrice\n        totalPrice\n        mrp\n        imageUrl\n        attributes\n      }\n      totalsSummary {\n        subtotal\n        discountAmount\n        shippingCost\n        estimatedTax\n        handlingCharge\n        grandTotal\n      }\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.GetMyCartDocument,
+    "\n  mutation AddToCart($input: AddToCartInput!) {\n    addToCart(input: $input) {\n      _id\n      items {\n        productId\n        name\n        quantity\n        unitPrice\n        totalPrice\n        attributes\n      }\n      totalsSummary {\n        subtotal\n        discountAmount\n        grandTotal\n      }\n    }\n  }\n": typeof types.AddToCartDocument,
+    "\n  mutation UpdateCartItem($input: UpdateCartItemInput!) {\n    updateCartItem(input: $input) {\n      _id\n      items {\n        productId\n        quantity\n        totalPrice\n      }\n      totalsSummary {\n        grandTotal\n      }\n    }\n  }\n": typeof types.UpdateCartItemDocument,
+    "\n  mutation RemoveFromCart($productId: ID!) {\n    removeFromCart(productId: $productId) {\n      _id\n      items {\n        productId\n        name\n        quantity\n      }\n      totalsSummary {\n        grandTotal\n      }\n    }\n  }\n": typeof types.RemoveFromCartDocument,
+    "\n  query GetRootCategories($pagination: PaginationInput, $includeArchived: Boolean) {\n    rootCategories(pagination: $pagination, includeArchived: $includeArchived) {\n      items {\n        id\n        name\n        slug\n        imageUrl\n      }\n      meta {\n        totalCount\n        totalPages\n        page\n        limit\n        hasNextPage\n        hasPreviousPage\n      }\n    }\n  }\n": typeof types.GetRootCategoriesDocument,
+    "\n  query GetCategoryWithProducts($id: ID!, $includeArchived: Boolean) {\n    category(id: $id, includeArchived: $includeArchived) {\n      id\n      name\n      slug\n      description\n      imageUrl\n      codeValue\n      inCodeSet\n      productCount\n      isArchived\n      favourite\n      products {\n        _id\n        name\n        slug\n        brand\n        defaultVariant {\n          sku\n          price\n          mrp\n          discountPercent\n          thumbnailUrl\n          availabilityStatus\n          stockQuantity\n        }\n        availableVariants {\n          _id\n          sku\n          price\n          mrp\n          packageSize\n          weight\n          weightUnit\n        }\n      }\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.GetCategoryWithProductsDocument,
+    "\n  query GetCategoryBySlug($slug: String!, $includeArchived: Boolean) {\n    categoryBySlug(slug: $slug, includeArchived: $includeArchived) {\n      id\n      name\n      slug\n      productCount\n      products {\n        _id\n        name\n        slug\n        defaultVariant {\n          thumbnailUrl\n          price\n          mrp\n          packageSize\n        }\n        availableVariants {\n          _id\n          sku\n          price\n          mrp\n          packageSize\n          weight\n          weightUnit\n        }\n        tags\n      }\n    }\n  }\n": typeof types.GetCategoryBySlugDocument,
+    "\n  query GetActiveCoupons {\n    activeCoupons {\n      _id\n      code\n      description\n      name\n      discountType\n      discountValue\n      minCartValue\n      endDate\n    }\n  }\n": typeof types.GetActiveCouponsDocument,
+    "\n  mutation ApplyCoupon($code: String!) {\n    applyCoupon(code: $code) {\n      _id\n      couponCode\n      totalsSummary {\n        subtotal\n        discountAmount\n        grandTotal\n      }\n    }\n  }\n": typeof types.ApplyCouponDocument,
+    "\n  mutation RemoveCoupon {\n    removeCoupon {\n      _id\n      couponCode\n      totalsSummary {\n        subtotal\n        discountAmount\n        grandTotal\n      }\n    }\n  }\n": typeof types.RemoveCouponDocument,
+    "\n  mutation CreateGuest($input: CreateGuestInput!) {\n    createGuest(input: $input) {\n      _id\n      guestId\n      sessionId\n    }\n  }\n": typeof types.CreateGuestDocument,
+    "\n  mutation UpdateGuest($id: ID!, $input: UpdateGuestInput!) {\n    updateGuest(id: $id, input: $input) {\n      _id\n      lastActiveAt\n    }\n  }\n": typeof types.UpdateGuestDocument,
+    "\n  query GetProductBySlug($slug: String!) {\n    productBySlug(slug: $slug) {\n      _id\n      name\n      slug\n      description\n      shelfLife\n      isVegetarian\n      category {\n        name\n        imageUrl\n      }\n      ingredients\n      seo {\n        metaTitle\n        metaDescription\n        metaKeywords\n        canonicalUrl\n        ogTitle\n        ogDescription\n        ogImage\n      }\n      variants {\n        _id\n        sku\n        name\n        price\n        mrp\n        discountPercent\n        weight\n        weightUnit\n        packageSize\n        stockQuantity\n        availabilityStatus\n        images {\n          url\n          alt\n        }\n        isDefault\n        isActive\n      }\n      defaultVariant {\n        _id\n        sku\n        name\n        price\n        mrp\n        discountPercent\n        weight\n        weightUnit\n        packageSize\n        stockQuantity\n        availabilityStatus\n        images {\n          url\n          alt\n        }\n        isDefault\n        isActive\n      }\n      priceRange {\n        min\n        max\n      }\n      availableVariants {\n        _id\n        sku\n        name\n        price\n        mrp\n        discountPercent\n        weight\n        weightUnit\n        packageSize\n        stockQuantity\n        availabilityStatus\n        images {\n          url\n          alt\n        }\n        isDefault\n        isActive\n      }\n    }\n  }\n": typeof types.GetProductBySlugDocument,
+};
+const documents: Documents = {
+    "\n  query SearchPlaces($query: String!, $sessionToken: String) {\n    searchPlaces(input: { query: $query, sessionToken: $sessionToken }) {\n      placeId\n      description\n      mainText\n      secondaryText\n    }\n  }\n": types.SearchPlacesDocument,
+    "\n  query GetPlaceDetails($placeId: String!, $sessionToken: String) {\n    getPlaceDetails(input: { placeId: $placeId, sessionToken: $sessionToken }) {\n      placeId\n      formattedAddress\n      streetAddress\n      locality\n      region\n      postalCode\n      country\n      latitude\n      longitude\n    }\n  }\n": types.GetPlaceDetailsDocument,
+    "\n  query GetMyAddresses {\n    myAddresses {\n      _id\n      addressType\n      recipientPhone\n      recipientName\n      buildingName\n      floor\n      streetArea\n      landmark\n      addressLocality\n      addressRegion\n      postalCode\n      addressCountry\n      isDefault\n      latitude\n      longitude\n      formattedAddress\n      placeId\n    }\n  }\n": types.GetMyAddressesDocument,
+    "\n  mutation CreateAddress($input: CreateAddressInput!) {\n    createAddress(input: $input) {\n      _id\n      addressType\n      formattedAddress\n      isDefault\n    }\n  }\n": types.CreateAddressDocument,
+    "\n  query CheckPhoneExists($phoneNumber: String!) {\n    checkPhoneExists(phoneNumber: $phoneNumber) {\n      exists\n      requiresLogin\n      message\n    }\n  }\n": types.CheckPhoneExistsDocument,
+    "\n  query GetMyCart {\n    myCart {\n      _id\n      status\n      couponCode\n      items {\n        productId\n        sku\n        name\n        quantity\n        unitPrice\n        totalPrice\n        mrp\n        imageUrl\n        attributes\n      }\n      totalsSummary {\n        subtotal\n        discountAmount\n        shippingCost\n        estimatedTax\n        handlingCharge\n        grandTotal\n      }\n      createdAt\n      updatedAt\n    }\n  }\n": types.GetMyCartDocument,
+    "\n  mutation AddToCart($input: AddToCartInput!) {\n    addToCart(input: $input) {\n      _id\n      items {\n        productId\n        name\n        quantity\n        unitPrice\n        totalPrice\n        attributes\n      }\n      totalsSummary {\n        subtotal\n        discountAmount\n        grandTotal\n      }\n    }\n  }\n": types.AddToCartDocument,
+    "\n  mutation UpdateCartItem($input: UpdateCartItemInput!) {\n    updateCartItem(input: $input) {\n      _id\n      items {\n        productId\n        quantity\n        totalPrice\n      }\n      totalsSummary {\n        grandTotal\n      }\n    }\n  }\n": types.UpdateCartItemDocument,
+    "\n  mutation RemoveFromCart($productId: ID!) {\n    removeFromCart(productId: $productId) {\n      _id\n      items {\n        productId\n        name\n        quantity\n      }\n      totalsSummary {\n        grandTotal\n      }\n    }\n  }\n": types.RemoveFromCartDocument,
+    "\n  query GetRootCategories($pagination: PaginationInput, $includeArchived: Boolean) {\n    rootCategories(pagination: $pagination, includeArchived: $includeArchived) {\n      items {\n        id\n        name\n        slug\n        imageUrl\n      }\n      meta {\n        totalCount\n        totalPages\n        page\n        limit\n        hasNextPage\n        hasPreviousPage\n      }\n    }\n  }\n": types.GetRootCategoriesDocument,
+    "\n  query GetCategoryWithProducts($id: ID!, $includeArchived: Boolean) {\n    category(id: $id, includeArchived: $includeArchived) {\n      id\n      name\n      slug\n      description\n      imageUrl\n      codeValue\n      inCodeSet\n      productCount\n      isArchived\n      favourite\n      products {\n        _id\n        name\n        slug\n        brand\n        defaultVariant {\n          sku\n          price\n          mrp\n          discountPercent\n          thumbnailUrl\n          availabilityStatus\n          stockQuantity\n        }\n        availableVariants {\n          _id\n          sku\n          price\n          mrp\n          packageSize\n          weight\n          weightUnit\n        }\n      }\n      createdAt\n      updatedAt\n    }\n  }\n": types.GetCategoryWithProductsDocument,
+    "\n  query GetCategoryBySlug($slug: String!, $includeArchived: Boolean) {\n    categoryBySlug(slug: $slug, includeArchived: $includeArchived) {\n      id\n      name\n      slug\n      productCount\n      products {\n        _id\n        name\n        slug\n        defaultVariant {\n          thumbnailUrl\n          price\n          mrp\n          packageSize\n        }\n        availableVariants {\n          _id\n          sku\n          price\n          mrp\n          packageSize\n          weight\n          weightUnit\n        }\n        tags\n      }\n    }\n  }\n": types.GetCategoryBySlugDocument,
+    "\n  query GetActiveCoupons {\n    activeCoupons {\n      _id\n      code\n      description\n      name\n      discountType\n      discountValue\n      minCartValue\n      endDate\n    }\n  }\n": types.GetActiveCouponsDocument,
+    "\n  mutation ApplyCoupon($code: String!) {\n    applyCoupon(code: $code) {\n      _id\n      couponCode\n      totalsSummary {\n        subtotal\n        discountAmount\n        grandTotal\n      }\n    }\n  }\n": types.ApplyCouponDocument,
+    "\n  mutation RemoveCoupon {\n    removeCoupon {\n      _id\n      couponCode\n      totalsSummary {\n        subtotal\n        discountAmount\n        grandTotal\n      }\n    }\n  }\n": types.RemoveCouponDocument,
+    "\n  mutation CreateGuest($input: CreateGuestInput!) {\n    createGuest(input: $input) {\n      _id\n      guestId\n      sessionId\n    }\n  }\n": types.CreateGuestDocument,
+    "\n  mutation UpdateGuest($id: ID!, $input: UpdateGuestInput!) {\n    updateGuest(id: $id, input: $input) {\n      _id\n      lastActiveAt\n    }\n  }\n": types.UpdateGuestDocument,
+    "\n  query GetProductBySlug($slug: String!) {\n    productBySlug(slug: $slug) {\n      _id\n      name\n      slug\n      description\n      shelfLife\n      isVegetarian\n      category {\n        name\n        imageUrl\n      }\n      ingredients\n      seo {\n        metaTitle\n        metaDescription\n        metaKeywords\n        canonicalUrl\n        ogTitle\n        ogDescription\n        ogImage\n      }\n      variants {\n        _id\n        sku\n        name\n        price\n        mrp\n        discountPercent\n        weight\n        weightUnit\n        packageSize\n        stockQuantity\n        availabilityStatus\n        images {\n          url\n          alt\n        }\n        isDefault\n        isActive\n      }\n      defaultVariant {\n        _id\n        sku\n        name\n        price\n        mrp\n        discountPercent\n        weight\n        weightUnit\n        packageSize\n        stockQuantity\n        availabilityStatus\n        images {\n          url\n          alt\n        }\n        isDefault\n        isActive\n      }\n      priceRange {\n        min\n        max\n      }\n      availableVariants {\n        _id\n        sku\n        name\n        price\n        mrp\n        discountPercent\n        weight\n        weightUnit\n        packageSize\n        stockQuantity\n        availabilityStatus\n        images {\n          url\n          alt\n        }\n        isDefault\n        isActive\n      }\n    }\n  }\n": types.GetProductBySlugDocument,
+};
+
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query SearchPlaces($query: String!, $sessionToken: String) {\n    searchPlaces(input: { query: $query, sessionToken: $sessionToken }) {\n      placeId\n      description\n      mainText\n      secondaryText\n    }\n  }\n"): typeof import('./graphql').SearchPlacesDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetPlaceDetails($placeId: String!, $sessionToken: String) {\n    getPlaceDetails(input: { placeId: $placeId, sessionToken: $sessionToken }) {\n      placeId\n      formattedAddress\n      streetAddress\n      locality\n      region\n      postalCode\n      country\n      latitude\n      longitude\n    }\n  }\n"): typeof import('./graphql').GetPlaceDetailsDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetMyAddresses {\n    myAddresses {\n      _id\n      addressType\n      recipientPhone\n      recipientName\n      buildingName\n      floor\n      streetArea\n      landmark\n      addressLocality\n      addressRegion\n      postalCode\n      addressCountry\n      isDefault\n      latitude\n      longitude\n      formattedAddress\n      placeId\n    }\n  }\n"): typeof import('./graphql').GetMyAddressesDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation CreateAddress($input: CreateAddressInput!) {\n    createAddress(input: $input) {\n      _id\n      addressType\n      formattedAddress\n      isDefault\n    }\n  }\n"): typeof import('./graphql').CreateAddressDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query CheckPhoneExists($phoneNumber: String!) {\n    checkPhoneExists(phoneNumber: $phoneNumber) {\n      exists\n      requiresLogin\n      message\n    }\n  }\n"): typeof import('./graphql').CheckPhoneExistsDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetMyCart {\n    myCart {\n      _id\n      status\n      couponCode\n      items {\n        productId\n        sku\n        name\n        quantity\n        unitPrice\n        totalPrice\n        mrp\n        imageUrl\n        attributes\n      }\n      totalsSummary {\n        subtotal\n        discountAmount\n        shippingCost\n        estimatedTax\n        handlingCharge\n        grandTotal\n      }\n      createdAt\n      updatedAt\n    }\n  }\n"): typeof import('./graphql').GetMyCartDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation AddToCart($input: AddToCartInput!) {\n    addToCart(input: $input) {\n      _id\n      items {\n        productId\n        name\n        quantity\n        unitPrice\n        totalPrice\n        attributes\n      }\n      totalsSummary {\n        subtotal\n        discountAmount\n        grandTotal\n      }\n    }\n  }\n"): typeof import('./graphql').AddToCartDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation UpdateCartItem($input: UpdateCartItemInput!) {\n    updateCartItem(input: $input) {\n      _id\n      items {\n        productId\n        quantity\n        totalPrice\n      }\n      totalsSummary {\n        grandTotal\n      }\n    }\n  }\n"): typeof import('./graphql').UpdateCartItemDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation RemoveFromCart($productId: ID!) {\n    removeFromCart(productId: $productId) {\n      _id\n      items {\n        productId\n        name\n        quantity\n      }\n      totalsSummary {\n        grandTotal\n      }\n    }\n  }\n"): typeof import('./graphql').RemoveFromCartDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetRootCategories($pagination: PaginationInput, $includeArchived: Boolean) {\n    rootCategories(pagination: $pagination, includeArchived: $includeArchived) {\n      items {\n        id\n        name\n        slug\n        imageUrl\n      }\n      meta {\n        totalCount\n        totalPages\n        page\n        limit\n        hasNextPage\n        hasPreviousPage\n      }\n    }\n  }\n"): typeof import('./graphql').GetRootCategoriesDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetCategoryWithProducts($id: ID!, $includeArchived: Boolean) {\n    category(id: $id, includeArchived: $includeArchived) {\n      id\n      name\n      slug\n      description\n      imageUrl\n      codeValue\n      inCodeSet\n      productCount\n      isArchived\n      favourite\n      products {\n        _id\n        name\n        slug\n        brand\n        defaultVariant {\n          sku\n          price\n          mrp\n          discountPercent\n          thumbnailUrl\n          availabilityStatus\n          stockQuantity\n        }\n        availableVariants {\n          _id\n          sku\n          price\n          mrp\n          packageSize\n          weight\n          weightUnit\n        }\n      }\n      createdAt\n      updatedAt\n    }\n  }\n"): typeof import('./graphql').GetCategoryWithProductsDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetCategoryBySlug($slug: String!, $includeArchived: Boolean) {\n    categoryBySlug(slug: $slug, includeArchived: $includeArchived) {\n      id\n      name\n      slug\n      productCount\n      products {\n        _id\n        name\n        slug\n        defaultVariant {\n          thumbnailUrl\n          price\n          mrp\n          packageSize\n        }\n        availableVariants {\n          _id\n          sku\n          price\n          mrp\n          packageSize\n          weight\n          weightUnit\n        }\n        tags\n      }\n    }\n  }\n"): typeof import('./graphql').GetCategoryBySlugDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetActiveCoupons {\n    activeCoupons {\n      _id\n      code\n      description\n      name\n      discountType\n      discountValue\n      minCartValue\n      endDate\n    }\n  }\n"): typeof import('./graphql').GetActiveCouponsDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation ApplyCoupon($code: String!) {\n    applyCoupon(code: $code) {\n      _id\n      couponCode\n      totalsSummary {\n        subtotal\n        discountAmount\n        grandTotal\n      }\n    }\n  }\n"): typeof import('./graphql').ApplyCouponDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation RemoveCoupon {\n    removeCoupon {\n      _id\n      couponCode\n      totalsSummary {\n        subtotal\n        discountAmount\n        grandTotal\n      }\n    }\n  }\n"): typeof import('./graphql').RemoveCouponDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation CreateGuest($input: CreateGuestInput!) {\n    createGuest(input: $input) {\n      _id\n      guestId\n      sessionId\n    }\n  }\n"): typeof import('./graphql').CreateGuestDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation UpdateGuest($id: ID!, $input: UpdateGuestInput!) {\n    updateGuest(id: $id, input: $input) {\n      _id\n      lastActiveAt\n    }\n  }\n"): typeof import('./graphql').UpdateGuestDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetProductBySlug($slug: String!) {\n    productBySlug(slug: $slug) {\n      _id\n      name\n      slug\n      description\n      shelfLife\n      isVegetarian\n      category {\n        name\n        imageUrl\n      }\n      ingredients\n      seo {\n        metaTitle\n        metaDescription\n        metaKeywords\n        canonicalUrl\n        ogTitle\n        ogDescription\n        ogImage\n      }\n      variants {\n        _id\n        sku\n        name\n        price\n        mrp\n        discountPercent\n        weight\n        weightUnit\n        packageSize\n        stockQuantity\n        availabilityStatus\n        images {\n          url\n          alt\n        }\n        isDefault\n        isActive\n      }\n      defaultVariant {\n        _id\n        sku\n        name\n        price\n        mrp\n        discountPercent\n        weight\n        weightUnit\n        packageSize\n        stockQuantity\n        availabilityStatus\n        images {\n          url\n          alt\n        }\n        isDefault\n        isActive\n      }\n      priceRange {\n        min\n        max\n      }\n      availableVariants {\n        _id\n        sku\n        name\n        price\n        mrp\n        discountPercent\n        weight\n        weightUnit\n        packageSize\n        stockQuantity\n        availabilityStatus\n        images {\n          url\n          alt\n        }\n        isDefault\n        isActive\n      }\n    }\n  }\n"): typeof import('./graphql').GetProductBySlugDocument;
+
+
+export function graphql(source: string) {
+  return (documents as any)[source] ?? {};
+}
