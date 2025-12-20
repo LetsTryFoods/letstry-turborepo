@@ -1,0 +1,74 @@
+name: Monorepo CI/CD
+
+on:
+  push:
+    branches: ["master"]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+
+    steps:
+      # --- 1. SETUP & INSTALL ---
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      # --- 2. BUILD (With Remote Cache) ---
+      # If you changed only 'backend', Turbo downloads 'frontend' from cache
+      # and only actually compiles 'backend'.
+      - name: Build Monorepo
+        run: pnpm build
+
+      # --- 3. DEPLOY (Rsync to EC2) ---
+      # We use rsync because it checks timestamps. 
+      # If 'frontend' didn't change, rsync sees the files are identical and SKIPS uploading them.
+      - name: Deploy to EC2 via Rsync
+        uses: easingthemes/ssh-deploy@main
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          ARGS: "-rlgoDzvc -i" # Standard rsync flags for incremental update
+          SOURCE: "./"         # Upload entire project (excluding ignored files)
+          REMOTE_HOST: ${{ secrets.EC2_HOST }}
+          REMOTE_USER: ${{ secrets.EC2_USER }}
+          TARGET: "/var/www/letstry-turborepo" # Where your app lives on EC2
+          # EXCLUDE node_modules to save bandwidth (assuming you install them on server or use standalone)
+          EXCLUDE: "/node_modules/, /.git/, /.github/" 
+
+      # --- 4. RESTART (PM2) ---
+      - name: Restart PM2 Services
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # Navigate to app folder
+            cd /var/www/letstry-turborepo
+            
+            # Optional: Install prod dependencies if not using standalone
+            # pnpm install --prod 
+
+            # Reload all apps securely with zero downtime
+            # Assuming you have a ecosystem.config.js configured for PM2
+            pm2 reload ecosystem.config.js
+            
+            # Save the process list
+            pm2 save

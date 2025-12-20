@@ -5,7 +5,7 @@
     "build": {
       "dependsOn": ["^build", "codegen"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+      "outputs": ["dist/**", ".next/**", "public/**"]
     },
     "codegen": {
       "inputs": ["codegen.ts", "src/**/*.ts", "src/**/*.tsx"],
