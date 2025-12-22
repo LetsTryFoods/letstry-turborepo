@@ -28,11 +28,21 @@ jobs:
           node-version: 20
           cache: 'pnpm'
 
+      - name: Cache Next.js build
+        uses: actions/cache@v4
+        with:
+          path: |
+            apps/frontend/.next/cache
+            apps/admin/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-
+
       - name: Install dependencies (Frontend only)
         run: pnpm install
 
       - name: Build Backend
-        run: pnpm --filter=backend build
+        run: turbo run build --filter=backend
 
       # --- BACKEND: Deploy and start on EC2 ---
       - name: Deploy Backend to EC2
@@ -82,7 +92,9 @@ jobs:
           echo "${{ secrets.ADMIN_ENV }}" > apps/admin/.env.local
 
       - name: Build Frontend and Admin
-        run: pnpm --filter=frontend --filter=admin build
+        run: turbo run build --filter=frontend --filter=admin
+        env:
+          NEXT_TURBOPACK: 0
 
       - name: Deploy Frontend and Admin to EC2
         uses: easingthemes/ssh-deploy@main
