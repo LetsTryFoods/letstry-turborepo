@@ -65,7 +65,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             set -e
-            cd /var/www/letstry-turborepo/apps/backend
+            cd /var/www/letstry-turborepo
             
             # Create .env file
             cat > .env << 'EOF'
@@ -73,7 +73,6 @@ jobs:
             EOF
             
             # Restart the service
-            cd /var/www/letstry-turborepo
             pm2 restart backend || pm2 start ecosystem.config.js --only backend
             sleep 5
             pm2 save
