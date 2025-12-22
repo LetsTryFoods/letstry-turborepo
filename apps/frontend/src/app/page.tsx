@@ -4,8 +4,8 @@ import { BestsellerCarousel } from "@/components/bestseller";
 import { WhyChooseUs } from "@/components/why-choose-us";
 import { HealthySnacking } from "@/components/healthy-snacking";
 
-export const dynamic = 'force-dynamic';
 export const revalidate = 3600 * 24;
+
 
 export default function Home() {
   return (
