@@ -55,6 +55,7 @@ import { CommonModule } from '../common/common.module';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       playground: true,
+      introspection: true,
       autoSchemaFile: 'schema.gql',
       graphiql: true,
       context: ({ req, res }) => ({ req, res }),
