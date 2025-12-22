@@ -14,6 +14,9 @@ export class UploadService {
   private s3Client: S3Client;
   private readonly logger = new Logger(UploadService.name);
 
+
+
+
   constructor(private configService: ConfigService) {
     this.s3Client = new S3Client({
       region: this.configService.get<string>('aws.region'),
@@ -51,7 +54,10 @@ export class UploadService {
   }
 
   getCloudFrontUrl(key: string): string {
-    return `https://d11a0m43ek7ap8.cloudfront.net/${key}`;
+    const cloudfrontDomain = this.configService.get<string>('aws.cloudfrontDomain');
+    // Remove trailing slash if present
+    const baseUrl = cloudfrontDomain?.replace(/\/$/, '') || 'https://d11a0m43ek7ap8.cloudfront.net';
+    return `${baseUrl}/${key}`;
   }
 
   async getPresignedUrl(key: string): Promise<string> {
@@ -97,7 +103,7 @@ export class UploadService {
       uploadUrl,
       key: finalKey,
       finalUrl,
-      baseUrl: 'https://d11a0m43ek7ap8.cloudfront.net/',
+      baseUrl: this.configService.get<string>('aws.cloudfrontDomain'),
     };
   }
 
