@@ -2,7 +2,8 @@ module.exports = {
   apps: [
     {
       name: "frontend",
-      script: "./apps/frontend/.next/standalone/apps/frontend/server.js",
+      cwd: "/var/www/letstry-turborepo/apps/frontend",
+      script: "./.next/standalone/apps/frontend/server.js",
       env: {
         NODE_ENV: "production",
         PORT: 3000,
@@ -10,7 +11,8 @@ module.exports = {
     },
     {
       name: "admin",
-      script: "./apps/admin/.next/standalone/apps/admin/server.js",
+      cwd: "/var/www/letstry-turborepo/apps/admin",
+      script: "./.next/standalone/apps/admin/server.js",
       env: {
         NODE_ENV: "production",
         PORT: 3001,
