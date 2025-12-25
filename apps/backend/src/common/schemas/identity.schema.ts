@@ -8,6 +8,7 @@ import {
   registerEnumType,
 } from '@nestjs/graphql';
 import GraphQLJSON from 'graphql-type-json';
+import { AuthMethod } from '../enums/auth-method.enum';
 
 export type IdentityDocument = Identity & Document;
 
@@ -22,6 +23,10 @@ export enum IdentityStatus {
 
 registerEnumType(IdentityStatus, {
   name: 'IdentityStatus',
+});
+
+registerEnumType(AuthMethod, {
+  name: 'AuthMethod',
 });
 
 @Schema({ timestamps: true })
@@ -117,6 +122,14 @@ export class Identity {
   @Prop({ type: String, default: 'user' })
   @Field()
   role: string;
+
+  @Prop({ type: String, enum: Object.values(AuthMethod) })
+  @Field(() => AuthMethod, { nullable: true })
+  firstAuthMethod?: AuthMethod;
+
+  @Prop({ type: String, enum: Object.values(AuthMethod) })
+  @Field(() => AuthMethod, { nullable: true })
+  lastAuthMethod?: AuthMethod;
 
   @Prop({ type: [String], default: [] })
   @Field(() => [String])

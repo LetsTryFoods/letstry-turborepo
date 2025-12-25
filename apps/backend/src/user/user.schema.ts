@@ -5,7 +5,7 @@ import GraphQLJSON from 'graphql-type-json';
 @ObjectType()
 export class User {
   @Field(() => ID)
-  _id: string; 
+  _id: string;
 
   @Field()
   phoneNumber: string;
@@ -37,7 +37,7 @@ export class User {
   @Field(() => GraphQLJSON, { nullable: true })
   signupSource?: any;
 
-  @Field({nullable: true})
+  @Field({ nullable: true })
   lastIp: string;
 
   @Field(() => String)
@@ -45,6 +45,12 @@ export class User {
 
   @Field(() => Boolean)
   isPhoneVerified: boolean;
+
+  @Field(() => String, { nullable: true })
+  firstAuthMethod?: string;
+
+  @Field(() => String, { nullable: true })
+  lastAuthMethod?: string;
 
   @Field(() => [String])
   mergedGuestIds: string[];

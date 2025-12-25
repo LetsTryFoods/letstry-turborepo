@@ -13,6 +13,7 @@ import { WhatsAppService } from '../../whatsapp/whatsapp.service';
 import { OtpService } from './otp.service';
 import { Identity, IdentityDocument, IdentityStatus } from '../../common/schemas/identity.schema';
 import { AddressService } from '../../address/address.service';
+import { AuthMethod } from '../../common/enums/auth-method.enum';
 
 @Injectable()
 export class UserAuthService {
@@ -26,17 +27,17 @@ export class UserAuthService {
     private otpService: OtpService,
     private addressService: AddressService,
     @InjectModel(Identity.name) private identityModel: Model<IdentityDocument>,
-  ) {}
+  ) { }
 
   async sendOtp(phoneNumber: string): Promise<string> {
     const otp = await this.otpService.createOtp(phoneNumber);
-    
+
     const whatsAppSent = await this.whatsAppService.sendOtpTemplate(phoneNumber, otp);
-    
+
     if (whatsAppSent) {
       return 'OTP sent via WhatsApp';
     }
-    
+
     return 'WhatsApp not available, please use Firebase authentication';
   }
 
@@ -47,46 +48,46 @@ export class UserAuthService {
     const { registered, guests } = this.categorizeIdentities(allIdentitiesWithPhone);
 
     if (registered) {
-      await this.updateLoginTimestamp(registered._id.toString());
+      await this.updateLoginTimestamp(registered._id.toString(), AuthMethod.WHATSAPP, !registered.firstAuthMethod);
       await this.mergeAllGuestsIntoRegistered(registered._id.toString(), guests, sessionId);
       return this.generateSimpleAuthToken(this.mapIdentityToUser(registered));
     }
 
     const primaryGuest = await this.selectPrimaryGuest(sessionId, guests);
-    
+
     if (primaryGuest) {
       const otherGuests = guests.filter(g => g._id.toString() !== primaryGuest._id.toString());
       await this.mergeAllGuestsIntoTarget(primaryGuest._id.toString(), otherGuests);
-      return this.upgradeGuestToUser(primaryGuest, phoneNumber, input);
+      return this.upgradeGuestToUser(primaryGuest, phoneNumber, AuthMethod.WHATSAPP, input);
     }
 
-    return this.createNewUser(phoneNumber, input);
+    return this.createNewUser(phoneNumber, AuthMethod.WHATSAPP, input);
   }
 
   async verifyOtpAndLogin(idToken: string, input?: CreateUserInput, sessionId?: string): Promise<string> {
     try {
       const { firebaseUid, phoneNumber } = await this.decodeAndValidateToken(idToken);
-      
+
       const allIdentitiesWithPhone = await this.findAllIdentitiesByPhone(phoneNumber);
       const { registered, guests } = this.categorizeIdentities(allIdentitiesWithPhone);
 
       if (registered) {
-        await this.updateLoginTimestamp(registered._id.toString());
+        await this.updateLoginTimestamp(registered._id.toString(), AuthMethod.FIREBASE, !registered.firstAuthMethod);
         await this.mergeAllGuestsIntoRegistered(registered._id.toString(), guests, sessionId);
         const registeredUser = this.mapIdentityToUser(registered);
         return this.generateAuthToken(registeredUser, firebaseUid);
       }
 
       const primaryGuest = await this.selectPrimaryGuest(sessionId, guests);
-      
+
       if (primaryGuest) {
         const otherGuests = guests.filter(g => g._id.toString() !== primaryGuest._id.toString());
         await this.mergeAllGuestsIntoTarget(primaryGuest._id.toString(), otherGuests);
-        const upgradedUser = await this.upgradeGuestToUserWithFirebase(primaryGuest, phoneNumber, firebaseUid, input);
+        const upgradedUser = await this.upgradeGuestToUserWithFirebase(primaryGuest, phoneNumber, firebaseUid, AuthMethod.FIREBASE, input);
         return this.generateAuthToken(upgradedUser, firebaseUid);
       }
 
-      const user = await this.resolveUser(firebaseUid, phoneNumber, input);
+      const user = await this.resolveUser(firebaseUid, phoneNumber, AuthMethod.FIREBASE, input);
       return this.generateAuthToken(user, firebaseUid);
     } catch (error) {
       throw new Error(`Authentication failed: ${error.message}`);
@@ -105,7 +106,7 @@ export class UserAuthService {
     return { firebaseUid, phoneNumber };
   }
 
-  private async resolveUser(firebaseUid: string, phoneNumber: string, input?: CreateUserInput): Promise<User> {
+  private async resolveUser(firebaseUid: string, phoneNumber: string, authMethod: AuthMethod, input?: CreateUserInput): Promise<User> {
     let firebaseAuth = await this.firebaseAuthService.findByFirebaseUid(firebaseUid);
 
     if (firebaseAuth) {
@@ -125,7 +126,12 @@ export class UserAuthService {
         throw new Error('Firebase UID mismatch');
       }
       const { firebaseUid: _, ...userData } = input;
-      user = await this.userService.createUser({ ...userData, role: Role.USER });
+      user = await this.userService.createUser({
+        ...userData,
+        role: Role.USER,
+        firstAuthMethod: authMethod,
+        lastAuthMethod: authMethod
+      } as any);
     }
 
     await this.firebaseAuthService.createFirebaseAuth(user._id.toString(), firebaseUid);
@@ -153,9 +159,9 @@ export class UserAuthService {
     if (!user || !user.isPhoneVerified) {
       return null;
     }
-    
+
     await this.updateUserLastActive(payload.sub);
-    
+
     return { ...user, role: Role.USER };
   }
 
@@ -166,13 +172,22 @@ export class UserAuthService {
     ).exec();
   }
 
-  private async updateLoginTimestamp(userId: string): Promise<void> {
+  private async updateLoginTimestamp(userId: string, authMethod: AuthMethod, isFirstLogin: boolean = false): Promise<void> {
+    const update: any = {
+      $set: {
+        lastLoginAt: new Date(),
+        lastActiveAt: new Date(),
+        lastAuthMethod: authMethod,
+      }
+    };
+
+    if (isFirstLogin) {
+      update.$set.firstAuthMethod = authMethod;
+    }
+
     await this.identityModel.updateOne(
       { _id: userId },
-      { 
-        lastLoginAt: new Date(),
-        lastActiveAt: new Date()
-      }
+      update
     ).exec();
   }
 
@@ -205,20 +220,24 @@ export class UserAuthService {
     await this.mergeSingleIdentity(guestIdentity, userId);
   }
 
-  private async upgradeGuestToUser(guestIdentity: IdentityDocument, phoneNumber: string, input?: CreateUserInput): Promise<string> {
+  private async upgradeGuestToUser(guestIdentity: IdentityDocument, phoneNumber: string, authMethod: AuthMethod, input?: CreateUserInput): Promise<string> {
     const updateData: any = {
       phoneNumber,
       status: IdentityStatus.REGISTERED,
       role: Role.USER,
       isPhoneVerified: true,
       registeredAt: new Date(),
+      lastLoginAt: new Date(),
+      lastActiveAt: new Date(),
+      lastAuthMethod: authMethod,
+      firstAuthMethod: guestIdentity.firstAuthMethod || authMethod,
     };
 
     if (input) {
       const { firebaseUid, ...userData } = input;
       Object.assign(updateData, userData);
     }
-    
+
     await this.identityModel.updateOne(
       { _id: guestIdentity._id },
       updateData
@@ -228,18 +247,25 @@ export class UserAuthService {
     if (!updatedIdentity) {
       throw new Error('Failed to upgrade guest to user');
     }
-    
+
     return this.generateSimpleAuthToken(this.mapIdentityToUser(updatedIdentity));
   }
 
-  private async createNewUser(phoneNumber: string, input?: CreateUserInput): Promise<string> {
-    const userData: any = { phoneNumber, role: Role.USER };
-    
+  private async createNewUser(phoneNumber: string, authMethod: AuthMethod, input?: CreateUserInput): Promise<string> {
+    const userData: any = {
+      phoneNumber,
+      role: Role.USER,
+      firstAuthMethod: authMethod,
+      lastAuthMethod: authMethod,
+      lastLoginAt: new Date(),
+      lastActiveAt: new Date(),
+    };
+
     if (input) {
       const { firebaseUid, ...additionalData } = input;
       Object.assign(userData, additionalData);
     }
-    
+
     const user = await this.userService.createUser(userData);
 
     return this.generateSimpleAuthToken(user);
@@ -306,19 +332,19 @@ export class UserAuthService {
 
   private async mergeSingleIdentity(sourceIdentity: IdentityDocument, targetIdentityId: string): Promise<void> {
     await this.cartService.mergeCarts(sourceIdentity._id.toString(), targetIdentityId);
-    
+
     await this.addressService.transferAddresses(sourceIdentity._id.toString(), targetIdentityId);
-    
+
     await this.identityModel.updateOne(
       { _id: targetIdentityId },
-      { 
-        $addToSet: { 
+      {
+        $addToSet: {
           sessionIds: sourceIdentity.currentSessionId,
-          mergedGuestIds: sourceIdentity.identityId 
+          mergedGuestIds: sourceIdentity.identityId
         }
       }
     ).exec();
-    
+
     await this.identityModel.deleteOne({ _id: sourceIdentity._id }).exec();
   }
 
@@ -338,14 +364,17 @@ export class UserAuthService {
       lastIp: identity.lastIp || '',
       role: identity.role as Role,
       isPhoneVerified: identity.isPhoneVerified,
+      firstAuthMethod: identity.firstAuthMethod,
+      lastAuthMethod: identity.lastAuthMethod,
       mergedGuestIds: identity.mergedGuestIds,
     };
   }
 
   private async upgradeGuestToUserWithFirebase(
-    guestIdentity: IdentityDocument, 
-    phoneNumber: string, 
+    guestIdentity: IdentityDocument,
+    phoneNumber: string,
     firebaseUid: string,
+    authMethod: AuthMethod,
     input?: CreateUserInput
   ): Promise<User> {
     const updateData: any = {
@@ -354,6 +383,10 @@ export class UserAuthService {
       role: Role.USER,
       isPhoneVerified: true,
       registeredAt: new Date(),
+      lastLoginAt: new Date(),
+      lastActiveAt: new Date(),
+      lastAuthMethod: authMethod,
+      firstAuthMethod: guestIdentity.firstAuthMethod || authMethod,
     };
 
     if (input) {

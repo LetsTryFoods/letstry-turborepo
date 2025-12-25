@@ -18,11 +18,12 @@ interface AuthStore {
   error: string | null;
   isInitialized: boolean;
   otpProvider: OtpProvider | null;
-  
+
   initialize: () => Promise<void>;
   loginWithPhone: (phoneNumber: string) => Promise<any>;
   sendFirebaseOTP: (phoneNumber: string) => Promise<any>;
   verifyOTP: (confirmationResult: any, otp: string) => Promise<void>;
+  verifyWhatsAppOTP: (phoneNumber: string, otp: string) => Promise<void>;
   logout: () => Promise<void>;
   setGuestMode: () => Promise<void>;
   clearError: () => void;
@@ -99,14 +100,14 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   loginWithPhone: async (phoneNumber: string) => {
     try {
       set({ error: null, otpProvider: null });
-      
+
       const whatsappResult = await whatsAppOtpService.sendOTP(phoneNumber);
-      
+
       if (whatsappResult.success) {
         set({ otpProvider: OtpProvider.WhatsApp });
         return { provider: 'whatsapp', message: whatsappResult.message };
       }
-      
+
       set({ otpProvider: OtpProvider.Firebase });
       const confirmationResult = await authService.sendOTP(phoneNumber, 'recaptcha-container');
       return { provider: 'firebase', confirmationResult };
@@ -132,9 +133,9 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   verifyOTP: async (confirmationResult: any, otp: string) => {
     try {
       set({ error: null, isLoading: true });
-      
+
       const { idToken, user: firebaseUser } = await authService.verifyOTP(confirmationResult, otp);
-      
+
       const userData = {
         phoneNumber: firebaseUser.phoneNumber || "",
         firebaseUid: firebaseUser.uid,
@@ -166,11 +167,43 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     }
   },
 
+  verifyWhatsAppOTP: async (phoneNumber: string, otp: string) => {
+    try {
+      set({ error: null, isLoading: true });
+
+      const { verifyWhatsAppOtp } = await import('@/lib/queries/whatsapp');
+
+      const result = await verifyWhatsAppOtp(phoneNumber, otp);
+
+      if (!result.success || !result.token) {
+        throw new Error(result.error || "Authentication failed");
+      }
+
+      set({
+        user: {
+          uid: phoneNumber,
+          phoneNumber: phoneNumber,
+          idToken: result.token,
+          isGuest: false,
+        },
+        isAuthenticated: true,
+        isGuest: false,
+        error: null,
+      });
+    } catch (error: any) {
+      const errorMessage = error.message || 'Failed to verify WhatsApp OTP';
+      set({ error: errorMessage });
+      throw error;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
   logout: async () => {
     try {
       set({ isLoading: true });
       await authService.signOut();
-      
+
       // Call backend logout mutation to clear HttpOnly cookies
       try {
         await graphqlClient.request(LOGOUT_MUTATION);
@@ -178,13 +211,13 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         console.error('Backend logout failed:', e);
         // Continue with client cleanup even if backend fails
       }
-      
+
       // We don't call logoutAction() anymore as it tries to delete cookies manually
       // which fails for HttpOnly cookies set by backend.
       // await logoutAction(); 
-      
+
       authService.clearRecaptcha();
-      
+
       set({
         user: null,
         isAuthenticated: false,

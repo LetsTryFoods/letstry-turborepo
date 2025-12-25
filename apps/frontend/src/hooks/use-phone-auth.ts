@@ -20,15 +20,15 @@ interface UsePhoneAuthReturn {
 }
 
 export function usePhoneAuth(backendUrl: string): UsePhoneAuthReturn {
-  const { 
+  const {
     loginWithPhone,
     sendFirebaseOTP,
-    verifyOTP: verifyOTPStore, 
-    isLoading: authLoading, 
-    error: authError, 
-    clearError 
+    verifyOTP: verifyOTPStore,
+    isLoading: authLoading,
+    error: authError,
+    clearError
   } = useAuthStore();
-  
+
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
@@ -57,14 +57,14 @@ export function usePhoneAuth(backendUrl: string): UsePhoneAuthReturn {
       setIsLoading(true);
 
       const result = await loginWithPhone(phoneNumber);
-      
+
       if (result.provider === 'whatsapp') {
         setOtpProvider('whatsapp');
       } else {
         setOtpProvider('firebase');
         setConfirmationResult(result.confirmationResult);
       }
-      
+
       setOtpSent(true);
     } catch (error: any) {
       setLocalError(error.message || 'Failed to send OTP');
@@ -108,16 +108,20 @@ export function usePhoneAuth(backendUrl: string): UsePhoneAuthReturn {
         throw new Error('Enter a valid 6-digit OTP');
       }
 
-      if (!confirmationResult) {
-        throw new Error('Session expired. Please request a new OTP');
+      if (otpProvider === 'whatsapp') {
+        const { verifyWhatsAppOTP } = useAuthStore.getState();
+        await verifyWhatsAppOTP(phoneNumber, otp);
+      } else {
+        if (!confirmationResult) {
+          throw new Error('Session expired. Please request a new OTP');
+        }
+        await verifyOTPStore(confirmationResult, otp);
       }
-
-      await verifyOTPStore(confirmationResult, otp);
     } catch (error: any) {
       setLocalError(error.message || 'Failed to verify OTP');
       throw error;
     }
-  }, [otp, confirmationResult, verifyOTPStore, clearError]);
+  }, [otp, otpProvider, phoneNumber, confirmationResult, verifyOTPStore, clearError]);
 
   const resetAuth = useCallback(() => {
     setPhoneNumber('');

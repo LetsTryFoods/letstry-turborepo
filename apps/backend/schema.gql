@@ -179,6 +179,8 @@ type EnrichedCustomer {
   deviceInfo: JSON
   lastIp: String
   role: String!
+  firstAuthMethod: AuthMethod
+  lastAuthMethod: AuthMethod
   mergedGuestIds: [String!]!
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -196,6 +198,11 @@ enum IdentityStatus {
   ACTIVE
   SUSPENDED
   MERGED
+}
+
+enum AuthMethod {
+  FIREBASE
+  WHATSAPP
 }
 
 type PaginatedCustomersResponse {
@@ -227,6 +234,8 @@ type CustomerDetails {
   deviceInfo: JSON
   lastIp: String
   role: String!
+  firstAuthMethod: AuthMethod
+  lastAuthMethod: AuthMethod
   mergedGuestIds: [String!]!
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -320,6 +329,16 @@ type Policy {
   updatedAt: DateTime!
 }
 
+type Charges {
+  _id: String!
+  active: Boolean!
+  handlingCharge: Float!
+  gstPercentage: Float!
+  freeDeliveryThreshold: Float!
+  deliveryDelhiBelowThreshold: Float!
+  deliveryRestBelowThreshold: Float!
+}
+
 type Coupon {
   _id: ID!
   name: String!
@@ -341,16 +360,6 @@ type Coupon {
 enum DiscountType {
   PERCENTAGE
   FIXED
-}
-
-type Charges {
-  _id: String!
-  active: Boolean!
-  handlingCharge: Float!
-  gstPercentage: Float!
-  freeDeliveryThreshold: Float!
-  deliveryDelhiBelowThreshold: Float!
-  deliveryRestBelowThreshold: Float!
 }
 
 type Product {
