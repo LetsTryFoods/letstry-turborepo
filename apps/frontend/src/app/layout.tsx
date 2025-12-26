@@ -10,6 +10,7 @@ import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { GuestSessionManager } from "@/components/guest/GuestSessionManager";
 import { CartContainer } from "@/components/cart-drawer/CartContainer";
+import { SearchOverlay } from "@/components/search-overlay";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,6 +48,7 @@ export default function RootLayout({
             <AuthProvider>
               <TopBanner />
               <Navbar />
+              <SearchOverlay />
               <GuestSessionManager />
               <CartContainer />
               {children}

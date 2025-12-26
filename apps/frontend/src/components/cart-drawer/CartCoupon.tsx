@@ -9,15 +9,15 @@ export const CartCoupon: React.FC<CartCouponProps> = ({ onClick }) => {
   return (
     <button
       onClick={onClick}
-      className="w-full flex items-center justify-between bg-[#FFF9C4] px-4 py-3 rounded-lg mb-6 hover:bg-[#FFF59D] transition-colors"
+      className="w-full flex items-center justify-between bg-[#FFF9C4] px-4 py-4 rounded-lg mb-6 hover:bg-[#FFF59D] transition-colors"
     >
-      <div className="flex items-center gap-3">
-        <div className="bg-green-600 p-1.5 rounded-full text-white">
-          <Tag size={16} className="fill-current" />
+      <div className="flex items-center gap-4">
+        <div className="bg-[#4CAF50] p-2 rounded-lg text-white">
+          <Tag size={20} className="fill-current" />
         </div>
-        <span className="font-semibold text-gray-900">View Coupons</span>
+        <span className="text-lg font-bold text-black">View Coupons</span>
       </div>
-      <ChevronRight size={20} className="text-gray-900" />
+      <ChevronRight size={24} className="text-black" />
     </button>
   );
 };

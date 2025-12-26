@@ -62,6 +62,11 @@ export type AdminOrdersResponse = {
   summary: OrdersSummary;
 };
 
+export enum AuthMethod {
+  Firebase = 'FIREBASE',
+  Whatsapp = 'WHATSAPP'
+}
+
 export type Banner = {
   __typename?: 'Banner';
   _id: Scalars['ID']['output'];
@@ -347,6 +352,7 @@ export type CustomerDetails = {
   deviceInfo?: Maybe<Scalars['JSON']['output']>;
   email?: Maybe<Scalars['String']['output']>;
   firebaseUid?: Maybe<Scalars['String']['output']>;
+  firstAuthMethod?: Maybe<AuthMethod>;
   firstName?: Maybe<Scalars['String']['output']>;
   identityId: Scalars['String']['output'];
   ipAddress?: Maybe<Scalars['String']['output']>;
@@ -354,6 +360,7 @@ export type CustomerDetails = {
   isGuest: Scalars['Boolean']['output'];
   isPhoneVerified: Scalars['Boolean']['output'];
   lastActiveAt?: Maybe<Scalars['DateTime']['output']>;
+  lastAuthMethod?: Maybe<AuthMethod>;
   lastIp?: Maybe<Scalars['String']['output']>;
   lastLoginAt?: Maybe<Scalars['DateTime']['output']>;
   lastName?: Maybe<Scalars['String']['output']>;
@@ -423,6 +430,7 @@ export type EnrichedCustomer = {
   displayPhone?: Maybe<Scalars['String']['output']>;
   email?: Maybe<Scalars['String']['output']>;
   firebaseUid?: Maybe<Scalars['String']['output']>;
+  firstAuthMethod?: Maybe<AuthMethod>;
   firstName?: Maybe<Scalars['String']['output']>;
   identityId: Scalars['String']['output'];
   ipAddress?: Maybe<Scalars['String']['output']>;
@@ -430,6 +438,7 @@ export type EnrichedCustomer = {
   isGuest: Scalars['Boolean']['output'];
   isPhoneVerified: Scalars['Boolean']['output'];
   lastActiveAt?: Maybe<Scalars['DateTime']['output']>;
+  lastAuthMethod?: Maybe<AuthMethod>;
   lastIp?: Maybe<Scalars['String']['output']>;
   lastLoginAt?: Maybe<Scalars['DateTime']['output']>;
   lastName?: Maybe<Scalars['String']['output']>;

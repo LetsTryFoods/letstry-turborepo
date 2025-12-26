@@ -10,19 +10,20 @@ export interface CategoryCardProps {
 
 export const CategoryCard = ({ category }: CategoryCardProps) => {
   return (
-    <article className="flex flex-col items-center gap-3 text-center">
-      <Link href={category.href} className="group">
-        <div className="relative mx-auto w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 rounded-xl overflow-hidden p-2 ">
-          <div className="absolute inset-0 rounded-xl" />
-          <Image
-            src={category.imageUrl}
-            alt={category.name}
-            fill
-            className="object-contain"
-            unoptimized
-          />
+    <article className="flex flex-col items-center text-center">
+      <Link href={category.href} className="group w-full">
+        <div className="relative mx-auto w-full aspect-square flex items-center justify-center p-2 category-blob">
+          <div className="relative w-full h-full">
+            <Image
+              src={category.imageUrl}
+              alt={category.name}
+              fill
+              className="object-contain p-1 group-hover:scale-110 transition-transform duration-300"
+              unoptimized
+            />
+          </div>
         </div>
-        <h3 className="mt-3 text-sm sm:text-base font-medium text-gray-900 group-hover:text-brand-hover transition-colors">
+        <h3 className="mt-2 text-[11px] leading-tight sm:text-sm font-semibold text-gray-900 group-hover:text-brand-hover transition-colors line-clamp-2">
           {category.name}
         </h3>
       </Link>

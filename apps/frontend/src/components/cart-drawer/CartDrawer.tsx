@@ -111,6 +111,17 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   amount,
   userDetails,
 }) => {
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -122,26 +133,33 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     };
   }, [isOpen]);
 
+  const variants = {
+    initial: isMobile ? { y: '100%' } : { x: '100%' },
+    animate: isMobile ? { y: 0 } : { x: 0 },
+    exit: isMobile ? { y: '100%' } : { x: '100%' },
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 top-[44px] z-[55] flex justify-end isolate">
-          
-          <motion.div 
+        <div className="fixed inset-0 z-[100] flex items-end md:items-stretch md:justify-end isolate">
+
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="absolute inset-0 bg-black/20"
+            className="absolute inset-0 bg-black/40"
             onClick={onClose}
           />
 
-          <motion.div 
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
+          <motion.div
+            variants={variants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
             transition={{ type: 'tween', duration: 0.3, ease: 'easeOut' }}
-            className="relative w-full max-w-md h-full bg-white shadow-2xl flex flex-col"
+            className="relative w-full max-w-md h-[90vh] md:h-full bg-white shadow-2xl flex flex-col rounded-t-[20px] md:rounded-t-none"
           >
             <CartHeader itemCount={items.length} onClose={onClose} />
 
@@ -159,9 +177,9 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
               <CartCoupon onClick={onToggleCoupons} />
 
-              <CartSuggestions 
-                suggestions={suggestions} 
-                onAdd={onAddSuggestion} 
+              <CartSuggestions
+                suggestions={suggestions}
+                onAdd={onAddSuggestion}
               />
             </div>
 
@@ -171,8 +189,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               priceBreakdown={priceBreakdown}
             />
 
-            <CartFooter 
-              totalPrice={totalPrice} 
+            <CartFooter
+              totalPrice={totalPrice}
               onCheckout={onToggleAddressModal}
               selectedAddress={selectedAddress}
               onPayNow={onPayNow}

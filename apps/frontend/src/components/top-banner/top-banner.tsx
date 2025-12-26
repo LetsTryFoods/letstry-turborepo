@@ -15,7 +15,7 @@ export const TopBanner = ({ imageUrl, imageAlt = "Banner", items = [
 ] }: TopBannerProps) => {
   if (imageUrl) {
     return (
-      <div className="w-full bg-[#001f3f] py-2 relative z-[60]">
+      <div className="w-full bg-[#001f3f] py-2 relative z-30">
         <div className="relative w-full h-8">
           <Image
             src={imageUrl}
@@ -30,7 +30,7 @@ export const TopBanner = ({ imageUrl, imageAlt = "Banner", items = [
   }
 
   return (
-    <div className="w-full bg-[#001f3f] py-2 overflow-hidden relative z-[60]">
+    <div className="w-full bg-[#001f3f] py-2 overflow-hidden relative z-30">
       <div className="flex items-center gap-4 md:gap-8 lg:gap-12 animate-marquee whitespace-nowrap">
         {[...items, ...items].map((item, index) => (
           <div key={index} className="flex items-center gap-4 md:gap-8 lg:gap-12">
