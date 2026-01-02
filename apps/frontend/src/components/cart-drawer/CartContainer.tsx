@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCartStore } from '@/stores/cart-store';
+import { useAuthStore } from '@/stores/auth-store';
 import { useCart } from '@/lib/cart/use-cart';
 import { useCoupons } from '@/lib/coupon/use-coupons';
 import { useAddresses } from '@/lib/address/use-addresses';
@@ -16,10 +17,17 @@ import { LoginModal } from '@/components/auth/login-modal';
 
 export const CartContainer = () => {
   const { isOpen, closeCart } = useCartStore();
+  const { user, isAuthenticated } = useAuthStore();
   const { data: cartData, isLoading } = useCart();
   const { data: couponsData, isLoading: couponsLoading } = useCoupons();
   const { data: addressesData } = useAddresses();
   const queryClient = useQueryClient();
+  
+  React.useEffect(() => {
+    console.log('CartContainer - user:', user);
+    console.log('CartContainer - isAuthenticated:', isAuthenticated);
+  }, [user, isAuthenticated]);
+  
   const [showPriceDetails, setShowPriceDetails] = useState(false);
   const [showCoupons, setShowCoupons] = useState(false);
   const [showAddressModal, setShowAddressModal] = useState(false);
@@ -234,6 +242,7 @@ export const CartContainer = () => {
         cartId={(cartData as any)?.myCart?._id}
         amount={totalPrice.toString()}
         userDetails={userDetails}
+        isAuthenticated={isAuthenticated}
       />
       
       <LoginModal

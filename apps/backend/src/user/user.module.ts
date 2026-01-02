@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Identity, IdentitySchema } from '../common/schemas/identity.schema';
-import { Order, OrderSchema } from '../payment/order/order.schema';
+import { Order, OrderSchema } from '../order/order.schema';
 import { Cart, CartSchema } from '../cart/cart.schema';
 import { AddressModule } from '../address/address.module';
 import { UserService } from './user.service';
@@ -38,4 +38,4 @@ import { PaginationService } from './services/pagination.service';
   ],
   exports: [UserService],
 })
-export class UserModule { }
+export class UserModule {}

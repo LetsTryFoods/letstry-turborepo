@@ -126,9 +126,9 @@ export class PaginationHelper {
     limit: number,
     totalCount: number,
   ): PaginationResult<T> {
-    const { totalPages, hasNextPage, hasPreviousPage } = 
+    const { totalPages, hasNextPage, hasPreviousPage } =
       this.calculatePagination(page, limit, totalCount);
-    
+
     return {
       items,
       meta: {
@@ -147,9 +147,7 @@ export class PaginationHelper {
 // 5. CATEGORY REPOSITORY (Data Access Layer)
 // ============================================================================
 export class CategoryRepository {
-  constructor(
-    private readonly categoryModel: Model<CategoryDocument>,
-  ) {}
+  constructor(private readonly categoryModel: Model<CategoryDocument>) {}
 
   async countDocuments(filter: any): Promise<number> {
     return this.categoryModel.countDocuments(filter).exec();
@@ -228,7 +226,10 @@ export class CategoryQueryService {
     return this.repository.find(filter);
   }
 
-  async findOne(id: string, includeArchived: boolean): Promise<Category | null> {
+  async findOne(
+    id: string,
+    includeArchived: boolean,
+  ): Promise<Category | null> {
     const filter = new CategoryQueryBuilder()
       .withId(id)
       .withArchived(includeArchived)
@@ -237,7 +238,8 @@ export class CategoryQueryService {
     if (!includeArchived) {
       return this.cacheDecorator.withCacheOrNull(
         this.cacheKeyFactory.getCategoryDetailVersionKey(id),
-        (version) => this.cacheKeyFactory.getCategoryDetailKey(id, parseInt(version)),
+        (version) =>
+          this.cacheKeyFactory.getCategoryDetailKey(id, parseInt(version)),
         () => this.repository.findOne(filter),
       );
     }
@@ -245,7 +247,10 @@ export class CategoryQueryService {
     return this.repository.findOne(filter);
   }
 
-  async findBySlug(slug: string, includeArchived: boolean): Promise<Category | null> {
+  async findBySlug(
+    slug: string,
+    includeArchived: boolean,
+  ): Promise<Category | null> {
     const filter = new CategoryQueryBuilder()
       .withSlug(slug)
       .withArchived(includeArchived)
@@ -254,7 +259,8 @@ export class CategoryQueryService {
     if (!includeArchived) {
       return this.cacheDecorator.withCacheOrNull(
         this.cacheKeyFactory.getCategoryDetailVersionKey(slug),
-        (version) => this.cacheKeyFactory.getCategoryDetailKey(slug, parseInt(version)),
+        (version) =>
+          this.cacheKeyFactory.getCategoryDetailKey(slug, parseInt(version)),
         () => this.repository.findOne(filter),
       );
     }
@@ -262,7 +268,10 @@ export class CategoryQueryService {
     return this.repository.findOne(filter);
   }
 
-  async findChildren(parentId: string, includeArchived: boolean): Promise<Category[]> {
+  async findChildren(
+    parentId: string,
+    includeArchived: boolean,
+  ): Promise<Category[]> {
     const filter = new CategoryQueryBuilder()
       .withParentId(parentId)
       .withArchived(includeArchived)
@@ -271,7 +280,11 @@ export class CategoryQueryService {
     if (!includeArchived) {
       return this.cacheDecorator.withCache(
         this.cacheKeyFactory.getCategoryListVersionKey(),
-        (version) => this.cacheKeyFactory.getCategoryChildrenKey(parentId, parseInt(version)),
+        (version) =>
+          this.cacheKeyFactory.getCategoryChildrenKey(
+            parentId,
+            parseInt(version),
+          ),
         () => this.repository.find(filter),
       );
     }
@@ -288,7 +301,8 @@ export class CategoryQueryService {
     if (!includeArchived) {
       return this.cacheDecorator.withCache(
         this.cacheKeyFactory.getCategoryListVersionKey(),
-        (version) => this.cacheKeyFactory.getCategoryRootsKey(parseInt(version)),
+        (version) =>
+          this.cacheKeyFactory.getCategoryRootsKey(parseInt(version)),
         () => this.repository.find(filter),
       );
     }
@@ -311,7 +325,12 @@ export class CategoryQueryService {
       limit,
       includeArchived,
       this.cacheKeyFactory.getCategoryListVersionKey(),
-      (version) => this.cacheKeyFactory.getCategoryListPaginatedKey(page, limit, parseInt(version)),
+      (version) =>
+        this.cacheKeyFactory.getCategoryListPaginatedKey(
+          page,
+          limit,
+          parseInt(version),
+        ),
     );
   }
 
@@ -332,7 +351,13 @@ export class CategoryQueryService {
       limit,
       includeArchived,
       this.cacheKeyFactory.getCategoryListVersionKey(),
-      (version) => this.cacheKeyFactory.getCategoryChildrenPaginatedKey(parentId, page, limit, parseInt(version)),
+      (version) =>
+        this.cacheKeyFactory.getCategoryChildrenPaginatedKey(
+          parentId,
+          page,
+          limit,
+          parseInt(version),
+        ),
     );
   }
 
@@ -352,7 +377,12 @@ export class CategoryQueryService {
       limit,
       includeArchived,
       this.cacheKeyFactory.getCategoryListVersionKey(),
-      (version) => this.cacheKeyFactory.getCategoryRootsPaginatedKey(page, limit, parseInt(version)),
+      (version) =>
+        this.cacheKeyFactory.getCategoryRootsPaginatedKey(
+          page,
+          limit,
+          parseInt(version),
+        ),
     );
   }
 
@@ -370,15 +400,27 @@ export class CategoryQueryService {
         dataKeyFactory,
         async () => {
           const totalCount = await this.repository.countDocuments(filter);
-          const { skip } = PaginationHelper.calculatePagination(page, limit, totalCount);
-          const items = await this.repository.findPaginated(filter, skip, limit);
+          const { skip } = PaginationHelper.calculatePagination(
+            page,
+            limit,
+            totalCount,
+          );
+          const items = await this.repository.findPaginated(
+            filter,
+            skip,
+            limit,
+          );
           return PaginationHelper.createResult(items, page, limit, totalCount);
         },
       );
     }
 
     const totalCount = await this.repository.countDocuments(filter);
-    const { skip } = PaginationHelper.calculatePagination(page, limit, totalCount);
+    const { skip } = PaginationHelper.calculatePagination(
+      page,
+      limit,
+      totalCount,
+    );
     const items = await this.repository.findPaginated(filter, skip, limit);
     return PaginationHelper.createResult(items, page, limit, totalCount);
   }
@@ -414,11 +456,9 @@ export class CategoryCommandService {
       await this.validateSlugUnique(input.slug, id);
     }
 
-    const category = await this.repository.findByIdAndUpdate(
-      id,
-      input,
-      { new: true },
-    );
+    const category = await this.repository.findByIdAndUpdate(id, input, {
+      new: true,
+    });
 
     if (!category) {
       throw new NotFoundException(`Category with id ${id} not found`);
@@ -454,7 +494,10 @@ export class CategoryCommandService {
     await this.updateProductCount(id, -1);
   }
 
-  async addProductsToCategory(categoryId: string, productIds: string[]): Promise<boolean> {
+  async addProductsToCategory(
+    categoryId: string,
+    productIds: string[],
+  ): Promise<boolean> {
     await this.validateCategoryExists(categoryId);
     await this.validateProductsExist(productIds);
 
@@ -465,10 +508,16 @@ export class CategoryCommandService {
     return result;
   }
 
-  async removeProductsFromCategory(categoryId: string, productIds: string[]): Promise<boolean> {
+  async removeProductsFromCategory(
+    categoryId: string,
+    productIds: string[],
+  ): Promise<boolean> {
     await this.validateCategoryExists(categoryId);
 
-    const result = await this.removeCategoryFromProducts(categoryId, productIds);
+    const result = await this.removeCategoryFromProducts(
+      categoryId,
+      productIds,
+    );
     await this.updateCategoryProductCount(categoryId);
     await this.invalidateCategoryCache(categoryId);
 
@@ -487,34 +536,46 @@ export class CategoryCommandService {
       throw new Error('Product model not available');
     }
 
-    const products = await this.productModel.find({ _id: { $in: productIds } }).exec();
+    const products = await this.productModel
+      .find({ _id: { $in: productIds } })
+      .exec();
     if (products.length !== productIds.length) {
       throw new NotFoundException('One or more products not found');
     }
   }
 
-  private async addCategoryToProducts(categoryId: string, productIds: string[]): Promise<boolean> {
+  private async addCategoryToProducts(
+    categoryId: string,
+    productIds: string[],
+  ): Promise<boolean> {
     if (!this.productModel) {
       throw new Error('Product model not available');
     }
 
-    const result = await this.productModel.updateMany(
-      { _id: { $in: productIds } },
-      { $addToSet: { categoryIds: categoryId } }
-    ).exec();
+    const result = await this.productModel
+      .updateMany(
+        { _id: { $in: productIds } },
+        { $addToSet: { categoryIds: categoryId } },
+      )
+      .exec();
 
     return result.modifiedCount > 0;
   }
 
-  private async removeCategoryFromProducts(categoryId: string, productIds: string[]): Promise<boolean> {
+  private async removeCategoryFromProducts(
+    categoryId: string,
+    productIds: string[],
+  ): Promise<boolean> {
     if (!this.productModel) {
       throw new Error('Product model not available');
     }
 
-    const result = await this.productModel.updateMany(
-      { _id: { $in: productIds } },
-      { $pull: { categoryIds: categoryId } }
-    ).exec();
+    const result = await this.productModel
+      .updateMany(
+        { _id: { $in: productIds } },
+        { $pull: { categoryIds: categoryId } },
+      )
+      .exec();
 
     return result.modifiedCount > 0;
   }
@@ -524,13 +585,15 @@ export class CategoryCommandService {
       return;
     }
 
-    const count = await this.productModel.countDocuments({
-      categoryIds: categoryId
-    }).exec();
+    const count = await this.productModel
+      .countDocuments({
+        categoryIds: categoryId,
+      })
+      .exec();
 
     await this.repository.updateOne(
       { _id: categoryId },
-      { productCount: count }
+      { productCount: count },
     );
   }
 
@@ -541,12 +604,14 @@ export class CategoryCommandService {
     }
   }
 
-  private async resolveSlug(name: string, providedSlug?: string): Promise<string> {
+  private async resolveSlug(
+    name: string,
+    providedSlug?: string,
+  ): Promise<string> {
     if (!providedSlug) {
       const baseSlug = this.slugService.generateSlug(name);
-      return this.slugService.generateUniqueSlug(
-        baseSlug,
-        (s) => this.checkSlugExists(s),
+      return this.slugService.generateUniqueSlug(baseSlug, (s) =>
+        this.checkSlugExists(s),
       );
     }
 
@@ -554,13 +619,21 @@ export class CategoryCommandService {
     return providedSlug;
   }
 
-  private async validateSlugUnique(slug: string, excludeId?: string): Promise<void> {
+  private async validateSlugUnique(
+    slug: string,
+    excludeId?: string,
+  ): Promise<void> {
     if (await this.checkSlugExists(slug, excludeId)) {
-      throw new ConflictException(`Category with slug '${slug}' already exists`);
+      throw new ConflictException(
+        `Category with slug '${slug}' already exists`,
+      );
     }
   }
 
-  private async checkSlugExists(slug: string, excludeId?: string): Promise<boolean> {
+  private async checkSlugExists(
+    slug: string,
+    excludeId?: string,
+  ): Promise<boolean> {
     const builder = new CategoryQueryBuilder().withSlug(slug);
     if (excludeId) {
       builder.excludeId(excludeId);
@@ -569,7 +642,10 @@ export class CategoryCommandService {
     return count > 0;
   }
 
-  private async updateArchiveStatus(id: string, isArchived: boolean): Promise<Category> {
+  private async updateArchiveStatus(
+    id: string,
+    isArchived: boolean,
+  ): Promise<Category> {
     const category = await this.repository.findByIdAndUpdate(
       id,
       { isArchived },
@@ -584,7 +660,10 @@ export class CategoryCommandService {
     return category;
   }
 
-  private async updateProductCount(id: string, increment: number): Promise<void> {
+  private async updateProductCount(
+    id: string,
+    increment: number,
+  ): Promise<void> {
     await this.repository.updateOne(
       { _id: id },
       { $inc: { productCount: increment } },
@@ -663,12 +742,21 @@ export class CategoryService {
     return this.commandService.decrementProductCount(id);
   }
 
-  async addProductsToCategory(categoryId: string, productIds: string[]): Promise<boolean> {
+  async addProductsToCategory(
+    categoryId: string,
+    productIds: string[],
+  ): Promise<boolean> {
     return this.commandService.addProductsToCategory(categoryId, productIds);
   }
 
-  async removeProductsFromCategory(categoryId: string, productIds: string[]): Promise<boolean> {
-    return this.commandService.removeProductsFromCategory(categoryId, productIds);
+  async removeProductsFromCategory(
+    categoryId: string,
+    productIds: string[],
+  ): Promise<boolean> {
+    return this.commandService.removeProductsFromCategory(
+      categoryId,
+      productIds,
+    );
   }
 
   // ========== READ OPERATIONS ==========
@@ -680,11 +768,17 @@ export class CategoryService {
     return this.queryService.findOne(id, includeArchived);
   }
 
-  async findBySlug(slug: string, includeArchived = false): Promise<Category | null> {
+  async findBySlug(
+    slug: string,
+    includeArchived = false,
+  ): Promise<Category | null> {
     return this.queryService.findBySlug(slug, includeArchived);
   }
 
-  async findChildren(parentId: string, includeArchived = false): Promise<Category[]> {
+  async findChildren(
+    parentId: string,
+    includeArchived = false,
+  ): Promise<Category[]> {
     return this.queryService.findChildren(parentId, includeArchived);
   }
 
@@ -706,7 +800,12 @@ export class CategoryService {
     limit: number = DEFAULT_LIMIT,
     includeArchived = false,
   ): Promise<PaginationResult<Category>> {
-    return this.queryService.findChildrenPaginated(parentId, page, limit, includeArchived);
+    return this.queryService.findChildrenPaginated(
+      parentId,
+      page,
+      limit,
+      includeArchived,
+    );
   }
 
   async findRootCategoriesPaginated(
@@ -714,6 +813,10 @@ export class CategoryService {
     limit: number = DEFAULT_LIMIT,
     includeArchived = false,
   ): Promise<PaginationResult<Category>> {
-    return this.queryService.findRootCategoriesPaginated(page, limit, includeArchived);
+    return this.queryService.findRootCategoriesPaginated(
+      page,
+      limit,
+      includeArchived,
+    );
   }
 }

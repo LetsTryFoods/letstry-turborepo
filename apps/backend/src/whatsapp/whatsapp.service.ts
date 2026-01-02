@@ -58,12 +58,14 @@ export class WhatsAppService {
     return this.sendTemplate(payload);
   }
 
-  private async sendTemplate(payload: WhatsAppTemplatePayload): Promise<boolean> {
+  private async sendTemplate(
+    payload: WhatsAppTemplatePayload,
+  ): Promise<boolean> {
     try {
       const response = await fetch(this.apiUrl, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.jwtToken}`,
+          Authorization: `Bearer ${this.jwtToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
@@ -71,15 +73,24 @@ export class WhatsAppService {
 
       if (!response.ok) {
         const errorText = await response.text();
-        this.logger.error(`WhatsApp API error: ${response.status} - ${errorText}`, 'WhatsAppService');
+        this.logger.error(
+          `WhatsApp API error: ${response.status} - ${errorText}`,
+          'WhatsAppService',
+        );
         return false;
       }
 
       const result = await response.json();
-      this.logger.log(`WhatsApp template sent successfully: ${payload.template}`, 'WhatsAppService');
+      this.logger.log(
+        `WhatsApp template sent successfully: ${payload.template}`,
+        'WhatsAppService',
+      );
       return true;
     } catch (error) {
-      this.logger.error(`Failed to send WhatsApp template: ${error.message}`, 'WhatsAppService');
+      this.logger.error(
+        `Failed to send WhatsApp template: ${error.message}`,
+        'WhatsAppService',
+      );
       return false;
     }
   }

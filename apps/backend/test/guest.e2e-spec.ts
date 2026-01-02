@@ -54,7 +54,7 @@ describe('Guest (e2e)', () => {
           const guest = res.body.data.createGuest;
           expect(guest.guestId).toBeDefined();
           expect(guest.sessionId).toBeDefined();
-          
+
           const cookies = res.headers['set-cookie'];
           expect(cookies).toBeDefined();
           expect(cookies[0]).toContain('guest_session');
@@ -65,14 +65,14 @@ describe('Guest (e2e)', () => {
   describe('Guest Queries', () => {
     it('should get guest by guestId', async () => {
       // Create guest directly
-      const guestId = "test-guest-id";
-      const sessionId = "test-session-id";
+      const guestId = 'test-guest-id';
+      const sessionId = 'test-session-id';
       await connection.collection('guests').insertOne({
         guestId,
         sessionId,
-        ipAddress: "127.0.0.1",
+        ipAddress: '127.0.0.1',
         createdAt: new Date(),
-        lastActiveAt: new Date()
+        lastActiveAt: new Date(),
       });
 
       return request(app.getHttpServer())
@@ -90,7 +90,7 @@ describe('Guest (e2e)', () => {
         .expect(200)
         .expect((res) => {
           expect(res.body.data.guestByGuestId.guestId).toBe(guestId);
-          expect(res.body.data.guestByGuestId.ipAddress).toBe("127.0.0.1");
+          expect(res.body.data.guestByGuestId.ipAddress).toBe('127.0.0.1');
         });
     });
   });

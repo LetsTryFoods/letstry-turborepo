@@ -28,7 +28,7 @@ describe('Cart (e2e)', () => {
     // Setup User
     await connection.collection('users').deleteMany({});
     await connection.collection('firebaseauths').deleteMany({});
-    
+
     const userSignupResponse = await request(app.getHttpServer())
       .post('/graphql')
       .send({
@@ -51,14 +51,14 @@ describe('Cart (e2e)', () => {
     // Setup Product
     await connection.collection('products').deleteMany({});
     const product = await connection.collection('products').insertOne({
-      name: "Test Product",
-      slug: "test-product",
+      name: 'Test Product',
+      slug: 'test-product',
       price: 100,
       mrp: 120,
       isArchived: false,
-      availabilityStatus: "in_stock",
+      availabilityStatus: 'in_stock',
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     });
     productId = product.insertedId.toString();
 
@@ -72,7 +72,7 @@ describe('Cart (e2e)', () => {
       deliveryDelhiBelowThreshold: 40,
       deliveryRestBelowThreshold: 60,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     });
   });
 

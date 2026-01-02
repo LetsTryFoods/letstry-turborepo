@@ -15,7 +15,9 @@ export class ChargesService {
     return this.chargesModel.findOne({ active: true }).exec();
   }
 
-  async createOrUpdateCharges(input: Partial<Charges>): Promise<ChargesDocument> {
+  async createOrUpdateCharges(
+    input: Partial<Charges>,
+  ): Promise<ChargesDocument> {
     const existing = await this.chargesModel.findOne();
     if (existing) {
       Object.assign(existing, input);

@@ -95,10 +95,10 @@ describe('Coupon (e2e)', () => {
   describe('Coupon Queries', () => {
     it('should get coupon by code', async () => {
       await connection.collection('coupons').insertOne({
-        name: "Summer Sale",
-        description: "Flat 50 off",
-        code: "SUMMER50",
-        discountType: "FIXED",
+        name: 'Summer Sale',
+        description: 'Flat 50 off',
+        code: 'SUMMER50',
+        discountType: 'FIXED',
         discountValue: 50,
         minCartValue: 200,
         startDate: new Date(),
@@ -106,7 +106,7 @@ describe('Coupon (e2e)', () => {
         isActive: true,
         usageCount: 0,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       });
 
       return request(app.getHttpServer())

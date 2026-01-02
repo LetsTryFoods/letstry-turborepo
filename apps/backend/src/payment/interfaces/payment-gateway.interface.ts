@@ -1,15 +1,21 @@
 export interface PaymentGatewayProvider {
-  initiatePayment(params: InitiatePaymentParams): Promise<InitiatePaymentResponse>;
-  
-  checkTransactionStatus(params: CheckStatusParams): Promise<TransactionStatusResponse>;
-  
+  initiatePayment(
+    params: InitiatePaymentParams,
+  ): Promise<InitiatePaymentResponse>;
+
+  checkTransactionStatus(
+    params: CheckStatusParams,
+  ): Promise<TransactionStatusResponse>;
+
   initiateRefund(params: InitiateRefundParams): Promise<RefundResponse>;
-  
+
   verifyWebhookChecksum(data: string, checksum: string): boolean;
-  
+
   parseWebhookData(webhookBody: any): ParsedWebhookData;
-  
-  getSettlementReport?(params: SettlementReportParams): Promise<SettlementReport>;
+
+  getSettlementReport?(
+    params: SettlementReportParams,
+  ): Promise<SettlementReport>;
 }
 
 export interface InitiatePaymentParams {

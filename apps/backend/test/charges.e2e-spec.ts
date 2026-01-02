@@ -97,7 +97,7 @@ describe('Charges (e2e)', () => {
         deliveryDelhiBelowThreshold: 40,
         deliveryRestBelowThreshold: 60,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       });
 
       return request(app.getHttpServer())

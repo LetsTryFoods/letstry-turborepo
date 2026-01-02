@@ -37,7 +37,10 @@ export class ProductService {
       cacheKeyFactory,
     );
 
-    this.queryService = new ProductQueryService(repository, cacheStrategyFactory);
+    this.queryService = new ProductQueryService(
+      repository,
+      cacheStrategyFactory,
+    );
     this.commandService = new ProductCommandService(
       repository,
       slugService,
@@ -78,7 +81,10 @@ export class ProductService {
     return this.commandService.updateStock(id, quantity);
   }
 
-  findAll(includeOutOfStock = true, includeArchived = false): Promise<Product[]> {
+  findAll(
+    includeOutOfStock = true,
+    includeArchived = false,
+  ): Promise<Product[]> {
     return this.queryService.findAll(includeOutOfStock, includeArchived);
   }
 
@@ -90,15 +96,24 @@ export class ProductService {
     return this.queryService.findBySlug(slug, includeArchived);
   }
 
-  findByCategoryId(categoryId: string, includeArchived = false): Promise<Product[]> {
+  findByCategoryId(
+    categoryId: string,
+    includeArchived = false,
+  ): Promise<Product[]> {
     return this.queryService.findByCategoryId(categoryId, includeArchived);
   }
 
-  findByVariantId(variantId: string, includeArchived = false): Promise<Product> {
+  findByVariantId(
+    variantId: string,
+    includeArchived = false,
+  ): Promise<Product> {
     return this.queryService.findByVariantId(variantId, includeArchived);
   }
 
-  searchProducts(searchTerm: string, includeArchived = false): Promise<Product[]> {
+  searchProducts(
+    searchTerm: string,
+    includeArchived = false,
+  ): Promise<Product[]> {
     return this.queryService.searchProducts(searchTerm, includeArchived);
   }
 
@@ -155,8 +170,16 @@ export class ProductService {
     return this.commandService.addVariant(productId, variantInput);
   }
 
-  updateVariant(productId: string, variantId: string, variantUpdate: any): Promise<Product> {
-    return this.commandService.updateVariant(productId, variantId, variantUpdate);
+  updateVariant(
+    productId: string,
+    variantId: string,
+    variantUpdate: any,
+  ): Promise<Product> {
+    return this.commandService.updateVariant(
+      productId,
+      variantId,
+      variantUpdate,
+    );
   }
 
   removeVariant(productId: string, variantId: string): Promise<Product> {
@@ -167,8 +190,16 @@ export class ProductService {
     return this.commandService.setDefaultVariant(productId, variantId);
   }
 
-  updateVariantStock(productId: string, variantId: string, quantity: number): Promise<Product> {
-    return this.commandService.updateVariantStock(productId, variantId, quantity);
+  updateVariantStock(
+    productId: string,
+    variantId: string,
+    quantity: number,
+  ): Promise<Product> {
+    return this.commandService.updateVariantStock(
+      productId,
+      variantId,
+      quantity,
+    );
   }
 
   findSeoByProductId(productId: string): Promise<ProductSeo | null> {

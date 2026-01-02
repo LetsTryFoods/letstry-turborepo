@@ -50,7 +50,7 @@ describe('Policy (e2e)', () => {
     // 2. Setup User
     await connection.collection('users').deleteMany({});
     await connection.collection('firebaseauths').deleteMany({});
-    
+
     const userSignupResponse = await request(app.getHttpServer())
       .post('/graphql')
       .send({
@@ -102,10 +102,22 @@ describe('Policy (e2e)', () => {
     });
 
     it('should get policies by type', async () => {
-       await connection.collection('policies').insertMany([
-         { title: 'Privacy Policy', type: 'privacy', content: 'Content', createdAt: new Date(), updatedAt: new Date() },
-         { title: 'Terms of Service', type: 'terms', content: 'Content', createdAt: new Date(), updatedAt: new Date() }
-       ]);
+      await connection.collection('policies').insertMany([
+        {
+          title: 'Privacy Policy',
+          type: 'privacy',
+          content: 'Content',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          title: 'Terms of Service',
+          type: 'terms',
+          content: 'Content',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ]);
 
       return request(app.getHttpServer())
         .post('/graphql')
@@ -128,14 +140,14 @@ describe('Policy (e2e)', () => {
     });
 
     it('should get policy by id', async () => {
-       const policy = await connection.collection('policies').insertOne({
-         title: 'Test Policy',
-         type: 'test',
-         content: 'Test Content',
-         createdAt: new Date(),
-         updatedAt: new Date()
-       });
-       const policyId = policy.insertedId.toString();
+      const policy = await connection.collection('policies').insertOne({
+        title: 'Test Policy',
+        type: 'test',
+        content: 'Test Content',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      const policyId = policy.insertedId.toString();
 
       return request(app.getHttpServer())
         .post('/graphql')
@@ -205,14 +217,14 @@ describe('Policy (e2e)', () => {
     });
 
     it('should allow ADMIN to update a policy', async () => {
-       const policy = await connection.collection('policies').insertOne({
-         title: 'Old Title',
-         type: 'old',
-         content: 'Old Content',
-         createdAt: new Date(),
-         updatedAt: new Date()
-       });
-       const policyId = policy.insertedId.toString();
+      const policy = await connection.collection('policies').insertOne({
+        title: 'Old Title',
+        type: 'old',
+        content: 'Old Content',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      const policyId = policy.insertedId.toString();
 
       return request(app.getHttpServer())
         .post('/graphql')
@@ -236,14 +248,14 @@ describe('Policy (e2e)', () => {
     });
 
     it('should allow ADMIN to delete a policy', async () => {
-       const policy = await connection.collection('policies').insertOne({
-         title: 'To Delete',
-         type: 'delete',
-         content: 'Content',
-         createdAt: new Date(),
-         updatedAt: new Date()
-       });
-       const policyId = policy.insertedId.toString();
+      const policy = await connection.collection('policies').insertOne({
+        title: 'To Delete',
+        type: 'delete',
+        content: 'Content',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      const policyId = policy.insertedId.toString();
 
       return request(app.getHttpServer())
         .post('/graphql')
@@ -313,14 +325,14 @@ describe('Policy (e2e)', () => {
     });
 
     it('should FORBID USER from updating a policy', async () => {
-       const policy = await connection.collection('policies').insertOne({
-         title: 'Test',
-         type: 'test',
-         content: 'Content',
-         createdAt: new Date(),
-         updatedAt: new Date()
-       });
-       const policyId = policy.insertedId.toString();
+      const policy = await connection.collection('policies').insertOne({
+        title: 'Test',
+        type: 'test',
+        content: 'Content',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      const policyId = policy.insertedId.toString();
 
       return request(app.getHttpServer())
         .post('/graphql')
@@ -344,14 +356,14 @@ describe('Policy (e2e)', () => {
     });
 
     it('should FORBID USER from deleting a policy', async () => {
-       const policy = await connection.collection('policies').insertOne({
-         title: 'Test',
-         type: 'test',
-         content: 'Content',
-         createdAt: new Date(),
-         updatedAt: new Date()
-       });
-       const policyId = policy.insertedId.toString();
+      const policy = await connection.collection('policies').insertOne({
+        title: 'Test',
+        type: 'test',
+        content: 'Content',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      const policyId = policy.insertedId.toString();
 
       return request(app.getHttpServer())
         .post('/graphql')

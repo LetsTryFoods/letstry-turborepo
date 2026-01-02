@@ -31,22 +31,29 @@ export class SseController {
   }
 
   private sendInitialMessage(response: Response, paymentOrderId: string): void {
-    response.write(`data: ${JSON.stringify({ 
-      type: 'connected', 
-      paymentOrderId,
-      message: 'SSE connection established' 
-    })}\n\n`);
+    response.write(
+      `data: ${JSON.stringify({
+        type: 'connected',
+        paymentOrderId,
+        message: 'SSE connection established',
+      })}\n\n`,
+    );
   }
 
   private setupTimeout(response: Response, paymentOrderId: string): void {
-    const timeout = setTimeout(() => {
-      this.logger.log(`SSE connection timeout for payment ${paymentOrderId}`);
-      response.write(`data: ${JSON.stringify({ 
-        type: 'timeout', 
-        message: 'Connection timeout' 
-      })}\n\n`);
-      response.end();
-    }, 15 * 60 * 1000);
+    const timeout = setTimeout(
+      () => {
+        this.logger.log(`SSE connection timeout for payment ${paymentOrderId}`);
+        response.write(
+          `data: ${JSON.stringify({
+            type: 'timeout',
+            message: 'Connection timeout',
+          })}\n\n`,
+        );
+        response.end();
+      },
+      15 * 60 * 1000,
+    );
 
     response.on('close', () => {
       clearTimeout(timeout);

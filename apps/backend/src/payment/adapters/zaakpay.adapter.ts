@@ -18,7 +18,9 @@ import { v4 as uuidv4 } from 'uuid';
 export class ZaakpayAdapter implements PaymentGatewayProvider {
   constructor(private readonly zaakpayService: ZaakpayService) {}
 
-  async initiatePayment(params: InitiatePaymentParams): Promise<InitiatePaymentResponse> {
+  async initiatePayment(
+    params: InitiatePaymentParams,
+  ): Promise<InitiatePaymentResponse> {
     const result = await this.zaakpayService.initiatePayment({
       orderId: params.orderId,
       amount: params.amount,
@@ -36,8 +38,12 @@ export class ZaakpayAdapter implements PaymentGatewayProvider {
     };
   }
 
-  async checkTransactionStatus(params: CheckStatusParams): Promise<TransactionStatusResponse> {
-    const result = await this.zaakpayService.checkTransactionStatus({ orderId: params.orderId });
+  async checkTransactionStatus(
+    params: CheckStatusParams,
+  ): Promise<TransactionStatusResponse> {
+    const result = await this.zaakpayService.checkTransactionStatus({
+      orderId: params.orderId,
+    });
 
     let status: 'SUCCESS' | 'FAILED' | 'PENDING' = 'PENDING';
     if (result.responseCode === '100') {
@@ -61,7 +67,7 @@ export class ZaakpayAdapter implements PaymentGatewayProvider {
 
   async initiateRefund(params: InitiateRefundParams): Promise<RefundResponse> {
     const merchantRefId = `MREF_${Date.now()}_${uuidv4().substring(0, 8)}`;
-    
+
     const result = await this.zaakpayService.initiateRefund({
       orderId: params.orderId,
       amount: params.refundAmount,
@@ -70,7 +76,8 @@ export class ZaakpayAdapter implements PaymentGatewayProvider {
       isPartialRefund: false,
     });
 
-    const success = result.responseCode === '230' || result.responseCode === '245';
+    const success =
+      result.responseCode === '230' || result.responseCode === '245';
 
     return {
       success,
@@ -92,7 +99,10 @@ export class ZaakpayAdapter implements PaymentGatewayProvider {
     let status: 'SUCCESS' | 'FAILED' | 'PENDING' = 'PENDING';
     if (txnData.responseCode === '100') {
       status = 'SUCCESS';
-    } else if (txnData.responseCode === '200' || txnData.responseCode === '300') {
+    } else if (
+      txnData.responseCode === '200' ||
+      txnData.responseCode === '300'
+    ) {
       status = 'PENDING';
     } else {
       status = 'FAILED';
@@ -112,7 +122,9 @@ export class ZaakpayAdapter implements PaymentGatewayProvider {
     };
   }
 
-  async getSettlementReport(params: SettlementReportParams): Promise<SettlementReport> {
+  async getSettlementReport(
+    params: SettlementReportParams,
+  ): Promise<SettlementReport> {
     const result = await this.zaakpayService.getSettlementReport(params.date);
 
     return {
@@ -126,24 +138,24 @@ export class ZaakpayAdapter implements PaymentGatewayProvider {
   private parseTxnDataString(txnDataString: string): any {
     const params: any = {};
     const pairs = txnDataString.split('&');
-    
+
     for (const pair of pairs) {
       const [key, value] = pair.split('=');
       params[key] = decodeURIComponent(value || '');
     }
-    
+
     return params;
   }
 
   private mapPaymentMethod(method: string): string {
     const methodMap: { [key: string]: string } = {
-      'CC': 'CREDIT_CARD',
-      'DC': 'DEBIT_CARD',
-      'NB': 'NET_BANKING',
-      'UPI': 'UPI',
-      'WALLET': 'WALLET',
+      CC: 'CREDIT_CARD',
+      DC: 'DEBIT_CARD',
+      NB: 'NET_BANKING',
+      UPI: 'UPI',
+      WALLET: 'WALLET',
     };
-    
+
     return methodMap[method] || 'CREDIT_CARD';
   }
 }

@@ -2,8 +2,6 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class CacheKeyFactory {
-
-
   getProductGlobalListVersionKey(): string {
     return `product:list:global:version`;
   }
@@ -55,7 +53,11 @@ export class CacheKeyFactory {
     return `category:list:v${version}`;
   }
 
-  getCategoryListPaginatedKey(page: number, limit: number, version: number): string {
+  getCategoryListPaginatedKey(
+    page: number,
+    limit: number,
+    version: number,
+  ): string {
     return `category:list:v${version}:page:${page}:limit:${limit}`;
   }
 
@@ -71,7 +73,12 @@ export class CacheKeyFactory {
     return `category:list:v${version}:children:${parentId}`;
   }
 
-  getCategoryChildrenPaginatedKey(parentId: string, page: number, limit: number, version: number): string {
+  getCategoryChildrenPaginatedKey(
+    parentId: string,
+    page: number,
+    limit: number,
+    version: number,
+  ): string {
     return `category:list:v${version}:children:${parentId}:page:${page}:limit:${limit}`;
   }
 
@@ -79,7 +86,11 @@ export class CacheKeyFactory {
     return `category:list:v${version}:roots`;
   }
 
-  getCategoryRootsPaginatedKey(page: number, limit: number, version: number): string {
+  getCategoryRootsPaginatedKey(
+    page: number,
+    limit: number,
+    version: number,
+  ): string {
     return `category:list:v${version}:roots:page:${page}:limit:${limit}`;
   }
 

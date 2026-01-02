@@ -51,12 +51,17 @@ describe('Address (e2e)', () => {
         `,
       });
     if (userSignupResponse.body.errors) {
-      console.error('User Signup Errors:', JSON.stringify(userSignupResponse.body.errors, null, 2));
+      console.error(
+        'User Signup Errors:',
+        JSON.stringify(userSignupResponse.body.errors, null, 2),
+      );
     }
     userToken = userSignupResponse.body.data.verifyOtpAndLogin;
-    
+
     // Get User ID
-    const user = await connection.collection('users').findOne({ phoneNumber: '+919876543210' });
+    const user = await connection
+      .collection('users')
+      .findOne({ phoneNumber: '+919876543210' });
     userId = user._id.toString();
   });
 
@@ -106,22 +111,29 @@ describe('Address (e2e)', () => {
 
     it('should update an address', async () => {
       const address = await connection.collection('addresses').insertOne({
-        userId: connection.collection('users').findOne({}).then(u => u._id), // This is async, need to fix
+        userId: connection
+          .collection('users')
+          .findOne({})
+          .then((u) => u._id), // This is async, need to fix
         // Better to use the userId we got in beforeAll, but need to cast it to ObjectId if schema uses ObjectId
         // However, the schema defines userId as string in Prop ref, but usually it's ObjectId in DB.
         // Let's rely on the create mutation to set it up correctly first or insert carefully.
         // Actually, let's just use the create mutation helper or insert directly with correct ID.
-        userId: (await connection.collection('users').findOne({ phoneNumber: '+919876543210' }))._id,
-        name: "Old Name",
-        streetAddress: "Old Address",
-        addressLocality: "City",
-        addressRegion: "Region",
-        postalCode: "111111",
-        addressCountry: "IN",
-        telephone: "1111111111",
+        userId: (
+          await connection
+            .collection('users')
+            .findOne({ phoneNumber: '+919876543210' })
+        )._id,
+        name: 'Old Name',
+        streetAddress: 'Old Address',
+        addressLocality: 'City',
+        addressRegion: 'Region',
+        postalCode: '111111',
+        addressCountry: 'IN',
+        telephone: '1111111111',
         isDefault: false,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       });
       const addressId = address.insertedId.toString();
 
@@ -148,17 +160,21 @@ describe('Address (e2e)', () => {
 
     it('should delete an address', async () => {
       const address = await connection.collection('addresses').insertOne({
-        userId: (await connection.collection('users').findOne({ phoneNumber: '+919876543210' }))._id,
-        name: "To Delete",
-        streetAddress: "Address",
-        addressLocality: "City",
-        addressRegion: "Region",
-        postalCode: "111111",
-        addressCountry: "IN",
-        telephone: "1111111111",
+        userId: (
+          await connection
+            .collection('users')
+            .findOne({ phoneNumber: '+919876543210' })
+        )._id,
+        name: 'To Delete',
+        streetAddress: 'Address',
+        addressLocality: 'City',
+        addressRegion: 'Region',
+        postalCode: '111111',
+        addressCountry: 'IN',
+        telephone: '1111111111',
         isDefault: false,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       });
       const addressId = address.insertedId.toString();
 
@@ -184,17 +200,21 @@ describe('Address (e2e)', () => {
   describe('Address Queries', () => {
     it('should get my addresses', async () => {
       await connection.collection('addresses').insertOne({
-        userId: (await connection.collection('users').findOne({ phoneNumber: '+919876543210' }))._id,
-        name: "My Address",
-        streetAddress: "Address",
-        addressLocality: "City",
-        addressRegion: "Region",
-        postalCode: "111111",
-        addressCountry: "IN",
-        telephone: "1111111111",
+        userId: (
+          await connection
+            .collection('users')
+            .findOne({ phoneNumber: '+919876543210' })
+        )._id,
+        name: 'My Address',
+        streetAddress: 'Address',
+        addressLocality: 'City',
+        addressRegion: 'Region',
+        postalCode: '111111',
+        addressCountry: 'IN',
+        telephone: '1111111111',
         isDefault: true,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       });
 
       return request(app.getHttpServer())
@@ -220,17 +240,21 @@ describe('Address (e2e)', () => {
 
     it('should get address by id', async () => {
       const address = await connection.collection('addresses').insertOne({
-        userId: (await connection.collection('users').findOne({ phoneNumber: '+919876543210' }))._id,
-        name: "Single Address",
-        streetAddress: "Address",
-        addressLocality: "City",
-        addressRegion: "Region",
-        postalCode: "111111",
-        addressCountry: "IN",
-        telephone: "1111111111",
+        userId: (
+          await connection
+            .collection('users')
+            .findOne({ phoneNumber: '+919876543210' })
+        )._id,
+        name: 'Single Address',
+        streetAddress: 'Address',
+        addressLocality: 'City',
+        addressRegion: 'Region',
+        postalCode: '111111',
+        addressCountry: 'IN',
+        telephone: '1111111111',
         isDefault: false,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       });
       const addressId = address.insertedId.toString();
 

@@ -4,7 +4,11 @@ import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Identity, IdentityDocument, IdentityStatus } from '../../common/schemas/identity.schema';
+import {
+  Identity,
+  IdentityDocument,
+  IdentityStatus,
+} from '../../common/schemas/identity.schema';
 import { Role } from '../../common/enums/role.enum';
 
 @Injectable()
@@ -25,32 +29,32 @@ export class DualAuthGuard extends AuthGuard('jwt') {
       if (jwtResult && request.user) {
         return true;
       }
-    } catch (err) {
-    }
+    } catch (err) {}
 
     let sessionId = request.cookies?.sessionId;
-    
+
     if (!sessionId && request.cookies?.guest_session) {
       if (typeof request.cookies.guest_session === 'string') {
         try {
           const parsed = JSON.parse(request.cookies.guest_session);
           sessionId = parsed.sessionId;
-        } catch (e) {
-        }
+        } catch (e) {}
       } else if (typeof request.cookies.guest_session === 'object') {
         sessionId = request.cookies.guest_session.sessionId;
       }
     }
-    
+
     if (!sessionId) {
       return true;
     }
 
-    const identity = await this.identityModel.findOne({ 
-      currentSessionId: sessionId,
-      status: IdentityStatus.GUEST 
-    }).exec();
-    
+    const identity = await this.identityModel
+      .findOne({
+        currentSessionId: sessionId,
+        status: IdentityStatus.GUEST,
+      })
+      .exec();
+
     if (identity) {
       request.guest = {
         _id: identity._id.toString(),
@@ -61,8 +65,8 @@ export class DualAuthGuard extends AuthGuard('jwt') {
         ipAddress: identity.ipAddress,
         deviceInfo: identity.deviceInfo,
       };
-      request.user = { 
-        _id: identity._id.toString(), 
+      request.user = {
+        _id: identity._id.toString(),
         role: Role.GUEST,
         sessionId: identity.currentSessionId,
         guestId: identity.identityId,

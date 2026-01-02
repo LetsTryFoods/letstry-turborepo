@@ -14,9 +14,6 @@ export class UploadService {
   private s3Client: S3Client;
   private readonly logger = new Logger(UploadService.name);
 
-
-
-
   constructor(private configService: ConfigService) {
     this.s3Client = new S3Client({
       region: this.configService.get<string>('aws.region'),
@@ -54,9 +51,13 @@ export class UploadService {
   }
 
   getCloudFrontUrl(key: string): string {
-    const cloudfrontDomain = this.configService.get<string>('aws.cloudfrontDomain');
+    const cloudfrontDomain = this.configService.get<string>(
+      'aws.cloudfrontDomain',
+    );
     // Remove trailing slash if present
-    const baseUrl = cloudfrontDomain?.replace(/\/$/, '') || 'https://d11a0m43ek7ap8.cloudfront.net';
+    const baseUrl =
+      cloudfrontDomain?.replace(/\/$/, '') ||
+      'https://d11a0m43ek7ap8.cloudfront.net';
     return `${baseUrl}/${key}`;
   }
 
@@ -70,7 +71,10 @@ export class UploadService {
     return getSignedUrl(this.s3Client, command, { expiresIn: 3600 });
   }
 
-  async getPresignedUploadUrl(key: string, contentType?: string): Promise<string> {
+  async getPresignedUploadUrl(
+    key: string,
+    contentType?: string,
+  ): Promise<string> {
     const bucketName = this.configService.get<string>('aws.bucketName')!;
     const command = new PutObjectCommand({
       Bucket: bucketName,
@@ -93,7 +97,8 @@ export class UploadService {
     const key = `${uid}${extension}`;
 
     const uploadUrl = await this.getPresignedUploadUrl(key, contentType);
-    const finalKey = this.isImageFile(contentType || '') &&
+    const finalKey =
+      this.isImageFile(contentType || '') &&
       !filename.toLowerCase().endsWith('.webp')
         ? key.replace(/\.[^.]+$/, '.webp')
         : key;

@@ -2,7 +2,11 @@ import { CacheService } from '../../cache/cache.service';
 import { CacheKeyFactory } from '../../cache/cache-key.factory';
 import { PaginationResult } from '../../common/pagination';
 import { Product } from '../product.schema';
-import { CacheStrategy, NoCacheStrategy, VersionedCacheStrategy } from './product.cache-strategy';
+import {
+  CacheStrategy,
+  NoCacheStrategy,
+  VersionedCacheStrategy,
+} from './product.cache-strategy';
 
 export class ProductCacheStrategyFactory {
   constructor(
@@ -20,7 +24,8 @@ export class ProductCacheStrategyFactory {
     return new VersionedCacheStrategy<Product | null>(
       this.cacheService,
       this.cacheKeyFactory.getProductDetailVersionKey(identifier),
-      (version) => this.cacheKeyFactory.getProductDetailKey(identifier, parseInt(version)),
+      (version) =>
+        this.cacheKeyFactory.getProductDetailKey(identifier, parseInt(version)),
     );
   }
 

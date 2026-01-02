@@ -19,14 +19,20 @@ export class ProductQueryService {
     includeOutOfStock: boolean,
     includeArchived: boolean,
   ): Promise<Product[]> {
-    const filter = ProductQueryBuilder.forAll(includeOutOfStock, includeArchived);
+    const filter = ProductQueryBuilder.forAll(
+      includeOutOfStock,
+      includeArchived,
+    );
     const strategy = this.cacheStrategyFactory.createNoCache<Product[]>();
     return this.executor.executeFind(filter, strategy);
   }
 
   async findOne(id: string, includeArchived: boolean): Promise<Product> {
     const filter = ProductQueryBuilder.forId(id, includeArchived);
-    const strategy = this.cacheStrategyFactory.createForDetail(id, includeArchived);
+    const strategy = this.cacheStrategyFactory.createForDetail(
+      id,
+      includeArchived,
+    );
     return this.executor.executeFindOneOrThrow(
       filter,
       strategy,
@@ -36,7 +42,10 @@ export class ProductQueryService {
 
   async findBySlug(slug: string, includeArchived: boolean): Promise<Product> {
     const filter = ProductQueryBuilder.forSlug(slug, includeArchived);
-    const strategy = this.cacheStrategyFactory.createForDetail(slug, includeArchived);
+    const strategy = this.cacheStrategyFactory.createForDetail(
+      slug,
+      includeArchived,
+    );
     return this.executor.executeFindOneOrThrow(
       filter,
       strategy,
@@ -44,7 +53,10 @@ export class ProductQueryService {
     );
   }
 
-  async findByVariantId(variantId: string, includeArchived: boolean): Promise<Product> {
+  async findByVariantId(
+    variantId: string,
+    includeArchived: boolean,
+  ): Promise<Product> {
     const filter = ProductQueryBuilder.forVariantId(variantId, includeArchived);
     const strategy = this.cacheStrategyFactory.createNoCache<Product>();
     return this.executor.executeFindOneOrThrow(
@@ -78,7 +90,10 @@ export class ProductQueryService {
     includeOutOfStock: boolean,
     includeArchived: boolean,
   ): Promise<PaginationResult<Product>> {
-    const filter = ProductQueryBuilder.forAll(includeOutOfStock, includeArchived);
+    const filter = ProductQueryBuilder.forAll(
+      includeOutOfStock,
+      includeArchived,
+    );
     const strategy = this.cacheStrategyFactory.createForGlobalList(
       page,
       limit,
@@ -111,7 +126,8 @@ export class ProductQueryService {
     includeArchived: boolean,
   ): Promise<PaginationResult<Product>> {
     const filter = ProductQueryBuilder.forSearch(searchTerm, includeArchived);
-    const strategy = this.cacheStrategyFactory.createNoCache<PaginationResult<Product>>();
+    const strategy =
+      this.cacheStrategyFactory.createNoCache<PaginationResult<Product>>();
     return this.executor.executePaginated(filter, page, limit, strategy);
   }
 

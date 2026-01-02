@@ -9,25 +9,27 @@ export class UserAuthResolver {
 
   private getSessionId(context: any): string | undefined {
     const structuredCookie = context.req?.cookies?.guest_session;
-    
+
     let sessionId: string | undefined;
-    
+
     if (structuredCookie) {
       if (typeof structuredCookie === 'string') {
         try {
           const parsed = JSON.parse(structuredCookie);
           sessionId = parsed.sessionId;
-        } catch (e) {
-        }
-      } else if (typeof structuredCookie === 'object' && structuredCookie.sessionId) {
+        } catch (e) {}
+      } else if (
+        typeof structuredCookie === 'object' &&
+        structuredCookie.sessionId
+      ) {
         sessionId = structuredCookie.sessionId;
       }
     }
-    
+
     if (!sessionId) {
       sessionId = context.req?.cookies?.sessionId;
     }
-    
+
     return sessionId;
   }
 
@@ -46,18 +48,24 @@ export class UserAuthResolver {
     @Args('input', { nullable: true }) input?: CreateUserInput,
   ): Promise<string> {
     const sessionId = this.getSessionId(context);
-    const token = await this.userAuthService.verifyWhatsAppOtp(phoneNumber, otp, input, sessionId);
-    
+    const token = await this.userAuthService.verifyWhatsAppOtp(
+      phoneNumber,
+      otp,
+      input,
+      sessionId,
+    );
+
     if (context.res) {
       context.res.cookie('access_token', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000,
-        domain: process.env.NODE_ENV === 'production' ? '.krsna.site' : undefined,
+        domain:
+          process.env.NODE_ENV === 'production' ? '.krsna.site' : undefined,
       });
     }
-    
+
     return token;
   }
 
@@ -69,18 +77,23 @@ export class UserAuthResolver {
     @Args('input', { nullable: true }) input?: CreateUserInput,
   ): Promise<string> {
     const sessionId = this.getSessionId(context);
-    const token = await this.userAuthService.verifyOtpAndLogin(idToken, input, sessionId);
-    
+    const token = await this.userAuthService.verifyOtpAndLogin(
+      idToken,
+      input,
+      sessionId,
+    );
+
     if (context.res) {
       context.res.cookie('access_token', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000,
-        domain: process.env.NODE_ENV === 'production' ? '.krsna.site' : undefined,
+        domain:
+          process.env.NODE_ENV === 'production' ? '.krsna.site' : undefined,
       });
     }
-    
+
     return token;
   }
 
@@ -93,10 +106,11 @@ export class UserAuthResolver {
         secure: process.env.NODE_ENV === 'production',
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 0,
-        domain: process.env.NODE_ENV === 'production' ? '.krsna.site' : undefined,
+        domain:
+          process.env.NODE_ENV === 'production' ? '.krsna.site' : undefined,
       });
     }
-    
+
     return 'Logged out successfully';
   }
 }

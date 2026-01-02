@@ -16,7 +16,7 @@ export class CacheService {
     try {
       const value = await this.cacheManager.get<T>(key);
       const duration = Date.now() - start;
-      
+
       if (value) {
         this.logger.log({
           msg: `Cache HIT`,
@@ -61,7 +61,10 @@ export class CacheService {
 
       let valuePreview = 'unknown';
       if (value === null) valuePreview = 'null';
-      else if (typeof value === 'object') valuePreview = Array.isArray(value) ? `Array(${value.length})` : 'Object';
+      else if (typeof value === 'object')
+        valuePreview = Array.isArray(value)
+          ? `Array(${value.length})`
+          : 'Object';
       else valuePreview = String(value).substring(0, 50);
 
       this.logger.log({
@@ -135,12 +138,12 @@ export class CacheService {
     try {
       const current = await this.getVersion(namespace);
       const next = current + 1;
-      
+
       // We set with 0 or undefined for "no TTL" / "infinite" depending on the store config.
       // However, cache-manager often requires a TTL. We'll use a very long TTL for versions (e.g. 1 year).
       // 31536000000 ms = 1 year
-      await this.cacheManager.set(namespace, next, 31536000000); 
-      
+      await this.cacheManager.set(namespace, next, 31536000000);
+
       this.logger.log({
         msg: `Cache BUMP VERSION`,
         operation: 'BUMP_VERSION',
@@ -149,7 +152,7 @@ export class CacheService {
         to: next,
         duration: `${Date.now() - start}ms`,
       });
-      
+
       return next;
     } catch (error) {
       this.logger.error({

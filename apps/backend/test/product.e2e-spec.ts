@@ -52,7 +52,7 @@ describe('Product (e2e)', () => {
     // 2. Setup User
     await connection.collection('users').deleteMany({});
     await connection.collection('firebaseauths').deleteMany({});
-    
+
     const userSignupResponse = await request(app.getHttpServer())
       .post('/graphql')
       .send({
@@ -71,15 +71,17 @@ describe('Product (e2e)', () => {
         `,
       });
     if (userSignupResponse.body.errors) {
-      console.error('Signup Errors:', JSON.stringify(userSignupResponse.body.errors, null, 2));
+      console.error(
+        'Signup Errors:',
+        JSON.stringify(userSignupResponse.body.errors, null, 2),
+      );
     }
     userToken = userSignupResponse.body.data.verifyOtpAndLogin;
 
     await connection.collection('categories').deleteMany({});
     try {
       await connection.collection('categories').dropIndex('id_1');
-    } catch (error) {
-    }
+    } catch (error) {}
     const category = await connection.collection('categories').insertOne({
       name: 'Snacks',
       slug: 'snacks',
@@ -151,23 +153,23 @@ describe('Product (e2e)', () => {
 
     it('should get products with category field resolver', async () => {
       await connection.collection('products').insertOne({
-        name: "Masala Sev",
-        slug: "masala-sev",
-        description: "Crispy masala sev",
+        name: 'Masala Sev',
+        slug: 'masala-sev',
+        description: 'Crispy masala sev',
         categoryId: categoryId,
-        brand: "Local Brand",
-        currency: "INR",
-        ingredients: "Gram flour, spices",
-        shelfLife: "6 months",
+        brand: 'Local Brand',
+        currency: 'INR',
+        ingredients: 'Gram flour, spices',
+        shelfLife: '6 months',
         isVegetarian: true,
         isGlutenFree: false,
         ratingCount: 0,
-        keywords: ["sev", "snacks"],
-        tags: ["bestseller"],
+        keywords: ['sev', 'snacks'],
+        tags: ['bestseller'],
         variants: [createTestVariant()],
         isArchived: false,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       });
 
       return request(app.getHttpServer())
@@ -199,14 +201,14 @@ describe('Product (e2e)', () => {
 
     it('should get product by id', async () => {
       const product = await connection.collection('products').insertOne({
-        name: "Test Product",
-        slug: "test-product",
-        description: "Test description",
+        name: 'Test Product',
+        slug: 'test-product',
+        description: 'Test description',
         categoryId: categoryId,
-        brand: "Test Brand",
-        currency: "INR",
-        ingredients: "Test ingredients",
-        shelfLife: "6 months",
+        brand: 'Test Brand',
+        currency: 'INR',
+        ingredients: 'Test ingredients',
+        shelfLife: '6 months',
         isVegetarian: true,
         isGlutenFree: false,
         ratingCount: 0,
@@ -214,9 +216,9 @@ describe('Product (e2e)', () => {
         tags: [],
         variants: [createTestVariant()],
         isArchived: false,
-        availabilityStatus: "in_stock",
+        availabilityStatus: 'in_stock',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       });
       const productId = product.insertedId.toString();
 
@@ -259,16 +261,16 @@ describe('Product (e2e)', () => {
 
     it('should get product by slug', async () => {
       await connection.collection('products').insertOne({
-        name: "Slug Test",
-        slug: "slug-test",
-        description: "Test",
+        name: 'Slug Test',
+        slug: 'slug-test',
+        description: 'Test',
         categoryId: categoryId,
         price: 75,
         mrp: 90,
         isArchived: false,
-        availabilityStatus: "in_stock",
+        availabilityStatus: 'in_stock',
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       });
 
       return request(app.getHttpServer())
@@ -283,7 +285,6 @@ describe('Product (e2e)', () => {
               }
             }
           `,
-
         })
         .expect(200)
         .expect((res) => {
@@ -294,14 +295,14 @@ describe('Product (e2e)', () => {
 
     it('should get products by category', async () => {
       await connection.collection('products').insertOne({
-        name: "Category Product 1",
-        slug: "category-product-1",
-        description: "Test",
+        name: 'Category Product 1',
+        slug: 'category-product-1',
+        description: 'Test',
         categoryId: categoryId,
-        brand: "Test Brand",
-        currency: "INR",
-        ingredients: "Test ingredients",
-        shelfLife: "6 months",
+        brand: 'Test Brand',
+        currency: 'INR',
+        ingredients: 'Test ingredients',
+        shelfLife: '6 months',
         isVegetarian: true,
         isGlutenFree: false,
         ratingCount: 0,
@@ -310,7 +311,7 @@ describe('Product (e2e)', () => {
         variants: [createTestVariant()],
         isArchived: false,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       });
 
       return request(app.getHttpServer())
@@ -339,23 +340,23 @@ describe('Product (e2e)', () => {
 
     it('should search products', async () => {
       await connection.collection('products').insertOne({
-        name: "Spicy Masala Chips",
-        slug: "spicy-masala-chips",
-        description: "Hot and spicy chips",
+        name: 'Spicy Masala Chips',
+        slug: 'spicy-masala-chips',
+        description: 'Hot and spicy chips',
         categoryId: categoryId,
-        brand: "Test Brand",
-        currency: "INR",
-        ingredients: "Test ingredients",
-        shelfLife: "6 months",
+        brand: 'Test Brand',
+        currency: 'INR',
+        ingredients: 'Test ingredients',
+        shelfLife: '6 months',
         isVegetarian: true,
         isGlutenFree: false,
         ratingCount: 0,
-        keywords: ["chips", "spicy", "masala"],
+        keywords: ['chips', 'spicy', 'masala'],
         tags: [],
         variants: [createTestVariant()],
         isArchived: false,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       });
 
       return request(app.getHttpServer())
@@ -485,13 +486,29 @@ describe('Product (e2e)', () => {
           expect(product.name).toBe('Premium Namkeen');
           expect(product.slug).toBe('premium-namkeen');
           expect(product.seo).toBeDefined();
-          expect(product.seo.metaTitle).toBe('Buy Premium Namkeen Online - Best Quality');
-          expect(product.seo.metaDescription).toBe('Shop premium quality namkeen online. Made with finest ingredients for the best taste.');
-          expect(product.seo.metaKeywords).toEqual(['premium namkeen', 'buy namkeen online', 'quality snacks']);
-          expect(product.seo.canonicalUrl).toBe('https://example.com/products/premium-namkeen');
-          expect(product.seo.ogTitle).toBe('Premium Namkeen - Best Quality Snacks');
-          expect(product.seo.ogDescription).toBe('Discover our premium namkeen made with the finest ingredients');
-          expect(product.seo.ogImage).toBe('https://example.com/og/premium-namkeen.jpg');
+          expect(product.seo.metaTitle).toBe(
+            'Buy Premium Namkeen Online - Best Quality',
+          );
+          expect(product.seo.metaDescription).toBe(
+            'Shop premium quality namkeen online. Made with finest ingredients for the best taste.',
+          );
+          expect(product.seo.metaKeywords).toEqual([
+            'premium namkeen',
+            'buy namkeen online',
+            'quality snacks',
+          ]);
+          expect(product.seo.canonicalUrl).toBe(
+            'https://example.com/products/premium-namkeen',
+          );
+          expect(product.seo.ogTitle).toBe(
+            'Premium Namkeen - Best Quality Snacks',
+          );
+          expect(product.seo.ogDescription).toBe(
+            'Discover our premium namkeen made with the finest ingredients',
+          );
+          expect(product.seo.ogImage).toBe(
+            'https://example.com/og/premium-namkeen.jpg',
+          );
           expect(product.variants).toHaveLength(1);
           expect(product.variants[0].price).toBe(80);
           expect(product.variants[0].mrp).toBe(100);
@@ -500,14 +517,14 @@ describe('Product (e2e)', () => {
 
     it('should allow ADMIN to update a product', async () => {
       const product = await connection.collection('products').insertOne({
-        name: "Original Name",
-        slug: "original-slug",
-        description: "Original",
+        name: 'Original Name',
+        slug: 'original-slug',
+        description: 'Original',
         categoryId: categoryId,
-        brand: "Original Brand",
-        currency: "INR",
-        ingredients: "Original ingredients",
-        shelfLife: "6 months",
+        brand: 'Original Brand',
+        currency: 'INR',
+        ingredients: 'Original ingredients',
+        shelfLife: '6 months',
         isVegetarian: true,
         isGlutenFree: false,
         ratingCount: 0,
@@ -516,7 +533,7 @@ describe('Product (e2e)', () => {
         variants: [createTestVariant()],
         isArchived: false,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       });
       const productId = product.insertedId.toString();
 
@@ -554,21 +571,23 @@ describe('Product (e2e)', () => {
           expect(product.description).toBe('Updated description');
           expect(product.seo).toBeDefined();
           expect(product.seo.metaTitle).toBe('Updated Meta Title');
-          expect(product.seo.metaDescription).toBe('Updated meta description for SEO');
+          expect(product.seo.metaDescription).toBe(
+            'Updated meta description for SEO',
+          );
           expect(product.seo.ogTitle).toBe('Updated OG Title');
         });
     });
 
     it('should fail to create product with duplicate slug', async () => {
       await connection.collection('products').insertOne({
-        name: "Unique Product",
-        slug: "unique-product-slug",
-        description: "Test",
+        name: 'Unique Product',
+        slug: 'unique-product-slug',
+        description: 'Test',
         categoryId: categoryId,
-        brand: "Test Brand",
-        currency: "INR",
-        ingredients: "Test ingredients",
-        shelfLife: "6 months",
+        brand: 'Test Brand',
+        currency: 'INR',
+        ingredients: 'Test ingredients',
+        shelfLife: '6 months',
         isVegetarian: true,
         isGlutenFree: false,
         ratingCount: 0,
@@ -577,7 +596,7 @@ describe('Product (e2e)', () => {
         variants: [createTestVariant()],
         isArchived: false,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       });
 
       // Try to create another product with the same slug
@@ -695,14 +714,14 @@ describe('Product (e2e)', () => {
 
     it('should FORBID USER from updating a product', async () => {
       const product = await connection.collection('products').insertOne({
-        name: "Test",
-        slug: "test",
-        description: "Test",
+        name: 'Test',
+        slug: 'test',
+        description: 'Test',
         categoryId: categoryId,
-        brand: "Test Brand",
-        currency: "INR",
-        ingredients: "Test ingredients",
-        shelfLife: "6 months",
+        brand: 'Test Brand',
+        currency: 'INR',
+        ingredients: 'Test ingredients',
+        shelfLife: '6 months',
         isVegetarian: true,
         isGlutenFree: false,
         ratingCount: 0,
@@ -711,7 +730,7 @@ describe('Product (e2e)', () => {
         variants: [createTestVariant()],
         isArchived: false,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       });
       const productId = product.insertedId.toString();
 

@@ -51,7 +51,12 @@ export class OrderCartLoggerService {
     });
   }
 
-  logOrderCreated(orderId: string, paymentOrderId: string, itemCount: number, totalAmount: string): void {
+  logOrderCreated(
+    orderId: string,
+    paymentOrderId: string,
+    itemCount: number,
+    totalAmount: string,
+  ): void {
     this.logger.info('Order created successfully', {
       event: 'ORDER_CREATED',
       orderId,

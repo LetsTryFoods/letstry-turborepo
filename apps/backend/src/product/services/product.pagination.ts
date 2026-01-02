@@ -2,7 +2,11 @@ import { PaginationResult } from '../../common/pagination';
 import { PaginationParams } from './product.types';
 
 export class PaginationCalculator {
-  static calculate(page: number, limit: number, totalCount: number): PaginationParams {
+  static calculate(
+    page: number,
+    limit: number,
+    totalCount: number,
+  ): PaginationParams {
     const skip = (page - 1) * limit;
     const totalPages = Math.ceil(totalCount / limit);
     return {

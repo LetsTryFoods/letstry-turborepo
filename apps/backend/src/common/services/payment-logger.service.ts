@@ -186,22 +186,14 @@ export class PaymentLoggerService implements LoggerService {
     });
   }
 
-  logPSPRequest(data: {
-    endpoint: string;
-    method: string;
-    payload: any;
-  }) {
+  logPSPRequest(data: { endpoint: string; method: string; payload: any }) {
     this.log('PSP Request', {
       event: 'PSP_REQUEST',
       ...data,
     });
   }
 
-  logPSPResponse(data: {
-    endpoint: string;
-    status: number;
-    response: any;
-  }) {
+  logPSPResponse(data: { endpoint: string; status: number; response: any }) {
     this.log('PSP Response', {
       event: 'PSP_RESPONSE',
       ...data,

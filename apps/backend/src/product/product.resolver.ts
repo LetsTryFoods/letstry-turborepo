@@ -11,7 +11,12 @@ import {
 import { ProductService } from './product.service';
 import { Product, ProductVariant, PriceRange } from './product.graphql';
 import { ProductSeo } from './product-seo.schema';
-import { CreateProductInput, UpdateProductInput, CreateProductVariantInput, UpdateProductVariantInput } from './product.input';
+import {
+  CreateProductInput,
+  UpdateProductInput,
+  CreateProductVariantInput,
+  UpdateProductVariantInput,
+} from './product.input';
 import { Public } from '../common/decorators/public.decorator';
 import { Category } from '../category/category.graphql';
 import { CategoryLoader } from '../category/category.loader';
@@ -207,7 +212,11 @@ export class ProductResolver {
     @Args('variantId', { type: () => ID }) variantId: string,
     @Args('quantity', { type: () => Int }) quantity: number,
   ): Promise<Product> {
-    return this.productService.updateVariantStock(productId, variantId, quantity);
+    return this.productService.updateVariantStock(
+      productId,
+      variantId,
+      quantity,
+    );
   }
 
   @Query(() => ProductVariant, { name: 'productVariant', nullable: true })
@@ -217,28 +226,37 @@ export class ProductResolver {
     @Args('variantId', { type: () => ID }) variantId: string,
   ): Promise<ProductVariant | null> {
     const product = await this.productService.findOne(productId);
-    return product.variants.find(v => v._id === variantId) || null;
+    return product.variants.find((v) => v._id === variantId) || null;
   }
 
   @ResolveField(() => [Category], { name: 'categories', nullable: true })
   async getCategories(@Parent() product: Product): Promise<Category[]> {
     if (!product.categoryIds || product.categoryIds.length === 0) return [];
     const categories = await Promise.all(
-      product.categoryIds.map(id => this.categoryLoader.batchCategories.load(id))
+      product.categoryIds.map((id) =>
+        this.categoryLoader.batchCategories.load(id),
+      ),
     );
-    return categories.filter(c => c !== null) as any[];
+    return categories.filter((c) => c !== null) as any[];
   }
 
-  @ResolveField(() => ProductVariant, { name: 'defaultVariant', nullable: true })
+  @ResolveField(() => ProductVariant, {
+    name: 'defaultVariant',
+    nullable: true,
+  })
   @Public()
-  async getDefaultVariant(@Parent() product: Product): Promise<ProductVariant | null> {
-    return product.variants.find(v => v.isDefault) || product.variants[0] || null;
+  async getDefaultVariant(
+    @Parent() product: Product,
+  ): Promise<ProductVariant | null> {
+    return (
+      product.variants.find((v) => v.isDefault) || product.variants[0] || null
+    );
   }
 
   @ResolveField(() => PriceRange, { name: 'priceRange' })
   @Public()
   async getPriceRange(@Parent() product: Product): Promise<PriceRange> {
-    const prices = product.variants.map(v => v.price);
+    const prices = product.variants.map((v) => v.price);
     return {
       min: Math.min(...prices),
       max: Math.max(...prices),
@@ -247,8 +265,10 @@ export class ProductResolver {
 
   @ResolveField(() => [ProductVariant], { name: 'availableVariants' })
   @Public()
-  async getAvailableVariants(@Parent() product: Product): Promise<ProductVariant[]> {
-    return product.variants.filter(v => v.isActive && v.stockQuantity > 0);
+  async getAvailableVariants(
+    @Parent() product: Product,
+  ): Promise<ProductVariant[]> {
+    return product.variants.filter((v) => v.isActive && v.stockQuantity > 0);
   }
 
   @ResolveField(() => ProductSeo, { name: 'seo', nullable: true })
@@ -256,5 +276,4 @@ export class ProductResolver {
   async getSeo(@Parent() product: Product): Promise<ProductSeo | null> {
     return this.productService.findSeoByProductId(product._id);
   }
-
 }

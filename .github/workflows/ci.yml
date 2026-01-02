@@ -77,6 +77,10 @@ jobs:
             set -e
             cd /var/www/letstry-turborepo
             
+            # Create logs directory
+            mkdir -p logs
+            chmod 755 logs
+            
             # Create .env file
             cat > .env.production << 'EOF'
             ${{ secrets.BACKEND_ENV }}            EOF

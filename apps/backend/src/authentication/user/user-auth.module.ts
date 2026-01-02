@@ -25,7 +25,7 @@ import { LoggerModule } from '../../logger/logger.module';
     LoggerModule,
     MongooseModule.forFeature([
       { name: Otp.name, schema: OtpSchema },
-      { name: Identity.name, schema: IdentitySchema }
+      { name: Identity.name, schema: IdentitySchema },
     ]),
   ],
   providers: [UserAuthService, UserAuthResolver, OtpService],

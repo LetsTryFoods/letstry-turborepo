@@ -1,7 +1,10 @@
 import { Injectable, ConflictException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { NewsletterSubscription, NewsletterSubscriptionDocument } from './newsletter.schema';
+import {
+  NewsletterSubscription,
+  NewsletterSubscriptionDocument,
+} from './newsletter.schema';
 import { SubscribeNewsletterInput } from './newsletter.input';
 import { SubscribeNewsletterResponse } from './newsletter.graphql';
 
@@ -12,7 +15,10 @@ export class NewsletterService {
     private newsletterModel: Model<NewsletterSubscriptionDocument>,
   ) {}
 
-  async subscribe(input: SubscribeNewsletterInput, ipAddress?: string): Promise<SubscribeNewsletterResponse> {
+  async subscribe(
+    input: SubscribeNewsletterInput,
+    ipAddress?: string,
+  ): Promise<SubscribeNewsletterResponse> {
     const normalizedEmail = this.normalizeEmail(input.email);
     const existingSubscription = await this.findByEmail(normalizedEmail);
 
@@ -28,11 +34,15 @@ export class NewsletterService {
     return email.toLowerCase().trim();
   }
 
-  private async findByEmail(email: string): Promise<NewsletterSubscriptionDocument | null> {
+  private async findByEmail(
+    email: string,
+  ): Promise<NewsletterSubscriptionDocument | null> {
     return this.newsletterModel.findOne({ email }).exec();
   }
 
-  private async handleExistingSubscription(subscription: NewsletterSubscriptionDocument): Promise<SubscribeNewsletterResponse> {
+  private async handleExistingSubscription(
+    subscription: NewsletterSubscriptionDocument,
+  ): Promise<SubscribeNewsletterResponse> {
     if (subscription.isActive) {
       return {
         success: false,
@@ -44,7 +54,9 @@ export class NewsletterService {
     return this.reactivateSubscription(subscription);
   }
 
-  private async reactivateSubscription(subscription: NewsletterSubscriptionDocument): Promise<SubscribeNewsletterResponse> {
+  private async reactivateSubscription(
+    subscription: NewsletterSubscriptionDocument,
+  ): Promise<SubscribeNewsletterResponse> {
     await this.updateSubscriptionStatus(subscription.email, true);
 
     return {
@@ -54,15 +66,20 @@ export class NewsletterService {
     };
   }
 
-  private async updateSubscriptionStatus(email: string, isActive: boolean): Promise<void> {
-    await this.newsletterModel.findOneAndUpdate(
-      { email },
-      { isActive },
-      { new: true }
-    ).exec();
+  private async updateSubscriptionStatus(
+    email: string,
+    isActive: boolean,
+  ): Promise<void> {
+    await this.newsletterModel
+      .findOneAndUpdate({ email }, { isActive }, { new: true })
+      .exec();
   }
 
-  private async createSubscription(email: string, source?: string, ipAddress?: string): Promise<void> {
+  private async createSubscription(
+    email: string,
+    source?: string,
+    ipAddress?: string,
+  ): Promise<void> {
     await this.newsletterModel.create({
       email,
       source,
@@ -102,7 +119,9 @@ export class NewsletterService {
     };
   }
 
-  private buildAlreadyUnsubscribedResponse(email: string): SubscribeNewsletterResponse {
+  private buildAlreadyUnsubscribedResponse(
+    email: string,
+  ): SubscribeNewsletterResponse {
     return {
       success: false,
       message: 'This email is already unsubscribed.',
@@ -110,7 +129,9 @@ export class NewsletterService {
     };
   }
 
-  private buildUnsubscribeSuccessResponse(email: string): SubscribeNewsletterResponse {
+  private buildUnsubscribeSuccessResponse(
+    email: string,
+  ): SubscribeNewsletterResponse {
     return {
       success: true,
       message: 'Successfully unsubscribed from our newsletter.',
@@ -118,7 +139,9 @@ export class NewsletterService {
     };
   }
 
-  async getAllSubscriptions(isActive?: boolean): Promise<NewsletterSubscription[]> {
+  async getAllSubscriptions(
+    isActive?: boolean,
+  ): Promise<NewsletterSubscription[]> {
     const filter = isActive !== undefined ? { isActive } : {};
     return this.newsletterModel.find(filter).sort({ createdAt: -1 }).exec();
   }

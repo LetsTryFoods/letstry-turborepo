@@ -1,6 +1,12 @@
-import { Field, ObjectType, InputType, registerEnumType, Int } from '@nestjs/graphql';
+import {
+  Field,
+  ObjectType,
+  InputType,
+  registerEnumType,
+  Int,
+} from '@nestjs/graphql';
 import { OrderStatus } from './order.schema';
-import { PaginationMeta } from '../../common/pagination';
+import { PaginationMeta } from '../common/pagination';
 
 registerEnumType(OrderStatus, {
   name: 'OrderStatus',
@@ -9,7 +15,7 @@ registerEnumType(OrderStatus, {
 @ObjectType()
 export class OrderItemType {
   @Field()
-  productId: string;
+  itemId: string;
 
   @Field()
   quantity: number;
@@ -143,17 +149,8 @@ export class PaginatedOrdersResponse {
   @Field(() => [OrderType])
   orders: OrderType[];
 
-  @Field()
-  total: number;
-
-  @Field()
-  page: number;
-
-  @Field()
-  limit: number;
-
-  @Field()
-  totalPages: number;
+  @Field(() => PaginationMeta)
+  meta: PaginationMeta;
 }
 
 @ObjectType()

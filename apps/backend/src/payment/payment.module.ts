@@ -10,7 +10,6 @@ import {
   PaymentReconciliation,
   PaymentReconciliationSchema,
 } from './payment.schema';
-import { Order, OrderSchema } from './order/order.schema';
 import { Identity, IdentitySchema } from '../common/schemas/identity.schema';
 import { PaymentService } from './payment.service';
 import { PaymentResolver } from './payment.resolver';
@@ -19,21 +18,20 @@ import { PaymentExecutorService } from './payment-executor.service';
 import { ZaakpayService } from './zaakpay.service';
 import { LedgerService } from './ledger.service';
 import { RefundService } from './refund.service';
-import { OrderService } from './order/order.service';
-import { OrderResolver } from './order/order.resolver';
-import { PaymentLoggerService } from './payment-logger.service';
+import { PaymentLoggerService } from '../common/services/payment-logger.service';
 import { PaymentGatewayFactory } from './payment-gateway.factory';
 import { CartModule } from '../cart/cart.module';
 import { SseService } from './sse/sse.service';
 import { SseController } from './sse/sse.controller';
 import { SseLoggerService } from './sse/sse-logger.service';
 import { WebhookLoggerService } from './webhook-logger.service';
-import { OrderCartLoggerService } from './order-cart-logger.service';
+import { OrderModule } from '../order/order.module';
 
 @Module({
   imports: [
     ConfigModule,
     CartModule,
+    OrderModule,
     EventEmitterModule.forRoot(),
     MongooseModule.forFeature([
       { name: PaymentEvent.name, schema: PaymentEventSchema },
@@ -41,7 +39,6 @@ import { OrderCartLoggerService } from './order-cart-logger.service';
       { name: Ledger.name, schema: LedgerSchema },
       { name: PaymentRefund.name, schema: PaymentRefundSchema },
       { name: PaymentReconciliation.name, schema: PaymentReconciliationSchema },
-      { name: Order.name, schema: OrderSchema },
       { name: Identity.name, schema: IdentitySchema },
     ]),
   ],
@@ -53,15 +50,12 @@ import { OrderCartLoggerService } from './order-cart-logger.service';
     ZaakpayService,
     LedgerService,
     RefundService,
-    OrderService,
-    OrderResolver,
     PaymentLoggerService,
     PaymentGatewayFactory,
     SseService,
     SseLoggerService,
     WebhookLoggerService,
-    OrderCartLoggerService,
   ],
-  exports: [PaymentService, OrderService],
+  exports: [PaymentService],
 })
 export class PaymentModule {}

@@ -50,7 +50,7 @@ describe('Banner (e2e)', () => {
     // 2. Setup User
     await connection.collection('users').deleteMany({});
     await connection.collection('firebaseauths').deleteMany({});
-    
+
     const userSignupResponse = await request(app.getHttpServer())
       .post('/graphql')
       .send({
@@ -101,11 +101,21 @@ describe('Banner (e2e)', () => {
     });
 
     it('should get active banners', async () => {
-       // Insert one active and one inactive banner
-       await connection.collection('banners').insertMany([
-         { name: 'Active Banner', isActive: true, createdAt: new Date(), updatedAt: new Date() },
-         { name: 'Inactive Banner', isActive: false, createdAt: new Date(), updatedAt: new Date() }
-       ]);
+      // Insert one active and one inactive banner
+      await connection.collection('banners').insertMany([
+        {
+          name: 'Active Banner',
+          isActive: true,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          name: 'Inactive Banner',
+          isActive: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ]);
 
       return request(app.getHttpServer())
         .post('/graphql')
@@ -128,13 +138,13 @@ describe('Banner (e2e)', () => {
     });
 
     it('should get banner by id', async () => {
-       const banner = await connection.collection('banners').insertOne({
-         name: 'Test Banner',
-         isActive: true,
-         createdAt: new Date(),
-         updatedAt: new Date()
-       });
-       const bannerId = banner.insertedId.toString();
+      const banner = await connection.collection('banners').insertOne({
+        name: 'Test Banner',
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      const bannerId = banner.insertedId.toString();
 
       return request(app.getHttpServer())
         .post('/graphql')
@@ -209,13 +219,13 @@ describe('Banner (e2e)', () => {
     });
 
     it('should allow ADMIN to update a banner', async () => {
-       const banner = await connection.collection('banners').insertOne({
-         name: 'Old Name',
-         isActive: true,
-         createdAt: new Date(),
-         updatedAt: new Date()
-       });
-       const bannerId = banner.insertedId.toString();
+      const banner = await connection.collection('banners').insertOne({
+        name: 'Old Name',
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      const bannerId = banner.insertedId.toString();
 
       return request(app.getHttpServer())
         .post('/graphql')
@@ -239,13 +249,13 @@ describe('Banner (e2e)', () => {
     });
 
     it('should allow ADMIN to delete a banner', async () => {
-       const banner = await connection.collection('banners').insertOne({
-         name: 'To Delete',
-         isActive: true,
-         createdAt: new Date(),
-         updatedAt: new Date()
-       });
-       const bannerId = banner.insertedId.toString();
+      const banner = await connection.collection('banners').insertOne({
+        name: 'To Delete',
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      const bannerId = banner.insertedId.toString();
 
       return request(app.getHttpServer())
         .post('/graphql')
@@ -322,13 +332,13 @@ describe('Banner (e2e)', () => {
     });
 
     it('should FORBID USER from updating a banner', async () => {
-       const banner = await connection.collection('banners').insertOne({
-         name: 'Test',
-         isActive: true,
-         createdAt: new Date(),
-         updatedAt: new Date()
-       });
-       const bannerId = banner.insertedId.toString();
+      const banner = await connection.collection('banners').insertOne({
+        name: 'Test',
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      const bannerId = banner.insertedId.toString();
 
       return request(app.getHttpServer())
         .post('/graphql')
@@ -352,13 +362,13 @@ describe('Banner (e2e)', () => {
     });
 
     it('should FORBID USER from deleting a banner', async () => {
-       const banner = await connection.collection('banners').insertOne({
-         name: 'Test',
-         isActive: true,
-         createdAt: new Date(),
-         updatedAt: new Date()
-       });
-       const bannerId = banner.insertedId.toString();
+      const banner = await connection.collection('banners').insertOne({
+        name: 'Test',
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      const bannerId = banner.insertedId.toString();
 
       return request(app.getHttpServer())
         .post('/graphql')

@@ -8,9 +8,7 @@ export class OtpService {
   private readonly OTP_EXPIRY_MINUTES = 10;
   private readonly MAX_ATTEMPTS = 5;
 
-  constructor(
-    @InjectModel(Otp.name) private otpModel: Model<OtpDocument>,
-  ) {}
+  constructor(@InjectModel(Otp.name) private otpModel: Model<OtpDocument>) {}
 
   generateOtpCode(): string {
     return Math.floor(100000 + Math.random() * 900000).toString();
@@ -18,7 +16,9 @@ export class OtpService {
 
   async createOtp(phoneNumber: string): Promise<string> {
     const code = this.generateOtpCode();
-    const expiresAt = new Date(Date.now() + this.OTP_EXPIRY_MINUTES * 60 * 1000);
+    const expiresAt = new Date(
+      Date.now() + this.OTP_EXPIRY_MINUTES * 60 * 1000,
+    );
 
     await this.otpModel.deleteMany({ phoneNumber, isVerified: false });
 

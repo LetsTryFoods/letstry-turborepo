@@ -14,9 +14,7 @@ export class CartResolver {
   @Query(() => Cart, { name: 'myCart', nullable: true })
   @Public()
   @UseGuards(DualAuthGuard)
-  async getMyCart(
-    @OptionalUser() user: any,
-  ): Promise<Cart | null> {
+  async getMyCart(@OptionalUser() user: any): Promise<Cart | null> {
     if (!user?._id) return null;
     return this.cartService.getCart(user._id);
   }
@@ -63,9 +61,7 @@ export class CartResolver {
   @Mutation(() => Cart, { name: 'clearCart' })
   @Public()
   @UseGuards(DualAuthGuard)
-  async clearCart(
-    @OptionalUser() user: any,
-  ): Promise<Cart> {
+  async clearCart(@OptionalUser() user: any): Promise<Cart> {
     if (!user?._id) {
       throw new Error('User identification required');
     }
@@ -88,9 +84,7 @@ export class CartResolver {
   @Mutation(() => Cart, { name: 'removeCoupon' })
   @Public()
   @UseGuards(DualAuthGuard)
-  async removeCoupon(
-    @OptionalUser() user: any,
-  ): Promise<Cart> {
+  async removeCoupon(@OptionalUser() user: any): Promise<Cart> {
     if (!user?._id) {
       throw new Error('User identification required');
     }

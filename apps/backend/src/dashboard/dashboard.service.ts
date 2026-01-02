@@ -5,7 +5,11 @@ import { Product, ProductDocument } from '../product/product.schema';
 import { Category, CategoryDocument } from '../category/category.schema';
 import { Banner, BannerDocument } from '../banner/banner.schema';
 import { Admin, AdminDocument } from '../admin/admin.schema';
-import { Identity, IdentityDocument, IdentityStatus } from '../common/schemas/identity.schema';
+import {
+  Identity,
+  IdentityDocument,
+  IdentityStatus,
+} from '../common/schemas/identity.schema';
 import { DashboardStats } from './dashboard.schema';
 
 @Injectable()
@@ -45,8 +49,14 @@ export class DashboardService {
       .exec();
     const totalAdmins = await this.adminModel.countDocuments().exec();
     const totalUsers = await this.identityModel
-      .countDocuments({ 
-        status: { $in: [IdentityStatus.REGISTERED, IdentityStatus.VERIFIED, IdentityStatus.ACTIVE] }
+      .countDocuments({
+        status: {
+          $in: [
+            IdentityStatus.REGISTERED,
+            IdentityStatus.VERIFIED,
+            IdentityStatus.ACTIVE,
+          ],
+        },
       })
       .exec();
 

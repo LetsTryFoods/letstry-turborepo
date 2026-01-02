@@ -8,18 +8,22 @@ export class ProductVariantValidator {
       throw new ConflictException('Product must have at least one variant');
     }
 
-    const defaultVariants = variants.filter(v => v.isDefault);
+    const defaultVariants = variants.filter((v) => v.isDefault);
     if (defaultVariants.length === 0) {
-      throw new ConflictException('Product must have exactly one default variant');
+      throw new ConflictException(
+        'Product must have exactly one default variant',
+      );
     }
     if (defaultVariants.length > 1) {
       throw new ConflictException('Product can have only one default variant');
     }
 
-    const skus = variants.map(v => v.sku);
+    const skus = variants.map((v) => v.sku);
     const uniqueSkus = new Set(skus);
     if (skus.length !== uniqueSkus.size) {
-      throw new ConflictException('All variant SKUs must be unique within the product');
+      throw new ConflictException(
+        'All variant SKUs must be unique within the product',
+      );
     }
   }
 

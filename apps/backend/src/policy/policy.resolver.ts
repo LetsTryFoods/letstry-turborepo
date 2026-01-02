@@ -18,9 +18,7 @@ export class PolicyResolver {
 
   @Query(() => [Policy], { name: 'policiesByType' })
   @Public()
-  async getPoliciesByType(
-    @Args('type') type: string,
-  ): Promise<Policy[]> {
+  async getPoliciesByType(@Args('type') type: string): Promise<Policy[]> {
     return this.policyService.findByType(type);
   }
 

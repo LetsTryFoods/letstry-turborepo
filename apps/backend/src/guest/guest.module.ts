@@ -7,7 +7,9 @@ import { LoggerModule } from '../logger/logger.module';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Identity.name, schema: IdentitySchema }]),
+    MongooseModule.forFeature([
+      { name: Identity.name, schema: IdentitySchema },
+    ]),
     LoggerModule,
   ],
   providers: [GuestService, GuestResolver],

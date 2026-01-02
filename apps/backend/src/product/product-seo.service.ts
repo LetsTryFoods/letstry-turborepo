@@ -8,7 +8,8 @@ import { WinstonLoggerService } from '../logger/logger.service';
 @Injectable()
 export class ProductSeoService {
   constructor(
-    @InjectModel(ProductSeo.name) private readonly productSeoModel: Model<ProductSeoDocument>,
+    @InjectModel(ProductSeo.name)
+    private readonly productSeoModel: Model<ProductSeoDocument>,
     private readonly logger: WinstonLoggerService,
   ) {}
 
@@ -16,7 +17,10 @@ export class ProductSeoService {
     return this.productSeoModel.findOne({ productId }).exec();
   }
 
-  async create(productId: string, seoInput: ProductSeoInput): Promise<ProductSeo> {
+  async create(
+    productId: string,
+    seoInput: ProductSeoInput,
+  ): Promise<ProductSeo> {
     const seo = new this.productSeoModel({
       productId,
       ...seoInput,
@@ -26,12 +30,17 @@ export class ProductSeoService {
     return savedSeo;
   }
 
-  async update(productId: string, seoInput: ProductSeoInput): Promise<ProductSeo | null> {
-    const seo = await this.productSeoModel.findOneAndUpdate(
-      { productId },
-      { $set: seoInput },
-      { new: true, upsert: true },
-    ).exec();
+  async update(
+    productId: string,
+    seoInput: ProductSeoInput,
+  ): Promise<ProductSeo | null> {
+    const seo = await this.productSeoModel
+      .findOneAndUpdate(
+        { productId },
+        { $set: seoInput },
+        { new: true, upsert: true },
+      )
+      .exec();
     this.logger.log(`ProductSeo updated for product: ${productId}`);
     return seo;
   }

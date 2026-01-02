@@ -20,7 +20,7 @@ import { CartValidationService } from './services/cart-validation.service';
   imports: [
     MongooseModule.forFeature([
       { name: Cart.name, schema: CartSchema },
-      { name: Identity.name, schema: IdentitySchema }
+      { name: Identity.name, schema: IdentitySchema },
     ]),
     ProductModule,
     LoggerModule,
@@ -40,4 +40,4 @@ import { CartValidationService } from './services/cart-validation.service';
   ],
   exports: [CartService],
 })
-export class CartModule { }
+export class CartModule {}

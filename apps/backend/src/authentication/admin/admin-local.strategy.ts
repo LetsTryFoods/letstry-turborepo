@@ -4,7 +4,10 @@ import { Strategy } from 'passport-local';
 import { AdminService } from '../../admin/admin.service';
 
 @Injectable()
-export class AdminLocalStrategy extends PassportStrategy(Strategy, 'admin-local') {
+export class AdminLocalStrategy extends PassportStrategy(
+  Strategy,
+  'admin-local',
+) {
   constructor(private adminService: AdminService) {
     super({
       usernameField: 'email',

@@ -20,13 +20,16 @@ export class ProductCommandService {
   async create(input: CreateProductInput): Promise<Product> {
     ProductVariantValidator.validateVariants(input.variants);
     for (const variant of input.variants) {
-      await ProductVariantValidator.validateSkuUnique(this.repository, variant.sku);
+      await ProductVariantValidator.validateSkuUnique(
+        this.repository,
+        variant.sku,
+      );
     }
     const slug = await this.resolveSlug(input.name, input.slug);
     const product = await this.repository.create({
       ...input,
       slug,
-      variants: input.variants,  // Let Mongoose generate ObjectIds automatically
+      variants: input.variants, // Let Mongoose generate ObjectIds automatically
     });
 
     await this.cacheInvalidator.invalidateProduct(product);
@@ -44,10 +47,19 @@ export class ProductCommandService {
 
       for (const variant of input.variants) {
         const currentProduct = await this.repository.findById(id);
-        const existingVariant = currentProduct?.variants?.find(v => v._id === variant._id);
-        
-        if (variant.sku && (!existingVariant || existingVariant.sku !== variant.sku)) {
-          await ProductVariantValidator.validateSkuUnique(this.repository, variant.sku, id);
+        const existingVariant = currentProduct?.variants?.find(
+          (v) => v._id === variant._id,
+        );
+
+        if (
+          variant.sku &&
+          (!existingVariant || existingVariant.sku !== variant.sku)
+        ) {
+          await ProductVariantValidator.validateSkuUnique(
+            this.repository,
+            variant.sku,
+            id,
+          );
         }
       }
     }
@@ -63,7 +75,10 @@ export class ProductCommandService {
       throw new NotFoundException(`Product with ID ${id} not found`);
     }
 
-    await this.cacheInvalidator.invalidateProduct(product, oldProduct || undefined);
+    await this.cacheInvalidator.invalidateProduct(
+      product,
+      oldProduct || undefined,
+    );
     this.logger.log(`Product updated: ${id}`);
     return product;
   }
@@ -107,11 +122,16 @@ export class ProductCommandService {
       throw new NotFoundException(`Product with ID ${productId} not found`);
     }
 
-    await ProductVariantValidator.validateSkuUnique(this.repository, variantInput.sku);
+    await ProductVariantValidator.validateSkuUnique(
+      this.repository,
+      variantInput.sku,
+    );
 
     const newVariant = {
       ...variantInput,
-      _id: new Date().getTime().toString() + Math.random().toString(36).substr(2, 9),
+      _id:
+        new Date().getTime().toString() +
+        Math.random().toString(36).substr(2, 9),
     };
 
     const updatedVariants = [...product.variants, newVariant];
@@ -128,23 +148,38 @@ export class ProductCommandService {
     return updatedProduct!;
   }
 
-  async updateVariant(productId: string, variantId: string, variantUpdate: any): Promise<Product> {
+  async updateVariant(
+    productId: string,
+    variantId: string,
+    variantUpdate: any,
+  ): Promise<Product> {
     const product = await this.repository.findById(productId);
     if (!product) {
       throw new NotFoundException(`Product with ID ${productId} not found`);
     }
 
-    const variantIndex = product.variants.findIndex(v => v._id === variantId);
+    const variantIndex = product.variants.findIndex((v) => v._id === variantId);
     if (variantIndex === -1) {
       throw new NotFoundException(`Variant with ID ${variantId} not found`);
     }
 
-    if (variantUpdate.sku && product.variants[variantIndex].sku !== variantUpdate.sku) {
-      await ProductVariantValidator.validateSkuUnique(this.repository, variantUpdate.sku, productId);
+    if (
+      variantUpdate.sku &&
+      product.variants[variantIndex].sku !== variantUpdate.sku
+    ) {
+      await ProductVariantValidator.validateSkuUnique(
+        this.repository,
+        variantUpdate.sku,
+        productId,
+      );
     }
 
     const updatedVariants = [...product.variants];
-    updatedVariants[variantIndex] = { ...updatedVariants[variantIndex], ...variantUpdate, _id: variantId };
+    updatedVariants[variantIndex] = {
+      ...updatedVariants[variantIndex],
+      ...variantUpdate,
+      _id: variantId,
+    };
 
     ProductVariantValidator.validateVariants(updatedVariants);
 
@@ -155,7 +190,9 @@ export class ProductCommandService {
     );
 
     await this.cacheInvalidator.invalidateProduct(updatedProduct!);
-    this.logger.log(`Variant updated in product: ${productId}, variant: ${variantId}`);
+    this.logger.log(
+      `Variant updated in product: ${productId}, variant: ${variantId}`,
+    );
     return updatedProduct!;
   }
 
@@ -166,16 +203,20 @@ export class ProductCommandService {
     }
 
     if (product.variants.length === 1) {
-      throw new ConflictException('Cannot remove the last variant. Product must have at least one variant');
+      throw new ConflictException(
+        'Cannot remove the last variant. Product must have at least one variant',
+      );
     }
 
-    const variant = product.variants.find(v => v._id === variantId);
+    const variant = product.variants.find((v) => v._id === variantId);
     if (!variant) {
       throw new NotFoundException(`Variant with ID ${variantId} not found`);
     }
 
     if (variant.isDefault && product.variants.length > 1) {
-      throw new ConflictException('Cannot remove default variant. Set another variant as default first');
+      throw new ConflictException(
+        'Cannot remove default variant. Set another variant as default first',
+      );
     }
 
     const updatedProduct = await this.repository.findByIdAndUpdate(
@@ -185,22 +226,27 @@ export class ProductCommandService {
     );
 
     await this.cacheInvalidator.invalidateProduct(updatedProduct!);
-    this.logger.log(`Variant removed from product: ${productId}, variant: ${variantId}`);
+    this.logger.log(
+      `Variant removed from product: ${productId}, variant: ${variantId}`,
+    );
     return updatedProduct!;
   }
 
-  async setDefaultVariant(productId: string, variantId: string): Promise<Product> {
+  async setDefaultVariant(
+    productId: string,
+    variantId: string,
+  ): Promise<Product> {
     const product = await this.repository.findById(productId);
     if (!product) {
       throw new NotFoundException(`Product with ID ${productId} not found`);
     }
 
-    const variantExists = product.variants.some(v => v._id === variantId);
+    const variantExists = product.variants.some((v) => v._id === variantId);
     if (!variantExists) {
       throw new NotFoundException(`Variant with ID ${variantId} not found`);
     }
 
-    const updatedVariants = product.variants.map(v => ({
+    const updatedVariants = product.variants.map((v) => ({
       ...v,
       isDefault: v._id === variantId,
     }));
@@ -212,17 +258,23 @@ export class ProductCommandService {
     );
 
     await this.cacheInvalidator.invalidateProduct(updatedProduct!);
-    this.logger.log(`Default variant set for product: ${productId}, variant: ${variantId}`);
+    this.logger.log(
+      `Default variant set for product: ${productId}, variant: ${variantId}`,
+    );
     return updatedProduct!;
   }
 
-  async updateVariantStock(productId: string, variantId: string, quantity: number): Promise<Product> {
+  async updateVariantStock(
+    productId: string,
+    variantId: string,
+    quantity: number,
+  ): Promise<Product> {
     const product = await this.repository.findById(productId);
     if (!product) {
       throw new NotFoundException(`Product with ID ${productId} not found`);
     }
 
-    const variantIndex = product.variants.findIndex(v => v._id === variantId);
+    const variantIndex = product.variants.findIndex((v) => v._id === variantId);
     if (variantIndex === -1) {
       throw new NotFoundException(`Variant with ID ${variantId} not found`);
     }
@@ -241,16 +293,20 @@ export class ProductCommandService {
     );
 
     await this.cacheInvalidator.invalidateProduct(updatedProduct!);
-    this.logger.log(`Variant stock updated: ${productId}, variant: ${variantId}, quantity: ${quantity}`);
+    this.logger.log(
+      `Variant stock updated: ${productId}, variant: ${variantId}, quantity: ${quantity}`,
+    );
     return updatedProduct!;
   }
 
-  private async resolveSlug(name: string, providedSlug?: string): Promise<string> {
+  private async resolveSlug(
+    name: string,
+    providedSlug?: string,
+  ): Promise<string> {
     if (!providedSlug) {
       const baseSlug = this.slugService.generateSlug(name);
-      return this.slugService.generateUniqueSlug(
-        baseSlug,
-        (s) => this.checkSlugExists(s),
+      return this.slugService.generateUniqueSlug(baseSlug, (s) =>
+        this.checkSlugExists(s),
       );
     }
 
@@ -258,19 +314,28 @@ export class ProductCommandService {
     return providedSlug;
   }
 
-  private async validateSlugUnique(slug: string, excludeId?: string): Promise<void> {
+  private async validateSlugUnique(
+    slug: string,
+    excludeId?: string,
+  ): Promise<void> {
     if (await this.checkSlugExists(slug, excludeId)) {
       throw new ConflictException(`Product with slug '${slug}' already exists`);
     }
   }
 
-  private async checkSlugExists(slug: string, excludeId?: string): Promise<boolean> {
+  private async checkSlugExists(
+    slug: string,
+    excludeId?: string,
+  ): Promise<boolean> {
     const filter = ProductQueryBuilder.forSlugCheck(slug, excludeId);
     const count = await this.repository.countDocuments(filter);
     return count > 0;
   }
 
-  private async updateArchiveStatus(id: string, isArchived: boolean): Promise<Product> {
+  private async updateArchiveStatus(
+    id: string,
+    isArchived: boolean,
+  ): Promise<Product> {
     const product = await this.repository.findByIdAndUpdate(
       id,
       { $set: { isArchived } },

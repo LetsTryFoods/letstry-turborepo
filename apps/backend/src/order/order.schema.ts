@@ -16,8 +16,20 @@ export class Order extends Document {
   @Prop({ required: true, unique: true })
   orderId: string;
 
-  @Prop({ required: true, type: Types.ObjectId, ref: 'Identity' })
+  @Prop({ type: Types.ObjectId, ref: 'Identity' })
   identityId: Types.ObjectId;
+
+  @Prop({ type: Object })
+  placerContact: {
+    phone?: string;
+    email?: string;
+  };
+
+  @Prop({ type: Object, required: true })
+  recipientContact: {
+    phone: string;
+    email?: string;
+  };
 
   @Prop({ required: true, type: Types.ObjectId, ref: 'PaymentOrder' })
   paymentOrderId: Types.ObjectId;
@@ -31,7 +43,12 @@ export class Order extends Document {
   @Prop({ required: true })
   currency: string;
 
-  @Prop({ required: true, type: String, enum: OrderStatus, default: OrderStatus.PENDING })
+  @Prop({
+    required: true,
+    type: String,
+    enum: OrderStatus,
+    default: OrderStatus.PENDING,
+  })
   orderStatus: OrderStatus;
 
   @Prop({ type: Types.ObjectId, ref: 'Address' })
@@ -39,12 +56,8 @@ export class Order extends Document {
 
   @Prop({ type: Array })
   items: Array<{
-    productId: Types.ObjectId;
+    itemId: Types.ObjectId;
     quantity: number;
-    price: string;
-    totalPrice: string;
-    name: string;
-    sku: string;
   }>;
 
   @Prop({ type: Date })

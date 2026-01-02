@@ -1,5 +1,11 @@
 import { InputType, Field, Float } from '@nestjs/graphql';
-import { IsNotEmpty, IsString, IsOptional, IsBoolean, IsNumber } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsOptional,
+  IsBoolean,
+  IsNumber,
+} from 'class-validator';
 
 @InputType()
 export class CreateAddressInput {

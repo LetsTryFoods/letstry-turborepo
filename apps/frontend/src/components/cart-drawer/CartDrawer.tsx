@@ -14,6 +14,7 @@ import { PaymentModal } from './PaymentModal';
 interface CartDrawerProps {
   isOpen: boolean;
   onClose: () => void;
+  isAuthenticated: boolean;
   items: Array<{
     id: string;
     image: string;
@@ -78,6 +79,7 @@ interface CartDrawerProps {
 export const CartDrawer: React.FC<CartDrawerProps> = ({
   isOpen,
   onClose,
+  isAuthenticated,
   items,
   suggestions,
   totalPrice,
@@ -112,6 +114,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   userDetails,
 }) => {
   const [isMobile, setIsMobile] = React.useState(false);
+
+  useEffect(() => {
+    console.log('CartDrawer - isAuthenticated:', isAuthenticated);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -219,6 +225,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               onClose={onToggleAddressDetailsModal}
               onSave={onSaveAddressDetails}
               onPhoneValidationFailed={onPhoneValidationFailed}
+              isAuthenticated={isAuthenticated}
             />
 
             <PaymentModal

@@ -16,6 +16,7 @@ interface AddressDetailsModalProps {
   onSave: (details: AddressFormData) => void;
   onPhoneValidationFailed: (phone: string, formData: AddressFormData) => void;
   initialData?: Partial<AddressFormData>;
+  isAuthenticated: boolean;
 }
 
 export interface AddressFormData {
@@ -26,6 +27,9 @@ export interface AddressFormData {
   floor?: string;
   streetArea?: string;
   landmark?: string;
+  isOrderingForSomeoneElse?: boolean;
+  placerPhone?: string;
+  placerEmail?: string;
 }
 
 export const AddressDetailsModal: React.FC<AddressDetailsModalProps> = ({
@@ -34,10 +38,15 @@ export const AddressDetailsModal: React.FC<AddressDetailsModalProps> = ({
   onSave,
   onPhoneValidationFailed,
   initialData,
+  isAuthenticated,
 }) => {
   const [shouldCheckPhone, setShouldCheckPhone] = useState(false);
   const hasShownAlertRef = useRef(false);
   const lastCheckedPhoneRef = useRef('');
+  
+  React.useEffect(() => {
+    console.log('AddressDetailsModal - isAuthenticated:', isAuthenticated);
+  }, [isAuthenticated]);
   
   const { register, handleSubmit, watch, setValue, getValues } = useForm<AddressFormData>({
     defaultValues: {
@@ -164,6 +173,56 @@ export const AddressDetailsModal: React.FC<AddressDetailsModalProps> = ({
                   placeholder="Enter recipient name"
                   validation={{ required: true }}
                 />
+
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="isOrderingForSomeoneElse"
+                    {...register('isOrderingForSomeoneElse')}
+                    className="w-4 h-4 text-[#0F4A6A] bg-gray-100 border-gray-300 rounded focus:ring-[#0F4A6A] focus:ring-2"
+                  />
+                  <label htmlFor="isOrderingForSomeoneElse" className="text-sm text-gray-700">
+                    Ordering for someone else?
+                  </label>
+                </div>
+
+                {watch('isOrderingForSomeoneElse') && !isAuthenticated && (
+                  <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+                    <p className="text-sm text-gray-600">Please provide your contact details (the person placing the order):</p>
+                    
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-900 mb-2 uppercase tracking-wide">
+                        Your Phone Number
+                      </label>
+                      <div className="flex gap-2">
+                        <div className="w-20 px-3 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 font-medium">
+                          +91
+                        </div>
+                        <input
+                          type="tel"
+                          {...register('placerPhone')}
+                          className="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0F4A6A] focus:border-transparent"
+                          placeholder="Enter your phone number"
+                        />
+                      </div>
+                    </div>
+
+                    <FormInput
+                      label="Your Email (optional)"
+                      name="placerEmail"
+                      register={register}
+                      placeholder="Enter your email"
+                    />
+                  </div>
+                )}
+
+                {watch('isOrderingForSomeoneElse') && isAuthenticated && (
+                  <div className="p-4 bg-blue-50 rounded-lg">
+                    <p className="text-sm text-gray-700">
+                      Your contact details will be automatically used for this order.
+                    </p>
+                  </div>
+                )}
 
                 <FormInput
                   label="Building Name"

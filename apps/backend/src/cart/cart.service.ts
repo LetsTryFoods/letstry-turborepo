@@ -30,7 +30,7 @@ export class CartService {
     private readonly cartMergeService: CartMergeService,
     private readonly cartValidationService: CartValidationService,
     private readonly logger: WinstonLoggerService,
-  ) { }
+  ) {}
 
   async getCart(identityId: string): Promise<CartDocument | null> {
     this.logger.log('Fetching cart', { identityId }, 'CartModule');
@@ -41,14 +41,13 @@ export class CartService {
     identityId: string,
     input: AddToCartInput,
   ): Promise<CartDocument> {
-    this.logger.log(
-      'Adding to cart',
-      { identityId, input },
-      'CartModule',
-    );
+    this.logger.log('Adding to cart', { identityId, input }, 'CartModule');
 
     const cart = await this.getOrCreateCart(identityId);
-    const { product, variantId } = await this.productValidationService.validateProductAvailability(input.productId);
+    const { product, variantId } =
+      await this.productValidationService.validateProductAvailability(
+        input.productId,
+      );
 
     const variant = variantId
       ? product.variants.find((v: any) => v._id.toString() === variantId)
@@ -77,14 +76,13 @@ export class CartService {
     identityId: string,
     input: UpdateCartItemInput,
   ): Promise<CartDocument> {
-    this.logger.log(
-      'Updating cart item',
-      { identityId, input },
-      'CartModule',
-    );
+    this.logger.log('Updating cart item', { identityId, input }, 'CartModule');
     const cart = await this.cartRepositoryService.getCartOrThrow(identityId);
 
-    const itemIndex = this.cartItemService.findItemIndexInCart(cart.items, input.productId);
+    const itemIndex = this.cartItemService.findItemIndexInCart(
+      cart.items,
+      input.productId,
+    );
     if (itemIndex === -1) {
       throw new NotFoundException('Item not found in cart');
     }
@@ -92,28 +90,30 @@ export class CartService {
     if (input.quantity === 0) {
       cart.items.splice(itemIndex, 1);
     } else {
-      this.cartItemService.updateItemQuantity(cart.items[itemIndex], input.quantity);
+      this.cartItemService.updateItemQuantity(
+        cart.items[itemIndex],
+        input.quantity,
+      );
     }
 
     return this.saveAndRecalculateCart(cart);
   }
 
-  async mergeCarts(guestIdentityId: string, userIdentityId: string): Promise<void> {
+  async mergeCarts(
+    guestIdentityId: string,
+    userIdentityId: string,
+  ): Promise<void> {
     return this.cartMergeService.mergeCarts(guestIdentityId, userIdentityId);
   }
 
-  async applyCoupon(
-    identityId: string,
-    code: string,
-  ): Promise<CartDocument> {
-    this.logger.log(
-      'Applying coupon',
-      { identityId, code },
-      'CartModule',
-    );
+  async applyCoupon(identityId: string, code: string): Promise<CartDocument> {
+    this.logger.log('Applying coupon', { identityId, code }, 'CartModule');
     const cart = await this.cartRepositoryService.getCartOrThrow(identityId);
 
-    await this.cartDiscountService.validateAndApplyCoupon(code, cart.totalsSummary.subtotal);
+    await this.cartDiscountService.validateAndApplyCoupon(
+      code,
+      cart.totalsSummary.subtotal,
+    );
     cart.couponCode = code;
     return this.saveAndRecalculateCart(cart);
   }

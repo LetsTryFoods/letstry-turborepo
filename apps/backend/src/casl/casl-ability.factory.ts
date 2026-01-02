@@ -1,4 +1,10 @@
-import { AbilityBuilder, createMongoAbility, MongoAbility, ExtractSubjectType, InferSubjects } from '@casl/ability';
+import {
+  AbilityBuilder,
+  createMongoAbility,
+  MongoAbility,
+  ExtractSubjectType,
+  InferSubjects,
+} from '@casl/ability';
 import { Injectable } from '@nestjs/common';
 import { Role } from '../common/enums/role.enum';
 import { ISubject } from '../common/interfaces/subject.interface';
@@ -20,12 +26,14 @@ export type AppAbility = MongoAbility<[Action, Subjects]>;
 @Injectable()
 export class CaslAbilityFactory {
   createForUser(user: ISubject) {
-    const { can, cannot, build } = new AbilityBuilder<AppAbility>(createMongoAbility);
+    const { can, cannot, build } = new AbilityBuilder<AppAbility>(
+      createMongoAbility,
+    );
 
     if (user.role === Role.ADMIN) {
-      can(Action.Manage, 'all'); 
+      can(Action.Manage, 'all');
     } else {
-      can(Action.Read, 'all'); 
+      can(Action.Read, 'all');
     }
 
     return build({

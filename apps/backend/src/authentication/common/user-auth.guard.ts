@@ -1,4 +1,8 @@
-import { Injectable, ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  ExecutionContext,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Reflector } from '@nestjs/core';
 import { GqlExecutionContext } from '@nestjs/graphql';
@@ -16,13 +20,13 @@ export class UserAuthGuard extends AuthGuard('jwt') {
       context.getHandler(),
       context.getClass(),
     ]);
-    
+
     if (isPublic) {
       return true;
     }
-    
+
     const result = await super.canActivate(context);
-    
+
     if (!result) {
       throw new UnauthorizedException('Authentication required');
     }
@@ -31,7 +35,9 @@ export class UserAuthGuard extends AuthGuard('jwt') {
     const user = request.user;
 
     if (!user || user.role !== Role.USER) {
-      throw new UnauthorizedException('Only logged-in users can access this resource');
+      throw new UnauthorizedException(
+        'Only logged-in users can access this resource',
+      );
     }
 
     return true;

@@ -33,7 +33,9 @@ export class NewsletterSubscription {
   updatedAt: Date;
 }
 
-export const NewsletterSubscriptionSchema = SchemaFactory.createForClass(NewsletterSubscription);
+export const NewsletterSubscriptionSchema = SchemaFactory.createForClass(
+  NewsletterSubscription,
+);
 
 NewsletterSubscriptionSchema.index({ email: 1 }, { unique: true });
 NewsletterSubscriptionSchema.index({ isActive: 1 });

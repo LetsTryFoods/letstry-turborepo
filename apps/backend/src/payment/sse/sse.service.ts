@@ -41,7 +41,9 @@ export class SseService {
     status: string;
     message?: string;
   }): void {
-    this.logger.log(`Payment status event received: ${payload.paymentOrderId} - ${payload.status}`);
+    this.logger.log(
+      `Payment status event received: ${payload.paymentOrderId} - ${payload.status}`,
+    );
     this.sseLogger.logEventReceived(payload.paymentOrderId, payload.status);
     this.sendEventToClients(payload.paymentOrderId, payload);
   }
@@ -50,24 +52,37 @@ export class SseService {
     const connections = this.connections.get(paymentOrderId);
 
     if (!connections || connections.length === 0) {
-      this.logger.warn(`No SSE connections found for payment ${paymentOrderId}`);
+      this.logger.warn(
+        `No SSE connections found for payment ${paymentOrderId}`,
+      );
       return;
     }
 
     connections.forEach((conn) => {
       try {
         conn.response.write(`data: ${JSON.stringify(data)}\n\n`);
-        this.logger.log(`SSE event sent to client for payment ${paymentOrderId}`);
+        this.logger.log(
+          `SSE event sent to client for payment ${paymentOrderId}`,
+        );
         this.sseLogger.logEventSent(paymentOrderId, data);
 
         if (this.isFinalStatus(data.status)) {
           conn.response.end();
-          this.logger.log(`SSE connection closed for payment ${paymentOrderId} (final status)`);
-          this.sseLogger.logConnectionClosed(paymentOrderId, `Final status: ${data.status}`);
+          this.logger.log(
+            `SSE connection closed for payment ${paymentOrderId} (final status)`,
+          );
+          this.sseLogger.logConnectionClosed(
+            paymentOrderId,
+            `Final status: ${data.status}`,
+          );
         }
       } catch (error) {
         this.logger.error(`Failed to send SSE event: ${error.message}`);
-        this.sseLogger.logError('Failed to send SSE event', error, paymentOrderId);
+        this.sseLogger.logError(
+          'Failed to send SSE event',
+          error,
+          paymentOrderId,
+        );
         this.removeConnection(paymentOrderId, conn.response);
       }
     });

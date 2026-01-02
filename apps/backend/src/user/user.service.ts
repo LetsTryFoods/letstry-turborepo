@@ -1,10 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { User } from './user.schema';
 import { GetCustomersInput } from './user.input';
-import {
-  PaginatedCustomersResponse,
-  CustomerDetails,
-} from './user.graphql';
+import { PaginatedCustomersResponse, CustomerDetails } from './user.graphql';
 import { UserCrudService, CreateUserData } from './services/user-crud.service';
 import { CustomerQueryService } from './services/customer-query.service';
 import { CustomerStatsService } from './services/customer-stats.service';
@@ -23,7 +20,7 @@ export class UserService {
     private customerDetailsService: CustomerDetailsService,
     private userActivityService: UserActivityService,
     private paginationService: PaginationService,
-  ) { }
+  ) {}
 
   async createUser(data: CreateUserData): Promise<User> {
     return this.userCrudService.createUser(data);
@@ -55,15 +52,27 @@ export class UserService {
     ]);
 
     let enrichedCustomers =
-      await this.customerEnrichmentService.enrichCustomersWithOrderData(allCustomers);
+      await this.customerEnrichmentService.enrichCustomersWithOrderData(
+        allCustomers,
+      );
 
-    enrichedCustomers = this.customerQueryService.applySpendingFilter(enrichedCustomers, input);
-    enrichedCustomers = this.customerQueryService.applySorting(enrichedCustomers, input);
+    enrichedCustomers = this.customerQueryService.applySpendingFilter(
+      enrichedCustomers,
+      input,
+    );
+    enrichedCustomers = this.customerQueryService.applySorting(
+      enrichedCustomers,
+      input,
+    );
 
     const totalCount = enrichedCustomers.length;
     const paginatedCustomers = enrichedCustomers.slice(skip, skip + limit);
 
-    const meta = this.paginationService.buildPaginationMeta(totalCount, page, limit);
+    const meta = this.paginationService.buildPaginationMeta(
+      totalCount,
+      page,
+      limit,
+    );
 
     return { customers: paginatedCustomers, meta, summary };
   }

@@ -51,6 +51,10 @@ export class NewsletterResolver {
 
   private extractIpAddress(context: any): string | undefined {
     const req = context.req;
-    return req?.ip || req?.headers?.['x-forwarded-for'] || req?.connection?.remoteAddress;
+    return (
+      req?.ip ||
+      req?.headers?.['x-forwarded-for'] ||
+      req?.connection?.remoteAddress
+    );
   }
 }

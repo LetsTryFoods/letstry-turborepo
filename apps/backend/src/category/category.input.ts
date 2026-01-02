@@ -11,7 +11,7 @@ export class CreateCategoryInput {
   @Field({ nullable: true })
   description?: string;
 
-  @Field({nullable :true})
+  @Field({ nullable: true })
   favourite?: boolean;
 
   @Field(() => String, { nullable: true })
@@ -41,7 +41,7 @@ export class UpdateCategoryInput {
   @Field({ nullable: true })
   description?: string;
 
-  @Field({nullable :true})
+  @Field({ nullable: true })
   favourite?: boolean;
 
   @Field(() => String, { nullable: true })

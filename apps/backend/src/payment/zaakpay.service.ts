@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
 import axios from 'axios';
-import { PaymentLoggerService } from './payment-logger.service';
+import { PaymentLoggerService } from '../common/services/payment-logger.service';
 
 interface ZaakPayConfig {
   merchantId: string;

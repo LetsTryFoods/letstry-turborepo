@@ -1,13 +1,21 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { OrderService } from './order.service';
-import { GetMyOrdersInput, CancelOrderInput, GetAllOrdersInput } from './order.input';
-import { OrderType, PaginatedOrdersResponse, AdminOrdersResponse } from './order.graphql';
-import { DualAuthGuard } from '../../authentication/common/dual-auth.guard';
-import { RolesGuard } from '../../common/guards/roles.guard';
-import { Roles } from '../../common/decorators/roles.decorator';
-import { Role } from '../../common/enums/role.enum';
-import { OptionalUser } from '../../common/decorators/optional-user.decorator';
+import {
+  GetMyOrdersInput,
+  CancelOrderInput,
+  GetAllOrdersInput,
+} from './order.input';
+import {
+  OrderType,
+  PaginatedOrdersResponse,
+  AdminOrdersResponse,
+} from './order.graphql';
+import { DualAuthGuard } from '../authentication/common/dual-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
+import { Roles } from '../common/decorators/roles.decorator';
+import { Role } from '../common/enums/role.enum';
+import { OptionalUser } from '../common/decorators/optional-user.decorator';
 
 @Resolver()
 export class OrderResolver {
@@ -25,7 +33,9 @@ export class OrderResolver {
     }
 
     if (user.isGuest || user.role === Role.GUEST) {
-      throw new Error('Guest users cannot access orders. Please log in to view your orders.');
+      throw new Error(
+        'Guest users cannot access orders. Please log in to view your orders.',
+      );
     }
 
     const mergedGuestIds = user.mergedGuestIds || [];
@@ -33,6 +43,7 @@ export class OrderResolver {
     const result = await this.orderService.getOrdersByIdentity({
       identityId: user._id,
       mergedGuestIds,
+      userPhone: user.phone,
       page: input.page,
       limit: input.limit,
       status: input.status,
@@ -40,7 +51,7 @@ export class OrderResolver {
 
     return {
       ...result,
-      orders: result.orders.map(o => o.toObject ? o.toObject() : o),
+      orders: result.orders.map((o) => (o.toObject ? o.toObject() : o)),
     };
   }
 
@@ -65,7 +76,9 @@ export class OrderResolver {
     }
 
     if (user.isGuest || user.role === Role.GUEST) {
-      throw new Error('Guest users cannot access orders. Please log in to view order details.');
+      throw new Error(
+        'Guest users cannot access orders. Please log in to view order details.',
+      );
     }
 
     const order = await this.orderService.getOrderById(orderId);
@@ -84,7 +97,9 @@ export class OrderResolver {
     }
 
     if (user.isGuest || user.role === Role.GUEST) {
-      throw new Error('Guest users cannot cancel orders. Please log in to manage your orders.');
+      throw new Error(
+        'Guest users cannot cancel orders. Please log in to manage your orders.',
+      );
     }
 
     const order = await this.orderService.cancelOrder({

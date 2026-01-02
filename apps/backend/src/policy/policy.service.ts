@@ -93,11 +93,17 @@ export class PolicyRepository {
   }
 
   async findOne(filter: PolicyFilter): Promise<Policy | null> {
-    return this.policyModel.findOne(filter).lean().exec() as unknown as Policy | null;
+    return this.policyModel
+      .findOne(filter)
+      .lean()
+      .exec() as unknown as Policy | null;
   }
 
   async findById(id: string): Promise<Policy | null> {
-    return this.policyModel.findById(id).lean().exec() as unknown as Policy | null;
+    return this.policyModel
+      .findById(id)
+      .lean()
+      .exec() as unknown as Policy | null;
   }
 
   async create(data: any): Promise<Policy> {
@@ -137,7 +143,8 @@ export class PolicyCacheStrategyFactory {
     return new VersionedCacheStrategy<Policy[]>(
       this.cacheService,
       this.cacheKeyFactory.getPolicyListVersionKey(),
-      (version) => this.cacheKeyFactory.getPolicyListKey(version, type || 'all'),
+      (version) =>
+        this.cacheKeyFactory.getPolicyListKey(version, type || 'all'),
     );
   }
 
@@ -304,7 +311,10 @@ export class PolicyService {
       cacheKeyFactory,
     );
 
-    this.queryService = new PolicyQueryService(repository, cacheStrategyFactory);
+    this.queryService = new PolicyQueryService(
+      repository,
+      cacheStrategyFactory,
+    );
     this.commandService = new PolicyCommandService(
       repository,
       cacheInvalidatorService,

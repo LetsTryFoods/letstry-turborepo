@@ -17,7 +17,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
-
     if (!request || !response) {
       this.logger.error(
         'Exception in non-HTTP context',
@@ -34,7 +33,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       status = exception.getStatus();
       const exceptionResponse = exception.getResponse() as any;
-      
+
       if (typeof exceptionResponse === 'object') {
         message = exceptionResponse.message || exception.message;
         code = exceptionResponse.code || 'HTTP_ERROR';

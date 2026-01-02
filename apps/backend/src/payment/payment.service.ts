@@ -9,7 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { PaymentEvent, PaymentOrder, PaymentStatus } from './payment.schema';
 import { PaymentExecutorService } from './payment-executor.service';
 import { RefundService } from './refund.service';
-import { PaymentLoggerService } from './payment-logger.service';
+import { PaymentLoggerService } from '../common/services/payment-logger.service';
 import {
   InitiatePaymentInput,
   ProcessRefundInput,
@@ -297,6 +297,8 @@ export class PaymentService {
       reason: `${context}: ${error.message}`,
       pspResponseCode: 'N/A',
     });
-    throw new BadRequestException(`Failed to ${context.toLowerCase()}: ${error.message}`);
+    throw new BadRequestException(
+      `Failed to ${context.toLowerCase()}: ${error.message}`,
+    );
   }
 }

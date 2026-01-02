@@ -16,7 +16,7 @@ describe('User Auth (e2e) - Real Firebase', () => {
   let decodedUid: string;
 
   beforeAll(async () => {
-    // NOTE: We are NOT mocking FirebaseService here. 
+    // NOTE: We are NOT mocking FirebaseService here.
     // We want to use the REAL implementation to verify the token with Firebase.
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -32,7 +32,10 @@ describe('User Auth (e2e) - Real Firebase', () => {
       decodedUid = decodedToken.uid;
       console.log(`Successfully decoded token for UID: ${decodedUid}`);
     } catch (error) {
-      console.error('Failed to decode REAL_ID_TOKEN. Is it valid and fresh?', error.message);
+      console.error(
+        'Failed to decode REAL_ID_TOKEN. Is it valid and fresh?',
+        error.message,
+      );
     }
   });
 
@@ -72,35 +75,37 @@ describe('User Auth (e2e) - Real Firebase', () => {
       .expect(200)
       .expect((res) => {
         if (res.body.errors) {
-          console.error('GraphQL Errors:', JSON.stringify(res.body.errors, null, 2));
+          console.error(
+            'GraphQL Errors:',
+            JSON.stringify(res.body.errors, null, 2),
+          );
         }
         expect(res.body.data.verifyOtpAndLogin).toBeDefined();
       });
   });
 
   it('should login an existing user with a REAL token', async () => {
-     if (!decodedUid) {
+    if (!decodedUid) {
       return;
     }
 
-    
     const user = await connection.collection('users').insertOne({
-      phoneNumber: "+918851951492",
-      first_name: "Real",
-      last_name: "Tester",
-      role: "user",
+      phoneNumber: '+918851951492',
+      first_name: 'Real',
+      last_name: 'Tester',
+      role: 'user',
       created_at: new Date(),
       updated_at: new Date(),
-      marketing_sms_opt_in: false
+      marketing_sms_opt_in: false,
     });
 
     await connection.collection('firebaseauths').insertOne({
       user_id: user.insertedId,
       firebase_uid: decodedUid,
       created_at: new Date(),
-      updated_at: new Date()
+      updated_at: new Date(),
     });
-    
+
     return request(app.getHttpServer())
       .post('/graphql')
       .send({
@@ -114,10 +119,10 @@ describe('User Auth (e2e) - Real Firebase', () => {
       })
       .expect(200)
       .expect((res) => {
-         if (res.body.errors) {
-           console.log('Login result:', JSON.stringify(res.body, null, 2));
-         }
-         expect(res.body.data.verifyOtpAndLogin).toBeDefined();
+        if (res.body.errors) {
+          console.log('Login result:', JSON.stringify(res.body, null, 2));
+        }
+        expect(res.body.data.verifyOtpAndLogin).toBeDefined();
       });
   });
 
@@ -147,7 +152,7 @@ describe('User Auth (e2e) - Real Firebase', () => {
     if (!decodedUid) return;
 
     // Ensure DB is empty (it is cleared in beforeEach, so we are good)
-    
+
     return request(app.getHttpServer())
       .post('/graphql')
       .send({

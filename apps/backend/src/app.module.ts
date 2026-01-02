@@ -22,10 +22,27 @@ import { ChargesModule } from './charges/charges.module';
 import { AddressModule } from './address/address.module';
 import { PaymentModule } from './payment/payment.module';
 import { NewsletterModule } from './newsletter/newsletter.module';
-
+import { OrderModule } from './order/order.module';
+import { PackingModule } from './packing/packing.module';
+import { BoxSizeModule } from './box-size/box-size.module';
+import { BullModule } from '@nestjs/bullmq';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
+    BullModule.forRootAsync({
+      imports: [CoreModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        const redisConfig = configService.get('redis');
+        return {
+          connection: {
+            host: redisConfig.host,
+            port: redisConfig.port,
+          },
+        };
+      },
+    }),
     CoreModule,
     CatalogModule,
     IdentityModule,
@@ -41,6 +58,9 @@ import { NewsletterModule } from './newsletter/newsletter.module';
     AddressModule,
     PaymentModule,
     NewsletterModule,
+    OrderModule,
+    PackingModule,
+    BoxSizeModule,
     AuthenticationModule,
     AppCacheModule,
   ],

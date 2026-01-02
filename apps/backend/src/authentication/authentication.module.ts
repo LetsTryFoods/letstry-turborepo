@@ -27,13 +27,28 @@ import { Identity, IdentitySchema } from '../common/schemas/identity.schema';
       }),
       inject: [ConfigService],
     }),
-    MongooseModule.forFeature([{ name: Identity.name, schema: IdentitySchema }]),
+    MongooseModule.forFeature([
+      { name: Identity.name, schema: IdentitySchema },
+    ]),
     AdminModule,
     UserModule,
     FirebaseModule,
     UserAuthModule,
   ],
-  providers: [JwtStrategy, JwtAuthGuard, DualAuthGuard, UserAuthGuard, AdminAuthService, AdminLocalStrategy],
-  exports: [JwtAuthGuard, DualAuthGuard, UserAuthGuard, JwtModule, AdminAuthService],
+  providers: [
+    JwtStrategy,
+    JwtAuthGuard,
+    DualAuthGuard,
+    UserAuthGuard,
+    AdminAuthService,
+    AdminLocalStrategy,
+  ],
+  exports: [
+    JwtAuthGuard,
+    DualAuthGuard,
+    UserAuthGuard,
+    JwtModule,
+    AdminAuthService,
+  ],
 })
 export class AuthenticationModule {}

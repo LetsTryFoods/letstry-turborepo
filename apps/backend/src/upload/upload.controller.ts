@@ -60,7 +60,12 @@ export class UploadController {
   }
 
   @Post('presigned-url')
-  async getPresignedUploadUrl(@Body() body: { filename: string; contentType?: string }) {
-    return this.uploadService.generatePresignedUploadData(body.filename, body.contentType);
+  async getPresignedUploadUrl(
+    @Body() body: { filename: string; contentType?: string },
+  ) {
+    return this.uploadService.generatePresignedUploadData(
+      body.filename,
+      body.contentType,
+    );
   }
 }

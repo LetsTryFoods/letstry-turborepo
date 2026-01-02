@@ -100,7 +100,8 @@ export class ProductVariant {
   isActive: boolean;
 }
 
-export const ProductVariantSchema = SchemaFactory.createForClass(ProductVariant);
+export const ProductVariantSchema =
+  SchemaFactory.createForClass(ProductVariant);
 
 @Schema({ timestamps: true })
 @ObjectType()

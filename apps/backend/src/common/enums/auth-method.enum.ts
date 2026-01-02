@@ -1,4 +1,4 @@
 export enum AuthMethod {
-    FIREBASE = 'firebase',
-    WHATSAPP = 'whatsapp',
+  FIREBASE = 'firebase',
+  WHATSAPP = 'whatsapp',
 }

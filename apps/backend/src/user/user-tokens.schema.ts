@@ -4,7 +4,7 @@ import { ObjectType, Field, ID, GraphQLISODateTime } from '@nestjs/graphql';
 
 export type UserTokensDocument = UserTokens & Document;
 
-// Right now this scehma will be empty becuse our auth is manage by the firebase from client side so we have to store only the firebase uid and rest firebase manage but when we move to the third party we have manage the  token and refresh token by our self so this schema is for that time 
+// Right now this scehma will be empty becuse our auth is manage by the firebase from client side so we have to store only the firebase uid and rest firebase manage but when we move to the third party we have manage the  token and refresh token by our self so this schema is for that time
 @Schema()
 @ObjectType()
 export class UserTokens {

@@ -1,5 +1,9 @@
 import { ObjectType, Field, Float } from '@nestjs/graphql';
-import { Product as ProductSchema, ProductImage, ProductVariant } from './product.schema';
+import {
+  Product as ProductSchema,
+  ProductImage,
+  ProductVariant,
+} from './product.schema';
 
 @ObjectType()
 export class Product extends ProductSchema {

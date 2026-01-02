@@ -50,7 +50,7 @@ describe('Category (e2e)', () => {
     // 2. Setup User
     await connection.collection('users').deleteMany({});
     await connection.collection('firebaseauths').deleteMany({});
-    
+
     const userSignupResponse = await request(app.getHttpServer())
       .post('/graphql')
       .send({
@@ -109,16 +109,16 @@ describe('Category (e2e)', () => {
     });
 
     it('should get root categories', async () => {
-       await connection.collection('categories').insertOne({
-         name: 'Root',
-         slug: 'root',
-         codeValue: 'root',
-         inCodeSet: 'test',
-         parentId: null,
-         isArchived: false,
-         createdAt: new Date(),
-         updatedAt: new Date()
-       });
+      await connection.collection('categories').insertOne({
+        name: 'Root',
+        slug: 'root',
+        codeValue: 'root',
+        inCodeSet: 'test',
+        parentId: null,
+        isArchived: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
 
       return request(app.getHttpServer())
         .post('/graphql')
@@ -142,29 +142,29 @@ describe('Category (e2e)', () => {
     });
 
     it('should get category children', async () => {
-       const parent = await connection.collection('categories').insertOne({
-         name: 'Parent',
-         slug: 'parent',
-         codeValue: 'parent',
-         inCodeSet: 'test',
-         isArchived: false,
-         createdAt: new Date(),
-         updatedAt: new Date()
-       });
-       const parentId = parent.insertedId.toString();
+      const parent = await connection.collection('categories').insertOne({
+        name: 'Parent',
+        slug: 'parent',
+        codeValue: 'parent',
+        inCodeSet: 'test',
+        isArchived: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      const parentId = parent.insertedId.toString();
 
-       await connection.collection('categories').insertOne({
-         name: 'Child Category',
-         slug: 'child',
-         codeValue: 'child',
-         inCodeSet: 'test',
-         parentId: parentId,
-         isArchived: false,
-         createdAt: new Date(),
-         updatedAt: new Date()
-       });
+      await connection.collection('categories').insertOne({
+        name: 'Child Category',
+        slug: 'child',
+        codeValue: 'child',
+        inCodeSet: 'test',
+        parentId: parentId,
+        isArchived: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
 
-        // Test getting children
+      // Test getting children
       const childrenResponse = await request(app.getHttpServer())
         .post('/graphql')
         .send({
@@ -185,9 +185,9 @@ describe('Category (e2e)', () => {
       expect(childrenResponse.body.data.categoryChildren.items[0].name).toBe(
         'Child Category',
       );
-      expect(childrenResponse.body.data.categoryChildren.items[0].parentId).toBe(
-        parentId,
-      );
+      expect(
+        childrenResponse.body.data.categoryChildren.items[0].parentId,
+      ).toBe(parentId);
     });
 
     it('should return null for non-existent category', () => {
@@ -238,15 +238,15 @@ describe('Category (e2e)', () => {
     });
 
     it('should allow ADMIN to update a category', async () => {
-       const category = await connection.collection('categories').insertOne({
-         name: 'Original',
-         slug: 'original',
-         codeValue: 'original',
-         inCodeSet: 'test',
-         createdAt: new Date(),
-         updatedAt: new Date()
-       });
-       const categoryId = category.insertedId.toString();
+      const category = await connection.collection('categories').insertOne({
+        name: 'Original',
+        slug: 'original',
+        codeValue: 'original',
+        inCodeSet: 'test',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      const categoryId = category.insertedId.toString();
 
       return request(app.getHttpServer())
         .post('/graphql')
@@ -270,16 +270,16 @@ describe('Category (e2e)', () => {
     });
 
     it('should allow ADMIN to archive a category', async () => {
-       const category = await connection.collection('categories').insertOne({
-         name: 'To Archive',
-         slug: 'to-archive',
-         codeValue: 'archive',
-         inCodeSet: 'test',
-         isArchived: false,
-         createdAt: new Date(),
-         updatedAt: new Date()
-       });
-       const categoryId = category.insertedId.toString();
+      const category = await connection.collection('categories').insertOne({
+        name: 'To Archive',
+        slug: 'to-archive',
+        codeValue: 'archive',
+        inCodeSet: 'test',
+        isArchived: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      const categoryId = category.insertedId.toString();
 
       return request(app.getHttpServer())
         .post('/graphql')
@@ -301,16 +301,16 @@ describe('Category (e2e)', () => {
     });
 
     it('should allow ADMIN to unarchive a category', async () => {
-       const category = await connection.collection('categories').insertOne({
-         name: 'To Unarchive',
-         slug: 'to-unarchive',
-         codeValue: 'unarchive',
-         inCodeSet: 'test',
-         isArchived: true,
-         createdAt: new Date(),
-         updatedAt: new Date()
-       });
-       const categoryId = category.insertedId.toString();
+      const category = await connection.collection('categories').insertOne({
+        name: 'To Unarchive',
+        slug: 'to-unarchive',
+        codeValue: 'unarchive',
+        inCodeSet: 'test',
+        isArchived: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      const categoryId = category.insertedId.toString();
 
       return request(app.getHttpServer())
         .post('/graphql')
@@ -360,15 +360,15 @@ describe('Category (e2e)', () => {
     });
 
     it('should FORBID USER from updating a category', async () => {
-       const category = await connection.collection('categories').insertOne({
-         name: 'Test',
-         slug: 'test',
-         codeValue: 'test',
-         inCodeSet: 'test',
-         createdAt: new Date(),
-         updatedAt: new Date()
-       });
-       const categoryId = category.insertedId.toString();
+      const category = await connection.collection('categories').insertOne({
+        name: 'Test',
+        slug: 'test',
+        codeValue: 'test',
+        inCodeSet: 'test',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      const categoryId = category.insertedId.toString();
 
       return request(app.getHttpServer())
         .post('/graphql')
@@ -392,15 +392,15 @@ describe('Category (e2e)', () => {
     });
 
     it('should FORBID USER from archiving a category', async () => {
-       const category = await connection.collection('categories').insertOne({
-         name: 'Test',
-         slug: 'test',
-         codeValue: 'test',
-         inCodeSet: 'test',
-         createdAt: new Date(),
-         updatedAt: new Date()
-       });
-       const categoryId = category.insertedId.toString();
+      const category = await connection.collection('categories').insertOne({
+        name: 'Test',
+        slug: 'test',
+        codeValue: 'test',
+        inCodeSet: 'test',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      const categoryId = category.insertedId.toString();
 
       return request(app.getHttpServer())
         .post('/graphql')

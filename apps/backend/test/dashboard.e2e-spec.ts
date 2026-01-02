@@ -51,7 +51,7 @@ describe('Dashboard (e2e)', () => {
     // 2. Setup User
     await connection.collection('users').deleteMany({});
     await connection.collection('firebaseauths').deleteMany({});
-    
+
     const userSignupResponse = await request(app.getHttpServer())
       .post('/graphql')
       .send({

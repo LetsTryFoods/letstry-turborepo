@@ -5,9 +5,15 @@ import { FirebaseAuth, FirebaseAuthDocument } from './firebase-auth.schema';
 
 @Injectable()
 export class FirebaseAuthService {
-  constructor(@InjectModel(FirebaseAuth.name) private firebaseAuthModel: Model<FirebaseAuthDocument>) {}
+  constructor(
+    @InjectModel(FirebaseAuth.name)
+    private firebaseAuthModel: Model<FirebaseAuthDocument>,
+  ) {}
 
-  async createFirebaseAuth(userId: string, firebaseUid: string): Promise<FirebaseAuthDocument> {
+  async createFirebaseAuth(
+    userId: string,
+    firebaseUid: string,
+  ): Promise<FirebaseAuthDocument> {
     const firebaseAuth = new this.firebaseAuthModel({
       userId: userId,
       firebaseUid: firebaseUid,
@@ -15,7 +21,9 @@ export class FirebaseAuthService {
     return await firebaseAuth.save();
   }
 
-  async findByFirebaseUid(firebaseUid: string): Promise<FirebaseAuthDocument | null> {
+  async findByFirebaseUid(
+    firebaseUid: string,
+  ): Promise<FirebaseAuthDocument | null> {
     return await this.firebaseAuthModel.findOne({ firebaseUid: firebaseUid });
   }
 }

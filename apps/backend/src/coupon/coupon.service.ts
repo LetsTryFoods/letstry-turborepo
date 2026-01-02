@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Coupon, CouponDocument, DiscountType } from './coupon.schema';
@@ -28,7 +32,7 @@ export class CouponService {
 
   async validateCoupon(code: string, cartTotal: number): Promise<Coupon> {
     const coupon = await this.getCouponByCode(code);
-    
+
     this.validateStatus(coupon);
     this.validateValidityPeriod(coupon);
     this.validateUsageLimit(coupon);
@@ -58,7 +62,9 @@ export class CouponService {
 
   private validateEligibility(coupon: Coupon, cartTotal: number): void {
     if (coupon.minCartValue && cartTotal < coupon.minCartValue) {
-      throw new BadRequestException(`Minimum cart value of ${coupon.minCartValue} required`);
+      throw new BadRequestException(
+        `Minimum cart value of ${coupon.minCartValue} required`,
+      );
     }
   }
 
@@ -72,15 +78,18 @@ export class CouponService {
 
   async getActiveCoupons(): Promise<Coupon[]> {
     const now = new Date();
-    return this.couponModel.find({
-      isActive: true,
-      startDate: { $lte: now },
-      endDate: { $gte: now },
-      $or: [
-        { usageLimit: { $exists: false } },
-        { usageLimit: null },
-        { $expr: { $lt: ['$usageCount', '$usageLimit'] } }
-      ]
-    }).sort({ createdAt: -1 }).exec();
+    return this.couponModel
+      .find({
+        isActive: true,
+        startDate: { $lte: now },
+        endDate: { $gte: now },
+        $or: [
+          { usageLimit: { $exists: false } },
+          { usageLimit: null },
+          { $expr: { $lt: ['$usageCount', '$usageLimit'] } },
+        ],
+      })
+      .sort({ createdAt: -1 })
+      .exec();
   }
 }

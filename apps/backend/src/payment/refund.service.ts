@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import { PaymentRefund, PaymentOrder, PaymentStatus } from './payment.schema';
 import { ZaakpayService } from './zaakpay.service';
 import { LedgerService } from './ledger.service';
-import { PaymentLoggerService } from './payment-logger.service';
+import { PaymentLoggerService } from '../common/services/payment-logger.service';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
@@ -177,11 +177,10 @@ export class RefundService {
     }
 
     try {
-      const zaakpayStatus =
-        await this.zaakpayService.checkTransactionStatus({
-          orderId: paymentOrder.paymentOrderId,
-          merchantRefId: refund.zaakpayRefundId,
-        });
+      const zaakpayStatus = await this.zaakpayService.checkTransactionStatus({
+        orderId: paymentOrder.paymentOrderId,
+        merchantRefId: refund.zaakpayRefundId,
+      });
 
       if (zaakpayStatus.success && zaakpayStatus.orders?.length > 0) {
         const order = zaakpayStatus.orders[0];

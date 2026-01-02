@@ -52,7 +52,8 @@ export class AdminResolver {
         secure: process.env.NODE_ENV === 'production',
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
         maxAge: 0,
-        domain: process.env.NODE_ENV === 'production' ? '.krsna.site' : undefined,
+        domain:
+          process.env.NODE_ENV === 'production' ? '.krsna.site' : undefined,
       });
     }
     return 'Admin logged out successfully';

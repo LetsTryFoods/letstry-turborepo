@@ -1,7 +1,14 @@
 import { InputType, Field } from '@nestjs/graphql';
-import { IsNotEmpty, IsString, IsOptional, IsNumber, Min, IsEnum } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsOptional,
+  IsNumber,
+  Min,
+  IsEnum,
+} from 'class-validator';
 import { OrderStatus } from './order.schema';
-import { PaginationInput } from '../../common/pagination';
+import { PaginationInput } from '../common/pagination';
 
 @InputType()
 export class GetOrderByIdInput {

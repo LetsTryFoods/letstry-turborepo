@@ -62,7 +62,11 @@ export class PaymentOrder extends Document {
   @Prop({ required: true })
   currency: string;
 
-  @Prop({ type: String, enum: PaymentStatus, default: PaymentStatus.NOT_STARTED })
+  @Prop({
+    type: String,
+    enum: PaymentStatus,
+    default: PaymentStatus.NOT_STARTED,
+  })
   paymentOrderStatus: PaymentStatus;
 
   @Prop({ type: String, enum: PaymentMethod })
@@ -162,7 +166,11 @@ export class PaymentRefund extends Document {
   @Prop()
   reason: string;
 
-  @Prop({ type: String, enum: PaymentStatus, default: PaymentStatus.NOT_STARTED })
+  @Prop({
+    type: String,
+    enum: PaymentStatus,
+    default: PaymentStatus.NOT_STARTED,
+  })
   refundStatus: PaymentStatus;
 
   @Prop()
@@ -218,4 +226,6 @@ export class PaymentReconciliation extends Document {
   processedAt: Date;
 }
 
-export const PaymentReconciliationSchema = SchemaFactory.createForClass(PaymentReconciliation);
+export const PaymentReconciliationSchema = SchemaFactory.createForClass(
+  PaymentReconciliation,
+);

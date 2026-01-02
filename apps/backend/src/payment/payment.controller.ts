@@ -2,7 +2,7 @@ import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PaymentExecutorService } from './payment-executor.service';
 import { ZaakpayService } from './zaakpay.service';
-import { PaymentLoggerService } from './payment-logger.service';
+import { PaymentLoggerService } from '../common/services/payment-logger.service';
 import { WebhookLoggerService } from './webhook-logger.service';
 import { Public } from '../common/decorators/public.decorator';
 
@@ -32,8 +32,15 @@ export class PaymentController {
       this.webhookLogger.logChecksumVerification(body.txnData, checksumValid);
 
       if (!checksumValid) {
-        this.paymentLogger.error('Webhook checksum verification failed', '', body);
-        this.webhookLogger.logWebhookError('Checksum verification failed', body);
+        this.paymentLogger.error(
+          'Webhook checksum verification failed',
+          '',
+          body,
+        );
+        this.webhookLogger.logWebhookError(
+          'Checksum verification failed',
+          body,
+        );
         return 'FAILURE';
       }
 
@@ -42,7 +49,11 @@ export class PaymentController {
       const paymentOrderId = txnData.orderId;
       const responseCode = txnData.responseCode;
 
-      this.webhookLogger.logPaymentStatusUpdate(paymentOrderId, txnData.status, responseCode);
+      this.webhookLogger.logPaymentStatusUpdate(
+        paymentOrderId,
+        txnData.status,
+        responseCode,
+      );
 
       if (responseCode === '100') {
         await this.paymentExecutorService.handlePaymentSuccess({
@@ -54,13 +65,21 @@ export class PaymentController {
           cardNumber: txnData.cardNumber,
           pspRawResponse: txnData,
         });
-        this.emitPaymentStatusEvent(paymentOrderId, 'SUCCESS', 'Payment completed successfully');
+        this.emitPaymentStatusEvent(
+          paymentOrderId,
+          'SUCCESS',
+          'Payment completed successfully',
+        );
       } else if (responseCode === '200' || responseCode === '300') {
         await this.paymentExecutorService.handlePaymentPending({
           paymentOrderId,
           pspResponseMessage: txnData.responseDescription,
         });
-        this.emitPaymentStatusEvent(paymentOrderId, 'PENDING', txnData.responseDescription);
+        this.emitPaymentStatusEvent(
+          paymentOrderId,
+          'PENDING',
+          txnData.responseDescription,
+        );
       } else {
         await this.paymentExecutorService.handlePaymentFailure({
           paymentOrderId,
@@ -69,7 +88,11 @@ export class PaymentController {
           pspResponseMessage: txnData.responseDescription,
           pspRawResponse: txnData,
         });
-        this.emitPaymentStatusEvent(paymentOrderId, 'FAILED', txnData.responseDescription || 'Payment failed');
+        this.emitPaymentStatusEvent(
+          paymentOrderId,
+          'FAILED',
+          txnData.responseDescription || 'Payment failed',
+        );
       }
 
       return 'SUCCESS';
@@ -78,7 +101,10 @@ export class PaymentController {
         error: error.message,
         body,
       });
-      this.webhookLogger.logWebhookError(error.message, { stack: error.stack, body });
+      this.webhookLogger.logWebhookError(error.message, {
+        stack: error.stack,
+        body,
+      });
       return 'FAILURE';
     }
   }
@@ -86,7 +112,7 @@ export class PaymentController {
   private parseTxnData(txnDataString: string): any {
     try {
       const parsed = JSON.parse(txnDataString);
-      
+
       if (parsed.txns && parsed.txns.length > 0) {
         const txn = parsed.txns[0];
         return {
@@ -102,27 +128,34 @@ export class PaymentController {
           status: txn.responseCode === '100' ? 'SUCCESS' : 'FAILED',
         };
       }
-      
+
       throw new Error('No transactions found in webhook data');
     } catch (error) {
-      this.webhookLogger.logWebhookError('Failed to parse txnData', { error: error.message, txnDataString });
+      this.webhookLogger.logWebhookError('Failed to parse txnData', {
+        error: error.message,
+        txnDataString,
+      });
       throw error;
     }
   }
 
   private mapPaymentMethod(method: string): string {
     const methodMap: { [key: string]: string } = {
-      'CC': 'CREDIT_CARD',
-      'DC': 'DEBIT_CARD',
-      'NB': 'NET_BANKING',
-      'UPI': 'UPI',
-      'WALLET': 'WALLET',
+      CC: 'CREDIT_CARD',
+      DC: 'DEBIT_CARD',
+      NB: 'NET_BANKING',
+      UPI: 'UPI',
+      WALLET: 'WALLET',
     };
-    
+
     return methodMap[method] || 'CREDIT_CARD';
   }
 
-  private emitPaymentStatusEvent(paymentOrderId: string, status: string, message?: string): void {
+  private emitPaymentStatusEvent(
+    paymentOrderId: string,
+    status: string,
+    message?: string,
+  ): void {
     this.eventEmitter.emit('payment.status.updated', {
       paymentOrderId,
       status,

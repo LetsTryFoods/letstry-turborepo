@@ -2,8 +2,20 @@ import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { AddressService } from './address.service';
 import { Address } from './address.schema';
-import { CreateAddressInput, UpdateAddressInput, GeocodeAddressInput, ReverseGeocodeInput, SearchPlacesInput, PlaceDetailsInput } from './address.input';
-import { GoogleMapsAddressOutput, PlacePredictionOutput, PlaceDetailsOutput, PhoneCheckOutput } from './address.graphql';
+import {
+  CreateAddressInput,
+  UpdateAddressInput,
+  GeocodeAddressInput,
+  ReverseGeocodeInput,
+  SearchPlacesInput,
+  PlaceDetailsInput,
+} from './address.input';
+import {
+  GoogleMapsAddressOutput,
+  PlacePredictionOutput,
+  PlaceDetailsOutput,
+  PhoneCheckOutput,
+} from './address.graphql';
 import { DualAuthGuard } from '../authentication/common/dual-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Public } from 'src/common/decorators/public.decorator';
@@ -92,7 +104,10 @@ export class AddressResolver {
   async getPlaceDetails(
     @Args('input') input: PlaceDetailsInput,
   ): Promise<PlaceDetailsOutput> {
-    return this.addressService.getPlaceDetails(input.placeId, input.sessionToken);
+    return this.addressService.getPlaceDetails(
+      input.placeId,
+      input.sessionToken,
+    );
   }
 
   @Public()

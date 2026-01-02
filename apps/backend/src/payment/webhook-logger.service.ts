@@ -58,7 +58,11 @@ export class WebhookLoggerService {
     });
   }
 
-  logPaymentStatusUpdate(paymentOrderId: string, status: string, responseCode: string): void {
+  logPaymentStatusUpdate(
+    paymentOrderId: string,
+    status: string,
+    responseCode: string,
+  ): void {
     this.logger.info('Payment status update', {
       event: 'PAYMENT_STATUS_UPDATE',
       paymentOrderId,

@@ -51,7 +51,11 @@ export class QueryExecutor {
         this.repository.countDocuments(filter),
         this.repository.findPaginated(filter, paginationParams.skip, limit),
       ]);
-      const finalParams = PaginationCalculator.calculate(page, limit, totalCount);
+      const finalParams = PaginationCalculator.calculate(
+        page,
+        limit,
+        totalCount,
+      );
       return PaginationCalculator.createResult(
         items,
         page,

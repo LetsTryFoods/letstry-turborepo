@@ -4,7 +4,7 @@ export class EncryptionUtil {
   static encryptWithPublicKey(data: string, publicKey: string): string {
     try {
       const pemKey = this.formatPublicKey(publicKey);
-      
+
       const buffer = Buffer.from(data, 'utf8');
       const encrypted = crypto.publicEncrypt(
         {
@@ -13,7 +13,7 @@ export class EncryptionUtil {
         },
         buffer,
       );
-      
+
       return encrypted.toString('base64');
     } catch (error) {
       throw new Error(`Encryption failed: ${error.message}`);
@@ -30,9 +30,6 @@ export class EncryptionUtil {
   }
 
   static generateChecksum(data: string, secretKey: string): string {
-    return crypto
-      .createHmac('sha256', secretKey)
-      .update(data)
-      .digest('hex');
+    return crypto.createHmac('sha256', secretKey).update(data).digest('hex');
   }
 }

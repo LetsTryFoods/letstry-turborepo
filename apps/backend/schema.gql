@@ -515,7 +515,7 @@ type RefundResponse {
 }
 
 type OrderItemType {
-  productId: String!
+  itemId: String!
   quantity: Float!
   price: String!
   totalPrice: String!
@@ -598,10 +598,7 @@ type OrdersSummary {
 
 type PaginatedOrdersResponse {
   orders: [OrderType!]!
-  total: Float!
-  page: Float!
-  limit: Float!
-  totalPages: Float!
+  meta: PaginationMeta!
 }
 
 type AdminOrdersResponse {
