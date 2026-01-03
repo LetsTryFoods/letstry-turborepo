@@ -11,7 +11,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { LogOut, Image, FolderTree, Tag, DollarSign, ShoppingBag, ShoppingCart, Users, Star, Bell, BarChart3, HelpCircle, MessageSquare } from "lucide-react"
+import { LogOut, Image, FolderTree, Tag, DollarSign, ShoppingBag, ShoppingCart, Users, Star, Bell, BarChart3, HelpCircle, MessageSquare, UserCheck, PackageCheck } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Package, Settings, LayoutDashboard, Truck, RefreshCcw, FileText, Trash2, Search, } from "lucide-react"
 import { usePolicies, useDeletePolicy } from "@/lib/policies/usePolicies"
@@ -94,6 +94,16 @@ const items = [
     title: "Contact Queries",
     url: "/dashboard/contact",
     icon: MessageSquare,
+  },
+  {
+    title: "Packers",
+    url: "/dashboard/packers",
+    icon: UserCheck,
+  },
+  {
+    title: "Packing Orders",
+    url: "/dashboard/packing-orders",
+    icon: PackageCheck,
   }
 ]
 

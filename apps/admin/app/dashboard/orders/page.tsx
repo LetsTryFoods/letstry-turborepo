@@ -12,13 +12,12 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { 
-  useOrders, 
+  useAllOrders, 
   useUpdateOrderStatus, 
-  dummyOrders, 
   getOrderStats, 
   Order, 
   OrderStatus 
-} from "@/lib/orders/useOrders"
+} from "@/lib/orders/queries"
 import { OrderTable } from "./components/OrderTable"
 import { OrderDetailsDialog } from "./components/OrderDetailsDialog"
 import { 
@@ -36,25 +35,25 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 export default function OrdersPage() {
   const [statusFilter, setStatusFilter] = useState<string>("ALL")
-  const { data, loading, error, refetch } = useOrders(
-    statusFilter !== "ALL" ? statusFilter as OrderStatus : undefined
-  )
-  const { updateOrderStatus } = useUpdateOrderStatus()
-
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
 
-  const orders: Order[] = (data as any)?.orders || []
-  const stats = getOrderStats(dummyOrders)
+  const { orders, summary, loading, error, refetch } = useAllOrders({
+    status: statusFilter !== "ALL" ? statusFilter as OrderStatus : undefined,
+    page: 1,
+    limit: 100
+  })
+  const { updateStatus } = useUpdateOrderStatus()
 
-  // Filter orders based on search
+  const stats = getOrderStats(summary)
+
   const filteredOrders = orders.filter(order =>
-    order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    order.customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    order.customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    order.customer.phone.includes(searchTerm) ||
-    order.items.some(item => item.product.name.toLowerCase().includes(searchTerm.toLowerCase()))
+    order.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    order.customer?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    order.customer?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    order.customer?.phone?.includes(searchTerm) ||
+    order.items.some(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()))
   )
 
   const handleViewDetails = (order: Order) => {
@@ -64,7 +63,7 @@ export default function OrdersPage() {
 
   const handleUpdateStatus = async (orderId: string, status: OrderStatus) => {
     try {
-      await updateOrderStatus(orderId, status)
+      await updateStatus({ orderId, status })
       refetch()
     } catch (error) {
       console.error("Failed to update order status:", error)
@@ -151,7 +150,7 @@ export default function OrdersPage() {
             <Clock className="h-4 w-4 text-yellow-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{stats.pending + stats.confirmed + stats.processing}</div>
+            <div className="text-2xl font-bold text-yellow-600">{stats.confirmed + stats.packed}</div>
             <p className="text-xs text-muted-foreground">Need attention</p>
           </CardContent>
         </Card>
@@ -161,7 +160,7 @@ export default function OrdersPage() {
             <Truck className="h-4 w-4 text-purple-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-600">{stats.shipped}</div>
+            <div className="text-2xl font-bold text-purple-600">{stats.shipped + stats.inTransit}</div>
             <p className="text-xs text-muted-foreground">Out for delivery</p>
           </CardContent>
         </Card>
@@ -169,17 +168,6 @@ export default function OrdersPage() {
 
       {/* Secondary Stats */}
       <div className="grid gap-4 md:grid-cols-5">
-        <Card className="border-yellow-200">
-          <CardContent className="pt-4 pb-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-muted-foreground">Pending</p>
-                <p className="text-lg font-bold">{stats.pending}</p>
-              </div>
-              <Clock className="h-5 w-5 text-yellow-500" />
-            </div>
-          </CardContent>
-        </Card>
         <Card className="border-blue-200">
           <CardContent className="pt-4 pb-4">
             <div className="flex items-center justify-between">
@@ -195,10 +183,32 @@ export default function OrdersPage() {
           <CardContent className="pt-4 pb-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-muted-foreground">Processing</p>
-                <p className="text-lg font-bold">{stats.processing}</p>
+                <p className="text-xs text-muted-foreground">Packed</p>
+                <p className="text-lg font-bold">{stats.packed}</p>
               </div>
               <Package className="h-5 w-5 text-orange-500" />
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="border-purple-200">
+          <CardContent className="pt-4 pb-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground">Shipped</p>
+                <p className="text-lg font-bold">{stats.shipped}</p>
+              </div>
+              <Truck className="h-5 w-5 text-purple-500" />
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="border-indigo-200">
+          <CardContent className="pt-4 pb-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground">In Transit</p>
+                <p className="text-lg font-bold">{stats.inTransit}</p>
+              </div>
+              <Truck className="h-5 w-5 text-indigo-500" />
             </div>
           </CardContent>
         </Card>
@@ -210,17 +220,6 @@ export default function OrdersPage() {
                 <p className="text-lg font-bold">{stats.delivered}</p>
               </div>
               <CheckCircle className="h-5 w-5 text-green-500" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-red-200">
-          <CardContent className="pt-4 pb-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-muted-foreground">Cancelled</p>
-                <p className="text-lg font-bold">{stats.cancelled}</p>
-              </div>
-              <XCircle className="h-5 w-5 text-red-500" />
             </div>
           </CardContent>
         </Card>
@@ -245,13 +244,11 @@ export default function OrdersPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="ALL">All Orders</SelectItem>
-                <SelectItem value="PENDING">Pending</SelectItem>
                 <SelectItem value="CONFIRMED">Confirmed</SelectItem>
-                <SelectItem value="PROCESSING">Processing</SelectItem>
+                <SelectItem value="PACKED">Packed</SelectItem>
                 <SelectItem value="SHIPPED">Shipped</SelectItem>
+                <SelectItem value="IN_TRANSIT">In Transit</SelectItem>
                 <SelectItem value="DELIVERED">Delivered</SelectItem>
-                <SelectItem value="CANCELLED">Cancelled</SelectItem>
-                <SelectItem value="REFUNDED">Refunded</SelectItem>
               </SelectContent>
             </Select>
           </div>

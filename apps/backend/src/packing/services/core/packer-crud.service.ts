@@ -21,7 +21,11 @@ export class PackerCrudService {
   }
 
   async findAll(filter: any = {}): Promise<Packer[]> {
-    return this.packerModel.find(filter).exec();
+    const query: any = {};
+    if (filter.isActive !== undefined && filter.isActive !== null) {
+      query.isActive = filter.isActive;
+    }
+    return this.packerModel.find(query).exec();
   }
 
   async update(id: string, data: Partial<Packer>): Promise<Packer | null> {

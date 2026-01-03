@@ -2,13 +2,11 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 
 export enum OrderStatus {
-  PENDING = 'PENDING',
   CONFIRMED = 'CONFIRMED',
-  PROCESSING = 'PROCESSING',
+  PACKED = 'PACKED',
   SHIPPED = 'SHIPPED',
+  IN_TRANSIT = 'IN_TRANSIT',
   DELIVERED = 'DELIVERED',
-  CANCELLED = 'CANCELLED',
-  REFUNDED = 'REFUNDED',
 }
 
 @Schema({ timestamps: true })
@@ -47,7 +45,7 @@ export class Order extends Document {
     required: true,
     type: String,
     enum: OrderStatus,
-    default: OrderStatus.PENDING,
+    default: OrderStatus.CONFIRMED,
   })
   orderStatus: OrderStatus;
 
@@ -56,9 +54,18 @@ export class Order extends Document {
 
   @Prop({ type: Array })
   items: Array<{
-    itemId: Types.ObjectId;
+    variantId: Types.ObjectId;
     quantity: number;
   }>;
+
+  @Prop()
+  subtotal: string;
+
+  @Prop({ default: '0' })
+  discount: string;
+
+  @Prop({ default: '0' })
+  deliveryCharge: string;
 
   @Prop({ type: Date })
   deliveredAt: Date;

@@ -88,17 +88,15 @@ export class OrderQueryService {
   private buildAdminOrderFilter(input: GetAllOrdersInput): any {
     const filter: any = {};
 
-    const defaultStartDate = new Date();
-    defaultStartDate.setDate(defaultStartDate.getDate() - 2);
-    defaultStartDate.setHours(0, 0, 0, 0);
-
-    const startDate = input.startDate || defaultStartDate;
-    const endDate = input.endDate || new Date();
-
-    filter.createdAt = {
-      $gte: startDate,
-      $lte: endDate,
-    };
+    if (input.startDate || input.endDate) {
+      filter.createdAt = {};
+      if (input.startDate) {
+        filter.createdAt.$gte = input.startDate;
+      }
+      if (input.endDate) {
+        filter.createdAt.$lte = input.endDate;
+      }
+    }
 
     if (input.status) {
       filter.orderStatus = input.status;
@@ -111,7 +109,11 @@ export class OrderQueryService {
     orders: Order[],
   ): Promise<OrderWithUserInfo[]> {
     const identityIds = [
-      ...new Set(orders.map((order) => order.identityId.toString())),
+      ...new Set(
+        orders
+          .filter((order) => order.identityId)
+          .map((order) => order.identityId.toString())
+      ),
     ];
     const identities = await this.fetchIdentitiesByIds(identityIds);
     const identityMap = this.createIdentityMap(identities);
@@ -137,7 +139,9 @@ export class OrderQueryService {
     order: Order,
     identityMap: Map<string, IdentityDocument>,
   ): OrderWithUserInfo {
-    const identity = identityMap.get(order.identityId.toString());
+    const identity = order.identityId
+      ? identityMap.get(order.identityId.toString())
+      : undefined;
     const orderObj = order.toObject ? order.toObject() : order;
 
     return {
@@ -158,41 +162,40 @@ export class OrderQueryService {
   }
 
   private async getOrdersSummary(): Promise<OrdersSummary> {
-    const [totalOrders, statusCounts] = await Promise.all([
+    const [totalOrders, statusCounts, totalRevenue] = await Promise.all([
       this.orderRepository.countTotal(),
       this.getStatusCounts(),
+      this.calculateTotalRevenue(),
     ]);
 
-    return { totalOrders, statusCounts };
+    return { totalOrders, statusCounts, totalRevenue };
+  }
+
+  private async calculateTotalRevenue(): Promise<string> {
+    const deliveredOrders = await this.orderRepository.findByStatus(
+      OrderStatus.DELIVERED,
+    );
+    const total = deliveredOrders.reduce((sum, order) => {
+      return sum + parseFloat(order.totalAmount || '0');
+    }, 0);
+    return total.toString();
   }
 
   private async getStatusCounts(): Promise<OrderStatusCount> {
-    const [
-      pending,
-      confirmed,
-      processing,
-      shipped,
-      delivered,
-      cancelled,
-      refunded,
-    ] = await Promise.all([
-      this.orderRepository.countByStatus(OrderStatus.PENDING),
+    const [confirmed, packed, shipped, inTransit, delivered] = await Promise.all([
       this.orderRepository.countByStatus(OrderStatus.CONFIRMED),
-      this.orderRepository.countByStatus(OrderStatus.PROCESSING),
+      this.orderRepository.countByStatus(OrderStatus.PACKED),
       this.orderRepository.countByStatus(OrderStatus.SHIPPED),
+      this.orderRepository.countByStatus(OrderStatus.IN_TRANSIT),
       this.orderRepository.countByStatus(OrderStatus.DELIVERED),
-      this.orderRepository.countByStatus(OrderStatus.CANCELLED),
-      this.orderRepository.countByStatus(OrderStatus.REFUNDED),
     ]);
 
     return {
-      pending,
       confirmed,
-      processing,
+      packed,
       shipped,
+      inTransit,
       delivered,
-      cancelled,
-      refunded,
     };
   }
 

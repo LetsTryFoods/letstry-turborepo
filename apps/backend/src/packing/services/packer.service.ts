@@ -4,6 +4,7 @@ import { PackerAuthService } from './domain/packer-auth.service';
 import { PackerStatsService } from './domain/packer-stats.service';
 import { RetrospectiveErrorService } from './domain/retrospective-error.service';
 import { PackingOrderCrudService } from './core/packing-order-crud.service';
+import { WhatsAppService } from '../../whatsapp/whatsapp.service';
 
 @Injectable()
 export class PackerService {
@@ -13,15 +14,31 @@ export class PackerService {
     private readonly packerStats: PackerStatsService,
     private readonly retrospectiveError: RetrospectiveErrorService,
     private readonly packingOrderCrud: PackingOrderCrudService,
+    private readonly whatsAppService: WhatsAppService,
   ) {}
 
   async createPacker(input: any): Promise<any> {
-    const passwordHash = await this.packerAuth.hashPassword(input.password);
-    return this.packerCrud.create({
+    const password = this.generateRandomPassword();
+    const passwordHash = await this.packerAuth.hashPassword(password);
+    const packer = await this.packerCrud.create({
       ...input,
       passwordHash,
       status: 'offline',
+      accuracyRate: 0,
+      averagePackTime: 0,
+      totalOrdersPacked: 0,
     });
+
+    await this.whatsAppService.sendPackerCredentials(
+      input.phone,
+      input.employeeId,
+      password,
+    );
+
+    return {
+      packer,
+      generatedPassword: password,
+    };
   }
 
   async updatePacker(packerId: string, input: any): Promise<any> {
@@ -33,7 +50,30 @@ export class PackerService {
   }
 
   async getAllPackers(filters: any): Promise<any[]> {
-    return this.packerCrud.findAll(filters);
+    const packers = await this.packerCrud.findAll(filters);
+
+    const packersWithStats = await Promise.all(
+      packers.map(async (packer: any) => {
+        const accuracyRate = await this.packerStats.calculateAccuracyRate(packer._id.toString());
+        const averagePackTime = await this.packerStats.calculateAveragePackTime(packer._id.toString());
+
+        const orders = await this.packingOrderCrud.findByPacker(packer._id.toString());
+        const assignedOrders = orders.filter((o: any) => o.status === 'assigned').length;
+        const inProgressOrders = orders.filter((o: any) => o.status === 'packing').length;
+        const completedOrders = orders.filter((o: any) => o.status === 'completed').length;
+
+        return {
+          ...packer.toObject(),
+          accuracyRate,
+          averagePackTime,
+          assignedOrders,
+          inProgressOrders,
+          completedOrders,
+        };
+      })
+    );
+
+    return packersWithStats;
   }
 
   async getPackerById(packerId: string): Promise<any> {
@@ -98,6 +138,16 @@ export class PackerService {
       input,
     );
     return this.packingOrderCrud.findById(input.packingOrderId);
+  }
+
+  private generateRandomPassword(): string {
+    const length = 8;
+    const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let password = '';
+    for (let i = 0; i < length; i++) {
+      password += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+    return password;
   }
 
   private async getOrdersPackedToday(packerId: string): Promise<number> {

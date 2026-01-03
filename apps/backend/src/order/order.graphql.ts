@@ -7,30 +7,100 @@ import {
 } from '@nestjs/graphql';
 import { OrderStatus } from './order.schema';
 import { PaginationMeta } from '../common/pagination';
+import { PaymentStatus } from '../payment/payment.schema';
 
 registerEnumType(OrderStatus, {
   name: 'OrderStatus',
 });
 
 @ObjectType()
-export class OrderItemType {
+export class OrderPaymentType {
   @Field()
-  itemId: string;
+  _id: string;
+
+  @Field(() => PaymentStatus)
+  status: PaymentStatus;
+
+  @Field({ nullable: true })
+  method?: string;
+
+  @Field({ nullable: true })
+  transactionId?: string;
 
   @Field()
-  quantity: number;
+  amount: string;
+
+  @Field({ nullable: true })
+  paidAt?: Date;
+}
+
+@ObjectType()
+export class OrderShippingAddressType {
+  @Field()
+  fullName: string;
 
   @Field()
-  price: string;
+  phone: string;
 
   @Field()
-  totalPrice: string;
+  addressLine1: string;
+
+  @Field({ nullable: true })
+  addressLine2?: string;
+
+  @Field()
+  city: string;
+
+  @Field()
+  state: string;
+
+  @Field()
+  pincode: string;
+
+  @Field({ nullable: true })
+  landmark?: string;
+}
+
+@ObjectType()
+export class OrderCustomerType {
+  @Field()
+  _id: string;
 
   @Field()
   name: string;
 
+  @Field({ nullable: true })
+  email?: string;
+
+  @Field({ nullable: true })
+  phone?: string;
+}
+
+@ObjectType()
+export class OrderItemType {
+  @Field({ nullable: true })
+  variantId?: string;
+
   @Field()
-  sku: string;
+  quantity: number;
+
+  @Field({ nullable: true })
+  price?: string;
+
+  @Field({ nullable: true })
+  totalPrice?: string;
+
+  @Field({ nullable: true })
+  name?: string;
+
+  @Field({ nullable: true })
+  sku?: string;
+
+  @Field({ nullable: true })
+  variant?: string;
+
+  @Field({ nullable: true })
+  image?: string;
 }
 
 @ObjectType()
@@ -75,6 +145,15 @@ export class OrderType {
   totalAmount: string;
 
   @Field()
+  subtotal: string;
+
+  @Field()
+  discount: string;
+
+  @Field()
+  deliveryCharge: string;
+
+  @Field()
   currency: string;
 
   @Field(() => OrderStatus)
@@ -85,6 +164,15 @@ export class OrderType {
 
   @Field(() => [OrderItemType])
   items: OrderItemType[];
+
+  @Field(() => OrderPaymentType, { nullable: true })
+  payment?: OrderPaymentType;
+
+  @Field(() => OrderShippingAddressType, { nullable: true })
+  shippingAddress?: OrderShippingAddressType;
+
+  @Field(() => OrderCustomerType, { nullable: true })
+  customer?: OrderCustomerType;
 
   @Field({ nullable: true })
   deliveredAt?: Date;
@@ -114,31 +202,28 @@ export class OrderWithUserInfo extends OrderType {
 @ObjectType()
 export class OrderStatusCount {
   @Field(() => Int)
-  pending: number;
-
-  @Field(() => Int)
   confirmed: number;
 
   @Field(() => Int)
-  processing: number;
+  packed: number;
 
   @Field(() => Int)
   shipped: number;
 
   @Field(() => Int)
+  inTransit: number;
+
+  @Field(() => Int)
   delivered: number;
-
-  @Field(() => Int)
-  cancelled: number;
-
-  @Field(() => Int)
-  refunded: number;
 }
 
 @ObjectType()
 export class OrdersSummary {
   @Field(() => Int)
   totalOrders: number;
+
+  @Field()
+  totalRevenue: string;
 
   @Field(() => OrderStatusCount)
   statusCounts: OrderStatusCount;

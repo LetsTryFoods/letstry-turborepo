@@ -80,6 +80,10 @@ export class OrderRepository {
     return this.orderModel.countDocuments({ orderStatus: status }).exec();
   }
 
+  async findByStatus(status: OrderStatus): Promise<Order[]> {
+    return this.orderModel.find({ orderStatus: status }).exec();
+  }
+
   async countTotal(): Promise<number> {
     return this.orderModel.countDocuments().exec();
   }

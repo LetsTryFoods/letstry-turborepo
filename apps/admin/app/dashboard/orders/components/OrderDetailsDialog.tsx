@@ -14,7 +14,7 @@ import {
   Order, 
   OrderStatus, 
   PaymentStatus 
-} from "@/lib/orders/useOrders"
+} from "@/lib/orders/queries"
 import { format } from "date-fns"
 import { 
   Package, 
@@ -43,28 +43,25 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
 
   const getOrderStatusBadge = (status: OrderStatus) => {
     switch (status) {
-      case 'PENDING':
-        return <Badge variant="outline" className="border-yellow-500 text-yellow-600"><Clock className="h-3 w-3 mr-1" /> Pending</Badge>
       case 'CONFIRMED':
         return <Badge variant="outline" className="border-blue-500 text-blue-600"><CheckCircle className="h-3 w-3 mr-1" /> Confirmed</Badge>
-      case 'PROCESSING':
-        return <Badge variant="outline" className="border-orange-500 text-orange-600"><Loader2 className="h-3 w-3 mr-1" /> Processing</Badge>
+      case 'PACKED':
+        return <Badge variant="outline" className="border-orange-500 text-orange-600"><Package className="h-3 w-3 mr-1" /> Packed</Badge>
       case 'SHIPPED':
         return <Badge variant="outline" className="border-purple-500 text-purple-600"><Truck className="h-3 w-3 mr-1" /> Shipped</Badge>
+      case 'IN_TRANSIT':
+        return <Badge variant="outline" className="border-indigo-500 text-indigo-600"><Loader2 className="h-3 w-3 mr-1" /> In Transit</Badge>
       case 'DELIVERED':
-        return <Badge className="bg-green-600"><Package className="h-3 w-3 mr-1" /> Delivered</Badge>
-      case 'CANCELLED':
-        return <Badge variant="destructive"><XCircle className="h-3 w-3 mr-1" /> Cancelled</Badge>
-      case 'REFUNDED':
-        return <Badge variant="secondary"><RefreshCcw className="h-3 w-3 mr-1" /> Refunded</Badge>
+        return <Badge className="bg-green-600"><CheckCircle className="h-3 w-3 mr-1" /> Delivered</Badge>
       default:
         return <Badge variant="outline">{status}</Badge>
     }
   }
 
-  const getPaymentStatusBadge = (status: PaymentStatus) => {
+  const getPaymentStatusBadge = (status?: PaymentStatus) => {
+    if (!status) return <Badge variant="outline">Unknown</Badge>
     switch (status) {
-      case 'PAID':
+      case 'SUCCESS':
         return <Badge className="bg-green-600">Paid</Badge>
       case 'PENDING':
         return <Badge variant="outline" className="border-yellow-500 text-yellow-600">Pending</Badge>
@@ -97,8 +94,8 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
-            <span>Order {order.orderNumber}</span>
-            {getOrderStatusBadge(order.status)}
+            <span>Order {order.orderId}</span>
+            {getOrderStatusBadge(order.orderStatus)}
           </DialogTitle>
           <DialogDescription>
             Placed on {format(new Date(order.createdAt), 'dd MMM yyyy, hh:mm a')}
@@ -121,13 +118,13 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
                     <div className="relative h-16 w-16 rounded-md overflow-hidden border bg-muted">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={item.product.image}
-                        alt={item.product.name}
+                        src={item.image}
+                        alt={item.name}
                         className="h-full w-full object-cover"
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{item.product.name}</p>
+                      <p className="font-medium truncate">{item.name}</p>
                       <p className="text-sm text-muted-foreground">
                         Variant: {item.variant} • Qty: {item.quantity}
                       </p>
@@ -169,7 +166,7 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
                 <Separator />
                 <div className="flex justify-between font-semibold">
                   <span>Total</span>
-                  <span className="text-lg">₹{order.total.toLocaleString()}</span>
+                  <span className="text-lg">₹{order.totalAmount.toLocaleString()}</span>
                 </div>
               </div>
             </CardContent>
@@ -186,15 +183,15 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
-                  <p className="font-medium">{order.customer.name}</p>
+                  <p className="font-medium">{order.customer?.name}</p>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Mail className="h-4 w-4" />
-                  <span>{order.customer.email}</span>
+                  <span>{order.customer?.email}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Phone className="h-4 w-4" />
-                  <span>{order.customer.phone}</span>
+                  <span>{order.customer?.phone}</span>
                 </div>
               </CardContent>
             </Card>
@@ -208,22 +205,22 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-1 text-sm">
-                <p className="font-medium">{order.shippingAddress.fullName}</p>
-                <p className="text-muted-foreground">{order.shippingAddress.addressLine1}</p>
-                {order.shippingAddress.addressLine2 && (
-                  <p className="text-muted-foreground">{order.shippingAddress.addressLine2}</p>
+                <p className="font-medium">{order.shippingAddress?.fullName}</p>
+                <p className="text-muted-foreground">{order.shippingAddress?.addressLine1}</p>
+                {order.shippingAddress?.addressLine2 && (
+                  <p className="text-muted-foreground">{order.shippingAddress?.addressLine2}</p>
                 )}
                 <p className="text-muted-foreground">
-                  {order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.pincode}
+                  {order.shippingAddress?.city}, {order.shippingAddress?.state} - {order.shippingAddress?.pincode}
                 </p>
-                {order.shippingAddress.landmark && (
+                {order.shippingAddress?.landmark && (
                   <p className="text-muted-foreground text-xs">
-                    Landmark: {order.shippingAddress.landmark}
+                    Landmark: {order.shippingAddress?.landmark}
                   </p>
                 )}
                 <div className="flex items-center gap-2 pt-2 text-muted-foreground">
                   <Phone className="h-4 w-4" />
-                  <span>{order.shippingAddress.phone}</span>
+                  <span>{order.shippingAddress?.phone}</span>
                 </div>
               </CardContent>
             </Card>
@@ -237,7 +234,7 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
                   <CreditCard className="h-4 w-4 mr-2" />
                   Payment Details
                 </div>
-                {getPaymentStatusBadge(order.payment.status)}
+                {getPaymentStatusBadge(order.payment?.status)}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -245,13 +242,13 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Payment Method</span>
-                    <span className="font-medium">{getPaymentMethodLabel(order.payment.method)}</span>
+                    <span className="font-medium">{getPaymentMethodLabel(order.payment?.method)}</span>
                   </div>
-                  {order.payment.transactionId && (
+                  {order.payment?.transactionId && (
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Transaction ID</span>
                       <code className="font-mono text-xs bg-muted px-2 py-0.5 rounded">
-                        {order.payment.transactionId}
+                        {order.payment?.transactionId}
                       </code>
                     </div>
                   )}
@@ -261,13 +258,13 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
                     <span className="text-muted-foreground">Amount</span>
                     <span className="font-semibold flex items-center">
                       <IndianRupee className="h-3 w-3" />
-                      {order.payment.amount.toLocaleString()}
+                      {order.payment?.amount.toLocaleString()}
                     </span>
                   </div>
-                  {order.payment.paidAt && (
+                  {order.payment?.paidAt && (
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Paid At</span>
-                      <span>{format(new Date(order.payment.paidAt), 'dd MMM yyyy, hh:mm a')}</span>
+                      <span>{format(new Date(order.payment?.paidAt), 'dd MMM yyyy, hh:mm a')}</span>
                     </div>
                   )}
                 </div>

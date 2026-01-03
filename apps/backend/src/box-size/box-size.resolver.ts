@@ -15,7 +15,7 @@ export class BoxSizeResolver {
   @Mutation(() => BoxSize)
   @Roles(Role.ADMIN)
   @UseGuards(RolesGuard)
-  async createBoxSize(@Args('input') input: CreateBoxSizeInput): Promise<any> {
+  async createBoxSize(@Args('input', { type: () => CreateBoxSizeInput }) input: CreateBoxSizeInput): Promise<any> {
     return this.boxSizeService.createBoxSize(input);
   }
 
@@ -24,7 +24,7 @@ export class BoxSizeResolver {
   @UseGuards(RolesGuard)
   async updateBoxSize(
     @Args('boxId') boxId: string,
-    @Args('input') input: UpdateBoxSizeInput,
+    @Args('input', { type: () => UpdateBoxSizeInput }) input: UpdateBoxSizeInput,
   ): Promise<any> {
     return this.boxSizeService.updateBoxSize(boxId, input);
   }

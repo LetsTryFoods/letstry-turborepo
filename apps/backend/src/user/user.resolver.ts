@@ -17,7 +17,7 @@ export class UserResolver {
   @Roles(Role.ADMIN)
   @UseGuards(RolesGuard)
   async getAllCustomers(
-    @Args('input') input: GetCustomersInput,
+    @Args('input', { type: () => GetCustomersInput }) input: GetCustomersInput,
   ): Promise<PaginatedCustomersResponse> {
     return this.userService.getAllCustomers(input);
   }

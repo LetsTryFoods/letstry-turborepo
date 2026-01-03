@@ -14,6 +14,21 @@ export default () => ({
     redisFile: process.env.REDIS_LOG_FILE || 'logs/redis.log',
     guestConversionFile:
       process.env.GUEST_CONVERSION_LOG_FILE || 'logs/guest-conversion.log',
+    packingFile: process.env.PACKING_LOG_FILE || 'logs/packing.log',
+  },
+  packing: {
+    acceptTimeoutHours: parseInt(
+      process.env.PACKING_ACCEPT_TIMEOUT_HOURS || '12',
+      10,
+    ),
+    completeTimeoutMinutes: parseInt(
+      process.env.PACKING_COMPLETE_TIMEOUT_MINUTES || '30',
+      10,
+    ),
+    reassignmentCheckInterval: parseInt(
+      process.env.REASSIGNMENT_CHECK_INTERVAL_MINUTES || '30',
+      10,
+    ),
   },
   aws: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,

@@ -24,7 +24,7 @@ export class PackerStatsService {
 
     return totalOrders > 0
       ? ((totalOrders - errorOrders) / totalOrders) * 100
-      : 100;
+      : 0;
   }
 
   async calculateAveragePackTime(

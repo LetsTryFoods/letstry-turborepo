@@ -22,9 +22,4 @@ export class CreatePackerInput {
   @IsEmail()
   @IsOptional()
   email?: string;
-
-  @Field()
-  @IsString()
-  @IsNotEmpty()
-  password: string;
 }

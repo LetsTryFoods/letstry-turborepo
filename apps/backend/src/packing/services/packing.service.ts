@@ -8,6 +8,11 @@ import { EvidenceCrudService } from './core/evidence-crud.service';
 import { PackingLifecycleService } from './domain/packing-lifecycle.service';
 import { PackingOrderCrudService } from './core/packing-order-crud.service';
 import { BoxRecommendationService } from '../../box-size/services/domain/box-recommendation.service';
+import { PackingLoggerService } from './domain/packing-logger.service';
+import { OrderStatus } from '../../order/order.schema';
+import { PackingOrderCreatorService } from './domain/packing-order-creator.service';
+import { Order } from '../../order/order.schema';
+import { OrderRepository } from '../../order/services/order.repository';
 
 @Injectable()
 export class PackingService {
@@ -21,7 +26,15 @@ export class PackingService {
     private readonly packingLifecycle: PackingLifecycleService,
     private readonly packingOrderCrud: PackingOrderCrudService,
     private readonly boxRecommendation: BoxRecommendationService,
+    private readonly packingLogger: PackingLoggerService,
+    private readonly orderRepository: OrderRepository,
+    private readonly packingOrderCreator: PackingOrderCreatorService,
   ) {}
+
+  async createPackingOrder(order: Order): Promise<void> {
+    const packingOrder = await this.packingOrderCreator.createFromOrder(order);
+    await this.packingQueue.addToQueue(order._id.toString());
+  }
 
   async assignOrderToPacker(packerId: string): Promise<any> {
     const orderData = await this.packingQueue.getNextOrder();
@@ -29,6 +42,20 @@ export class PackingService {
 
     await this.orderAssignment.assignOrder(orderData.orderId, packerId);
     return this.packingOrderCrud.findById(orderData.orderId);
+  }
+
+  async startPacking(packingOrderId: string): Promise<any> {
+    await this.packingLifecycle.startPacking(packingOrderId);
+
+    const packingOrder = await this.packingOrderCrud.findById(packingOrderId);
+    if (packingOrder) {
+      this.packingLogger.logPackingStarted(
+        packingOrderId,
+        packingOrder.assignedTo,
+      );
+    }
+
+    return packingOrder;
   }
 
   async scanItem(
@@ -55,6 +82,11 @@ export class PackingService {
 
     if (!validation.isValid) {
       await this.packingOrderCrud.setErrorFlag(packingOrderId);
+      this.packingLogger.logScanError(
+        packingOrderId,
+        ean,
+        validation.errorType || 'UNKNOWN_ERROR',
+      );
     }
 
     return {
@@ -73,18 +105,44 @@ export class PackingService {
 
     const evidence = await this.evidenceCrud.create({
       packingOrderId,
-      packerId: 'current_packer', // Get from context
+      packerId: 'current_packer',
       prePackImages: urls.slice(0, Math.floor(urls.length / 2)),
       postPackImages: urls.slice(Math.floor(urls.length / 2)),
-      actualBox: { code: boxCode, dimensions: { l: 0, w: 0, h: 0 } }, // Get from box service
+      actualBox: { code: boxCode, dimensions: { l: 0, w: 0, h: 0 } },
       uploadedAt: new Date(),
     });
+
+    this.packingLogger.logEvidenceUploaded(packingOrderId, urls.length);
 
     return evidence;
   }
 
   async completePacking(packingOrderId: string): Promise<any> {
+    const packingOrder = await this.packingOrderCrud.findById(packingOrderId);
+
+    if (!packingOrder) {
+      throw new Error('Packing order not found');
+    }
+
     await this.packingLifecycle.completePacking(packingOrderId);
+
+    await this.orderRepository.updateOrderStatus(
+      packingOrder.orderId,
+      OrderStatus.PACKED,
+    );
+
+    const duration = packingOrder.packingStartedAt
+      ? Math.floor(
+          (Date.now() - packingOrder.packingStartedAt.getTime()) / 60000,
+        )
+      : 0;
+
+    this.packingLogger.logPackingCompleted(
+      packingOrderId,
+      packingOrder.assignedTo,
+      duration,
+    );
+
     return this.packingOrderCrud.findById(packingOrderId);
   }
 
@@ -94,5 +152,40 @@ export class PackingService {
       throw new Error('Order not found');
     }
     return this.boxRecommendation.selectOptimalBox(order.items);
+  }
+
+  async getAllPackingOrders(filters: { packerId?: string; status?: string }): Promise<any[]> {
+    return this.packingOrderCrud.findAll(filters);
+  }
+
+  async getEvidenceByOrder(packingOrderId: string): Promise<any> {
+    return this.evidenceCrud.findByOrder(packingOrderId);
+  }
+
+  async reassignOrder(
+    packingOrderId: string,
+    newPackerId?: string,
+  ): Promise<any> {
+    const packingOrder = await this.packingOrderCrud.findById(packingOrderId);
+
+    if (!packingOrder) {
+      throw new Error('Packing order not found');
+    }
+
+    const oldPackerId = packingOrder.assignedTo;
+
+    if (newPackerId) {
+      await this.orderAssignment.assignOrder(packingOrderId, newPackerId);
+      this.packingLogger.logReassignment(
+        packingOrderId,
+        oldPackerId,
+        newPackerId,
+        'MANUAL',
+      );
+    } else {
+      await this.packingQueue.processReassignment();
+    }
+
+    return this.packingOrderCrud.findById(packingOrderId);
   }
 }

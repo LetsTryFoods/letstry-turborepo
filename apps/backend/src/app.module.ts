@@ -27,6 +27,7 @@ import { PackingModule } from './packing/packing.module';
 import { BoxSizeModule } from './box-size/box-size.module';
 import { BullModule } from '@nestjs/bullmq';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { BullBoardModule } from './bull-board/bull-board.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         };
       },
     }),
+    BullBoardModule,
     CoreModule,
     CatalogModule,
     IdentityModule,

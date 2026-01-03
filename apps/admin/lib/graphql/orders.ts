@@ -1,63 +1,81 @@
 import { gql } from '@apollo/client'
 
-// Placeholder GraphQL queries/mutations for Orders
-// TODO: Implement these in backend
-
-export const GET_ORDERS = gql`
-  query GetOrders($status: String, $page: Int, $limit: Int) {
-    orders(status: $status, page: $page, limit: $limit) {
-      _id
-      orderNumber
-      customer {
+export const GET_ALL_ORDERS = gql`
+  query GetAllOrders($input: GetAllOrdersInput!) {
+    getAllOrders(input: $input) {
+      orders {
         _id
-        name
-        email
-        phone
-      }
-      items {
-        product {
+        orderId
+        customer {
           _id
           name
-          image
+          email
+          phone
         }
-        variant
-        quantity
-        price
+        items {
+          variantId
+          name
+          sku
+          variant
+          image
+          quantity
+          price
+          totalPrice
+        }
+        shippingAddress {
+          fullName
+          phone
+          addressLine1
+          addressLine2
+          city
+          state
+          pincode
+          landmark
+        }
+        payment {
+          _id
+          status
+          method
+          transactionId
+          amount
+          paidAt
+        }
+        subtotal
+        deliveryCharge
+        discount
+        totalAmount
+        orderStatus
+        createdAt
+        updatedAt
       }
-      shippingAddress {
-        fullName
-        phone
-        addressLine1
-        addressLine2
-        city
-        state
-        pincode
-        landmark
+      meta {
+        totalCount
+        page
+        limit
+        totalPages
+        hasNextPage
+        hasPreviousPage
       }
-      payment {
-        _id
-        method
-        status
-        transactionId
-        amount
-        paidAt
+      summary {
+        totalOrders
+        totalRevenue
+        statusCounts {
+          confirmed
+          packed
+          shipped
+          inTransit
+          delivered
+        }
       }
-      subtotal
-      deliveryCharge
-      discount
-      total
-      status
-      createdAt
-      updatedAt
     }
   }
 `
 
-export const GET_ORDER = gql`
-  query GetOrder($id: ID!) {
-    order(id: $id) {
+export const GET_ORDER_BY_ID = gql`
+  query GetOrderById($orderId: String!) {
+    getOrderById(orderId: $orderId) {
       _id
-      orderNumber
+      orderId
       customer {
         _id
         name
@@ -65,14 +83,14 @@ export const GET_ORDER = gql`
         phone
       }
       items {
-        product {
-          _id
-          name
-          image
-        }
+        variantId
+        name
+        sku
         variant
+        image
         quantity
         price
+        totalPrice
       }
       shippingAddress {
         fullName
@@ -86,8 +104,8 @@ export const GET_ORDER = gql`
       }
       payment {
         _id
-        method
         status
+        method
         transactionId
         amount
         paidAt
@@ -95,8 +113,12 @@ export const GET_ORDER = gql`
       subtotal
       deliveryCharge
       discount
-      total
-      status
+      totalAmount
+      orderStatus
+      trackingNumber
+      deliveredAt
+      cancelledAt
+      cancellationReason
       createdAt
       updatedAt
     }
@@ -104,10 +126,13 @@ export const GET_ORDER = gql`
 `
 
 export const UPDATE_ORDER_STATUS = gql`
-  mutation UpdateOrderStatus($id: ID!, $status: String!) {
-    updateOrderStatus(id: $id, status: $status) {
+  mutation UpdateOrderStatus($input: UpdateOrderStatusInput!) {
+    updateOrderStatus(input: $input) {
       _id
-      status
+      orderId
+      orderStatus
+      trackingNumber
+      updatedAt
     }
   }
 `

@@ -1,6 +1,10 @@
 import { IsString, IsNotEmpty, IsOptional, IsEnum } from 'class-validator';
-import { InputType, Field } from '@nestjs/graphql';
+import { InputType, Field, registerEnumType } from '@nestjs/graphql';
 import { ErrorSeverity } from '../../common/enums/error-severity.enum';
+
+registerEnumType(ErrorSeverity, {
+  name: 'ErrorSeverity',
+});
 
 @InputType()
 export class FlagErrorInput {
@@ -24,7 +28,7 @@ export class FlagErrorInput {
   @IsNotEmpty()
   notes: string;
 
-  @Field()
+  @Field(() => ErrorSeverity)
   @IsEnum(ErrorSeverity)
   severity: ErrorSeverity;
 

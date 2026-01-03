@@ -1,4 +1,14 @@
 import { ObjectType, Field, ID, Float } from '@nestjs/graphql';
+import { BoxDimensions } from '../../box-size/types/box-size.type';
+
+@ObjectType()
+export class BoxInfo {
+  @Field()
+  code: string;
+
+  @Field(() => BoxDimensions)
+  dimensions: BoxDimensions;
+}
 
 @ObjectType()
 export class PackingEvidence {
@@ -34,25 +44,4 @@ export class PackingEvidence {
 
   @Field()
   uploadedAt: Date;
-}
-
-@ObjectType()
-export class BoxInfo {
-  @Field()
-  code: string;
-
-  @Field(() => BoxDimensions)
-  dimensions: BoxDimensions;
-}
-
-@ObjectType()
-export class BoxDimensions {
-  @Field(() => Float)
-  l: number;
-
-  @Field(() => Float)
-  w: number;
-
-  @Field(() => Float)
-  h: number;
 }

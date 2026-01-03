@@ -58,6 +58,24 @@ export class WhatsAppService {
     return this.sendTemplate(payload);
   }
 
+  async sendPackerCredentials(
+    phoneNumber: string,
+    employeeId: string,
+    password: string,
+  ): Promise<boolean> {
+    const payload: WhatsAppTemplatePayload = {
+      template: 'letstrypackercredentials',
+      recipients: [
+        {
+          phone: phoneNumber,
+          variables: [employeeId, password],
+        },
+      ],
+    };
+
+    return this.sendTemplate(payload);
+  }
+
   private async sendTemplate(
     payload: WhatsAppTemplatePayload,
   ): Promise<boolean> {

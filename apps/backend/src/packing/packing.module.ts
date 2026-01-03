@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { BullModule } from '@nestjs/bullmq';
 import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule } from '@nestjs/config';
 
 import { Packer, PackerSchema } from './entities/packer.entity';
 import {
@@ -28,6 +29,10 @@ import { EvidenceUploadService } from './services/domain/evidence-upload.service
 import { PackingQueueService } from './services/domain/packing-queue.service';
 import { PriorityCalculatorService } from './services/domain/priority-calculator.service';
 import { RetrospectiveErrorService } from './services/domain/retrospective-error.service';
+import { PackingLoggerService } from './services/domain/packing-logger.service';
+import { PackingOrderCreatorService } from './services/domain/packing-order-creator.service';
+import { ReassignmentService } from './services/domain/reassignment.service';
+import { PackingSchedulerService } from './services/domain/packing-scheduler.service';
 
 import { PackingService } from './services/packing.service';
 import { PackerService } from './services/packer.service';
@@ -39,6 +44,10 @@ import { PackerAuthGuard } from './guards/packer-auth.guard';
 import { PackingAssignmentProcessor } from './processors/packing-assignment.processor';
 import { CommonModule } from '../common/common.module';
 import { BoxSizeModule } from '../box-size/box-size.module';
+import { WhatsAppModule } from '../whatsapp/whatsapp.module';
+import { ProductModule } from '../product/product.module';
+import { forwardRef } from '@nestjs/common';
+import { OrderModule } from '../order/order.module';
 
 @Module({
   imports: [
@@ -50,13 +59,25 @@ import { BoxSizeModule } from '../box-size/box-size.module';
     ]),
     BullModule.registerQueue({
       name: 'packing-queue',
+      defaultJobOptions: {
+        removeOnComplete: true,
+        attempts: 3,
+        backoff: {
+          type: 'exponential',
+          delay: 5000,
+        },
+      },
     }),
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'default-secret',
       signOptions: { expiresIn: '7d' },
     }),
+    ConfigModule,
     CommonModule,
     BoxSizeModule,
+    WhatsAppModule,
+    ProductModule,
+    forwardRef(() => OrderModule),
   ],
   providers: [
     PackerCrudService,
@@ -72,6 +93,10 @@ import { BoxSizeModule } from '../box-size/box-size.module';
     PackingQueueService,
     PriorityCalculatorService,
     RetrospectiveErrorService,
+    PackingLoggerService,
+    PackingOrderCreatorService,
+    ReassignmentService,
+    PackingSchedulerService,
     PackingService,
     PackerService,
     PackingResolver,

@@ -17,7 +17,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { Order, OrderStatus, PaymentStatus } from "@/lib/orders/useOrders"
+import { Order, OrderStatus, PaymentStatus } from "@/lib/orders/queries"
 import { format } from "date-fns"
 import {
   DropdownMenu,
@@ -38,28 +38,25 @@ interface OrderTableProps {
 export function OrderTable({ orders, onViewDetails, onUpdateStatus }: OrderTableProps) {
   const getOrderStatusBadge = (status: OrderStatus) => {
     switch (status) {
-      case 'PENDING':
-        return <Badge variant="outline" className="border-yellow-500 text-yellow-600"><Clock className="h-3 w-3 mr-1" /> Pending</Badge>
       case 'CONFIRMED':
         return <Badge variant="outline" className="border-blue-500 text-blue-600"><CheckCircle className="h-3 w-3 mr-1" /> Confirmed</Badge>
-      case 'PROCESSING':
-        return <Badge variant="outline" className="border-orange-500 text-orange-600"><Loader2 className="h-3 w-3 mr-1" /> Processing</Badge>
+      case 'PACKED':
+        return <Badge variant="outline" className="border-orange-500 text-orange-600"><Package className="h-3 w-3 mr-1" /> Packed</Badge>
       case 'SHIPPED':
         return <Badge variant="outline" className="border-purple-500 text-purple-600"><Truck className="h-3 w-3 mr-1" /> Shipped</Badge>
+      case 'IN_TRANSIT':
+        return <Badge variant="outline" className="border-indigo-500 text-indigo-600"><Loader2 className="h-3 w-3 mr-1" /> In Transit</Badge>
       case 'DELIVERED':
-        return <Badge className="bg-green-600"><Package className="h-3 w-3 mr-1" /> Delivered</Badge>
-      case 'CANCELLED':
-        return <Badge variant="destructive"><XCircle className="h-3 w-3 mr-1" /> Cancelled</Badge>
-      case 'REFUNDED':
-        return <Badge variant="secondary"><RefreshCcw className="h-3 w-3 mr-1" /> Refunded</Badge>
+        return <Badge className="bg-green-600"><CheckCircle className="h-3 w-3 mr-1" /> Delivered</Badge>
       default:
         return <Badge variant="outline">{status}</Badge>
     }
   }
 
-  const getPaymentStatusBadge = (status: PaymentStatus) => {
+  const getPaymentStatusBadge = (status?: PaymentStatus) => {
+    if (!status) return <Badge variant="outline">Unknown</Badge>
     switch (status) {
-      case 'PAID':
+      case 'SUCCESS':
         return <Badge className="bg-green-600">Paid</Badge>
       case 'PENDING':
         return <Badge variant="outline" className="border-yellow-500 text-yellow-600">Pending</Badge>
@@ -67,6 +64,8 @@ export function OrderTable({ orders, onViewDetails, onUpdateStatus }: OrderTable
         return <Badge variant="destructive">Failed</Badge>
       case 'REFUNDED':
         return <Badge variant="secondary">Refunded</Badge>
+      case 'PARTIALLY_REFUNDED':
+        return <Badge variant="secondary">Partial Refund</Badge>
       default:
         return <Badge variant="outline">{status}</Badge>
     }
@@ -74,13 +73,11 @@ export function OrderTable({ orders, onViewDetails, onUpdateStatus }: OrderTable
 
   const canUpdateTo = (currentStatus: OrderStatus, newStatus: OrderStatus): boolean => {
     const statusFlow: Record<OrderStatus, OrderStatus[]> = {
-      'PENDING': ['CONFIRMED', 'CANCELLED'],
-      'CONFIRMED': ['PROCESSING', 'CANCELLED'],
-      'PROCESSING': ['SHIPPED', 'CANCELLED'],
-      'SHIPPED': ['DELIVERED', 'CANCELLED'],
-      'DELIVERED': ['REFUNDED'],
-      'CANCELLED': [],
-      'REFUNDED': []
+      'CONFIRMED': ['PACKED'],
+      'PACKED': ['SHIPPED'],
+      'SHIPPED': ['IN_TRANSIT'],
+      'IN_TRANSIT': ['DELIVERED'],
+      'DELIVERED': []
     }
     return statusFlow[currentStatus]?.includes(newStatus) || false
   }
@@ -115,14 +112,18 @@ export function OrderTable({ orders, onViewDetails, onUpdateStatus }: OrderTable
             <TableRow key={order._id}>
               <TableCell>
                 <span className="font-mono text-sm font-medium">
-                  {order.orderNumber}
+                  {order.orderId}
                 </span>
               </TableCell>
               <TableCell>
-                <div>
-                  <p className="font-medium">{order.customer.name}</p>
-                  <p className="text-xs text-muted-foreground">{order.customer.phone}</p>
-                </div>
+                {order.customer ? (
+                  <div>
+                    <p className="font-medium">{order.customer.name}</p>
+                    <p className="text-xs text-muted-foreground">{order.customer.phone}</p>
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground">No customer info</p>
+                )}
               </TableCell>
               <TableCell>
                 <TooltipProvider>
@@ -131,7 +132,7 @@ export function OrderTable({ orders, onViewDetails, onUpdateStatus }: OrderTable
                       <div className="cursor-help">
                         <p className="text-sm">{order.items.length} item{order.items.length > 1 ? 's' : ''}</p>
                         <p className="text-xs text-muted-foreground truncate max-w-[150px]">
-                          {order.items[0]?.product.name}
+                          {order.items[0]?.name}
                           {order.items.length > 1 && ` +${order.items.length - 1} more`}
                         </p>
                       </div>
@@ -140,7 +141,7 @@ export function OrderTable({ orders, onViewDetails, onUpdateStatus }: OrderTable
                       <div className="space-y-1">
                         {order.items.map((item, idx) => (
                           <p key={idx} className="text-xs">
-                            {item.quantity}x {item.product.name} ({item.variant})
+                            {item.quantity}x {item.name} {item.variant && `(${item.variant})`}
                           </p>
                         ))}
                       </div>
@@ -149,19 +150,23 @@ export function OrderTable({ orders, onViewDetails, onUpdateStatus }: OrderTable
                 </TooltipProvider>
               </TableCell>
               <TableCell className="text-right">
-                <p className="font-semibold">₹{order.total.toLocaleString()}</p>
-                {order.discount > 0 && (
-                  <p className="text-xs text-green-600">-₹{order.discount}</p>
+                <p className="font-semibold">₹{parseFloat(order.totalAmount || '0').toLocaleString()}</p>
+                {parseFloat(order.discount || '0') > 0 && (
+                  <p className="text-xs text-green-600">-₹{parseFloat(order.discount).toLocaleString()}</p>
                 )}
               </TableCell>
               <TableCell>
-                <div className="space-y-1">
-                  {getPaymentStatusBadge(order.payment.status)}
-                  <p className="text-xs text-muted-foreground">{order.payment.method}</p>
-                </div>
+                {order.payment ? (
+                  <div className="space-y-1">
+                    {getPaymentStatusBadge(order.payment.status)}
+                    <p className="text-xs text-muted-foreground">{order.payment.method || 'N/A'}</p>
+                  </div>
+                ) : (
+                  <Badge variant="outline">No payment info</Badge>
+                )}
               </TableCell>
               <TableCell>
-                {getOrderStatusBadge(order.status)}
+                {getOrderStatusBadge(order.orderStatus)}
               </TableCell>
               <TableCell>
                 <p className="text-sm">{format(new Date(order.createdAt), 'dd MMM yyyy')}</p>
@@ -184,7 +189,7 @@ export function OrderTable({ orders, onViewDetails, onUpdateStatus }: OrderTable
                     </Tooltip>
                   </TooltipProvider>
 
-                  {order.status !== 'DELIVERED' && order.status !== 'CANCELLED' && order.status !== 'REFUNDED' && (
+                  {order.orderStatus !== 'DELIVERED' && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon">
@@ -194,63 +199,30 @@ export function OrderTable({ orders, onViewDetails, onUpdateStatus }: OrderTable
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Update Status</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        {canUpdateTo(order.status, 'CONFIRMED') && (
-                          <DropdownMenuItem onClick={() => onUpdateStatus(order._id, 'CONFIRMED')}>
-                            <CheckCircle className="h-4 w-4 mr-2 text-blue-600" />
-                            Confirm Order
+                        {canUpdateTo(order.orderStatus, 'PACKED') && (
+                          <DropdownMenuItem onClick={() => onUpdateStatus(order.orderId, 'PACKED')}>
+                            <Package className="h-4 w-4 mr-2 text-orange-600" />
+                            Mark as Packed
                           </DropdownMenuItem>
                         )}
-                        {canUpdateTo(order.status, 'PROCESSING') && (
-                          <DropdownMenuItem onClick={() => onUpdateStatus(order._id, 'PROCESSING')}>
-                            <Loader2 className="h-4 w-4 mr-2 text-orange-600" />
-                            Start Processing
-                          </DropdownMenuItem>
-                        )}
-                        {canUpdateTo(order.status, 'SHIPPED') && (
-                          <DropdownMenuItem onClick={() => onUpdateStatus(order._id, 'SHIPPED')}>
+                        {canUpdateTo(order.orderStatus, 'SHIPPED') && (
+                          <DropdownMenuItem onClick={() => onUpdateStatus(order.orderId, 'SHIPPED')}>
                             <Truck className="h-4 w-4 mr-2 text-purple-600" />
                             Mark as Shipped
                           </DropdownMenuItem>
                         )}
-                        {canUpdateTo(order.status, 'DELIVERED') && (
-                          <DropdownMenuItem onClick={() => onUpdateStatus(order._id, 'DELIVERED')}>
-                            <Package className="h-4 w-4 mr-2 text-green-600" />
+                        {canUpdateTo(order.orderStatus, 'IN_TRANSIT') && (
+                          <DropdownMenuItem onClick={() => onUpdateStatus(order.orderId, 'IN_TRANSIT')}>
+                            <Loader2 className="h-4 w-4 mr-2 text-indigo-600" />
+                            Mark as In Transit
+                          </DropdownMenuItem>
+                        )}
+                        {canUpdateTo(order.orderStatus, 'DELIVERED') && (
+                          <DropdownMenuItem onClick={() => onUpdateStatus(order.orderId, 'DELIVERED')}>
+                            <CheckCircle className="h-4 w-4 mr-2 text-green-600" />
                             Mark as Delivered
                           </DropdownMenuItem>
                         )}
-                        {canUpdateTo(order.status, 'CANCELLED') && (
-                          <>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem 
-                              onClick={() => onUpdateStatus(order._id, 'CANCELLED')}
-                              className="text-destructive"
-                            >
-                              <XCircle className="h-4 w-4 mr-2" />
-                              Cancel Order
-                            </DropdownMenuItem>
-                          </>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  )}
-
-                  {order.status === 'DELIVERED' && (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem 
-                          onClick={() => onUpdateStatus(order._id, 'REFUNDED')}
-                          className="text-orange-600"
-                        >
-                          <RefreshCcw className="h-4 w-4 mr-2" />
-                          Process Refund
-                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   )}

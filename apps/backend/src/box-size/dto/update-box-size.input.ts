@@ -6,6 +6,7 @@ import {
   IsBoolean,
 } from 'class-validator';
 import { InputType, Field } from '@nestjs/graphql';
+import { DimensionsInput } from './create-box-size.input';
 
 @InputType()
 export class UpdateBoxSizeInput {
@@ -14,10 +15,10 @@ export class UpdateBoxSizeInput {
   @IsOptional()
   name?: string;
 
-  @Field({ nullable: true })
+  @Field(() => DimensionsInput, { nullable: true })
   @IsObject()
   @IsOptional()
-  internalDimensions?: { l: number; w: number; h: number };
+  internalDimensions?: DimensionsInput;
 
   @Field({ nullable: true })
   @IsNumber()

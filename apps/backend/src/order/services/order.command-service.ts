@@ -4,12 +4,16 @@ import { Order, OrderStatus } from '../order.schema';
 import { OrderRepository } from './order.repository';
 import { PaymentLoggerService } from '../../common/services/payment-logger.service';
 import { v4 as uuidv4 } from 'uuid';
+import { Inject, forwardRef } from '@nestjs/common';
+import { PackingService } from '../../packing/services/packing.service';
 
 @Injectable()
 export class OrderCommandService {
   constructor(
     private orderRepository: OrderRepository,
     private paymentLogger: PaymentLoggerService,
+    @Inject(forwardRef(() => PackingService))
+    private packingService: PackingService,
   ) {}
 
   async createOrder(params: {
@@ -17,6 +21,9 @@ export class OrderCommandService {
     paymentOrderId: string;
     cartId: string;
     totalAmount: string;
+    subtotal?: string;
+    discount?: string;
+    deliveryCharge?: string;
     currency: string;
     shippingAddressId?: string;
     placerContact?: {
@@ -28,7 +35,7 @@ export class OrderCommandService {
       email?: string;
     };
     items: Array<{
-      itemId: string;
+      variantId: string;
       quantity: number;
     }>;
   }): Promise<Order> {
@@ -42,15 +49,18 @@ export class OrderCommandService {
       paymentOrderId: new Types.ObjectId(params.paymentOrderId),
       cartId: new Types.ObjectId(params.cartId),
       totalAmount: params.totalAmount,
+      subtotal: params.subtotal || params.totalAmount,
+      discount: params.discount || '0',
+      deliveryCharge: params.deliveryCharge || '0',
       currency: params.currency,
-      orderStatus: OrderStatus.PENDING,
+      orderStatus: OrderStatus.CONFIRMED,
       shippingAddressId: params.shippingAddressId
         ? new Types.ObjectId(params.shippingAddressId)
         : undefined,
       placerContact: params.placerContact,
       recipientContact: params.recipientContact,
       items: params.items.map((item) => ({
-        itemId: new Types.ObjectId(item.itemId),
+        variantId: new Types.ObjectId(item.variantId),
         quantity: item.quantity,
       })),
     });
@@ -62,7 +72,20 @@ export class OrderCommandService {
       amount: params.totalAmount,
     });
 
+    await this.createPackingWorkflow(order);
+
     return order;
+  }
+
+  private async createPackingWorkflow(order: Order): Promise<void> {
+    try {
+      await this.packingService.createPackingOrder(order);
+    } catch (error) {
+      this.paymentLogger.error('Failed to create packing order', '', {
+        orderId: order._id.toString(),
+        error: error.message,
+      });
+    }
   }
 
   async cancelOrder(params: {
@@ -71,7 +94,7 @@ export class OrderCommandService {
   }): Promise<Order> {
     const updatedOrder = await this.orderRepository.updateOrderStatus(
       params.orderId,
-      OrderStatus.CANCELLED,
+      OrderStatus.CONFIRMED,
       {
         cancelledAt: new Date(),
         cancellationReason: params.reason,
@@ -103,10 +126,6 @@ export class OrderCommandService {
 
     if (params.status === OrderStatus.DELIVERED) {
       updateData.deliveredAt = new Date();
-    }
-
-    if (params.status === OrderStatus.CANCELLED) {
-      updateData.cancelledAt = new Date();
     }
 
     const order = await this.orderRepository.updateOrderStatus(

@@ -29,6 +29,15 @@ export class Packer {
   @Field(() => Float)
   averagePackTime: number;
 
+  @Field(() => Int)
+  assignedOrders: number;
+
+  @Field(() => Int)
+  inProgressOrders: number;
+
+  @Field(() => Int)
+  completedOrders: number;
+
   @Field({ nullable: true })
   lastActiveAt?: Date;
 }
@@ -70,4 +79,13 @@ export class PackerLoginResponse {
 
   @Field(() => Packer)
   packer: Packer;
+}
+
+@ObjectType()
+export class CreatePackerResponse {
+  @Field(() => Packer)
+  packer: Packer;
+
+  @Field()
+  generatedPassword: string;
 }

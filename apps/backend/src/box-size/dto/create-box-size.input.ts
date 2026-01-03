@@ -2,6 +2,21 @@ import { IsString, IsNotEmpty, IsNumber, IsObject } from 'class-validator';
 import { InputType, Field } from '@nestjs/graphql';
 
 @InputType()
+export class DimensionsInput {
+  @Field(() => Number)
+  @IsNumber()
+  l: number;
+
+  @Field(() => Number)
+  @IsNumber()
+  w: number;
+
+  @Field(() => Number)
+  @IsNumber()
+  h: number;
+}
+
+@InputType()
 export class CreateBoxSizeInput {
   @Field()
   @IsString()
@@ -13,15 +28,14 @@ export class CreateBoxSizeInput {
   @IsNotEmpty()
   name: string;
 
-  @Field()
-  @IsObject()
-  internalDimensions: { l: number; w: number; h: number };
+  @Field(() => DimensionsInput)
+  internalDimensions: DimensionsInput;
 
-  @Field()
+  @Field(() => Number)
   @IsNumber()
   maxWeight: number;
 
-  @Field()
+  @Field(() => Number)
   @IsNumber()
   cost: number;
 }

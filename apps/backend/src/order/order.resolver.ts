@@ -1,15 +1,20 @@
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, ResolveField, Parent } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { OrderService } from './order.service';
 import {
   GetMyOrdersInput,
   CancelOrderInput,
   GetAllOrdersInput,
+  UpdateOrderStatusInput,
 } from './order.input';
 import {
   OrderType,
   PaginatedOrdersResponse,
   AdminOrdersResponse,
+  OrderPaymentType,
+  OrderShippingAddressType,
+  OrderCustomerType,
+  OrderWithUserInfo,
 } from './order.graphql';
 import { DualAuthGuard } from '../authentication/common/dual-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -17,7 +22,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { Role } from '../common/enums/role.enum';
 import { OptionalUser } from '../common/decorators/optional-user.decorator';
 
-@Resolver()
+@Resolver(() => OrderType)
 export class OrderResolver {
   constructor(private readonly orderService: OrderService) {}
 
@@ -107,5 +112,68 @@ export class OrderResolver {
       reason: input.reason || 'Cancelled by user',
     });
     return order.toObject ? order.toObject() : order;
+  }
+
+  @Mutation(() => OrderType)
+  @Roles(Role.ADMIN)
+  @UseGuards(RolesGuard)
+  async updateOrderStatus(
+    @Args('input') input: UpdateOrderStatusInput,
+  ): Promise<any> {
+    const order = await this.orderService.updateOrderStatus({
+      orderId: input.orderId,
+      status: input.status,
+      trackingNumber: input.trackingNumber,
+    });
+    return order.toObject ? order.toObject() : order;
+  }
+
+  @ResolveField(() => OrderPaymentType, { nullable: true })
+  async payment(@Parent() order: any): Promise<OrderPaymentType | null> {
+    return this.orderService.resolvePayment(order);
+  }
+
+  @ResolveField(() => OrderShippingAddressType, { nullable: true })
+  async shippingAddress(
+    @Parent() order: any,
+  ): Promise<OrderShippingAddressType | null> {
+    return this.orderService.resolveShippingAddress(order);
+  }
+
+  @ResolveField(() => OrderCustomerType, { nullable: true })
+  async customer(@Parent() order: any): Promise<OrderCustomerType | null> {
+    return this.orderService.resolveCustomer(order);
+  }
+
+  @ResolveField('items')
+  async items(@Parent() order: any): Promise<any[]> {
+    return this.orderService.resolveItems(order);
+  }
+}
+
+@Resolver(() => OrderWithUserInfo)
+export class OrderWithUserInfoResolver {
+  constructor(private readonly orderService: OrderService) {}
+
+  @ResolveField(() => OrderPaymentType, { nullable: true })
+  async payment(@Parent() order: any): Promise<OrderPaymentType | null> {
+    return this.orderService.resolvePayment(order);
+  }
+
+  @ResolveField(() => OrderShippingAddressType, { nullable: true })
+  async shippingAddress(
+    @Parent() order: any,
+  ): Promise<OrderShippingAddressType | null> {
+    return this.orderService.resolveShippingAddress(order);
+  }
+
+  @ResolveField(() => OrderCustomerType, { nullable: true })
+  async customer(@Parent() order: any): Promise<OrderCustomerType | null> {
+    return this.orderService.resolveCustomer(order);
+  }
+
+  @ResolveField('items')
+  async items(@Parent() order: any): Promise<any[]> {
+    return this.orderService.resolveItems(order);
   }
 }

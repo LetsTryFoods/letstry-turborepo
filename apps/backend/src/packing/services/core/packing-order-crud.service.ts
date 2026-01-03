@@ -19,6 +19,10 @@ export class PackingOrderCrudService {
     return this.packingOrderModel.findById(id).exec();
   }
 
+  async findOne(filter: any): Promise<PackingOrder | null> {
+    return this.packingOrderModel.findOne(filter).exec();
+  }
+
   async findAll(filter: any = {}): Promise<PackingOrder[]> {
     return this.packingOrderModel.find(filter).exec();
   }

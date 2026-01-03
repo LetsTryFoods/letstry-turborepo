@@ -514,13 +514,42 @@ type RefundResponse {
   message: String
 }
 
-type OrderItemType {
-  itemId: String!
-  quantity: Float!
-  price: String!
-  totalPrice: String!
+type OrderPaymentType {
+  _id: String!
+  status: PaymentStatus!
+  method: String
+  transactionId: String
+  amount: String!
+  paidAt: DateTime
+}
+
+type OrderShippingAddressType {
+  fullName: String!
+  phone: String!
+  addressLine1: String!
+  addressLine2: String
+  city: String!
+  state: String!
+  pincode: String!
+  landmark: String
+}
+
+type OrderCustomerType {
+  _id: String!
   name: String!
-  sku: String!
+  email: String
+  phone: String
+}
+
+type OrderItemType {
+  variantId: String
+  quantity: Float!
+  price: String
+  totalPrice: String
+  name: String
+  sku: String
+  variant: String
+  image: String
 }
 
 type OrderUserInfo {
@@ -539,10 +568,16 @@ type OrderType {
   paymentOrderId: String!
   cartId: String!
   totalAmount: String!
+  subtotal: String!
+  discount: String!
+  deliveryCharge: String!
   currency: String!
   orderStatus: OrderStatus!
   shippingAddressId: String
   items: [OrderItemType!]!
+  payment: OrderPaymentType
+  shippingAddress: OrderShippingAddressType
+  customer: OrderCustomerType
   deliveredAt: DateTime
   cancelledAt: DateTime
   trackingNumber: String
@@ -552,13 +587,11 @@ type OrderType {
 }
 
 enum OrderStatus {
-  PENDING
   CONFIRMED
-  PROCESSING
+  PACKED
   SHIPPED
+  IN_TRANSIT
   DELIVERED
-  CANCELLED
-  REFUNDED
 }
 
 type OrderWithUserInfo {
@@ -568,10 +601,16 @@ type OrderWithUserInfo {
   paymentOrderId: String!
   cartId: String!
   totalAmount: String!
+  subtotal: String!
+  discount: String!
+  deliveryCharge: String!
   currency: String!
   orderStatus: OrderStatus!
   shippingAddressId: String
   items: [OrderItemType!]!
+  payment: OrderPaymentType
+  shippingAddress: OrderShippingAddressType
+  customer: OrderCustomerType
   deliveredAt: DateTime
   cancelledAt: DateTime
   trackingNumber: String
@@ -582,17 +621,16 @@ type OrderWithUserInfo {
 }
 
 type OrderStatusCount {
-  pending: Int!
   confirmed: Int!
-  processing: Int!
+  packed: Int!
   shipped: Int!
+  inTransit: Int!
   delivered: Int!
-  cancelled: Int!
-  refunded: Int!
 }
 
 type OrdersSummary {
   totalOrders: Int!
+  totalRevenue: String!
   statusCounts: OrderStatusCount!
 }
 
@@ -605,6 +643,135 @@ type AdminOrdersResponse {
   orders: [OrderWithUserInfo!]!
   meta: PaginationMeta!
   summary: OrdersSummary!
+}
+
+type ItemDimensions {
+  length: Float!
+  width: Float!
+  height: Float!
+  weight: Float!
+  unit: String!
+}
+
+type PackingItem {
+  productId: String!
+  sku: String!
+  ean: String!
+  name: String!
+  quantity: Int!
+  dimensions: ItemDimensions!
+  isFragile: Boolean!
+  imageUrl: String!
+}
+
+type PackingOrder {
+  id: ID!
+  orderId: String!
+  orderNumber: String!
+  status: String!
+  priority: Float!
+  assignedTo: String
+  assignedAt: DateTime
+  items: [PackingItem!]!
+  hasErrors: Boolean!
+  packingStartedAt: DateTime
+  packingCompletedAt: DateTime
+  estimatedPackTime: Float
+  specialInstructions: String
+  isExpress: Boolean!
+}
+
+type ScanLog {
+  id: ID!
+  packingOrderId: String!
+  packerId: String!
+  ean: String!
+  scannedAt: DateTime!
+  isValid: Boolean!
+  errorType: String
+  matchedProductId: String
+  matchedSku: String
+  expectedQuantity: Int
+  scannedQuantity: Int
+  isRetrospective: Boolean!
+  retrospectiveNotes: String
+  flaggedBy: String
+  flaggedAt: DateTime
+}
+
+type BoxDimensions {
+  l: Float!
+  w: Float!
+  h: Float!
+}
+
+type BoxSize {
+  id: ID!
+  code: String!
+  name: String!
+  internalDimensions: BoxDimensions!
+  maxWeight: Float!
+  cost: Float!
+  isActive: Boolean!
+}
+
+type BoxInfo {
+  code: String!
+  dimensions: BoxDimensions!
+}
+
+type PackingEvidence {
+  id: ID!
+  packingOrderId: String!
+  packerId: String!
+  prePackImages: [String!]!
+  postPackImages: [String!]!
+  recommendedBox: BoxInfo
+  actualBox: BoxInfo
+  boxMismatch: Boolean!
+  detectedBoxDimensions: BoxDimensions
+  dimensionConfidence: Float
+  uploadedAt: DateTime!
+}
+
+type Packer {
+  id: ID!
+  employeeId: String!
+  name: String!
+  phone: String!
+  email: String
+  isActive: Boolean!
+  totalOrdersPacked: Int!
+  accuracyRate: Float!
+  averagePackTime: Float!
+  assignedOrders: Int!
+  inProgressOrders: Int!
+  completedOrders: Int!
+  lastActiveAt: DateTime
+}
+
+type PackerStats {
+  packerId: ID!
+  totalOrders: Int!
+  accuracyRate: Float!
+  averagePackTime: Float!
+  errorsByType: [ErrorStat!]!
+  ordersPackedToday: Int!
+}
+
+type ErrorStat {
+  errorType: String!
+  count: Int!
+}
+
+type PackerLoginResponse {
+  accessToken: String!
+  packer: Packer!
+}
+
+type CreatePackerResponse {
+  packer: Packer!
+  generatedPassword: String!
 }
 
 type NewsletterSubscription {
@@ -665,6 +832,15 @@ type Query {
   getMyOrders(input: GetMyOrdersInput!): PaginatedOrdersResponse!
   getAllOrders(input: GetAllOrdersInput!): AdminOrdersResponse!
   getOrderById(orderId: String!): OrderType!
+  getAssignedOrder: PackingOrder!
+  getBoxRecommendation(packingOrderId: String!): BoxSize!
+  getAllPackingOrders(packerId: String, status: String): [PackingOrder!]!
+  getEvidenceByOrder(packingOrderId: String!): PackingEvidence!
+  getAllPackers(isActive: Boolean): [Packer!]!
+  getPackerById(packerId: String!): Packer!
+  getPackerStats(packerId: String!, startDate: DateTime!, endDate: DateTime!): PackerStats!
+  getAllBoxSizes: [BoxSize!]!
+  getActiveBoxSizes: [BoxSize!]!
   getAllNewsletterSubscriptions(isActive: Boolean): [NewsletterSubscription!]!
   getNewsletterSubscriptionCount(isActive: Boolean): Float!
 }
@@ -785,6 +961,19 @@ type Mutation {
   initiateUpiQrPayment(input: InitiateUpiQrPaymentInput!): InitiateUpiQrPaymentResponse!
   processRefund(input: ProcessRefundInput!): RefundResponse!
   cancelOrder(input: CancelOrderInput!): OrderType!
+  updateOrderStatus(input: UpdateOrderStatusInput!): OrderType!
+  startPacking(packingOrderId: String!): PackingOrder!
+  scanItem(input: ScanItemInput!): ScanLog!
+  uploadEvidence(input: UploadEvidenceInput!): PackingOrder!
+  completePacking(packingOrderId: String!): PackingOrder!
+  createPacker(input: CreatePackerInput!): CreatePackerResponse!
+  updatePacker(packerId: String!, input: UpdatePackerInput!): Packer!
+  deletePacker(packerId: String!): Boolean!
+  packerLogin(input: PackerLoginInput!): PackerLoginResponse!
+  flagPackingError(input: FlagErrorInput!): ScanLog!
+  createBoxSize(input: CreateBoxSizeInput!): BoxSize!
+  updateBoxSize(boxId: String!, input: UpdateBoxSizeInput!): BoxSize!
+  deleteBoxSize(boxId: String!): Boolean!
   subscribeNewsletter(input: SubscribeNewsletterInput!): SubscribeNewsletterResponse!
   unsubscribeNewsletter(email: String!): SubscribeNewsletterResponse!
   sendOtp(phoneNumber: String!): String!
@@ -1083,6 +1272,80 @@ input ProcessRefundInput {
 input CancelOrderInput {
   orderId: String!
   reason: String
+}
+
+input UpdateOrderStatusInput {
+  orderId: String!
+  status: OrderStatus!
+  trackingNumber: String
+}
+
+input ScanItemInput {
+  packingOrderId: String!
+  ean: String!
+}
+
+input UploadEvidenceInput {
+  packingOrderId: String!
+  prePackImages: [String!]
+  postPackImages: [String!]
+  actualBoxCode: String
+}
+
+input CreatePackerInput {
+  employeeId: String!
+  name: String!
+  phone: String!
+  email: String
+}
+
+input UpdatePackerInput {
+  name: String
+  phone: String
+  email: String
+  isActive: Boolean
+}
+
+input PackerLoginInput {
+  employeeId: String!
+  password: String!
+}
+
+input FlagErrorInput {
+  packingOrderId: String!
+  errorType: String!
+  ean: String
+  notes: String!
+  severity: ErrorSeverity!
+  source: String!
+}
+
+enum ErrorSeverity {
+  MINOR
+  MAJOR
+  CRITICAL
+}
+
+input CreateBoxSizeInput {
+  code: String!
+  name: String!
+  internalDimensions: DimensionsInput!
+  maxWeight: Float!
+  cost: Float!
+}
+
+input DimensionsInput {
+  l: Float!
+  w: Float!
+  h: Float!
+}
+
+input UpdateBoxSizeInput {
+  name: String
+  internalDimensions: DimensionsInput
+  maxWeight: Float
+  cost: Float
+  isActive: Boolean
 }
 
 input SubscribeNewsletterInput {

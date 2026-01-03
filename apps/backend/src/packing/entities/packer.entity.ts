@@ -31,7 +31,7 @@ export class Packer extends Document {
   @Prop({ default: 0 })
   totalOrdersPacked: number;
 
-  @Prop({ default: 100 })
+  @Prop({ default: 0 })
   accuracyRate: number;
 
   @Prop({ default: 0 })
@@ -43,9 +43,6 @@ export class Packer extends Document {
   @Prop()
   lastActiveAt: Date;
 
-  @Prop()
-  currentOrderId: string;
-
   @Prop({ type: Object })
   shiftInfo: {
     shiftStart?: Date;
@@ -54,3 +51,10 @@ export class Packer extends Document {
 }
 
 export const PackerSchema = SchemaFactory.createForClass(Packer);
+
+PackerSchema.virtual('id').get(function (this: any) {
+  return this._id.toHexString();
+});
+
+PackerSchema.set('toJSON', { virtuals: true });
+PackerSchema.set('toObject', { virtuals: true });
