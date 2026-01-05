@@ -2053,7 +2053,7 @@ export type GetRootCategoriesQueryVariables = Exact<{
 }>;
 
 
-export type GetRootCategoriesQuery = { __typename?: 'Query', rootCategories: { __typename?: 'PaginatedCategories', items: Array<{ __typename?: 'Category', id: string, name: string, slug: string, imageUrl?: string | null }>, meta: { __typename?: 'PaginationMeta', totalCount: number, totalPages: number, page: number, limit: number, hasNextPage: boolean, hasPreviousPage: boolean } } };
+export type GetRootCategoriesQuery = { __typename?: 'Query', rootCategories: { __typename?: 'PaginatedCategories', items: Array<{ __typename?: 'Category', id: string, name: string, slug: string, imageUrl?: string | null, favourite?: boolean | null }>, meta: { __typename?: 'PaginationMeta', totalCount: number, totalPages: number, page: number, limit: number, hasNextPage: boolean, hasPreviousPage: boolean } } };
 
 export type GetCategoryWithProductsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -2116,6 +2116,14 @@ export type InitiateUpiQrPaymentMutationVariables = Exact<{
 
 
 export type InitiateUpiQrPaymentMutation = { __typename?: 'Mutation', initiateUpiQrPayment: { __typename?: 'InitiateUpiQrPaymentResponse', paymentOrderId: string, qrCodeData: string, qrCodeUrl?: string | null, zaakpayTxnId?: string | null, amount: string, currency: string, expiresAt?: string | null, responseCode?: string | null, responseMessage?: string | null } };
+
+export type GetProductsByCategoryQueryVariables = Exact<{
+  categoryId: Scalars['ID']['input'];
+  pagination: PaginationInput;
+}>;
+
+
+export type GetProductsByCategoryQuery = { __typename?: 'Query', productsByCategory: { __typename?: 'PaginatedProducts', items: Array<{ __typename?: 'Product', _id: string, name: string, slug: string, description: string, brand: string, currency: string, isArchived: boolean, favourite?: boolean | null, createdAt: any, updatedAt: any, defaultVariant?: { __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, discountSource: string, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, thumbnailUrl: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> } | null, priceRange: { __typename?: 'PriceRange', min: number, max: number } }>, meta: { __typename?: 'PaginationMeta', totalCount: number, page: number, limit: number, totalPages: number, hasNextPage: boolean, hasPreviousPage: boolean } } };
 
 export type GetProductBySlugQueryVariables = Exact<{
   slug: Scalars['String']['input'];
@@ -2303,6 +2311,7 @@ export const GetRootCategoriesDocument = new TypedDocumentString(`
       name
       slug
       imageUrl
+      favourite
     }
     meta {
       totalCount
@@ -2483,6 +2492,57 @@ export const InitiateUpiQrPaymentDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<InitiateUpiQrPaymentMutation, InitiateUpiQrPaymentMutationVariables>;
+export const GetProductsByCategoryDocument = new TypedDocumentString(`
+    query GetProductsByCategory($categoryId: ID!, $pagination: PaginationInput!) {
+  productsByCategory(categoryId: $categoryId, pagination: $pagination) {
+    items {
+      _id
+      name
+      slug
+      description
+      brand
+      currency
+      isArchived
+      favourite
+      createdAt
+      updatedAt
+      defaultVariant {
+        _id
+        sku
+        name
+        price
+        mrp
+        discountPercent
+        discountSource
+        weight
+        weightUnit
+        packageSize
+        stockQuantity
+        availabilityStatus
+        images {
+          url
+          alt
+        }
+        thumbnailUrl
+        isDefault
+        isActive
+      }
+      priceRange {
+        min
+        max
+      }
+    }
+    meta {
+      totalCount
+      page
+      limit
+      totalPages
+      hasNextPage
+      hasPreviousPage
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<GetProductsByCategoryQuery, GetProductsByCategoryQueryVariables>;
 export const GetProductBySlugDocument = new TypedDocumentString(`
     query GetProductBySlug($slug: String!) {
   productBySlug(slug: $slug) {

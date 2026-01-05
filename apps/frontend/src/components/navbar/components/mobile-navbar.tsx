@@ -30,8 +30,8 @@ export const MobileNavbar = ({
         <div className="flex md:hidden h-20 items-center justify-between relative px-2">
             {/* Left: Delivering at */}
             <div className="flex flex-col flex-1 min-w-0">
-                <span className="text-lg font-bold text-black leading-tight">Delivering at</span>
-                <span className="text-xs text-gray-600 truncate pr-4">
+                <span className="text-md font-bold text-black leading-tight">Delivering at</span>
+                <span className="text-sm text-gray-600 truncate pr-4 ">
                     Netaji Subhash Place
                 </span>
             </div>
@@ -39,12 +39,12 @@ export const MobileNavbar = ({
             {/* Center: Logo */}
             <div className="absolute left-1/2 -translate-x-1/2 z-10">
                 <Link href="/" className="block gold-border-logo">
-                    <div className="bg-[#FFCC00] rounded-full  w-14 h-14 flex items-center justify-center overflow-hidden">
+                    <div className="bg-[#FFCC00] rounded-full  w-10 h-10 flex items-center justify-center overflow-hidden">
                         <Image
                             src="/logo.webp"
                             alt="Let's Try"
-                            width={56}
-                            height={56}
+                            width={20}
+                            height={20}
                             className="w-full h-full object-contain"
                             priority
                         />
@@ -55,12 +55,12 @@ export const MobileNavbar = ({
             {/* Right: Icons */}
             <div className="flex items-center -mr-2">
                 <Button variant="ghost" size="icon" className="h-12 w-10 p-0" onClick={openSearch}>
-                    <Search className="size-8 text-black stroke-[1.5]" />
+                    <Search className="size-6 text-black stroke-[1.5]" />
                 </Button>
 
                 <Button variant="ghost" size="icon" className="h-12 w-10 p-0 relative" onClick={toggleCart}>
                     <div className="relative">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="size-8 text-black">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="size-6 text-black">
                             <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
                             <path d="M3 6h18" />
                             <path d="M16 10a4 4 0 0 1-8 0" />

@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Switch } from "@/components/ui/switch"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal, Pencil, Archive, ArchiveRestore } from "lucide-react"
+import { MoreHorizontal, Pencil, Archive, ArchiveRestore, Package } from "lucide-react"
 import { Pagination } from "@/app/dashboard/components/pagination"
 import { ColumnDefinition } from "@/app/dashboard/components/column-selector"
+import Link from "next/link"
 
 interface CategoryTableProps {
   categories: any[]
@@ -129,6 +130,12 @@ export function CategoryTable({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                      <DropdownMenuItem asChild>
+                        <Link href={`/dashboard/products?categoryId=${category.id}`}>
+                          <Package className="mr-2 h-4 w-4" />
+                          View Products ({category.productCount || 0})
+                        </Link>
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => onEdit(category.id)}>
                         <Pencil className="mr-2 h-4 w-4" />
                         Edit

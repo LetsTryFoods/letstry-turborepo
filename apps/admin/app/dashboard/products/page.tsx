@@ -41,12 +41,15 @@ import {
   Trash2,
   Archive,
   ArchiveRestore,
+  ArrowLeft,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import {
   useProducts,
+  useProductsByCategory,
   useCreateProduct,
   useUpdateProduct,
   useArchiveProduct,
@@ -76,6 +79,9 @@ const allColumns: ColumnDefinition[] = [
 ];
 
 export default function ProductsPage() {
+  const searchParams = useSearchParams();
+  const categoryId = searchParams.get('categoryId');
+  
   const [selectedColumns, setSelectedColumns] = useState([
     "name",
     "brand",
@@ -99,30 +105,53 @@ export default function ProductsPage() {
 
   const [showArchived, setShowArchived] = useState(false);
 
+  const allProductsQuery = useProducts({ page: currentPage, limit: pageSize }, showArchived);
+  const categoryProductsQuery = useProductsByCategory(
+    categoryId || '',
+    { page: currentPage, limit: pageSize }
+  );
+
+  const productsQuery = categoryId ? categoryProductsQuery : allProductsQuery;
   const {
     data: productsData,
     loading: productsLoading,
     error: productsError,
-  } = useProducts({ page: currentPage, limit: pageSize }, showArchived);
+  } = productsQuery;
   const { mutate: createProduct } = useCreateProduct();
   const { mutate: updateProduct } = useUpdateProduct();
   const { mutate: archiveProduct } = useArchiveProduct();
   const { mutate: unarchiveProduct } = useUnarchiveProduct();
   const { mutate: deleteProduct } = useDeleteProduct();
 
-  const allProducts = (productsData as any)?.products?.items || [];
-  // Filter products based on showArchived checkbox
-  const products = showArchived
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [categoryId]);
+
+  const allProducts = categoryId 
+    ? (productsData as any)?.productsByCategory?.items || []
+    : (productsData as any)?.products?.items || [];
+  
+  const products = showArchived && !categoryId
     ? allProducts.filter((p: any) => p.isArchived)
     : allProducts.filter((p: any) => !p.isArchived);
-  const meta = (productsData as any)?.products?.meta || {
-    totalCount: 0,
-    page: 1,
-    limit: pageSize,
-    totalPages: 1,
-    hasNextPage: false,
-    hasPreviousPage: false,
-  };
+  
+  const meta = categoryId
+    ? (productsData as any)?.productsByCategory?.meta || {
+        totalCount: 0,
+        page: 1,
+        limit: pageSize,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      }
+    : (productsData as any)?.products?.meta || {
+        totalCount: 0,
+        page: 1,
+        limit: pageSize,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      };
 
   const handleColumnToggle = (columnKey: string) => {
     setSelectedColumns((prev) =>
@@ -221,21 +250,38 @@ export default function ProductsPage() {
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">Products</h2>
+        <div>
+          {categoryId && (
+            <Link href="/dashboard/products" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-2">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to All Products
+            </Link>
+          )}
+          <h2 className="text-3xl font-bold tracking-tight">
+            {categoryId ? 'Category Products' : 'Products'}
+          </h2>
+          {categoryId && (
+            <p className="text-sm text-muted-foreground mt-1">
+              Showing products for selected category
+            </p>
+          )}
+        </div>
         <div className="flex items-center space-x-2">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="show-archived"
-              checked={showArchived}
-              onCheckedChange={(checked) => setShowArchived(checked as boolean)}
-            />
-            <label
-              htmlFor="show-archived"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              Show Archived
-            </label>
-          </div>
+          {!categoryId && (
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="show-archived"
+                checked={showArchived}
+                onCheckedChange={(checked) => setShowArchived(checked as boolean)}
+              />
+              <label
+                htmlFor="show-archived"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Show Archived
+              </label>
+            </div>
+          )}
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button onClick={handleAddProduct}>Add Product</Button>

@@ -8,6 +8,7 @@ export const GET_ROOT_CATEGORIES = graphql(`
         name
         slug
         imageUrl
+        favourite
       }
       meta {
         totalCount

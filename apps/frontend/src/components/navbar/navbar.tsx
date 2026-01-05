@@ -45,12 +45,12 @@ export const Navbar = ({ initialAuth }: NavbarProps) => {
     { href: "/", label: "Home" },
     { href: "/snacks", label: "Snacks" },
     { href: "/combos", label: "Combos" },
-    { href: "/about", label: "About us" },
+    { href: "/about-us", label: "About us" },
   ], []);
 
   return (
     <nav className="sticky top-0 z-40 w-full bg-white">
-      <div className="container mx-auto px-4">
+      <div className="mx-auto px-4 sm:px-6 lg:px-8 ">
         <DesktopNavbar
           navigationLinks={navigationLinks}
           cartItemCount={cartItemCount}

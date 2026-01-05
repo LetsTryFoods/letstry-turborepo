@@ -13,7 +13,7 @@ import Autoplay from "embla-carousel-autoplay";
 
 export const HeroCarousel = () => {
   return (
-    <section className="container mx-auto px-4 py-6 md:py-8">
+    <section className="mx-auto px-2 py-2 sm:py-4 sm:px-6 lg:px-8  md:py-6">
       <Carousel
         opts={{
           align: "start",
@@ -29,7 +29,7 @@ export const HeroCarousel = () => {
         <CarouselContent>
           {carouselImages.map((image) => (
             <CarouselItem key={image.id}>
-              <div className="relative w-full  h-[300px] md:h-[400px] lg:h-[500px] aspect-[16/9] sm:aspect-[18/9] md:aspect-[21/9] overflow-hidden rounded-[10px] bg-gray-100">
+              <div className="relative w-full  h-auto sm:h-[400px] lg:h-[500px] aspect-[16/9] sm:aspect-[18/9] md:aspect-[21/9] overflow-hidden rounded-[10px] bg-gray-100">
                 <Image
                   src={image.url}
                   alt={image.alt}

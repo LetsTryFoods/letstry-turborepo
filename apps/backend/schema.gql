@@ -775,6 +775,12 @@ type SubscribeNewsletterResponse {
   email: String
 }
 
+input BoxDimensionsInput {
+  l: Float!
+  w: Float!
+  h: Float!
+}
+
 type Query {
   hello: String!
   products(pagination: PaginationInput! = {page: 1, limit: 10}, includeOutOfStock: Boolean! = false): PaginatedProducts!

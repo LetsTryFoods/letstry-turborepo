@@ -5,12 +5,14 @@ import type { Category } from '@/types/category.types';
 export const CategoryGrid = async () => {
   const data = await getHomeCategories(20);
 
-  const mappedCategories: Category[] = data.items.map((c) => ({
-    id: c.id,
-    name: c.name,
-    imageUrl: c.imageUrl || '/placeholder-image.svg',
-    href: `/category/${c.slug}`,
-  }));
+  const mappedCategories: Category[] = data.items
+    .filter((c) => c.favourite === true)
+    .map((c) => ({
+      id: c.id,
+      name: c.name,
+      imageUrl: c.imageUrl || '/placeholder-image.svg',
+      href: `/category/${c.slug}`,
+    }));
 
   return (
     <section className="container mx-auto px-4 py-8">

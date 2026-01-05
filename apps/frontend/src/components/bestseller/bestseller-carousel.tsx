@@ -1,7 +1,6 @@
-"use client";
-
-import { bestsellersData } from "@/config/mock/bestsellers.config";
+import { getBestsellerProducts } from "@/lib/product";
 import { BestsellerCard } from "./bestseller-card";
+
 import {
   Carousel,
   CarouselContent,
@@ -10,12 +9,22 @@ import {
   CarouselNext,
 } from "@/components/ui/carousel";
 
-export const BestsellerCarousel = () => {
+
+export const BestsellerCarousel = async () => {
+  const products = await getBestsellerProducts("best-selling", 20);
+
+  if (products.length === 0) {
+    return null;
+  }
+
   return (
     <section className="w-full bg-amber-800">
       <div className="container mx-auto px-4">
         <header className="py-8">
-          <h2 className="text-4xl md:text-9xl text-center text-amber-100" style={{ fontFamily: 'var(--font-agbalumo)' }}>
+          <h2
+            className="text-4xl md:text-9xl text-center text-amber-100"
+            style={{ fontFamily: "var(--font-agbalumo)" }}
+          >
             Bestseller
           </h2>
         </header>
@@ -28,9 +37,9 @@ export const BestsellerCarousel = () => {
             className="w-full"
           >
             <CarouselContent className="-ml-4">
-              {bestsellersData.map((product) => (
+              {products.map((product: any) => (
                 <CarouselItem
-                  key={product.id}
+                  key={product._id}
                   className="pl-4 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4 xl:basis-1/5"
                 >
                   <BestsellerCard product={product} />

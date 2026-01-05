@@ -1,6 +1,7 @@
-import { ObjectType, Field, ID, Float } from '@nestjs/graphql';
+import { ObjectType, Field, ID, Float, InputType } from '@nestjs/graphql';
 
 @ObjectType()
+@InputType('BoxDimensionsInput')
 export class BoxDimensions {
   @Field(() => Float)
   l: number;

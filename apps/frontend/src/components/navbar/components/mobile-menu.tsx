@@ -27,7 +27,7 @@ export const MobileMenu = ({
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-12 w-10 p-0">
-                    <Menu className="size-8 text-black stroke-[1.5]" />
+                    <Menu className="size-6 text-black stroke-[1.5]" />
                 </Button>
             </SheetTrigger>
             <SheetContent side="right" hideClose className="w-full sm:w-full border-none p-6 flex flex-col gap-8">
@@ -74,7 +74,7 @@ export const MobileMenu = ({
                         Cart
                     </button>
                     <Link
-                        href="/about"
+                        href="/about-us"
                         className="text-xl font-bold text-black hover:text-yellow-600 transition-colors"
                         onClick={() => setIsOpen(false)}
                     >

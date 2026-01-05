@@ -2,8 +2,9 @@ import {
   IsString,
   IsOptional,
   IsNumber,
-  IsObject,
   IsBoolean,
+  ValidateNested,
+  IsObject,
 } from 'class-validator';
 import { InputType, Field } from '@nestjs/graphql';
 import { DimensionsInput } from './create-box-size.input';
