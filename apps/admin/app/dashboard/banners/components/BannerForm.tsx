@@ -90,11 +90,11 @@ export function BannerForm({ onClose, initialData, createBanner, updateBanner }:
 
   const onSubmit = async (data: BannerFormValues) => {
     try {
-     
+
       const formattedData = {
         ...data,
-        startDate: data.startDate ? new Date(data.startDate).toISOString() : null,
-        endDate: data.endDate ? new Date(data.endDate).toISOString() : null,
+        startDate: data.startDate ? new Date(data.startDate).toISOString() : undefined,
+        endDate: data.endDate ? new Date(data.endDate).toISOString() : undefined,
       }
 
       if (initialData) {
@@ -162,7 +162,7 @@ export function BannerForm({ onClose, initialData, createBanner, updateBanner }:
           />
           <div className="space-y-2 col-span-2">
             <FormLabel>Banner Image *</FormLabel>
-            <ImageUpload 
+            <ImageUpload
               onImagesChange={handleImagesChange}
               initialImages={initialData?.imageUrl ? [{ url: initialData.imageUrl, alt: initialData.name }] : []}
               maxFiles={1}
@@ -172,7 +172,7 @@ export function BannerForm({ onClose, initialData, createBanner, updateBanner }:
           </div>
           <div className="space-y-2 col-span-2">
             <FormLabel>Mobile Image *</FormLabel>
-            <ImageUpload 
+            <ImageUpload
               onImagesChange={handleMobileImagesChange}
               initialImages={initialData?.mobileImageUrl ? [{ url: initialData.mobileImageUrl, alt: initialData.name }] : []}
               maxFiles={1}
@@ -213,9 +213,9 @@ export function BannerForm({ onClose, initialData, createBanner, updateBanner }:
               <FormItem>
                 <FormLabel>Position *</FormLabel>
                 <FormControl>
-                  <Input 
-                    type="number" 
-                    step="0.01" 
+                  <Input
+                    type="number"
+                    step="0.01"
                     value={field.value as number}
                     onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                   />
@@ -271,17 +271,17 @@ export function BannerForm({ onClose, initialData, createBanner, updateBanner }:
                 <FormLabel>Background Color</FormLabel>
                 <div className="flex items-center gap-2">
                   <FormControl>
-                    <Input 
-                      type="color" 
-                      {...field} 
+                    <Input
+                      type="color"
+                      {...field}
                       value={field.value || '#000000'}
                       className="w-20 h-10 cursor-pointer"
                     />
                   </FormControl>
                   <FormControl>
-                    <Input 
-                      {...field} 
-                      placeholder="#000000" 
+                    <Input
+                      {...field}
+                      placeholder="#000000"
                       value={field.value || ''}
                       className="flex-1"
                     />
@@ -299,17 +299,17 @@ export function BannerForm({ onClose, initialData, createBanner, updateBanner }:
                 <FormLabel>Text Color</FormLabel>
                 <div className="flex items-center gap-2">
                   <FormControl>
-                    <Input 
-                      type="color" 
-                      {...field} 
+                    <Input
+                      type="color"
+                      {...field}
                       value={field.value || '#FFFFFF'}
                       className="w-20 h-10 cursor-pointer"
                     />
                   </FormControl>
                   <FormControl>
-                    <Input 
-                      {...field} 
-                      placeholder="#FFFFFF" 
+                    <Input
+                      {...field}
+                      placeholder="#FFFFFF"
                       value={field.value || ''}
                       className="flex-1"
                     />

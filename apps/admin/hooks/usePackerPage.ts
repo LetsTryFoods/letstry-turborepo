@@ -13,7 +13,7 @@ export function usePackerPage() {
   const [selectedPackerId, setSelectedPackerId] = useState<string | null>(null)
   const [showInactive, setShowInactive] = useState(false)
 
-  const { data: packersData, loading: packersLoading, error: packersError, refetch: refetchPackers } = usePackers(showInactive ? false : null)
+  const { data: packersData, loading: packersLoading, error: packersError, refetch: refetchPackers } = usePackers(showInactive ? false : undefined)
   const { mutate: createPacker } = useCreatePacker()
   const { mutate: updatePacker } = useUpdatePacker()
   const { mutate: deletePacker } = useDeletePacker()

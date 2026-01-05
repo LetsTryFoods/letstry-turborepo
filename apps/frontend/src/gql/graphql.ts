@@ -89,6 +89,55 @@ export type Banner = {
   url: Scalars['String']['output'];
 };
 
+export type BatchItemResult = {
+  __typename?: 'BatchItemResult';
+  ean: Scalars['String']['output'];
+  errorType?: Maybe<Scalars['String']['output']>;
+  isValid: Scalars['Boolean']['output'];
+  itemName?: Maybe<Scalars['String']['output']>;
+};
+
+export type BatchScanInput = {
+  items: Array<BatchScanItem>;
+  packingOrderId: Scalars['String']['input'];
+};
+
+export type BatchScanItem = {
+  ean: Scalars['String']['input'];
+};
+
+export type BatchScanResult = {
+  __typename?: 'BatchScanResult';
+  failureCount: Scalars['Int']['output'];
+  results: Array<BatchItemResult>;
+  successCount: Scalars['Int']['output'];
+  totalProcessed: Scalars['Int']['output'];
+};
+
+export type BoxDimensions = {
+  __typename?: 'BoxDimensions';
+  h: Scalars['Float']['output'];
+  l: Scalars['Float']['output'];
+  w: Scalars['Float']['output'];
+};
+
+export type BoxInfo = {
+  __typename?: 'BoxInfo';
+  code: Scalars['String']['output'];
+  dimensions: BoxDimensions;
+};
+
+export type BoxSize = {
+  __typename?: 'BoxSize';
+  code: Scalars['String']['output'];
+  cost: Scalars['Float']['output'];
+  id: Scalars['ID']['output'];
+  internalDimensions: BoxDimensions;
+  isActive: Scalars['Boolean']['output'];
+  maxWeight: Scalars['Float']['output'];
+  name: Scalars['String']['output'];
+};
+
 export type CancelOrderInput = {
   orderId: Scalars['String']['input'];
   reason?: InputMaybe<Scalars['String']['input']>;
@@ -241,6 +290,14 @@ export type CreateBannerInput = {
   url: Scalars['String']['input'];
 };
 
+export type CreateBoxSizeInput = {
+  code: Scalars['String']['input'];
+  cost: Scalars['Float']['input'];
+  internalDimensions: DimensionsInput;
+  maxWeight: Scalars['Float']['input'];
+  name: Scalars['String']['input'];
+};
+
 export type CreateCategoryInput = {
   codeValue: Scalars['String']['input'];
   description?: InputMaybe<Scalars['String']['input']>;
@@ -279,6 +336,19 @@ export type CreateCouponInput = {
 export type CreateGuestInput = {
   deviceInfo?: InputMaybe<Scalars['JSON']['input']>;
   ipAddress?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CreatePackerInput = {
+  email?: InputMaybe<Scalars['String']['input']>;
+  employeeId: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  phone: Scalars['String']['input'];
+};
+
+export type CreatePackerResponse = {
+  __typename?: 'CreatePackerResponse';
+  generatedPassword: Scalars['String']['output'];
+  packer: Packer;
 };
 
 export type CreatePolicyInput = {
@@ -415,6 +485,12 @@ export type DashboardStats = {
   totalUsers: Scalars['Float']['output'];
 };
 
+export type DimensionsInput = {
+  h: Scalars['Float']['input'];
+  l: Scalars['Float']['input'];
+  w: Scalars['Float']['input'];
+};
+
 export enum DiscountType {
   Fixed = 'FIXED',
   Percentage = 'PERCENTAGE'
@@ -454,6 +530,27 @@ export type EnrichedCustomer = {
   totalOrders: Scalars['Int']['output'];
   totalSpent: Scalars['Int']['output'];
   updatedAt: Scalars['DateTime']['output'];
+};
+
+export enum ErrorSeverity {
+  Critical = 'CRITICAL',
+  Major = 'MAJOR',
+  Minor = 'MINOR'
+}
+
+export type ErrorStat = {
+  __typename?: 'ErrorStat';
+  count: Scalars['Int']['output'];
+  errorType: Scalars['String']['output'];
+};
+
+export type FlagErrorInput = {
+  ean?: InputMaybe<Scalars['String']['input']>;
+  errorType: Scalars['String']['input'];
+  notes: Scalars['String']['input'];
+  packingOrderId: Scalars['String']['input'];
+  severity: ErrorSeverity;
+  source: Scalars['String']['input'];
 };
 
 export type GeocodeAddressInput = {
@@ -556,6 +653,15 @@ export type InitiateUpiQrPaymentResponse = {
   zaakpayTxnId?: Maybe<Scalars['String']['output']>;
 };
 
+export type ItemDimensions = {
+  __typename?: 'ItemDimensions';
+  height: Scalars['Float']['output'];
+  length: Scalars['Float']['output'];
+  unit: Scalars['String']['output'];
+  weight: Scalars['Float']['output'];
+  width: Scalars['Float']['output'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   addProductVariant: Product;
@@ -566,46 +672,60 @@ export type Mutation = {
   applyCoupon: Cart;
   archiveCategory: Category;
   archiveProduct: Product;
+  batchScanItems: BatchScanResult;
   cancelOrder: OrderType;
   clearCart: Cart;
+  completePacking: PackingOrder;
   createAddress: Address;
   createAdmin: Scalars['String']['output'];
   createBanner: Banner;
+  createBoxSize: BoxSize;
   createCategory: Category;
   createCoupon: Coupon;
   createGuest: Guest;
   createOrUpdateCharges: Charges;
+  createPacker: CreatePackerResponse;
   createPolicy: Policy;
   createProduct: Product;
   deleteAddress: Address;
   deleteBanner: Banner;
+  deleteBoxSize: Scalars['Boolean']['output'];
+  deletePacker: Scalars['Boolean']['output'];
   deletePolicy: Policy;
   deleteProduct: Product;
+  flagPackingError: ScanLog;
   initiatePayment: InitiatePaymentResponse;
   initiateUpiQrPayment: InitiateUpiQrPaymentResponse;
   logout: Scalars['String']['output'];
+  packerLogin: PackerLoginResponse;
   processRefund: RefundResponse;
   removeCoupon: Cart;
   removeFromCart: Cart;
   removeProductVariant: Product;
   removeProductsFromCategory: Scalars['Boolean']['output'];
+  scanItem: ScanLog;
   sendOtp: Scalars['String']['output'];
   setDefaultProductVariant: Product;
+  startPacking: PackingOrder;
   subscribeNewsletter: SubscribeNewsletterResponse;
   unarchiveCategory: Category;
   unarchiveProduct: Product;
   unsubscribeNewsletter: SubscribeNewsletterResponse;
   updateAddress: Address;
   updateBanner: Banner;
+  updateBoxSize: BoxSize;
   updateCartItem: Cart;
   updateCategory: Category;
   updateGuest: Guest;
+  updateOrderStatus: OrderType;
+  updatePacker: Packer;
   updatePolicy: Policy;
   updateProduct: Product;
   updateProductStock: Product;
   updateProductVariant: Product;
   updateProductVariantStock: Product;
   updateUserActivity: Scalars['Boolean']['output'];
+  uploadEvidence: PackingOrder;
   verifyOtpAndLogin: Scalars['String']['output'];
   verifyWhatsAppOtp: Scalars['String']['output'];
 };
@@ -648,8 +768,18 @@ export type MutationArchiveProductArgs = {
 };
 
 
+export type MutationBatchScanItemsArgs = {
+  input: BatchScanInput;
+};
+
+
 export type MutationCancelOrderArgs = {
   input: CancelOrderInput;
+};
+
+
+export type MutationCompletePackingArgs = {
+  packingOrderId: Scalars['String']['input'];
 };
 
 
@@ -666,6 +796,11 @@ export type MutationCreateAdminArgs = {
 
 export type MutationCreateBannerArgs = {
   input: CreateBannerInput;
+};
+
+
+export type MutationCreateBoxSizeArgs = {
+  input: CreateBoxSizeInput;
 };
 
 
@@ -689,6 +824,11 @@ export type MutationCreateOrUpdateChargesArgs = {
 };
 
 
+export type MutationCreatePackerArgs = {
+  input: CreatePackerInput;
+};
+
+
 export type MutationCreatePolicyArgs = {
   input: CreatePolicyInput;
 };
@@ -709,6 +849,16 @@ export type MutationDeleteBannerArgs = {
 };
 
 
+export type MutationDeleteBoxSizeArgs = {
+  boxId: Scalars['String']['input'];
+};
+
+
+export type MutationDeletePackerArgs = {
+  packerId: Scalars['String']['input'];
+};
+
+
 export type MutationDeletePolicyArgs = {
   id: Scalars['ID']['input'];
 };
@@ -719,6 +869,11 @@ export type MutationDeleteProductArgs = {
 };
 
 
+export type MutationFlagPackingErrorArgs = {
+  input: FlagErrorInput;
+};
+
+
 export type MutationInitiatePaymentArgs = {
   input: InitiatePaymentInput;
 };
@@ -726,6 +881,11 @@ export type MutationInitiatePaymentArgs = {
 
 export type MutationInitiateUpiQrPaymentArgs = {
   input: InitiateUpiQrPaymentInput;
+};
+
+
+export type MutationPackerLoginArgs = {
+  input: PackerLoginInput;
 };
 
 
@@ -750,6 +910,11 @@ export type MutationRemoveProductsFromCategoryArgs = {
 };
 
 
+export type MutationScanItemArgs = {
+  input: ScanItemInput;
+};
+
+
 export type MutationSendOtpArgs = {
   phoneNumber: Scalars['String']['input'];
 };
@@ -758,6 +923,11 @@ export type MutationSendOtpArgs = {
 export type MutationSetDefaultProductVariantArgs = {
   productId: Scalars['ID']['input'];
   variantId: Scalars['ID']['input'];
+};
+
+
+export type MutationStartPackingArgs = {
+  packingOrderId: Scalars['String']['input'];
 };
 
 
@@ -793,6 +963,12 @@ export type MutationUpdateBannerArgs = {
 };
 
 
+export type MutationUpdateBoxSizeArgs = {
+  boxId: Scalars['String']['input'];
+  input: UpdateBoxSizeInput;
+};
+
+
 export type MutationUpdateCartItemArgs = {
   input: UpdateCartItemInput;
 };
@@ -807,6 +983,17 @@ export type MutationUpdateCategoryArgs = {
 export type MutationUpdateGuestArgs = {
   id: Scalars['ID']['input'];
   input: UpdateGuestInput;
+};
+
+
+export type MutationUpdateOrderStatusArgs = {
+  input: UpdateOrderStatusInput;
+};
+
+
+export type MutationUpdatePackerArgs = {
+  input: UpdatePackerInput;
+  packerId: Scalars['String']['input'];
 };
 
 
@@ -842,6 +1029,11 @@ export type MutationUpdateProductVariantStockArgs = {
 };
 
 
+export type MutationUploadEvidenceArgs = {
+  input: UploadEvidenceInput;
+};
+
+
 export type MutationVerifyOtpAndLoginArgs = {
   idToken: Scalars['String']['input'];
   input?: InputMaybe<CreateUserInput>;
@@ -865,34 +1057,62 @@ export type NewsletterSubscription = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
+export type OrderCustomerType = {
+  __typename?: 'OrderCustomerType';
+  _id: Scalars['String']['output'];
+  email?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  phone?: Maybe<Scalars['String']['output']>;
+};
+
 export type OrderItemType = {
   __typename?: 'OrderItemType';
-  name: Scalars['String']['output'];
-  price: Scalars['String']['output'];
-  productId: Scalars['String']['output'];
+  image?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  price?: Maybe<Scalars['String']['output']>;
   quantity: Scalars['Float']['output'];
-  sku: Scalars['String']['output'];
-  totalPrice: Scalars['String']['output'];
+  sku?: Maybe<Scalars['String']['output']>;
+  totalPrice?: Maybe<Scalars['String']['output']>;
+  variant?: Maybe<Scalars['String']['output']>;
+  variantId?: Maybe<Scalars['String']['output']>;
+};
+
+export type OrderPaymentType = {
+  __typename?: 'OrderPaymentType';
+  _id: Scalars['String']['output'];
+  amount: Scalars['String']['output'];
+  method?: Maybe<Scalars['String']['output']>;
+  paidAt?: Maybe<Scalars['DateTime']['output']>;
+  status: PaymentStatus;
+  transactionId?: Maybe<Scalars['String']['output']>;
+};
+
+export type OrderShippingAddressType = {
+  __typename?: 'OrderShippingAddressType';
+  addressLine1: Scalars['String']['output'];
+  addressLine2?: Maybe<Scalars['String']['output']>;
+  city: Scalars['String']['output'];
+  fullName: Scalars['String']['output'];
+  landmark?: Maybe<Scalars['String']['output']>;
+  phone: Scalars['String']['output'];
+  pincode: Scalars['String']['output'];
+  state: Scalars['String']['output'];
 };
 
 export enum OrderStatus {
-  Cancelled = 'CANCELLED',
   Confirmed = 'CONFIRMED',
   Delivered = 'DELIVERED',
-  Pending = 'PENDING',
-  Processing = 'PROCESSING',
-  Refunded = 'REFUNDED',
+  InTransit = 'IN_TRANSIT',
+  Packed = 'PACKED',
   Shipped = 'SHIPPED'
 }
 
 export type OrderStatusCount = {
   __typename?: 'OrderStatusCount';
-  cancelled: Scalars['Int']['output'];
   confirmed: Scalars['Int']['output'];
   delivered: Scalars['Int']['output'];
-  pending: Scalars['Int']['output'];
-  processing: Scalars['Int']['output'];
-  refunded: Scalars['Int']['output'];
+  inTransit: Scalars['Int']['output'];
+  packed: Scalars['Int']['output'];
   shipped: Scalars['Int']['output'];
 };
 
@@ -904,13 +1124,19 @@ export type OrderType = {
   cartId: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   currency: Scalars['String']['output'];
+  customer?: Maybe<OrderCustomerType>;
   deliveredAt?: Maybe<Scalars['DateTime']['output']>;
+  deliveryCharge: Scalars['String']['output'];
+  discount: Scalars['String']['output'];
   identityId: Scalars['String']['output'];
   items: Array<OrderItemType>;
   orderId: Scalars['String']['output'];
   orderStatus: OrderStatus;
+  payment?: Maybe<OrderPaymentType>;
   paymentOrderId: Scalars['String']['output'];
+  shippingAddress?: Maybe<OrderShippingAddressType>;
   shippingAddressId?: Maybe<Scalars['String']['output']>;
+  subtotal: Scalars['String']['output'];
   totalAmount: Scalars['String']['output'];
   trackingNumber?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTime']['output'];
@@ -934,13 +1160,19 @@ export type OrderWithUserInfo = {
   cartId: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   currency: Scalars['String']['output'];
+  customer?: Maybe<OrderCustomerType>;
   deliveredAt?: Maybe<Scalars['DateTime']['output']>;
+  deliveryCharge: Scalars['String']['output'];
+  discount: Scalars['String']['output'];
   identityId: Scalars['String']['output'];
   items: Array<OrderItemType>;
   orderId: Scalars['String']['output'];
   orderStatus: OrderStatus;
+  payment?: Maybe<OrderPaymentType>;
   paymentOrderId: Scalars['String']['output'];
+  shippingAddress?: Maybe<OrderShippingAddressType>;
   shippingAddressId?: Maybe<Scalars['String']['output']>;
+  subtotal: Scalars['String']['output'];
   totalAmount: Scalars['String']['output'];
   trackingNumber?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTime']['output'];
@@ -951,6 +1183,91 @@ export type OrdersSummary = {
   __typename?: 'OrdersSummary';
   statusCounts: OrderStatusCount;
   totalOrders: Scalars['Int']['output'];
+  totalRevenue: Scalars['String']['output'];
+};
+
+export type Packer = {
+  __typename?: 'Packer';
+  accuracyRate: Scalars['Float']['output'];
+  assignedOrders: Scalars['Int']['output'];
+  averagePackTime: Scalars['Float']['output'];
+  completedOrders: Scalars['Int']['output'];
+  email?: Maybe<Scalars['String']['output']>;
+  employeeId: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  inProgressOrders: Scalars['Int']['output'];
+  isActive: Scalars['Boolean']['output'];
+  lastActiveAt?: Maybe<Scalars['DateTime']['output']>;
+  name: Scalars['String']['output'];
+  phone: Scalars['String']['output'];
+  totalOrdersPacked: Scalars['Int']['output'];
+};
+
+export type PackerLoginInput = {
+  employeeId: Scalars['String']['input'];
+  password: Scalars['String']['input'];
+};
+
+export type PackerLoginResponse = {
+  __typename?: 'PackerLoginResponse';
+  accessToken: Scalars['String']['output'];
+  packer: Packer;
+};
+
+export type PackerStats = {
+  __typename?: 'PackerStats';
+  accuracyRate: Scalars['Float']['output'];
+  averagePackTime: Scalars['Float']['output'];
+  errorsByType: Array<ErrorStat>;
+  ordersPackedToday: Scalars['Int']['output'];
+  packerId: Scalars['ID']['output'];
+  totalOrders: Scalars['Int']['output'];
+};
+
+export type PackingEvidence = {
+  __typename?: 'PackingEvidence';
+  actualBox?: Maybe<BoxInfo>;
+  boxMismatch: Scalars['Boolean']['output'];
+  detectedBoxDimensions?: Maybe<BoxDimensions>;
+  dimensionConfidence?: Maybe<Scalars['Float']['output']>;
+  id: Scalars['ID']['output'];
+  packerId: Scalars['String']['output'];
+  packingOrderId: Scalars['String']['output'];
+  postPackImages: Array<Scalars['String']['output']>;
+  prePackImages: Array<Scalars['String']['output']>;
+  recommendedBox?: Maybe<BoxInfo>;
+  uploadedAt: Scalars['DateTime']['output'];
+};
+
+export type PackingItem = {
+  __typename?: 'PackingItem';
+  dimensions: ItemDimensions;
+  ean: Scalars['String']['output'];
+  imageUrl: Scalars['String']['output'];
+  isFragile: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  productId: Scalars['String']['output'];
+  quantity: Scalars['Int']['output'];
+  sku: Scalars['String']['output'];
+};
+
+export type PackingOrder = {
+  __typename?: 'PackingOrder';
+  assignedAt?: Maybe<Scalars['DateTime']['output']>;
+  assignedTo?: Maybe<Scalars['String']['output']>;
+  estimatedPackTime?: Maybe<Scalars['Float']['output']>;
+  hasErrors: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isExpress: Scalars['Boolean']['output'];
+  items: Array<PackingItem>;
+  orderId: Scalars['String']['output'];
+  orderNumber: Scalars['String']['output'];
+  packerName?: Maybe<Scalars['String']['output']>;
+  packingCompletedAt?: Maybe<Scalars['DateTime']['output']>;
+  packingStartedAt?: Maybe<Scalars['DateTime']['output']>;
+  priority: Scalars['Float']['output'];
+  specialInstructions?: Maybe<Scalars['String']['output']>;
+  status: Scalars['String']['output'];
 };
 
 export type PaginatedCategories = {
@@ -968,11 +1285,8 @@ export type PaginatedCustomersResponse = {
 
 export type PaginatedOrdersResponse = {
   __typename?: 'PaginatedOrdersResponse';
-  limit: Scalars['Float']['output'];
+  meta: PaginationMeta;
   orders: Array<OrderType>;
-  page: Scalars['Float']['output'];
-  total: Scalars['Float']['output'];
-  totalPages: Scalars['Float']['output'];
 };
 
 export type PaginatedProducts = {
@@ -1215,13 +1529,22 @@ export type Query = {
   coupons: Array<Coupon>;
   dashboardStats: DashboardStats;
   geocodeAddress: GoogleMapsAddressOutput;
+  getActiveBoxSizes: Array<BoxSize>;
+  getAllBoxSizes: Array<BoxSize>;
   getAllCustomers: PaginatedCustomersResponse;
   getAllNewsletterSubscriptions: Array<NewsletterSubscription>;
   getAllOrders: AdminOrdersResponse;
+  getAllPackers: Array<Packer>;
+  getAllPackingOrders: Array<PackingOrder>;
+  getAssignedOrder: PackingOrder;
+  getBoxRecommendation: BoxSize;
   getCustomerDetails: CustomerDetails;
+  getEvidenceByOrder: PackingEvidence;
   getMyOrders: PaginatedOrdersResponse;
   getNewsletterSubscriptionCount: Scalars['Float']['output'];
   getOrderById: OrderType;
+  getPackerById: Packer;
+  getPackerStats: PackerStats;
   getPaymentOrderById: PaymentOrderType;
   getPaymentStatus: PaymentStatusResponse;
   getPlaceDetails: PlaceDetailsOutput;
@@ -1311,8 +1634,29 @@ export type QueryGetAllOrdersArgs = {
 };
 
 
+export type QueryGetAllPackersArgs = {
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type QueryGetAllPackingOrdersArgs = {
+  packerId?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryGetBoxRecommendationArgs = {
+  packingOrderId: Scalars['String']['input'];
+};
+
+
 export type QueryGetCustomerDetailsArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetEvidenceByOrderArgs = {
+  packingOrderId: Scalars['String']['input'];
 };
 
 
@@ -1328,6 +1672,18 @@ export type QueryGetNewsletterSubscriptionCountArgs = {
 
 export type QueryGetOrderByIdArgs = {
   orderId: Scalars['String']['input'];
+};
+
+
+export type QueryGetPackerByIdArgs = {
+  packerId: Scalars['String']['input'];
+};
+
+
+export type QueryGetPackerStatsArgs = {
+  endDate: Scalars['DateTime']['input'];
+  packerId: Scalars['String']['input'];
+  startDate: Scalars['DateTime']['input'];
 };
 
 
@@ -1432,6 +1788,30 @@ export type ReverseGeocodeInput = {
   longitude: Scalars['Float']['input'];
 };
 
+export type ScanItemInput = {
+  ean: Scalars['String']['input'];
+  packingOrderId: Scalars['String']['input'];
+};
+
+export type ScanLog = {
+  __typename?: 'ScanLog';
+  ean: Scalars['String']['output'];
+  errorType?: Maybe<Scalars['String']['output']>;
+  expectedQuantity?: Maybe<Scalars['Int']['output']>;
+  flaggedAt?: Maybe<Scalars['DateTime']['output']>;
+  flaggedBy?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isRetrospective: Scalars['Boolean']['output'];
+  isValid: Scalars['Boolean']['output'];
+  matchedProductId?: Maybe<Scalars['String']['output']>;
+  matchedSku?: Maybe<Scalars['String']['output']>;
+  packerId: Scalars['String']['output'];
+  packingOrderId: Scalars['String']['output'];
+  retrospectiveNotes?: Maybe<Scalars['String']['output']>;
+  scannedAt: Scalars['DateTime']['output'];
+  scannedQuantity?: Maybe<Scalars['Int']['output']>;
+};
+
 export type SearchPlacesInput = {
   query: Scalars['String']['input'];
   sessionToken?: InputMaybe<Scalars['String']['input']>;
@@ -1500,6 +1880,14 @@ export type UpdateBannerInput = {
   url?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type UpdateBoxSizeInput = {
+  cost?: InputMaybe<Scalars['Float']['input']>;
+  internalDimensions?: InputMaybe<DimensionsInput>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  maxWeight?: InputMaybe<Scalars['Float']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type UpdateCartItemInput = {
   productId: Scalars['ID']['input'];
   quantity: Scalars['Int']['input'];
@@ -1520,6 +1908,19 @@ export type UpdateCategoryInput = {
 export type UpdateGuestInput = {
   deviceInfo?: InputMaybe<Scalars['JSON']['input']>;
   ipAddress?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateOrderStatusInput = {
+  orderId: Scalars['String']['input'];
+  status: OrderStatus;
+  trackingNumber?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdatePackerInput = {
+  email?: InputMaybe<Scalars['String']['input']>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  phone?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdatePolicyInput = {
@@ -1571,6 +1972,13 @@ export type UpdateProductVariantInput = {
   thumbnailUrl?: InputMaybe<Scalars['String']['input']>;
   weight?: InputMaybe<Scalars['Float']['input']>;
   weightUnit?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UploadEvidenceInput = {
+  actualBoxCode?: InputMaybe<Scalars['String']['input']>;
+  packingOrderId: Scalars['String']['input'];
+  postPackImages?: InputMaybe<Array<Scalars['String']['input']>>;
+  prePackImages?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
 export type SearchPlacesQueryVariables = Exact<{

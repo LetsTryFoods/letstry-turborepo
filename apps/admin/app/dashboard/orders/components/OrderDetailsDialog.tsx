@@ -10,22 +10,22 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { 
-  Order, 
-  OrderStatus, 
-  PaymentStatus 
+import {
+  Order,
+  OrderStatus,
+  PaymentStatus
 } from "@/lib/orders/queries"
 import { format } from "date-fns"
-import { 
-  Package, 
-  User, 
-  MapPin, 
-  CreditCard, 
-  Clock, 
-  Truck, 
-  CheckCircle, 
-  XCircle, 
-  RefreshCcw, 
+import {
+  Package,
+  User,
+  MapPin,
+  CreditCard,
+  Clock,
+  Truck,
+  CheckCircle,
+  XCircle,
+  RefreshCcw,
   Loader2,
   Phone,
   Mail,
@@ -130,34 +130,34 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium">₹{(item.price * item.quantity).toLocaleString()}</p>
+                      <p className="font-medium">₹{(Number(item.price) * Number(item.quantity)).toLocaleString()}</p>
                       <p className="text-xs text-muted-foreground">₹{item.price} each</p>
                     </div>
                   </div>
                 ))}
               </div>
-              
+
               <Separator className="my-4" />
-              
+
               {/* Price Summary */}
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
                   <span>₹{order.subtotal.toLocaleString()}</span>
                 </div>
-                {order.deliveryCharge > 0 && (
+                {Number(order.deliveryCharge) > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Delivery Charge</span>
                     <span>₹{order.deliveryCharge}</span>
                   </div>
                 )}
-                {order.deliveryCharge === 0 && (
+                {Number(order.deliveryCharge) === 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Delivery Charge</span>
                     <span className="text-green-600">FREE</span>
                   </div>
                 )}
-                {order.discount > 0 && (
+                {Number(order.discount) > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Discount</span>
                     <span className="text-green-600">-₹{order.discount}</span>
@@ -242,7 +242,7 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Payment Method</span>
-                    <span className="font-medium">{getPaymentMethodLabel(order.payment?.method)}</span>
+                    <span className="font-medium">{getPaymentMethodLabel(order.payment?.method || '')}</span>
                   </div>
                   {order.payment?.transactionId && (
                     <div className="flex justify-between text-sm">

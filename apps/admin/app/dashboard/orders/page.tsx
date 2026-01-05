@@ -11,23 +11,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { 
-  useAllOrders, 
-  useUpdateOrderStatus, 
-  getOrderStats, 
-  Order, 
-  OrderStatus 
+import {
+  useAllOrders,
+  useUpdateOrderStatus,
+  getOrderStats,
+  Order,
+  OrderStatus
 } from "@/lib/orders/queries"
 import { OrderTable } from "./components/OrderTable"
 import { OrderDetailsDialog } from "./components/OrderDetailsDialog"
-import { 
-  Search, 
-  RefreshCw, 
-  Package, 
-  Truck, 
-  Clock, 
-  CheckCircle, 
-  XCircle, 
+import {
+  Search,
+  RefreshCw,
+  Package,
+  Truck,
+  Clock,
+  CheckCircle,
+  XCircle,
   IndianRupee,
   ShoppingBag
 } from "lucide-react"
@@ -141,7 +141,7 @@ export default function OrdersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">₹{stats.totalRevenue.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">{stats.paidOrders} paid orders</p>
+            <p className="text-xs text-muted-foreground">Across all orders</p>
           </CardContent>
         </Card>
         <Card>
@@ -261,9 +261,9 @@ export default function OrdersPage() {
           <CardTitle className="flex items-center justify-between">
             <span>Orders ({filteredOrders.length})</span>
             {searchTerm && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => setSearchTerm("")}
               >
                 Clear search
