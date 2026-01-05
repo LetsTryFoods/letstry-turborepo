@@ -33,6 +33,7 @@ import { PackingLoggerService } from './services/domain/packing-logger.service';
 import { PackingOrderCreatorService } from './services/domain/packing-order-creator.service';
 import { ReassignmentService } from './services/domain/reassignment.service';
 import { PackingSchedulerService } from './services/domain/packing-scheduler.service';
+import { UnassignedOrderProcessorService } from './services/domain/unassigned-order-processor.service';
 
 import { PackingService } from './services/packing.service';
 import { PackerService } from './services/packer.service';
@@ -97,6 +98,7 @@ import { OrderModule } from '../order/order.module';
     PackingOrderCreatorService,
     ReassignmentService,
     PackingSchedulerService,
+    UnassignedOrderProcessorService,
     PackingService,
     PackerService,
     PackingResolver,
@@ -106,4 +108,4 @@ import { OrderModule } from '../order/order.module';
   ],
   exports: [PackingService, PackerService],
 })
-export class PackingModule {}
+export class PackingModule { }

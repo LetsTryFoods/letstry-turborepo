@@ -19,4 +19,4 @@ import { NewsletterResolver } from './newsletter.resolver';
   providers: [NewsletterService, NewsletterResolver],
   exports: [NewsletterService],
 })
-export class NewsletterModule {}
+export class NewsletterModule { }

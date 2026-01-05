@@ -8,7 +8,7 @@ export class ScanValidationService {
   constructor(
     private readonly packingOrderCrud: PackingOrderCrudService,
     private readonly scanLogCrud: ScanLogCrudService,
-  ) {}
+  ) { }
 
   async validateEAN(
     orderId: string,
@@ -22,8 +22,9 @@ export class ScanValidationService {
     if (!item)
       return { isValid: false, errorType: ScanErrorType.ITEM_NOT_FOUND };
 
-    const scannedCount = await this.scanLogCrud.countByOrderAndValid(
+    const scannedCount = await this.scanLogCrud.countByOrderEanAndValid(
       orderId,
+      ean,
       true,
     );
     if (scannedCount >= item.quantity) {
@@ -42,8 +43,9 @@ export class ScanValidationService {
     if (!item)
       return { isValid: false, errorType: ScanErrorType.ITEM_NOT_FOUND };
 
-    const scannedCount = await this.scanLogCrud.countByOrderAndValid(
+    const scannedCount = await this.scanLogCrud.countByOrderEanAndValid(
       orderId,
+      ean,
       true,
     );
     return scannedCount < item.quantity

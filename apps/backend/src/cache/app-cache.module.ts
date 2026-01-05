@@ -10,4 +10,4 @@ import { CacheInvalidatorService } from './cache-invalidator.service';
   providers: [CacheService, CacheKeyFactory, CacheInvalidatorService],
   exports: [CacheService, CacheKeyFactory, CacheInvalidatorService],
 })
-export class AppCacheModule {}
+export class AppCacheModule { }

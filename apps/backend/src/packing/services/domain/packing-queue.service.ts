@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, forwardRef, Inject } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { ConfigService } from '@nestjs/config';
@@ -9,6 +9,7 @@ import { PackingOrderCrudService } from '../core/packing-order-crud.service';
 import { OrderAssignmentService } from './order-assignment.service';
 import { ReassignmentService } from './reassignment.service';
 import { PackingLoggerService } from './packing-logger.service';
+import { UnassignedOrderProcessorService } from './unassigned-order-processor.service';
 import Redis from 'ioredis';
 
 @Injectable()
@@ -24,6 +25,7 @@ export class PackingQueueService {
     private reassignmentService: ReassignmentService,
     private configService: ConfigService,
     private packingLogger: PackingLoggerService,
+    private unassignedOrderProcessor: UnassignedOrderProcessorService,
   ) {
     const redisConfig = this.configService.get('redis');
     this.redis = new Redis({
@@ -107,6 +109,8 @@ export class PackingQueueService {
 
   async processReassignment(): Promise<void> {
     try {
+      await this.processUnassignedOrders();
+
       const staleOrders = await this.reassignmentService.findStaleOrders();
 
       for (const order of staleOrders) {
@@ -115,6 +119,18 @@ export class PackingQueueService {
     } catch (error) {
       this.packingLogger.logError('Reassignment check failed', error, {});
     }
+  }
+
+  async isOrderInQueue(orderId: string): Promise<boolean> {
+    const jobs = await this.queue.getJobs(['waiting', 'active', 'delayed']);
+    return jobs.some((job) => job.data.orderId === orderId);
+  }
+
+  private async processUnassignedOrders(): Promise<void> {
+    await this.unassignedOrderProcessor.processUnassignedOrders(
+      this.isOrderInQueue.bind(this),
+      this.addToQueue.bind(this),
+    );
   }
 
   private async reassignOrder(order: any): Promise<void> {

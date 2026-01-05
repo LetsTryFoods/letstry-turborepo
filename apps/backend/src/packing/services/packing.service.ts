@@ -29,7 +29,7 @@ export class PackingService {
     private readonly packingLogger: PackingLoggerService,
     private readonly orderRepository: OrderRepository,
     private readonly packingOrderCreator: PackingOrderCreatorService,
-  ) {}
+  ) { }
 
   async createPackingOrder(order: Order): Promise<void> {
     const packingOrder = await this.packingOrderCreator.createFromOrder(order);
@@ -96,23 +96,80 @@ export class PackingService {
     };
   }
 
+  async batchScanItems(
+    packingOrderId: string,
+    items: { ean: string }[],
+    packerId: string,
+  ): Promise<any> {
+    const results: any[] = [];
+    let successCount = 0;
+    let failureCount = 0;
+
+    for (const item of items) {
+      // Process each scan individually
+      const validation = await this.scanValidation.validateEAN(
+        packingOrderId,
+        item.ean,
+      );
+
+      await this.scanLogCrud.create({
+        packingOrderId,
+        packerId,
+        ean: item.ean,
+        isValid: validation.isValid,
+        errorType: validation.errorType,
+        scannedAt: new Date(),
+        matchedProductId: validation.item?.productId,
+        matchedSku: validation.item?.sku,
+        expectedQuantity: validation.item?.quantity,
+      });
+
+      if (!validation.isValid) {
+        await this.packingOrderCrud.setErrorFlag(packingOrderId);
+        this.packingLogger.logScanError(
+          packingOrderId,
+          item.ean,
+          validation.errorType || 'UNKNOWN_ERROR',
+        );
+        failureCount++;
+      } else {
+        successCount++;
+      }
+
+      results.push({
+        ean: item.ean,
+        isValid: validation.isValid,
+        errorType: validation.errorType,
+        itemName: validation.item?.name,
+      });
+    }
+
+    return {
+      totalProcessed: results.length,
+      successCount,
+      failureCount,
+      results,
+    };
+  }
+
   async uploadEvidence(
     packingOrderId: string,
-    files: any[],
+    imageUrls: string[],
     boxCode: string,
   ): Promise<any> {
-    const urls = await this.evidenceUpload.uploadToS3(files);
+    // We assume images are already uploaded via presigned URLs
+    // imageUrls contains the keys or full URLs
 
     const evidence = await this.evidenceCrud.create({
       packingOrderId,
-      packerId: 'current_packer',
-      prePackImages: urls.slice(0, Math.floor(urls.length / 2)),
-      postPackImages: urls.slice(Math.floor(urls.length / 2)),
+      packerId: 'current_packer', // This should be updated to use actual packerId if available in context
+      prePackImages: imageUrls,
+      postPackImages: [], // Or handle if postPackImages are sent separately
       actualBox: { code: boxCode, dimensions: { l: 0, w: 0, h: 0 } },
       uploadedAt: new Date(),
     });
 
-    this.packingLogger.logEvidenceUploaded(packingOrderId, urls.length);
+    this.packingLogger.logEvidenceUploaded(packingOrderId, imageUrls.length);
 
     return evidence;
   }
@@ -133,8 +190,8 @@ export class PackingService {
 
     const duration = packingOrder.packingStartedAt
       ? Math.floor(
-          (Date.now() - packingOrder.packingStartedAt.getTime()) / 60000,
-        )
+        (Date.now() - packingOrder.packingStartedAt.getTime()) / 60000,
+      )
       : 0;
 
     this.packingLogger.logPackingCompleted(
@@ -155,7 +212,17 @@ export class PackingService {
   }
 
   async getAllPackingOrders(filters: { packerId?: string; status?: string }): Promise<any[]> {
-    return this.packingOrderCrud.findAll(filters);
+    const dbFilters: any = {};
+
+    if (filters.packerId) {
+      dbFilters.assignedTo = filters.packerId;
+    }
+
+    if (filters.status) {
+      dbFilters.status = filters.status;
+    }
+
+    return this.packingOrderCrud.findAll(dbFilters);
   }
 
   async getEvidenceByOrder(packingOrderId: string): Promise<any> {

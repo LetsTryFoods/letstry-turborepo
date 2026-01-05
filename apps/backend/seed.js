@@ -156,8 +156,8 @@ const OrderSchema = new mongoose.Schema({
     discount: { type: String, default: '0' },
     deliveryCharge: { type: String, default: '0' },
     currency: { type: String, required: true },
-    orderStatus: { 
-        type: String, 
+    orderStatus: {
+        type: String,
         enum: ['CONFIRMED', 'PACKED', 'SHIPPED', 'IN_TRANSIT', 'DELIVERED'],
         default: 'CONFIRMED'
     },
@@ -405,8 +405,8 @@ async function seed() {
                 });
             }
 
-            await Product.insertMany(productsToInsert);
-            allProducts.push(...productsToInsert.slice(0, 10));
+            const insertedProducts = await Product.insertMany(productsToInsert);
+            allProducts.push(...insertedProducts);
 
             const count = await Product.countDocuments({ categoryIds: category._id.toString() });
             await Category.updateOne({ _id: category._id }, { productCount: count });

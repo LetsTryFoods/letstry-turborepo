@@ -66,6 +66,9 @@ export class PackingOrder {
   assignedTo?: string;
 
   @Field({ nullable: true })
+  packerName?: string;
+
+  @Field({ nullable: true })
   assignedAt?: Date;
 
   @Field(() => [PackingItem])

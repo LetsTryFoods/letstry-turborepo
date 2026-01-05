@@ -51,4 +51,4 @@ import { Identity, IdentitySchema } from '../common/schemas/identity.schema';
     AdminAuthService,
   ],
 })
-export class AuthenticationModule {}
+export class AuthenticationModule { }

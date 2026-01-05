@@ -75,4 +75,4 @@ import { CommonModule } from '../common/common.module';
     CommonModule,
   ],
 })
-export class CoreModule {}
+export class CoreModule { }

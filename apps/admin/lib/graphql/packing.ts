@@ -57,6 +57,7 @@ export const GET_ALL_PACKING_ORDERS = gql`
       status
       priority
       assignedTo
+      packerName
       assignedAt
       items {
         productId

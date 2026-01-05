@@ -11,7 +11,7 @@ export enum OrderStatus {
 
 @Schema({ timestamps: true })
 export class Order extends Document {
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true })
   orderId: string;
 
   @Prop({ type: Types.ObjectId, ref: 'Identity' })

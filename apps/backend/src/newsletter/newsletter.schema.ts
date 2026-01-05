@@ -10,7 +10,7 @@ export class NewsletterSubscription {
   @Field(() => ID)
   _id: string;
 
-  @Prop({ required: true, unique: true, lowercase: true, trim: true })
+  @Prop({ required: true, lowercase: true, trim: true })
   @Field()
   email: string;
 

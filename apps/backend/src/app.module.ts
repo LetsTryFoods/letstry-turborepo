@@ -80,4 +80,4 @@ import { BullBoardModule } from './bull-board/bull-board.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }

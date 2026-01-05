@@ -8,20 +8,26 @@ export class PackingSchedulerService implements OnModuleInit {
   constructor(
     @InjectQueue('packing-queue') private queue: Queue,
     private configService: ConfigService,
-  ) {}
+  ) { }
 
   async onModuleInit() {
     const packingConfig = this.configService.get('packing');
     const intervalMinutes = packingConfig.reassignmentCheckInterval;
+
+    const repeatableJobs = await this.queue.getRepeatableJobs();
+    for (const job of repeatableJobs) {
+      if (job.name === 'check-reassignment') {
+        await this.queue.removeRepeatableByKey(job.key);
+      }
+    }
 
     await this.queue.add(
       'check-reassignment',
       {},
       {
         repeat: {
-          pattern: `*/${intervalMinutes} * * * *`,
+          every: intervalMinutes * 60 * 1000,
         },
-        jobId: 'reassignment-scheduler',
       },
     );
   }

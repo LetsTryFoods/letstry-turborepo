@@ -11,7 +11,7 @@ import { OrderQueryService } from './services/order.query-service';
 import { OrderCommandService } from './services/order.command-service';
 import { OrderItemService } from './services/order.item-service';
 import { PaymentOrder, PaymentOrderSchema } from '../payment/payment.schema';
-import { Address, AddressSchema } from '../address/address.schema';import { PackingModule } from '../packing/packing.module';
+import { Address, AddressSchema } from '../address/address.schema'; import { PackingModule } from '../packing/packing.module';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -35,4 +35,4 @@ import { Address, AddressSchema } from '../address/address.schema';import { Pack
   ],
   exports: [OrderService, OrderCartLoggerService, OrderRepository],
 })
-export class OrderModule {}
+export class OrderModule { }

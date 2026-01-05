@@ -1,20 +1,40 @@
-import { Resolver, Query, Mutation, Args, Context } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, Context, ResolveField, Parent } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { PackingService } from './services/packing.service';
+import { PackerService } from './services/packer.service';
 import { PackerAuthGuard } from './guards/packer-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Role } from '../common/enums/role.enum';
 import { ScanItemInput } from './dto/scan-item.input';
 import { UploadEvidenceInput } from './dto/upload-evidence.input';
+import { BatchScanInput } from './dto/batch-scan.input';
+import { BatchScanResult } from './dto/batch-scan.result';
 import { PackingOrder } from './types/packing-order.type';
 import { ScanLog } from './types/scan-log.type';
 import { BoxSize } from '../box-size/types/box-size.type';
 import { PackingEvidence } from './types/packing-evidence.type';
 
-@Resolver()
+@Resolver(() => PackingOrder)
 export class PackingResolver {
-  constructor(private readonly packingService: PackingService) {}
+  constructor(
+    private readonly packingService: PackingService,
+    private readonly packerService: PackerService,
+  ) { }
+
+  @ResolveField()
+  id(@Parent() packingOrder: any): string {
+    return packingOrder._id?.toString() || packingOrder.id;
+  }
+
+  @ResolveField()
+  async packerName(@Parent() packingOrder: any): Promise<string | null> {
+    if (!packingOrder.assignedTo) {
+      return null;
+    }
+    const packer = await this.packerService.getPackerById(packingOrder.assignedTo);
+    return packer?.name || null;
+  }
 
   @Query(() => PackingOrder)
   @UseGuards(PackerAuthGuard, RolesGuard)
@@ -42,6 +62,20 @@ export class PackingResolver {
     return this.packingService.scanItem(
       input.packingOrderId,
       input.ean,
+      ctx.req.user.packerId,
+    );
+  }
+
+  @Mutation(() => BatchScanResult)
+  @UseGuards(PackerAuthGuard, RolesGuard)
+  @Roles(Role.PACKER)
+  async batchScanItems(
+    @Args('input', { type: () => BatchScanInput }) input: BatchScanInput,
+    @Context() ctx,
+  ): Promise<BatchScanResult> {
+    return this.packingService.batchScanItems(
+      input.packingOrderId,
+      input.items,
       ctx.req.user.packerId,
     );
   }

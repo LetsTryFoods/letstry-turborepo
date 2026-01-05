@@ -116,6 +116,35 @@ pnpm format
 pnpm --filter frontend codegen
 ```
 
+## BullMQ Dashboard
+
+The backend includes a BullMQ dashboard for monitoring and managing job queues.
+
+### Accessing the Dashboard
+
+```bash
+# Make sure the backend is running
+pnpm --filter backend dev
+
+# Access the dashboard at:
+# http://localhost:5000/admin/queues
+```
+
+### What it monitors
+
+- **packing-queue**: Monitors packing assignment jobs and their status
+
+### Adding more queues to the dashboard
+
+To add additional queues to the dashboard, edit `apps/backend/src/bull-board/bull-board.module.ts`:
+
+```typescript
+BaseBullBoardModule.forFeature({
+  name: 'your-queue-name',
+  adapter: BullMQAdapter,
+}),
+```
+
 ## Turborepo Caching
 
 ### What is cached

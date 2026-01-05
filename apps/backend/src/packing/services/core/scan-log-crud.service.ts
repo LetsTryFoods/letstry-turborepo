@@ -7,7 +7,7 @@ import { ScanLog } from '../../entities/scan-log.entity';
 export class ScanLogCrudService {
   constructor(
     @InjectModel(ScanLog.name) private scanLogModel: Model<ScanLog>,
-  ) {}
+  ) { }
 
   async create(data: Partial<ScanLog>): Promise<ScanLog> {
     const log = new this.scanLogModel(data);
@@ -36,6 +36,16 @@ export class ScanLogCrudService {
   ): Promise<number> {
     return this.scanLogModel
       .countDocuments({ packingOrderId: orderId, isValid })
+      .exec();
+  }
+
+  async countByOrderEanAndValid(
+    orderId: string,
+    ean: string,
+    isValid: boolean,
+  ): Promise<number> {
+    return this.scanLogModel
+      .countDocuments({ packingOrderId: orderId, ean, isValid })
       .exec();
   }
 }

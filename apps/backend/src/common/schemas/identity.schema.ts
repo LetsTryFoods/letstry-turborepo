@@ -47,7 +47,7 @@ export class Identity {
   @Field(() => IdentityStatus)
   status: IdentityStatus;
 
-  @Prop({ sparse: true })
+  @Prop()
   @Field({ nullable: true })
   phoneNumber?: string;
 
@@ -59,7 +59,7 @@ export class Identity {
   @Field({ nullable: true })
   lastName?: string;
 
-  @Prop({ sparse: true })
+  @Prop()
   @Field({ nullable: true })
   email?: string;
 

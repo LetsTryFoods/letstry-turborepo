@@ -9,7 +9,7 @@ export enum PackingStatus {
   FAILED = 'failed',
 }
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, collection: 'packingorders' })
 export class PackingOrder extends Document {
   @Prop({ required: true })
   orderId: string;

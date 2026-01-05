@@ -8,7 +8,7 @@ export class PackingOrderCrudService {
   constructor(
     @InjectModel(PackingOrder.name)
     private packingOrderModel: Model<PackingOrder>,
-  ) {}
+  ) { }
 
   async create(data: Partial<PackingOrder>): Promise<PackingOrder> {
     const order = new this.packingOrderModel(data);
@@ -23,8 +23,12 @@ export class PackingOrderCrudService {
     return this.packingOrderModel.findOne(filter).exec();
   }
 
+
   async findAll(filter: any = {}): Promise<PackingOrder[]> {
-    return this.packingOrderModel.find(filter).exec();
+    const cleanFilter = Object.fromEntries(
+      Object.entries(filter).filter(([_, value]) => value !== undefined)
+    );
+    return this.packingOrderModel.find(cleanFilter).exec();
   }
 
   async findByPacker(packerId: string): Promise<PackingOrder[]> {

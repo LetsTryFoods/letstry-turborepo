@@ -136,6 +136,13 @@ export class PackingLoggerService {
     });
   }
 
+  logUnassignedOrdersCheck(count: number) {
+    this.logger.info('Processing unassigned orders', {
+      event: 'UNASSIGNED_ORDERS_CHECK',
+      count,
+    });
+  }
+
   logError(message: string, error: any, context: any) {
     this.logger.error(message, {
       event: 'PACKING_ERROR',

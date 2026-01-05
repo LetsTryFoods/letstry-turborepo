@@ -645,6 +645,20 @@ type AdminOrdersResponse {
   summary: OrdersSummary!
 }
 
+type BatchItemResult {
+  ean: String!
+  isValid: Boolean!
+  errorType: String
+  itemName: String
+}
+
+type BatchScanResult {
+  totalProcessed: Int!
+  successCount: Int!
+  failureCount: Int!
+  results: [BatchItemResult!]!
+}
+
 type ItemDimensions {
   length: Float!
   width: Float!
@@ -671,6 +685,7 @@ type PackingOrder {
   status: String!
   priority: Float!
   assignedTo: String
+  packerName: String
   assignedAt: DateTime
   items: [PackingItem!]!
   hasErrors: Boolean!
@@ -964,6 +979,7 @@ type Mutation {
   updateOrderStatus(input: UpdateOrderStatusInput!): OrderType!
   startPacking(packingOrderId: String!): PackingOrder!
   scanItem(input: ScanItemInput!): ScanLog!
+  batchScanItems(input: BatchScanInput!): BatchScanResult!
   uploadEvidence(input: UploadEvidenceInput!): PackingOrder!
   completePacking(packingOrderId: String!): PackingOrder!
   createPacker(input: CreatePackerInput!): CreatePackerResponse!
@@ -1282,6 +1298,15 @@ input UpdateOrderStatusInput {
 
 input ScanItemInput {
   packingOrderId: String!
+  ean: String!
+}
+
+input BatchScanInput {
+  packingOrderId: String!
+  items: [BatchScanItem!]!
+}
+
+input BatchScanItem {
   ean: String!
 }
 
