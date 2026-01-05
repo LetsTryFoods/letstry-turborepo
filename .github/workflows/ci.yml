@@ -90,7 +90,7 @@ jobs:
             
             # Install production dependencies on the server
             if command -v pnpm &> /dev/null; then
-              pnpm install --prod
+              pnpm install
             else
               echo "pnpm not found, falling back to npm (might be slow)"
               npm install --production
