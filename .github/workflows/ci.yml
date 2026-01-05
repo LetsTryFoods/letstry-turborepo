@@ -47,11 +47,20 @@ jobs:
           npx turbo run build --filter=backend --no-cache
 
       # --- BACKEND: Deploy and start on EC2 ---
+      - name: Stop Backend (to allow file replacement)
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            pm2 stop backend || true
+
       - name: Deploy Backend to EC2
         uses: easingthemes/ssh-deploy@main
         env:
           SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-          ARGS: "-rlgoDzvc -i"
+          ARGS: "-rlgoDzvc -i --checksum --delete"
           SOURCE: "apps/backend/"
           REMOTE_HOST: ${{ secrets.EC2_HOST }}
           REMOTE_USER: ${{ secrets.EC2_USER }}
@@ -85,7 +94,8 @@ jobs:
             
             # Create .env file
             cat > .env.production << 'EOF'
-            ${{ secrets.BACKEND_ENV }}            EOF
+            ${{ secrets.BACKEND_ENV }}
+            EOF
             
             # Restart the service
             pm2 restart backend || pm2 start ecosystem.config.js --only backend
@@ -118,7 +128,7 @@ jobs:
         uses: easingthemes/ssh-deploy@main
         env:
           SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-          ARGS: "-rlgoDzvc -i"
+          ARGS: "-rlgoDzvc -i --checksum --delete"
           SOURCE: "apps/"
           REMOTE_HOST: ${{ secrets.EC2_HOST }}
           REMOTE_USER: ${{ secrets.EC2_USER }}
