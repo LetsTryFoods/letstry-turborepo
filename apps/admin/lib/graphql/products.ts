@@ -250,11 +250,30 @@ export const GET_PRODUCTS_BY_CATEGORY = gql`
         description
         categoryIds
         brand
+        gtin
+        mpn
         currency
+        ingredients
+        allergens
+        shelfLife
+        isVegetarian
+        isGlutenFree
+        variants {
+          ${VARIANT_FIELDS}
+        }
+        rating
+        ratingCount
+        keywords
+        tags
         isArchived
         favourite
         createdAt
         updatedAt
+        category {
+          id
+          name
+          slug
+        }
         defaultVariant {
           ${VARIANT_FIELDS}
         }
