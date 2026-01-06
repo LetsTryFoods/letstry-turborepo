@@ -43,7 +43,7 @@ import {
   ArchiveRestore,
   ArrowLeft,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
@@ -78,7 +78,7 @@ const allColumns: ColumnDefinition[] = [
   { key: "updatedAt", label: "Updated At" },
 ];
 
-export default function ProductsPage() {
+function ProductsPageContent() {
   const searchParams = useSearchParams();
   const categoryId = searchParams.get('categoryId');
   
@@ -518,5 +518,13 @@ export default function ProductsPage() {
         onOpenChange={() => setImagePreview(null)}
       />
     </div>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-screen">Loading...</div>}>
+      <ProductsPageContent />
+    </Suspense>
   );
 }
