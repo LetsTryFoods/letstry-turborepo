@@ -9,7 +9,6 @@ import { useCart } from "@/lib/cart/use-cart";
 import { useRouter } from "next/navigation";
 import { DesktopNavbar } from "./components/desktop-navbar";
 import { MobileNavbar } from "./components/mobile-navbar";
-import { useCategoryNavigation } from "@/hooks/use-category-navigation";
 
 type NavbarProps = {
   initialAuth?: {
@@ -17,12 +16,12 @@ type NavbarProps = {
     isGuest: boolean;
     user: any;
   };
+  categories?: Array<{ href: string; label: string }>;
 };
 
-export const Navbar = ({ initialAuth }: NavbarProps) => {
+export const Navbar = ({ initialAuth, categories = [] }: NavbarProps) => {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const { categories, isLoading } = useCategoryNavigation();
   const { isAuthenticated: clientAuth, user, logout } = useAuth();
   const {
     isOpen: showLoginModal,
