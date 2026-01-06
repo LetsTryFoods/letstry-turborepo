@@ -1,6 +1,7 @@
 import { HeroCarousel } from "@/components/hero-carousel";
 import { CategoryGrid } from "@/components/category-grid";
 import { BestsellerCarousel } from "@/components/bestseller";
+import { BestsellerCombo } from "@/components/bestsellerCombo";
 import { WhyChooseUs } from "@/components/why-choose-us";
 import { HealthySnacking } from "@/components/healthy-snacking";
 
@@ -12,6 +13,7 @@ export default function Home() {
     <main>
       <HeroCarousel />
       <CategoryGrid />
+      <BestsellerCombo />
       <BestsellerCarousel />
       <WhyChooseUs />
       <HealthySnacking />
