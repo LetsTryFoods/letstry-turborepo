@@ -121,6 +121,12 @@ export type BoxDimensions = {
   w: Scalars['Float']['output'];
 };
 
+export type BoxDimensionsInput = {
+  h: Scalars['Float']['input'];
+  l: Scalars['Float']['input'];
+  w: Scalars['Float']['input'];
+};
+
 export type BoxInfo = {
   __typename?: 'BoxInfo';
   code: Scalars['String']['output'];
@@ -214,24 +220,6 @@ export type Charges = {
   freeDeliveryThreshold: Scalars['Float']['output'];
   gstPercentage: Scalars['Float']['output'];
   handlingCharge: Scalars['Float']['output'];
-};
-
-export type ChecksumDataType = {
-  __typename?: 'ChecksumDataType';
-  amount: Scalars['String']['output'];
-  buyerEmail: Scalars['String']['output'];
-  buyerFirstName: Scalars['String']['output'];
-  buyerPhoneNumber: Scalars['String']['output'];
-  checksum: Scalars['String']['output'];
-  currency: Scalars['String']['output'];
-  merchantIdentifier: Scalars['String']['output'];
-  mode: Scalars['String']['output'];
-  orderId: Scalars['String']['output'];
-  productDescription: Scalars['String']['output'];
-  returnUrl: Scalars['String']['output'];
-  txnDate: Scalars['String']['output'];
-  txnType: Scalars['String']['output'];
-  zpPayOption: Scalars['String']['output'];
 };
 
 export type Coupon = {
@@ -621,36 +609,13 @@ export enum IdentityStatus {
 }
 
 export type InitiatePaymentInput = {
-  amount: Scalars['String']['input'];
   cartId: Scalars['String']['input'];
-  currency: Scalars['String']['input'];
 };
 
 export type InitiatePaymentResponse = {
   __typename?: 'InitiatePaymentResponse';
-  checkoutUrl: Scalars['String']['output'];
-  checksumData: ChecksumDataType;
   paymentOrderId: Scalars['String']['output'];
-};
-
-export type InitiateUpiQrPaymentInput = {
-  buyerEmail: Scalars['String']['input'];
-  buyerName: Scalars['String']['input'];
-  buyerPhone: Scalars['String']['input'];
-  cartId: Scalars['String']['input'];
-};
-
-export type InitiateUpiQrPaymentResponse = {
-  __typename?: 'InitiateUpiQrPaymentResponse';
-  amount: Scalars['String']['output'];
-  currency: Scalars['String']['output'];
-  expiresAt?: Maybe<Scalars['String']['output']>;
-  paymentOrderId: Scalars['String']['output'];
-  qrCodeData: Scalars['String']['output'];
-  qrCodeUrl?: Maybe<Scalars['String']['output']>;
-  responseCode?: Maybe<Scalars['String']['output']>;
-  responseMessage?: Maybe<Scalars['String']['output']>;
-  zaakpayTxnId?: Maybe<Scalars['String']['output']>;
+  redirectUrl: Scalars['String']['output'];
 };
 
 export type ItemDimensions = {
@@ -695,7 +660,6 @@ export type Mutation = {
   deleteProduct: Product;
   flagPackingError: ScanLog;
   initiatePayment: InitiatePaymentResponse;
-  initiateUpiQrPayment: InitiateUpiQrPaymentResponse;
   logout: Scalars['String']['output'];
   packerLogin: PackerLoginResponse;
   processRefund: RefundResponse;
@@ -876,11 +840,6 @@ export type MutationFlagPackingErrorArgs = {
 
 export type MutationInitiatePaymentArgs = {
   input: InitiatePaymentInput;
-};
-
-
-export type MutationInitiateUpiQrPaymentArgs = {
-  input: InitiateUpiQrPaymentInput;
 };
 
 
@@ -2021,6 +1980,11 @@ export type AdminLogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
 export type AdminLogoutMutation = { __typename?: 'Mutation', adminLogout: string };
 
+export type GetActiveBannersQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetActiveBannersQuery = { __typename?: 'Query', activeBanners: Array<{ __typename?: 'Banner', _id: string, name: string, headline: string, subheadline: string, description?: string | null, imageUrl: string, mobileImageUrl: string, thumbnailUrl?: string | null, url: string, ctaText: string, position: number, isActive: boolean, startDate?: any | null, endDate?: any | null, backgroundColor?: string | null, textColor?: string | null }> };
+
 export type GetMyCartQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -2108,14 +2072,7 @@ export type InitiatePaymentMutationVariables = Exact<{
 }>;
 
 
-export type InitiatePaymentMutation = { __typename?: 'Mutation', initiatePayment: { __typename?: 'InitiatePaymentResponse', paymentOrderId: string, checkoutUrl: string, checksumData: { __typename?: 'ChecksumDataType', amount: string, merchantIdentifier: string, orderId: string, buyerEmail: string, buyerFirstName: string, buyerPhoneNumber: string, currency: string, txnType: string, zpPayOption: string, mode: string, productDescription: string, txnDate: string, checksum: string } } };
-
-export type InitiateUpiQrPaymentMutationVariables = Exact<{
-  input: InitiateUpiQrPaymentInput;
-}>;
-
-
-export type InitiateUpiQrPaymentMutation = { __typename?: 'Mutation', initiateUpiQrPayment: { __typename?: 'InitiateUpiQrPaymentResponse', paymentOrderId: string, qrCodeData: string, qrCodeUrl?: string | null, zaakpayTxnId?: string | null, amount: string, currency: string, expiresAt?: string | null, responseCode?: string | null, responseMessage?: string | null } };
+export type InitiatePaymentMutation = { __typename?: 'Mutation', initiatePayment: { __typename?: 'InitiatePaymentResponse', paymentOrderId: string, redirectUrl: string } };
 
 export type GetProductsByCategoryQueryVariables = Exact<{
   categoryId: Scalars['ID']['input'];
@@ -2223,6 +2180,28 @@ export const AdminLogoutDocument = new TypedDocumentString(`
   adminLogout
 }
     `) as unknown as TypedDocumentString<AdminLogoutMutation, AdminLogoutMutationVariables>;
+export const GetActiveBannersDocument = new TypedDocumentString(`
+    query GetActiveBanners {
+  activeBanners {
+    _id
+    name
+    headline
+    subheadline
+    description
+    imageUrl
+    mobileImageUrl
+    thumbnailUrl
+    url
+    ctaText
+    position
+    isActive
+    startDate
+    endDate
+    backgroundColor
+    textColor
+  }
+}
+    `) as unknown as TypedDocumentString<GetActiveBannersQuery, GetActiveBannersQueryVariables>;
 export const GetMyCartDocument = new TypedDocumentString(`
     query GetMyCart {
   myCart {
@@ -2458,40 +2437,10 @@ export const InitiatePaymentDocument = new TypedDocumentString(`
     mutation InitiatePayment($input: InitiatePaymentInput!) {
   initiatePayment(input: $input) {
     paymentOrderId
-    checkoutUrl
-    checksumData {
-      amount
-      merchantIdentifier
-      orderId
-      buyerEmail
-      buyerFirstName
-      buyerPhoneNumber
-      currency
-      txnType
-      zpPayOption
-      mode
-      productDescription
-      txnDate
-      checksum
-    }
+    redirectUrl
   }
 }
     `) as unknown as TypedDocumentString<InitiatePaymentMutation, InitiatePaymentMutationVariables>;
-export const InitiateUpiQrPaymentDocument = new TypedDocumentString(`
-    mutation InitiateUpiQrPayment($input: InitiateUpiQrPaymentInput!) {
-  initiateUpiQrPayment(input: $input) {
-    paymentOrderId
-    qrCodeData
-    qrCodeUrl
-    zaakpayTxnId
-    amount
-    currency
-    expiresAt
-    responseCode
-    responseMessage
-  }
-}
-    `) as unknown as TypedDocumentString<InitiateUpiQrPaymentMutation, InitiateUpiQrPaymentMutationVariables>;
 export const GetProductsByCategoryDocument = new TypedDocumentString(`
     query GetProductsByCategory($categoryId: ID!, $pagination: PaginationInput!) {
   productsByCategory(categoryId: $categoryId, pagination: $pagination) {
