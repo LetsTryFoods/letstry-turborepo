@@ -42,7 +42,7 @@ const SEO_FIELDS = `
 `;
 
 export const GET_PRODUCTS = gql`
-  query GetProducts($pagination: PaginationInput!, $includeOutOfStock: Boolean!) {
+  query GetProducts($pagination: PaginationInput, $includeOutOfStock: Boolean) {
     products(pagination: $pagination, includeOutOfStock: $includeOutOfStock) {
       items {
         _id
@@ -71,7 +71,7 @@ export const GET_PRODUCTS = gql`
         createdAt
         updatedAt
         category {
-          id
+          _id
           name
           slug
         }
@@ -97,7 +97,7 @@ export const GET_PRODUCTS = gql`
 
 // Product query for SEO page - includes SEO field and minimal info needed
 export const GET_PRODUCTS_FOR_SEO = gql`
-  query GetProductsForSeo($pagination: PaginationInput!, $includeOutOfStock: Boolean!) {
+  query GetProductsForSeo($pagination: PaginationInput, $includeOutOfStock: Boolean) {
     products(pagination: $pagination, includeOutOfStock: $includeOutOfStock) {
       items {
         _id
@@ -107,7 +107,7 @@ export const GET_PRODUCTS_FOR_SEO = gql`
         brand
         isArchived
         category {
-          id
+          _id
           name
           slug
         }
@@ -129,8 +129,8 @@ export const GET_PRODUCTS_FOR_SEO = gql`
 
 // Update product SEO via updateProduct mutation
 export const UPDATE_PRODUCT_SEO = gql`
-  mutation UpdateProductSeo($id: ID!, $input: UpdateProductInput!) {
-    updateProduct(id: $id, input: $input) {
+  mutation UpdateProductSeo($_id: ID!, $input: UpdateProductInput!) {
+    updateProduct(id: $_id, input: $input) {
       _id
       name
       seo {
@@ -141,8 +141,8 @@ export const UPDATE_PRODUCT_SEO = gql`
 `;
 
 export const GET_PRODUCT = gql`
-  query GetProduct($id: ID!) {
-    product(id: $id) {
+  query GetProduct($_id: ID!) {
+    product(id: $_id) {
       _id
       name
       slug
@@ -169,7 +169,7 @@ export const GET_PRODUCT = gql`
       createdAt
       updatedAt
       category {
-        id
+        _id
         name
         slug
       }
@@ -219,7 +219,7 @@ export const GET_PRODUCT_BY_SLUG = gql`
       createdAt
       updatedAt
       category {
-        id
+        _id
         name
         slug
       }
@@ -241,7 +241,7 @@ export const GET_PRODUCT_BY_SLUG = gql`
 `;
 
 export const GET_PRODUCTS_BY_CATEGORY = gql`
-  query GetProductsByCategory($categoryId: ID!, $pagination: PaginationInput!) {
+  query GetProductsByCategory($categoryId: ID!, $pagination: PaginationInput) {
     productsByCategory(categoryId: $categoryId, pagination: $pagination) {
       items {
         _id
@@ -270,7 +270,7 @@ export const GET_PRODUCTS_BY_CATEGORY = gql`
         createdAt
         updatedAt
         category {
-          id
+          _id
           name
           slug
         }
@@ -295,7 +295,7 @@ export const GET_PRODUCTS_BY_CATEGORY = gql`
 `;
 
 export const SEARCH_PRODUCTS = gql`
-  query SearchProducts($searchTerm: String!, $pagination: PaginationInput!) {
+  query SearchProducts($searchTerm: String!, $pagination: PaginationInput) {
     searchProducts(searchTerm: $searchTerm, pagination: $pagination) {
       items {
         _id
@@ -342,16 +342,16 @@ export const CREATE_PRODUCT = gql`
 `;
 
 export const UPDATE_PRODUCT = gql`
-  mutation UpdateProduct($id: ID!, $input: UpdateProductInput!) {
-    updateProduct(id: $id, input: $input) {
+  mutation UpdateProduct($_id: ID!, $input: UpdateProductInput!) {
+    updateProduct(id: $_id, input: $input) {
       _id
     }
   }
 `;
 
 export const DELETE_PRODUCT = gql`
-  mutation DeleteProduct($id: ID!) {
-    deleteProduct(id: $id) {
+  mutation DeleteProduct($_id: ID!) {
+    deleteProduct(id: $_id) {
       _id
       name
     }
@@ -359,8 +359,8 @@ export const DELETE_PRODUCT = gql`
 `;
 
 export const ARCHIVE_PRODUCT = gql`
-  mutation ArchiveProduct($id: ID!) {
-    archiveProduct(id: $id) {
+  mutation ArchiveProduct($_id: ID!) {
+    archiveProduct(id: $_id) {
       _id
       name
       isArchived
@@ -369,8 +369,8 @@ export const ARCHIVE_PRODUCT = gql`
 `;
 
 export const UNARCHIVE_PRODUCT = gql`
-  mutation UnarchiveProduct($id: ID!) {
-    unarchiveProduct(id: $id) {
+  mutation UnarchiveProduct($_id: ID!) {
+    unarchiveProduct(id: $_id) {
       _id
       name
       isArchived
@@ -379,8 +379,8 @@ export const UNARCHIVE_PRODUCT = gql`
 `;
 
 export const UPDATE_PRODUCT_STOCK = gql`
-  mutation UpdateProductStock($id: ID!, $quantity: Int!) {
-    updateProductStock(id: $id, quantity: $quantity) {
+  mutation UpdateProductStock($_id: ID!, $quantity: Int!) {
+    updateProductStock(id: $_id, quantity: $quantity) {
       _id
       name
       stockQuantity

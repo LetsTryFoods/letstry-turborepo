@@ -12,7 +12,7 @@ import {
 } from '@/lib/graphql/categories'
 
 export interface Category {
-  id: string
+  _id: string
   name: string
   slug: string
   description?: string
@@ -103,7 +103,7 @@ export const useCategoryChildren = (parentId: string, pagination: PaginationInpu
 
 export const useCategory = (id: string, includeArchived: boolean = false) => {
   return useQuery(GET_CATEGORY, {
-    variables: { id, includeArchived },
+    variables: { _id: id, includeArchived },
     skip: !id,
     fetchPolicy: 'cache-and-network',
   })

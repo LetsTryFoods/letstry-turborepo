@@ -107,7 +107,13 @@ export function PackerTable({
                   ) : columnKey === 'assignedOrders' ? (
                     orderCounts?.[packer.id]?.assigned || 0
                   ) : columnKey === 'inProgressOrders' ? (
-                    orderCounts?.[packer.id]?.inProgress || 0
+                    orderCounts?.[packer.id] !== undefined ? (
+                      <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                        {orderCounts[packer.id].inProgress} Active
+                      </Badge>
+                    ) : (
+                      <span className="text-muted-foreground">-</span>
+                    )
                   ) : columnKey === 'completedOrders' ? (
                     orderCounts?.[packer.id]?.completed || 0
                   ) : (
@@ -134,7 +140,7 @@ export function PackerTable({
                       <Pencil className="mr-2 h-4 w-4" />
                       Edit
                     </DropdownMenuItem>
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                       onClick={() => onDelete(packer.id)}
                       className="text-destructive"
                     >

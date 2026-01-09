@@ -3,7 +3,7 @@ import { gql } from "@apollo/client";
 export const GET_ASSIGNED_ORDER = gql`
   query GetAssignedOrder {
     getAssignedOrder {
-      _id
+      id
       orderId
       assignedTo
       status
@@ -33,7 +33,7 @@ export const GET_ASSIGNED_ORDER = gql`
 export const GET_BOX_RECOMMENDATION = gql`
   query GetBoxRecommendation($packingOrderId: String!) {
     getBoxRecommendation(packingOrderId: $packingOrderId) {
-      _id
+      id
       code
       name
       length
@@ -110,7 +110,7 @@ export const GET_EVIDENCE_BY_ORDER = gql`
 export const SCAN_ITEM = gql`
   mutation ScanItem($input: ScanItemInput!) {
     scanItem(input: $input) {
-      _id
+      id
       packingOrderId
       packerId
       ean
@@ -125,7 +125,7 @@ export const SCAN_ITEM = gql`
 export const UPLOAD_EVIDENCE = gql`
   mutation UploadEvidence($input: UploadEvidenceInput!) {
     uploadEvidence(input: $input) {
-      _id
+      id
       orderId
       assignedTo
       status
@@ -150,7 +150,7 @@ export const UPLOAD_EVIDENCE = gql`
 export const COMPLETE_PACKING = gql`
   mutation CompletePacking($packingOrderId: String!) {
     completePacking(packingOrderId: $packingOrderId) {
-      _id
+      id
       orderId
       assignedTo
       status
@@ -191,7 +191,7 @@ export const START_PACKING = gql`
 export const FLAG_PACKING_ERROR = gql`
   mutation FlagPackingError($input: FlagErrorInput!) {
     flagPackingError(input: $input) {
-      _id
+      id
       packingOrderId
       packerId
       ean

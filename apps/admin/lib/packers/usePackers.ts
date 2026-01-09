@@ -55,11 +55,11 @@ export const usePackers = (isActive?: boolean) => {
   return result
 }
 
-export const usePackerById = (packerId: string) => {
+export const usePackerById = (id: string) => {
   return useQuery(GET_PACKER_BY_ID, {
-    variables: { packerId },
+    variables: { packerId: id },
+    skip: !id,
     fetchPolicy: 'cache-and-network',
-    skip: !packerId,
   })
 }
 

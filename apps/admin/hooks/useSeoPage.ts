@@ -40,6 +40,7 @@ export function useSeoPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [seoToDelete, setSeoToDelete] = useState<SeoContent | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState<"all" | "active" | "inactive">("all");
 
   // API Hooks
   const { data, loading, error, refetch } = useSeoContents({
@@ -54,13 +55,20 @@ export function useSeoPage() {
   const seoContents: SeoContent[] = data?.seoContents?.items || [];
   const meta = data?.seoContents?.meta;
 
-  // Filter by search term
-  const filteredSeoContents = seoContents.filter(
-    (seo) =>
+  // Filter by search term and status
+  const filteredSeoContents = seoContents.filter((seo) => {
+    const matchesSearch =
       seo.pageName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       seo.pageSlug.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      seo.metaTitle.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+      seo.metaTitle.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStatus =
+      filterStatus === "all" ||
+      (filterStatus === "active" && seo.isActive) ||
+      (filterStatus === "inactive" && !seo.isActive);
+
+    return matchesSearch && matchesStatus;
+  });
 
   // Handlers
   const handleColumnToggle = useCallback((columnKey: string) => {
@@ -156,6 +164,7 @@ export function useSeoPage() {
       deleteDialogOpen,
       seoToDelete,
       searchTerm,
+      filterStatus,
       currentPage,
       pageSize,
     },
@@ -173,6 +182,7 @@ export function useSeoPage() {
       setIsFormOpen,
       setDeleteDialogOpen,
       setSearchTerm,
+      setFilterStatus,
     },
     // Constants
     allColumns: ALL_COLUMNS,

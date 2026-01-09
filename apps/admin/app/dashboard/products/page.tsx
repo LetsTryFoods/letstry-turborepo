@@ -81,7 +81,7 @@ const allColumns: ColumnDefinition[] = [
 function ProductsPageContent() {
   const searchParams = useSearchParams();
   const categoryId = searchParams.get('categoryId');
-  
+
   const [selectedColumns, setSelectedColumns] = useState([
     "name",
     "brand",
@@ -94,7 +94,7 @@ function ProductsPageContent() {
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
   const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
   const [productToAction, setProductToAction] = useState<{
-    id: string;
+    _id: string;
     action: "archive" | "unarchive" | "delete";
     isArchived?: boolean;
   } | null>(null);
@@ -127,31 +127,31 @@ function ProductsPageContent() {
     setCurrentPage(1);
   }, [categoryId]);
 
-  const allProducts = categoryId 
+  const allProducts = categoryId
     ? (productsData as any)?.productsByCategory?.items || []
     : (productsData as any)?.products?.items || [];
-  
+
   const products = showArchived && !categoryId
     ? allProducts.filter((p: any) => p.isArchived)
     : allProducts.filter((p: any) => !p.isArchived);
-  
+
   const meta = categoryId
     ? (productsData as any)?.productsByCategory?.meta || {
-        totalCount: 0,
-        page: 1,
-        limit: pageSize,
-        totalPages: 1,
-        hasNextPage: false,
-        hasPreviousPage: false,
-      }
+      totalCount: 0,
+      page: 1,
+      limit: pageSize,
+      totalPages: 1,
+      hasNextPage: false,
+      hasPreviousPage: false,
+    }
     : (productsData as any)?.products?.meta || {
-        totalCount: 0,
-        page: 1,
-        limit: pageSize,
-        totalPages: 1,
-        hasNextPage: false,
-        hasPreviousPage: false,
-      };
+      totalCount: 0,
+      page: 1,
+      limit: pageSize,
+      totalPages: 1,
+      hasNextPage: false,
+      hasPreviousPage: false,
+    };
 
   const handleColumnToggle = (columnKey: string) => {
     setSelectedColumns((prev) =>
@@ -170,7 +170,7 @@ function ProductsPageContent() {
     action: "archive" | "unarchive" | "delete",
     isArchived?: boolean
   ) => {
-    setProductToAction({ id: productId, action, isArchived });
+    setProductToAction({ _id: productId, action, isArchived });
     setDeleteAlertOpen(true);
   };
 
@@ -178,11 +178,11 @@ function ProductsPageContent() {
     if (productToAction) {
       try {
         if (productToAction.action === "archive") {
-          await archiveProduct({ variables: { id: productToAction.id } });
+          await archiveProduct({ variables: { _id: productToAction._id } });
         } else if (productToAction.action === "unarchive") {
-          await unarchiveProduct({ variables: { id: productToAction.id } });
+          await unarchiveProduct({ variables: { _id: productToAction._id } });
         } else if (productToAction.action === "delete") {
-          await deleteProduct({ variables: { id: productToAction.id } });
+          await deleteProduct({ variables: { _id: productToAction._id } });
         }
         setProductToAction(null);
       } catch (error) {
@@ -199,7 +199,7 @@ function ProductsPageContent() {
     try {
       await updateProduct({
         variables: {
-          id: productId,
+          _id: productId,
           input: {
             favourite: !currentFavourite,
           },
@@ -217,11 +217,11 @@ function ProductsPageContent() {
     try {
       if (currentArchived) {
         await unarchiveProduct({
-          variables: { id: productId },
+          variables: { _id: productId },
         });
       } else {
         await archiveProduct({
-          variables: { id: productId },
+          variables: { _id: productId },
         });
       }
     } catch (error) {
@@ -395,7 +395,7 @@ function ProductsPageContent() {
                               <div className="max-w-[200px] truncate">
                                 {String(
                                   product[columnKey as keyof typeof product] ||
-                                    "-"
+                                  "-"
                                 )}
                               </div>
                             )}
@@ -487,8 +487,8 @@ function ProductsPageContent() {
               {productToAction?.action === "delete"
                 ? "This action cannot be undone. This will permanently delete the product."
                 : productToAction?.action === "archive"
-                ? "This will archive the product. Archived products are hidden by default but can be restored later."
-                : "This will unarchive the product and make it visible again."}
+                  ? "This will archive the product. Archived products are hidden by default but can be restored later."
+                  : "This will unarchive the product and make it visible again."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -504,8 +504,8 @@ function ProductsPageContent() {
               {productToAction?.action === "delete"
                 ? "Delete"
                 : productToAction?.action === "archive"
-                ? "Archive"
-                : "Unarchive"}
+                  ? "Archive"
+                  : "Unarchive"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

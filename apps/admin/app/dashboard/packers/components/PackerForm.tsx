@@ -54,7 +54,7 @@ export function PackerForm({ onClose, initialData, createPacker, updatePacker, o
             }
           }
         })
-        
+
         if (onPackerCreated && result.data?.createPacker) {
           onPackerCreated(result.data.createPacker.packer, result.data.createPacker.generatedPassword)
         }

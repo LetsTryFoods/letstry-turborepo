@@ -187,7 +187,7 @@ export default function CategorySeoPage() {
                             category={selectedCategory}
                             existingSeo={selectedCategory.seo}
                             isLoading={updateLoading}
-                            onSubmit={(data) => updateCategorySeo(selectedCategory.id, data).then(handleFormSuccess)}
+                            onSubmit={(data) => updateCategorySeo(selectedCategory._id, data).then(handleFormSuccess)}
                             onCancel={handleCloseForm}
                         />
                     )}

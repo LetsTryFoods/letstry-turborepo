@@ -65,7 +65,7 @@ export function CategoryForm({ onClose, initialData, createCategory, updateCateg
       if (initialData) {
         await updateCategory({
           variables: {
-            id: initialData.id,
+            _id: initialData._id,
             input: formattedData
           }
         })
@@ -155,7 +155,7 @@ export function CategoryForm({ onClose, initialData, createCategory, updateCateg
 
         <div className="space-y-2">
           <FormLabel>Category Image</FormLabel>
-          <ImageUpload 
+          <ImageUpload
             onImagesChange={handleImagesChange}
             initialImages={initialData?.imageUrl ? [{ url: initialData.imageUrl, alt: initialData.name }] : []}
             maxFiles={1}
@@ -177,7 +177,7 @@ export function CategoryForm({ onClose, initialData, createCategory, updateCateg
             </FormItem>
           )}
         />
-        
+
         <div className="flex gap-4">
           <FormField
             control={form.control}

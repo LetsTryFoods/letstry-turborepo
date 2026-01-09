@@ -1,8 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -10,38 +8,70 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Plus, Search, Globe, FileText } from "lucide-react";
+import { Plus, Globe, Search } from "lucide-react";
 import { useSeoPage } from "@/hooks/useSeoPage";
 import { SeoForm } from "./components/SeoForm";
 import { SeoTable } from "./components/SeoTable";
 import { DeleteSeoDialog } from "./components/DeleteSeoDialog";
-import { ColumnSelector } from "@/app/dashboard/components/column-selector";
 import { Pagination } from "@/app/dashboard/components/pagination";
 import { SeoContentFormData } from "@/lib/validations/seo.schema";
+import { SeoPageLayout } from "@/components/seo/SeoPageLayout";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function SeoContentPage() {
-  const { state, actions, allColumns } = useSeoPage();
+  const { state, actions } = useSeoPage();
 
   const handleFormSubmit = async (data: SeoContentFormData) => {
     if (state.editingSeo) {
-      await actions.handleUpdate(state.editingSeo._id, data);
+      await actions.handleUpdate(state.editingSeo._id, data as any);
     } else {
-      await actions.handleCreate(data);
+      await actions.handleCreate(data as any);
     }
   };
 
+  const configuredCount = state.seoContents.length;
+
   return (
-    <div className="flex flex-col gap-4 mx-4 auto">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-            <Globe className="h-8 w-8 text-primary" />
-            SEO Content Management
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Manage SEO metadata for all pages of your website
-          </p>
+    <SeoPageLayout
+      title="SEO Content Management"
+      description="Manage SEO metadata for all pages of your website"
+      icon={<Globe className="h-8 w-8 text-primary" />}
+      total={state.meta?.totalCount || state.seoContents.length}
+      configured={configuredCount}
+      loading={state.loading}
+      onRefresh={() => actions.handlePageChange(state.currentPage)}
+    >
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto flex-1">
+          <div className="relative flex-1">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search pages..."
+              value={state.searchTerm}
+              onChange={(e) => actions.setSearchTerm(e.target.value)}
+              className="pl-8 w-full sm:w-[250px]"
+            />
+          </div>
+          <Select
+            value={state.filterStatus || "all"}
+            onValueChange={(value: any) => actions.setFilterStatus?.(value)}
+          >
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Pages</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="inactive">Inactive</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <Button onClick={() => actions.setIsFormOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
@@ -49,96 +79,25 @@ export default function SeoContentPage() {
         </Button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Pages</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{state.meta?.totalCount || 0}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active</CardTitle>
-            <div className="h-2 w-2 rounded-full bg-green-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {state.seoContents.filter((s) => s.isActive).length}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Inactive</CardTitle>
-            <div className="h-2 w-2 rounded-full bg-orange-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {state.seoContents.filter((s) => !s.isActive).length}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <SeoTable
+        seoContents={state.seoContents}
+        loading={state.loading}
+        onEdit={actions.handleEdit}
+        onDelete={actions.handleOpenDeleteDialog}
+      />
 
-      {/* Main Content */}
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-              <CardTitle>SEO Entries</CardTitle>
-              <CardDescription>
-                Configure meta tags and social sharing settings for each page
-              </CardDescription>
-            </div>
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <div className="relative flex-1 sm:flex-none">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search pages..."
-                  value={state.searchTerm}
-                  onChange={(e) => actions.setSearchTerm(e.target.value)}
-                  className="pl-8 w-full sm:w-[250px]"
-                />
-              </div>
-              <ColumnSelector
-                allColumns={allColumns}
-                selectedColumns={state.selectedColumns}
-                onColumnToggle={actions.handleColumnToggle}
-              />
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <SeoTable
-            seoContents={state.seoContents}
-            selectedColumns={state.selectedColumns}
-            allColumns={allColumns}
-            loading={state.loading}
-            error={state.error}
-            onEdit={actions.handleEdit}
-            onDelete={actions.handleOpenDeleteDialog}
-            onActiveToggle={actions.handleActiveToggle}
-          />
-          
-          {state.meta && state.meta.totalPages > 1 && (
-            <Pagination
-              currentPage={state.currentPage}
-              totalPages={state.meta.totalPages}
-              totalCount={state.meta.totalCount}
-              pageSize={state.pageSize}
-              hasNextPage={state.meta.hasNextPage}
-              hasPreviousPage={state.meta.hasPreviousPage}
-              onPageChange={actions.handlePageChange}
-            />
-          )}
-        </CardContent>
-      </Card>
+      {state.meta && state.meta.totalPages > 1 && (
+        <Pagination
+          currentPage={state.currentPage}
+          totalPages={state.meta.totalPages}
+          totalCount={state.meta.totalCount}
+          pageSize={state.pageSize}
+          hasNextPage={state.meta.hasNextPage}
+          hasPreviousPage={state.meta.hasPreviousPage}
+          onPageChange={actions.handlePageChange}
+        />
+      )}
 
-      {/* Add/Edit Dialog */}
       <Dialog open={state.isFormOpen} onOpenChange={actions.handleCloseForm}>
         <DialogContent className="min-w-6xl max-w-7xl max-h-[90vh] overflow-hidden">
           <DialogHeader>
@@ -160,7 +119,6 @@ export default function SeoContentPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
       <DeleteSeoDialog
         open={state.deleteDialogOpen}
         onOpenChange={actions.setDeleteDialogOpen}
@@ -168,6 +126,6 @@ export default function SeoContentPage() {
         onConfirm={actions.handleDelete}
         isDeleting={state.deleting}
       />
-    </div>
+    </SeoPageLayout>
   );
 }

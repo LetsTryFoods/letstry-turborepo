@@ -34,8 +34,8 @@ export function useCategorySeoPage() {
 
         categories.forEach((category: Category) => {
             if (category.seo && category.seo.metaTitle) {
-                map.set(category.id, {
-                    categoryId: category.id,
+                map.set(category._id, {
+                    categoryId: category._id,
                     hasSeo: true,
                     metaTitle: category.seo.metaTitle,
                     seoData: category.seo,
@@ -98,7 +98,7 @@ export function useCategorySeoPage() {
     const updateCategorySeo = async (categoryId: string, seoInput: any) => {
         return updateCategoryMutation({
             variables: {
-                id: categoryId,
+                _id: categoryId,
                 input: { seo: seoInput },
             },
         });

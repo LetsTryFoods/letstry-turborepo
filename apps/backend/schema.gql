@@ -335,7 +335,21 @@ type Policy {
   title: String!
   content: String!
   type: String!
-  seo: SeoBase
+  seo: PolicySeo
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type PolicySeo {
+  metaTitle: String
+  metaDescription: String
+  metaKeywords: [String!]
+  canonicalUrl: String
+  ogTitle: String
+  ogDescription: String
+  ogImage: String
+  _id: ID!
+  policyId: String!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -411,7 +425,7 @@ type PriceRange {
 }
 
 type Category {
-  id: ID!
+  _id: ID!
   name: String!
   slug: String!
   description: String
@@ -422,8 +436,22 @@ type Category {
   inCodeSet: String!
   productCount: Float!
   isArchived: Boolean!
-  seo: SeoBase
+  seo: CategorySeo
   products: [Product!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type CategorySeo {
+  metaTitle: String
+  metaDescription: String
+  metaKeywords: [String!]
+  canonicalUrl: String
+  ogTitle: String
+  ogDescription: String
+  ogImage: String
+  _id: ID!
+  categoryId: String!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -937,6 +965,8 @@ type Mutation {
   unarchiveCategory(id: ID!): Category!
   addProductsToCategory(input: AddProductsToCategoryInput!): Boolean!
   removeProductsFromCategory(input: RemoveProductsFromCategoryInput!): Boolean!
+  updateCategorySeo(categoryId: ID!, input: CategorySeoInput!): CategorySeo!
+  deleteCategorySeo(categoryId: ID!): Boolean!
   adminLogin(email: String!, password: String!): String!
   createAdmin(email: String!, password: String!): String!
   adminLogout: String!
@@ -950,6 +980,8 @@ type Mutation {
   createPolicy(input: CreatePolicyInput!): Policy!
   updatePolicy(id: ID!, input: UpdatePolicyInput!): Policy!
   deletePolicy(id: ID!): Policy!
+  updatePolicySeo(policyId: ID!, input: PolicySeoInput!): PolicySeo!
+  deletePolicySeo(policyId: ID!): Boolean!
   createGuest(input: CreateGuestInput!): Guest!
   updateGuest(id: ID!, input: UpdateGuestInput!): Guest!
   addToCart(input: AddToCartInput!): Cart!
@@ -1135,6 +1167,16 @@ input RemoveProductsFromCategoryInput {
   productIds: [ID!]!
 }
 
+input CategorySeoInput {
+  metaTitle: String
+  metaDescription: String
+  metaKeywords: [String!]
+  canonicalUrl: String
+  ogTitle: String
+  ogDescription: String
+  ogImage: String
+}
+
 input CreateAddressInput {
   addressType: String!
   recipientPhone: String!
@@ -1221,6 +1263,16 @@ input UpdatePolicyInput {
   content: String
   type: String
   seo: SeoBaseInput
+}
+
+input PolicySeoInput {
+  metaTitle: String
+  metaDescription: String
+  metaKeywords: [String!]
+  canonicalUrl: String
+  ogTitle: String
+  ogDescription: String
+  ogImage: String
 }
 
 input CreateGuestInput {

@@ -8,13 +8,16 @@ import {
   Parent,
 } from '@nestjs/graphql';
 import { CategoryService } from './category.service';
+import { CategorySeoService } from './category-seo.service';
 import { Category } from './category.graphql';
+import { CategorySeo } from './category-seo.schema';
 import {
   CreateCategoryInput,
   UpdateCategoryInput,
   AddProductsToCategoryInput,
   RemoveProductsFromCategoryInput,
 } from './category.input';
+import { CategorySeoInput } from './category-seo.input';
 import { Public } from '../common/decorators/public.decorator';
 import { ProductService } from '../product/product.service';
 import { Product } from '../product/product.graphql';
@@ -26,8 +29,9 @@ import { Role } from '../common/enums/role.enum';
 export class CategoryResolver {
   constructor(
     private readonly categoryService: CategoryService,
+    private readonly categorySeoService: CategorySeoService,
     private readonly productService: ProductService,
-  ) {}
+  ) { }
 
   @Query(() => PaginatedCategories, { name: 'categories' })
   @Public()
@@ -186,12 +190,36 @@ export class CategoryResolver {
   @ResolveField(() => [Product], { name: 'products' })
   @Roles(Role.ADMIN)
   async getProducts(@Parent() category: Category): Promise<Product[]> {
-    return this.productService.findByCategoryId(category.id);
+    return this.productService.findByCategoryId(category._id);
   }
 
   @ResolveField(() => Number, { name: 'productCount' })
   @Public()
   async getProductCount(@Parent() category: Category): Promise<number> {
-    return this.productService.countByCategoryId(category.id);
+    return this.productService.countByCategoryId(category._id);
+  }
+
+  @ResolveField(() => CategorySeo, { name: 'seo', nullable: true })
+  @Public()
+  async getSeo(@Parent() category: Category): Promise<CategorySeo | null> {
+    return this.categorySeoService.findByCategoryId(category._id);
+  }
+
+  @Mutation(() => CategorySeo, { name: 'updateCategorySeo' })
+  @Roles(Role.ADMIN)
+  async updateCategorySeo(
+    @Args('categoryId', { type: () => ID }) categoryId: string,
+    @Args('input') input: CategorySeoInput,
+  ): Promise<CategorySeo | null> {
+    return this.categorySeoService.update(categoryId, input);
+  }
+
+  @Mutation(() => Boolean, { name: 'deleteCategorySeo' })
+  @Roles(Role.ADMIN)
+  async deleteCategorySeo(
+    @Args('categoryId', { type: () => ID }) categoryId: string,
+  ): Promise<boolean> {
+    await this.categorySeoService.delete(categoryId);
+    return true;
   }
 }

@@ -32,6 +32,8 @@ export class Policy {
 
   @Field(() => GraphQLISODateTime)
   updatedAt: Date;
+
+
 }
 
 export const PolicySchema = SchemaFactory.createForClass(Policy);

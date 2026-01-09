@@ -18,6 +18,12 @@ import { CategoryModule } from '../category/category.module';
     forwardRef(() => CategoryModule),
   ],
   providers: [ProductService, ProductSeoService, ProductResolver],
-  exports: [ProductService, ProductSeoService],
+  exports: [
+    ProductService,
+    ProductSeoService,
+    MongooseModule.forFeature([
+      { name: Product.name, schema: ProductSchema },
+    ]),
+  ],
 })
-export class ProductModule {}
+export class ProductModule { }

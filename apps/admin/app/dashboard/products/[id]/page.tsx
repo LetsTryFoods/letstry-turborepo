@@ -137,7 +137,7 @@ export default function ProductDetailPage() {
                   <div className="flex flex-wrap gap-1">
                     {product.categories?.length > 0 ? (
                       product.categories.map((cat: any) => (
-                        <Badge key={cat.id} variant="outline">
+                        <Badge key={cat._id} variant="outline">
                           {cat.name}
                         </Badge>
                       ))
@@ -203,17 +203,15 @@ export default function ProductDetailPage() {
                 <div className="flex gap-4">
                   <div className="flex items-center gap-2">
                     <div
-                      className={`w-3 h-3 rounded-full ${
-                        product.isVegetarian ? "bg-green-500" : "bg-gray-300"
-                      }`}
+                      className={`w-3 h-3 rounded-full ${product.isVegetarian ? "bg-green-500" : "bg-gray-300"
+                        }`}
                     />
                     <span className="text-sm">Vegetarian</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div
-                      className={`w-3 h-3 rounded-full ${
-                        product.isGlutenFree ? "bg-green-500" : "bg-gray-300"
-                      }`}
+                      className={`w-3 h-3 rounded-full ${product.isGlutenFree ? "bg-green-500" : "bg-gray-300"
+                        }`}
                     />
                     <span className="text-sm">Gluten Free</span>
                   </div>
@@ -270,11 +268,10 @@ export default function ProductDetailPage() {
                 {variants.map((variant: ProductVariant, index: number) => (
                   <div
                     key={variant._id || index}
-                    className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                      selectedVariantIndex === index
+                    className={`border rounded-lg p-4 cursor-pointer transition-colors ${selectedVariantIndex === index
                         ? "border-primary bg-primary/5"
                         : "hover:bg-muted/50"
-                    }`}
+                      }`}
                     onClick={() => setSelectedVariantIndex(index)}
                   >
                     <div className="flex items-center justify-between mb-3">
@@ -302,10 +299,10 @@ export default function ProductDetailPage() {
                         {variant.availabilityStatus === "in_stock"
                           ? "In Stock"
                           : variant.availabilityStatus === "out_of_stock"
-                          ? "Out of Stock"
-                          : variant.availabilityStatus === "pre_order"
-                          ? "Pre-Order"
-                          : "Discontinued"}
+                            ? "Out of Stock"
+                            : variant.availabilityStatus === "pre_order"
+                              ? "Pre-Order"
+                              : "Discontinued"}
                       </Badge>
                     </div>
 
@@ -393,10 +390,10 @@ export default function ProductDetailPage() {
                 ))}
                 {(!selectedVariant?.images ||
                   selectedVariant.images.length === 0) && (
-                  <p className="text-sm text-muted-foreground col-span-2 text-center py-4">
-                    No images available
-                  </p>
-                )}
+                    <p className="text-sm text-muted-foreground col-span-2 text-center py-4">
+                      No images available
+                    </p>
+                  )}
               </div>
             </CardContent>
           </Card>
@@ -464,10 +461,10 @@ export default function ProductDetailPage() {
                       {selectedVariant.availabilityStatus === "in_stock"
                         ? "In Stock"
                         : selectedVariant.availabilityStatus === "out_of_stock"
-                        ? "Out of Stock"
-                        : selectedVariant.availabilityStatus === "pre_order"
-                        ? "Pre-Order"
-                        : "Discontinued"}
+                          ? "Out of Stock"
+                          : selectedVariant.availabilityStatus === "pre_order"
+                            ? "Pre-Order"
+                            : "Discontinued"}
                     </Badge>
                   </div>
                 </div>

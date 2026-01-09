@@ -14,6 +14,13 @@ import { Folder, Edit, ExternalLink } from "lucide-react";
 import { SeoStatusBadge } from "@/components/seo/SeoStatusBadge";
 import { Category } from "@/lib/categories/useCategories";
 
+interface ArchiveDialogProps {
+    open: boolean
+    onOpenChange: (open: boolean) => void
+    categoryToArchive: { _id: string; isArchived: boolean } | null
+    onConfirm: () => void
+}
+
 interface CategorySeoTableProps {
     categories: Category[];
     loading: boolean;
@@ -43,7 +50,7 @@ export function CategorySeoTable({ categories, loading, onManageSeo }: CategoryS
                 </TableHeader>
                 <TableBody>
                     {categories.map((category) => (
-                        <TableRow key={category.id}>
+                        <TableRow key={category._id}>
                             <TableCell className="font-medium">
                                 <div className="flex items-center gap-2">
                                     {category.imageUrl ? (

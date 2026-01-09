@@ -11,7 +11,7 @@ export function useCategoryPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingCategory, setEditingCategory] = useState<any | null>(null)
   const [deleteAlertOpen, setDeleteAlertOpen] = useState(false)
-  const [categoryToArchive, setCategoryToArchive] = useState<{ id: string; isArchived: boolean } | null>(null)
+  const [categoryToArchive, setCategoryToArchive] = useState<{ _id: string; isArchived: boolean } | null>(null)
   const [imagePreview, setImagePreview] = useState<{ url: string; title: string } | null>(null)
   const [includeArchived, setIncludeArchived] = useState(false)
 
@@ -47,7 +47,7 @@ export function useCategoryPage() {
   }
 
   const handleArchiveToggle = (categoryId: string, isCurrentlyArchived: boolean) => {
-    setCategoryToArchive({ id: categoryId, isArchived: isCurrentlyArchived })
+    setCategoryToArchive({ _id: categoryId, isArchived: isCurrentlyArchived })
     setDeleteAlertOpen(true)
   }
 
@@ -56,11 +56,11 @@ export function useCategoryPage() {
       try {
         if (categoryToArchive.isArchived) {
           await unarchiveCategory({
-            variables: { id: categoryToArchive.id }
+            variables: { _id: categoryToArchive._id }
           })
         } else {
           await archiveCategory({
-            variables: { id: categoryToArchive.id }
+            variables: { _id: categoryToArchive._id }
           })
         }
         setCategoryToArchive(null)
@@ -75,7 +75,7 @@ export function useCategoryPage() {
     try {
       await updateCategory({
         variables: {
-          id: categoryId,
+          _id: categoryId,
           input: {
             favourite: !currentFavourite
           }
@@ -87,7 +87,7 @@ export function useCategoryPage() {
   }
 
   const handleEdit = (categoryId: string) => {
-    const category = categories.find((c: any) => c.id === categoryId)
+    const category = categories.find((c: any) => c._id === categoryId)
     if (category) {
       setEditingCategory(category)
       setIsDialogOpen(true)

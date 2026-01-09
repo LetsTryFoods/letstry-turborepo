@@ -260,7 +260,7 @@ export function ProductForm({
         console.log("Updating product:", initialData._id);
         const result = await updateProduct({
           variables: {
-            id: initialData._id,
+            _id: initialData._id,
             input: formattedData,
           },
         });
@@ -278,8 +278,7 @@ export function ProductForm({
     } catch (error) {
       console.error("Failed to save product:", error);
       alert(
-        `Failed to save product: ${
-          error instanceof Error ? error.message : "Unknown error"
+        `Failed to save product: ${error instanceof Error ? error.message : "Unknown error"
         }`
       );
     }
@@ -351,12 +350,11 @@ export function ProductForm({
                           <SelectTrigger>
                             <SelectValue placeholder="Select categories">
                               {field.value?.length > 0
-                                ? `${field.value.length} categor${
-                                    field.value.length === 1 ? "y" : "ies"
-                                  } selected`
+                                ? `${field.value.length} categor${field.value.length === 1 ? "y" : "ies"
+                                } selected`
                                 : categoriesLoading
-                                ? "Loading categories..."
-                                : "Select categories"}
+                                  ? "Loading categories..."
+                                  : "Select categories"}
                             </SelectValue>
                           </SelectTrigger>
                           <SelectContent className="max-h-[300px]">
@@ -371,7 +369,7 @@ export function ProductForm({
                             ) : (
                               categories.map((category: any) => {
                                 const isSelected = field.value?.includes(
-                                  category.id
+                                  category._id
                                 );
                                 return (
                                   <div
@@ -381,9 +379,9 @@ export function ProductForm({
                                       e.preventDefault();
                                       const newValue = isSelected
                                         ? field.value.filter(
-                                            (id: string) => id !== category.id
-                                          )
-                                        : [...(field.value || []), category.id];
+                                          (id: string) => id !== category._id
+                                        )
+                                        : [...(field.value || []), category._id];
                                       field.onChange(newValue);
                                     }}
                                   >
@@ -392,12 +390,12 @@ export function ProductForm({
                                       onCheckedChange={(checked) => {
                                         const newValue = checked
                                           ? [
-                                              ...(field.value || []),
-                                              category.id,
-                                            ]
+                                            ...(field.value || []),
+                                            category._id,
+                                          ]
                                           : field.value.filter(
-                                              (id: string) => id !== category.id
-                                            );
+                                            (id: string) => id !== category._id
+                                          );
                                         field.onChange(newValue);
                                       }}
                                     />
@@ -414,7 +412,7 @@ export function ProductForm({
                           <div className="flex flex-wrap gap-1">
                             {field.value.map((categoryId: string) => {
                               const category = categories.find(
-                                (c: any) => c.id === categoryId
+                                (c: any) => c._id === categoryId
                               );
                               return category ? (
                                 <Badge
@@ -837,7 +835,7 @@ export function ProductForm({
                                       if (currentMrp > 0 && price > 0) {
                                         const discount = Math.round(
                                           ((currentMrp - price) / currentMrp) *
-                                            100
+                                          100
                                         );
                                         form.setValue(
                                           `variants.${index}.discountPercent`,

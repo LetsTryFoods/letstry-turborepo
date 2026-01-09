@@ -48,7 +48,7 @@ export interface PriceRange {
 }
 
 export interface Category {
-  id: string;
+  _id: string;
   name: string;
   slug: string;
 }
@@ -231,7 +231,7 @@ export const useUpdateProductSeo = () => {
   ) => {
     return mutate({
       variables: {
-        id: productId,
+        _id: productId,
         input: { seo: seoInput },
       },
     });
@@ -242,7 +242,7 @@ export const useUpdateProductSeo = () => {
 
 export const useProduct = (id: string) => {
   return useQuery(GET_PRODUCT, {
-    variables: { id },
+    variables: { _id: id },
     skip: !id,
     fetchPolicy: "cache-and-network",
   });

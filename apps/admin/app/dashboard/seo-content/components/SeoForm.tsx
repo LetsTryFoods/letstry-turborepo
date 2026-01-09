@@ -1,10 +1,9 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
@@ -23,9 +22,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import { seoContentSchema, SeoContentFormData } from "@/lib/validations/seo.schema";
 import { SeoContent } from "@/lib/seo/useSeo";
-import { Badge } from "@/components/ui/badge";
+import { SeoFields } from "@/components/seo/SeoFields";
 
 interface SeoFormProps {
   initialData?: SeoContent | null;
@@ -53,7 +54,7 @@ const PAGE_OPTIONS = [
 ];
 
 export function SeoForm({ initialData, onSubmit, onCancel, isLoading }: SeoFormProps) {
-  const form = useForm<SeoContentFormData>({
+  const methods = useForm<SeoContentFormData>({
     resolver: zodResolver(seoContentSchema),
     defaultValues: {
       pageName: initialData?.pageName || "",
@@ -69,39 +70,27 @@ export function SeoForm({ initialData, onSubmit, onCancel, isLoading }: SeoFormP
     },
   });
 
-  const metaTitleLength = form.watch("metaTitle")?.length || 0;
-  const metaDescLength = form.watch("metaDescription")?.length || 0;
-
-  const handleSubmit = async (data: SeoContentFormData) => {
-    // Clean empty strings to undefined
-    const cleanedData = {
-      ...data,
-      metaKeywords: data.metaKeywords || undefined,
-      canonicalUrl: data.canonicalUrl || undefined,
-      ogTitle: data.ogTitle || undefined,
-      ogDescription: data.ogDescription || undefined,
-      ogImage: data.ogImage || undefined,
-    };
-    await onSubmit(cleanedData as SeoContentFormData);
-  };
+  const metaTitle = methods.watch("metaTitle") || "";
+  const metaDescription = methods.watch("metaDescription") || "";
+  const metaTitleLength = metaTitle.length;
+  const metaDescLength = metaDescription.length;
 
   const handlePageSelect = (slug: string) => {
     const page = PAGE_OPTIONS.find((p) => p.value === slug);
     if (page) {
-      form.setValue("pageSlug", slug);
-      form.setValue("pageName", page.label);
+      methods.setValue("pageSlug", slug);
+      methods.setValue("pageName", page.label);
     }
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6 max-h-[70vh] overflow-y-auto pr-2">
-        {/* Basic Information */}
+    <Form {...methods}>
+      <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-6 max-h-[70vh] overflow-y-auto pr-2">
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-primary">Basic Information</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
-              control={form.control}
+              control={methods.control}
               name="pageSlug"
               render={({ field }) => (
                 <FormItem>
@@ -131,176 +120,161 @@ export function SeoForm({ initialData, onSubmit, onCancel, isLoading }: SeoFormP
               )}
             />
 
-            {/* <FormField
-              control={form.control}
-              name="pageName"
+            <FormField
+              control={methods.control}
+              name="isActive"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                  <FormControl>
+                    <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                  </FormControl>
+                  <FormLabel className="!mt-0">Active</FormLabel>
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <Separator />
+
+          {/* Meta Tags */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-green-600">Meta Tags (Search Engines)</h3>
+
+            <FormField
+              control={methods.control}
+              name="metaTitle"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Page Name *</FormLabel>
+                  <FormLabel className="flex items-center justify-between">
+                    <span>Meta Title *</span>
+                    <Badge variant={metaTitleLength > 60 ? "destructive" : "default"}>
+                      {metaTitleLength}/70
+                    </Badge>
+                  </FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="e.g., Home Page" />
+                    <Input {...field} placeholder="Page title for search engines" />
                   </FormControl>
-                  <FormDescription>Display name in admin</FormDescription>
+                  <FormDescription>Recommended: 50-60 characters. This appears as the clickable title in Google search results.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
-            /> */}
+            />
+
+            <FormField
+              control={methods.control}
+              name="metaDescription"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center justify-between">
+                    <span>Meta Description *</span>
+                    <Badge variant={metaDescLength > 155 ? "destructive" : "default"}>
+                      {metaDescLength}/160
+                    </Badge>
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea {...field} placeholder="Brief description of the page content" rows={3} />
+                  </FormControl>
+                  <FormDescription>Recommended: 140-155 characters. This appears below the title in Google search results.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={methods.control}
+              name="metaKeywords"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Meta Keywords (Optional)</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="organic food, healthy snacks, natural products" />
+                  </FormControl>
+                  <FormDescription>Comma-separated keywords related to this page</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={methods.control}
+              name="canonicalUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Canonical URL (Optional)</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="https://letstryfoods.com/page" />
+                  </FormControl>
+                  <FormDescription>The preferred URL for this page (to avoid duplicate content issues)</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
 
-          <FormField
-            control={form.control}
-            name="isActive"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center space-x-2 space-y-0">
-                <FormControl>
-                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                </FormControl>
-                <FormLabel className="!mt-0">Active</FormLabel>
-              </FormItem>
-            )}
-          />
-        </div>
+          <Separator />
 
-        <Separator />
+          {/* Open Graph - Social Sharing */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-blue-600">Social Media Sharing</h3>
+            <p className="text-sm text-muted-foreground">
+              These settings control how your page looks when shared on WhatsApp, Facebook, LinkedIn, etc.
+            </p>
 
-        {/* Meta Tags */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-green-600">Meta Tags (Search Engines)</h3>
+            <FormField
+              control={methods.control}
+              name="ogTitle"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Social Title (Optional)</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Title when shared on social media" />
+                  </FormControl>
+                  <FormDescription>Leave empty to use Meta Title</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={form.control}
-            name="metaTitle"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex items-center justify-between">
-                  <span>Meta Title *</span>
-                  <Badge variant={metaTitleLength > 60 ? "destructive" : "default"}>
-                    {metaTitleLength}/70
-                  </Badge>
-                </FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="Page title for search engines" />
-                </FormControl>
-                <FormDescription>Recommended: 50-60 characters. This appears as the clickable title in Google search results.</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={methods.control}
+              name="ogDescription"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Social Description (Optional)</FormLabel>
+                  <FormControl>
+                    <Textarea {...field} placeholder="Description when shared on social media" rows={2} />
+                  </FormControl>
+                  <FormDescription>Leave empty to use Meta Description</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={form.control}
-            name="metaDescription"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex items-center justify-between">
-                  <span>Meta Description *</span>
-                  <Badge variant={metaDescLength > 155 ? "destructive" : "default"}>
-                    {metaDescLength}/160
-                  </Badge>
-                </FormLabel>
-                <FormControl>
-                  <Textarea {...field} placeholder="Brief description of the page content" rows={3} />
-                </FormControl>
-                <FormDescription>Recommended: 140-155 characters. This appears below the title in Google search results.</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            <FormField
+              control={methods.control}
+              name="ogImage"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Social Image URL</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="https://cdn.example.com/image.jpg" />
+                  </FormControl>
+                  <FormDescription>Image shown when page is shared. Recommended size: 1200x630 pixels</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
-          <FormField
-            control={form.control}
-            name="metaKeywords"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Meta Keywords (Optional)</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="organic food, healthy snacks, natural products" />
-                </FormControl>
-                <FormDescription>Comma-separated keywords related to this page</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="canonicalUrl"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Canonical URL (Optional)</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="https://letstryfoods.com/page" />
-                </FormControl>
-                <FormDescription>The preferred URL for this page (to avoid duplicate content issues)</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <Separator />
-
-        {/* Open Graph - Social Sharing */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-blue-600">Social Media Sharing</h3>
-          <p className="text-sm text-muted-foreground">
-            These settings control how your page looks when shared on WhatsApp, Facebook, LinkedIn, etc.
-          </p>
-
-          <FormField
-            control={form.control}
-            name="ogTitle"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Social Title (Optional)</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="Title when shared on social media" />
-                </FormControl>
-                <FormDescription>Leave empty to use Meta Title</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="ogDescription"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Social Description (Optional)</FormLabel>
-                <FormControl>
-                  <Textarea {...field} placeholder="Description when shared on social media" rows={2} />
-                </FormControl>
-                <FormDescription>Leave empty to use Meta Description</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="ogImage"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Social Image URL</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="https://cdn.example.com/image.jpg" />
-                </FormControl>
-                <FormDescription>Image shown when page is shared. Recommended size: 1200x630 pixels</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        {/* Form Actions */}
-        <div className="flex justify-end space-x-4 pt-4 border-t sticky bottom-0 bg-background py-4">
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Saving..." : initialData ? "Update SEO" : "Create SEO"}
-          </Button>
+          {/* Form Actions */}
+          <div className="flex justify-end space-x-4 pt-4 border-t sticky bottom-0 bg-background py-4">
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "Saving..." : initialData ? "Update SEO" : "Create SEO"}
+            </Button>
+          </div>
         </div>
       </form>
     </Form>

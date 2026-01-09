@@ -82,18 +82,18 @@ export function CategoryTable({
             </TableRow>
           ) : (
             categories.map((category: any) => (
-              <TableRow key={category.id}>
+              <TableRow key={category._id}>
                 {selectedColumns.map(columnKey => (
                   <TableCell key={columnKey}>
                     {columnKey === 'isArchived' ? (
                       <Switch
                         checked={category.isArchived}
-                        onCheckedChange={() => onArchiveToggle(category.id, category.isArchived)}
+                        onCheckedChange={() => onArchiveToggle(category._id, category.isArchived)}
                       />
                     ) : columnKey === 'favourite' ? (
                       <Switch
                         checked={category.favourite}
-                        onCheckedChange={() => onFavouriteToggle(category.id, category.favourite)}
+                        onCheckedChange={() => onFavouriteToggle(category._id, category.favourite)}
                       />
                     ) : columnKey === 'imageUrl' ? (
                       category.imageUrl ? (
@@ -131,18 +131,18 @@ export function CategoryTable({
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Actions</DropdownMenuLabel>
                       <DropdownMenuItem asChild>
-                        <Link href={`/dashboard/products?categoryId=${category.id}`}>
+                        <Link href={`/dashboard/products?categoryId=${category._id}`}>
                           <Package className="mr-2 h-4 w-4" />
                           View Products ({category.productCount || 0})
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => onEdit(category.id)}>
+                      <DropdownMenuItem onClick={() => onEdit(category._id)}>
                         <Pencil className="mr-2 h-4 w-4" />
                         Edit
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem 
-                        onClick={() => onArchiveToggle(category.id, category.isArchived)}
+                      <DropdownMenuItem
+                        onClick={() => onArchiveToggle(category._id, category.isArchived)}
                         className={category.isArchived ? "text-green-600" : "text-orange-600"}
                       >
                         {category.isArchived ? (
