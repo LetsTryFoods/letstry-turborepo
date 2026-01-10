@@ -13,16 +13,16 @@ export const WeightSelector: React.FC<WeightSelectorProps> = ({
   onWeightChange,
 }) => {
   return (
-    <div className="w-full">
+    <div className="w-full mt-2 sm:mt-3 md:mt-4">
       <label className="block text-xs sm:text-sm md:text-md text-gray-500 mb-1 sm:mb-1.5 text-left">Weight :</label>
       
-      <div className="sm:hidden">
+      
         <div className="flex flex-wrap gap-1.5">
           {weights.map((weight) => (
             <button
               key={weight}
               onClick={() => onWeightChange(weight)}
-              className={`px-2 py-1 text-xs font-semibold rounded border transition-colors ${
+              className={`px-2 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm md:text-md font-semibold rounded border transition-colors ${
                 selectedWeight === weight
                   ? 'bg-[#3f4166] text-white border-[#3f4166]'
                   : 'bg-white text-gray-700 border-gray-300 hover:border-[#3f4166]'
@@ -32,9 +32,9 @@ export const WeightSelector: React.FC<WeightSelectorProps> = ({
             </button>
           ))}
         </div>
-      </div>
+     
 
-      <div className="hidden sm:block relative">
+      {/* <div className="hidden sm:block relative">
         <select
           value={selectedWeight}
           onChange={(e) => onWeightChange(e.target.value)}
@@ -47,7 +47,7 @@ export const WeightSelector: React.FC<WeightSelectorProps> = ({
           ))}
         </select>
         <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
-      </div>
+      </div> */}
     </div>
   );
 };

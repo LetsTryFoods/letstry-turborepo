@@ -32,7 +32,7 @@ export const DesktopNavbar = ({
         <div className="hidden md:flex h-20 items-center justify-between gap-4">
             <div className="flex items-center gap-6">
                 <Logo className="h-16 w-16" />
-                <LocationSelector className="hidden md:flex" />
+                {/* <LocationSelector className="hidden md:flex" /> */}
             </div>
 
             <div className="hidden lg:flex items-center gap-8">

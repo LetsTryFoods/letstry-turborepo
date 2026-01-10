@@ -9,7 +9,7 @@ import CustomerTestimonials from "@/components/customer-testimonials/CustomerTes
 import BrandSlider from "@/components/brand-slider/BrandSlider";
 
 
-export const revalidate = 86400;
+// export const revalidate = 86400;
 
 
 export default function Home() {

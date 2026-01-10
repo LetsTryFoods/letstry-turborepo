@@ -24,7 +24,7 @@ export const BestsellerCombo = async () => {
           </Link>
         </div>
         <div className="grid grid-cols-2 gap-4 sm:gap-6 md:gap-10 sm:grid-cols-4 md:grid-cols-6">
-          {products.slice(0, 4).map((product: any) => (
+          {products.slice(0,10).map((product: any) => (
             <BestsellerCard key={product._id} product={product} />
           ))}
         </div>

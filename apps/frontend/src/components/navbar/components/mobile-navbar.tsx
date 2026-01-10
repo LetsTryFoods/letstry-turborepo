@@ -29,15 +29,16 @@ export const MobileNavbar = ({
     return (
         <div className="flex md:hidden h-20 items-center justify-between relative px-2">
             {/* Left: Delivering at */}
-            <div className="flex flex-col flex-1 min-w-0">
+            {/* <div className="flex flex-col flex-1 min-w-0">
                 <span className="text-md font-bold text-black leading-tight">Delivering at</span>
                 <span className="text-sm text-gray-600 truncate pr-4 ">
                     Netaji Subhash Place
                 </span>
-            </div>
+            </div> */}
 
             {/* Center: Logo */}
-            <div className="absolute left-1/2 -translate-x-1/2 z-10">
+            {/* <div className="absolute left-1/2 -translate-x-1/2 z-10"> */}
+            <div>
                 <Link href="/" className="block gold-border-logo">
                     <div className="bg-[#FFCC00] rounded-full  w-10 h-10 flex items-center justify-center overflow-hidden">
                         <Image
