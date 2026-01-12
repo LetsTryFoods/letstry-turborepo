@@ -98,7 +98,7 @@ export function useCategorySeoPage() {
     const updateCategorySeo = async (categoryId: string, seoInput: any) => {
         return updateCategoryMutation({
             variables: {
-                _id: categoryId,
+                id: categoryId,
                 input: { seo: seoInput },
             },
         });

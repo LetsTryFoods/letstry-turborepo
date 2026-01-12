@@ -205,8 +205,8 @@ export const CREATE_CATEGORY = gql`
 `
 
 export const UPDATE_CATEGORY = gql`
-  mutation UpdateCategory($_id: ID!, $input: UpdateCategoryInput!) {
-    updateCategory(_id: $_id, input: $input) {
+  mutation UpdateCategory($id: ID!, $input: UpdateCategoryInput!) {
+    updateCategory(id: $id, input: $input) {
       _id
       name
       slug
@@ -234,8 +234,8 @@ export const UPDATE_CATEGORY = gql`
 `
 
 export const ARCHIVE_CATEGORY = gql`
-  mutation ArchiveCategory($_id: ID!) {
-    archiveCategory(_id: $_id) {
+  mutation ArchiveCategory($id: ID!) {
+    archiveCategory(id: $id) {
       _id
       name
       isArchived
@@ -244,8 +244,8 @@ export const ARCHIVE_CATEGORY = gql`
 `
 
 export const UNARCHIVE_CATEGORY = gql`
-  mutation UnarchiveCategory($_id: ID!) {
-    unarchiveCategory(_id: $_id) {
+  mutation UnarchiveCategory($id: ID!) {
+    unarchiveCategory(id: $id) {
       _id
       name
       isArchived

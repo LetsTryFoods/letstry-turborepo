@@ -56,11 +56,11 @@ export function useCategoryPage() {
       try {
         if (categoryToArchive.isArchived) {
           await unarchiveCategory({
-            variables: { _id: categoryToArchive._id }
+            variables: { id: categoryToArchive._id }
           })
         } else {
           await archiveCategory({
-            variables: { _id: categoryToArchive._id }
+            variables: { id: categoryToArchive._id }
           })
         }
         setCategoryToArchive(null)
@@ -75,7 +75,7 @@ export function useCategoryPage() {
     try {
       await updateCategory({
         variables: {
-          _id: categoryId,
+          id: categoryId,
           input: {
             favourite: !currentFavourite
           }

@@ -217,7 +217,7 @@ const PaymentOrderSchema = new mongoose.Schema({
     paymentMethod: { type: String, default: 'UPI' },
     amount: String,
     currency: { type: String, default: 'INR' },
-    zaakpayTxnId: String,
+    pspTxnId: String,
     bankTxnId: String,
     completedAt: Date
 }, { timestamps: true });
@@ -468,7 +468,7 @@ async function seed() {
                 paymentMethod: ['UPI', 'CARD', 'NETBANKING', 'WALLET'][Math.floor(Math.random() * 4)],
                 amount: amount.toString(),
                 currency: 'INR',
-                zaakpayTxnId: `TXN${Math.random().toString(36).substring(2, 15).toUpperCase()}`,
+                pspTxnId: `TXN${Math.random().toString(36).substring(2, 15).toUpperCase()}`,
                 completedAt: new Date(Date.now() - Math.random() * 604800000)
             });
         }

@@ -71,13 +71,13 @@ export class PaymentOrderType {
   paymentMethod?: PaymentMethod;
 
   @Field({ nullable: true })
-  zaakpayTxnId?: string;
+  pspTxnId?: string;
 
   @Field({ nullable: true })
-  zaakpayOrderId?: string;
+  pspOrderId?: string;
 
   @Field({ nullable: true })
-  zaakpayToken?: string;
+  pspToken?: string;
 
   @Field({ nullable: true })
   pspResponseMessage?: string;
@@ -152,7 +152,7 @@ export class PaymentRefundType {
   refundStatus: PaymentStatus;
 
   @Field({ nullable: true })
-  zaakpayRefundId?: string;
+  pspRefundId?: string;
 
   @Field({ nullable: true })
   pspResponseMessage?: string;

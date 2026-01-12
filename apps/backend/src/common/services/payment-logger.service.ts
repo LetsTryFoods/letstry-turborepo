@@ -76,7 +76,7 @@ export class PaymentLoggerService implements LoggerService {
 
   logPaymentExecution(data: {
     paymentOrderId: string;
-    zaakpayOrderId: string;
+    pspOrderId: string;
     status: string;
   }) {
     this.log('Payment Execution', {
@@ -87,7 +87,7 @@ export class PaymentLoggerService implements LoggerService {
 
   logPaymentSuccess(data: {
     paymentOrderId: string;
-    zaakpayTxnId: string;
+    pspTxnId: string;
     amount: string;
   }) {
     this.log('Payment Success', {
@@ -120,7 +120,7 @@ export class PaymentLoggerService implements LoggerService {
 
   logRefundSuccess(data: {
     refundId: string;
-    zaakpayRefundId: string;
+    pspRefundId: string;
     amount: string;
   }) {
     this.log('Refund Success', {

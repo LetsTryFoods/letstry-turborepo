@@ -478,9 +478,9 @@ type PaymentOrderType {
   currency: String!
   paymentOrderStatus: PaymentStatus!
   paymentMethod: PaymentMethod
-  zaakpayTxnId: String
-  zaakpayOrderId: String
-  zaakpayToken: String
+  pspTxnId: String
+  pspOrderId: String
+  pspToken: String
   pspResponseMessage: String
   failureReason: String
   executedAt: DateTime

@@ -108,7 +108,7 @@ export class RefundService {
 
         this.paymentLogger.logRefundSuccess({
           refundId,
-          zaakpayRefundId: merchantRefId,
+          pspRefundId: merchantRefId,
           amount: params.refundAmount,
         });
       } else {
