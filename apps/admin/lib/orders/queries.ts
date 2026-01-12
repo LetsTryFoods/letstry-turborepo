@@ -102,6 +102,7 @@ export interface Order {
   deliveryCharge: string;
   discount: string;
   totalAmount: string;
+  currency?: string;
   orderStatus: OrderStatus;
   trackingNumber?: string;
   deliveredAt?: Date;

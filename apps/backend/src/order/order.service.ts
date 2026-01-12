@@ -142,7 +142,7 @@ export class OrderService {
       _id: payment._id.toString(),
       status: payment.paymentOrderStatus,
       method: payment.paymentMethod?.toString(),
-      transactionId: payment.zaakpayTxnId || payment.bankTxnId,
+      transactionId: payment.pspTxnId || payment.bankTxnId,
       amount: payment.amount,
       paidAt: payment.completedAt,
     };

@@ -40,7 +40,7 @@ export class PaymentExecutorService {
   }> {
     this.paymentLogger.logPaymentExecution({
       paymentOrderId: params.paymentOrderId,
-      zaakpayOrderId: params.paymentOrderId,
+      pspOrderId: params.paymentOrderId,
       status: PaymentStatus.EXECUTING,
     });
 
@@ -76,7 +76,7 @@ export class PaymentExecutorService {
 
   async handlePaymentSuccess(params: {
     paymentOrderId: string;
-    zaakpayTxnId: string;
+    pspTxnId: string;
     paymentMethod: string;
     bankTxnId?: string;
     cardType?: string;
@@ -95,11 +95,20 @@ export class PaymentExecutorService {
       { paymentOrderId: params.paymentOrderId },
       {
         paymentOrderStatus: PaymentStatus.SUCCESS,
-        zaakpayTxnId: params.zaakpayTxnId,
+        pspTxnId: params.pspTxnId,
         paymentMethod: params.paymentMethod,
         bankTxnId: params.bankTxnId,
         cardType: params.cardType,
         cardNumber: params.cardNumber,
+        paymentMode: params.pspRawResponse.paymentMode,
+        cardScheme: params.pspRawResponse.cardScheme,
+        cardToken: params.pspRawResponse.cardToken,
+        bankName: params.pspRawResponse.bank,
+        bankId: params.pspRawResponse.bankid,
+        paymentMethodId: params.pspRawResponse.paymentmethod,
+        cardHashId: params.pspRawResponse.cardhashId,
+        productDescription: params.pspRawResponse.productDescription,
+        pspTxnTime: params.pspRawResponse.pgTransTime ? new Date(params.pspRawResponse.pgTransTime) : undefined,
         pspRawResponse: params.pspRawResponse,
         pspResponseCode: params.pspRawResponse.responseCode,
         pspResponseMessage: params.pspRawResponse.responseDescription,
@@ -123,7 +132,7 @@ export class PaymentExecutorService {
 
     this.paymentLogger.logPaymentSuccess({
       paymentOrderId: params.paymentOrderId,
-      zaakpayTxnId: params.zaakpayTxnId,
+      pspTxnId: params.pspTxnId,
       amount: paymentOrder.amount,
     });
   }
@@ -305,7 +314,7 @@ export class PaymentExecutorService {
       if (order.txnStatus === '0') {
         await this.handlePaymentSuccess({
           paymentOrderId,
-          zaakpayTxnId: order.orderDetail.txnId,
+          pspTxnId: order.orderDetail.txnId,
           paymentMethod: order.paymentInstrument?.paymentMode || 'UNKNOWN',
           bankTxnId: order.paymentInstrument?.card?.bank,
           cardType: order.paymentInstrument?.card?.cardType,

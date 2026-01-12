@@ -211,18 +211,53 @@ const IdentitySchema = new mongoose.Schema({
     role: { type: String, default: 'user' }
 }, { timestamps: true });
 
+const PaymentEventSchema = new mongoose.Schema({
+    cartId: { type: mongoose.Schema.Types.ObjectId, ref: 'Cart', required: true },
+    identityId: { type: mongoose.Schema.Types.ObjectId, ref: 'Identity', required: true },
+    totalAmount: { type: String, required: true },
+    currency: { type: String, required: true },
+    isPaymentDone: { type: Boolean, default: false },
+    metadata: { type: Object }
+}, { timestamps: true });
+
 const PaymentOrderSchema = new mongoose.Schema({
     paymentOrderId: { type: String, required: true, unique: true },
+    paymentEventId: { type: mongoose.Schema.Types.ObjectId, ref: 'PaymentEvent', required: true },
+    identityId: { type: mongoose.Schema.Types.ObjectId, ref: 'Identity', required: true },
+    orderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' },
+    amount: { type: String, required: true },
+    currency: { type: String, required: true },
     paymentOrderStatus: { type: String, default: 'SUCCESS' },
-    paymentMethod: { type: String, default: 'UPI' },
-    amount: String,
-    currency: { type: String, default: 'INR' },
-    zaakpayTxnId: String,
+    paymentMethod: String,
+    pspTxnId: String,
+    pspOrderId: String,
+    pspToken: String,
     bankTxnId: String,
-    completedAt: Date
+    cardType: String,
+    cardNumber: String,
+    paymentMode: String,
+    cardScheme: String,
+    cardToken: String,
+    bankName: String,
+    bankId: String,
+    paymentMethodId: String,
+    cardHashId: String,
+    productDescription: String,
+    pspTxnTime: Date,
+    idempotencyKey: String,
+    idempotencyKeyExpiresAt: Date,
+    ledgerUpdated: { type: Boolean, default: false },
+    retryCount: { type: Number, default: 0 },
+    pspResponseCode: String,
+    pspResponseMessage: String,
+    failureReason: String,
+    executedAt: Date,
+    completedAt: Date,
+    pspRawResponse: { type: Object }
 }, { timestamps: true });
 
 const Identity = mongoose.model('Identity', IdentitySchema);
+const PaymentEvent = mongoose.model('PaymentEvent', PaymentEventSchema);
 const PaymentOrder = mongoose.model('PaymentOrder', PaymentOrderSchema);
 
 const categoryImageUrl = 'https://d11a0m43ek7ap8.cloudfront.net/eaffe2ce9255d74a4ee81d3a20bdace9.webp';
@@ -244,6 +279,7 @@ async function seed() {
         await Product.deleteMany({});
         await Address.deleteMany({});
         await Identity.deleteMany({});
+        await PaymentEvent.deleteMany({});
         await PaymentOrder.deleteMany({});
         await Packer.deleteMany({});
         await PackingOrder.deleteMany({});
@@ -459,17 +495,64 @@ async function seed() {
 
         const createdAddresses = await Address.insertMany(addresses);
 
-        const paymentOrders = [];
+        const paymentEvents = [];
         for (let i = 0; i < 25; i++) {
             const amount = Math.floor(Math.random() * 1500) + 300;
+            paymentEvents.push({
+                cartId: new mongoose.Types.ObjectId(),
+                identityId: createdIdentities[i % createdIdentities.length]._id,
+                totalAmount: amount.toString(),
+                currency: 'INR',
+                isPaymentDone: true,
+                metadata: { source: 'seed' }
+            });
+        }
+        const createdPaymentEvents = await PaymentEvent.insertMany(paymentEvents);
+
+        const paymentOrders = [];
+        for (let i = 0; i < 25; i++) {
+            const amount = createdPaymentEvents[i].totalAmount;
+            const method = ['UPI', 'CARD', 'NET_BANKING', 'WALLET'][Math.floor(Math.random() * 4)];
+            const completedAt = new Date(Date.now() - Math.random() * 604800000);
+            const pspOrderId = `PSP_ORD_${Math.random().toString(36).substring(2, 15).toUpperCase()}`;
+            const pspTxnId = `TXN${Math.random().toString(36).substring(2, 15).toUpperCase()}`;
+            
             paymentOrders.push({
                 paymentOrderId: `PAY_${Date.now()}_${i}`,
-                paymentOrderStatus: 'SUCCESS',
-                paymentMethod: ['UPI', 'CARD', 'NETBANKING', 'WALLET'][Math.floor(Math.random() * 4)],
-                amount: amount.toString(),
+                paymentEventId: createdPaymentEvents[i]._id,
+                identityId: createdIdentities[i % createdIdentities.length]._id,
+                amount: amount,
                 currency: 'INR',
-                zaakpayTxnId: `TXN${Math.random().toString(36).substring(2, 15).toUpperCase()}`,
-                completedAt: new Date(Date.now() - Math.random() * 604800000)
+                paymentOrderStatus: 'SUCCESS',
+                paymentMethod: method,
+                pspTxnId: pspTxnId,
+                pspOrderId: pspOrderId,
+                pspToken: method === 'CARD' ? `TOKEN_${Math.random().toString(36).substring(2, 12).toUpperCase()}` : null,
+                bankTxnId: `BANK${Math.random().toString(36).substring(2, 12).toUpperCase()}`,
+                cardType: method === 'CARD' ? ['CREDIT', 'DEBIT'][Math.floor(Math.random() * 2)] : null,
+                cardNumber: method === 'CARD' ? `XXXX-XXXX-XXXX-${Math.floor(1000 + Math.random() * 9000)}` : null,
+                paymentMode: method,
+                cardScheme: method === 'CARD' ? ['VISA', 'MASTERCARD', 'RUPAY'][Math.floor(Math.random() * 3)] : null,
+                cardToken: method === 'CARD' ? `CARD_${Math.random().toString(36).substring(2, 12).toUpperCase()}` : null,
+                bankName: method === 'NET_BANKING' ? ['HDFC', 'ICICI', 'SBI', 'AXIS'][Math.floor(Math.random() * 4)] : null,
+                bankId: method === 'NET_BANKING' ? `BANK_${Math.floor(Math.random() * 1000)}` : null,
+                paymentMethodId: `PM_${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
+                cardHashId: method === 'CARD' ? `HASH_${Math.random().toString(36).substring(2, 15).toUpperCase()}` : null,
+                productDescription: 'E-commerce Purchase',
+                pspTxnTime: completedAt,
+                ledgerUpdated: true,
+                retryCount: 0,
+                pspResponseCode: '200',
+                pspResponseMessage: 'Transaction successful',
+                executedAt: completedAt,
+                completedAt: completedAt,
+                pspRawResponse: { 
+                    status: 'SUCCESS',
+                    txnId: pspTxnId,
+                    orderId: pspOrderId,
+                    amount: amount,
+                    method: method
+                }
             });
         }
         const createdPaymentOrders = await PaymentOrder.insertMany(paymentOrders);
@@ -551,7 +634,14 @@ async function seed() {
             });
         }
 
-        await Order.insertMany(orders);
+        const createdOrders = await Order.insertMany(orders);
+
+        for (let i = 0; i < createdPaymentOrders.length; i++) {
+            await PaymentOrder.findByIdAndUpdate(
+                createdPaymentOrders[i]._id,
+                { orderId: createdOrders[i]._id }
+            );
+        }
 
         const packingOrders = [];
 

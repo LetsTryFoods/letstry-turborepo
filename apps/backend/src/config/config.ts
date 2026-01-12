@@ -15,6 +15,7 @@ export default () => ({
     guestConversionFile:
       process.env.GUEST_CONVERSION_LOG_FILE || 'logs/guest-conversion.log',
     packingFile: process.env.PACKING_LOG_FILE || 'logs/packing.log',
+    shipmentFile: process.env.SHIPMENT_LOG_FILE || 'logs/shipment.log',
   },
   packing: {
     acceptTimeoutHours: parseInt(
@@ -91,6 +92,27 @@ export default () => ({
       checkTxn: '/checkTxn?v=5',
       refund: '/refund',
       settlementReport: '/settlement',
+    },
+  },
+  dtdc: {
+    environment: process.env.DTDC_ENVIRONMENT || 'staging',
+    customerCode: process.env.DTDC_CUSTOMER_CODE || '',
+    apiKey: process.env.DTDC_API_KEY || '',
+    baseUrls: {
+      staging: 'https://blktrackstagingapi.dtdc.com',
+      production: 'https://blktrackapi.dtdc.com',
+    },
+    endpoints: {
+      bookingApi: '/dtdc-api/rest/JSONCourier/BookAirWayBill/PostXML',
+      labelApi: '/dtdc-api/rest/JSONBookLabel/GetLabel/CustomerID',
+      trackApi: '/dtdc-api/shipment/rest/JSONWhatsappTrack/trackorder',
+      cancelApi: '/dtdc-api/rest/JSONCourier/DRSCancelWaybill',
+      pincodeApi: '/dtdc-api/rest/JSONServiceablePincode/CheckPincode',
+    },
+    defaults: {
+      dimensionUnit: 'cm',
+      weightUnit: 'kg',
+      trackingValidityDays: 90,
     },
   },
 });

@@ -202,7 +202,25 @@ export class CategoryResolver {
   @ResolveField(() => CategorySeo, { name: 'seo', nullable: true })
   @Public()
   async getSeo(@Parent() category: Category): Promise<CategorySeo | null> {
-    return this.categorySeoService.findByCategoryId(category._id);
+    if (!category.seo || !category.seo.metaTitle) {
+      const seoFromCollection = await this.categorySeoService.findByCategoryId(category._id);
+      if (seoFromCollection) return seoFromCollection;
+      return null;
+    }
+    
+    return {
+      _id: category._id,
+      categoryId: category._id,
+      metaTitle: category.seo.metaTitle,
+      metaDescription: category.seo.metaDescription,
+      metaKeywords: category.seo.metaKeywords,
+      canonicalUrl: category.seo.canonicalUrl,
+      ogTitle: category.seo.ogTitle,
+      ogDescription: category.seo.ogDescription,
+      ogImage: category.seo.ogImage,
+      createdAt: category.createdAt,
+      updatedAt: category.updatedAt,
+    } as CategorySeo;
   }
 
   @Mutation(() => CategorySeo, { name: 'updateCategorySeo' })

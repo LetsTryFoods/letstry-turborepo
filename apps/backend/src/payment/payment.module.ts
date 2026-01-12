@@ -13,6 +13,7 @@ import {
 import { Identity, IdentitySchema } from '../common/schemas/identity.schema';
 import { PaymentService } from './services/core/payment.service';
 import { PaymentResolver } from './payment.resolver';
+import { AdminPaymentResolver } from './admin-payment.resolver';
 import { PaymentController } from './payment.controller';
 import { PaymentExecutorService } from './services/domain/payment-executor.service';
 import { ZaakpayChecksumService } from './gateways/zaakpay/zaakpay-checksum.service';
@@ -24,6 +25,7 @@ import { ZaakpaySettlementService } from './gateways/zaakpay/zaakpay-settlement.
 import { ZaakpayGatewayService } from './gateways/zaakpay/zaakpay-gateway.service';
 import { LedgerService } from './services/core/ledger.service';
 import { RefundService } from './services/core/refund.service';
+import { AdminPaymentService } from './services/core/admin-payment.service';
 import { PaymentLoggerService } from '../common/services/payment-logger.service';
 import { PaymentGatewayFactory } from './gateways/payment-gateway.factory';
 import { CartModule } from '../cart/cart.module';
@@ -49,6 +51,8 @@ import { OrderModule } from '../order/order.module';
   providers: [
     PaymentService,
     PaymentResolver,
+    AdminPaymentResolver,
+    AdminPaymentService,
     PaymentExecutorService,
     ZaakpayChecksumService,
     ZaakpayHttpService,

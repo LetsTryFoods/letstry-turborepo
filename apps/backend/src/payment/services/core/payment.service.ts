@@ -30,8 +30,37 @@ export class PaymentService {
     private readonly cartService: CartService,
   ) { }
 
-  async initiatePayment(identityId: string, input: InitiatePaymentInput) {
+  async initiatePayment(identityId: string, input: InitiatePaymentInput, idempotencyKey?: string) {
     try {
+      if (idempotencyKey) {
+        const existingOrder = await this.paymentOrderModel.findOne({
+          identityId,
+          idempotencyKey,
+          idempotencyKeyExpiresAt: { $gt: new Date() },
+        });
+
+        if (existingOrder) {
+          const cart = await this.cartService.getCartById(input.cartId);
+          
+          if (!cart) {
+            throw new Error('Cart not found');
+          }
+          
+          const currentAmount = cart.totalsSummary.grandTotal.toString();
+
+          if (existingOrder.amount !== currentAmount) {
+            throw new BadRequestException(
+              'Cart has changed. Please generate a new idempotency key.',
+            );
+          }
+
+          return {
+            paymentOrderId: existingOrder.paymentOrderId,
+            redirectUrl: this.getReturnUrl(),
+          };
+        }
+      }
+
       const cart = await this.cartService.getCartById(input.cartId);
 
       if (!cart) {
@@ -57,6 +86,7 @@ export class PaymentService {
         identityId,
         amount,
         currency,
+        idempotencyKey,
       });
 
       const paymentData =
@@ -207,6 +237,7 @@ export class PaymentService {
     identityId: string;
     amount: string;
     currency: string;
+    idempotencyKey?: string;
   }) {
     return this.paymentOrderModel.create({
       paymentOrderId: this.generatePaymentOrderId(),
@@ -216,6 +247,10 @@ export class PaymentService {
       currency: params.currency,
       paymentOrderStatus: PaymentStatus.NOT_STARTED,
       retryCount: 0,
+      idempotencyKey: params.idempotencyKey,
+      idempotencyKeyExpiresAt: params.idempotencyKey
+        ? new Date(Date.now() + 30 * 60 * 1000)
+        : undefined,
     });
   }
 

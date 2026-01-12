@@ -66,7 +66,25 @@ export class PolicyResolver {
   @ResolveField(() => PolicySeo, { name: 'seo', nullable: true })
   @Public()
   async getSeo(@Parent() policy: Policy): Promise<PolicySeo | null> {
-    return this.policySeoService.findByPolicyId(policy._id);
+    if (!policy.seo || !policy.seo.metaTitle) {
+      const seoFromCollection = await this.policySeoService.findByPolicyId(policy._id);
+      if (seoFromCollection) return seoFromCollection;
+      return null;
+    }
+    
+    return {
+      _id: policy._id,
+      policyId: policy._id,
+      metaTitle: policy.seo.metaTitle,
+      metaDescription: policy.seo.metaDescription,
+      metaKeywords: policy.seo.metaKeywords,
+      canonicalUrl: policy.seo.canonicalUrl,
+      ogTitle: policy.seo.ogTitle,
+      ogDescription: policy.seo.ogDescription,
+      ogImage: policy.seo.ogImage,
+      createdAt: policy.createdAt,
+      updatedAt: policy.updatedAt,
+    } as PolicySeo;
   }
 
   @Mutation(() => PolicySeo, { name: 'updatePolicySeo' })

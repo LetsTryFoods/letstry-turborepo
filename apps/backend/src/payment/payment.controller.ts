@@ -58,7 +58,7 @@ export class PaymentController {
       if (responseCode === '100') {
         await this.paymentExecutorService.handlePaymentSuccess({
           paymentOrderId,
-          zaakpayTxnId: txnData.txnId,
+          pspTxnId: txnData.txnId,
           paymentMethod: this.mapPaymentMethod(txnData.paymentMethod),
           bankTxnId: txnData.bankTransactionId,
           cardType: txnData.cardType,

@@ -108,7 +108,7 @@ export class RefundService {
 
         this.paymentLogger.logRefundSuccess({
           refundId,
-          zaakpayRefundId: merchantRefId,
+          pspRefundId: merchantRefId,
           amount: params.refundAmount,
         });
       } else {
@@ -179,7 +179,7 @@ export class RefundService {
     try {
       const zaakpayStatus = await this.zaakpayGateway.checkTransactionStatus({
         orderId: paymentOrder.paymentOrderId,
-        merchantRefId: refund.zaakpayRefundId,
+        merchantRefId: refund.pspRefundId,
       });
 
       if (zaakpayStatus.success && zaakpayStatus.orders?.length > 0) {
@@ -187,7 +187,7 @@ export class RefundService {
 
         if (order.refundDetails && order.refundDetails.length > 0) {
           const refundDetail = order.refundDetails.find(
-            (r: any) => r.merchantRefId === refund.zaakpayRefundId,
+            (r: any) => r.merchantRefId === refund.pspRefundId,
           );
 
           if (refundDetail) {

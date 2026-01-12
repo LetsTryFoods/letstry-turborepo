@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Loader2, Lock } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import { graphqlClient } from '@/lib/graphql/client-factory';
 import { INITIATE_PAYMENT } from '@/lib/queries/payment';
+import { getOrCreateIdempotencyKey, clearIdempotencyKey } from '@/lib/utils/idempotency';
 
 interface ExpressCheckoutProps {
     cartId: string;
@@ -21,19 +22,34 @@ export const ExpressCheckout: React.FC<ExpressCheckoutProps> = ({
 }) => {
     const { mutate: initiatePayment, isPending, error } = useMutation({
         mutationFn: async () => {
+            const idempotencyKey = getOrCreateIdempotencyKey();
             const response = await graphqlClient.request(INITIATE_PAYMENT, {
                 input: {
                     cartId,
+                    idempotencyKey,
                 },
             });
             return response.initiatePayment;
         },
         onSuccess: (data) => {
+            clearIdempotencyKey();
             if (data.redirectUrl) {
                 window.location.href = data.redirectUrl;
             }
         },
+        onError: (error: any) => {
+            const errorMessage = error.response?.errors?.[0]?.message;
+            if (errorMessage?.includes('Cart has changed')) {
+                clearIdempotencyKey();
+            }
+        },
     });
+
+    useEffect(() => {
+        return () => {
+            clearIdempotencyKey();
+        };
+    }, [amount]);
 
     const handlePayment = () => {
         initiatePayment();

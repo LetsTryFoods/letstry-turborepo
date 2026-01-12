@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, Context } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { PaymentService } from './services/core/payment.service';
 import {
@@ -25,11 +25,16 @@ export class PaymentResolver {
   async initiatePayment(
     @Args('input') input: InitiatePaymentInput,
     @OptionalUser() user: any,
+    @Context() context: any,
   ): Promise<InitiatePaymentResponse> {
     if (!user?._id) {
       throw new Error('User identification required');
     }
-    return this.paymentService.initiatePayment(user._id, input);
+
+    const idempotencyKey =
+      input.idempotencyKey || context.req?.cookies?.paymentIdempotencyKey;
+
+    return this.paymentService.initiatePayment(user._id, input, idempotencyKey);
   }
 
   @Query(() => PaymentStatusResponse)

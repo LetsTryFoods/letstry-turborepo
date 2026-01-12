@@ -1,5 +1,5 @@
 import { useQuery } from "@apollo/client/react";
-import { GET_ALL_CUSTOMERS } from "../graphql/customers";
+import { GET_ALL_CUSTOMERS, GET_CUSTOMER_DETAILS } from "../graphql/customers";
 
 export type CustomerStatus =
   | "GUEST"
@@ -145,6 +145,24 @@ export const useCustomers = (input?: GetCustomersInput) => {
 
   return {
     data: { customers, meta, summary },
+    loading,
+    error,
+    refetch,
+  };
+};
+
+export const useCustomerDetails = (id: string) => {
+  const { data, loading, error, refetch } = useQuery<{ getCustomerDetails: any }>(
+    GET_CUSTOMER_DETAILS,
+    {
+      variables: { id },
+      skip: !id,
+      fetchPolicy: "network-only",
+    }
+  );
+
+  return {
+    customer: data?.getCustomerDetails,
     loading,
     error,
     refetch,

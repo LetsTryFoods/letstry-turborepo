@@ -25,6 +25,7 @@ import { NewsletterModule } from './newsletter/newsletter.module';
 import { OrderModule } from './order/order.module';
 import { PackingModule } from './packing/packing.module';
 import { BoxSizeModule } from './box-size/box-size.module';
+import { ShipmentModule } from './shipment/shipment.module';
 import { BullModule } from '@nestjs/bullmq';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BullBoardModule } from './bull-board/bull-board.module';
@@ -63,6 +64,7 @@ import { BullBoardModule } from './bull-board/bull-board.module';
     OrderModule,
     PackingModule,
     BoxSizeModule,
+    ShipmentModule,
     AuthenticationModule,
     AppCacheModule,
   ],

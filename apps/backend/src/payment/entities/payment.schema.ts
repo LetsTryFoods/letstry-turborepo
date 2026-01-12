@@ -12,6 +12,7 @@ export enum PaymentStatus {
 }
 
 export enum PaymentMethod {
+  CARD = 'CARD',
   CREDIT_CARD = 'CREDIT_CARD',
   DEBIT_CARD = 'DEBIT_CARD',
   NET_BANKING = 'NET_BANKING',
@@ -73,13 +74,13 @@ export class PaymentOrder extends Document {
   paymentMethod: PaymentMethod;
 
   @Prop()
-  zaakpayTxnId: string;
+  pspTxnId: string;
 
   @Prop()
-  zaakpayOrderId: string;
+  pspOrderId: string;
 
   @Prop()
-  zaakpayToken: string;
+  pspToken: string;
 
   @Prop()
   bankTxnId: string;
@@ -89,6 +90,39 @@ export class PaymentOrder extends Document {
 
   @Prop()
   cardNumber: string;
+
+  @Prop()
+  paymentMode: string;
+
+  @Prop()
+  cardScheme: string;
+
+  @Prop()
+  cardToken: string;
+
+  @Prop()
+  bankName: string;
+
+  @Prop()
+  bankId: string;
+
+  @Prop()
+  paymentMethodId: string;
+
+  @Prop()
+  cardHashId: string;
+
+  @Prop()
+  productDescription: string;
+
+  @Prop({ type: Date })
+  pspTxnTime: Date;
+
+  @Prop()
+  idempotencyKey: string;
+
+  @Prop({ type: Date })
+  idempotencyKeyExpiresAt: Date;
 
   @Prop({ default: false })
   ledgerUpdated: boolean;
@@ -174,7 +208,7 @@ export class PaymentRefund extends Document {
   refundStatus: PaymentStatus;
 
   @Prop()
-  zaakpayRefundId: string;
+  pspRefundId: string;
 
   @Prop()
   pspResponseCode: string;

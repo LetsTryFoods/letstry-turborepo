@@ -471,16 +471,31 @@ type Guest {
 type PaymentOrderType {
   _id: String!
   paymentOrderId: String!
-  paymentEventId: String!
-  identityId: String!
+  paymentEventId: String
+  identityId: String
   orderId: String
   amount: String!
   currency: String!
   paymentOrderStatus: PaymentStatus!
   paymentMethod: PaymentMethod
-  zaakpayTxnId: String
-  zaakpayOrderId: String
-  zaakpayToken: String
+  pspTxnId: String
+  pspOrderId: String
+  pspToken: String
+  bankTxnId: String
+  cardType: String
+  cardNumber: String
+  paymentMode: String
+  cardScheme: String
+  cardToken: String
+  bankName: String
+  bankId: String
+  paymentMethodId: String
+  cardHashId: String
+  productDescription: String
+  pspTxnTime: DateTime
+  ledgerUpdated: Boolean
+  retryCount: Float
+  pspResponseCode: String
   pspResponseMessage: String
   failureReason: String
   executedAt: DateTime
@@ -500,11 +515,28 @@ enum PaymentStatus {
 }
 
 enum PaymentMethod {
+  CARD
   CREDIT_CARD
   DEBIT_CARD
   NET_BANKING
   UPI
   WALLET
+}
+
+type PaymentRefundType {
+  _id: String!
+  refundId: String!
+  paymentOrderId: String!
+  refundAmount: String!
+  currency: String!
+  reason: String
+  refundStatus: PaymentStatus!
+  pspRefundId: String
+  pspResponseCode: String
+  pspResponseMessage: String
+  processedAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
 
 type InitiatePaymentResponse {
@@ -522,6 +554,83 @@ type PaymentStatusResponse {
 type RefundResponse {
   refundId: String!
   status: PaymentStatus!
+  message: String
+}
+
+type PaymentListItemType {
+  _id: String!
+  paymentOrderId: String!
+  orderId: String
+  identityId: String
+  amount: String!
+  currency: String!
+  paymentOrderStatus: String!
+  paymentMethod: String
+  createdAt: DateTime!
+  completedAt: DateTime
+  pspTxnId: String
+}
+
+type PaymentsSummaryType {
+  totalPayments: Int!
+  totalAmount: String!
+  totalRefunded: String!
+  successCount: Float!
+  failedCount: Float!
+  pendingCount: Float!
+}
+
+type PaymentsListResponse {
+  payments: [PaymentListItemType!]!
+  total: Int!
+  page: Int!
+  limit: Int!
+  totalPages: Int!
+  summary: PaymentsSummaryType!
+}
+
+type PaymentDetailType {
+  _id: String!
+  paymentOrderId: String!
+  paymentEventId: String
+  identityId: String
+  orderId: String
+  amount: String!
+  currency: String!
+  paymentOrderStatus: PaymentStatus!
+  paymentMethod: PaymentMethod
+  pspTxnId: String
+  pspOrderId: String
+  pspToken: String
+  bankTxnId: String
+  cardType: String
+  cardNumber: String
+  paymentMode: String
+  cardScheme: String
+  cardToken: String
+  bankName: String
+  bankId: String
+  paymentMethodId: String
+  cardHashId: String
+  productDescription: String
+  pspTxnTime: DateTime
+  ledgerUpdated: Boolean
+  retryCount: Float
+  pspResponseCode: String
+  pspResponseMessage: String
+  failureReason: String
+  executedAt: DateTime
+  completedAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  refunds: [PaymentRefundType!]
+  customerEmail: String
+  customerName: String
+}
+
+type RefundInitiateResponse {
+  success: Boolean!
+  refundId: String!
   message: String
 }
 
@@ -800,6 +909,121 @@ type CreatePackerResponse {
   generatedPassword: String!
 }
 
+type ShipmentResponse {
+  id: ID!
+  orderId: String
+  dtdcAwbNumber: String!
+  dtdcReferenceNumber: String
+  customerCode: String!
+  serviceType: String!
+  loadType: String!
+  originCity: String!
+  destinationCity: String
+  weight: Float!
+  declaredValue: Float
+  bookedOn: DateTime!
+  expectedDeliveryDate: DateTime
+  revisedExpectedDeliveryDate: DateTime
+  rtoNumber: String
+  currentStatusCode: String
+  currentStatusDescription: String
+  currentLocation: String
+  isDelivered: Boolean!
+  deliveredAt: DateTime
+  isRto: Boolean!
+  isCancelled: Boolean!
+  cancelledAt: DateTime
+  labelUrl: String
+  codAmount: Float
+  codCollectionMode: String
+  dimensions: JSON
+  originDetails: JSON
+  destinationDetails: JSON
+  invoiceNumber: String
+  invoiceDate: DateTime
+  ewayBill: String
+  commodityId: String
+  numPieces: Int!
+  piecesDetail: JSON
+  webhookLastReceivedAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type TrackingHistoryResponse {
+  id: ID!
+  shipmentId: String!
+  statusCode: String!
+  statusDescription: String!
+  location: String
+  manifestNumber: String
+  actionDate: DateTime!
+  actionTime: String!
+  actionDatetime: DateTime!
+  remarks: String
+  latitude: Float
+  longitude: Float
+  scdOtp: Boolean
+  ndcOtp: Boolean
+  createdAt: DateTime!
+}
+
+type ShipmentWithTrackingResponse {
+  id: ID!
+  orderId: String
+  dtdcAwbNumber: String!
+  dtdcReferenceNumber: String
+  customerCode: String!
+  serviceType: String!
+  loadType: String!
+  originCity: String!
+  destinationCity: String
+  weight: Float!
+  declaredValue: Float
+  bookedOn: DateTime!
+  expectedDeliveryDate: DateTime
+  revisedExpectedDeliveryDate: DateTime
+  rtoNumber: String
+  currentStatusCode: String
+  currentStatusDescription: String
+  currentLocation: String
+  isDelivered: Boolean!
+  deliveredAt: DateTime
+  isRto: Boolean!
+  isCancelled: Boolean!
+  cancelledAt: DateTime
+  labelUrl: String
+  codAmount: Float
+  codCollectionMode: String
+  dimensions: JSON
+  originDetails: JSON
+  destinationDetails: JSON
+  invoiceNumber: String
+  invoiceDate: DateTime
+  ewayBill: String
+  commodityId: String
+  numPieces: Int!
+  piecesDetail: JSON
+  webhookLastReceivedAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  trackingHistory: [TrackingHistoryResponse!]!
+}
+
+type CreateShipmentResponse {
+  success: Boolean!
+  shipment: ShipmentResponse!
+  awbNumber: String!
+  labelUrl: String
+  message: String
+}
+
+type ShipmentListResponse {
+  success: Boolean!
+  shipments: [ShipmentResponse!]!
+  total: Int!
+}
+
 type NewsletterSubscription {
   _id: ID!
   email: String!
@@ -861,6 +1085,10 @@ type Query {
   getPaymentStatus(paymentOrderId: String!): PaymentStatusResponse!
   myPayments: [PaymentOrderType!]!
   getPaymentOrderById(paymentOrderId: String!): PaymentOrderType!
+  getAdminPaymentsList(input: GetPaymentsListInput!): PaymentsListResponse!
+  getAdminPaymentDetail(paymentOrderId: String!): PaymentDetailType!
+  getAdminPaymentsByIdentity(identityId: String!): [PaymentListItemType!]!
+  getAdminPaymentsByOrder(orderId: String!): [PaymentListItemType!]!
   getMyOrders(input: GetMyOrdersInput!): PaginatedOrdersResponse!
   getAllOrders(input: GetAllOrdersInput!): AdminOrdersResponse!
   getOrderById(orderId: String!): OrderType!
@@ -873,6 +1101,10 @@ type Query {
   getPackerStats(packerId: String!, startDate: DateTime!, endDate: DateTime!): PackerStats!
   getAllBoxSizes: [BoxSize!]!
   getActiveBoxSizes: [BoxSize!]!
+  getShipmentByAwb(awbNumber: String!): ShipmentResponse
+  getShipmentById(id: ID!): ShipmentResponse
+  listShipments(filters: ShipmentFiltersInput): ShipmentListResponse!
+  getShipmentWithTracking(awbNumber: String!): ShipmentWithTrackingResponse!
   getAllNewsletterSubscriptions(isActive: Boolean): [NewsletterSubscription!]!
   getNewsletterSubscriptionCount(isActive: Boolean): Float!
 }
@@ -933,6 +1165,24 @@ input PlaceDetailsInput {
   sessionToken: String
 }
 
+input GetPaymentsListInput {
+  page: Int! = 1
+  limit: Int! = 50
+  filters: PaymentFiltersInput
+}
+
+input PaymentFiltersInput {
+  statuses: [PaymentStatus!]
+  paymentMethods: [PaymentMethod!]
+  startDate: String
+  endDate: String
+  minAmount: String
+  maxAmount: String
+  identityId: String
+  orderId: String
+  searchQuery: String
+}
+
 input GetMyOrdersInput {
   page: Float
   limit: Float
@@ -946,6 +1196,18 @@ input GetAllOrdersInput {
   startDate: DateTime
   endDate: DateTime
   userSearch: String
+}
+
+input ShipmentFiltersInput {
+  orderId: String
+  customerCode: String
+  statusCode: String
+  isDelivered: Boolean
+  isCancelled: Boolean
+  bookedFrom: String
+  bookedTo: String
+  awbNumber: String
+  referenceNumber: String
 }
 
 type Mutation {
@@ -995,6 +1257,7 @@ type Mutation {
   createOrUpdateCharges(input: CreateChargesInput!): Charges!
   initiatePayment(input: InitiatePaymentInput!): InitiatePaymentResponse!
   processRefund(input: ProcessRefundInput!): RefundResponse!
+  initiateAdminRefund(input: InitiateAdminRefundInput!): RefundInitiateResponse!
   cancelOrder(input: CancelOrderInput!): OrderType!
   updateOrderStatus(input: UpdateOrderStatusInput!): OrderType!
   startPacking(packingOrderId: String!): PackingOrder!
@@ -1010,6 +1273,8 @@ type Mutation {
   createBoxSize(input: CreateBoxSizeInput!): BoxSize!
   updateBoxSize(boxId: String!, input: UpdateBoxSizeInput!): BoxSize!
   deleteBoxSize(boxId: String!): Boolean!
+  createShipment(input: CreateShipmentInput!): CreateShipmentResponse!
+  cancelShipment(input: CancelShipmentInput!): ShipmentResponse!
   subscribeNewsletter(input: SubscribeNewsletterInput!): SubscribeNewsletterResponse!
   unsubscribeNewsletter(email: String!): SubscribeNewsletterResponse!
   sendOtp(phoneNumber: String!): String!
@@ -1322,9 +1587,16 @@ input CreateChargesInput {
 
 input InitiatePaymentInput {
   cartId: String!
+  idempotencyKey: String
 }
 
 input ProcessRefundInput {
+  paymentOrderId: String!
+  refundAmount: String!
+  reason: String
+}
+
+input InitiateAdminRefundInput {
   paymentOrderId: String!
   refundAmount: String!
   reason: String
@@ -1416,6 +1688,58 @@ input UpdateBoxSizeInput {
   maxWeight: Float
   cost: Float
   isActive: Boolean
+}
+
+input CreateShipmentInput {
+  orderId: String
+  serviceType: String!
+  loadType: String! = "NON-DOCUMENT"
+  weight: Float!
+  declaredValue: Float!
+  dimensions: DimensionInput!
+  originDetails: AddressInput!
+  destinationDetails: AddressInput!
+  codAmount: Float
+  codCollectionMode: String
+  invoiceNumber: String
+  invoiceDate: String
+  ewayBill: String
+  commodityId: String!
+  description: String
+  numPieces: Int! = 1
+  piecesDetail: [PieceDetailInput!]
+}
+
+input DimensionInput {
+  length: Float!
+  width: Float!
+  height: Float!
+}
+
+input AddressInput {
+  name: String!
+  phone: String!
+  alternatePhone: String
+  addressLine1: String!
+  addressLine2: String
+  pincode: String!
+  city: String!
+  state: String!
+  latitude: String
+  longitude: String
+}
+
+input PieceDetailInput {
+  description: String!
+  declaredValue: Float!
+  weight: Float!
+  height: Float!
+  length: Float!
+  width: Float!
+}
+
+input CancelShipmentInput {
+  awbNumber: String!
 }
 
 input SubscribeNewsletterInput {

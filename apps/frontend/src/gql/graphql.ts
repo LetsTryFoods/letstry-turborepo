@@ -55,6 +55,19 @@ export type Address = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
+export type AddressInput = {
+  addressLine1: Scalars['String']['input'];
+  addressLine2?: InputMaybe<Scalars['String']['input']>;
+  alternatePhone?: InputMaybe<Scalars['String']['input']>;
+  city: Scalars['String']['input'];
+  latitude?: InputMaybe<Scalars['String']['input']>;
+  longitude?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  phone: Scalars['String']['input'];
+  pincode: Scalars['String']['input'];
+  state: Scalars['String']['input'];
+};
+
 export type AdminOrdersResponse = {
   __typename?: 'AdminOrdersResponse';
   meta: PaginationMeta;
@@ -147,6 +160,10 @@ export type BoxSize = {
 export type CancelOrderInput = {
   orderId: Scalars['String']['input'];
   reason?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CancelShipmentInput = {
+  awbNumber: Scalars['String']['input'];
 };
 
 export type Cart = {
@@ -418,6 +435,35 @@ export type CreateProductVariantInput = {
   weightUnit?: Scalars['String']['input'];
 };
 
+export type CreateShipmentInput = {
+  codAmount?: InputMaybe<Scalars['Float']['input']>;
+  codCollectionMode?: InputMaybe<Scalars['String']['input']>;
+  commodityId: Scalars['String']['input'];
+  declaredValue: Scalars['Float']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
+  destinationDetails: AddressInput;
+  dimensions: DimensionInput;
+  ewayBill?: InputMaybe<Scalars['String']['input']>;
+  invoiceDate?: InputMaybe<Scalars['String']['input']>;
+  invoiceNumber?: InputMaybe<Scalars['String']['input']>;
+  loadType?: Scalars['String']['input'];
+  numPieces?: Scalars['Int']['input'];
+  orderId?: InputMaybe<Scalars['String']['input']>;
+  originDetails: AddressInput;
+  piecesDetail?: InputMaybe<Array<PieceDetailInput>>;
+  serviceType: Scalars['String']['input'];
+  weight: Scalars['Float']['input'];
+};
+
+export type CreateShipmentResponse = {
+  __typename?: 'CreateShipmentResponse';
+  awbNumber: Scalars['String']['output'];
+  labelUrl?: Maybe<Scalars['String']['output']>;
+  message?: Maybe<Scalars['String']['output']>;
+  shipment: ShipmentResponse;
+  success: Scalars['Boolean']['output'];
+};
+
 export type CreateUserInput = {
   email?: InputMaybe<Scalars['String']['input']>;
   firebaseUid: Scalars['String']['input'];
@@ -500,6 +546,12 @@ export type DashboardStats = {
   totalCategories: Scalars['Float']['output'];
   totalProducts: Scalars['Float']['output'];
   totalUsers: Scalars['Float']['output'];
+};
+
+export type DimensionInput = {
+  height: Scalars['Float']['input'];
+  length: Scalars['Float']['input'];
+  width: Scalars['Float']['input'];
 };
 
 export type DimensionsInput = {
@@ -603,6 +655,12 @@ export type GetMyOrdersInput = {
   status?: InputMaybe<OrderStatus>;
 };
 
+export type GetPaymentsListInput = {
+  filters?: InputMaybe<PaymentFiltersInput>;
+  limit?: Scalars['Int']['input'];
+  page?: Scalars['Int']['input'];
+};
+
 export type GoogleMapsAddressOutput = {
   __typename?: 'GoogleMapsAddressOutput';
   country?: Maybe<Scalars['String']['output']>;
@@ -637,8 +695,15 @@ export enum IdentityStatus {
   Verified = 'VERIFIED'
 }
 
+export type InitiateAdminRefundInput = {
+  paymentOrderId: Scalars['String']['input'];
+  reason?: InputMaybe<Scalars['String']['input']>;
+  refundAmount: Scalars['String']['input'];
+};
+
 export type InitiatePaymentInput = {
   cartId: Scalars['String']['input'];
+  idempotencyKey?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type InitiatePaymentResponse = {
@@ -668,6 +733,7 @@ export type Mutation = {
   archiveProduct: Product;
   batchScanItems: BatchScanResult;
   cancelOrder: OrderType;
+  cancelShipment: ShipmentResponse;
   clearCart: Cart;
   completePacking: PackingOrder;
   createAddress: Address;
@@ -681,6 +747,7 @@ export type Mutation = {
   createPacker: CreatePackerResponse;
   createPolicy: Policy;
   createProduct: Product;
+  createShipment: CreateShipmentResponse;
   deleteAddress: Address;
   deleteBanner: Banner;
   deleteBoxSize: Scalars['Boolean']['output'];
@@ -690,6 +757,7 @@ export type Mutation = {
   deletePolicySeo: Scalars['Boolean']['output'];
   deleteProduct: Product;
   flagPackingError: ScanLog;
+  initiateAdminRefund: RefundInitiateResponse;
   initiatePayment: InitiatePaymentResponse;
   logout: Scalars['String']['output'];
   packerLogin: PackerLoginResponse;
@@ -775,6 +843,11 @@ export type MutationCancelOrderArgs = {
 };
 
 
+export type MutationCancelShipmentArgs = {
+  input: CancelShipmentInput;
+};
+
+
 export type MutationCompletePackingArgs = {
   packingOrderId: Scalars['String']['input'];
 };
@@ -836,6 +909,11 @@ export type MutationCreateProductArgs = {
 };
 
 
+export type MutationCreateShipmentArgs = {
+  input: CreateShipmentInput;
+};
+
+
 export type MutationDeleteAddressArgs = {
   id: Scalars['ID']['input'];
 };
@@ -878,6 +956,11 @@ export type MutationDeleteProductArgs = {
 
 export type MutationFlagPackingErrorArgs = {
   input: FlagErrorInput;
+};
+
+
+export type MutationInitiateAdminRefundArgs = {
+  input: InitiateAdminRefundInput;
 };
 
 
@@ -1324,7 +1407,75 @@ export type PaginationMeta = {
   totalPages: Scalars['Int']['output'];
 };
 
+export type PaymentDetailType = {
+  __typename?: 'PaymentDetailType';
+  _id: Scalars['String']['output'];
+  amount: Scalars['String']['output'];
+  bankId?: Maybe<Scalars['String']['output']>;
+  bankName?: Maybe<Scalars['String']['output']>;
+  bankTxnId?: Maybe<Scalars['String']['output']>;
+  cardHashId?: Maybe<Scalars['String']['output']>;
+  cardNumber?: Maybe<Scalars['String']['output']>;
+  cardScheme?: Maybe<Scalars['String']['output']>;
+  cardToken?: Maybe<Scalars['String']['output']>;
+  cardType?: Maybe<Scalars['String']['output']>;
+  completedAt?: Maybe<Scalars['DateTime']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  currency: Scalars['String']['output'];
+  customerEmail?: Maybe<Scalars['String']['output']>;
+  customerName?: Maybe<Scalars['String']['output']>;
+  executedAt?: Maybe<Scalars['DateTime']['output']>;
+  failureReason?: Maybe<Scalars['String']['output']>;
+  identityId?: Maybe<Scalars['String']['output']>;
+  ledgerUpdated?: Maybe<Scalars['Boolean']['output']>;
+  orderId?: Maybe<Scalars['String']['output']>;
+  paymentEventId?: Maybe<Scalars['String']['output']>;
+  paymentMethod?: Maybe<PaymentMethod>;
+  paymentMethodId?: Maybe<Scalars['String']['output']>;
+  paymentMode?: Maybe<Scalars['String']['output']>;
+  paymentOrderId: Scalars['String']['output'];
+  paymentOrderStatus: PaymentStatus;
+  productDescription?: Maybe<Scalars['String']['output']>;
+  pspOrderId?: Maybe<Scalars['String']['output']>;
+  pspResponseCode?: Maybe<Scalars['String']['output']>;
+  pspResponseMessage?: Maybe<Scalars['String']['output']>;
+  pspToken?: Maybe<Scalars['String']['output']>;
+  pspTxnId?: Maybe<Scalars['String']['output']>;
+  pspTxnTime?: Maybe<Scalars['DateTime']['output']>;
+  refunds?: Maybe<Array<PaymentRefundType>>;
+  retryCount?: Maybe<Scalars['Float']['output']>;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type PaymentFiltersInput = {
+  endDate?: InputMaybe<Scalars['String']['input']>;
+  identityId?: InputMaybe<Scalars['String']['input']>;
+  maxAmount?: InputMaybe<Scalars['String']['input']>;
+  minAmount?: InputMaybe<Scalars['String']['input']>;
+  orderId?: InputMaybe<Scalars['String']['input']>;
+  paymentMethods?: InputMaybe<Array<PaymentMethod>>;
+  searchQuery?: InputMaybe<Scalars['String']['input']>;
+  startDate?: InputMaybe<Scalars['String']['input']>;
+  statuses?: InputMaybe<Array<PaymentStatus>>;
+};
+
+export type PaymentListItemType = {
+  __typename?: 'PaymentListItemType';
+  _id: Scalars['String']['output'];
+  amount: Scalars['String']['output'];
+  completedAt?: Maybe<Scalars['DateTime']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  currency: Scalars['String']['output'];
+  identityId?: Maybe<Scalars['String']['output']>;
+  orderId?: Maybe<Scalars['String']['output']>;
+  paymentMethod?: Maybe<Scalars['String']['output']>;
+  paymentOrderId: Scalars['String']['output'];
+  paymentOrderStatus: Scalars['String']['output'];
+  pspTxnId?: Maybe<Scalars['String']['output']>;
+};
+
 export enum PaymentMethod {
+  Card = 'CARD',
   CreditCard = 'CREDIT_CARD',
   DebitCard = 'DEBIT_CARD',
   NetBanking = 'NET_BANKING',
@@ -1336,22 +1487,54 @@ export type PaymentOrderType = {
   __typename?: 'PaymentOrderType';
   _id: Scalars['String']['output'];
   amount: Scalars['String']['output'];
+  bankId?: Maybe<Scalars['String']['output']>;
+  bankName?: Maybe<Scalars['String']['output']>;
+  bankTxnId?: Maybe<Scalars['String']['output']>;
+  cardHashId?: Maybe<Scalars['String']['output']>;
+  cardNumber?: Maybe<Scalars['String']['output']>;
+  cardScheme?: Maybe<Scalars['String']['output']>;
+  cardToken?: Maybe<Scalars['String']['output']>;
+  cardType?: Maybe<Scalars['String']['output']>;
   completedAt?: Maybe<Scalars['DateTime']['output']>;
   createdAt: Scalars['DateTime']['output'];
   currency: Scalars['String']['output'];
   executedAt?: Maybe<Scalars['DateTime']['output']>;
   failureReason?: Maybe<Scalars['String']['output']>;
-  identityId: Scalars['String']['output'];
+  identityId?: Maybe<Scalars['String']['output']>;
+  ledgerUpdated?: Maybe<Scalars['Boolean']['output']>;
   orderId?: Maybe<Scalars['String']['output']>;
-  paymentEventId: Scalars['String']['output'];
+  paymentEventId?: Maybe<Scalars['String']['output']>;
   paymentMethod?: Maybe<PaymentMethod>;
+  paymentMethodId?: Maybe<Scalars['String']['output']>;
+  paymentMode?: Maybe<Scalars['String']['output']>;
   paymentOrderId: Scalars['String']['output'];
   paymentOrderStatus: PaymentStatus;
+  productDescription?: Maybe<Scalars['String']['output']>;
+  pspOrderId?: Maybe<Scalars['String']['output']>;
+  pspResponseCode?: Maybe<Scalars['String']['output']>;
   pspResponseMessage?: Maybe<Scalars['String']['output']>;
+  pspToken?: Maybe<Scalars['String']['output']>;
+  pspTxnId?: Maybe<Scalars['String']['output']>;
+  pspTxnTime?: Maybe<Scalars['DateTime']['output']>;
+  retryCount?: Maybe<Scalars['Float']['output']>;
   updatedAt: Scalars['DateTime']['output'];
-  zaakpayOrderId?: Maybe<Scalars['String']['output']>;
-  zaakpayToken?: Maybe<Scalars['String']['output']>;
-  zaakpayTxnId?: Maybe<Scalars['String']['output']>;
+};
+
+export type PaymentRefundType = {
+  __typename?: 'PaymentRefundType';
+  _id: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  currency: Scalars['String']['output'];
+  paymentOrderId: Scalars['String']['output'];
+  processedAt?: Maybe<Scalars['DateTime']['output']>;
+  pspRefundId?: Maybe<Scalars['String']['output']>;
+  pspResponseCode?: Maybe<Scalars['String']['output']>;
+  pspResponseMessage?: Maybe<Scalars['String']['output']>;
+  reason?: Maybe<Scalars['String']['output']>;
+  refundAmount: Scalars['String']['output'];
+  refundId: Scalars['String']['output'];
+  refundStatus: PaymentStatus;
+  updatedAt: Scalars['DateTime']['output'];
 };
 
 export enum PaymentStatus {
@@ -1372,11 +1555,40 @@ export type PaymentStatusResponse = {
   status: PaymentStatus;
 };
 
+export type PaymentsListResponse = {
+  __typename?: 'PaymentsListResponse';
+  limit: Scalars['Int']['output'];
+  page: Scalars['Int']['output'];
+  payments: Array<PaymentListItemType>;
+  summary: PaymentsSummaryType;
+  total: Scalars['Int']['output'];
+  totalPages: Scalars['Int']['output'];
+};
+
+export type PaymentsSummaryType = {
+  __typename?: 'PaymentsSummaryType';
+  failedCount: Scalars['Float']['output'];
+  pendingCount: Scalars['Float']['output'];
+  successCount: Scalars['Float']['output'];
+  totalAmount: Scalars['String']['output'];
+  totalPayments: Scalars['Int']['output'];
+  totalRefunded: Scalars['String']['output'];
+};
+
 export type PhoneCheckOutput = {
   __typename?: 'PhoneCheckOutput';
   exists: Scalars['Boolean']['output'];
   message?: Maybe<Scalars['String']['output']>;
   requiresLogin: Scalars['Boolean']['output'];
+};
+
+export type PieceDetailInput = {
+  declaredValue: Scalars['Float']['input'];
+  description: Scalars['String']['input'];
+  height: Scalars['Float']['input'];
+  length: Scalars['Float']['input'];
+  weight: Scalars['Float']['input'];
+  width: Scalars['Float']['input'];
 };
 
 export type PlaceDetailsInput = {
@@ -1570,6 +1782,10 @@ export type Query = {
   dashboardStats: DashboardStats;
   geocodeAddress: GoogleMapsAddressOutput;
   getActiveBoxSizes: Array<BoxSize>;
+  getAdminPaymentDetail: PaymentDetailType;
+  getAdminPaymentsByIdentity: Array<PaymentListItemType>;
+  getAdminPaymentsByOrder: Array<PaymentListItemType>;
+  getAdminPaymentsList: PaymentsListResponse;
   getAllBoxSizes: Array<BoxSize>;
   getAllCustomers: PaginatedCustomersResponse;
   getAllNewsletterSubscriptions: Array<NewsletterSubscription>;
@@ -1588,9 +1804,13 @@ export type Query = {
   getPaymentOrderById: PaymentOrderType;
   getPaymentStatus: PaymentStatusResponse;
   getPlaceDetails: PlaceDetailsOutput;
+  getShipmentByAwb?: Maybe<ShipmentResponse>;
+  getShipmentById?: Maybe<ShipmentResponse>;
+  getShipmentWithTracking: ShipmentWithTrackingResponse;
   guest?: Maybe<Guest>;
   guestByGuestId?: Maybe<Guest>;
   hello: Scalars['String']['output'];
+  listShipments: ShipmentListResponse;
   myAddresses: Array<Address>;
   myCart?: Maybe<Cart>;
   myPayments: Array<PaymentOrderType>;
@@ -1656,6 +1876,26 @@ export type QueryCouponArgs = {
 
 export type QueryGeocodeAddressArgs = {
   input: GeocodeAddressInput;
+};
+
+
+export type QueryGetAdminPaymentDetailArgs = {
+  paymentOrderId: Scalars['String']['input'];
+};
+
+
+export type QueryGetAdminPaymentsByIdentityArgs = {
+  identityId: Scalars['String']['input'];
+};
+
+
+export type QueryGetAdminPaymentsByOrderArgs = {
+  orderId: Scalars['String']['input'];
+};
+
+
+export type QueryGetAdminPaymentsListArgs = {
+  input: GetPaymentsListInput;
 };
 
 
@@ -1742,6 +1982,21 @@ export type QueryGetPlaceDetailsArgs = {
 };
 
 
+export type QueryGetShipmentByAwbArgs = {
+  awbNumber: Scalars['String']['input'];
+};
+
+
+export type QueryGetShipmentByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetShipmentWithTrackingArgs = {
+  awbNumber: Scalars['String']['input'];
+};
+
+
 export type QueryGuestArgs = {
   id: Scalars['ID']['input'];
 };
@@ -1749,6 +2004,11 @@ export type QueryGuestArgs = {
 
 export type QueryGuestByGuestIdArgs = {
   guestId: Scalars['String']['input'];
+};
+
+
+export type QueryListShipmentsArgs = {
+  filters?: InputMaybe<ShipmentFiltersInput>;
 };
 
 
@@ -1809,6 +2069,13 @@ export type QuerySearchPlacesArgs = {
 export type QuerySearchProductsArgs = {
   pagination?: PaginationInput;
   searchTerm: Scalars['String']['input'];
+};
+
+export type RefundInitiateResponse = {
+  __typename?: 'RefundInitiateResponse';
+  message?: Maybe<Scalars['String']['output']>;
+  refundId: Scalars['String']['output'];
+  success: Scalars['Boolean']['output'];
 };
 
 export type RefundResponse = {
@@ -1878,6 +2145,110 @@ export type SeoBaseInput = {
   ogTitle?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type ShipmentFiltersInput = {
+  awbNumber?: InputMaybe<Scalars['String']['input']>;
+  bookedFrom?: InputMaybe<Scalars['String']['input']>;
+  bookedTo?: InputMaybe<Scalars['String']['input']>;
+  customerCode?: InputMaybe<Scalars['String']['input']>;
+  isCancelled?: InputMaybe<Scalars['Boolean']['input']>;
+  isDelivered?: InputMaybe<Scalars['Boolean']['input']>;
+  orderId?: InputMaybe<Scalars['String']['input']>;
+  referenceNumber?: InputMaybe<Scalars['String']['input']>;
+  statusCode?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ShipmentListResponse = {
+  __typename?: 'ShipmentListResponse';
+  shipments: Array<ShipmentResponse>;
+  success: Scalars['Boolean']['output'];
+  total: Scalars['Int']['output'];
+};
+
+export type ShipmentResponse = {
+  __typename?: 'ShipmentResponse';
+  bookedOn: Scalars['DateTime']['output'];
+  cancelledAt?: Maybe<Scalars['DateTime']['output']>;
+  codAmount?: Maybe<Scalars['Float']['output']>;
+  codCollectionMode?: Maybe<Scalars['String']['output']>;
+  commodityId?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  currentLocation?: Maybe<Scalars['String']['output']>;
+  currentStatusCode?: Maybe<Scalars['String']['output']>;
+  currentStatusDescription?: Maybe<Scalars['String']['output']>;
+  customerCode: Scalars['String']['output'];
+  declaredValue?: Maybe<Scalars['Float']['output']>;
+  deliveredAt?: Maybe<Scalars['DateTime']['output']>;
+  destinationCity?: Maybe<Scalars['String']['output']>;
+  destinationDetails?: Maybe<Scalars['JSON']['output']>;
+  dimensions?: Maybe<Scalars['JSON']['output']>;
+  dtdcAwbNumber: Scalars['String']['output'];
+  dtdcReferenceNumber?: Maybe<Scalars['String']['output']>;
+  ewayBill?: Maybe<Scalars['String']['output']>;
+  expectedDeliveryDate?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  invoiceDate?: Maybe<Scalars['DateTime']['output']>;
+  invoiceNumber?: Maybe<Scalars['String']['output']>;
+  isCancelled: Scalars['Boolean']['output'];
+  isDelivered: Scalars['Boolean']['output'];
+  isRto: Scalars['Boolean']['output'];
+  labelUrl?: Maybe<Scalars['String']['output']>;
+  loadType: Scalars['String']['output'];
+  numPieces: Scalars['Int']['output'];
+  orderId?: Maybe<Scalars['String']['output']>;
+  originCity: Scalars['String']['output'];
+  originDetails?: Maybe<Scalars['JSON']['output']>;
+  piecesDetail?: Maybe<Scalars['JSON']['output']>;
+  revisedExpectedDeliveryDate?: Maybe<Scalars['DateTime']['output']>;
+  rtoNumber?: Maybe<Scalars['String']['output']>;
+  serviceType: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  webhookLastReceivedAt?: Maybe<Scalars['DateTime']['output']>;
+  weight: Scalars['Float']['output'];
+};
+
+export type ShipmentWithTrackingResponse = {
+  __typename?: 'ShipmentWithTrackingResponse';
+  bookedOn: Scalars['DateTime']['output'];
+  cancelledAt?: Maybe<Scalars['DateTime']['output']>;
+  codAmount?: Maybe<Scalars['Float']['output']>;
+  codCollectionMode?: Maybe<Scalars['String']['output']>;
+  commodityId?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  currentLocation?: Maybe<Scalars['String']['output']>;
+  currentStatusCode?: Maybe<Scalars['String']['output']>;
+  currentStatusDescription?: Maybe<Scalars['String']['output']>;
+  customerCode: Scalars['String']['output'];
+  declaredValue?: Maybe<Scalars['Float']['output']>;
+  deliveredAt?: Maybe<Scalars['DateTime']['output']>;
+  destinationCity?: Maybe<Scalars['String']['output']>;
+  destinationDetails?: Maybe<Scalars['JSON']['output']>;
+  dimensions?: Maybe<Scalars['JSON']['output']>;
+  dtdcAwbNumber: Scalars['String']['output'];
+  dtdcReferenceNumber?: Maybe<Scalars['String']['output']>;
+  ewayBill?: Maybe<Scalars['String']['output']>;
+  expectedDeliveryDate?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  invoiceDate?: Maybe<Scalars['DateTime']['output']>;
+  invoiceNumber?: Maybe<Scalars['String']['output']>;
+  isCancelled: Scalars['Boolean']['output'];
+  isDelivered: Scalars['Boolean']['output'];
+  isRto: Scalars['Boolean']['output'];
+  labelUrl?: Maybe<Scalars['String']['output']>;
+  loadType: Scalars['String']['output'];
+  numPieces: Scalars['Int']['output'];
+  orderId?: Maybe<Scalars['String']['output']>;
+  originCity: Scalars['String']['output'];
+  originDetails?: Maybe<Scalars['JSON']['output']>;
+  piecesDetail?: Maybe<Scalars['JSON']['output']>;
+  revisedExpectedDeliveryDate?: Maybe<Scalars['DateTime']['output']>;
+  rtoNumber?: Maybe<Scalars['String']['output']>;
+  serviceType: Scalars['String']['output'];
+  trackingHistory: Array<TrackingHistoryResponse>;
+  updatedAt: Scalars['DateTime']['output'];
+  webhookLastReceivedAt?: Maybe<Scalars['DateTime']['output']>;
+  weight: Scalars['Float']['output'];
+};
+
 export enum SortOrder {
   Asc = 'ASC',
   Desc = 'DESC'
@@ -1902,6 +2273,25 @@ export type SubscribeNewsletterResponse = {
   email?: Maybe<Scalars['String']['output']>;
   message: Scalars['String']['output'];
   success: Scalars['Boolean']['output'];
+};
+
+export type TrackingHistoryResponse = {
+  __typename?: 'TrackingHistoryResponse';
+  actionDate: Scalars['DateTime']['output'];
+  actionDatetime: Scalars['DateTime']['output'];
+  actionTime: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  latitude?: Maybe<Scalars['Float']['output']>;
+  location?: Maybe<Scalars['String']['output']>;
+  longitude?: Maybe<Scalars['Float']['output']>;
+  manifestNumber?: Maybe<Scalars['String']['output']>;
+  ndcOtp?: Maybe<Scalars['Boolean']['output']>;
+  remarks?: Maybe<Scalars['String']['output']>;
+  scdOtp?: Maybe<Scalars['Boolean']['output']>;
+  shipmentId: Scalars['String']['output'];
+  statusCode: Scalars['String']['output'];
+  statusDescription: Scalars['String']['output'];
 };
 
 export type UpdateAddressInput = {

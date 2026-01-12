@@ -5,6 +5,7 @@ import {
   IsOptional,
   IsNumber,
   Min,
+  Length,
 } from 'class-validator';
 
 @InputType()
@@ -13,6 +14,12 @@ export class InitiatePaymentInput {
   @IsNotEmpty()
   @IsString()
   cartId: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @Length(36, 36)
+  idempotencyKey?: string;
 }
 
 @InputType()

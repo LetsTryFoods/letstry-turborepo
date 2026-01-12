@@ -4,6 +4,7 @@ import { PackingOrderCrudService } from '../core/packing-order-crud.service';
 import { PackingOrderCreatorService } from './packing-order-creator.service';
 import { OrderStatus } from '../../../order/order.schema';
 import { PackingLoggerService } from './packing-logger.service';
+import { PackingStatus } from '../../../common/enums/packing-status.enum';
 
 @Injectable()
 export class UnassignedOrderProcessorService {
@@ -34,11 +35,18 @@ export class UnassignedOrderProcessorService {
         return unassignedOrders;
     }
 
+    async findPendingPackingOrders(): Promise<any[]> {
+        return this.packingOrderCrud.findAll({
+            status: PackingStatus.PENDING,
+        });
+    }
+
     async processUnassignedOrders(
         isOrderInQueue: (orderId: string) => Promise<boolean>,
         addToQueue: (orderId: string) => Promise<void>,
     ): Promise<void> {
         const unassignedOrders = await this.findUnassignedOrders();
+        const pendingPackingOrders = await this.findPendingPackingOrders();
 
         this.packingLogger.logUnassignedOrdersCheck(unassignedOrders.length);
 
@@ -58,6 +66,26 @@ export class UnassignedOrderProcessorService {
                     'Failed to process unassigned order',
                     error,
                     { orderId },
+                );
+            }
+        }
+
+        for (const packingOrder of pendingPackingOrders) {
+            const orderId = packingOrder.orderId;
+            const alreadyInQueue = await isOrderInQueue(orderId);
+
+            if (alreadyInQueue) {
+                continue;
+            }
+
+            try {
+                await addToQueue(orderId);
+                this.packingLogger.logOrderEnqueued(orderId, packingOrder.priority);
+            } catch (error) {
+                this.packingLogger.logError(
+                    'Failed to enqueue pending packing order',
+                    error,
+                    { orderId, packingOrderId: packingOrder._id.toString() },
                 );
             }
         }

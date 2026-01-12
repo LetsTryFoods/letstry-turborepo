@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
 import { Loader2, Lock } from 'lucide-react';
@@ -6,6 +6,7 @@ import { useMutation } from '@tanstack/react-query';
 import { graphqlClient } from '@/lib/graphql/client-factory';
 import { INITIATE_PAYMENT } from '@/lib/queries/payment';
 import { FormInput } from './FormInput';
+import { getOrCreateIdempotencyKey, clearIdempotencyKey } from '@/lib/utils/idempotency';
 
 interface CardPaymentProps {
   cartId: string;
@@ -39,25 +40,40 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
 
   const { mutate: initiatePayment, isPending } = useMutation({
     mutationFn: async (data: CardFormData) => {
+      const idempotencyKey = getOrCreateIdempotencyKey();
       const response = await graphqlClient.request(INITIATE_PAYMENT, {
         input: {
           cartId,
+          idempotencyKey,
         },
       });
       return response.initiatePayment;
     },
     onSuccess: (data) => {
+      clearIdempotencyKey();
       if (data.checkoutUrl) {
         window.location.href = data.checkoutUrl;
       }
     },
     onError: (error: any) => {
+      const errorMessage = error.response?.errors?.[0]?.message || 'Payment failed. Please try again.';
+      
+      if (errorMessage.includes('Cart has changed')) {
+        clearIdempotencyKey();
+      }
+      
       console.error('Payment failed:', error);
       setError('root', {
-        message: error.response?.errors?.[0]?.message || 'Payment failed. Please try again.',
+        message: errorMessage,
       });
     },
   });
+
+  useEffect(() => {
+    return () => {
+      clearIdempotencyKey();
+    };
+  }, [amount]);
 
   const onSubmit = (data: CardFormData) => {
     initiatePayment(data);

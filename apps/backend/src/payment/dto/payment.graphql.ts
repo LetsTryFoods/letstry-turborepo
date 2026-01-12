@@ -49,11 +49,11 @@ export class PaymentOrderType {
   @Field()
   paymentOrderId: string;
 
-  @Field()
-  paymentEventId: string;
+  @Field({ nullable: true })
+  paymentEventId?: string;
 
-  @Field()
-  identityId: string;
+  @Field({ nullable: true })
+  identityId?: string;
 
   @Field({ nullable: true })
   orderId?: string;
@@ -71,13 +71,58 @@ export class PaymentOrderType {
   paymentMethod?: PaymentMethod;
 
   @Field({ nullable: true })
-  zaakpayTxnId?: string;
+  pspTxnId?: string;
 
   @Field({ nullable: true })
-  zaakpayOrderId?: string;
+  pspOrderId?: string;
 
   @Field({ nullable: true })
-  zaakpayToken?: string;
+  pspToken?: string;
+
+  @Field({ nullable: true })
+  bankTxnId?: string;
+
+  @Field({ nullable: true })
+  cardType?: string;
+
+  @Field({ nullable: true })
+  cardNumber?: string;
+
+  @Field({ nullable: true })
+  paymentMode?: string;
+
+  @Field({ nullable: true })
+  cardScheme?: string;
+
+  @Field({ nullable: true })
+  cardToken?: string;
+
+  @Field({ nullable: true })
+  bankName?: string;
+
+  @Field({ nullable: true })
+  bankId?: string;
+
+  @Field({ nullable: true })
+  paymentMethodId?: string;
+
+  @Field({ nullable: true })
+  cardHashId?: string;
+
+  @Field({ nullable: true })
+  productDescription?: string;
+
+  @Field({ nullable: true })
+  pspTxnTime?: Date;
+
+  @Field({ nullable: true })
+  ledgerUpdated?: boolean;
+
+  @Field({ nullable: true })
+  retryCount?: number;
+
+  @Field({ nullable: true })
+  pspResponseCode?: string;
 
   @Field({ nullable: true })
   pspResponseMessage?: string;
@@ -152,7 +197,10 @@ export class PaymentRefundType {
   refundStatus: PaymentStatus;
 
   @Field({ nullable: true })
-  zaakpayRefundId?: string;
+  pspRefundId?: string;
+
+  @Field({ nullable: true })
+  pspResponseCode?: string;
 
   @Field({ nullable: true })
   pspResponseMessage?: string;

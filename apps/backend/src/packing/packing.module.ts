@@ -14,6 +14,7 @@ import {
   PackingEvidence,
   PackingEvidenceSchema,
 } from './entities/packing-evidence.entity';
+import { Address, AddressSchema } from '../address/address.schema';
 
 import { PackerCrudService } from './services/core/packer-crud.service';
 import { PackingOrderCrudService } from './services/core/packing-order-crud.service';
@@ -48,6 +49,7 @@ import { WhatsAppModule } from '../whatsapp/whatsapp.module';
 import { ProductModule } from '../product/product.module';
 import { forwardRef } from '@nestjs/common';
 import { OrderModule } from '../order/order.module';
+import { ShipmentModule } from '../shipment/shipment.module';
 
 @Module({
   imports: [
@@ -56,6 +58,7 @@ import { OrderModule } from '../order/order.module';
       { name: PackingOrder.name, schema: PackingOrderSchema },
       { name: ScanLog.name, schema: ScanLogSchema },
       { name: PackingEvidence.name, schema: PackingEvidenceSchema },
+      { name: Address.name, schema: AddressSchema },
     ]),
     BullModule.registerQueue({
       name: 'packing-queue',
@@ -78,6 +81,7 @@ import { OrderModule } from '../order/order.module';
     WhatsAppModule,
     ProductModule,
     forwardRef(() => OrderModule),
+    forwardRef(() => ShipmentModule),
   ],
   providers: [
     PackerCrudService,
