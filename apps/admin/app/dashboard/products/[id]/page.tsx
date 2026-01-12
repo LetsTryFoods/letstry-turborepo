@@ -380,8 +380,10 @@ export default function ProductDetailPage() {
                     key={i}
                     className="relative aspect-square rounded-md overflow-hidden border"
                   >
+            
                     <Image
                       src={img.url}
+                      
                       alt={img.alt || product.name}
                       fill
                       className="object-cover"
