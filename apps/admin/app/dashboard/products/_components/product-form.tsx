@@ -462,11 +462,11 @@ export function ProductForm({
                 name="mpn"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>MPN</FormLabel>
+                    <FormLabel>MPN (Optional)</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
-                        placeholder="Manufacturer Part Number"
+                        placeholder="Manufacturer Part Number - Leave empty if not available"
                       />
                     </FormControl>
                     <FormMessage />

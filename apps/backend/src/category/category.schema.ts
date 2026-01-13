@@ -28,11 +28,11 @@ export class Category {
   @Prop()
   imageUrl: string;
 
-  @Prop({ required: true })
-  codeValue: string;
+  @Prop({ required: false })
+  codeValue?: string;
 
-  @Prop({ required: true })
-  inCodeSet: string;
+  @Prop({ required: false })
+  inCodeSet?: string;
 
   @Prop({ default: 0 })
   productCount: number;

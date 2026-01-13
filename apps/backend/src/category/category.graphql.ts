@@ -29,11 +29,11 @@ export class Category {
   @Field({ nullable: true })
   imageUrl?: string;
 
-  @Field()
-  codeValue: string;
+  @Field({ nullable: true })
+  codeValue?: string;
 
-  @Field()
-  inCodeSet: string;
+  @Field({ nullable: true })
+  inCodeSet?: string;
 
   @Field()
   productCount: number;

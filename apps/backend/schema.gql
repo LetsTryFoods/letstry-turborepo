@@ -433,8 +433,8 @@ type Category {
   parentId: String
   favourite: Boolean
   imageUrl: String
-  codeValue: String!
-  inCodeSet: String!
+  codeValue: String
+  inCodeSet: String
   productCount: Float!
   isArchived: Boolean!
   seo: CategorySeo
@@ -1394,8 +1394,8 @@ input CreateCategoryInput {
   favourite: Boolean
   parentId: String
   imageUrl: String
-  codeValue: String!
-  inCodeSet: String!
+  codeValue: String
+  inCodeSet: String
   isArchived: Boolean
   seo: SeoBaseInput
 }

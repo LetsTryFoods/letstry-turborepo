@@ -117,9 +117,9 @@ export function CategoryForm({ onClose, initialData, createCategory, updateCateg
             name="codeValue"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Code Value *</FormLabel>
+                <FormLabel>Code Value (Optional)</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="e.g., SNACKS" />
+                  <Input {...field} placeholder="e.g., SNACKS - Leave empty if not needed" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -130,9 +130,9 @@ export function CategoryForm({ onClose, initialData, createCategory, updateCateg
             name="inCodeSet"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>In Code Set *</FormLabel>
+                <FormLabel>In Code Set (Optional)</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="e.g., FOOD_CATEGORY" />
+                  <Input {...field} placeholder="e.g., FOOD_CATEGORY - Leave empty if not needed" />
                 </FormControl>
                 <FormMessage />
               </FormItem>

@@ -21,11 +21,11 @@ export class CreateCategoryInput {
   @Field({ nullable: true })
   imageUrl?: string;
 
-  @Field()
-  codeValue: string;
+  @Field({ nullable: true })
+  codeValue?: string;
 
-  @Field()
-  inCodeSet: string;
+  @Field({ nullable: true })
+  inCodeSet?: string;
 
   @Field({ nullable: true })
   isArchived?: boolean;
