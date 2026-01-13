@@ -81,14 +81,14 @@ export default async function ProductDetailPage({
     notFound();
   }
   const productInfo = [
-    { label: "Description", value: product.description },
+    { label: "Description", value: product.description || "" },
     {
       label: "Unit",
       value:
         product.defaultVariant?.packageSize ||
         `${product.defaultVariant?.weight} ${product.defaultVariant?.weightUnit || ""}`,
     },
-    { label: "Shelf life", value: product.shelfLife },
+    { label: "Shelf life", value: product.shelfLife || "" },
     {
       label: "Diet preference",
       value: product.isVegetarian ? "Vegetarian" : "Non-Vegetarian",

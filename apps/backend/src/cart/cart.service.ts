@@ -110,13 +110,14 @@ export class CartService {
     return this.cartMergeService.mergeCarts(guestIdentityId, userIdentityId);
   }
 
-  async applyCoupon(identityId: string, code: string): Promise<CartDocument> {
+  async applyCoupon(identityId: string, code: string, userAgent?: string): Promise<CartDocument> {
     this.logger.log('Applying coupon', { identityId, code }, 'CartModule');
     const cart = await this.cartRepositoryService.getCartOrThrow(identityId);
 
     await this.cartDiscountService.validateAndApplyCoupon(
       code,
       cart.totalsSummary.subtotal,
+      userAgent,
     );
     cart.couponCode = code;
     return this.saveAndRecalculateCart(cart);

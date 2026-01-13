@@ -60,11 +60,14 @@ export function CouponForm({ onSuccess, onCancel }: CouponFormProps) {
       maxDiscountAmount: undefined,
       startDate: "",
       endDate: "",
+      hasInfiniteValidity: false,
+      platform: "BOTH",
       isActive: true,
     },
   })
 
   const discountType = form.watch("discountType")
+  const hasInfiniteValidity = form.watch("hasInfiniteValidity")
 
   const generateCode = () => {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -95,7 +98,9 @@ export function CouponForm({ onSuccess, onCancel }: CouponFormProps) {
         minCartValue: pendingValues.minCartValue || undefined,
         maxDiscountAmount: pendingValues.maxDiscountAmount || undefined,
         startDate: new Date(pendingValues.startDate).toISOString(),
-        endDate: new Date(pendingValues.endDate).toISOString(),
+        endDate: pendingValues.hasInfiniteValidity || !pendingValues.endDate ? undefined : new Date(pendingValues.endDate).toISOString(),
+        hasInfiniteValidity: pendingValues.hasInfiniteValidity,
+        platform: pendingValues.platform,
         isActive: pendingValues.isActive,
       }
 
@@ -290,6 +295,53 @@ export function CouponForm({ onSuccess, onCancel }: CouponFormProps) {
         <div className="space-y-4">
           <h3 className="text-lg font-semibold">Validity Period</h3>
           
+          <FormField
+            control={form.control}
+            name="platform"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Platform *</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select platform" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="BOTH">Both (Mobile & Desktop)</SelectItem>
+                    <SelectItem value="MOBILE">Mobile Only</SelectItem>
+                    <SelectItem value="DESKTOP">Desktop Only</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormDescription>
+                  Choose where this coupon can be used
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="hasInfiniteValidity"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">Infinite Validity</FormLabel>
+                  <FormDescription>
+                    Coupon will be valid indefinitely (controlled only by Active status)
+                  </FormDescription>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          
           <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
@@ -310,10 +362,20 @@ export function CouponForm({ onSuccess, onCancel }: CouponFormProps) {
               name="endDate"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>End Date *</FormLabel>
+                  <FormLabel>End Date {hasInfiniteValidity ? "(Optional)" : "*"}</FormLabel>
                   <FormControl>
-                    <Input type="datetime-local" {...field} />
+                    <Input 
+                      type="datetime-local" 
+                      {...field} 
+                      disabled={hasInfiniteValidity}
+                      value={hasInfiniteValidity ? "" : field.value}
+                    />
                   </FormControl>
+                  {hasInfiniteValidity && (
+                    <FormDescription>
+                      Disabled - Coupon has infinite validity
+                    </FormDescription>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}

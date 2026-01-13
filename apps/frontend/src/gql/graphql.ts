@@ -213,13 +213,13 @@ export type CartTotals = {
 export type Category = {
   __typename?: 'Category';
   _id: Scalars['ID']['output'];
-  codeValue: Scalars['String']['output'];
+  codeValue?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   description?: Maybe<Scalars['String']['output']>;
   favourite?: Maybe<Scalars['Boolean']['output']>;
   id: Scalars['ID']['output'];
   imageUrl?: Maybe<Scalars['String']['output']>;
-  inCodeSet: Scalars['String']['output'];
+  inCodeSet?: Maybe<Scalars['String']['output']>;
   isArchived: Scalars['Boolean']['output'];
   name: Scalars['String']['output'];
   parentId?: Maybe<Scalars['String']['output']>;
@@ -274,16 +274,24 @@ export type Coupon = {
   description: Scalars['String']['output'];
   discountType: DiscountType;
   discountValue: Scalars['Float']['output'];
-  endDate: Scalars['DateTime']['output'];
+  endDate?: Maybe<Scalars['DateTime']['output']>;
+  hasInfiniteValidity: Scalars['Boolean']['output'];
   isActive: Scalars['Boolean']['output'];
   maxDiscountAmount?: Maybe<Scalars['Float']['output']>;
   minCartValue?: Maybe<Scalars['Float']['output']>;
   name: Scalars['String']['output'];
+  platform: CouponPlatform;
   startDate: Scalars['DateTime']['output'];
   updatedAt: Scalars['DateTime']['output'];
   usageCount: Scalars['Int']['output'];
   usageLimit?: Maybe<Scalars['Int']['output']>;
 };
+
+export enum CouponPlatform {
+  Both = 'BOTH',
+  Desktop = 'DESKTOP',
+  Mobile = 'MOBILE'
+}
 
 export type CreateAddressInput = {
   addressCountry: Scalars['String']['input'];
@@ -331,11 +339,11 @@ export type CreateBoxSizeInput = {
 };
 
 export type CreateCategoryInput = {
-  codeValue: Scalars['String']['input'];
+  codeValue?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   favourite?: InputMaybe<Scalars['Boolean']['input']>;
   imageUrl?: InputMaybe<Scalars['String']['input']>;
-  inCodeSet: Scalars['String']['input'];
+  inCodeSet?: InputMaybe<Scalars['String']['input']>;
   isArchived?: InputMaybe<Scalars['Boolean']['input']>;
   name: Scalars['String']['input'];
   parentId?: InputMaybe<Scalars['String']['input']>;
@@ -357,11 +365,13 @@ export type CreateCouponInput = {
   description: Scalars['String']['input'];
   discountType: DiscountType;
   discountValue: Scalars['Float']['input'];
-  endDate: Scalars['DateTime']['input'];
+  endDate?: InputMaybe<Scalars['DateTime']['input']>;
+  hasInfiniteValidity?: Scalars['Boolean']['input'];
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   maxDiscountAmount?: InputMaybe<Scalars['Float']['input']>;
   minCartValue?: InputMaybe<Scalars['Float']['input']>;
   name: Scalars['String']['input'];
+  platform?: CouponPlatform;
   startDate: Scalars['DateTime']['input'];
   usageLimit?: InputMaybe<Scalars['Int']['input']>;
 };
@@ -396,7 +406,7 @@ export type CreateProductInput = {
   brand: Scalars['String']['input'];
   categoryIds: Array<Scalars['String']['input']>;
   currency?: InputMaybe<Scalars['String']['input']>;
-  description: Scalars['String']['input'];
+  description?: InputMaybe<Scalars['String']['input']>;
   favourite?: InputMaybe<Scalars['Boolean']['input']>;
   gtin?: InputMaybe<Scalars['String']['input']>;
   ingredients: Scalars['String']['input'];
@@ -752,6 +762,7 @@ export type Mutation = {
   deleteBanner: Banner;
   deleteBoxSize: Scalars['Boolean']['output'];
   deleteCategorySeo: Scalars['Boolean']['output'];
+  deleteCoupon: Coupon;
   deletePacker: Scalars['Boolean']['output'];
   deletePolicy: Policy;
   deletePolicySeo: Scalars['Boolean']['output'];
@@ -931,6 +942,11 @@ export type MutationDeleteBoxSizeArgs = {
 
 export type MutationDeleteCategorySeoArgs = {
   categoryId: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteCouponArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -1684,7 +1700,7 @@ export type Product = {
   createdAt: Scalars['DateTime']['output'];
   currency: Scalars['String']['output'];
   defaultVariant?: Maybe<ProductVariant>;
-  description: Scalars['String']['output'];
+  description?: Maybe<Scalars['String']['output']>;
   favourite?: Maybe<Scalars['Boolean']['output']>;
   gtin?: Maybe<Scalars['String']['output']>;
   ingredients: Scalars['String']['output'];
@@ -2519,7 +2535,7 @@ export type GetCategoryWithProductsQueryVariables = Exact<{
 }>;
 
 
-export type GetCategoryWithProductsQuery = { __typename?: 'Query', category?: { __typename?: 'Category', id: string, name: string, slug: string, description?: string | null, imageUrl?: string | null, codeValue: string, inCodeSet: string, productCount: number, isArchived: boolean, favourite?: boolean | null, createdAt: any, updatedAt: any, products: Array<{ __typename?: 'Product', _id: string, name: string, slug: string, brand: string, defaultVariant?: { __typename?: 'ProductVariant', sku: string, price: number, mrp: number, discountPercent: number, thumbnailUrl: string, availabilityStatus: string, stockQuantity: number } | null, availableVariants: Array<{ __typename?: 'ProductVariant', _id: string, sku: string, price: number, mrp: number, packageSize: string, weight: number, weightUnit: string }> }> } | null };
+export type GetCategoryWithProductsQuery = { __typename?: 'Query', category?: { __typename?: 'Category', id: string, name: string, slug: string, description?: string | null, imageUrl?: string | null, codeValue?: string | null, inCodeSet?: string | null, productCount: number, isArchived: boolean, favourite?: boolean | null, createdAt: any, updatedAt: any, products: Array<{ __typename?: 'Product', _id: string, name: string, slug: string, brand: string, defaultVariant?: { __typename?: 'ProductVariant', sku: string, price: number, mrp: number, discountPercent: number, thumbnailUrl: string, availabilityStatus: string, stockQuantity: number } | null, availableVariants: Array<{ __typename?: 'ProductVariant', _id: string, sku: string, price: number, mrp: number, packageSize: string, weight: number, weightUnit: string }> }> } | null };
 
 export type GetCategoryBySlugQueryVariables = Exact<{
   slug: Scalars['String']['input'];
@@ -2532,7 +2548,7 @@ export type GetCategoryBySlugQuery = { __typename?: 'Query', categoryBySlug?: { 
 export type GetActiveCouponsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetActiveCouponsQuery = { __typename?: 'Query', activeCoupons: Array<{ __typename?: 'Coupon', _id: string, code: string, description: string, name: string, discountType: DiscountType, discountValue: number, minCartValue?: number | null, endDate: any }> };
+export type GetActiveCouponsQuery = { __typename?: 'Query', activeCoupons: Array<{ __typename?: 'Coupon', _id: string, code: string, description: string, name: string, discountType: DiscountType, discountValue: number, minCartValue?: number | null, endDate?: any | null }> };
 
 export type ApplyCouponMutationVariables = Exact<{
   code: Scalars['String']['input'];
@@ -2581,14 +2597,14 @@ export type GetProductsByCategoryQueryVariables = Exact<{
 }>;
 
 
-export type GetProductsByCategoryQuery = { __typename?: 'Query', productsByCategory: { __typename?: 'PaginatedProducts', items: Array<{ __typename?: 'Product', _id: string, name: string, slug: string, description: string, brand: string, currency: string, isArchived: boolean, favourite?: boolean | null, createdAt: any, updatedAt: any, defaultVariant?: { __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, discountSource: string, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, thumbnailUrl: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> } | null, priceRange: { __typename?: 'PriceRange', min: number, max: number } }>, meta: { __typename?: 'PaginationMeta', totalCount: number, page: number, limit: number, totalPages: number, hasNextPage: boolean, hasPreviousPage: boolean } } };
+export type GetProductsByCategoryQuery = { __typename?: 'Query', productsByCategory: { __typename?: 'PaginatedProducts', items: Array<{ __typename?: 'Product', _id: string, name: string, slug: string, description?: string | null, brand: string, currency: string, isArchived: boolean, favourite?: boolean | null, createdAt: any, updatedAt: any, defaultVariant?: { __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, discountSource: string, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, thumbnailUrl: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> } | null, priceRange: { __typename?: 'PriceRange', min: number, max: number } }>, meta: { __typename?: 'PaginationMeta', totalCount: number, page: number, limit: number, totalPages: number, hasNextPage: boolean, hasPreviousPage: boolean } } };
 
 export type GetProductBySlugQueryVariables = Exact<{
   slug: Scalars['String']['input'];
 }>;
 
 
-export type GetProductBySlugQuery = { __typename?: 'Query', productBySlug?: { __typename?: 'Product', _id: string, name: string, slug: string, description: string, shelfLife: string, isVegetarian: boolean, ingredients: string, category?: { __typename?: 'Category', name: string, imageUrl?: string | null } | null, seo?: { __typename?: 'ProductSeo', metaTitle?: string | null, metaDescription?: string | null, metaKeywords?: Array<string> | null, canonicalUrl?: string | null, ogTitle?: string | null, ogDescription?: string | null, ogImage?: string | null } | null, variants: Array<{ __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> }>, defaultVariant?: { __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> } | null, priceRange: { __typename?: 'PriceRange', min: number, max: number }, availableVariants: Array<{ __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> }> } | null };
+export type GetProductBySlugQuery = { __typename?: 'Query', productBySlug?: { __typename?: 'Product', _id: string, name: string, slug: string, description?: string | null, shelfLife: string, isVegetarian: boolean, ingredients: string, category?: { __typename?: 'Category', name: string, imageUrl?: string | null } | null, seo?: { __typename?: 'ProductSeo', metaTitle?: string | null, metaDescription?: string | null, metaKeywords?: Array<string> | null, canonicalUrl?: string | null, ogTitle?: string | null, ogDescription?: string | null, ogImage?: string | null } | null, variants: Array<{ __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> }>, defaultVariant?: { __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> } | null, priceRange: { __typename?: 'PriceRange', min: number, max: number }, availableVariants: Array<{ __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> }> } | null };
 
 export class TypedDocumentString<TResult, TVariables>
   extends String

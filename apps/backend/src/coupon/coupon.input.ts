@@ -1,5 +1,5 @@
 import { InputType, Field, Float, Int } from '@nestjs/graphql';
-import { DiscountType } from './coupon.schema';
+import { DiscountType, CouponPlatform } from './coupon.schema';
 
 @InputType()
 export class CreateCouponInput {
@@ -27,8 +27,14 @@ export class CreateCouponInput {
   @Field()
   startDate: Date;
 
-  @Field()
-  endDate: Date;
+  @Field({ nullable: true })
+  endDate?: Date;
+
+  @Field({ defaultValue: false })
+  hasInfiniteValidity?: boolean;
+
+  @Field(() => CouponPlatform, { defaultValue: CouponPlatform.BOTH })
+  platform?: CouponPlatform;
 
   @Field({ nullable: true })
   isActive?: boolean;

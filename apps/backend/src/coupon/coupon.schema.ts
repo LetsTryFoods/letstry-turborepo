@@ -18,6 +18,14 @@ export enum DiscountType {
 
 registerEnumType(DiscountType, { name: 'DiscountType' });
 
+export enum CouponPlatform {
+  MOBILE = 'MOBILE',
+  DESKTOP = 'DESKTOP',
+  BOTH = 'BOTH',
+}
+
+registerEnumType(CouponPlatform, { name: 'CouponPlatform' });
+
 @Schema({ timestamps: true })
 @ObjectType()
 export class Coupon {
@@ -56,9 +64,17 @@ export class Coupon {
   @Field()
   startDate: Date;
 
-  @Prop({ required: true })
+  @Prop({ required: false })
+  @Field({ nullable: true })
+  endDate?: Date;
+
+  @Prop({ default: false })
   @Field()
-  endDate: Date;
+  hasInfiniteValidity: boolean;
+
+  @Prop({ required: true, enum: CouponPlatform, default: CouponPlatform.BOTH })
+  @Field(() => CouponPlatform)
+  platform: CouponPlatform;
 
   @Prop({ default: true })
   @Field()
