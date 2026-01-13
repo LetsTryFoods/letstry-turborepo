@@ -201,6 +201,100 @@ const AddressSchema = new mongoose.Schema({
 
 const Address = mongoose.model('Address', AddressSchema);
 
+const ShipmentSchema = new mongoose.Schema({
+    orderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order', default: null },
+    dtdcAwbNumber: { type: String, required: true, unique: true },
+    dtdcReferenceNumber: String,
+    customerCode: { type: String, required: true },
+    serviceType: { type: String, required: true },
+    loadType: { type: String, required: true, default: 'NON-DOCUMENT' },
+    originCity: { type: String, required: true },
+    destinationCity: String,
+    weight: { type: Number, required: true },
+    declaredValue: Number,
+    bookedOn: { type: Date, required: true },
+    expectedDeliveryDate: Date,
+    revisedExpectedDeliveryDate: Date,
+    rtoNumber: String,
+    currentStatusCode: String,
+    currentStatusDescription: String,
+    currentLocation: String,
+    isDelivered: { type: Boolean, default: false },
+    deliveredAt: Date,
+    isRto: { type: Boolean, default: false },
+    isCancelled: { type: Boolean, default: false },
+    cancelledAt: Date,
+    labelUrl: String,
+    codAmount: Number,
+    codCollectionMode: String,
+    dimensions: {
+        length: Number,
+        width: Number,
+        height: Number,
+        unit: String
+    },
+    originDetails: {
+        name: String,
+        phone: String,
+        alternatePhone: String,
+        addressLine1: String,
+        addressLine2: String,
+        pincode: String,
+        city: String,
+        state: String,
+        latitude: String,
+        longitude: String
+    },
+    destinationDetails: {
+        name: String,
+        phone: String,
+        alternatePhone: String,
+        addressLine1: String,
+        addressLine2: String,
+        pincode: String,
+        city: String,
+        state: String,
+        latitude: String,
+        longitude: String
+    },
+    invoiceNumber: String,
+    invoiceDate: Date,
+    ewayBill: String,
+    commodityId: String,
+    numPieces: { type: Number, default: 1 },
+    piecesDetail: [{
+        description: String,
+        declaredValue: Number,
+        weight: Number,
+        height: Number,
+        length: Number,
+        width: Number
+    }],
+    webhookLastReceivedAt: Date,
+    webhookEnabled: { type: Boolean, default: true },
+    trackingDisabledAfter: Date
+}, { timestamps: true });
+
+const ShipmentTrackingHistorySchema = new mongoose.Schema({
+    shipmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Shipment', required: true },
+    statusCode: { type: String, required: true },
+    statusDescription: { type: String, required: true },
+    location: String,
+    manifestNumber: String,
+    actionDate: { type: Date, required: true },
+    actionTime: { type: String, required: true },
+    actionDatetime: { type: Date, required: true },
+    remarks: String,
+    latitude: Number,
+    longitude: Number,
+    scdOtp: Boolean,
+    ndcOtp: Boolean,
+    rawPayload: Object
+}, { timestamps: true });
+
+const Shipment = mongoose.model('Shipment', ShipmentSchema);
+const ShipmentTrackingHistory = mongoose.model('ShipmentTrackingHistory', ShipmentTrackingHistorySchema);
+
 const IdentitySchema = new mongoose.Schema({
     identityId: { type: String, required: true, unique: true },
     phoneNumber: String,
@@ -271,6 +365,21 @@ const categoryNames = [
     'Stationery & Office', 'Pet Care', 'Frozen Food', 'Organic & Healthy'
 ];
 
+function getStatusDescription(statusCode) {
+    const descriptions = {
+        'BKD': 'Shipment Booked',
+        'PUP': 'Picked Up from Origin',
+        'ITM': 'In Transit',
+        'OFD': 'Out for Delivery',
+        'DLV': 'Delivered',
+        'NONDLV': 'Not Delivered',
+        'RTO': 'Return to Origin',
+        'CAN': 'Cancelled',
+        'HLD': 'On Hold'
+    };
+    return descriptions[statusCode] || statusCode;
+}
+
 async function seed() {
     try {
         await mongoose.connect(mongoUri);
@@ -286,6 +395,8 @@ async function seed() {
         await PackingEvidence.deleteMany({});
         await BoxSize.deleteMany({});
         await Order.deleteMany({});
+        await Shipment.deleteMany({});
+        await ShipmentTrackingHistory.deleteMany({});
 
         const boxSizes = await BoxSize.insertMany([
             { code: 'BOX-S', name: 'Small Box', internalDimensions: { l: 20, w: 15, h: 10 }, maxWeight: 5, cost: 10, isActive: true },
@@ -748,6 +859,110 @@ async function seed() {
 
         if (evidences.length > 0) {
             await PackingEvidence.insertMany(evidences);
+        const shipments = [];
+        const trackingHistories = [];
+        const statusCodes = ['BKD', 'PUP', 'ITM', 'OFD', 'DLV', 'NONDLV', 'RTO', 'CAN', 'HLD'];
+        const serviceTypes = ['STANDARD', 'LITE', 'B2C PRIORITY', 'B2C SMART', 'EXPRESS'];
+        const cities = ['Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Kolkata', 'Hyderabad', 'Pune', 'Ahmedabad'];
+
+        for (let i = 0; i < 50; i++) {
+            const currentStatus = statusCodes[Math.floor(Math.random() * statusCodes.length)];
+            const bookedOn = new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000);
+            const isDelivered = currentStatus === 'DLV';
+            const isCancelled = currentStatus === 'CAN';
+            const isRto = currentStatus === 'RTO';
+
+            const shipment = {
+                dtdcAwbNumber: `DTDC${1000000000 + i}`,
+                dtdcReferenceNumber: `REF${Date.now()}${i}`,
+                customerCode: 'CUST001',
+                serviceType: serviceTypes[Math.floor(Math.random() * serviceTypes.length)],
+                loadType: 'NON-DOCUMENT',
+                originCity: cities[Math.floor(Math.random() * cities.length)],
+                destinationCity: cities[Math.floor(Math.random() * cities.length)],
+                weight: 1 + Math.random() * 10,
+                declaredValue: 500 + Math.random() * 5000,
+                bookedOn,
+                expectedDeliveryDate: new Date(bookedOn.getTime() + 5 * 24 * 60 * 60 * 1000),
+                currentStatusCode: currentStatus,
+                currentStatusDescription: getStatusDescription(currentStatus),
+                currentLocation: cities[Math.floor(Math.random() * cities.length)],
+                isDelivered,
+                deliveredAt: isDelivered ? new Date(bookedOn.getTime() + 4 * 24 * 60 * 60 * 1000) : null,
+                isRto,
+                isCancelled,
+                cancelledAt: isCancelled ? new Date(bookedOn.getTime() + 1 * 24 * 60 * 60 * 1000) : null,
+                codAmount: 0,
+                codCollectionMode: null,
+                dimensions: {
+                    length: 20 + Math.random() * 30,
+                    width: 15 + Math.random() * 20,
+                    height: 10 + Math.random() * 15,
+                    unit: 'cm'
+                },
+                originDetails: {
+                    name: 'Sender Name',
+                    phone: '9876543210',
+                    addressLine1: 'Building No. 123, Street Name',
+                    addressLine2: 'Area Name',
+                    pincode: '400001',
+                    city: cities[Math.floor(Math.random() * cities.length)],
+                    state: 'Maharashtra'
+                },
+                destinationDetails: {
+                    name: `Customer ${i + 1}`,
+                    phone: `98765432${String(i).padStart(2, '0')}`,
+                    addressLine1: `House ${i + 1}, Main Road`,
+                    addressLine2: 'Near Landmark',
+                    pincode: `${400000 + Math.floor(Math.random() * 100000)}`,
+                    city: cities[Math.floor(Math.random() * cities.length)],
+                    state: 'Maharashtra'
+                },
+                invoiceNumber: `INV${Date.now()}${i}`,
+                invoiceDate: bookedOn,
+                numPieces: 1,
+                webhookLastReceivedAt: new Date()
+            };
+
+            shipments.push(shipment);
+        }
+
+        const insertedShipments = await Shipment.insertMany(shipments);
+
+        for (let shipment of insertedShipments) {
+            const numEvents = 2 + Math.floor(Math.random() * 5);
+            const eventStatuses = ['BKD', 'PUP', 'ITM'];
+            
+            if (shipment.currentStatusCode === 'DLV') {
+                eventStatuses.push('OFD', 'DLV');
+            } else if (shipment.currentStatusCode === 'RTO') {
+                eventStatuses.push('RTO');
+            } else if (shipment.currentStatusCode !== 'CAN') {
+                eventStatuses.push(shipment.currentStatusCode);
+            }
+
+            for (let j = 0; j < Math.min(numEvents, eventStatuses.length); j++) {
+                const eventDate = new Date(shipment.bookedOn.getTime() + j * 24 * 60 * 60 * 1000);
+                trackingHistories.push({
+                    shipmentId: shipment._id,
+                    statusCode: eventStatuses[j],
+                    statusDescription: getStatusDescription(eventStatuses[j]),
+                    location: cities[Math.floor(Math.random() * cities.length)],
+                    actionDate: eventDate,
+                    actionTime: eventDate.toTimeString().split(' ')[0],
+                    actionDatetime: eventDate,
+                    remarks: `Shipment ${eventStatuses[j]}`
+                });
+            }
+        }
+
+        if (trackingHistories.length > 0) {
+            await ShipmentTrackingHistory.insertMany(trackingHistories);
+        }
+
+        console.log('Seed completed successfully');
+        console.log(`Created ${insertedShipments.length} shipments with ${trackingHistories.length} tracking events`);
+
         }
 
         process.exit(0);

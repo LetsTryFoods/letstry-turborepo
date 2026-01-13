@@ -3,7 +3,7 @@ import type { PresignedUrlRequest, PresignedUrlResponse } from '@/types/file-upl
 
 export async function getPresignedUrl(request: PresignedUrlRequest): Promise<PresignedUrlResponse> {
   try {
-    const response = await api.post(`${process.env.API_BASE_URL}/files/presigned-url`, request)
+    const response = await api.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/files/presigned-url`, request)
     return response.data
   } catch (error) {
     console.error('Failed to get presigned URL:', error)

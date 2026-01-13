@@ -83,7 +83,11 @@ export class ShipmentResolver {
 
     return {
       success: true,
-      shipment: result.shipment.toObject() as any,
+      shipment: {
+        ...(result.shipment.toObject() as any),
+        id: result.shipment._id.toString(),
+        orderId: result.shipment.orderId?.toString(),
+      },
       awbNumber: result.awbNumber,
       labelUrl: result.labelUrl,
     };
@@ -97,7 +101,12 @@ export class ShipmentResolver {
       return null;
     }
 
-    return shipment.toObject() as any;
+    const obj = shipment.toObject() as any;
+    return {
+      ...obj,
+      id: shipment._id.toString(),
+      orderId: shipment.orderId?.toString(),
+    };
   }
 
   @Query(() => ShipmentResponse, { nullable: true })
@@ -108,7 +117,12 @@ export class ShipmentResolver {
       return null;
     }
 
-    return shipment.toObject() as any;
+    const obj = shipment.toObject() as any;
+    return {
+      ...obj,
+      id: shipment._id.toString(),
+      orderId: shipment.orderId?.toString(),
+    };
   }
 
   @Query(() => ShipmentListResponse)
@@ -127,7 +141,11 @@ export class ShipmentResolver {
 
     return {
       success: true,
-      shipments: shipments.map(s => s.toObject()) as any[],
+      shipments: shipments.map((s) => ({
+        ...(s.toObject() as any),
+        id: s._id.toString(),
+        orderId: s.orderId?.toString(),
+      })),
       total: shipments.length,
     };
   }
@@ -137,15 +155,25 @@ export class ShipmentResolver {
     const result = await this.shipmentService.getShipmentWithTracking(awbNumber);
 
     return {
-      ...result.shipment.toObject(),
-      trackingHistory: result.tracking.map(t => t.toObject()),
-    } as any;
+      ...(result.shipment.toObject() as any),
+      id: result.shipment._id.toString(),
+      orderId: result.shipment.orderId?.toString(),
+      trackingHistory: result.tracking.map((t) => ({
+        ...(t.toObject() as any),
+        id: t._id.toString(),
+      })),
+    };
   }
 
   @Mutation(() => ShipmentResponse)
   async cancelShipment(@Args('input') input: CancelShipmentInput): Promise<ShipmentResponse> {
     const shipment = await this.shipmentService.cancelShipment(input.awbNumber);
 
-    return shipment.toObject() as any;
+    const obj = shipment.toObject() as any;
+    return {
+      ...obj,
+      id: shipment._id.toString(),
+      orderId: shipment.orderId?.toString(),
+    };
   }
 }

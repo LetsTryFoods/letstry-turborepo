@@ -36,6 +36,7 @@ export default () => ({
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     bucketName: process.env.BUCKET_NAME,
     region: process.env.AWS_REGION,
+    cloudfrontDomain: process.env.AWS_CLOUDFRONT_DOMAIN,
   },
   redis: {
     host: process.env.REDIS_HOST || 'localhost',
