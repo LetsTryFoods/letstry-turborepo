@@ -121,9 +121,9 @@ export class Product {
   @Field()
   slug: string;
 
-  @Prop({ required: true })
-  @Field()
-  description: string;
+  @Prop({ required: false })
+  @Field({ nullable: true })
+  description?: string;
 
   @Prop({ type: [String], required: true, default: [] })
   @Field(() => [String])

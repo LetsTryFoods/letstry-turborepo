@@ -138,8 +138,8 @@ export class CreateProductInput {
   @Field({ nullable: true })
   favourite?: boolean;
 
-  @Field()
-  description: string;
+  @Field({ nullable: true })
+  description?: string;
 
   @Field(() => [String])
   categoryIds: string[];

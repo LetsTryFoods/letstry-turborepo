@@ -70,7 +70,7 @@ export type VariantFormValues = z.infer<typeof variantFormSchema>;
 export const productFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
   slug: z.string().optional(),
-  description: z.string().min(1, "Description is required"),
+  description: z.string().optional(),
   categoryIds: z.array(z.string()).min(1, "At least one category is required"),
   brand: z.string().min(1, "Brand is required"),
   gtin: z.string().optional(),

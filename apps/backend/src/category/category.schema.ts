@@ -19,8 +19,8 @@ export class Category {
   @Prop({ type: Boolean, default: false, index: true })
   favourite: boolean;
 
-  @Prop()
-  description: string;
+  @Prop({ required: false })
+  description?: string;
 
   @Prop({ type: String, default: null, index: true })
   parentId: string | undefined;
