@@ -14,6 +14,7 @@ import { AddressService } from '@/lib/address/address-service';
 import { CartDrawer } from './CartDrawer';
 import { AddressFormData } from './AddressDetailsModal';
 import { LoginModal } from '@/components/auth/login-modal';
+import { useAnalytics } from '@/hooks/use-analytics';
 
 export const CartContainer = () => {
   const { isOpen, closeCart } = useCartStore();
@@ -22,6 +23,7 @@ export const CartContainer = () => {
   const { data: couponsData, isLoading: couponsLoading } = useCoupons();
   const { data: addressesData } = useAddresses();
   const queryClient = useQueryClient();
+  const { trackRemoveFromCart } = useAnalytics();
   
   React.useEffect(() => {
     console.log('CartContainer - user:', user);
@@ -77,8 +79,19 @@ export const CartContainer = () => {
 
   const handleRemoveItem = async (productId: string) => {
     try {
+      const item = items.find((i: any) => i.id === productId);
+      
       await CartService.removeFromCart(productId);
       queryClient.invalidateQueries({ queryKey: ['cart'] });
+      
+      if (item) {
+        trackRemoveFromCart({
+          id: item.id,
+          name: item.title,
+          price: item.price,
+          quantity: item.quantity,
+        });
+      }
     } catch (error) {
       console.error('Failed to remove item:', error);
     }

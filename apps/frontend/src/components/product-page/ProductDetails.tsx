@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ProductGallery } from './ProductGallery';
 import { ProductTitle } from './ProductTitle';
 import { CategoryLink } from './CategoryLink';
@@ -8,6 +8,7 @@ import { PriceBlock } from './PriceBlock';
 import { SizeSelector } from './SizeSelector';
 import { ActionButtons } from './ActionButtons';
 import { GetProductBySlugQuery } from '@/gql/graphql';
+import { useAnalytics } from '@/hooks/use-analytics';
 
 interface ProductDetailsProps {
   product: NonNullable<GetProductBySlugQuery['productBySlug']>;
@@ -15,8 +16,19 @@ interface ProductDetailsProps {
 
 export const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
   const [selectedVariantId, setSelectedVariantId] = useState(product.defaultVariant?._id || product.variants[0]?._id);
+  const { trackViewItem } = useAnalytics();
 
   const selectedVariant = product.variants.find(v => v._id === selectedVariantId) || product.defaultVariant || product.variants[0];
+
+  useEffect(() => {
+    trackViewItem({
+      id: selectedVariant?._id || product._id,
+      name: product.name,
+      price: selectedVariant?.price || 0,
+      category: product.category?.name,
+      variant: selectedVariant?.name,
+    });
+  }, [selectedVariantId, product, selectedVariant, trackViewItem]);
 
   const images = (selectedVariant?.images && selectedVariant.images.length > 0) 
     ? selectedVariant.images.map(img => img.url) 

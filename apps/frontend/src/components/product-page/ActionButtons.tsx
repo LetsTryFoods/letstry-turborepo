@@ -5,6 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { cn } from '@/lib/utils';
 import { CartService } from '@/lib/cart/cart-service';
+import { useAnalytics } from '@/hooks/use-analytics';
 
 interface ActionButtonsProps {
   product: {
@@ -19,6 +20,7 @@ interface ActionButtonsProps {
 export const ActionButtons: React.FC<ActionButtonsProps> = ({ product, isOutOfStock = false }) => {
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
+  const { trackAddToCart } = useAnalytics();
 
   const handleAddToCart = async () => {
     if (isOutOfStock || isLoading) return;
@@ -27,6 +29,15 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({ product, isOutOfSt
     try {
       await CartService.addToCart(product.id, 1);
       queryClient.invalidateQueries({ queryKey: ['cart'] });
+      
+      trackAddToCart({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: 1,
+        variant: product.variantName,
+      });
+      
       toast.success(`${product.name} added to cart`);
     } catch (error) {
       console.error('Failed to add to cart:', error);
