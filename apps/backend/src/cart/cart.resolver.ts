@@ -6,6 +6,7 @@ import { AddToCartInput, UpdateCartItemInput } from './cart.input';
 import { Public } from '../common/decorators/public.decorator';
 import { DualAuthGuard } from '../authentication/common/dual-auth.guard';
 import { OptionalUser } from '../common/decorators/optional-user.decorator';
+import { UserAgent } from '../common/decorators/user-agent.decorator';
 
 @Resolver(() => Cart)
 export class CartResolver {
@@ -74,11 +75,12 @@ export class CartResolver {
   async applyCoupon(
     @Args('code') code: string,
     @OptionalUser() user: any,
+    @UserAgent() userAgent: string,
   ): Promise<Cart> {
     if (!user?._id) {
       throw new Error('User identification required');
     }
-    return this.cartService.applyCoupon(user._id, code);
+    return this.cartService.applyCoupon(user._id, code, userAgent);
   }
 
   @Mutation(() => Cart, { name: 'removeCoupon' })

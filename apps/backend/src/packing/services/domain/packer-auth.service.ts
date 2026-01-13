@@ -2,13 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { PackerCrudService } from '../core/packer-crud.service';
+import { Role } from '../../../common/enums/role.enum';
 
 @Injectable()
 export class PackerAuthService {
   constructor(
     private readonly packerCrud: PackerCrudService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   async validateCredentials(
     employeeId: string,
@@ -27,7 +28,7 @@ export class PackerAuthService {
     return this.jwtService.sign({
       packerId: packer._id,
       employeeId: packer.employeeId,
-      role: 'packer',
+      role: Role.PACKER,
     });
   }
 

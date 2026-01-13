@@ -30,15 +30,30 @@ export class CouponService {
     return coupon;
   }
 
-  async validateCoupon(code: string, cartTotal: number): Promise<Coupon> {
+  async validateCoupon(code: string, cartTotal: number, userAgent?: string): Promise<Coupon> {
     const coupon = await this.getCouponByCode(code);
 
     this.validateStatus(coupon);
     this.validateValidityPeriod(coupon);
     this.validateUsageLimit(coupon);
     this.validateEligibility(coupon, cartTotal);
+    if (userAgent) {
+      this.validatePlatform(coupon, userAgent);
+    }
 
     return coupon;
+  }
+
+  private detectPlatform(userAgent: string): string {
+    const mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+    return mobileRegex.test(userAgent) ? 'MOBILE' : 'DESKTOP';
+  }
+
+  private validatePlatform(coupon: Coupon, userAgent: string): void {
+    const detectedPlatform = this.detectPlatform(userAgent);
+    if (coupon.platform !== 'BOTH' && coupon.platform !== detectedPlatform) {
+      throw new BadRequestException(`Coupon is only valid for ${coupon.platform.toLowerCase()} platform`);
+    }
   }
 
   private validateStatus(coupon: Coupon): void {
@@ -49,8 +64,11 @@ export class CouponService {
 
   private validateValidityPeriod(coupon: Coupon): void {
     const now = new Date();
-    if (now < coupon.startDate || now > coupon.endDate) {
-      throw new BadRequestException('Coupon is expired or not yet valid');
+    if (now < coupon.startDate) {
+      throw new BadRequestException('Coupon is not yet valid');
+    }
+    if (!coupon.hasInfiniteValidity && coupon.endDate && now > coupon.endDate) {
+      throw new BadRequestException('Coupon is expired');
     }
   }
 
@@ -76,17 +94,33 @@ export class CouponService {
     return this.couponModel.find().sort({ createdAt: -1 }).exec();
   }
 
+  async deleteCoupon(id: string): Promise<Coupon> {
+    const coupon = await this.couponModel.findById(id);
+    if (!coupon) {
+      throw new NotFoundException('Coupon not found');
+    }
+    await this.couponModel.findByIdAndDelete(id);
+    return coupon;
+  }
+
   async getActiveCoupons(): Promise<Coupon[]> {
     const now = new Date();
     return this.couponModel
       .find({
         isActive: true,
         startDate: { $lte: now },
-        endDate: { $gte: now },
         $or: [
-          { usageLimit: { $exists: false } },
-          { usageLimit: null },
-          { $expr: { $lt: ['$usageCount', '$usageLimit'] } },
+          { hasInfiniteValidity: true },
+          { endDate: { $gte: now } },
+        ],
+        $and: [
+          {
+            $or: [
+              { usageLimit: { $exists: false } },
+              { usageLimit: null },
+              { $expr: { $lt: ['$usageCount', '$usageLimit'] } },
+            ],
+          },
         ],
       })
       .sort({ createdAt: -1 })

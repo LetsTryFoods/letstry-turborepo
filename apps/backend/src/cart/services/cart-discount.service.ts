@@ -14,9 +14,10 @@ export class CartDiscountService {
   async validateAndApplyCoupon(
     couponCode: string,
     subtotal: number,
+    userAgent?: string,
   ): Promise<void> {
     try {
-      await this.couponService.validateCoupon(couponCode, subtotal);
+      await this.couponService.validateCoupon(couponCode, subtotal, userAgent);
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -26,13 +27,14 @@ export class CartDiscountService {
     couponCode: string | undefined,
     subtotal: number,
     items: CartItem[],
+    userAgent?: string,
   ): Promise<number> {
     if (!couponCode) {
       return 0;
     }
 
     try {
-      return await this.calculateDiscount(subtotal, items, couponCode);
+      return await this.calculateDiscount(subtotal, items, couponCode, userAgent);
     } catch (error) {
       this.logger.warn(
         `Coupon ${couponCode} became invalid: ${error.message}`,
@@ -46,10 +48,12 @@ export class CartDiscountService {
     subtotal: number,
     items: CartItem[],
     couponCode: string,
+    userAgent?: string,
   ): Promise<number> {
     const coupon = await this.couponService.validateCoupon(
       couponCode,
       subtotal,
+      userAgent,
     );
     const applicableAmount = this.calculateApplicableAmount(
       coupon,

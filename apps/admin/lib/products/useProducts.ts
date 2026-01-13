@@ -179,10 +179,11 @@ export interface UpdateProductInput {
 
 export const useProducts = (
   pagination: PaginationInput = { page: 1, limit: 10 },
-  includeOutOfStock: boolean = false
+  includeOutOfStock: boolean = false,
+  includeArchived: boolean = false
 ) => {
   return useQuery(GET_PRODUCTS, {
-    variables: { pagination, includeOutOfStock },
+    variables: { pagination, includeOutOfStock, includeArchived },
     fetchPolicy: "cache-and-network",
   });
 };
@@ -217,6 +218,7 @@ export const useUpdateProductSeo = () => {
         variables: {
           pagination: { page: 1, limit: 20 },
           includeOutOfStock: true,
+          includeArchived: false,
         },
       },
     ],
@@ -286,6 +288,7 @@ export const useCreateProduct = () => {
         variables: {
           pagination: { page: 1, limit: 10 },
           includeOutOfStock: false,
+          includeArchived: false,
         },
       },
     ],
@@ -305,6 +308,7 @@ export const useUpdateProduct = () => {
         variables: {
           pagination: { page: 1, limit: 10 },
           includeOutOfStock: false,
+          includeArchived: false,
         },
       },
     ],
@@ -324,6 +328,7 @@ export const useDeleteProduct = () => {
         variables: {
           pagination: { page: 1, limit: 10 },
           includeOutOfStock: false,
+          includeArchived: false,
         },
       },
     ],
@@ -343,6 +348,7 @@ export const useArchiveProduct = () => {
         variables: {
           pagination: { page: 1, limit: 10 },
           includeOutOfStock: false,
+          includeArchived: false,
         },
       },
     ],
@@ -362,6 +368,7 @@ export const useUnarchiveProduct = () => {
         variables: {
           pagination: { page: 1, limit: 10 },
           includeOutOfStock: true,
+          includeArchived: true,
         },
       },
     ],
@@ -381,6 +388,7 @@ export const useUpdateProductStock = () => {
         variables: {
           pagination: { page: 1, limit: 10 },
           includeOutOfStock: false,
+          includeArchived: false,
         },
       },
     ],

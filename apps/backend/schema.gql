@@ -374,7 +374,9 @@ type Coupon {
   minCartValue: Float
   maxDiscountAmount: Float
   startDate: DateTime!
-  endDate: DateTime!
+  endDate: DateTime
+  hasInfiniteValidity: Boolean!
+  platform: CouponPlatform!
   isActive: Boolean!
   usageLimit: Int
   usageCount: Int!
@@ -385,6 +387,12 @@ type Coupon {
 enum DiscountType {
   PERCENTAGE
   FIXED
+}
+
+enum CouponPlatform {
+  MOBILE
+  DESKTOP
+  BOTH
 }
 
 type Product {
@@ -1048,7 +1056,7 @@ input BoxDimensionsInput {
 
 type Query {
   hello: String!
-  products(pagination: PaginationInput! = {page: 1, limit: 10}, includeOutOfStock: Boolean! = false): PaginatedProducts!
+  products(pagination: PaginationInput! = {page: 1, limit: 10}, includeOutOfStock: Boolean! = false, includeArchived: Boolean! = false): PaginatedProducts!
   product(id: ID!): Product
   productBySlug(slug: String!): Product
   productsByCategory(categoryId: ID!, pagination: PaginationInput! = {page: 1, limit: 10}): PaginatedProducts!
@@ -1093,6 +1101,7 @@ type Query {
   getAllOrders(input: GetAllOrdersInput!): AdminOrdersResponse!
   getOrderById(orderId: String!): OrderType!
   getAssignedOrder: PackingOrder!
+  getMyAssignedOrders: [PackingOrder!]!
   getBoxRecommendation(packingOrderId: String!): BoxSize!
   getAllPackingOrders(packerId: String, status: String): [PackingOrder!]!
   getEvidenceByOrder(packingOrderId: String!): PackingEvidence!
@@ -1254,6 +1263,7 @@ type Mutation {
   applyCoupon(code: String!): Cart!
   removeCoupon: Cart!
   createCoupon(input: CreateCouponInput!): Coupon!
+  deleteCoupon(id: ID!): Coupon!
   createOrUpdateCharges(input: CreateChargesInput!): Charges!
   initiatePayment(input: InitiatePaymentInput!): InitiatePaymentResponse!
   processRefund(input: ProcessRefundInput!): RefundResponse!
@@ -1571,7 +1581,9 @@ input CreateCouponInput {
   minCartValue: Float
   maxDiscountAmount: Float
   startDate: DateTime!
-  endDate: DateTime!
+  endDate: DateTime
+  hasInfiniteValidity: Boolean! = false
+  platform: CouponPlatform! = BOTH
   isActive: Boolean
   usageLimit: Int
 }

@@ -105,7 +105,7 @@ function ProductsPageContent() {
 
   const [showArchived, setShowArchived] = useState(false);
 
-  const allProductsQuery = useProducts({ page: currentPage, limit: pageSize }, showArchived);
+  const allProductsQuery = useProducts({ page: currentPage, limit: pageSize }, false, showArchived);
   const categoryProductsQuery = useProductsByCategory(
     categoryId || '',
     { page: currentPage, limit: pageSize }
@@ -127,13 +127,9 @@ function ProductsPageContent() {
     setCurrentPage(1);
   }, [categoryId]);
 
-  const allProducts = categoryId
+  const products = categoryId
     ? (productsData as any)?.productsByCategory?.items || []
     : (productsData as any)?.products?.items || [];
-
-  const products = showArchived && !categoryId
-    ? allProducts.filter((p: any) => p.isArchived)
-    : allProducts.filter((p: any) => !p.isArchived);
 
   const meta = categoryId
     ? (productsData as any)?.productsByCategory?.meta || {

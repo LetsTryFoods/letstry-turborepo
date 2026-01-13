@@ -56,8 +56,9 @@ export function usePackerPage() {
     if (packerToDelete) {
       try {
         await deletePacker({
-          variables: { _id: packerToDelete }
+          variables: { packerId: packerToDelete }
         })
+        await refetchPackers()
         setPackerToDelete(null)
       } catch (error) {
         console.error('Failed to delete packer:', error)
@@ -70,7 +71,7 @@ export function usePackerPage() {
     try {
       await updatePacker({
         variables: {
-          _id: packerId,
+          packerId: packerId,
           input: {
             isActive: !currentActive
           }

@@ -50,11 +50,11 @@ const items = [
     url: "/dashboard/categories",
     icon: FolderTree,
   },
-  {
-    title: "Address",
-    url: "/dashboard/address",
-    icon: Truck,
-  },
+  // {
+  //   title: "Address",
+  //   url: "/dashboard/address",
+  //   icon: Truck,
+  // },
   {
     title: "SEO Content",
     url: "/dashboard/seo-content",
@@ -90,11 +90,11 @@ const items = [
     url: "/dashboard/customers",
     icon: Users,
   },
-  {
-    title: "Abandoned Carts",
-    url: "/dashboard/cards",
-    icon: ShoppingCart,
-  },
+  // {
+  //   title: "Abandoned Carts",
+  //   url: "/dashboard/cards",
+  //   icon: ShoppingCart,
+  // },
   {
     title: "Orders",
     url: "/dashboard/orders",

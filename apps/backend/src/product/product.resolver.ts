@@ -30,7 +30,7 @@ export class ProductResolver {
   constructor(
     private readonly productService: ProductService,
     private readonly categoryLoader: CategoryLoader,
-  ) {}
+  ) { }
 
   @Query(() => PaginatedProducts, { name: 'products' })
   @Public()
@@ -42,11 +42,14 @@ export class ProductResolver {
     pagination: PaginationInput,
     @Args('includeOutOfStock', { type: () => Boolean, defaultValue: false })
     includeOutOfStock: boolean,
+    @Args('includeArchived', { type: () => Boolean, defaultValue: false })
+    includeArchived: boolean,
   ): Promise<PaginatedProducts> {
     const result = await this.productService.findAllPaginated(
       pagination.page,
       pagination.limit,
       includeOutOfStock,
+      includeArchived,
     );
     return {
       items: result.items,

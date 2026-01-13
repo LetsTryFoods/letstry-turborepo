@@ -58,7 +58,7 @@ export const usePackers = (isActive?: boolean) => {
 export const usePackerById = (id: string) => {
   return useQuery(GET_PACKER_BY_ID, {
     variables: { packerId: id },
-    skip: !id,
+    skip: !id || id === '',
     fetchPolicy: 'cache-and-network',
   })
 }
@@ -67,13 +67,14 @@ export const usePackerStats = (packerId: string, startDate?: Date, endDate?: Dat
   return useQuery(GET_PACKER_STATS, {
     variables: { packerId, startDate, endDate },
     fetchPolicy: 'cache-and-network',
-    skip: !packerId,
+    skip: !packerId || packerId === '',
   })
 }
 
 export const useCreatePacker = () => {
   const [mutate, { loading, error }] = useMutation(CREATE_PACKER, {
     refetchQueries: [{ query: GET_ALL_PACKERS }],
+    awaitRefetchQueries: true,
   })
   return { mutate, loading, error }
 }
@@ -81,6 +82,7 @@ export const useCreatePacker = () => {
 export const useUpdatePacker = () => {
   const [mutate, { loading, error }] = useMutation(UPDATE_PACKER, {
     refetchQueries: [{ query: GET_ALL_PACKERS }],
+    awaitRefetchQueries: true,
   })
   return { mutate, loading, error }
 }
@@ -88,6 +90,7 @@ export const useUpdatePacker = () => {
 export const useDeletePacker = () => {
   const [mutate, { loading, error }] = useMutation(DELETE_PACKER, {
     refetchQueries: [{ query: GET_ALL_PACKERS }],
+    awaitRefetchQueries: true,
   })
   return { mutate, loading, error }
 }

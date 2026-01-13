@@ -54,6 +54,13 @@ export class PackingService {
     return this.packingOrderCrud.findById(orderData.orderId);
   }
 
+  async getPackerAssignedOrders(packerId: string): Promise<any[]> {
+    const orders = await this.packingOrderCrud.findByPacker(packerId);
+    return orders.filter(
+      (order: any) => order.status === 'assigned' || order.status === 'packing'
+    );
+  }
+
   async startPacking(packingOrderId: string): Promise<any> {
     await this.packingLifecycle.startPacking(packingOrderId);
 
@@ -167,7 +174,7 @@ export class PackingService {
     imageUrls: string[],
     boxCode: string,
   ): Promise<any> {
-    
+
 
     const evidence = await this.evidenceCrud.create({
       packingOrderId,
@@ -233,7 +240,7 @@ export class PackingService {
       }
 
       const boxDimensions = packingEvidence.actualBox?.dimensions || packingEvidence.recommendedBox?.dimensions;
-      
+
       if (!boxDimensions) {
         this.packingLogger.logError('No box dimensions found', new Error('Missing dimensions'), {
           orderId,

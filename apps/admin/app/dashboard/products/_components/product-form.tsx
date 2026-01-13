@@ -501,10 +501,10 @@ export function ProductForm({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description *</FormLabel>
+                  <FormLabel>Description</FormLabel>
                   <FormControl>
                     <WysiwygEditor
-                      value={field.value}
+                      value={field.value || ""}
                       onChange={field.onChange}
                       placeholder="Enter product description..."
                     />

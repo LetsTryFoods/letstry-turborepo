@@ -45,8 +45,9 @@ export class PackerService {
     return this.packerCrud.update(packerId, input);
   }
 
-  async deletePacker(packerId: string): Promise<any> {
-    return this.packerCrud.delete(packerId);
+  async deletePacker(packerId: string): Promise<boolean> {
+    await this.packerCrud.delete(packerId);
+    return true;
   }
 
   async getAllPackers(filters: any): Promise<any[]> {

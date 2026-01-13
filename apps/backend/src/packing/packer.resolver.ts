@@ -36,7 +36,7 @@ export class PackerResolver {
   @Mutation(() => Boolean)
   @Roles(Role.ADMIN)
   @UseGuards(RolesGuard)
-  async deletePacker(@Args('packerId') packerId: string): Promise<any> {
+  async deletePacker(@Args('packerId') packerId: string): Promise<boolean> {
     return this.packerService.deletePacker(packerId);
   }
 

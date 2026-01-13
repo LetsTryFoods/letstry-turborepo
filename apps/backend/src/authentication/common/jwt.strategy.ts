@@ -35,6 +35,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
           return this.adminAuthService.validateJwtPayload(payload);
         case Role.USER:
           return this.userAuthService.validateJwtPayload(payload);
+        case Role.PACKER:
+        case 'packer':
+          return {
+            packerId: payload.packerId,
+            employeeId: payload.employeeId,
+            role: Role.PACKER,
+          };
         default:
           return null;
       }

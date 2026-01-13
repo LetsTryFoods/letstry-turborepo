@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { CouponService } from './coupon.service';
 import { Coupon } from './coupon.schema';
@@ -18,6 +18,13 @@ export class CouponResolver {
   @Roles(Role.ADMIN)
   async createCoupon(@Args('input') input: CreateCouponInput): Promise<Coupon> {
     return this.couponService.createCoupon(input);
+  }
+
+  @Mutation(() => Coupon)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  async deleteCoupon(@Args('id', { type: () => ID }) id: string): Promise<Coupon> {
+    return this.couponService.deleteCoupon(id);
   }
 
   @Query(() => Coupon, { name: 'coupon' })

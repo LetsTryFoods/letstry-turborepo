@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Geist, Geist_Mono, Agbalumo } from "next/font/google";
 import "./globals.css";
 import ToastProvider from "@/providers/toast-provider";
@@ -74,7 +75,9 @@ export default function RootLayout({
         <QueryProvider>
           <RecaptchaProvider>
             <AuthProvider>
-              <PageViewTracker />
+              <Suspense fallback={null}>
+                <PageViewTracker />
+              </Suspense>
               <TopBanner />
               <Navbar />
               <SearchOverlay />

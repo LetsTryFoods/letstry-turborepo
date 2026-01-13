@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const couponFormSchema = z.object({
+const baseSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().min(1, 'Description is required'),
   code: z.string().min(1, 'Code is required').regex(/^[A-Z0-9_-]+$/, 'Code must be uppercase alphanumeric with dashes or underscores'),
@@ -11,21 +11,29 @@ export const couponFormSchema = z.object({
   minCartValue: z.coerce.number().min(0, 'Minimum cart value cannot be negative').optional(),
   maxDiscountAmount: z.coerce.number().min(0, 'Maximum discount cannot be negative').optional(),
   startDate: z.string().min(1, 'Start date is required'),
-  endDate: z.string().min(1, 'End date is required'),
+  endDate: z.string().optional(),
+  hasInfiniteValidity: z.boolean(),
+  platform: z.enum(['MOBILE', 'DESKTOP', 'BOTH']),
   isActive: z.boolean(),
-//   eligibilityType: z.enum(['ALL', 'FIRST_ORDER', 'SPECIFIC_USERS'], {
-//     required_error: 'Eligibility type is required',
-//   }),
-//   applicationScope: z.enum(['ALL_PRODUCTS', 'SPECIFIC_CATEGORIES', 'SPECIFIC_PRODUCTS'], {
-//     required_error: 'Application scope is required',
-//   }),
-//   usageLimit: z.coerce.number().int().min(0, 'Usage limit cannot be negative').optional(),
-}).refine((data) => {
-  const start = new Date(data.startDate)
-  const end = new Date(data.endDate)
-  return end > start
+})
+
+export const couponFormSchema = baseSchema.refine((data) => {
+  if (!data.hasInfiniteValidity && data.endDate) {
+    const start = new Date(data.startDate)
+    const end = new Date(data.endDate)
+    return end > start
+  }
+  return true
 }, {
   message: 'End date must be after start date',
+  path: ['endDate'],
+}).refine((data) => {
+  if (!data.hasInfiniteValidity && !data.endDate) {
+    return false
+  }
+  return true
+}, {
+  message: 'End date is required when infinite validity is disabled',
   path: ['endDate'],
 }).refine((data) => {
   if (data.discountType === 'PERCENTAGE') {
@@ -37,4 +45,4 @@ export const couponFormSchema = z.object({
   path: ['discountValue'],
 })
 
-export type CouponFormValues = z.infer<typeof couponFormSchema>
+export type CouponFormValues = z.infer<typeof baseSchema>

@@ -42,8 +42,8 @@ const SEO_FIELDS = `
 `;
 
 export const GET_PRODUCTS = gql`
-  query GetProducts($pagination: PaginationInput, $includeOutOfStock: Boolean) {
-    products(pagination: $pagination, includeOutOfStock: $includeOutOfStock) {
+  query GetProducts($pagination: PaginationInput, $includeOutOfStock: Boolean, $includeArchived: Boolean) {
+    products(pagination: $pagination, includeOutOfStock: $includeOutOfStock, includeArchived: $includeArchived) {
       items {
         _id
         name
