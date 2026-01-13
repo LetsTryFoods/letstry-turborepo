@@ -14,6 +14,7 @@ import { SearchOverlay } from "@/components/search-overlay";
 import { GoogleTagManager, GoogleTagManagerNoscript } from "@/components/analytics/google-tag-manager";
 import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { PageViewTracker } from "@/components/analytics/page-view-tracker";
+import Script from 'next/script';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,6 +48,22 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <Script
+          id="partytown-config"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              partytown = {
+                debug: false,
+                forward: ['dataLayer.push', 'gtag']s
+              };
+            `,
+          }}
+        />
+        <Script 
+          src="/~partytown/partytown.js"
+          strategy="beforeInteractive"
+        />
         {gtmId && <GoogleTagManager gtmId={gtmId} />}
         {gaId && <GoogleAnalytics measurementId={gaId} />}
       </head>

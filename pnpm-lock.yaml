@@ -430,6 +430,9 @@ importers:
 
   apps/frontend:
     dependencies:
+      '@builder.io/partytown':
+        specifier: ^0.10.3
+        version: 0.10.3
       '@graphql-typed-document-node/core':
         specifier: ^3.2.0
         version: 3.2.0(graphql@16.12.0)
@@ -1163,6 +1166,12 @@ packages:
 
   '@borewit/text-codec@0.1.1':
     resolution: {integrity: sha512-5L/uBxmjaCIX5h8Z+uu+kA9BQLkc/Wl06UGR5ajNRxu+/XjonB5i8JpgFMrPj3LXTCPA0pv8yxUvbUi+QthGGA==}
+
+  '@builder.io/partytown@0.10.3':
+    resolution: {integrity: sha512-N2SWA3c5vEad3rgdAFM3zMb6uc7aXqibkgAz4ijvYzycgQXJ4dE5oH6fGFMXSQWj6ayVlLT1/CmpflYUJHfmQg==}
+    engines: {node: '>=18.0.0'}
+    deprecated: Use @qwik.dev/partytown instead
+    hasBin: true
 
   '@bull-board/api@6.16.2':
     resolution: {integrity: sha512-d3kDf91FeMw/wYp8FOZJjX4hVqZEmomXtYgNRdZc0a5gTR2bmomvpwJtNBinu2lyIRFoX/Rxilz+CZ6xyw3drQ==}
@@ -11604,6 +11613,8 @@ snapshots:
   '@bcoe/v8-coverage@1.0.2': {}
 
   '@borewit/text-codec@0.1.1': {}
+
+  '@builder.io/partytown@0.10.3': {}
 
   '@bull-board/api@6.16.2(@bull-board/ui@6.16.2)':
     dependencies:
