@@ -1101,6 +1101,7 @@ type Query {
   getAllOrders(input: GetAllOrdersInput!): AdminOrdersResponse!
   getOrderById(orderId: String!): OrderType!
   getAssignedOrder: PackingOrder!
+  getMyAssignedOrders: [PackingOrder!]!
   getBoxRecommendation(packingOrderId: String!): BoxSize!
   getAllPackingOrders(packerId: String, status: String): [PackingOrder!]!
   getEvidenceByOrder(packingOrderId: String!): PackingEvidence!

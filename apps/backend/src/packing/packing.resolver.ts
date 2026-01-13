@@ -45,6 +45,13 @@ export class PackingResolver {
     return this.packingService.assignOrderToPacker(ctx.req.user.packerId);
   }
 
+  @Query(() => [PackingOrder])
+  @UseGuards(PackerAuthGuard, RolesGuard)
+  @Roles(Role.PACKER, Role.ADMIN)
+  async getMyAssignedOrders(@Context() ctx): Promise<any[]> {
+    return this.packingService.getPackerAssignedOrders(ctx.req.user.packerId);
+  }
+
   @Mutation(() => PackingOrder)
   @UseGuards(PackerAuthGuard, RolesGuard)
   @Roles(Role.PACKER)
