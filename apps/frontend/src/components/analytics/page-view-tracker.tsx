@@ -10,8 +10,10 @@ export function PageViewTracker() {
   const { trackPageView } = useAnalytics();
 
   useEffect(() => {
-    const url = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : '');
-    trackPageView(url);
+    if (pathname) {
+      const url = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : '');
+      trackPageView(url);
+    }
   }, [pathname, searchParams, trackPageView]);
 
   return null;

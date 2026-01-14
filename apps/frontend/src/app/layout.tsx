@@ -12,7 +12,6 @@ import { GuestSessionManager } from "@/components/guest/GuestSessionManager";
 import { CartContainer } from "@/components/cart-drawer/CartContainer";
 import { SearchOverlay } from "@/components/search-overlay";
 import { GoogleTagManager, GoogleTagManagerNoscript } from "@/components/analytics/google-tag-manager";
-import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { PageViewTracker } from "@/components/analytics/page-view-tracker";
 import Script from 'next/script';
 
@@ -43,7 +42,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const gtmId = process.env.NEXT_PUBLIC_GTM_ID;
-  const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
   
   return (
     <html lang="en">
@@ -55,7 +53,7 @@ export default function RootLayout({
             __html: `
               partytown = {
                 debug: false,
-                forward: ['dataLayer.push', 'gtag']s
+                forward: ['dataLayer.push']
               };
             `,
           }}
@@ -65,7 +63,6 @@ export default function RootLayout({
           strategy="beforeInteractive"
         />
         {gtmId && <GoogleTagManager gtmId={gtmId} />}
-        {gaId && <GoogleAnalytics measurementId={gaId} />}
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${agbalumo.variable} antialiased`}
