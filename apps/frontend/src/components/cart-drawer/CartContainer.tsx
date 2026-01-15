@@ -15,6 +15,7 @@ import { CartDrawer } from './CartDrawer';
 import { AddressFormData } from './AddressDetailsModal';
 import { LoginModal } from '@/components/auth/login-modal';
 import { useAnalytics } from '@/hooks/use-analytics';
+import { pushToDataLayer } from '@/lib/analytics/data-layer';
 
 export const CartContainer = () => {
   const { isOpen, closeCart } = useCartStore();
@@ -23,7 +24,7 @@ export const CartContainer = () => {
   const { data: couponsData, isLoading: couponsLoading } = useCoupons();
   const { data: addressesData } = useAddresses();
   const queryClient = useQueryClient();
-  const { trackRemoveFromCart } = useAnalytics();
+  const { trackRemoveFromCart, trackBeginCheckout, trackAddToCart } = useAnalytics();
   
   React.useEffect(() => {
     console.log('CartContainer - user:', user);
@@ -66,10 +67,40 @@ export const CartContainer = () => {
 
   const handleUpdateQuantity = async (productId: string, quantity: number) => {
     try {
+      const item = items.find((i: any) => i.id === productId);
+      const oldQuantity = item?.quantity || 0;
+      
       if (quantity === 0) {
         await CartService.removeFromCart(productId);
+        
+        if (item) {
+          trackRemoveFromCart({
+            id: item.id,
+            name: item.title,
+            price: item.price,
+            quantity: oldQuantity,
+          });
+        }
       } else {
         await CartService.updateCartItem(productId, quantity);
+        
+        if (item) {
+          if (quantity < oldQuantity) {
+            trackRemoveFromCart({
+              id: item.id,
+              name: item.title,
+              price: item.price,
+              quantity: oldQuantity - quantity,
+            });
+          } else if (quantity > oldQuantity) {
+            trackAddToCart({
+              id: item.id,
+              name: item.title,
+              price: item.price,
+              quantity: quantity - oldQuantity,
+            });
+          }
+        }
       }
       queryClient.invalidateQueries({ queryKey: ['cart'] });
     } catch (error) {
@@ -109,11 +140,26 @@ export const CartContainer = () => {
   const handleApplyCoupon = async (code: string) => {
     await CouponService.applyCoupon(code);
     queryClient.invalidateQueries({ queryKey: ['cart'] });
+    
+    pushToDataLayer({
+      event: 'apply_coupon',
+      coupon_code: code,
+      cart_value: totalPrice,
+    });
   };
 
   const handleRemoveCoupon = async () => {
+    const removedCouponCode = appliedCouponCode;
     await CouponService.removeCoupon();
     queryClient.invalidateQueries({ queryKey: ['cart'] });
+    
+    if (removedCouponCode) {
+      pushToDataLayer({
+        event: 'remove_coupon',
+        coupon_code: removedCouponCode,
+        cart_value: totalPrice,
+      });
+    }
   };
 
   const handleSelectAddress = (addressId: string) => {
@@ -197,6 +243,18 @@ export const CartContainer = () => {
       console.error('Cart not found');
       return;
     }
+    
+    trackBeginCheckout({
+      value: totalPrice,
+      items: items.map((item: any) => ({
+        id: item.id,
+        name: item.title,
+        price: item.price,
+        quantity: item.quantity,
+      })),
+      coupon: appliedCouponCode || undefined,
+    });
+    
     setShowPaymentModal(true);
   };
 

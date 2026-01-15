@@ -11,7 +11,7 @@ export const bestsellersData: Product[] = [
     price: 100,
     category: ["Fasting Special"],
     sub_category: "Makhana",
-    imageUrl: "https://d11a0m43ek7ap8.cloudfront.net/Makhana mixture.png",
+    imageUrl: "https://d2tmwt8yl5m7qh.cloudfront.net/Makhana mixture.png",
     refundPolicy:
       "This Item is non-returnable. For a damaged, defective, incorrect or expired item, you can request a replacement within 72 hours of delivery.",
     disclaimer:
@@ -36,7 +36,7 @@ export const bestsellersData: Product[] = [
     price: 120,
     category: ["Munchies"],
     sub_category: "Boondi",
-    imageUrl: "https://d11a0m43ek7ap8.cloudfront.net/Masala Boondi-01.png",
+    imageUrl: "https://d2tmwt8yl5m7qh.cloudfront.net/Masala Boondi-01.png",
     refundPolicy:
       "This Item is non-returnable. For a damaged, defective, incorrect or expired item, you can request a replacement within 72 hours of delivery.",
     disclaimer:
@@ -61,7 +61,7 @@ export const bestsellersData: Product[] = [
     price: 150,
     category: ["Purani Delhi"],
     sub_category: "Papdi",
-    imageUrl: "https://d11a0m43ek7ap8.cloudfront.net/Papdi.webp",
+    imageUrl: "https://d2tmwt8yl5m7qh.cloudfront.net/Papdi.webp",
     refundPolicy:
       "This Item is non-returnable. For a damaged, defective, incorrect or expired item, you can request a replacement within 72 hours of delivery.",
     disclaimer:
@@ -85,7 +85,7 @@ export const bestsellersData: Product[] = [
     price: 88,
     category: ["Munchies"],
     sub_category: "Peanuts",
-    imageUrl: "https://d11a0m43ek7ap8.cloudfront.net/masala_peanuts.png",
+    imageUrl: "https://d2tmwt8yl5m7qh.cloudfront.net/masala_peanuts.png",
     refundPolicy:
       "This Item is non-returnable. For a damaged, defective, incorrect or expired item, you can request a replacement within 72 hours of delivery.",
     disclaimer:
@@ -109,7 +109,7 @@ export const bestsellersData: Product[] = [
     price: 120,
     category: ["Bhujia"],
     sub_category: "Bhujia",
-    imageUrl: "https://d11a0m43ek7ap8.cloudfront.net/Sev Bhujia-01.png",
+    imageUrl: "https://d2tmwt8yl5m7qh.cloudfront.net/Sev Bhujia-01.png",
     refundPolicy:
       "This Item is non-returnable. For a damaged, defective, incorrect or expired item, you can request a replacement within 72 hours of delivery.",
     disclaimer:
@@ -134,7 +134,7 @@ export const bestsellersData: Product[] = [
     price: 120,
     category: ["Bhujia"],
     sub_category: "Bhujia",
-    imageUrl: "https://d11a0m43ek7ap8.cloudfront.net/Garlic Bhujia-01.png",
+    imageUrl: "https://d2tmwt8yl5m7qh.cloudfront.net/Garlic Bhujia-01.png",
     refundPolicy:
       "This Item is non-returnable. For a damaged, defective, incorrect or expired item, you can request a replacement within 72 hours of delivery.",
     disclaimer:
@@ -158,7 +158,7 @@ export const bestsellersData: Product[] = [
     price: 60,
     category: ["Chips n Crisps"],
     sub_category: "Chips",
-    imageUrl: "https://d11a0m43ek7ap8.cloudfront.net/Potato_wafers.webp",
+    imageUrl: "https://d2tmwt8yl5m7qh.cloudfront.net/Potato_wafers.webp",
     refundPolicy:
       "This Item is non-returnable. For a damaged, defective, incorrect or expired item, you can request a replacement within 72 hours of delivery.",
     disclaimer:
@@ -183,7 +183,7 @@ export const bestsellersData: Product[] = [
     price: 100,
     category: ["Fasting Special"],
     sub_category: "Sabudana mix",
-    imageUrl: "https://d11a0m43ek7ap8.cloudfront.net/Sabudana mixture.png",
+    imageUrl: "https://d2tmwt8yl5m7qh.cloudfront.net/Sabudana mixture.png",
     refundPolicy:
       "This Item is non-returnable. For a damaged, defective, incorrect or expired item, you can request a replacement within 72 hours of delivery.",
     disclaimer:

@@ -1,6 +1,6 @@
 import type { CategoryRaw } from '@/types/category.types';
 
-const API_IMAGE_BASE = process.env.NEXT_PUBLIC_API_IMAGE_URL ?? process.env.VITE_API_IMAGE_URL ?? 'https://d11a0m43ek7ap8.cloudfront.net';
+const API_IMAGE_BASE = process.env.NEXT_PUBLIC_API_IMAGE_URL ?? process.env.VITE_API_IMAGE_URL ?? 'https://d2tmwt8yl5m7qh.cloudfront.net';
 
 export const favourites: CategoryRaw[] = [
   { id: 1, name: 'Purani Delhi', img: `${API_IMAGE_BASE}/images/purani_delhi.webp`, href: '/category/purani-delhi' },  

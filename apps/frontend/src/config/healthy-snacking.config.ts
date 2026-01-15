@@ -6,7 +6,7 @@ export type HealthySnackingSlide = {
   redirectTo: string;
 };
 
-const IMAGE_URL = "https://d11a0m43ek7ap8.cloudfront.net";
+const IMAGE_URL = "https://d2tmwt8yl5m7qh.cloudfront.net";
 
 export const healthySnackingSlides: HealthySnackingSlide[] = [
   {

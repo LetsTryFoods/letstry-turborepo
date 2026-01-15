@@ -354,8 +354,8 @@ const Identity = mongoose.model('Identity', IdentitySchema);
 const PaymentEvent = mongoose.model('PaymentEvent', PaymentEventSchema);
 const PaymentOrder = mongoose.model('PaymentOrder', PaymentOrderSchema);
 
-const categoryImageUrl = 'https://d11a0m43ek7ap8.cloudfront.net/eaffe2ce9255d74a4ee81d3a20bdace9.webp';
-const productImageUrl = 'https://d11a0m43ek7ap8.cloudfront.net/baf14c8fb442c0eadd20e2939de06905.webp';
+const categoryImageUrl = 'https://d2tmwt8yl5m7qh.cloudfront.net/eaffe2ce9255d74a4ee81d3a20bdace9.webp';
+const productImageUrl = 'https://d2tmwt8yl5m7qh.cloudfront.net/baf14c8fb442c0eadd20e2939de06905.webp';
 
 const categoryNames = [
     'Fruits & Vegetables', 'Dairy & Bakery', 'Snacks & Branded Foods', 'Beverages',
@@ -837,11 +837,11 @@ async function seed() {
                     packingOrderId: order._id.toString(),
                     packerId: order.assignedTo,
                     prePackImages: [
-                        'https://d11a0m43ek7ap8.cloudfront.net/evidence-pre-1.jpg',
-                        'https://d11a0m43ek7ap8.cloudfront.net/evidence-pre-2.jpg'
+                        'https://d2tmwt8yl5m7qh.cloudfront.net/evidence-pre-1.jpg',
+                        'https://d2tmwt8yl5m7qh.cloudfront.net/evidence-pre-2.jpg'
                     ],
                     postPackImages: [
-                        'https://d11a0m43ek7ap8.cloudfront.net/evidence-post-1.jpg'
+                        'https://d2tmwt8yl5m7qh.cloudfront.net/evidence-post-1.jpg'
                     ],
                     recommendedBox: {
                         code: recommendedBox.code,

@@ -15,7 +15,7 @@ const SUGGESTED_PRODUCTS = [
         id: '1',
         title: 'Makhana Mixture',
         price: 160,
-        image: 'https://d11a0m43ek7ap8.cloudfront.net/baf14c8fb442c0eadd20e2939de06905.webp',
+        image: 'https://d2tmwt8yl5m7qh.cloudfront.net/baf14c8fb442c0eadd20e2939de06905.webp',
         weight: '200 gm',
     },
     {
@@ -24,7 +24,7 @@ const SUGGESTED_PRODUCTS = [
         price: 160,
         mrp: 160,
         discount: '20% OFF',
-        image: 'https://d11a0m43ek7ap8.cloudfront.net/baf14c8fb442c0eadd20e2939de06905.webp',
+        image: 'https://d2tmwt8yl5m7qh.cloudfront.net/baf14c8fb442c0eadd20e2939de06905.webp',
         weight: '200 gm',
     },
 ];

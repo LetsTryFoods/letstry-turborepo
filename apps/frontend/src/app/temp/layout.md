@@ -90,3 +90,7 @@ export default function RootLayout({
     </html>
   );
 }
+
+
+
+<!-- scroll depth  this is a solution of single page application is better find the pages switches not properly track the page scrolling (scroll tracking ) -->
