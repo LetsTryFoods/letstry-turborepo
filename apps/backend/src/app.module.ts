@@ -29,6 +29,7 @@ import { ShipmentModule } from './shipment/shipment.module';
 import { BullModule } from '@nestjs/bullmq';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BullBoardModule } from './bull-board/bull-board.module';
+import { RedirectModule } from './redirect/redirect.module';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { BullBoardModule } from './bull-board/bull-board.module';
     PackingModule,
     BoxSizeModule,
     ShipmentModule,
+    RedirectModule,
     AuthenticationModule,
     AppCacheModule,
   ],

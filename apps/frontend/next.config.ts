@@ -71,6 +71,10 @@ const nextConfig: NextConfig = {
     ];
   },
 
+  async redirects() {
+    return [];
+  },
+
   compress: true,
   generateEtags: true,
 
