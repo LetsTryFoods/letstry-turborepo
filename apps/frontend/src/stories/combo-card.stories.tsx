@@ -16,7 +16,7 @@
 //   id: '1',
 //   name: 'Cookies Combo 800 gm',
 //   title: 'Healthy Cookies',
-//   imageUrl: 'https://d11a0m43ek7ap8.cloudfront.net/images/cookies.webp',
+//   imageUrl: 'https://d2tmwt8yl5m7qh.cloudfront.net/images/cookies.webp',
 //   price: 748,
 //   href: '/combo/cookies-combo',
 // };

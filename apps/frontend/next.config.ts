@@ -22,6 +22,10 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'd2tmwt8yl5m7qh.cloudfront.net',
+      },
+      {
+        protocol: 'https',
         hostname: 'cdn.shopify.com',
       },
     ],
@@ -66,6 +70,10 @@ const nextConfig: NextConfig = {
         ],
       },
     ];
+  },
+
+  async redirects() {
+    return [];
   },
 
   compress: true,

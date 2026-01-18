@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { GoArrowRight } from "react-icons/go";
 
-const NEXT_PUBLIC_API_IMAGE_URL = process.env.NEXT_PUBLIC_API_IMAGE_URL || "";
+const NEXT_PUBLIC_API_IMAGE_URL = process.env.NEXT_PUBLIC_API_IMAGE_URL_OLD || "";
 const FALLBACK_IMAGE = "/placeholder-image.svg";
 
 const AnimatedCurvedArrow = () => {
@@ -223,7 +223,7 @@ export default function AboutUsPage() {
               </Link>
               <div className="absolute bottom-0 right-0 w-[60px] h-[60px] bg-[#F3F3F3] rounded-tl-full">
                 <Image
-                  src={`${NEXT_PUBLIC_API_IMAGE_URL}/Namkeen.jpg`}
+                  src={`${NEXT_PUBLIC_API_IMAGE_URL}/namkeen-DHF0X_sA.png`}
                   alt="Namkeen"
                   width={40}
                   height={40}
@@ -313,7 +313,7 @@ export default function AboutUsPage() {
               </Link>
               <div className="absolute bottom-0 right-0 lg:w-[193px] lg:h-[160px] md:w-[120px] md:h-[120px] bg-[#F3F3F3] rounded-tl-full">
                 <Image
-                  src={`${NEXT_PUBLIC_API_IMAGE_URL}/Namkeen.jpg`}
+                  src={`${NEXT_PUBLIC_API_IMAGE_URL}/namkeen-DHF0X_sA.png`}
                   alt="Namkeen"
                   width={120}
                   height={114}

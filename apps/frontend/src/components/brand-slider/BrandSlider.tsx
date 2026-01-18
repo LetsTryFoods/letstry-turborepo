@@ -5,18 +5,17 @@ interface Brand {
   img: string;
 }
 
-const VITE_API_IMAGE_URL = process.env.NEXT_PUBLIC_API_IMAGE_URL || "";
 
 const brands: Brand[] = [
-  { name: "Amazon", img: `${VITE_API_IMAGE_URL}/images/amazon.webp` },
-  { name: "BigBasket", img: `${VITE_API_IMAGE_URL}/images/bigbasket.webp` },
-  { name: "Blinkit", img: `${VITE_API_IMAGE_URL}/images/blinkit.webp` },
-  { name: "Flipkart", img: `${VITE_API_IMAGE_URL}/images/flipkart.webp` },
-  { name: "Instamart", img: `${VITE_API_IMAGE_URL}/images/instamart.webp` },
-  { name: "Reliance", img: `${VITE_API_IMAGE_URL}/images/reliance.webp` },
-  { name: "Zepto", img: `${VITE_API_IMAGE_URL}/images/zepto.webp` },
-  { name: "DMart", img: `${VITE_API_IMAGE_URL}/images/dmart.webp` },
-  { name: "MilkBasket", img: `${VITE_API_IMAGE_URL}/images/milkbasket.webp` },
+  { name: "Amazon", img: "/images/amazon.png" },
+  { name: "BigBasket", img: "/images/bigbasket.png" },
+  { name: "Blinkit", img: "/images/blinkit.png" },
+  { name: "Flipkart", img: "/images/flipkart.png" },
+  { name: "Instamart", img: "/images/instamart.png" },
+  { name: "Reliance", img: "/images/reliance.png" },
+  { name: "Zepto", img: "/images/zepto.png" },
+  { name: "DMart", img: "/images/dmart.png" },
+  { name: "MilkBasket", img: "/images/milkbasket.png" },
 ];
 
 interface LogoProps {
@@ -27,7 +26,7 @@ interface LogoProps {
 
 const Logo = ({ name, img, i }: LogoProps) => (
   <div key={`${name}-${i}`} className="brand-slide">
-    <img src={img} alt={name} loading="lazy" className="brand-img" draggable={false} />
+    <img src={`${process.env.NEXT_PUBLIC_API_IMAGE_URL_OLD}${img}`} alt={name} loading="lazy" className="brand-img" draggable={false} />
   </div>
 );
 

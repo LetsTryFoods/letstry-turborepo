@@ -8,6 +8,7 @@ import { PriceSection } from './PriceSection';
 import { WeightSelector } from './WeightSelector';
 import { AddToCartButton } from './AddToCartButton';
 import { CartService } from '@/lib/cart/cart-service';
+import { useAnalytics } from '@/hooks/use-analytics';
 
 import Link from 'next/link';
 
@@ -39,6 +40,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, categoryType 
   const [selectedVariantId, setSelectedVariantId] = useState(product.variants[0]?.id || product.id);
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
+  const { trackAddToCart } = useAnalytics();
   
   const selectedVariant = product.variants.find(v => v.id === selectedVariantId) || {
     price: product.price,
@@ -63,6 +65,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, categoryType 
     try {
       await CartService.addToCart(selectedVariantId, 1);
       queryClient.invalidateQueries({ queryKey: ['cart'] });
+      
+      trackAddToCart({
+        id: selectedVariantId,
+        name: product.name,
+        price: selectedVariant.price,
+        quantity: 1,
+        variant: selectedVariant.weight,
+      });
+      
       toast.success(`${product.name} added to cart`);
     } catch (error) {
       toast.error('Failed to add to cart');

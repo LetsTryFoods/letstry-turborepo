@@ -1048,6 +1048,25 @@ type SubscribeNewsletterResponse {
   email: String
 }
 
+type RedirectType {
+  _id: String!
+  fromPath: String!
+  toPath: String!
+  statusCode: Int!
+  isActive: Boolean!
+  description: String
+  source: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type PaginatedRedirects {
+  data: [RedirectType!]!
+  total: Int!
+  page: Int!
+  limit: Int!
+}
+
 input BoxDimensionsInput {
   l: Float!
   w: Float!
@@ -1116,6 +1135,10 @@ type Query {
   getShipmentWithTracking(awbNumber: String!): ShipmentWithTrackingResponse!
   getAllNewsletterSubscriptions(isActive: Boolean): [NewsletterSubscription!]!
   getNewsletterSubscriptionCount(isActive: Boolean): Float!
+  redirects(page: Int! = 1, limit: Int! = 20, search: String): PaginatedRedirects!
+  redirect(id: String!): RedirectType!
+  redirectByPath(fromPath: String!): RedirectType
+  allActiveRedirects: [RedirectType!]!
 }
 
 input PaginationInput {
@@ -1287,6 +1310,9 @@ type Mutation {
   cancelShipment(input: CancelShipmentInput!): ShipmentResponse!
   subscribeNewsletter(input: SubscribeNewsletterInput!): SubscribeNewsletterResponse!
   unsubscribeNewsletter(email: String!): SubscribeNewsletterResponse!
+  createRedirect(input: CreateRedirectInput!): RedirectType!
+  updateRedirect(id: String!, input: UpdateRedirectInput!): RedirectType!
+  deleteRedirect(id: String!): Boolean!
   sendOtp(phoneNumber: String!): String!
   verifyWhatsAppOtp(phoneNumber: String!, otp: String!, input: CreateUserInput): String!
   verifyOtpAndLogin(idToken: String!, input: CreateUserInput): String!
@@ -1756,6 +1782,24 @@ input CancelShipmentInput {
 
 input SubscribeNewsletterInput {
   email: String!
+  source: String
+}
+
+input CreateRedirectInput {
+  fromPath: String!
+  toPath: String!
+  statusCode: Int! = 301
+  description: String
+  source: String! = "shopify"
+  isActive: Boolean! = true
+}
+
+input UpdateRedirectInput {
+  fromPath: String
+  toPath: String
+  statusCode: Int
+  isActive: Boolean
+  description: String
   source: String
 }
 

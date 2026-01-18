@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import Image from "next/image";
 import Link from "next/link";
 import { CartService } from '@/lib/cart/cart-service';
+import { useAnalytics } from '@/hooks/use-analytics';
 
 type ProductVariant = {
   _id: string;
@@ -37,6 +38,7 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
   const [quantity, setQuantity] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
+  const { trackAddToCart } = useAnalytics();
 
   const handleAddToCart = async () => {
     if (isLoading) return;
@@ -45,6 +47,15 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
     try {
       await CartService.addToCart(product._id, 1);
       setQuantity(1);
+      
+      trackAddToCart({
+        id: product._id,
+        name: product.name,
+        price: variant.price,
+        quantity: 1,
+        variant: variant.packageSize,
+      });
+      
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       toast.success(`${product.name} added to cart`);
     } catch (error) {

@@ -47,8 +47,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {gtmId && <GoogleTagManager gtmId={gtmId} />}
-        {/* Partytown Configuration - Temporarily Commented Out
         <Script
           data-partytown-config
           dangerouslySetInnerHTML={{
@@ -60,7 +58,7 @@ export default function RootLayout({
           }}
         />
         <Script src="/~partytown/partytown.js" />
-        */}
+        {gtmId && <GoogleTagManager gtmId={gtmId} />}
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${agbalumo.variable} antialiased`}

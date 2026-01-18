@@ -1,8 +1,31 @@
 import { MetadataRoute } from 'next';
+import { createServerGraphQLClient } from '@/lib/graphql/server-client-factory';
+import { GET_ALL_PRODUCTS_FOR_SITEMAP, GET_ALL_CATEGORIES_FOR_SITEMAP } from '@/lib/graphql/sitemap-queries';
+
+interface Product {
+  slug: string;
+  updatedAt: string;
+}
+
+interface Category {
+  slug: string;
+  updatedAt: string;
+}
+
+interface ProductsResponse {
+  products: {
+    items: Product[];
+  };
+}
+
+interface CategoriesResponse {
+  categories: {
+    items: Category[];
+  };
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://krsna.site';
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://admin-api.krsna.site';
+  const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'https://frontend.krsna.site').replace(/\/$/, '');
 
   const staticRoutes: MetadataRoute.Sitemap = [
     {
@@ -10,18 +33,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 1,
-    },
-    {
-      url: `${baseUrl}/products`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/categories`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.8,
     },
     {
       url: `${baseUrl}/about-us`,
@@ -40,18 +51,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let productRoutes: MetadataRoute.Sitemap = [];
   let categoryRoutes: MetadataRoute.Sitemap = [];
 
+  const client = createServerGraphQLClient();
+
   try {
-    const productsResponse = await fetch(`${apiUrl}/products`, {
-      next: { revalidate: 3600 },
-    });
+    const data = await client.request<ProductsResponse>(GET_ALL_PRODUCTS_FOR_SITEMAP);
     
-    if (productsResponse.ok) {
-      const products = await productsResponse.json();
-      productRoutes = products.map((product: any) => ({
-        url: `${baseUrl}/products/${product.slug || product.id}`,
-        lastModified: product.updatedAt || new Date(),
+    if (data?.products?.items) {
+      productRoutes = data.products.items.map((product) => ({
+        url: `${baseUrl}/product/${product.slug}`,
+        lastModified: new Date(product.updatedAt),
         changeFrequency: 'weekly' as const,
-        priority: 0.7,
+        priority: 0.8,
       }));
     }
   } catch (error) {
@@ -59,15 +69,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   try {
-    const categoriesResponse = await fetch(`${apiUrl}/categories`, {
-      next: { revalidate: 3600 },
-    });
+    const data = await client.request<CategoriesResponse>(GET_ALL_CATEGORIES_FOR_SITEMAP);
     
-    if (categoriesResponse.ok) {
-      const categories = await categoriesResponse.json();
-      categoryRoutes = categories.map((category: any) => ({
-        url: `${baseUrl}/categories/${category.slug || category.id}`,
-        lastModified: category.updatedAt || new Date(),
+    if (data?.categories?.items) {
+      categoryRoutes = data.categories.items.map((category) => ({
+        url: `${baseUrl}/category/${category.slug}`,
+        lastModified: new Date(category.updatedAt),
         changeFrequency: 'weekly' as const,
         priority: 0.7,
       }));
