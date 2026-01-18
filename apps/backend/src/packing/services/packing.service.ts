@@ -53,7 +53,6 @@ export class PackingService {
     await this.orderAssignment.assignOrder(orderData.orderId, packerId);
     return this.packingOrderCrud.findById(orderData.orderId);
   }
-
   async getPackerAssignedOrders(packerId: string): Promise<any[]> {
     const orders = await this.packingOrderCrud.findByPacker(packerId);
     return orders.filter(
