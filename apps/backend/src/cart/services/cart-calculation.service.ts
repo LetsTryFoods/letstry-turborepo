@@ -57,7 +57,7 @@ export class CartCalculationService {
         subtotal,
         cart.items,
       );
-    const handlingCharge = await this.getHandlingCharge();
+    const handlingCharge = cart.items.length > 0 ? await this.getHandlingCharge() : 0;
 
     const shippingCost = 0;
     const estimatedTax = 0;

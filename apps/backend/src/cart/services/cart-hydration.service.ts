@@ -13,7 +13,7 @@ export class CartHydrationService {
     ) { }
 
     async hydrate(cart: CartDocument): Promise<CartDocument> {
-        if (!cart || cart.items.length === 0) {
+        if (!cart) {
             return cart;
         }
 
