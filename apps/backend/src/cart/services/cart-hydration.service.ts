@@ -24,7 +24,7 @@ export class CartHydrationService {
         for (const item of cart.items) {
             try {
                 const product = await this.productValidationService.findProduct(
-                    item.productId.toString(),
+                    item.productId,
                 );
 
                 if (!product) {
@@ -37,7 +37,7 @@ export class CartHydrationService {
                 }
 
                 const variant = product.variants?.find(
-                    (v: any) => v._id.toString() === item.productId.toString(),
+                    (v: any) => v._id.toString() === item.productId,
                 ) || this.productValidationService.getDefaultVariant(product);
 
                 // Update item with latest product/variant details

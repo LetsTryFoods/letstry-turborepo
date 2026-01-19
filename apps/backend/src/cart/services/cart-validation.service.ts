@@ -29,7 +29,7 @@ export class CartValidationService {
   ): Promise<{ valid: boolean; product?: any }> {
     try {
       const product = await this.productValidationService.findProduct(
-        item.productId.toString(),
+        item.productId,
       );
 
       if (!this.productValidationService.isProductValid(product)) {

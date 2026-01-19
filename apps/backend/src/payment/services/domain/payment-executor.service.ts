@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { PaymentOrder, PaymentStatus } from '../../entities/payment.schema';
 import { ZaakpayGatewayService } from '../../gateways/zaakpay/zaakpay-gateway.service';
 import { LedgerService } from '../core/ledger.service';
@@ -187,13 +187,13 @@ export class PaymentExecutorService {
       });
 
       const createOrderPayload = {
-        identityId: cart.identityId,
+        identityId: new Types.ObjectId(cart.identityId),
         paymentOrderId: paymentOrder.paymentOrderId,
         paymentOrder: paymentOrder._id,
-        cartId: cart._id,
+        cartId: new Types.ObjectId(cart._id),
         totalAmount: cart.totalsSummary.grandTotal.toString(),
         currency: 'INR',
-        shippingAddressId: cart.shippingAddressId,
+        shippingAddressId: cart.shippingAddressId ? new Types.ObjectId(cart.shippingAddressId) : undefined,
         placerContact:
           placerContact ||
           (paymentOrder.identityId ? undefined : { phone: paymentOrder.phone }), // For guests, use payment phone as placer if provided
@@ -201,8 +201,8 @@ export class PaymentExecutorService {
           phone: cart.recipientPhone || paymentOrder.phone || 'N/A',
         },
         items: cart.items.map((item: any) => ({
-          productId: item.productId?.toString() || item.productId,
-          variantId: item.variantId?.toString() || item.productId?.toString() || item.productId,
+          productId: new Types.ObjectId(item.productId),
+          variantId: item.variantId ? new Types.ObjectId(item.variantId) : undefined,
           quantity: item.quantity || 0,
           price: item.unitPrice?.toString() || '0',
           totalPrice: item.totalPrice?.toString() || '0',

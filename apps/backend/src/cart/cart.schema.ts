@@ -28,11 +28,11 @@ registerEnumType(CartStatus, {
 export class CartItem {
   @Prop({ type: Types.ObjectId, required: true })
   @Field(() => ID)
-  productId: Types.ObjectId;
+  productId: string;
 
   @Prop({ type: Types.ObjectId, required: false })
   @Field(() => ID, { nullable: true })
-  variantId?: Types.ObjectId;
+  variantId?: string;
 
   @Prop({ required: true })
   @Field()
@@ -98,7 +98,7 @@ export class Cart {
 
   @Prop({ type: Types.ObjectId, required: true })
   @Field(() => ID)
-  identityId: Types.ObjectId;
+  identityId: string;
 
   @Prop({ required: true, enum: CartStatus, default: CartStatus.ACTIVE })
   @Field(() => CartStatus)
@@ -110,11 +110,11 @@ export class Cart {
 
   @Prop({ type: Types.ObjectId })
   @Field({ nullable: true })
-  shippingMethodId?: Types.ObjectId;
+  shippingMethodId?: string;
 
   @Prop({ type: Types.ObjectId })
   @Field({ nullable: true })
-  shippingAddressId?: Types.ObjectId;
+  shippingAddressId?: string;
 
   @Prop({ type: Date })
   @Field({ nullable: true })
