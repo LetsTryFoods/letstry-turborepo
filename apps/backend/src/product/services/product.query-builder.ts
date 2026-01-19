@@ -45,14 +45,30 @@ export class ProductQueryBuilder {
   }
 
   withSearch(searchTerm: string): this {
-    const regex = new RegExp(searchTerm, 'i');
-    this.filter.$or = [
-      { name: regex },
-      { description: regex },
-      { brand: regex },
-      { keywords: regex },
-      { tags: regex },
-    ];
+    if (!searchTerm) return this;
+
+    const keywords = searchTerm.split(/\s+/).filter((k) => k.length > 0);
+    if (keywords.length === 0) return this;
+
+    const keywordFilters = keywords.map((keyword) => {
+      const regex = new RegExp(keyword, 'i');
+      return {
+        $or: [
+          { name: regex },
+          { description: regex },
+          { brand: regex },
+          { keywords: regex },
+          { tags: regex },
+        ],
+      };
+    });
+
+    if (keywordFilters.length === 1) {
+      this.filter.$or = keywordFilters[0].$or;
+    } else {
+      this.filter.$and = keywordFilters;
+    }
+
     return this;
   }
 
