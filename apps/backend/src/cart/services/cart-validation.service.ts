@@ -5,6 +5,7 @@ import { CartRepositoryService } from './cart-repository.service';
 import { CartItemService } from './cart-item.service';
 import { CartCalculationService } from './cart-calculation.service';
 import { ProductValidationService } from './product-validation.service';
+import { CartHydrationService } from './cart-hydration.service';
 
 @Injectable()
 export class CartValidationService {
@@ -13,58 +14,14 @@ export class CartValidationService {
     private readonly cartItemService: CartItemService,
     private readonly cartCalculationService: CartCalculationService,
     private readonly productValidationService: ProductValidationService,
+    private readonly cartHydrationService: CartHydrationService,
     private readonly logger: WinstonLoggerService,
-  ) {}
+  ) { }
 
   async validateAndCleanCart(identityId: string): Promise<CartDocument | null> {
     const cart = await this.cartRepositoryService.getCart(identityId);
-    if (!cart || cart.items.length === 0) {
-      return cart;
-    }
-
-    const validItems: CartItem[] = [];
-    const removedItems: string[] = [];
-
-    for (const item of cart.items) {
-      const { valid, product } = await this.validateCartItem(item);
-
-      if (!valid) {
-        removedItems.push(item.name);
-        continue;
-      }
-
-      const priceUpdated = this.cartItemService.updateCartItemPrice(
-        item,
-        product,
-      );
-      if (priceUpdated) {
-        this.logger.log(
-          'Updated product price in cart',
-          {
-            productId: item.productId,
-            newPrice: product.price,
-          },
-          'CartModule',
-        );
-      }
-      validItems.push(item);
-    }
-
-    if (removedItems.length > 0) {
-      cart.items = validItems;
-      await this.saveAndRecalculateCart(cart);
-
-      this.logger.log(
-        'Cart cleaned',
-        {
-          removedCount: removedItems.length,
-          removedItems,
-        },
-        'CartModule',
-      );
-    }
-
-    return cart;
+    if (!cart) return null;
+    return this.cartHydrationService.hydrate(cart);
   }
 
   async validateCartItem(

@@ -34,7 +34,7 @@ export class CartItem {
   @Field()
   sku: string;
 
-  @Prop({ required: true })
+  @Prop({ required: false })
   @Field()
   name: string;
 
@@ -42,19 +42,19 @@ export class CartItem {
   @Field(() => Int)
   quantity: number;
 
-  @Prop({ required: true })
+  @Prop({ required: false })
   @Field(() => Float)
   unitPrice: number;
 
-  @Prop({ required: true })
+  @Prop({ required: false })
   @Field(() => Float)
   totalPrice: number;
 
-  @Prop({ required: true, default: 0 })
+  @Prop({ required: false, default: 0 })
   @Field(() => Float)
   mrp: number;
 
-  @Prop()
+  @Prop({ required: false })
   @Field({ nullable: true })
   imageUrl?: string;
 
@@ -107,6 +107,10 @@ export class Cart {
   @Prop()
   @Field({ nullable: true })
   shippingMethodId?: string;
+
+  @Prop()
+  @Field({ nullable: true })
+  shippingAddressId?: string;
 
   @Prop({ type: Date })
   @Field({ nullable: true })

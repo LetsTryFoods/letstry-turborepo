@@ -41,11 +41,11 @@ export class PaymentService {
 
         if (existingOrder) {
           const cart = await this.cartService.getCartById(input.cartId);
-          
+
           if (!cart) {
             throw new Error('Cart not found');
           }
-          
+
           const currentAmount = cart.totalsSummary.grandTotal.toString();
 
           if (existingOrder.amount !== currentAmount) {
@@ -79,10 +79,11 @@ export class PaymentService {
         identityId,
         amount,
         currency,
+        cart,
       });
 
       const paymentOrder = await this.createPaymentOrder({
-        paymentEventId: paymentEvent._id.toString(),
+        paymentEventId: (paymentEvent as any)._id.toString(),
         identityId,
         amount,
         currency,
@@ -213,17 +214,62 @@ export class PaymentService {
     identityId: string;
     amount: string;
     currency: string;
+    cart: any;
   }) {
+    let shippingAddress: any = undefined;
+
+    if (params.cart.shippingAddressId) {
+      const Address = this.paymentEventModel.db.model('Address');
+      const address = await Address.findById(params.cart.shippingAddressId).lean().exec();
+
+      if (address) {
+        shippingAddress = {
+          recipientName: (address as any).recipientName,
+          recipientPhone: (address as any).recipientPhone,
+          buildingName: (address as any).buildingName,
+          floor: (address as any).floor,
+          streetArea: (address as any).streetArea,
+          landmark: (address as any).landmark,
+          addressLocality: (address as any).addressLocality,
+          addressRegion: (address as any).addressRegion,
+          postalCode: (address as any).postalCode,
+          addressCountry: (address as any).addressCountry,
+          formattedAddress: (address as any).formattedAddress,
+        };
+      }
+    }
+
     const paymentEvent = await this.paymentEventModel.create({
       cartId: params.cartId,
       identityId: params.identityId,
       totalAmount: params.amount,
       currency: params.currency,
       isPaymentDone: false,
+      cartSnapshot: {
+        items: params.cart.items.map((item: any) => ({
+          productId: item.productId,
+          sku: item.sku,
+          name: item.name,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          totalPrice: item.totalPrice,
+          mrp: item.mrp,
+          imageUrl: item.imageUrl,
+        })),
+        totals: {
+          subtotal: params.cart.totalsSummary.subtotal,
+          discountAmount: params.cart.totalsSummary.discountAmount,
+          shippingCost: params.cart.totalsSummary.shippingCost,
+          estimatedTax: params.cart.totalsSummary.estimatedTax,
+          handlingCharge: params.cart.totalsSummary.handlingCharge,
+          grandTotal: params.cart.totalsSummary.grandTotal,
+        },
+        shippingAddress,
+      },
     });
 
     this.paymentLogger.logPaymentInitiation({
-      paymentOrderId: paymentEvent._id.toString(),
+      paymentOrderId: (paymentEvent as any)._id.toString(),
       userId: params.identityId,
       amount: params.amount,
       currency: params.currency,

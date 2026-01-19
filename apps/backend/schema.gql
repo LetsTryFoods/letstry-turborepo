@@ -34,6 +34,7 @@ type Cart {
   status: CartStatus!
   couponCode: String
   shippingMethodId: String
+  shippingAddressId: String
   expiresAt: DateTime
   totalsSummary: CartTotals!
   items: [CartItem!]!
@@ -244,7 +245,7 @@ type CustomerDetails {
   isGuest: Boolean!
   orders: JSON!
   activeCart: JSON
-  addresses: JSON!
+  addresses: [Address!]!
 }
 
 type Banner {
@@ -597,6 +598,46 @@ type PaymentsListResponse {
   summary: PaymentsSummaryType!
 }
 
+type CartSnapshotItemType {
+  productId: String!
+  sku: String!
+  name: String!
+  quantity: Float!
+  unitPrice: Float!
+  totalPrice: Float!
+  mrp: Float!
+  imageUrl: String
+}
+
+type CartSnapshotTotalsType {
+  subtotal: Float!
+  discountAmount: Float!
+  shippingCost: Float!
+  estimatedTax: Float!
+  handlingCharge: Float!
+  grandTotal: Float!
+}
+
+type CartSnapshotAddressType {
+  recipientName: String!
+  recipientPhone: String!
+  buildingName: String!
+  floor: String
+  streetArea: String
+  landmark: String
+  addressLocality: String!
+  addressRegion: String!
+  postalCode: String!
+  addressCountry: String!
+  formattedAddress: String!
+}
+
+type CartSnapshotType {
+  items: [CartSnapshotItemType!]!
+  totals: CartSnapshotTotalsType!
+  shippingAddress: CartSnapshotAddressType
+}
+
 type PaymentDetailType {
   _id: String!
   paymentOrderId: String!
@@ -634,6 +675,7 @@ type PaymentDetailType {
   refunds: [PaymentRefundType!]
   customerEmail: String
   customerName: String
+  cartSnapshot: CartSnapshotType
 }
 
 type RefundInitiateResponse {

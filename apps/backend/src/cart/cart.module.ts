@@ -15,6 +15,7 @@ import { CartDiscountService } from './services/cart-discount.service';
 import { ProductValidationService } from './services/product-validation.service';
 import { CartMergeService } from './services/cart-merge.service';
 import { CartValidationService } from './services/cart-validation.service';
+import { CartHydrationService } from './services/cart-hydration.service';
 
 @Module({
   imports: [
@@ -37,7 +38,8 @@ import { CartValidationService } from './services/cart-validation.service';
     ProductValidationService,
     CartMergeService,
     CartValidationService,
+    CartHydrationService,
   ],
   exports: [CartService],
 })
-export class CartModule {}
+export class CartModule { }

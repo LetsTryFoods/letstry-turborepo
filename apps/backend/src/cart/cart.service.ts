@@ -16,6 +16,7 @@ import { CartDiscountService } from './services/cart-discount.service';
 import { ProductValidationService } from './services/product-validation.service';
 import { CartMergeService } from './services/cart-merge.service';
 import { CartValidationService } from './services/cart-validation.service';
+import { CartHydrationService } from './services/cart-hydration.service';
 
 @Injectable()
 export class CartService {
@@ -29,16 +30,21 @@ export class CartService {
     private readonly productValidationService: ProductValidationService,
     private readonly cartMergeService: CartMergeService,
     private readonly cartValidationService: CartValidationService,
+    private readonly cartHydrationService: CartHydrationService,
     private readonly logger: WinstonLoggerService,
   ) { }
 
   async getCart(identityId: string): Promise<CartDocument | null> {
     this.logger.log('Fetching cart', { identityId }, 'CartModule');
-    return this.cartRepositoryService.getCart(identityId);
+    const cart = await this.cartRepositoryService.getCart(identityId);
+    if (!cart) return null;
+    return this.cartHydrationService.hydrate(cart);
   }
 
   async getCartById(cartId: string): Promise<CartDocument | null> {
-    return this.cartModel.findOne({ _id: cartId }).exec();
+    const cart = await this.cartModel.findOne({ _id: cartId }).exec();
+    if (!cart) return null;
+    return this.cartHydrationService.hydrate(cart);
   }
 
   async addToCart(
@@ -176,7 +182,7 @@ export class CartService {
   private async saveAndRecalculateCart(
     cart: CartDocument,
   ): Promise<CartDocument> {
-    await this.cartCalculationService.recalculateCart(cart);
+    await this.cartHydrationService.hydrate(cart);
     return this.cartRepositoryService.saveCart(cart);
   }
 }

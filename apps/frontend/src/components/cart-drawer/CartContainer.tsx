@@ -25,7 +25,7 @@ export const CartContainer = () => {
   const { data: addressesData } = useAddresses();
   const queryClient = useQueryClient();
   const { trackRemoveFromCart, trackBeginCheckout, trackAddToCart } = useAnalytics();
-  
+
   const [showPriceDetails, setShowPriceDetails] = useState(false);
   const [showCoupons, setShowCoupons] = useState(false);
   const [showAddressModal, setShowAddressModal] = useState(false);
@@ -47,10 +47,10 @@ export const CartContainer = () => {
 
   const totalPrice = (cartData as any)?.myCart?.totalsSummary?.grandTotal || 0;
   const appliedCouponCode = (cartData as any)?.myCart?.couponCode || null;
-  
+
   const coupons = (couponsData as any)?.activeCoupons || [];
   const addresses = (addressesData as any)?.myAddresses || [];
-  
+
   const priceBreakdown = {
     subtotal: (cartData as any)?.myCart?.totalsSummary?.subtotal || 0,
     discountAmount: (cartData as any)?.myCart?.totalsSummary?.discountAmount || 0,
@@ -64,10 +64,10 @@ export const CartContainer = () => {
     try {
       const item = items.find((i: any) => i.id === productId);
       const oldQuantity = item?.quantity || 0;
-      
+
       if (quantity === 0) {
         await CartService.removeFromCart(productId);
-        
+
         if (item) {
           trackRemoveFromCart({
             id: item.id,
@@ -78,7 +78,7 @@ export const CartContainer = () => {
         }
       } else {
         await CartService.updateCartItem(productId, quantity);
-        
+
         if (item) {
           if (quantity < oldQuantity) {
             trackRemoveFromCart({
@@ -106,10 +106,10 @@ export const CartContainer = () => {
   const handleRemoveItem = async (productId: string) => {
     try {
       const item = items.find((i: any) => i.id === productId);
-      
+
       await CartService.removeFromCart(productId);
       queryClient.invalidateQueries({ queryKey: ['cart'] });
-      
+
       if (item) {
         trackRemoveFromCart({
           id: item.id,
@@ -135,7 +135,7 @@ export const CartContainer = () => {
   const handleApplyCoupon = async (code: string) => {
     await CouponService.applyCoupon(code);
     queryClient.invalidateQueries({ queryKey: ['cart'] });
-    
+
     pushToDataLayer({
       event: 'apply_coupon',
       coupon_code: code,
@@ -147,7 +147,7 @@ export const CartContainer = () => {
     const removedCouponCode = appliedCouponCode;
     await CouponService.removeCoupon();
     queryClient.invalidateQueries({ queryKey: ['cart'] });
-    
+
     if (removedCouponCode) {
       pushToDataLayer({
         event: 'remove_coupon',
@@ -178,7 +178,7 @@ export const CartContainer = () => {
   const handleSaveAddressDetails = async (details: AddressFormData) => {
     try {
       const placeDetails = (selectedPlaceData as any)?.getPlaceDetails;
-      
+
       const addressInput = {
         addressType: details.addressType,
         recipientPhone: details.recipientPhone,
@@ -189,7 +189,7 @@ export const CartContainer = () => {
         landmark: details.landmark,
         addressLocality: placeDetails?.locality || '',
         addressRegion: placeDetails?.region || '',
-        postalCode: placeDetails?.postalCode || '',
+        postalCode: details.postalCode || placeDetails?.postalCode || '',
         addressCountry: placeDetails?.country || 'India',
         isDefault: false,
         latitude: placeDetails?.latitude || 0,
@@ -200,14 +200,14 @@ export const CartContainer = () => {
 
       await AddressService.createAddress(addressInput);
       await queryClient.invalidateQueries({ queryKey: ['addresses'] });
-      
+
       // Fetch updated addresses and select the newly created one
       const updatedAddresses = await queryClient.fetchQuery({ queryKey: ['addresses'] });
       const newAddress = (updatedAddresses as any)?.myAddresses?.[0];
       if (newAddress) {
         setSelectedAddress(newAddress);
       }
-      
+
       setSelectedPlaceData(null);
       setShowAddressModal(false);
       setShowAddressDetailsModal(false);
@@ -238,7 +238,7 @@ export const CartContainer = () => {
       console.error('Cart not found');
       return;
     }
-    
+
     trackBeginCheckout({
       value: totalPrice,
       items: items.map((item: any) => ({
@@ -249,7 +249,7 @@ export const CartContainer = () => {
       })),
       coupon: appliedCouponCode || undefined,
     });
-    
+
     setShowPaymentModal(true);
   };
 
@@ -310,7 +310,7 @@ export const CartContainer = () => {
         userDetails={userDetails}
         isAuthenticated={isAuthenticated}
       />
-      
+
       <LoginModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}

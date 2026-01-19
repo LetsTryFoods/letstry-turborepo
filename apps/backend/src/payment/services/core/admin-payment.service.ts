@@ -16,7 +16,7 @@ export class AdminPaymentService {
     @InjectModel(PaymentRefund.name)
     private paymentRefundModel: Model<PaymentRefund>,
     private readonly refundService: RefundService,
-  ) {}
+  ) { }
 
   async getPaymentsList(input: GetPaymentsListInput) {
     const { page, limit, filters } = input;
@@ -94,7 +94,7 @@ export class AdminPaymentService {
     ]);
 
     const allPayments = await this.paymentOrderModel.find(query).lean().exec();
-    
+
     const summary = {
       totalPayments: total,
       totalAmount: allPayments
@@ -149,12 +149,16 @@ export class AdminPaymentService {
       .lean()
       .exec();
 
+    const PaymentEvent = this.paymentOrderModel.db.model('PaymentEvent');
+    const paymentEvent = await PaymentEvent.findById(payment.paymentEventId).lean().exec();
+
     return {
       ...payment,
       _id: payment._id?.toString(),
       identityId: payment.identityId?.toString(),
       orderId: payment.orderId?.toString(),
       paymentEventId: payment.paymentEventId?.toString(),
+      cartSnapshot: (paymentEvent as any)?.cartSnapshot || null,
       refunds: refunds.map((r) => ({
         ...r,
         _id: r._id?.toString(),

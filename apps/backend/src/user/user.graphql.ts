@@ -1,6 +1,7 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
 import { Identity } from '../common/schemas/identity.schema';
 import { PaginationMeta } from '../common/pagination';
+import { Address } from '../address/address.schema';
 import GraphQLJSON from 'graphql-type-json';
 
 @ObjectType()
@@ -104,6 +105,6 @@ export class CustomerDetails extends Identity {
   @Field(() => GraphQLJSON, { nullable: true })
   activeCart?: any;
 
-  @Field(() => GraphQLJSON)
-  addresses: any[];
+  @Field(() => [Address])
+  addresses: Address[];
 }

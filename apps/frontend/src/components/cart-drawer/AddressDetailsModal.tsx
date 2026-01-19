@@ -27,6 +27,7 @@ export interface AddressFormData {
   floor?: string;
   streetArea?: string;
   landmark?: string;
+  postalCode?: string;
   isOrderingForSomeoneElse?: boolean;
   placerPhone?: string;
   placerEmail?: string;
@@ -43,11 +44,11 @@ export const AddressDetailsModal: React.FC<AddressDetailsModalProps> = ({
   const [shouldCheckPhone, setShouldCheckPhone] = useState(false);
   const hasShownAlertRef = useRef(false);
   const lastCheckedPhoneRef = useRef('');
-  
+
   React.useEffect(() => {
     console.log('AddressDetailsModal - isAuthenticated:', isAuthenticated);
   }, [isAuthenticated]);
-  
+
   const { register, handleSubmit, watch, setValue, getValues } = useForm<AddressFormData>({
     defaultValues: {
       addressType: initialData?.addressType || 'Home',
@@ -57,6 +58,7 @@ export const AddressDetailsModal: React.FC<AddressDetailsModalProps> = ({
       floor: initialData?.floor || '',
       streetArea: initialData?.streetArea || '',
       landmark: initialData?.landmark || '',
+      postalCode: initialData?.postalCode || '',
     },
   });
 
@@ -83,7 +85,7 @@ export const AddressDetailsModal: React.FC<AddressDetailsModalProps> = ({
       setShouldCheckPhone(false);
     }
   }, [phoneCheckData, recipientPhone, getValues]);
-  
+
   React.useEffect(() => {
     if (recipientPhone !== lastCheckedPhoneRef.current) {
       hasShownAlertRef.current = false;
@@ -96,8 +98,9 @@ export const AddressDetailsModal: React.FC<AddressDetailsModalProps> = ({
     }
   };
 
-  const onSubmit = (data: AddressFormData) => {
-    onSave(data);
+  const onSubmit = async (data: AddressFormData) => {
+    console.log('Form submitted with data:', data);
+    await onSave(data);
     onClose();
   };
 
@@ -189,7 +192,7 @@ export const AddressDetailsModal: React.FC<AddressDetailsModalProps> = ({
                 {watch('isOrderingForSomeoneElse') && !isAuthenticated && (
                   <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
                     <p className="text-sm text-gray-600">Please provide your contact details (the person placing the order):</p>
-                    
+
                     <div>
                       <label className="block text-xs font-semibold text-gray-900 mb-2 uppercase tracking-wide">
                         Your Phone Number
@@ -252,6 +255,15 @@ export const AddressDetailsModal: React.FC<AddressDetailsModalProps> = ({
                   name="landmark"
                   register={register}
                   placeholder="Enter nearby landmark"
+                />
+
+                <FormInput
+                  label="Postal Code"
+                  name="postalCode"
+                  register={register}
+                  required
+                  placeholder="Enter postal code"
+                  validation={{ required: true }}
                 />
               </div>
 

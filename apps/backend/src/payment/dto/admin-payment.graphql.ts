@@ -80,6 +80,102 @@ export class PaymentsListResponse {
 }
 
 @ObjectType()
+export class CartSnapshotItemType {
+  @Field()
+  productId: string;
+
+  @Field()
+  sku: string;
+
+  @Field()
+  name: string;
+
+  @Field()
+  quantity: number;
+
+  @Field()
+  unitPrice: number;
+
+  @Field()
+  totalPrice: number;
+
+  @Field()
+  mrp: number;
+
+  @Field({ nullable: true })
+  imageUrl?: string;
+}
+
+@ObjectType()
+export class CartSnapshotTotalsType {
+  @Field()
+  subtotal: number;
+
+  @Field()
+  discountAmount: number;
+
+  @Field()
+  shippingCost: number;
+
+  @Field()
+  estimatedTax: number;
+
+  @Field()
+  handlingCharge: number;
+
+  @Field()
+  grandTotal: number;
+}
+
+@ObjectType()
+export class CartSnapshotAddressType {
+  @Field()
+  recipientName: string;
+
+  @Field()
+  recipientPhone: string;
+
+  @Field()
+  buildingName: string;
+
+  @Field({ nullable: true })
+  floor?: string;
+
+  @Field({ nullable: true })
+  streetArea?: string;
+
+  @Field({ nullable: true })
+  landmark?: string;
+
+  @Field()
+  addressLocality: string;
+
+  @Field()
+  addressRegion: string;
+
+  @Field()
+  postalCode: string;
+
+  @Field()
+  addressCountry: string;
+
+  @Field()
+  formattedAddress: string;
+}
+
+@ObjectType()
+export class CartSnapshotType {
+  @Field(() => [CartSnapshotItemType])
+  items: CartSnapshotItemType[];
+
+  @Field(() => CartSnapshotTotalsType)
+  totals: CartSnapshotTotalsType;
+
+  @Field(() => CartSnapshotAddressType, { nullable: true })
+  shippingAddress?: CartSnapshotAddressType;
+}
+
+@ObjectType()
 export class PaymentDetailType extends PaymentOrderType {
   @Field(() => [PaymentRefundType], { nullable: true })
   refunds?: PaymentRefundType[];
@@ -89,6 +185,9 @@ export class PaymentDetailType extends PaymentOrderType {
 
   @Field({ nullable: true })
   customerName?: string;
+
+  @Field(() => CartSnapshotType, { nullable: true })
+  cartSnapshot?: CartSnapshotType;
 }
 
 @ObjectType()

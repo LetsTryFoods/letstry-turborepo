@@ -20,7 +20,7 @@ import {
   Smartphone,
 } from "lucide-react";
 import { format } from "date-fns";
-import { formatCurrency, getInitials } from "../utils/customerUtils";
+import { formatCurrency, getInitials, parseDeviceInfo } from "../utils/customerUtils";
 
 interface GetCustomerDetailsResponse {
   getCustomerDetails: any;
@@ -119,7 +119,7 @@ export default function CustomerDetailPage() {
             {customer.deviceInfo && (
               <div className="flex items-center gap-2 text-sm">
                 <Smartphone className="h-4 w-4 text-muted-foreground" />
-                <span>{customer.deviceInfo.platform || "Unknown"}</span>
+                <span>{parseDeviceInfo(customer.deviceInfo)}</span>
               </div>
             )}
           </CardContent>
@@ -301,21 +301,32 @@ export default function CustomerDetailPage() {
                   className="p-4 border rounded-lg space-y-2"
                 >
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline">{address.type}</Badge>
+                    <Badge variant="outline">{address.addressType}</Badge>
                     {address.isDefault && (
                       <Badge variant="secondary">Default</Badge>
                     )}
                   </div>
-                  <p className="font-medium">{address.fullName}</p>
+                  <p className="font-medium">{address.recipientName}</p>
                   <p className="text-sm text-muted-foreground">
-                    {address.phone}
+                    {address.recipientPhone}
                   </p>
                   <p className="text-sm">
-                    {address.addressLine1}
-                    {address.addressLine2 && `, ${address.addressLine2}`}
+                    {address.buildingName}
+                    {address.floor && `, Floor ${address.floor}`}
                   </p>
+                  {address.streetArea && (
+                    <p className="text-sm">{address.streetArea}</p>
+                  )}
+                  {address.landmark && (
+                    <p className="text-sm text-muted-foreground">
+                      Landmark: {address.landmark}
+                    </p>
+                  )}
                   <p className="text-sm">
-                    {address.city}, {address.state} - {address.pincode}
+                    {address.addressLocality}, {address.addressRegion} - {address.postalCode}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {address.addressCountry}
                   </p>
                 </div>
               ))}

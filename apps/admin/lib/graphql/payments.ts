@@ -82,6 +82,39 @@ export const GET_ADMIN_PAYMENT_DETAIL = gql`
         createdAt
         updatedAt
       }
+      cartSnapshot {
+        items {
+          productId
+          sku
+          name
+          quantity
+          unitPrice
+          totalPrice
+          mrp
+          imageUrl
+        }
+        totals {
+          subtotal
+          discountAmount
+          shippingCost
+          estimatedTax
+          handlingCharge
+          grandTotal
+        }
+        shippingAddress {
+          recipientName
+          recipientPhone
+          buildingName
+          floor
+          streetArea
+          landmark
+          addressLocality
+          addressRegion
+          postalCode
+          addressCountry
+          formattedAddress
+        }
+      }
     }
   }
 `

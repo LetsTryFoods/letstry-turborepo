@@ -11,7 +11,7 @@ import BrandSlider from "@/components/brand-slider/BrandSlider";
 
 // export const revalidate = 86400;
 
-
+export const revalidate = 60;
 export default function Home() {
   return (
     <main>
@@ -25,8 +25,8 @@ export default function Home() {
         <h1 className="text-4xl font-bold">Coming soon!!!!</h1>
       </div>
       <JourneyVideos />
-      <CustomerTestimonials/>
-      <BrandSlider/>
+      <CustomerTestimonials />
+      <BrandSlider />
 
     </main>
   );

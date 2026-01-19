@@ -65,7 +65,7 @@ export function CategoryForm({ onClose, initialData, createCategory, updateCateg
       if (initialData) {
         await updateCategory({
           variables: {
-            _id: initialData._id,
+            id: initialData._id,
             input: formattedData
           }
         })

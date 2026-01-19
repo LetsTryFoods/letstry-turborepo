@@ -90,7 +90,23 @@ export const GET_CUSTOMER_DETAILS = gql`
       isGuest
       orders
       activeCart
-      addresses
+      addresses {
+        _id
+        addressType
+        recipientPhone
+        recipientName
+        buildingName
+        floor
+        streetArea
+        landmark
+        addressLocality
+        addressRegion
+        postalCode
+        addressCountry
+        isDefault
+        formattedAddress
+        createdAt
+      }
     }
   }
 `;

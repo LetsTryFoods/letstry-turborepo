@@ -62,14 +62,13 @@ export class CartItemService {
     return {
       productId: variantId || product._id,
       sku: variant.sku,
-      name: `${product.name} - ${variant.name}`,
       quantity,
-      unitPrice: variant.price,
-      mrp: variant.mrp,
-      totalPrice: variant.price * quantity,
-      imageUrl:
-        variant.images?.[0]?.url || product.variants?.[0]?.images?.[0]?.url,
       attributes,
+      name: `${product.name} - ${variant.name}`,
+      unitPrice: variant.price,
+      totalPrice: variant.price * quantity,
+      mrp: variant.mrp,
+      imageUrl: variant.images?.[0]?.url || product.variants?.[0]?.images?.[0]?.url,
     };
   }
 }

@@ -96,7 +96,7 @@ export default function PaymentDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-lg shadow p-6 space-y-4">
           <h2 className="text-xl font-semibold border-b pb-2">Payment Summary</h2>
-          
+
           <div className="space-y-2">
             <div className="flex justify-between">
               <span className="text-gray-600">Status:</span>
@@ -147,7 +147,7 @@ export default function PaymentDetailPage() {
 
         <div className="bg-white rounded-lg shadow p-6 space-y-4">
           <h2 className="text-xl font-semibold border-b pb-2">Gateway Details</h2>
-          
+
           <div className="space-y-2">
             <div className="flex justify-between">
               <span className="text-gray-600">PSP Transaction ID:</span>
@@ -185,7 +185,7 @@ export default function PaymentDetailPage() {
         {payment.cardToken && (
           <div className="bg-white rounded-lg shadow p-6 space-y-4">
             <h2 className="text-xl font-semibold border-b pb-2">Payment Instrument</h2>
-            
+
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span className="text-gray-600">Payment Mode:</span>
@@ -211,7 +211,7 @@ export default function PaymentDetailPage() {
 
         <div className="bg-white rounded-lg shadow p-6 space-y-4">
           <h2 className="text-xl font-semibold border-b pb-2">Financial</h2>
-          
+
           <div className="space-y-2">
             <div className="flex justify-between">
               <span className="text-gray-600">Ledger Updated:</span>
@@ -230,6 +230,91 @@ export default function PaymentDetailPage() {
           </div>
         </div>
       </div>
+
+      {payment.cartSnapshot && (
+        <div className="bg-white rounded-lg shadow p-6">
+          <h2 className="text-xl font-semibold border-b pb-2 mb-4">Cart Details</h2>
+
+          {payment.cartSnapshot.items && payment.cartSnapshot.items.length > 0 && (
+            <div className="mb-6">
+              <h3 className="font-semibold mb-3">Items</h3>
+              <div className="space-y-3">
+                {payment.cartSnapshot.items.map((item: any, idx: number) => (
+                  <div key={idx} className="flex items-center gap-4 border rounded p-3">
+                    {item.imageUrl && (
+                      <img
+                        src={item.imageUrl}
+                        alt={item.name}
+                        className="w-16 h-16 object-cover rounded"
+                      />
+                    )}
+                    <div className="flex-1">
+                      <p className="font-medium">{item.name}</p>
+                      <p className="text-sm text-gray-600">SKU: {item.sku}</p>
+                      <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold">{formatCurrency(item.totalPrice.toString(), payment.currency)}</p>
+                      <p className="text-sm text-gray-600">₹{item.unitPrice} each</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {payment.cartSnapshot.totals && (
+            <div>
+              <h3 className="font-semibold mb-3">Totals</h3>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Subtotal:</span>
+                  <span>{formatCurrency(payment.cartSnapshot.totals.subtotal.toString(), payment.currency)}</span>
+                </div>
+                {payment.cartSnapshot.totals.discountAmount > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Discount:</span>
+                    <span className="text-green-600">-{formatCurrency(payment.cartSnapshot.totals.discountAmount.toString(), payment.currency)}</span>
+                  </div>
+                )}
+                {payment.cartSnapshot.totals.shippingCost > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Shipping:</span>
+                    <span>{formatCurrency(payment.cartSnapshot.totals.shippingCost.toString(), payment.currency)}</span>
+                  </div>
+                )}
+                {payment.cartSnapshot.totals.estimatedTax > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Tax:</span>
+                    <span>{formatCurrency(payment.cartSnapshot.totals.estimatedTax.toString(), payment.currency)}</span>
+                  </div>
+                )}
+                {payment.cartSnapshot.totals.handlingCharge > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Handling:</span>
+                    <span>{formatCurrency(payment.cartSnapshot.totals.handlingCharge.toString(), payment.currency)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between font-semibold text-lg border-t pt-2">
+                  <span>Grand Total:</span>
+                  <span>{formatCurrency(payment.cartSnapshot.totals.grandTotal.toString(), payment.currency)}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {payment.cartSnapshot.shippingAddress && (
+            <div>
+              <h3 className="font-semibold mb-3">Shipping Address</h3>
+              <div className="border rounded p-4 space-y-2">
+                <p className="font-medium">{payment.cartSnapshot.shippingAddress.recipientName}</p>
+                <p className="text-sm text-gray-600">{payment.cartSnapshot.shippingAddress.recipientPhone}</p>
+                <p className="text-sm text-gray-700 mt-2">{payment.cartSnapshot.shippingAddress.formattedAddress}</p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {payment.refunds && payment.refunds.length > 0 && (
         <div className="bg-white rounded-lg shadow p-6">
@@ -267,7 +352,7 @@ export default function PaymentDetailPage() {
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md space-y-4">
             <h2 className="text-xl font-semibold">Initiate Refund</h2>
-            
+
             <div>
               <label className="block text-sm font-medium mb-1">Refund Amount</label>
               <input
