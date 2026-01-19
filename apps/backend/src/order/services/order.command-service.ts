@@ -17,16 +17,16 @@ export class OrderCommandService {
   ) { }
 
   async createOrder(params: {
-    identityId: string;
+    identityId: Types.ObjectId;
     paymentOrderId: string;
-    paymentOrder?: string;
-    cartId: string;
+    paymentOrder?: Types.ObjectId;
+    cartId: Types.ObjectId;
     totalAmount: string;
     subtotal?: string;
     discount?: string;
     deliveryCharge?: string;
     currency: string;
-    shippingAddressId?: string;
+    shippingAddressId?: Types.ObjectId;
     placerContact?: {
       phone?: string;
       email?: string;
@@ -36,37 +36,68 @@ export class OrderCommandService {
       email?: string;
     };
     items: Array<{
-      variantId: string;
+      productId: Types.ObjectId;
+      variantId: Types.ObjectId;
       quantity: number;
+      price: string;
+      totalPrice: string;
+      name: string;
+      sku: string;
+      variant?: string;
+      image?: string;
     }>;
   }): Promise<Order> {
     const orderId = `ORD_${Date.now()}_${uuidv4().substring(0, 8)}`;
 
+    this.paymentLogger.log('Starting Order Creation', {
+      step: 'START_CREATION',
+      orderId,
+      identityId: params.identityId,
+      cartId: params.cartId,
+      itemCount: params.items.length,
+      fullPayload: params,
+    });
+
+    const itemsMap = params.items.map((item) => ({
+      productId: item.productId,
+      variantId: item.variantId,
+      quantity: item.quantity,
+      price: item.price,
+      totalPrice: item.totalPrice,
+      name: item.name,
+      sku: item.sku,
+      variant: item.variant,
+      image: item.image,
+    }));
+
+    this.paymentLogger.log('Items Mapped for Snapshot', {
+      step: 'ITEMS_MAPPED',
+      orderId,
+      count: itemsMap.length,
+    });
+
     const order = await this.orderRepository.create({
       orderId,
-      identityId: params.identityId
-        ? new Types.ObjectId(params.identityId)
-        : undefined,
+      identityId: params.identityId,
       paymentOrderId: params.paymentOrderId,
-      paymentOrder: params.paymentOrder
-        ? new Types.ObjectId(params.paymentOrder)
-        : undefined,
-      cartId: new Types.ObjectId(params.cartId),
+      paymentOrder: params.paymentOrder,
+      cartId: params.cartId,
       totalAmount: params.totalAmount,
       subtotal: params.subtotal || params.totalAmount,
       discount: params.discount || '0',
       deliveryCharge: params.deliveryCharge || '0',
       currency: params.currency,
       orderStatus: OrderStatus.CONFIRMED,
-      shippingAddressId: params.shippingAddressId
-        ? new Types.ObjectId(params.shippingAddressId)
-        : undefined,
+      shippingAddressId: params.shippingAddressId,
       placerContact: params.placerContact,
       recipientContact: params.recipientContact,
-      items: params.items.map((item) => ({
-        variantId: new Types.ObjectId(item.variantId),
-        quantity: item.quantity,
-      })),
+      items: itemsMap,
+    });
+
+    this.paymentLogger.log('Order Persisted to DB', {
+      step: 'DB_INSERT_SUCCESS',
+      orderId,
+      mongoId: order._id,
     });
 
     this.paymentLogger.logOrderCreated({
@@ -74,6 +105,11 @@ export class OrderCommandService {
       paymentOrderId: params.paymentOrderId,
       userId: params.identityId,
       amount: params.totalAmount,
+    });
+
+    this.paymentLogger.log('Triggering Packing Workflow', {
+      step: 'TRIGGER_PACKING',
+      orderId,
     });
 
     await this.createPackingWorkflow(order);

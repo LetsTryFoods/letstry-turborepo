@@ -4,12 +4,27 @@ import { ProductService } from '../../product/product.service';
 
 @Injectable()
 export class OrderItemService {
-  constructor(private productService: ProductService) {}
+  constructor(private productService: ProductService) { }
 
   async populateOrderItems(order: Order): Promise<any> {
     const populatedItems = await Promise.all(
-      order.items.map(async (item) => {
-        if (!item.variantId) {
+      order.items.map(async (item: any) => {
+        if (item.name && item.price) {
+          return {
+            variantId: item.variantId?.toString(),
+            quantity: item.quantity,
+            price: item.price,
+            totalPrice: item.totalPrice,
+            name: item.name,
+            sku: item.sku,
+            variant: item.variant,
+            image: item.image,
+          };
+        }
+        const vId = item.variantId?.toString();
+        const pId = item.productId?.toString();
+
+        if (!vId && !pId) {
           return {
             variantId: null,
             quantity: item.quantity,
@@ -21,29 +36,33 @@ export class OrderItemService {
             image: null,
           };
         }
-        
+
         try {
-          const product = await this.productService.findByVariantId(
-            item.variantId.toString(),
-          );
-          
+          // Try variant lookup first
+          let product = vId ? await this.productService.findByVariantId(vId) : null;
+
+          // Fallback to product lookup if variant lookup failed but we have a productId
+          if (!product && pId) {
+            product = await this.productService.findOne(pId).catch(() => null);
+          }
+
           if (!product) {
             return {
-              variantId: item.variantId.toString(),
+              variantId: vId || pId,
               quantity: item.quantity,
               price: '0',
               totalPrice: '0',
-              name: 'Product Not Found',
+              name: `Product Not Found (${vId || pId})`,
               sku: 'N/A',
               variant: null,
               image: null,
             };
           }
 
-          const variant = product.variants.find(
-            (v) => v._id.toString() === item.variantId.toString(),
-          );
-          
+          const variant = vId ? product.variants.find(
+            (v) => v._id.toString() === vId,
+          ) : null;
+
           if (!variant) {
             return {
               variantId: item.variantId.toString(),
@@ -89,8 +108,11 @@ export class OrderItemService {
 
   async populateItemsOnly(items: any[]): Promise<any[]> {
     return Promise.all(
-      items.map(async (item) => {
-        if (!item.variantId) {
+      items.map(async (item: any) => {
+        const vId = item.variantId?.toString();
+        const pId = item.productId?.toString();
+
+        if (!vId && !pId) {
           return {
             variantId: null,
             quantity: item.quantity,
@@ -102,29 +124,33 @@ export class OrderItemService {
             image: null,
           };
         }
-        
+
         try {
-          const product = await this.productService.findByVariantId(
-            item.variantId.toString(),
-          );
-          
+          // Try variant lookup first
+          let product = vId ? await this.productService.findByVariantId(vId) : null;
+
+          // Fallback to product lookup if variant lookup failed but we have a productId
+          if (!product && pId) {
+            product = await this.productService.findOne(pId).catch(() => null);
+          }
+
           if (!product) {
             return {
-              variantId: item.variantId.toString(),
+              variantId: vId || pId,
               quantity: item.quantity,
               price: '0',
               totalPrice: '0',
-              name: 'Product Not Found',
+              name: `Product Not Found (${vId || pId})`,
               sku: 'N/A',
               variant: null,
               image: null,
             };
           }
 
-          const variant = product.variants.find(
-            (v) => v._id.toString() === item.variantId.toString(),
-          );
-          
+          const variant = vId ? product.variants.find(
+            (v) => v._id.toString() === vId,
+          ) : null;
+
           if (!variant) {
             return {
               variantId: item.variantId.toString(),

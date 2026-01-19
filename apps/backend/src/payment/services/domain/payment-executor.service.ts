@@ -180,26 +180,49 @@ export class PaymentExecutorService {
         paymentEvent.cartId.toString(),
       );
 
-      const order = await this.orderService.createOrder({
-        identityId: paymentOrder.identityId
-          ? paymentOrder.identityId.toString()
-          : undefined,
+      this.paymentLogger.log('Payment Successful, Preparing Order Creation', {
         paymentOrderId: paymentOrder.paymentOrderId,
-        paymentOrder: paymentOrder._id.toString(),
-        cartId: paymentEvent.cartId.toString(),
-        totalAmount: paymentOrder.amount,
-        currency: paymentOrder.currency,
-        shippingAddressId: cart.shippingAddressId?.toString(),
+        cartId: cart._id,
+        itemCount: cart.items.length,
+      });
+
+      const createOrderPayload = {
+        identityId: cart.identityId,
+        paymentOrderId: paymentOrder.paymentOrderId,
+        paymentOrder: paymentOrder._id,
+        cartId: cart._id,
+        totalAmount: cart.totalsSummary.grandTotal.toString(),
+        currency: 'INR',
+        shippingAddressId: cart.shippingAddressId,
         placerContact:
           placerContact ||
           (paymentOrder.identityId ? undefined : { phone: paymentOrder.phone }), // For guests, use payment phone as placer if provided
         recipientContact: {
           phone: cart.recipientPhone || paymentOrder.phone || 'N/A',
-        }, // Assume cart has recipientPhone, fallback to payment phone
+        },
         items: cart.items.map((item: any) => ({
-          variantId: item.productId?.toString() || item.productId,
+          productId: item.productId?.toString() || item.productId,
+          variantId: item.variantId?.toString() || item.productId?.toString() || item.productId,
           quantity: item.quantity || 0,
+          price: item.unitPrice?.toString() || '0',
+          totalPrice: item.totalPrice?.toString() || '0',
+          name: item.name || 'Unknown Product',
+          sku: item.sku || 'N/A',
+          variant: item.attributes?.variantName || null,
+          image: item.imageUrl || null,
         })),
+      };
+
+      this.paymentLogger.log('Constructed Order Payload', {
+        step: 'PAYLOAD_CONSRUCTED',
+        payload: createOrderPayload,
+      });
+
+      const order = await this.orderService.createOrder(createOrderPayload);
+
+      this.paymentLogger.log('Order Service Returned Successfully', {
+        paymentOrderId: paymentOrder.paymentOrderId,
+        newOrderId: order._id,
       });
 
       this.orderCartLogger.logOrderCreated(

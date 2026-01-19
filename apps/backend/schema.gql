@@ -4,6 +4,7 @@
 
 type CartItem {
   productId: ID!
+  variantId: ID
   sku: String!
   name: String!
   quantity: Int!

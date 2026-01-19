@@ -49,13 +49,13 @@ export class OrderService {
   }
 
   async createOrder(params: {
-    identityId: string;
+    identityId: Types.ObjectId;
     paymentOrderId: string;
-    paymentOrder?: string;
-    cartId: string;
+    paymentOrder?: Types.ObjectId;
+    cartId: Types.ObjectId;
     totalAmount: string;
     currency: string;
-    shippingAddressId?: string;
+    shippingAddressId?: Types.ObjectId;
     placerContact?: {
       phone?: string;
       email?: string;
@@ -65,8 +65,15 @@ export class OrderService {
       email?: string;
     };
     items: Array<{
-      variantId: string;
+      productId: Types.ObjectId;
+      variantId: Types.ObjectId;
       quantity: number;
+      price: string;
+      totalPrice: string;
+      name: string;
+      sku: string;
+      variant?: string;
+      image?: string;
     }>;
   }): Promise<Order> {
     return this.commandService.createOrder(params);
@@ -219,6 +226,9 @@ export class OrderService {
   }
 
   async resolveItems(order: any): Promise<any[]> {
+    if (order.items && order.items.length > 0 && order.items[0].name) {
+      return order.items;
+    }
     return this.itemService.populateItemsOnly(order.items);
   }
 }

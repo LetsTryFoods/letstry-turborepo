@@ -57,8 +57,15 @@ export class Order extends Document {
 
   @Prop({ type: Array })
   items: Array<{
+    productId: Types.ObjectId;
     variantId: Types.ObjectId;
     quantity: number;
+    price: string;
+    totalPrice: string;
+    name: string;
+    sku: string;
+    variant?: string;
+    image?: string;
   }>;
 
   @Prop()
