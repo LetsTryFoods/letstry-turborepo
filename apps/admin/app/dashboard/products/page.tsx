@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -42,6 +43,7 @@ import {
   Archive,
   ArchiveRestore,
   ArrowLeft,
+  Search,
 } from "lucide-react";
 import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
@@ -50,6 +52,7 @@ import { Switch } from "@/components/ui/switch";
 import {
   useProducts,
   useProductsByCategory,
+  useSearchProducts,
   useCreateProduct,
   useUpdateProduct,
   useArchiveProduct,
@@ -104,14 +107,30 @@ function ProductsPageContent() {
   } | null>(null);
 
   const [showArchived, setShowArchived] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+      setCurrentPage(1);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   const allProductsQuery = useProducts({ page: currentPage, limit: pageSize }, false, showArchived);
   const categoryProductsQuery = useProductsByCategory(
     categoryId || '',
     { page: currentPage, limit: pageSize }
   );
+  const searchProductsQuery = useSearchProducts(
+    debouncedSearchTerm,
+    { page: currentPage, limit: pageSize }
+  );
 
-  const productsQuery = categoryId ? categoryProductsQuery : allProductsQuery;
+  const productsQuery = debouncedSearchTerm
+    ? searchProductsQuery
+    : (categoryId ? categoryProductsQuery : allProductsQuery);
   const {
     data: productsData,
     loading: productsLoading,
@@ -127,12 +146,14 @@ function ProductsPageContent() {
     setCurrentPage(1);
   }, [categoryId]);
 
-  const products = categoryId
-    ? (productsData as any)?.productsByCategory?.items || []
-    : (productsData as any)?.products?.items || [];
+  const products = debouncedSearchTerm
+    ? (productsData as any)?.searchProducts?.items || []
+    : categoryId
+      ? (productsData as any)?.productsByCategory?.items || []
+      : (productsData as any)?.products?.items || [];
 
-  const meta = categoryId
-    ? (productsData as any)?.productsByCategory?.meta || {
+  const meta = debouncedSearchTerm
+    ? (productsData as any)?.searchProducts?.meta || {
       totalCount: 0,
       page: 1,
       limit: pageSize,
@@ -140,14 +161,23 @@ function ProductsPageContent() {
       hasNextPage: false,
       hasPreviousPage: false,
     }
-    : (productsData as any)?.products?.meta || {
-      totalCount: 0,
-      page: 1,
-      limit: pageSize,
-      totalPages: 1,
-      hasNextPage: false,
-      hasPreviousPage: false,
-    };
+    : categoryId
+      ? (productsData as any)?.productsByCategory?.meta || {
+        totalCount: 0,
+        page: 1,
+        limit: pageSize,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      }
+      : (productsData as any)?.products?.meta || {
+        totalCount: 0,
+        page: 1,
+        limit: pageSize,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      };
 
   const handleColumnToggle = (columnKey: string) => {
     setSelectedColumns((prev) =>
@@ -263,6 +293,16 @@ function ProductsPageContent() {
           )}
         </div>
         <div className="flex items-center space-x-2">
+          <div className="relative w-64 md:w-80">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search products..."
+              className="pl-8"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
           {!categoryId && (
             <div className="flex items-center space-x-2">
               <Checkbox

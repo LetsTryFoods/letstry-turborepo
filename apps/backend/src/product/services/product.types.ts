@@ -12,7 +12,7 @@ export interface ProductFilter {
   'variants._id'?: string;
   'variants.availabilityStatus'?: string | { $ne: string };
   variants?: { $elemMatch: Record<string, any> };
-  $or?: Array<Record<string, RegExp>>;
+  $or?: Array<Record<string, any>>;
   $and?: Array<Record<string, any>>;
 }
 
