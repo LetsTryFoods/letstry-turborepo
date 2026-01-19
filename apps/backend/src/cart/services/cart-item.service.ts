@@ -5,21 +5,22 @@ import { CartItem } from '../cart.schema';
 export class CartItemService {
   findCartItemIndex(
     items: CartItem[],
+    variantId: string | undefined,
     productId: string,
-    attributes: any,
   ): number {
-    return items.findIndex(
-      (item) =>
-        item.productId.toString() === productId &&
-        JSON.stringify(item.attributes) === JSON.stringify(attributes),
-    );
+    return items.findIndex((item) => {
+      if (variantId) {
+        return item.variantId?.toString() === variantId.toString();
+      }
+      return item.productId.toString() === productId.toString();
+    });
   }
 
   upsertCartItem(items: CartItem[], newItem: CartItem): void {
     const existingIndex = this.findCartItemIndex(
       items,
+      newItem.variantId,
       newItem.productId,
-      newItem.attributes,
     );
     if (existingIndex > -1) {
       items[existingIndex].quantity += newItem.quantity;
@@ -31,7 +32,18 @@ export class CartItemService {
   }
 
   findItemIndexInCart(items: CartItem[], productId: string): number {
-    return items.findIndex((item) => item.productId.toString() === productId);
+    const { product, variantId } = this.parseProductId(productId);
+    
+    return items.findIndex((item) => {
+      if (variantId) {
+        return item.variantId?.toString() === variantId;
+      }
+      return item.productId.toString() === product;
+    });
+  }
+
+  private parseProductId(productId: string): { product: string; variantId?: string } {
+    return { product: productId, variantId: productId };
   }
 
   updateItemQuantity(item: CartItem, quantity: number): void {
@@ -40,7 +52,14 @@ export class CartItemService {
   }
 
   removeItemFromCart(items: CartItem[], productId: string): CartItem[] {
-    return items.filter((item) => item.productId.toString() !== productId);
+    const { product, variantId } = this.parseProductId(productId);
+    
+    return items.filter((item) => {
+      if (variantId) {
+        return item.variantId?.toString() !== variantId;
+      }
+      return item.productId.toString() !== product;
+    });
   }
 
   updateCartItemPrice(item: CartItem, product: any): boolean {

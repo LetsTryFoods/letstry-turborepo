@@ -3,12 +3,17 @@ import { ADD_TO_CART, UPDATE_CART_ITEM, REMOVE_FROM_CART, SET_SHIPPING_ADDRESS }
 
 export const CartService = {
   addToCart: async (productId: string, quantity: number, attributes?: Record<string, any>) => {
+    const input: any = {
+      productId,
+      quantity,
+    };
+    
+    if (attributes !== undefined && attributes !== null) {
+      input.attributes = attributes;
+    }
+    
     return await graphqlClient.request(ADD_TO_CART.toString(), {
-      input: {
-        productId,
-        quantity,
-        attributes,
-      },
+      input,
     });
   },
 
