@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import {
   IdentityDocument,
   IdentityStatus,
@@ -14,7 +14,7 @@ export class CustomerEnrichmentService {
   constructor(
     @InjectModel(Order.name) private orderModel: Model<Order>,
     @InjectModel(Cart.name) private cartModel: Model<Cart>,
-  ) {}
+  ) { }
 
   async enrichCustomersWithOrderData(
     customers: IdentityDocument[],
@@ -48,8 +48,9 @@ export class CustomerEnrichmentService {
   async getOrderStatsForCustomers(
     identityIds: string[],
   ): Promise<Map<string, { totalOrders: number; totalSpent: number }>> {
+    const objectIds = identityIds.map((id) => new Types.ObjectId(id));
     const stats = await this.orderModel.aggregate([
-      { $match: { identityId: { $in: identityIds } } },
+      { $match: { identityId: { $in: objectIds } } },
       {
         $group: {
           _id: '$identityId',
@@ -79,7 +80,10 @@ export class CustomerEnrichmentService {
       .exec();
 
     return new Map(
-      carts.map((cart) => [cart.identityId, { itemsCount: cart.items.length }]),
+      carts.map((cart) => [
+        cart.identityId.toString(),
+        { itemsCount: cart.items.length },
+      ]),
     );
   }
 

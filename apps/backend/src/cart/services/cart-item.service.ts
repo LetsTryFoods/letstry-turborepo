@@ -18,7 +18,7 @@ export class CartItemService {
   upsertCartItem(items: CartItem[], newItem: CartItem): void {
     const existingIndex = this.findCartItemIndex(
       items,
-      newItem.productId,
+      newItem.productId.toString(),
       newItem.attributes,
     );
     if (existingIndex > -1) {
