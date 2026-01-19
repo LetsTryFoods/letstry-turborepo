@@ -188,12 +188,17 @@ export class OrderService {
       return {
         fullName: address.recipientName,
         phone: address.recipientPhone,
+        addressType: address.addressType,
         addressLine1: address.buildingName,
-        addressLine2: address.streetArea || address.floor,
+        addressLine2: address.streetArea,
+        floor: address.floor,
         city: address.addressLocality,
         state: address.addressRegion,
         pincode: address.postalCode,
         landmark: address.landmark,
+        formattedAddress: address.formattedAddress,
+        latitude: address.latitude,
+        longitude: address.longitude,
       };
     }
 

@@ -697,12 +697,17 @@ type OrderPaymentType {
 type OrderShippingAddressType {
   fullName: String!
   phone: String!
+  addressType: String
   addressLine1: String!
   addressLine2: String
+  floor: String
   city: String!
   state: String!
   pincode: String!
   landmark: String
+  formattedAddress: String
+  latitude: Float
+  longitude: Float
 }
 
 type OrderCustomerType {
