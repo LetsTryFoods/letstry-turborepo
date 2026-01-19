@@ -90,6 +90,14 @@ export const SET_SHIPPING_ADDRESS = gql`
     setShippingAddress(input: $input) {
       _id
       shippingAddressId
+      totalsSummary {
+        subtotal
+        discountAmount
+        shippingCost
+        estimatedTax
+        handlingCharge
+        grandTotal
+      }
     }
   }
 `;

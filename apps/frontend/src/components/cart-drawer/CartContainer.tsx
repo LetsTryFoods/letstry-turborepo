@@ -162,6 +162,7 @@ export const CartContainer = () => {
     if (address) {
       try {
         await CartService.setShippingAddress(addressId);
+        await queryClient.invalidateQueries({ queryKey: ['cart'] });
         
         setSelectedAddress(address);
         setShowAddressModal(false);
@@ -204,14 +205,20 @@ export const CartContainer = () => {
         placeId: placeDetails?.placeId,
       };
 
-      await AddressService.createAddress(addressInput);
+      const result = await AddressService.createAddress(addressInput);
+      const newAddressId = (result as any)?.createAddress?._id;
+      
       await queryClient.invalidateQueries({ queryKey: ['addresses'] });
 
-      // Fetch updated addresses and select the newly created one
-      const updatedAddresses = await queryClient.fetchQuery({ queryKey: ['addresses'] });
-      const newAddress = (updatedAddresses as any)?.myAddresses?.[0];
-      if (newAddress) {
-        setSelectedAddress(newAddress);
+      if (newAddressId) {
+        await CartService.setShippingAddress(newAddressId);
+        await queryClient.invalidateQueries({ queryKey: ['cart'] });
+        
+        const updatedAddresses = await queryClient.fetchQuery({ queryKey: ['addresses'] });
+        const newAddress = (updatedAddresses as any)?.myAddresses?.find((addr: any) => addr._id === newAddressId);
+        if (newAddress) {
+          setSelectedAddress(newAddress);
+        }
       }
 
       setSelectedPlaceData(null);

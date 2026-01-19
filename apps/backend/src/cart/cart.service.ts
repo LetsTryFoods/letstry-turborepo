@@ -191,7 +191,7 @@ export class CartService {
     const cart = await this.cartRepositoryService.getCartOrThrow(identityId);
 
     cart.shippingAddressId = addressId;
-    return this.cartRepositoryService.saveCart(cart);
+    return this.saveAndRecalculateCart(cart);
   }
 
   private async saveAndRecalculateCart(
