@@ -174,6 +174,7 @@ export type Cart = {
   expiresAt?: Maybe<Scalars['DateTime']['output']>;
   identityId: Scalars['String']['output'];
   items: Array<CartItem>;
+  shippingAddressId?: Maybe<Scalars['String']['output']>;
   shippingMethodId?: Maybe<Scalars['String']['output']>;
   status: CartStatus;
   totalsSummary: CartTotals;
@@ -191,6 +192,50 @@ export type CartItem = {
   sku: Scalars['String']['output'];
   totalPrice: Scalars['Float']['output'];
   unitPrice: Scalars['Float']['output'];
+};
+
+export type CartSnapshotAddressType = {
+  __typename?: 'CartSnapshotAddressType';
+  addressCountry: Scalars['String']['output'];
+  addressLocality: Scalars['String']['output'];
+  addressRegion: Scalars['String']['output'];
+  buildingName: Scalars['String']['output'];
+  floor?: Maybe<Scalars['String']['output']>;
+  formattedAddress: Scalars['String']['output'];
+  landmark?: Maybe<Scalars['String']['output']>;
+  postalCode: Scalars['String']['output'];
+  recipientName: Scalars['String']['output'];
+  recipientPhone: Scalars['String']['output'];
+  streetArea?: Maybe<Scalars['String']['output']>;
+};
+
+export type CartSnapshotItemType = {
+  __typename?: 'CartSnapshotItemType';
+  imageUrl?: Maybe<Scalars['String']['output']>;
+  mrp: Scalars['Float']['output'];
+  name: Scalars['String']['output'];
+  productId: Scalars['String']['output'];
+  quantity: Scalars['Float']['output'];
+  sku: Scalars['String']['output'];
+  totalPrice: Scalars['Float']['output'];
+  unitPrice: Scalars['Float']['output'];
+};
+
+export type CartSnapshotTotalsType = {
+  __typename?: 'CartSnapshotTotalsType';
+  discountAmount: Scalars['Float']['output'];
+  estimatedTax: Scalars['Float']['output'];
+  grandTotal: Scalars['Float']['output'];
+  handlingCharge: Scalars['Float']['output'];
+  shippingCost: Scalars['Float']['output'];
+  subtotal: Scalars['Float']['output'];
+};
+
+export type CartSnapshotType = {
+  __typename?: 'CartSnapshotType';
+  items: Array<CartSnapshotItemType>;
+  shippingAddress?: Maybe<CartSnapshotAddressType>;
+  totals: CartSnapshotTotalsType;
 };
 
 export enum CartStatus {
@@ -445,6 +490,15 @@ export type CreateProductVariantInput = {
   weightUnit?: Scalars['String']['input'];
 };
 
+export type CreateRedirectInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  fromPath: Scalars['String']['input'];
+  isActive?: Scalars['Boolean']['input'];
+  source?: Scalars['String']['input'];
+  statusCode?: Scalars['Int']['input'];
+  toPath: Scalars['String']['input'];
+};
+
 export type CreateShipmentInput = {
   codAmount?: InputMaybe<Scalars['Float']['input']>;
   codCollectionMode?: InputMaybe<Scalars['String']['input']>;
@@ -489,7 +543,7 @@ export type CustomerDetails = {
   __typename?: 'CustomerDetails';
   _id: Scalars['ID']['output'];
   activeCart?: Maybe<Scalars['JSON']['output']>;
-  addresses: Scalars['JSON']['output'];
+  addresses: Array<Address>;
   createdAt: Scalars['DateTime']['output'];
   currentSessionId?: Maybe<Scalars['String']['output']>;
   deviceInfo?: Maybe<Scalars['JSON']['output']>;
@@ -757,6 +811,7 @@ export type Mutation = {
   createPacker: CreatePackerResponse;
   createPolicy: Policy;
   createProduct: Product;
+  createRedirect: RedirectType;
   createShipment: CreateShipmentResponse;
   deleteAddress: Address;
   deleteBanner: Banner;
@@ -767,6 +822,7 @@ export type Mutation = {
   deletePolicy: Policy;
   deletePolicySeo: Scalars['Boolean']['output'];
   deleteProduct: Product;
+  deleteRedirect: Scalars['Boolean']['output'];
   flagPackingError: ScanLog;
   initiateAdminRefund: RefundInitiateResponse;
   initiatePayment: InitiatePaymentResponse;
@@ -800,6 +856,7 @@ export type Mutation = {
   updateProductStock: Product;
   updateProductVariant: Product;
   updateProductVariantStock: Product;
+  updateRedirect: RedirectType;
   updateUserActivity: Scalars['Boolean']['output'];
   uploadEvidence: PackingOrder;
   verifyOtpAndLogin: Scalars['String']['output'];
@@ -920,6 +977,11 @@ export type MutationCreateProductArgs = {
 };
 
 
+export type MutationCreateRedirectArgs = {
+  input: CreateRedirectInput;
+};
+
+
 export type MutationCreateShipmentArgs = {
   input: CreateShipmentInput;
 };
@@ -967,6 +1029,11 @@ export type MutationDeletePolicySeoArgs = {
 
 export type MutationDeleteProductArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteRedirectArgs = {
+  id: Scalars['String']['input'];
 };
 
 
@@ -1139,6 +1206,12 @@ export type MutationUpdateProductVariantStockArgs = {
   productId: Scalars['ID']['input'];
   quantity: Scalars['Int']['input'];
   variantId: Scalars['ID']['input'];
+};
+
+
+export type MutationUpdateRedirectArgs = {
+  id: Scalars['String']['input'];
+  input: UpdateRedirectInput;
 };
 
 
@@ -1408,6 +1481,14 @@ export type PaginatedProducts = {
   meta: PaginationMeta;
 };
 
+export type PaginatedRedirects = {
+  __typename?: 'PaginatedRedirects';
+  data: Array<RedirectType>;
+  limit: Scalars['Int']['output'];
+  page: Scalars['Int']['output'];
+  total: Scalars['Int']['output'];
+};
+
 export type PaginationInput = {
   limit?: Scalars['Int']['input'];
   page?: Scalars['Int']['input'];
@@ -1435,6 +1516,7 @@ export type PaymentDetailType = {
   cardScheme?: Maybe<Scalars['String']['output']>;
   cardToken?: Maybe<Scalars['String']['output']>;
   cardType?: Maybe<Scalars['String']['output']>;
+  cartSnapshot?: Maybe<CartSnapshotType>;
   completedAt?: Maybe<Scalars['DateTime']['output']>;
   createdAt: Scalars['DateTime']['output'];
   currency: Scalars['String']['output'];
@@ -1785,6 +1867,7 @@ export type Query = {
   activeBanners: Array<Banner>;
   activeCoupons: Array<Coupon>;
   address: Address;
+  allActiveRedirects: Array<RedirectType>;
   banner?: Maybe<Banner>;
   banners: Array<Banner>;
   categories: PaginatedCategories;
@@ -1812,6 +1895,7 @@ export type Query = {
   getBoxRecommendation: BoxSize;
   getCustomerDetails: CustomerDetails;
   getEvidenceByOrder: PackingEvidence;
+  getMyAssignedOrders: Array<PackingOrder>;
   getMyOrders: PaginatedOrdersResponse;
   getNewsletterSubscriptionCount: Scalars['Float']['output'];
   getOrderById: OrderType;
@@ -1838,6 +1922,9 @@ export type Query = {
   productVariant?: Maybe<ProductVariant>;
   products: PaginatedProducts;
   productsByCategory: PaginatedProducts;
+  redirect: RedirectType;
+  redirectByPath?: Maybe<RedirectType>;
+  redirects: PaginatedRedirects;
   reverseGeocode: GoogleMapsAddressOutput;
   rootCategories: PaginatedCategories;
   searchPlaces: Array<PlacePredictionOutput>;
@@ -2055,6 +2142,7 @@ export type QueryProductVariantArgs = {
 
 
 export type QueryProductsArgs = {
+  includeArchived?: Scalars['Boolean']['input'];
   includeOutOfStock?: Scalars['Boolean']['input'];
   pagination?: PaginationInput;
 };
@@ -2063,6 +2151,23 @@ export type QueryProductsArgs = {
 export type QueryProductsByCategoryArgs = {
   categoryId: Scalars['ID']['input'];
   pagination?: PaginationInput;
+};
+
+
+export type QueryRedirectArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type QueryRedirectByPathArgs = {
+  fromPath: Scalars['String']['input'];
+};
+
+
+export type QueryRedirectsArgs = {
+  limit?: Scalars['Int']['input'];
+  page?: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -2085,6 +2190,19 @@ export type QuerySearchPlacesArgs = {
 export type QuerySearchProductsArgs = {
   pagination?: PaginationInput;
   searchTerm: Scalars['String']['input'];
+};
+
+export type RedirectType = {
+  __typename?: 'RedirectType';
+  _id: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  fromPath: Scalars['String']['output'];
+  isActive: Scalars['Boolean']['output'];
+  source: Scalars['String']['output'];
+  statusCode: Scalars['Int']['output'];
+  toPath: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
 };
 
 export type RefundInitiateResponse = {
@@ -2443,12 +2561,31 @@ export type UpdateProductVariantInput = {
   weightUnit?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type UpdateRedirectInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  fromPath?: InputMaybe<Scalars['String']['input']>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  source?: InputMaybe<Scalars['String']['input']>;
+  statusCode?: InputMaybe<Scalars['Int']['input']>;
+  toPath?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type UploadEvidenceInput = {
   actualBoxCode?: InputMaybe<Scalars['String']['input']>;
   packingOrderId: Scalars['String']['input'];
   postPackImages?: InputMaybe<Array<Scalars['String']['input']>>;
   prePackImages?: InputMaybe<Array<Scalars['String']['input']>>;
 };
+
+export type GetAllProductsForSitemapQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetAllProductsForSitemapQuery = { __typename?: 'Query', products: { __typename?: 'PaginatedProducts', items: Array<{ __typename?: 'Product', slug: string, updatedAt: any }> } };
+
+export type GetAllCategoriesForSitemapQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetAllCategoriesForSitemapQuery = { __typename?: 'Query', categories: { __typename?: 'PaginatedCategories', items: Array<{ __typename?: 'Category', slug: string, updatedAt: any }> } };
 
 export type SearchPlacesQueryVariables = Exact<{
   query: Scalars['String']['input'];
@@ -2625,6 +2762,26 @@ export class TypedDocumentString<TResult, TVariables>
   }
 }
 
+export const GetAllProductsForSitemapDocument = new TypedDocumentString(`
+    query GetAllProductsForSitemap {
+  products(pagination: {page: 1, limit: 1000}) {
+    items {
+      slug
+      updatedAt
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<GetAllProductsForSitemapQuery, GetAllProductsForSitemapQueryVariables>;
+export const GetAllCategoriesForSitemapDocument = new TypedDocumentString(`
+    query GetAllCategoriesForSitemap {
+  categories(pagination: {page: 1, limit: 1000}) {
+    items {
+      slug
+      updatedAt
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<GetAllCategoriesForSitemapQuery, GetAllCategoriesForSitemapQueryVariables>;
 export const SearchPlacesDocument = new TypedDocumentString(`
     query SearchPlaces($query: String!, $sessionToken: String) {
   searchPlaces(input: {query: $query, sessionToken: $sessionToken}) {

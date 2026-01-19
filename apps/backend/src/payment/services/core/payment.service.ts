@@ -83,7 +83,7 @@ export class PaymentService {
       });
 
       const paymentOrder = await this.createPaymentOrder({
-        paymentEventId: paymentEvent._id.toString(),
+        paymentEventId: (paymentEvent as any)._id.toString(),
         identityId,
         amount,
         currency,
@@ -269,7 +269,7 @@ export class PaymentService {
     });
 
     this.paymentLogger.logPaymentInitiation({
-      paymentOrderId: paymentEvent._id.toString(),
+      paymentOrderId: (paymentEvent as any)._id.toString(),
       userId: params.identityId,
       amount: params.amount,
       currency: params.currency,

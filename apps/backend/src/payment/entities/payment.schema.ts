@@ -60,6 +60,19 @@ export class PaymentEvent extends Document {
       handlingCharge: number;
       grandTotal: number;
     };
+    shippingAddress?: {
+      recipientName: string;
+      recipientPhone: string;
+      buildingName?: string;
+      floor?: string;
+      streetArea?: string;
+      landmark?: string;
+      addressLocality: string;
+      addressRegion: string;
+      postalCode: string;
+      addressCountry: string;
+      formattedAddress?: string;
+    };
   };
 }
 
