@@ -11,7 +11,7 @@ export const CategoryGrid = async () => {
       id: c.id,
       name: c.name,
       imageUrl: c.imageUrl || '/placeholder-image.svg',
-      href: `/${c.slug}`,
+      href: `/category/${c.slug}`,
     }));
 
   return (
