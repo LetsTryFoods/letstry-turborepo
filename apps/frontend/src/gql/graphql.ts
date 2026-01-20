@@ -172,7 +172,7 @@ export type Cart = {
   couponCode?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   expiresAt?: Maybe<Scalars['DateTime']['output']>;
-  identityId: Scalars['String']['output'];
+  identityId: Scalars['ID']['output'];
   items: Array<CartItem>;
   shippingAddressId?: Maybe<Scalars['String']['output']>;
   shippingMethodId?: Maybe<Scalars['String']['output']>;
@@ -837,6 +837,7 @@ export type Mutation = {
   scanItem: ScanLog;
   sendOtp: Scalars['String']['output'];
   setDefaultProductVariant: Product;
+  setShippingAddress: Cart;
   startPacking: PackingOrder;
   subscribeNewsletter: SubscribeNewsletterResponse;
   unarchiveCategory: Category;
@@ -1095,6 +1096,11 @@ export type MutationSetDefaultProductVariantArgs = {
 };
 
 
+export type MutationSetShippingAddressArgs = {
+  input: SetShippingAddressInput;
+};
+
+
 export type MutationStartPackingArgs = {
   packingOrderId: Scalars['String']['input'];
 };
@@ -1278,9 +1284,14 @@ export type OrderShippingAddressType = {
   __typename?: 'OrderShippingAddressType';
   addressLine1: Scalars['String']['output'];
   addressLine2?: Maybe<Scalars['String']['output']>;
+  addressType?: Maybe<Scalars['String']['output']>;
   city: Scalars['String']['output'];
+  floor?: Maybe<Scalars['String']['output']>;
+  formattedAddress?: Maybe<Scalars['String']['output']>;
   fullName: Scalars['String']['output'];
   landmark?: Maybe<Scalars['String']['output']>;
+  latitude?: Maybe<Scalars['Float']['output']>;
+  longitude?: Maybe<Scalars['Float']['output']>;
   phone: Scalars['String']['output'];
   pincode: Scalars['String']['output'];
   state: Scalars['String']['output'];
@@ -2280,6 +2291,10 @@ export type SeoBaseInput = {
   ogTitle?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type SetShippingAddressInput = {
+  addressId: Scalars['ID']['input'];
+};
+
 export type ShipmentFiltersInput = {
   awbNumber?: InputMaybe<Scalars['String']['input']>;
   bookedFrom?: InputMaybe<Scalars['String']['input']>;
@@ -2659,6 +2674,13 @@ export type RemoveFromCartMutationVariables = Exact<{
 
 export type RemoveFromCartMutation = { __typename?: 'Mutation', removeFromCart: { __typename?: 'Cart', _id: string, items: Array<{ __typename?: 'CartItem', productId: string, name: string, quantity: number }>, totalsSummary: { __typename?: 'CartTotals', grandTotal: number } } };
 
+export type SetShippingAddressMutationVariables = Exact<{
+  input: SetShippingAddressInput;
+}>;
+
+
+export type SetShippingAddressMutation = { __typename?: 'Mutation', setShippingAddress: { __typename?: 'Cart', _id: string, shippingAddressId?: string | null, totalsSummary: { __typename?: 'CartTotals', subtotal: number, discountAmount: number, shippingCost: number, estimatedTax: number, handlingCharge: number, grandTotal: number } } };
+
 export type GetRootCategoriesQueryVariables = Exact<{
   pagination?: InputMaybe<PaginationInput>;
   includeArchived?: InputMaybe<Scalars['Boolean']['input']>;
@@ -2957,6 +2979,22 @@ export const RemoveFromCartDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<RemoveFromCartMutation, RemoveFromCartMutationVariables>;
+export const SetShippingAddressDocument = new TypedDocumentString(`
+    mutation SetShippingAddress($input: SetShippingAddressInput!) {
+  setShippingAddress(input: $input) {
+    _id
+    shippingAddressId
+    totalsSummary {
+      subtotal
+      discountAmount
+      shippingCost
+      estimatedTax
+      handlingCharge
+      grandTotal
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<SetShippingAddressMutation, SetShippingAddressMutationVariables>;
 export const GetRootCategoriesDocument = new TypedDocumentString(`
     query GetRootCategories($pagination: PaginationInput, $includeArchived: Boolean) {
   rootCategories(pagination: $pagination, includeArchived: $includeArchived) {
