@@ -2766,6 +2766,14 @@ export type GetProductBySlugQueryVariables = Exact<{
 
 export type GetProductBySlugQuery = { __typename?: 'Query', productBySlug?: { __typename?: 'Product', _id: string, name: string, slug: string, description?: string | null, shelfLife: string, isVegetarian: boolean, ingredients: string, category?: { __typename?: 'Category', name: string, imageUrl?: string | null } | null, seo?: { __typename?: 'ProductSeo', metaTitle?: string | null, metaDescription?: string | null, metaKeywords?: Array<string> | null, canonicalUrl?: string | null, ogTitle?: string | null, ogDescription?: string | null, ogImage?: string | null } | null, variants: Array<{ __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> }>, defaultVariant?: { __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> } | null, priceRange: { __typename?: 'PriceRange', min: number, max: number }, availableVariants: Array<{ __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> }> } | null };
 
+export type SearchProductsQueryVariables = Exact<{
+  searchTerm: Scalars['String']['input'];
+  pagination?: InputMaybe<PaginationInput>;
+}>;
+
+
+export type SearchProductsQuery = { __typename?: 'Query', searchProducts: { __typename?: 'PaginatedProducts', items: Array<{ __typename?: 'Product', _id: string, name: string, slug: string, description?: string | null, categoryIds: Array<string>, brand: string, currency: string, isArchived: boolean, favourite?: boolean | null, createdAt: any, updatedAt: any, defaultVariant?: { __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, discountSource: string, weight: number, weightUnit: string, packageSize: string, length: number, height: number, breadth: number, stockQuantity: number, availabilityStatus: string, thumbnailUrl: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> } | null, priceRange: { __typename?: 'PriceRange', min: number, max: number } }>, meta: { __typename?: 'PaginationMeta', totalCount: number, page: number, limit: number, totalPages: number, hasNextPage: boolean, hasPreviousPage: boolean } } };
+
 export class TypedDocumentString<TResult, TVariables>
   extends String
   implements DocumentTypeDecoration<TResult, TVariables>
@@ -3324,3 +3332,58 @@ export const GetProductBySlugDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<GetProductBySlugQuery, GetProductBySlugQueryVariables>;
+export const SearchProductsDocument = new TypedDocumentString(`
+    query SearchProducts($searchTerm: String!, $pagination: PaginationInput) {
+  searchProducts(searchTerm: $searchTerm, pagination: $pagination) {
+    items {
+      _id
+      name
+      slug
+      description
+      categoryIds
+      brand
+      currency
+      isArchived
+      favourite
+      createdAt
+      updatedAt
+      defaultVariant {
+        _id
+        sku
+        name
+        price
+        mrp
+        discountPercent
+        discountSource
+        weight
+        weightUnit
+        packageSize
+        length
+        height
+        breadth
+        stockQuantity
+        availabilityStatus
+        images {
+          url
+          alt
+        }
+        thumbnailUrl
+        isDefault
+        isActive
+      }
+      priceRange {
+        min
+        max
+      }
+    }
+    meta {
+      totalCount
+      page
+      limit
+      totalPages
+      hasNextPage
+      hasPreviousPage
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<SearchProductsQuery, SearchProductsQueryVariables>;

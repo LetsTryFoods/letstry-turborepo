@@ -9,7 +9,6 @@ import JourneyVideos from "@/components/journey-videos/journeyVideos";
 import CustomerTestimonials from "@/components/customer-testimonials/CustomerTestimonials";
 import BrandSlider from "@/components/brand-slider/BrandSlider";
 
-
 // export const revalidate = 86400;
 
 // export const revalidate = 60;
@@ -22,14 +21,10 @@ export default function Home() {
       <BestsellerCarousel />
       <WhyChooseUs />
       <HealthySnacking />
-      {/* <div className="container mx-auto px-4 py-8 text-center">
-        <h1 className="text-4xl font-bold">Coming soon!!!!</h1>
-      </div> */}
       <WholesomeChoices />
       <JourneyVideos />
       <CustomerTestimonials />
       <BrandSlider />
-
     </main>
   );
 }
