@@ -11,6 +11,7 @@ interface CartItemProps {
   quantity: number;
   onUpdateQuantity: (id: string, newQuantity: number) => void;
   onRemove: (id: string) => void;
+  isUpdating?: boolean;
 }
 
 export const CartItem: React.FC<CartItemProps> = ({
@@ -22,6 +23,7 @@ export const CartItem: React.FC<CartItemProps> = ({
   quantity,
   onUpdateQuantity,
   onRemove,
+  isUpdating = false,
 }) => {
   return (
     <div className="flex gap-4 p-4 bg-white border border-gray-100 rounded-xl mb-4">
@@ -46,16 +48,18 @@ export const CartItem: React.FC<CartItemProps> = ({
             <div className="flex items-center border border-[#003B65] rounded-sm overflow-hidden h-8">
               <button
                 onClick={() => onUpdateQuantity(id, Math.max(0, quantity - 1))}
-                className="px-3 h-full bg-[#E8F3F7] text-[#003B65] hover:bg-[#D1E9F2] transition-colors"
+                className="px-3 h-full bg-[#E8F3F7] text-[#003B65] hover:bg-[#D1E9F2] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="Decrease quantity"
+                disabled={isUpdating}
               >
                 <Minus size={16} strokeWidth={3} />
               </button>
               <span className="w-10 text-center text-sm font-bold text-black">{quantity}</span>
               <button
                 onClick={() => onUpdateQuantity(id, quantity + 1)}
-                className="px-3 h-full bg-[#E8F3F7] text-[#003B65] hover:bg-[#D1E9F2] transition-colors"
+                className="px-3 h-full bg-[#E8F3F7] text-[#003B65] hover:bg-[#D1E9F2] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="Increase quantity"
+                disabled={isUpdating}
               >
                 <Plus size={16} strokeWidth={3} />
               </button>
@@ -63,7 +67,8 @@ export const CartItem: React.FC<CartItemProps> = ({
 
             <button
               onClick={() => onRemove(id)}
-              className="text-sm text-gray-500 hover:text-red-600 transition-colors"
+              className="text-sm text-gray-500 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isUpdating}
             >
               Remove
             </button>

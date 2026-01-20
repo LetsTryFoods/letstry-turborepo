@@ -35,6 +35,7 @@ export const CartContainer = () => {
   const [pendingAddressData, setPendingAddressData] = useState<AddressFormData | null>(null);
   const [pendingPhone, setPendingPhone] = useState<string>('');
   const [selectedAddress, setSelectedAddress] = useState<any>(null);
+  const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set());
 
   const items = (cartData as any)?.myCart?.items?.map((item: any) => ({
     id: item.productId,
@@ -43,6 +44,7 @@ export const CartContainer = () => {
     size: item.attributes?.size || item.attributes?.weight || '',
     price: item.unitPrice,
     quantity: item.quantity,
+    isUpdating: updatingItems.has(item.productId),
   })) || [];
 
   const totalPrice = (cartData as any)?.myCart?.totalsSummary?.grandTotal || 0;
@@ -61,6 +63,8 @@ export const CartContainer = () => {
   };
 
   const handleUpdateQuantity = async (productId: string, quantity: number) => {
+    setUpdatingItems(prev => new Set(prev).add(productId));
+    
     try {
       const item = items.find((i: any) => i.id === productId);
       const oldQuantity = item?.quantity || 0;
@@ -97,9 +101,15 @@ export const CartContainer = () => {
           }
         }
       }
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
+      await queryClient.invalidateQueries({ queryKey: ['cart'] });
     } catch (error) {
       console.error('Failed to update cart:', error);
+    } finally {
+      setUpdatingItems(prev => {
+        const next = new Set(prev);
+        next.delete(productId);
+        return next;
+      });
     }
   };
 
