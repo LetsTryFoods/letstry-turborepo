@@ -32,18 +32,12 @@ export class CartItemService {
   }
 
   findItemIndexInCart(items: CartItem[], productId: string): number {
-    const { product, variantId } = this.parseProductId(productId);
-    
     return items.findIndex((item) => {
-      if (variantId) {
-        return item.variantId?.toString() === variantId;
+      if (item.variantId?.toString() === productId) {
+        return true;
       }
-      return item.productId.toString() === product;
+      return item.productId.toString() === productId;
     });
-  }
-
-  private parseProductId(productId: string): { product: string; variantId?: string } {
-    return { product: productId, variantId: productId };
   }
 
   updateItemQuantity(item: CartItem, quantity: number): void {
@@ -52,13 +46,11 @@ export class CartItemService {
   }
 
   removeItemFromCart(items: CartItem[], productId: string): CartItem[] {
-    const { product, variantId } = this.parseProductId(productId);
-    
     return items.filter((item) => {
-      if (variantId) {
-        return item.variantId?.toString() !== variantId;
+      if (item.variantId?.toString() === productId) {
+        return false;
       }
-      return item.productId.toString() !== product;
+      return item.productId.toString() !== productId;
     });
   }
 
