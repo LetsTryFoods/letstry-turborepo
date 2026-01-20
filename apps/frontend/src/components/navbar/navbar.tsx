@@ -52,6 +52,7 @@ export const Navbar = ({ initialAuth, categories = [] }: NavbarProps) => {
       { href: "/", label: "Home" },
       { href: "#", label: "Snacks", hasDropdown: true, dropdownItems: categories },
       { href: "/combo", label: "Combos"},
+      // {href: "/blog", label: "Blog"},
       { href: "/about-us", label: "About us" },
     ],
     [categories]
