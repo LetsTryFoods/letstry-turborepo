@@ -1,9 +1,11 @@
+'use client';
+
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MobileMenu } from "./mobile-menu";
-import { useSearchStore } from "@/stores/search-store";
 
 interface MobileNavbarProps {
     cartItemCount: number;
@@ -24,20 +26,10 @@ export const MobileNavbar = ({
     isAuthenticated,
     onProfileClick,
 }: MobileNavbarProps) => {
-    const { openSearch } = useSearchStore();
+    const router = useRouter();
 
     return (
         <div className="flex md:hidden h-20 items-center justify-between relative px-2">
-            {/* Left: Delivering at */}
-            {/* <div className="flex flex-col flex-1 min-w-0">
-                <span className="text-md font-bold text-black leading-tight">Delivering at</span>
-                <span className="text-sm text-gray-600 truncate pr-4 ">
-                    Netaji Subhash Place
-                </span>
-            </div> */}
-
-            {/* Center: Logo */}
-            {/* <div className="absolute left-1/2 -translate-x-1/2 z-10"> */}
             <div>
                 <Link href="/" className="block gold-border-logo">
                     <div className="bg-[#FFCC00] rounded-full  w-10 h-10 flex items-center justify-center overflow-hidden">
@@ -53,9 +45,8 @@ export const MobileNavbar = ({
                 </Link>
             </div>
 
-            {/* Right: Icons */}
             <div className="flex items-center -mr-2">
-                <Button variant="ghost" size="icon" className="h-12 w-10 p-0" onClick={openSearch}>
+                <Button variant="ghost" size="icon" className="h-12 w-10 p-0" onClick={() => router.push('/search')}>
                     <Search className="size-6 text-black stroke-[1.5]" />
                 </Button>
 

@@ -32,7 +32,6 @@ export default async function Home() {
       <JourneyVideos />
       <CustomerTestimonials />
       <BrandSlider />
-
     </main>
   );
 }
