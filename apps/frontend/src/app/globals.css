@@ -151,6 +151,19 @@
     scrollbar-width: none;
   }
 
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scroll-snap-start {
+    scroll-snap-align: start;
+  }
+
   .category-blob {
     background-color: #E8F3F7;
     border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
