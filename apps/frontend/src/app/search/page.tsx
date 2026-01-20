@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect } from 'react';
+import { Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ChevronLeft, Search } from 'lucide-react';
 import { useSearchProducts } from '@/lib/search/use-search';
@@ -48,16 +48,16 @@ function mapProductData(apiProduct: any): Product {
   };
 }
 
-export default function SearchPage() {
+function SearchContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const searchTerm = searchParams.get('q') || '';
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
   const { data, isLoading } = useSearchProducts(debouncedSearchTerm);
 
-  const handlePopularSearch = useCallback((term: string) => {
-    router.push(`/search?q=${encodeURIComponent(term)}`);
-  }, [router]);
+//   const handlePopularSearch = useCallback((term: string) => {
+//     router.push(`/search?q=${encodeURIComponent(term)}`);
+//   }, [router]);
 
   const products = data?.searchProducts?.items?.map(mapProductData) || [];
   const meta = data?.searchProducts?.meta;
@@ -131,5 +131,22 @@ export default function SearchPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-white">
+        <div className="max-w-7xl mx-auto p-4 md:p-6">
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500"></div>
+            <p className="mt-4 text-gray-600">Loading...</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <SearchContent />
+    </Suspense>
   );
 }
