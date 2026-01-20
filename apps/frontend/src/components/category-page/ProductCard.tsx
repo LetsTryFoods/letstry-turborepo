@@ -9,7 +9,7 @@ import { WeightSelector } from './WeightSelector';
 import { AddToCartButton } from './AddToCartButton';
 import { CartService } from '@/lib/cart/cart-service';
 import { useAnalytics } from '@/hooks/use-analytics';
-
+import { useCart } from '@/lib/cart/use-cart';
 import Link from 'next/link';
 
 export interface Product {
@@ -41,6 +41,19 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, categoryType 
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
   const { trackAddToCart } = useAnalytics();
+  const { data: cartData } = useCart();
+  
+  const cart = cartData?.myCart;
+  const cartItem = cart?.items?.find((item: any) => item.variantId === selectedVariantId);
+  const quantityInCart = cartItem?.quantity || 0;
+  
+  console.log('ProductCard Debug:', {
+    productName: product.name,
+    selectedVariantId,
+    cartItems: cart?.items,
+    cartItem,
+    quantityInCart
+  });
   
   const selectedVariant = product.variants.find(v => v.id === selectedVariantId) || {
     price: product.price,
@@ -82,6 +95,38 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, categoryType 
     }
   };
 
+  const handleIncrement = async () => {
+    if (isLoading) return;
+    
+    setIsLoading(true);
+    try {
+      await CartService.updateCartItem(selectedVariantId, quantityInCart + 1);
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
+    } catch (error) {
+      toast.error('Failed to update cart');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDecrement = async () => {
+    if (isLoading) return;
+    
+    setIsLoading(true);
+    try {
+      if (quantityInCart > 1) {
+        await CartService.updateCartItem(selectedVariantId, quantityInCart - 1);
+      } else {
+        await CartService.removeFromCart(selectedVariantId);
+      }
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
+    } catch (error) {
+      toast.error('Failed to update cart');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="border border-gray-200 rounded-sm overflow-hidden flex flex-col h-full bg-white hover:shadow-md transition-shadow duration-200 relative group">
       <Link href={`/${product.slug}`} className="absolute inset-0 z-10" />
@@ -116,7 +161,29 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, categoryType 
             onWeightChange={handleWeightChange}
             />
             
-            <AddToCartButton onClick={handleAddToCart} />
+            {quantityInCart === 0 ? (
+              <AddToCartButton onClick={handleAddToCart} />
+            ) : (
+              <div className="mt-2 w-full flex items-center justify-between border-2 border-[#0C5273] rounded-lg overflow-hidden">
+                <button
+                  className="flex-1 py-2 text-[#0C5273] font-bold text-xl hover:bg-[#0C5273] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={handleDecrement}
+                  disabled={isLoading}
+                >
+                  −
+                </button>
+                <span className="flex-1 text-center py-2 text-[#0C5273] font-semibold text-base border-x-2 border-[#0C5273]">
+                  {isLoading ? '...' : quantityInCart}
+                </span>
+                <button
+                  className="flex-1 py-2 text-[#0C5273] font-bold text-xl hover:bg-[#0C5273] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={handleIncrement}
+                  disabled={isLoading}
+                >
+                  +
+                </button>
+              </div>
+            )}
         </div>
       </div>
     </div>

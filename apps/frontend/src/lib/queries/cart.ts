@@ -9,6 +9,7 @@ export const GET_MY_CART = graphql(`
       couponCode
       items {
         productId
+        variantId
         sku
         name
         quantity

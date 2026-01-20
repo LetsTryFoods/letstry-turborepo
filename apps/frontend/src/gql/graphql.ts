@@ -2652,7 +2652,7 @@ export type GetActiveBannersQuery = { __typename?: 'Query', activeBanners: Array
 export type GetMyCartQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetMyCartQuery = { __typename?: 'Query', myCart?: { __typename?: 'Cart', _id: string, status: CartStatus, couponCode?: string | null, createdAt: any, updatedAt: any, items: Array<{ __typename?: 'CartItem', productId: string, sku: string, name: string, quantity: number, unitPrice: number, totalPrice: number, mrp: number, imageUrl?: string | null, attributes?: any | null }>, totalsSummary: { __typename?: 'CartTotals', subtotal: number, discountAmount: number, shippingCost: number, estimatedTax: number, handlingCharge: number, grandTotal: number } } | null };
+export type GetMyCartQuery = { __typename?: 'Query', myCart?: { __typename?: 'Cart', _id: string, status: CartStatus, couponCode?: string | null, createdAt: any, updatedAt: any, items: Array<{ __typename?: 'CartItem', productId: string, variantId?: string | null, sku: string, name: string, quantity: number, unitPrice: number, totalPrice: number, mrp: number, imageUrl?: string | null, attributes?: any | null }>, totalsSummary: { __typename?: 'CartTotals', subtotal: number, discountAmount: number, shippingCost: number, estimatedTax: number, handlingCharge: number, grandTotal: number } } | null };
 
 export type AddToCartMutationVariables = Exact<{
   input: AddToCartInput;
@@ -2916,6 +2916,7 @@ export const GetMyCartDocument = new TypedDocumentString(`
     couponCode
     items {
       productId
+      variantId
       sku
       name
       quantity

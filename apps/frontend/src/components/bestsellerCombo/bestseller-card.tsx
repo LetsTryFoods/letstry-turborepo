@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import Image from "next/image";
 import Link from "next/link";
 import { CartService } from '@/lib/cart/cart-service';
+import { useCart } from '@/lib/cart/use-cart';
 
 type ProductVariant = {
   _id: string;
@@ -35,9 +36,21 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
   const variant = product.defaultVariant;
   if (!variant) return null;
 
-  const [quantity, setQuantity] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
+  const { data: cartData } = useCart();
+  
+  const cart = cartData?.myCart;
+  const cartItem = cart?.items?.find((item: any) => item.productId === product._id);
+  const quantityInCart = cartItem?.quantity || 0;
+  
+  console.log('BestsellerComboCard Debug:', {
+    productName: product.name,
+    productId: product._id,
+    cartItems: cart?.items,
+    cartItem,
+    quantityInCart
+  });
 
   const images = variant.images?.slice(0, 4) || [];
   const displayImages = images.length > 0 ? images : [{ url: variant.thumbnailUrl, alt: product.name }];
@@ -48,11 +61,9 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
     setIsLoading(true);
     try {
       await CartService.addToCart(product._id, 1);
-      setQuantity(1);
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       toast.success(`${product.name} added to cart`);
     } catch (error) {
-      
       toast.error('Failed to add to cart');
     } finally {
       setIsLoading(false);
@@ -64,12 +75,9 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
     
     setIsLoading(true);
     try {
-      const newQuantity = quantity + 1;
-      await CartService.updateCartItem(product._id, newQuantity);
-      setQuantity(newQuantity);
+      await CartService.updateCartItem(product._id, quantityInCart + 1);
       queryClient.invalidateQueries({ queryKey: ['cart'] });
     } catch (error) {
-      console.error('Failed to update cart:', error);
       toast.error('Failed to update cart');
     } finally {
       setIsLoading(false);
@@ -81,17 +89,13 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
     
     setIsLoading(true);
     try {
-      if (quantity > 1) {
-        const newQuantity = quantity - 1;
-        await CartService.updateCartItem(product._id, newQuantity);
-        setQuantity(newQuantity);
+      if (quantityInCart > 1) {
+        await CartService.updateCartItem(product._id, quantityInCart - 1);
       } else {
         await CartService.removeFromCart(product._id);
-        setQuantity(0);
       }
       queryClient.invalidateQueries({ queryKey: ['cart'] });
     } catch (error) {
-      console.error('Failed to update cart:', error);
       toast.error('Failed to update cart');
     } finally {
       setIsLoading(false);
@@ -120,7 +124,7 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
         </span>
       </div>
       <div className="px-4 pb-4 mt-2">
-      {quantity === 0 ? (
+      {quantityInCart === 0 ? (
         <button
           className="w-full border-2 border-[#0C5273] text-[#0C5273] text-sm font-semibold py-2 rounded-md hover:bg-blue-600 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={handleAddToCart}
@@ -138,7 +142,7 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
             −
           </button>
           <span className="flex-1 text-center py-2 text-[#0C5273] font-semibold text-base border-x-2 border-[#0C5273]">
-            {isLoading ? '...' : quantity}
+            {isLoading ? '...' : quantityInCart}
           </span>
           <button
             className="flex-1 py-2 text-[#0C5273] font-bold text-xl hover:bg-[#0C5273] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"

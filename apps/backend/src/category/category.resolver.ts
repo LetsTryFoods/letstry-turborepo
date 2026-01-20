@@ -122,16 +122,12 @@ export class CategoryResolver {
     @Args('includeArchived', { type: () => Boolean, defaultValue: false })
     includeArchived: boolean,
   ): Promise<Category | null> {
-    console.log('categoryBySlug resolver called with:', { slug, includeArchived });
     try {
-      const result = await this.categoryService.findBySlug(
+      return (await this.categoryService.findBySlug(
         slug,
         includeArchived,
-      );
-      console.log('categoryBySlug result:', result);
-      return result as any;
-    } catch (error) {
-      console.error('categoryBySlug error:', error);
+      )) as any;
+    } catch {
       return null;
     }
   }

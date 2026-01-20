@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { CartService } from '@/lib/cart/cart-service';
 import { useAnalytics } from '@/hooks/use-analytics';
+import { useCart } from '@/lib/cart/use-cart';
 
 type ProductVariant = {
   _id: string;
@@ -35,10 +36,22 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
   if (!variant) return null;
 
   const hasDiscount = variant.discountPercent > 0;
-  const [quantity, setQuantity] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
   const { trackAddToCart } = useAnalytics();
+  const { data: cartData } = useCart();
+  
+  const cart = cartData?.myCart;
+  const cartItem = cart?.items?.find((item: any) => item.productId === product._id);
+  const quantityInCart = cartItem?.quantity || 0;
+  
+  console.log('BestsellerCard Debug:', {
+    productName: product.name,
+    productId: product._id,
+    cartItems: cart?.items,
+    cartItem,
+    quantityInCart
+  });
 
   const handleAddToCart = async () => {
     if (isLoading) return;
@@ -46,7 +59,6 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
     setIsLoading(true);
     try {
       await CartService.addToCart(product._id, 1);
-      setQuantity(1);
       
       trackAddToCart({
         id: product._id,
@@ -59,7 +71,6 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       toast.success(`${product.name} added to cart`);
     } catch (error) {
-      console.error('Failed to add to cart:', error);
       toast.error('Failed to add to cart');
     } finally {
       setIsLoading(false);
@@ -71,12 +82,9 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
     
     setIsLoading(true);
     try {
-      const newQuantity = quantity + 1;
-      await CartService.updateCartItem(product._id, newQuantity);
-      setQuantity(newQuantity);
+      await CartService.updateCartItem(product._id, quantityInCart + 1);
       queryClient.invalidateQueries({ queryKey: ['cart'] });
     } catch (error) {
-      console.error('Failed to update cart:', error);
       toast.error('Failed to update cart');
     } finally {
       setIsLoading(false);
@@ -88,17 +96,13 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
     
     setIsLoading(true);
     try {
-      if (quantity > 1) {
-        const newQuantity = quantity - 1;
-        await CartService.updateCartItem(product._id, newQuantity);
-        setQuantity(newQuantity);
+      if (quantityInCart > 1) {
+        await CartService.updateCartItem(product._id, quantityInCart - 1);
       } else {
         await CartService.removeFromCart(product._id);
-        setQuantity(0);
       }
       queryClient.invalidateQueries({ queryKey: ['cart'] });
     } catch (error) {
-      console.error('Failed to update cart:', error);
       toast.error('Failed to update cart');
     } finally {
       setIsLoading(false);
@@ -139,7 +143,7 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
           </span>
         )}
       </div>
-      {quantity === 0 ? (
+      {quantityInCart === 0 ? (
         <button
           style={{
             backgroundRepeat: 'repeat-x',
@@ -164,7 +168,7 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
             −
           </button>
           <span className="flex-1 text-center py-1.5 sm:py-2 text-[#0C5273] font-semibold text-sm sm:text-base border-x-2 border-[#0C5273]">
-            {isLoading ? '...' : quantity}
+            {isLoading ? '...' : quantityInCart}
           </span>
           <button
             className="flex-1 py-1.5 sm:py-2 text-[#0C5273] font-bold text-lg sm:text-xl hover:bg-[#0C5273] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
