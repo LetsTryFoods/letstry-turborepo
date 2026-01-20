@@ -11,7 +11,7 @@ import { CategoryTable } from "./components/CategoryTable"
 import { ArchiveDialog } from "./components/ArchiveDialog"
 
 const allColumns: ColumnDefinition[] = [
-  { key: "id", label: "ID" },
+  { key: "_id", label: "ID" },
   { key: "name", label: "Name" },
   { key: "slug", label: "Slug" },
   { key: "description", label: "Description" },

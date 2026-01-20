@@ -53,6 +53,7 @@ import {
   useProducts,
   useProductsByCategory,
   useSearchProducts,
+  useProduct,
   useCreateProduct,
   useUpdateProduct,
   useArchiveProduct,
@@ -95,7 +96,10 @@ function ProductsPageContent() {
   const [pageSize] = useState(10);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
+  const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
+
+  const { data: fullProductData, loading: loadingFullProduct } = useProduct(editingProductId || '') as { data: any; loading: boolean };
   const [productToAction, setProductToAction] = useState<{
     _id: string;
     action: "archive" | "unarchive" | "delete";
@@ -145,6 +149,15 @@ function ProductsPageContent() {
   useEffect(() => {
     setCurrentPage(1);
   }, [categoryId]);
+
+  useEffect(() => {
+    if (fullProductData?.product) {
+      setEditingProduct(fullProductData.product);
+      if (editingProductId && !isDialogOpen) {
+        setIsDialogOpen(true);
+      }
+    }
+  }, [fullProductData, editingProductId, isDialogOpen]);
 
   const products = debouncedSearchTerm
     ? (productsData as any)?.searchProducts?.items || []
@@ -256,20 +269,18 @@ function ProductsPageContent() {
   };
 
   const handleEdit = (productId: string) => {
-    const product = products.find((p: any) => p._id === productId);
-    if (product) {
-      setEditingProduct(product);
-      setIsDialogOpen(true);
-    }
+    setEditingProductId(productId);
   };
 
   const handleCloseDialog = () => {
     setIsDialogOpen(false);
     setEditingProduct(null);
+    setEditingProductId(null);
   };
 
   const handleAddProduct = () => {
     setEditingProduct(null);
+    setEditingProductId(null);
     setIsDialogOpen(true);
   };
 
