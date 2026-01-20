@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Cart, CartSchema } from './cart.schema';
 import { Identity, IdentitySchema } from '../common/schemas/identity.schema';
+import { Address, AddressSchema } from '../address/address.schema';
 import { CartService } from './cart.service';
 import { CartResolver } from './cart.resolver';
 import { ProductModule } from '../product/product.module';
@@ -22,6 +23,7 @@ import { CartHydrationService } from './services/cart-hydration.service';
     MongooseModule.forFeature([
       { name: Cart.name, schema: CartSchema },
       { name: Identity.name, schema: IdentitySchema },
+      { name: Address.name, schema: AddressSchema },
     ]),
     ProductModule,
     LoggerModule,

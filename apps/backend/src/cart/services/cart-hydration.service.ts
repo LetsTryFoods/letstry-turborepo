@@ -1,12 +1,16 @@
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { CartDocument, CartItem } from '../cart.schema';
 import { ProductValidationService } from './product-validation.service';
 import { CartCalculationService } from './cart-calculation.service';
 import { WinstonLoggerService } from '../../logger/logger.service';
+import { Address, AddressDocument } from '../../address/address.schema';
 
 @Injectable()
 export class CartHydrationService {
     constructor(
+        @InjectModel(Address.name) private addressModel: Model<AddressDocument>,
         private readonly productValidationService: ProductValidationService,
         private readonly cartCalculationService: CartCalculationService,
         private readonly logger: WinstonLoggerService,
@@ -59,7 +63,21 @@ export class CartHydrationService {
         }
 
         cart.items = hydratedItems;
-        await this.cartCalculationService.recalculateCart(cart);
+        
+        let shippingAddress: AddressDocument | null = null;
+        if (cart.shippingAddressId) {
+            try {
+                shippingAddress = await this.addressModel.findById(cart.shippingAddressId).exec();
+            } catch (error) {
+                this.logger.warn(
+                    'Error fetching shipping address',
+                    { addressId: cart.shippingAddressId, error: error.message },
+                    'CartModule',
+                );
+            }
+        }
+
+        await this.cartCalculationService.recalculateCart(cart, shippingAddress ? { pincode: shippingAddress.postalCode } : undefined);
 
         return cart;
     }

@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import {
   ObjectType,
   Field,
@@ -26,9 +26,13 @@ registerEnumType(CartStatus, {
 @Schema()
 @ObjectType()
 export class CartItem {
-  @Prop({ required: true })
+  @Prop({ type: Types.ObjectId, required: true })
   @Field(() => ID)
   productId: string;
+
+  @Prop({ type: Types.ObjectId, required: false })
+  @Field(() => ID, { nullable: true })
+  variantId?: string;
 
   @Prop({ required: true })
   @Field()
@@ -92,8 +96,8 @@ export class Cart {
   @Field(() => ID)
   _id: string;
 
-  @Prop({ required: true })
-  @Field()
+  @Prop({ type: Types.ObjectId, required: true })
+  @Field(() => ID)
   identityId: string;
 
   @Prop({ required: true, enum: CartStatus, default: CartStatus.ACTIVE })
@@ -104,11 +108,11 @@ export class Cart {
   @Field({ nullable: true })
   couponCode?: string;
 
-  @Prop()
+  @Prop({ type: Types.ObjectId })
   @Field({ nullable: true })
   shippingMethodId?: string;
 
-  @Prop()
+  @Prop({ type: Types.ObjectId })
   @Field({ nullable: true })
   shippingAddressId?: string;
 

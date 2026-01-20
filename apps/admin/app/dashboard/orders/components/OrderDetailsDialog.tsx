@@ -222,6 +222,12 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
                   <Phone className="h-4 w-4" />
                   <span>{order.shippingAddress?.phone}</span>
                 </div>
+                {order.shippingAddress?.formattedAddress && (
+                  <div className="mt-3 pt-3 border-t">
+                    <p className="text-xs text-muted-foreground font-medium mb-1">Complete Address:</p>
+                    <p className="text-sm">{order.shippingAddress?.formattedAddress}</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

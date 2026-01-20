@@ -1,6 +1,7 @@
 import { Injectable, LoggerService } from '@nestjs/common';
 import * as winston from 'winston';
 import * as path from 'path';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class PaymentLoggerService implements LoggerService {
@@ -177,7 +178,7 @@ export class PaymentLoggerService implements LoggerService {
   logOrderCreated(data: {
     orderId: string;
     paymentOrderId: string;
-    userId: string;
+    userId: string | Types.ObjectId;
     amount: string;
   }) {
     this.log('Order Created', {

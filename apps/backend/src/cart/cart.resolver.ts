@@ -2,7 +2,7 @@ import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { Cart } from './cart.schema';
-import { AddToCartInput, UpdateCartItemInput } from './cart.input';
+import { AddToCartInput, UpdateCartItemInput, SetShippingAddressInput } from './cart.input';
 import { Public } from '../common/decorators/public.decorator';
 import { DualAuthGuard } from '../authentication/common/dual-auth.guard';
 import { OptionalUser } from '../common/decorators/optional-user.decorator';
@@ -91,5 +91,18 @@ export class CartResolver {
       throw new Error('User identification required');
     }
     return this.cartService.removeCoupon(user._id);
+  }
+
+  @Mutation(() => Cart, { name: 'setShippingAddress' })
+  @Public()
+  @UseGuards(DualAuthGuard)
+  async setShippingAddress(
+    @Args('input') input: SetShippingAddressInput,
+    @OptionalUser() user: any,
+  ): Promise<Cart> {
+    if (!user?._id) {
+      throw new Error('User identification required');
+    }
+    return this.cartService.setShippingAddress(user._id, input.addressId);
   }
 }

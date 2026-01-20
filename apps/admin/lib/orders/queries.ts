@@ -80,6 +80,7 @@ export interface ShippingAddress {
   state: string;
   pincode: string;
   landmark?: string;
+  formattedAddress?: string;
 }
 
 export interface Payment {

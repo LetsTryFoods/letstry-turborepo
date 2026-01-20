@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Order, OrderStatus } from './order.schema';
 import { GetAllOrdersInput } from './order.input';
 import {
@@ -30,6 +30,7 @@ export class OrderService {
   private readonly queryService: OrderQueryService;
   private readonly commandService: OrderCommandService;
   private readonly itemService: OrderItemService;
+  private readonly logger = new Logger(OrderService.name);
 
   constructor(
     orderRepository: OrderRepository,
@@ -49,12 +50,13 @@ export class OrderService {
   }
 
   async createOrder(params: {
-    identityId: string;
+    identityId: Types.ObjectId;
     paymentOrderId: string;
-    cartId: string;
+    paymentOrder?: Types.ObjectId;
+    cartId: Types.ObjectId;
     totalAmount: string;
     currency: string;
-    shippingAddressId?: string;
+    shippingAddressId?: Types.ObjectId;
     placerContact?: {
       phone?: string;
       email?: string;
@@ -64,8 +66,15 @@ export class OrderService {
       email?: string;
     };
     items: Array<{
-      variantId: string;
+      productId: Types.ObjectId;
+      variantId: Types.ObjectId;
       quantity: number;
+      price: string;
+      totalPrice: string;
+      name: string;
+      sku: string;
+      variant?: string;
+      image?: string;
     }>;
   }): Promise<Order> {
     return this.commandService.createOrder(params);
@@ -129,12 +138,23 @@ export class OrderService {
   }
 
   async resolvePayment(order: any): Promise<OrderPaymentType | null> {
-    if (!order.paymentOrderId) {
+    const paymentOrderId = order.paymentOrder || order.paymentOrderId;
+    if (!paymentOrderId) {
       return null;
     }
-    const payment = await this.paymentOrderModel
-      .findById(order.paymentOrderId)
-      .exec();
+
+    // Try finding by internal ID if it looks like one, otherwise fallback to string lookup
+    let payment;
+    if (Types.ObjectId.isValid(paymentOrderId.toString())) {
+      payment = await this.paymentOrderModel.findById(paymentOrderId).exec();
+    }
+
+    if (!payment) {
+      payment = await this.paymentOrderModel
+        .findOne({ paymentOrderId: paymentOrderId.toString() })
+        .exec();
+    }
+
     if (!payment) {
       return null;
     }
@@ -151,50 +171,86 @@ export class OrderService {
   async resolveShippingAddress(
     order: any,
   ): Promise<OrderShippingAddressType | null> {
-    if (!order.shippingAddressId) {
-      return null;
+    this.logger.log('Resolving Shipping Address', {
+      orderId: order.orderId,
+      shippingAddressId: order.shippingAddressId,
+      hasRecipientContact: !!order.recipientContact,
+    });
+
+    let address: any = null;
+    if (order.shippingAddressId) {
+      address = await this.addressModel
+        .findById(order.shippingAddressId)
+        .exec();
     }
-    const address = await this.addressModel
-      .findById(order.shippingAddressId)
-      .exec();
-    if (!address) {
-      return null;
+
+    if (address) {
+      return {
+        fullName: address.recipientName,
+        phone: address.recipientPhone,
+        addressType: address.addressType,
+        addressLine1: address.buildingName,
+        addressLine2: address.streetArea,
+        floor: address.floor,
+        city: address.addressLocality,
+        state: address.addressRegion,
+        pincode: address.postalCode,
+        landmark: address.landmark,
+        formattedAddress: address.formattedAddress,
+        latitude: address.latitude,
+        longitude: address.longitude,
+      };
     }
-    return {
-      fullName: address.recipientName,
-      phone: address.recipientPhone,
-      addressLine1: address.buildingName,
-      addressLine2: address.streetArea || address.floor,
-      city: address.addressLocality,
-      state: address.addressRegion,
-      pincode: address.postalCode,
-      landmark: address.landmark,
-    };
+
+    if (order.recipientContact) {
+      this.logger.log('Using Fallback Shipping Address', {
+        orderId: order.orderId,
+        reason: 'No shippingAddressId, using recipientContact fallback',
+      });
+      return {
+        fullName: 'Customer',
+        phone: order.recipientContact.phone || 'N/A',
+        addressLine1: 'N/A',
+        addressLine2: 'N/A',
+        city: 'N/A',
+        state: 'N/A',
+        pincode: 'N/A',
+        landmark: 'N/A',
+      };
+    }
+
+    return null;
   }
 
   async resolveCustomer(order: any): Promise<OrderCustomerType | null> {
-    if (!order.identityId) {
-      return null;
+    let identity: any = null;
+    if (order.identityId) {
+      identity = await this.identityModel.findById(order.identityId).exec();
     }
-    const identity = await this.identityModel
-      .findById(order.identityId)
-      .exec();
-    if (!identity) {
-      return null;
-    }
-    const name =
-      identity.firstName && identity.lastName
+
+    const customerName =
+      identity?.firstName && identity?.lastName
         ? `${identity.firstName} ${identity.lastName}`
-        : identity.firstName || identity.lastName || 'Customer';
+        : identity?.firstName || identity?.lastName || 'Customer';
+
     return {
-      _id: identity._id.toString(),
-      name,
-      email: identity.email,
-      phone: identity.phoneNumber,
+      _id: identity?._id?.toString() || order.identityId?.toString() || 'N/A',
+      name: customerName,
+      email: identity?.email || order.placerContact?.email,
+      phone: identity?.phoneNumber || order.placerContact?.phone,
     };
   }
 
   async resolveItems(order: any): Promise<any[]> {
+    this.logger.log('Resolving Order Items', {
+      orderId: order.orderId,
+      itemCount: order.items?.length || 0,
+      hasItemNames: order.items?.[0]?.name ? true : false,
+    });
+
+    if (order.items && order.items.length > 0 && order.items[0].name) {
+      return order.items;
+    }
     return this.itemService.populateItemsOnly(order.items);
   }
 }

@@ -45,12 +45,26 @@ export class PackingOrderCreatorService {
     const items = await Promise.all(
       order.items.map(async (item) => {
         try {
+          if (!item.variantId) {
+            this.packingLogger.logError('Item missing variantId', new Error('Missing variantId'), {
+              orderId: order._id.toString(),
+              itemProductId: item.productId?.toString(),
+              itemName: item.name,
+              itemSku: item.sku,
+            });
+            return this.createUnknownItem(item, order._id.toString());
+          }
+
           const product = await this.productService.findByVariantId(
             item.variantId.toString(),
           );
 
           if (!product) {
-            return this.createUnknownItem(item);
+            this.packingLogger.logError('Product not found for variantId', new Error('Product not found'), {
+              orderId: order._id.toString(),
+              variantId: item.variantId.toString(),
+            });
+            return this.createUnknownItem(item, order._id.toString());
           }
 
           const variant = product.variants.find(
@@ -58,7 +72,12 @@ export class PackingOrderCreatorService {
           );
 
           if (!variant) {
-            return this.createUnknownItem(item);
+            this.packingLogger.logError('Variant not found in product', new Error('Variant not found'), {
+              orderId: order._id.toString(),
+              productId: product._id.toString(),
+              variantId: item.variantId.toString(),
+            });
+            return this.createUnknownItem(item, order._id.toString());
           }
 
           return {
@@ -78,7 +97,12 @@ export class PackingOrderCreatorService {
             imageUrl: variant.thumbnailUrl || variant.images[0]?.url || '',
           };
         } catch (error) {
-          return this.createUnknownItem(item);
+          this.packingLogger.logError('Error processing item', error, {
+            orderId: order._id.toString(),
+            itemProductId: item.productId?.toString(),
+            itemVariantId: item.variantId?.toString(),
+          });
+          return this.createUnknownItem(item, order._id.toString());
         }
       }),
     );
@@ -86,12 +110,12 @@ export class PackingOrderCreatorService {
     return items;
   }
 
-  private createUnknownItem(item: any) {
+  private createUnknownItem(item: any, orderId: string) {
     return {
-      productId: item.variantId.toString(),
-      sku: 'UNKNOWN',
-      ean: 'UNKNOWN',
-      name: 'Unknown Product',
+      productId: item.variantId?.toString() || item.productId?.toString() || 'UNKNOWN',
+      sku: item.sku || 'UNKNOWN',
+      ean: item.sku || 'UNKNOWN',
+      name: item.name || 'Unknown Product',
       quantity: item.quantity,
       dimensions: {
         length: 0,

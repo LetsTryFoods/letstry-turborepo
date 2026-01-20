@@ -309,7 +309,33 @@ export default function PaymentDetailPage() {
               <div className="border rounded p-4 space-y-2">
                 <p className="font-medium">{payment.cartSnapshot.shippingAddress.recipientName}</p>
                 <p className="text-sm text-gray-600">{payment.cartSnapshot.shippingAddress.recipientPhone}</p>
-                <p className="text-sm text-gray-700 mt-2">{payment.cartSnapshot.shippingAddress.formattedAddress}</p>
+                
+                {payment.cartSnapshot.shippingAddress.buildingName && (
+                  <p className="text-sm text-gray-700">{payment.cartSnapshot.shippingAddress.buildingName}</p>
+                )}
+                
+                {payment.cartSnapshot.shippingAddress.floor && (
+                  <p className="text-sm text-gray-700">Floor: {payment.cartSnapshot.shippingAddress.floor}</p>
+                )}
+                
+                {payment.cartSnapshot.shippingAddress.streetArea && (
+                  <p className="text-sm text-gray-700">{payment.cartSnapshot.shippingAddress.streetArea}</p>
+                )}
+                
+                <p className="text-sm text-gray-700">
+                  {payment.cartSnapshot.shippingAddress.addressLocality}, {payment.cartSnapshot.shippingAddress.addressRegion} - {payment.cartSnapshot.shippingAddress.postalCode}
+                </p>
+                
+                {payment.cartSnapshot.shippingAddress.landmark && (
+                  <p className="text-sm text-gray-600">Landmark: {payment.cartSnapshot.shippingAddress.landmark}</p>
+                )}
+                
+                {payment.cartSnapshot.shippingAddress.formattedAddress && (
+                  <div className="mt-3 pt-3 border-t">
+                    <p className="text-xs text-gray-500 font-medium mb-1">Complete Address:</p>
+                    <p className="text-sm text-gray-700">{payment.cartSnapshot.shippingAddress.formattedAddress}</p>
+                  </div>
+                )}
               </div>
             </div>
           )}

@@ -1,26 +1,25 @@
 import { Injectable } from '@nestjs/common';
-import { CartItem } from '../cart.schema';
+import { CartItem } from '../../../cart/cart.schema';
 
 @Injectable()
 export class CartItemService {
   findCartItemIndex(
     items: CartItem[],
-    variantId: string | undefined,
     productId: string,
+    attributes: any,
   ): number {
-    return items.findIndex((item) => {
-      if (variantId) {
-        return item.variantId?.toString() === variantId.toString();
-      }
-      return item.productId.toString() === productId.toString();
-    });
+    return items.findIndex(
+      (item) =>
+        item.productId.toString() === productId &&
+        JSON.stringify(item.attributes) === JSON.stringify(attributes),
+    );
   }
 
   upsertCartItem(items: CartItem[], newItem: CartItem): void {
     const existingIndex = this.findCartItemIndex(
       items,
-      newItem.variantId,
       newItem.productId,
+      newItem.attributes,
     );
     if (existingIndex > -1) {
       items[existingIndex].quantity += newItem.quantity;
@@ -32,18 +31,7 @@ export class CartItemService {
   }
 
   findItemIndexInCart(items: CartItem[], productId: string): number {
-    const { product, variantId } = this.parseProductId(productId);
-    
-    return items.findIndex((item) => {
-      if (variantId) {
-        return item.variantId?.toString() === variantId;
-      }
-      return item.productId.toString() === product;
-    });
-  }
-
-  private parseProductId(productId: string): { product: string; variantId?: string } {
-    return { product: productId, variantId: productId };
+    return items.findIndex((item) => item.productId.toString() === productId);
   }
 
   updateItemQuantity(item: CartItem, quantity: number): void {
@@ -52,14 +40,7 @@ export class CartItemService {
   }
 
   removeItemFromCart(items: CartItem[], productId: string): CartItem[] {
-    const { product, variantId } = this.parseProductId(productId);
-    
-    return items.filter((item) => {
-      if (variantId) {
-        return item.variantId?.toString() !== variantId;
-      }
-      return item.productId.toString() !== product;
-    });
+    return items.filter((item) => item.productId.toString() !== productId);
   }
 
   updateCartItemPrice(item: CartItem, product: any): boolean {

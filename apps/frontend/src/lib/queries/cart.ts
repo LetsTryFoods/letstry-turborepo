@@ -1,4 +1,5 @@
 import { graphql } from '@/gql';
+import { gql } from 'graphql-request';
 
 export const GET_MY_CART = graphql(`
   query GetMyCart {
@@ -83,3 +84,20 @@ export const REMOVE_FROM_CART = graphql(`
     }
   }
 `);
+
+export const SET_SHIPPING_ADDRESS = gql`
+  mutation SetShippingAddress($input: SetShippingAddressInput!) {
+    setShippingAddress(input: $input) {
+      _id
+      shippingAddressId
+      totalsSummary {
+        subtotal
+        discountAmount
+        shippingCost
+        estimatedTax
+        handlingCharge
+        grandTotal
+      }
+    }
+  }
+`;

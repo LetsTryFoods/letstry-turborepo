@@ -5,7 +5,7 @@ import { Order, OrderStatus } from '../order.schema';
 
 @Injectable()
 export class OrderRepository {
-  constructor(@InjectModel(Order.name) private orderModel: Model<Order>) {}
+  constructor(@InjectModel(Order.name) private orderModel: Model<Order>) { }
 
   async create(orderData: Partial<Order>): Promise<Order> {
     const order = new this.orderModel(orderData);
@@ -18,6 +18,10 @@ export class OrderRepository {
 
   async findByPaymentOrderId(paymentOrderId: string): Promise<Order | null> {
     return this.orderModel.findOne({ paymentOrderId }).exec();
+  }
+
+  async findByPaymentOrder(paymentOrder: string): Promise<Order | null> {
+    return this.orderModel.findOne({ paymentOrder }).exec();
   }
 
   async findByIdentityIds(

@@ -52,4 +52,4 @@ import { ShipmentLoggerService } from './services/shipment-logger.service';
   ],
   exports: [ShipmentService, DtdcApiService, TrackingService],
 })
-export class ShipmentModule {}
+export class ShipmentModule { }

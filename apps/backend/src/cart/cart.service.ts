@@ -179,6 +179,21 @@ export class CartService {
     return cart;
   }
 
+  async setShippingAddress(
+    identityId: string,
+    addressId: string,
+  ): Promise<CartDocument> {
+    this.logger.log(
+      'Setting shipping address',
+      { identityId, addressId },
+      'CartModule',
+    );
+    const cart = await this.cartRepositoryService.getCartOrThrow(identityId);
+
+    cart.shippingAddressId = addressId;
+    return this.saveAndRecalculateCart(cart);
+  }
+
   private async saveAndRecalculateCart(
     cart: CartDocument,
   ): Promise<CartDocument> {

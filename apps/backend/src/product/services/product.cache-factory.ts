@@ -12,7 +12,7 @@ export class ProductCacheStrategyFactory {
   constructor(
     private readonly cacheService: CacheService,
     private readonly cacheKeyFactory: CacheKeyFactory,
-  ) {}
+  ) { }
 
   createForDetail(
     identifier: string,

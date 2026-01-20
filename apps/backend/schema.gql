@@ -4,6 +4,7 @@
 
 type CartItem {
   productId: ID!
+  variantId: ID
   sku: String!
   name: String!
   quantity: Int!
@@ -30,7 +31,7 @@ type CartTotals {
 
 type Cart {
   _id: ID!
-  identityId: String!
+  identityId: ID!
   status: CartStatus!
   couponCode: String
   shippingMethodId: String
@@ -696,12 +697,17 @@ type OrderPaymentType {
 type OrderShippingAddressType {
   fullName: String!
   phone: String!
+  addressType: String
   addressLine1: String!
   addressLine2: String
+  floor: String
   city: String!
   state: String!
   pincode: String!
   landmark: String
+  formattedAddress: String
+  latitude: Float
+  longitude: Float
 }
 
 type OrderCustomerType {
@@ -1327,6 +1333,7 @@ type Mutation {
   clearCart: Cart!
   applyCoupon(code: String!): Cart!
   removeCoupon: Cart!
+  setShippingAddress(input: SetShippingAddressInput!): Cart!
   createCoupon(input: CreateCouponInput!): Coupon!
   deleteCoupon(id: ID!): Coupon!
   createOrUpdateCharges(input: CreateChargesInput!): Charges!
@@ -1638,6 +1645,10 @@ input AddToCartInput {
 input UpdateCartItemInput {
   productId: ID!
   quantity: Int!
+}
+
+input SetShippingAddressInput {
+  addressId: ID!
 }
 
 input CreateCouponInput {

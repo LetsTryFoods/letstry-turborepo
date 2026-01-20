@@ -192,6 +192,7 @@ export type CartItem = {
   sku: Scalars['String']['output'];
   totalPrice: Scalars['Float']['output'];
   unitPrice: Scalars['Float']['output'];
+  variantId?: Maybe<Scalars['ID']['output']>;
 };
 
 export type CartSnapshotAddressType = {

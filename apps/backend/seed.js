@@ -559,6 +559,52 @@ async function seed() {
             await Category.updateOne({ _id: category._id }, { productCount: count });
         }
 
+        // Special Price Item for testing
+        const specialCategory = await Category.create({
+            name: 'Special Offers',
+            slug: 'special-offers',
+            imageUrl: categoryImageUrl,
+            description: 'Unbeatable deals starting at just 1 Rs.',
+            codeValue: 'CAT_SPECIAL',
+            inCodeSet: 'CATEGORIES'
+        });
+
+        await Product.create({
+            name: 'Sample 1 Rs Product',
+            slug: 'sample-1-rs-product',
+            description: 'A special sample product for testing cart calculations with low prices.',
+            categoryIds: [specialCategory._id.toString()],
+            brand: 'LetsTry',
+            currency: 'INR',
+            ingredients: 'Pure Joy',
+            shelfLife: 'Everlasting',
+            isVegetarian: true,
+            isGlutenFree: true,
+            images: [{ url: productImageUrl, alt: 'Special Product' }],
+            variants: [
+                {
+                    sku: 'SPECIAL-1RS',
+                    name: 'Special Variant',
+                    price: 1,
+                    mrp: 10,
+                    discountPercent: 90,
+                    discountSource: 'product',
+                    weight: 100,
+                    weightUnit: 'g',
+                    packageSize: 'Small',
+                    length: 5, height: 5, breadth: 5,
+                    stockQuantity: 1000,
+                    availabilityStatus: 'in_stock',
+                    images: [{ url: productImageUrl, alt: 'Special Product' }],
+                    thumbnailUrl: productImageUrl,
+                    isDefault: true,
+                    isActive: true
+                }
+            ]
+        });
+
+        await Category.updateOne({ _id: specialCategory._id }, { productCount: 1 });
+
         const identities = [];
         for (let i = 0; i < 30; i++) {
             identities.push({
@@ -627,7 +673,7 @@ async function seed() {
             const completedAt = new Date(Date.now() - Math.random() * 604800000);
             const pspOrderId = `PSP_ORD_${Math.random().toString(36).substring(2, 15).toUpperCase()}`;
             const pspTxnId = `TXN${Math.random().toString(36).substring(2, 15).toUpperCase()}`;
-            
+
             paymentOrders.push({
                 paymentOrderId: `PAY_${Date.now()}_${i}`,
                 paymentEventId: createdPaymentEvents[i]._id,
@@ -657,7 +703,7 @@ async function seed() {
                 pspResponseMessage: 'Transaction successful',
                 executedAt: completedAt,
                 completedAt: completedAt,
-                pspRawResponse: { 
+                pspRawResponse: {
                     status: 'SUCCESS',
                     txnId: pspTxnId,
                     orderId: pspOrderId,
@@ -859,109 +905,109 @@ async function seed() {
 
         if (evidences.length > 0) {
             await PackingEvidence.insertMany(evidences);
-        const shipments = [];
-        const trackingHistories = [];
-        const statusCodes = ['BKD', 'PUP', 'ITM', 'OFD', 'DLV', 'NONDLV', 'RTO', 'CAN', 'HLD'];
-        const serviceTypes = ['STANDARD', 'LITE', 'B2C PRIORITY', 'B2C SMART', 'EXPRESS'];
-        const cities = ['Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Kolkata', 'Hyderabad', 'Pune', 'Ahmedabad'];
+            const shipments = [];
+            const trackingHistories = [];
+            const statusCodes = ['BKD', 'PUP', 'ITM', 'OFD', 'DLV', 'NONDLV', 'RTO', 'CAN', 'HLD'];
+            const serviceTypes = ['STANDARD', 'LITE', 'B2C PRIORITY', 'B2C SMART', 'EXPRESS'];
+            const cities = ['Mumbai', 'Delhi', 'Bangalore', 'Chennai', 'Kolkata', 'Hyderabad', 'Pune', 'Ahmedabad'];
 
-        for (let i = 0; i < 50; i++) {
-            const currentStatus = statusCodes[Math.floor(Math.random() * statusCodes.length)];
-            const bookedOn = new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000);
-            const isDelivered = currentStatus === 'DLV';
-            const isCancelled = currentStatus === 'CAN';
-            const isRto = currentStatus === 'RTO';
+            for (let i = 0; i < 50; i++) {
+                const currentStatus = statusCodes[Math.floor(Math.random() * statusCodes.length)];
+                const bookedOn = new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000);
+                const isDelivered = currentStatus === 'DLV';
+                const isCancelled = currentStatus === 'CAN';
+                const isRto = currentStatus === 'RTO';
 
-            const shipment = {
-                dtdcAwbNumber: `DTDC${1000000000 + i}`,
-                dtdcReferenceNumber: `REF${Date.now()}${i}`,
-                customerCode: 'CUST001',
-                serviceType: serviceTypes[Math.floor(Math.random() * serviceTypes.length)],
-                loadType: 'NON-DOCUMENT',
-                originCity: cities[Math.floor(Math.random() * cities.length)],
-                destinationCity: cities[Math.floor(Math.random() * cities.length)],
-                weight: 1 + Math.random() * 10,
-                declaredValue: 500 + Math.random() * 5000,
-                bookedOn,
-                expectedDeliveryDate: new Date(bookedOn.getTime() + 5 * 24 * 60 * 60 * 1000),
-                currentStatusCode: currentStatus,
-                currentStatusDescription: getStatusDescription(currentStatus),
-                currentLocation: cities[Math.floor(Math.random() * cities.length)],
-                isDelivered,
-                deliveredAt: isDelivered ? new Date(bookedOn.getTime() + 4 * 24 * 60 * 60 * 1000) : null,
-                isRto,
-                isCancelled,
-                cancelledAt: isCancelled ? new Date(bookedOn.getTime() + 1 * 24 * 60 * 60 * 1000) : null,
-                codAmount: 0,
-                codCollectionMode: null,
-                dimensions: {
-                    length: 20 + Math.random() * 30,
-                    width: 15 + Math.random() * 20,
-                    height: 10 + Math.random() * 15,
-                    unit: 'cm'
-                },
-                originDetails: {
-                    name: 'Sender Name',
-                    phone: '9876543210',
-                    addressLine1: 'Building No. 123, Street Name',
-                    addressLine2: 'Area Name',
-                    pincode: '400001',
-                    city: cities[Math.floor(Math.random() * cities.length)],
-                    state: 'Maharashtra'
-                },
-                destinationDetails: {
-                    name: `Customer ${i + 1}`,
-                    phone: `98765432${String(i).padStart(2, '0')}`,
-                    addressLine1: `House ${i + 1}, Main Road`,
-                    addressLine2: 'Near Landmark',
-                    pincode: `${400000 + Math.floor(Math.random() * 100000)}`,
-                    city: cities[Math.floor(Math.random() * cities.length)],
-                    state: 'Maharashtra'
-                },
-                invoiceNumber: `INV${Date.now()}${i}`,
-                invoiceDate: bookedOn,
-                numPieces: 1,
-                webhookLastReceivedAt: new Date()
-            };
+                const shipment = {
+                    dtdcAwbNumber: `DTDC${1000000000 + i}`,
+                    dtdcReferenceNumber: `REF${Date.now()}${i}`,
+                    customerCode: 'CUST001',
+                    serviceType: serviceTypes[Math.floor(Math.random() * serviceTypes.length)],
+                    loadType: 'NON-DOCUMENT',
+                    originCity: cities[Math.floor(Math.random() * cities.length)],
+                    destinationCity: cities[Math.floor(Math.random() * cities.length)],
+                    weight: 1 + Math.random() * 10,
+                    declaredValue: 500 + Math.random() * 5000,
+                    bookedOn,
+                    expectedDeliveryDate: new Date(bookedOn.getTime() + 5 * 24 * 60 * 60 * 1000),
+                    currentStatusCode: currentStatus,
+                    currentStatusDescription: getStatusDescription(currentStatus),
+                    currentLocation: cities[Math.floor(Math.random() * cities.length)],
+                    isDelivered,
+                    deliveredAt: isDelivered ? new Date(bookedOn.getTime() + 4 * 24 * 60 * 60 * 1000) : null,
+                    isRto,
+                    isCancelled,
+                    cancelledAt: isCancelled ? new Date(bookedOn.getTime() + 1 * 24 * 60 * 60 * 1000) : null,
+                    codAmount: 0,
+                    codCollectionMode: null,
+                    dimensions: {
+                        length: 20 + Math.random() * 30,
+                        width: 15 + Math.random() * 20,
+                        height: 10 + Math.random() * 15,
+                        unit: 'cm'
+                    },
+                    originDetails: {
+                        name: 'Sender Name',
+                        phone: '9876543210',
+                        addressLine1: 'Building No. 123, Street Name',
+                        addressLine2: 'Area Name',
+                        pincode: '400001',
+                        city: cities[Math.floor(Math.random() * cities.length)],
+                        state: 'Maharashtra'
+                    },
+                    destinationDetails: {
+                        name: `Customer ${i + 1}`,
+                        phone: `98765432${String(i).padStart(2, '0')}`,
+                        addressLine1: `House ${i + 1}, Main Road`,
+                        addressLine2: 'Near Landmark',
+                        pincode: `${400000 + Math.floor(Math.random() * 100000)}`,
+                        city: cities[Math.floor(Math.random() * cities.length)],
+                        state: 'Maharashtra'
+                    },
+                    invoiceNumber: `INV${Date.now()}${i}`,
+                    invoiceDate: bookedOn,
+                    numPieces: 1,
+                    webhookLastReceivedAt: new Date()
+                };
 
-            shipments.push(shipment);
-        }
-
-        const insertedShipments = await Shipment.insertMany(shipments);
-
-        for (let shipment of insertedShipments) {
-            const numEvents = 2 + Math.floor(Math.random() * 5);
-            const eventStatuses = ['BKD', 'PUP', 'ITM'];
-            
-            if (shipment.currentStatusCode === 'DLV') {
-                eventStatuses.push('OFD', 'DLV');
-            } else if (shipment.currentStatusCode === 'RTO') {
-                eventStatuses.push('RTO');
-            } else if (shipment.currentStatusCode !== 'CAN') {
-                eventStatuses.push(shipment.currentStatusCode);
+                shipments.push(shipment);
             }
 
-            for (let j = 0; j < Math.min(numEvents, eventStatuses.length); j++) {
-                const eventDate = new Date(shipment.bookedOn.getTime() + j * 24 * 60 * 60 * 1000);
-                trackingHistories.push({
-                    shipmentId: shipment._id,
-                    statusCode: eventStatuses[j],
-                    statusDescription: getStatusDescription(eventStatuses[j]),
-                    location: cities[Math.floor(Math.random() * cities.length)],
-                    actionDate: eventDate,
-                    actionTime: eventDate.toTimeString().split(' ')[0],
-                    actionDatetime: eventDate,
-                    remarks: `Shipment ${eventStatuses[j]}`
-                });
+            const insertedShipments = await Shipment.insertMany(shipments);
+
+            for (let shipment of insertedShipments) {
+                const numEvents = 2 + Math.floor(Math.random() * 5);
+                const eventStatuses = ['BKD', 'PUP', 'ITM'];
+
+                if (shipment.currentStatusCode === 'DLV') {
+                    eventStatuses.push('OFD', 'DLV');
+                } else if (shipment.currentStatusCode === 'RTO') {
+                    eventStatuses.push('RTO');
+                } else if (shipment.currentStatusCode !== 'CAN') {
+                    eventStatuses.push(shipment.currentStatusCode);
+                }
+
+                for (let j = 0; j < Math.min(numEvents, eventStatuses.length); j++) {
+                    const eventDate = new Date(shipment.bookedOn.getTime() + j * 24 * 60 * 60 * 1000);
+                    trackingHistories.push({
+                        shipmentId: shipment._id,
+                        statusCode: eventStatuses[j],
+                        statusDescription: getStatusDescription(eventStatuses[j]),
+                        location: cities[Math.floor(Math.random() * cities.length)],
+                        actionDate: eventDate,
+                        actionTime: eventDate.toTimeString().split(' ')[0],
+                        actionDatetime: eventDate,
+                        remarks: `Shipment ${eventStatuses[j]}`
+                    });
+                }
             }
-        }
 
-        if (trackingHistories.length > 0) {
-            await ShipmentTrackingHistory.insertMany(trackingHistories);
-        }
+            if (trackingHistories.length > 0) {
+                await ShipmentTrackingHistory.insertMany(trackingHistories);
+            }
 
-        console.log('Seed completed successfully');
-        console.log(`Created ${insertedShipments.length} shipments with ${trackingHistories.length} tracking events`);
+            console.log('Seed completed successfully');
+            console.log(`Created ${insertedShipments.length} shipments with ${trackingHistories.length} tracking events`);
 
         }
 

@@ -39,3 +39,11 @@ export class UpdateCartItemInput {
   @Min(0)
   quantity: number;
 }
+
+@InputType()
+export class SetShippingAddressInput {
+  @Field(() => ID)
+  @IsNotEmpty()
+  @IsString()
+  addressId: string;
+}

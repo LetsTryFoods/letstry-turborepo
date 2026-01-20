@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { PaymentOrder, PaymentStatus } from '../../entities/payment.schema';
 import { ZaakpayGatewayService } from '../../gateways/zaakpay/zaakpay-gateway.service';
 import { LedgerService } from '../core/ledger.service';
@@ -180,26 +180,70 @@ export class PaymentExecutorService {
         paymentEvent.cartId.toString(),
       );
 
-      const order = await this.orderService.createOrder({
-        identityId: paymentOrder.identityId
-          ? paymentOrder.identityId.toString()
-          : undefined,
+      this.paymentLogger.log('Payment Successful, Preparing Order Creation', {
         paymentOrderId: paymentOrder.paymentOrderId,
-        cartId: paymentEvent.cartId.toString(),
-        totalAmount: paymentOrder.amount,
-        currency: paymentOrder.currency,
-        shippingAddressId: cart.shippingAddressId?.toString(),
+        cartId: cart._id,
+        itemCount: cart.items.length,
+      });
+
+      this.paymentLogger.log('Cart Shipping Address Check', {
+        cartId: cart._id,
+        shippingAddressId: cart.shippingAddressId,
+        shippingMethodId: cart.shippingMethodId,
+        hasShippingAddress: !!cart.shippingAddressId,
+      });
+
+      const createOrderPayload = {
+        identityId: new Types.ObjectId(cart.identityId),
+        paymentOrderId: paymentOrder.paymentOrderId,
+        paymentOrder: paymentOrder._id,
+        cartId: new Types.ObjectId(cart._id),
+        totalAmount: cart.totalsSummary.grandTotal.toString(),
+        currency: 'INR',
+        shippingAddressId: cart.shippingAddressId ? new Types.ObjectId(cart.shippingAddressId) : undefined,
         placerContact:
           placerContact ||
           (paymentOrder.identityId ? undefined : { phone: paymentOrder.phone }), // For guests, use payment phone as placer if provided
         recipientContact: {
           phone: cart.recipientPhone || paymentOrder.phone || 'N/A',
-        }, // Assume cart has recipientPhone, fallback to payment phone
+        },
         items: cart.items.map((item: any) => ({
-          itemId: item.productId?.toString() || item.productId,
+          productId: new Types.ObjectId(item.productId),
+          variantId: item.variantId ? new Types.ObjectId(item.variantId) : undefined,
           quantity: item.quantity || 0,
+          price: item.unitPrice?.toString() || '0',
+          totalPrice: item.totalPrice?.toString() || '0',
+          name: item.name || 'Unknown Product',
+          sku: item.sku || 'N/A',
+          variant: item.attributes?.variantName || null,
+          image: item.imageUrl || null,
+        })),
+      };
+
+      this.paymentLogger.log('Constructed Order Payload', {
+        step: 'PAYLOAD_CONSRUCTED',
+        payload: createOrderPayload,
+        itemsDetails: createOrderPayload.items.map(item => ({
+          productId: item.productId,
+          variantId: item.variantId,
+          name: item.name,
+          sku: item.sku,
+          hasName: !!item.name,
+          hasSku: !!item.sku,
         })),
       });
+
+      const order = await this.orderService.createOrder(createOrderPayload);
+
+      this.paymentLogger.log('Order Service Returned Successfully', {
+        paymentOrderId: paymentOrder.paymentOrderId,
+        newOrderId: order._id,
+      });
+
+      await this.paymentOrderModel.findOneAndUpdate(
+        { paymentOrderId: paymentOrder.paymentOrderId },
+        { orderId: order._id },
+      );
 
       this.orderCartLogger.logOrderCreated(
         order.orderId,

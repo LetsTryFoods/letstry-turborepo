@@ -25,12 +25,17 @@ export const GET_ALL_ORDERS = gql`
         shippingAddress {
           fullName
           phone
+          addressType
           addressLine1
           addressLine2
+          floor
           city
           state
           pincode
           landmark
+          formattedAddress
+          latitude
+          longitude
         }
         payment {
           _id
@@ -95,12 +100,17 @@ export const GET_ORDER_BY_ID = gql`
       shippingAddress {
         fullName
         phone
+        addressType
         addressLine1
         addressLine2
+        floor
         city
         state
         pincode
         landmark
+        formattedAddress
+        latitude
+        longitude
       }
       payment {
         _id

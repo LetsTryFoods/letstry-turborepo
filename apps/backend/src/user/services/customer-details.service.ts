@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import {
   Identity,
   IdentityDocument,
@@ -18,17 +18,19 @@ export class CustomerDetailsService {
     @InjectModel(Order.name) private orderModel: Model<Order>,
     @InjectModel(Cart.name) private cartModel: Model<Cart>,
     @InjectModel(Address.name) private addressModel: Model<Address>,
-  ) {}
+  ) { }
 
   async getCustomerDetails(id: string): Promise<CustomerDetails> {
     const customer = await this.findCustomerById(id);
 
     const customerId = customer._id.toString();
+    const allIdentityIds = [customerId, ...(customer.mergedGuestIds || [])];
+
     const [orders, activeCart, addresses, orderStats] = await Promise.all([
-      this.fetchCustomerOrders(customerId),
+      this.fetchCustomerOrders(allIdentityIds),
       this.fetchActiveCart(customerId),
-      this.fetchCustomerAddresses(customerId),
-      this.calculateOrderStats(customerId),
+      this.fetchCustomerAddresses(allIdentityIds),
+      this.calculateOrderStats(allIdentityIds),
     ]);
 
     return {
@@ -52,8 +54,11 @@ export class CustomerDetailsService {
     return customer;
   }
 
-  async fetchCustomerOrders(identityId: string): Promise<Order[]> {
-    return this.orderModel.find({ identityId }).sort({ createdAt: -1 }).exec();
+  async fetchCustomerOrders(identityIds: string[]): Promise<Order[]> {
+    return this.orderModel
+      .find({ identityId: { $in: identityIds } })
+      .sort({ createdAt: -1 })
+      .exec();
   }
 
   async fetchActiveCart(identityId: string): Promise<Cart | undefined> {
@@ -64,18 +69,19 @@ export class CustomerDetailsService {
     return cart || undefined;
   }
 
-  async fetchCustomerAddresses(identityId: string): Promise<Address[]> {
+  async fetchCustomerAddresses(identityIds: string[]): Promise<Address[]> {
     return this.addressModel
-      .find({ identityId })
+      .find({ identityId: { $in: identityIds } })
       .sort({ isDefault: -1, createdAt: -1 })
       .exec();
   }
 
   async calculateOrderStats(
-    identityId: string,
+    identityIds: string[],
   ): Promise<{ totalOrders: number; totalSpent: number }> {
+    const objectIds = identityIds.map((id) => new Types.ObjectId(id));
     const stats = await this.orderModel.aggregate([
-      { $match: { identityId } },
+      { $match: { identityId: { $in: objectIds } } },
       {
         $group: {
           _id: null,
