@@ -1,7 +1,14 @@
+'use client';
+
+import { Suspense } from 'react';
 import { CheckCircle } from 'lucide-react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
-export default function OrderSuccessPage() {
+function OrderSuccess() {
+  const searchParams = useSearchParams();
+  const orderId = searchParams.get('orderId');
+
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
@@ -15,13 +22,19 @@ export default function OrderSuccessPage() {
           Order Confirmed
         </h1>
 
+        {orderId && (
+          <p className="text-sm text-gray-500 mb-4">
+            Order ID: {orderId}
+          </p>
+        )}
+
         <p className="text-gray-600 mb-8">
           Thank you for your purchase! Your order has been successfully placed.
         </p>
 
         <div className="space-y-4">
           <Link
-            href="/profile/orders"
+            href="/profile"
             className="block w-full bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-3 px-4 rounded-lg transition-colors"
           >
             View Orders
@@ -36,5 +49,26 @@ export default function OrderSuccessPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function OrderSuccessPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
+          <div className="flex justify-center mb-6">
+            <div className="rounded-full bg-green-100 p-6">
+              <CheckCircle className="h-16 w-16 text-green-600" />
+            </div>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            Order Confirmed
+          </h1>
+        </div>
+      </main>
+    }>
+      <OrderSuccess />
+    </Suspense>
   );
 }
