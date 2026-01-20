@@ -49,7 +49,8 @@ export class Category {
   })
   products?: any[];
 
-
+  @Field(() => [Category], { nullable: true })
+  children?: Category[];
 
   @Field()
   createdAt: Date;

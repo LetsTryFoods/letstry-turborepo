@@ -449,6 +449,7 @@ type Category {
   isArchived: Boolean!
   seo: CategorySeo
   products: [Product!]!
+  children: [Category!]
   createdAt: DateTime!
   updatedAt: DateTime!
 }

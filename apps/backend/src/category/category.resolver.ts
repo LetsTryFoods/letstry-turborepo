@@ -122,12 +122,16 @@ export class CategoryResolver {
     @Args('includeArchived', { type: () => Boolean, defaultValue: false })
     includeArchived: boolean,
   ): Promise<Category | null> {
+    console.log('categoryBySlug resolver called with:', { slug, includeArchived });
     try {
-      return (await this.categoryService.findBySlug(
+      const result = await this.categoryService.findBySlug(
         slug,
         includeArchived,
-      )) as any;
-    } catch {
+      );
+      console.log('categoryBySlug result:', result);
+      return result as any;
+    } catch (error) {
+      console.error('categoryBySlug error:', error);
       return null;
     }
   }
@@ -197,6 +201,12 @@ export class CategoryResolver {
   @Public()
   async getProductCount(@Parent() category: Category): Promise<number> {
     return this.productService.countByCategoryId(category._id);
+  }
+
+  @ResolveField(() => [Category], { name: 'children', nullable: true })
+  @Public()
+  async getChildren(@Parent() category: Category): Promise<Category[]> {
+    return this.categoryService.findChildren(category._id, false) as any;
   }
 
   @ResolveField(() => CategorySeo, { name: 'seo', nullable: true })
