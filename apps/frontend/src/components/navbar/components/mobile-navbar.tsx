@@ -15,6 +15,7 @@ interface MobileNavbarProps {
     navigationLinks: Array<{ href: string; label: string }>;
     isAuthenticated: boolean;
     onProfileClick: () => void;
+    onLoginClick: () => void;
 }
 
 export const MobileNavbar = ({
@@ -25,6 +26,7 @@ export const MobileNavbar = ({
     navigationLinks,
     isAuthenticated,
     onProfileClick,
+    onLoginClick,
 }: MobileNavbarProps) => {
     const router = useRouter();
 
@@ -71,6 +73,7 @@ export const MobileNavbar = ({
                     toggleCart={toggleCart}
                     isAuthenticated={isAuthenticated}
                     onProfileClick={onProfileClick}
+                    onLoginClick={onLoginClick}
                 />
             </div>
         </div>

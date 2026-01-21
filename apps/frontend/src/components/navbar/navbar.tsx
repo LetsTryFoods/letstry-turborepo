@@ -16,7 +16,7 @@ type NavbarProps = {
     isGuest: boolean;
     user: any;
   };
-  categories?: Array<{ href: string; label: string, favourite: boolean }>;
+  categories?: Array<{ href: string; label: string; favourite: boolean }>;
 };
 
 export const Navbar = ({ initialAuth, categories = [] }: NavbarProps) => {
@@ -50,12 +50,20 @@ export const Navbar = ({ initialAuth, categories = [] }: NavbarProps) => {
   const navigationLinks = useMemo(
     () => [
       { href: "/", label: "Home" },
-      { href: "#", label: "Snacks", hasDropdown: true, dropdownItems: categories.filter((c)=>c.favourite===true).map((c)=>({ href: c.href, label: c.label })) },
+      {
+        href: "#",
+        label: "Snacks",
+        hasDropdown: true,
+        dropdownItems: categories
+          .filter((c) => c.favourite === true)
+          .map((c) => ({ href: c.href, label: c.label })),
+      },
       // { href: "/combo", label: "Combos"},
       // {href: "/blog", label: "Blog"},
       { href: "/about-us", label: "About us" },
+      ...(!isAuthenticated ? [{ href: "#", label: "Login", isLogin: true }] : []),
     ],
-    [categories]
+    [categories, isAuthenticated],
   );
 
   return (
@@ -80,6 +88,7 @@ export const Navbar = ({ initialAuth, categories = [] }: NavbarProps) => {
           navigationLinks={navigationLinks}
           isAuthenticated={isAuthenticated}
           onProfileClick={() => router.push("/profile")}
+          onLoginClick={() => openModal(`${process.env.NEXT_PUBLIC_API_URL}`)}
         />
       </div>
 
