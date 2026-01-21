@@ -50,15 +50,19 @@ export const DesktopNavbar = ({
             {link.hasDropdown ? (
               <span className="text-lg font-medium text-gray-900 hover:text-yellow-600 transition-colors flex items-center gap-1 py-2 cursor-default">
                 {link.label}
-                <ChevronDown className="h-4 w-4" />
+                <ChevronDown className="h-4 w-4"/>
               </span>
             ) : (
               <Link
-                href={link.href}
+                href={`/${link.href}`}
                 className="text-lg font-medium text-gray-900 hover:text-yellow-600 transition-colors flex items-center gap-1 py-2"
               >
                 {link.label}
               </Link>
+
+
+         
+
             )}
 
             {link.hasDropdown && hoveredMenu === link.label && (
@@ -76,6 +80,7 @@ export const DesktopNavbar = ({
                 </div>
               </div>
             )}
+
           </div>
         ))}
       </div>
@@ -85,16 +90,7 @@ export const DesktopNavbar = ({
 
         <CartButton itemCount={cartItemCount} onClick={toggleCart} />
 
-        {!isAuthenticated ? (
-          <button
-            onClick={onLoginClick}
-            className="text-lg font-medium text-gray-900 hover:text-yellow-600 transition-colors px-3 py-2"
-          >
-            Login
-          </button>
-        ) : (
-          <UserButton onClick={onUserClick} />
-        )}
+        <UserButton onClick={onUserClick} />
       </div>
     </div>
   );

@@ -50,7 +50,7 @@ export const Navbar = ({ initialAuth, categories = [] }: NavbarProps) => {
   const navigationLinks = useMemo(
     () => [
       { href: "/", label: "Home" },
-      { href: "#", label: "Snacks", hasDropdown: true, dropdownItems: categories.filter((c)=>c.favourite===true).map((c)=>({ href: `/${c.href}`, label: c.label })) },
+      { href: "#", label: "Snacks", hasDropdown: true, dropdownItems: categories.filter((c)=>c.favourite===true).map((c)=>({ href: c.href, label: c.label })) },
       // { href: "/combo", label: "Combos"},
       // {href: "/blog", label: "Blog"},
       { href: "/about-us", label: "About us" },
