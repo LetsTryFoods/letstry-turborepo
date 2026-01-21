@@ -12,6 +12,7 @@ interface MobileMenuProps {
     toggleCart: () => void;
     isAuthenticated: boolean;
     onProfileClick: () => void;
+    onLoginClick: () => void;
 }
 
 export const MobileMenu = ({
@@ -22,6 +23,7 @@ export const MobileMenu = ({
     toggleCart,
     isAuthenticated,
     onProfileClick,
+    onLoginClick,
 }: MobileMenuProps) => {
     return (
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -57,13 +59,7 @@ export const MobileMenu = ({
                     >
                         Home
                     </Link>
-                    <Link
-                        href={navigationLinks.find(link => link.label === "Combos")?.href || "/combo"}
-                        className="text-xl font-bold text-black hover:text-yellow-600 transition-colors"
-                        onClick={() => setIsOpen(false)}
-                    >
-                        Combos
-                    </Link>
+                  
                     <button
                         className="text-left text-xl font-bold text-black hover:text-yellow-600 transition-colors"
                         onClick={() => {
@@ -80,15 +76,27 @@ export const MobileMenu = ({
                     >
                         About Us
                     </Link>
-                    <button
-                        className="text-left text-xl font-bold text-black hover:text-yellow-600 transition-colors"
-                        onClick={() => {
-                            onProfileClick();
-                            setIsOpen(false);
-                        }}
-                    >
-                        Account
-                    </button>
+                    {
+                        isAuthenticated ? (
+                            <Link
+                                href="/profile"
+                                className="text-xl font-bold text-black hover:text-yellow-600 transition-colors"
+                                onClick={() => setIsOpen(false)}
+                            >
+                                Profile
+                            </Link>
+                        ) : 
+                        <button
+                            className="text-left text-xl font-bold text-black hover:text-yellow-600 transition-colors"
+                            onClick={() => {
+                                onLoginClick();
+                                setIsOpen(false);
+                            }}
+                        >
+                            Login
+                        </button>
+                    }
+                  
                 </nav>
             </SheetContent>
         </Sheet>

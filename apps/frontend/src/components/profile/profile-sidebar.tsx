@@ -79,12 +79,12 @@ export const ProfileSidebar = () => {
           isActive={pathname === "/profile"}
           disabled={isLoggingOut}
         />
-        <SidebarItem
+        {/* <SidebarItem
           icon={Bell}
           label="Notifications"
           action={<span className="text-xs text-gray-400 font-medium">Allow</span>}
           disabled={isLoggingOut}
-        />
+        /> */}
         <SidebarItem
           icon={Package}
           label="My orders"

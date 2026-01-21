@@ -19,9 +19,14 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <div className="flex flex-col items-start">
             <div className="mb-6">
-              <div className="bg-[#F5C518] rounded-full w-20 h-20 flex items-center justify-center">
-                <span className="font-agbalumo text-[#1A2332] text-lg font-bold">Let's Try</span>
-              </div>
+              <Image
+                src="/logo.webp"
+                alt="Let's Try"
+                width={120}
+                height={120}
+                className="w-20 h-20 object-contain"
+                priority
+              />
             </div>
           </div>
 

@@ -12,6 +12,7 @@ interface DesktopNavbarProps {
     label: string;
     hasDropdown?: boolean;
     dropdownItems?: Array<{ href: string; label: string }>;
+    isLogin?: boolean;
   }>;
   cartItemCount: number;
   toggleCart: () => void;
@@ -52,17 +53,20 @@ export const DesktopNavbar = ({
                 {link.label}
                 <ChevronDown className="h-4 w-4"/>
               </span>
+            ) : link.isLogin ? (
+              <button
+                onClick={onLoginClick}
+                className="text-lg font-medium text-gray-900 hover:text-yellow-600 transition-colors flex items-center gap-1 py-2"
+              >
+                {link.label}
+              </button>
             ) : (
               <Link
-                href={`/${link.href}`}
+                href={link.href}
                 className="text-lg font-medium text-gray-900 hover:text-yellow-600 transition-colors flex items-center gap-1 py-2"
               >
                 {link.label}
               </Link>
-
-
-         
-
             )}
 
             {link.hasDropdown && hoveredMenu === link.label && (
