@@ -1,13 +1,13 @@
 'use client';
 
-import { Suspense, useCallback } from 'react';
+import { Suspense, useCallback, useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ChevronLeft, Search } from 'lucide-react';
 import { useSearchProducts } from '@/lib/search/use-search';
 import { ProductCard, type Product } from '@/components/category-page/ProductCard';
 import { useDebounce } from '@/hooks/use-debounce';
 
-const POPULAR_SEARCHES = ['Makhana', 'Chips', 'Bhujia', 'Snacks', 'Dry Fruits', 'Cookies'];
+const POPULAR_SEARCHES = ['Bhujia', 'Murukku'];
 
 function mapProductData(apiProduct: any): Product {
   const defaultVariant = apiProduct.defaultVariant;
@@ -51,13 +51,24 @@ function mapProductData(apiProduct: any): Product {
 function SearchContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const searchTerm = searchParams.get('q') || '';
-  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  const initialSearchTerm = searchParams.get('q') || '';
+  const [searchInput, setSearchInput] = useState(initialSearchTerm);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const debouncedSearchTerm = useDebounce(searchInput, 500);
   const { data, isLoading } = useSearchProducts(debouncedSearchTerm);
 
-//   const handlePopularSearch = useCallback((term: string) => {
-//     router.push(`/search?q=${encodeURIComponent(term)}`);
-//   }, [router]);
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handlePopularSearch = useCallback((term: string) => {
+    setSearchInput(term);
+  }, []);
 
   const products = data?.searchProducts?.items?.map(mapProductData) || [];
   const meta = data?.searchProducts?.meta;
@@ -65,17 +76,29 @@ function SearchContent() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* <div className="md:hidden sticky top-0 z-10 bg-white border-b border-gray-100">
+      <div className={`md:hidden sticky top-0 z-10 border-b transition-all duration-200 ${
+        isScrolled ? 'bg-gray-50/95 backdrop-blur-sm border-gray-200 shadow-sm' : 'bg-white border-gray-100'
+      }`}>
         <div className="flex items-center gap-3 p-4">
           <button onClick={() => router.back()} className="p-1" aria-label="Go back">
             <ChevronLeft size={24} className="text-black" />
           </button>
+          <div className="flex-1 relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+            <input
+              type="text"
+              placeholder="Bhujia"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-yellow-500"
+              autoFocus
+            />
+          </div>
         </div>
-      </div> */}
+      </div>
 
-      
       <div className="max-w-7xl mx-auto p-4 md:p-6">
-        {/* {!hasSearched && (
+        {!hasSearched && (
           <div className="mb-8">
             <h3 className="text-xl md:text-2xl font-bold text-black mb-4">
               Popular Searches
@@ -95,7 +118,7 @@ function SearchContent() {
               ))}
             </div>
           </div>
-        )} */}
+        )}
 
         {isLoading && (
           <div className="text-center py-12">

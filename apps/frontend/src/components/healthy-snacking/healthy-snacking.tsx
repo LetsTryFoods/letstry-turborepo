@@ -62,7 +62,7 @@ export const HealthySnacking = () => {
           <CarouselContent>
             {healthySnackingSlides.map((slide, index) => (
               <CarouselItem key={index}>
-                <div className="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8 lg:gap-12 xl:gap-16">
+                <div className="w-[95%] sm:w-[90%] md:w-[85%] lg:w-[80%] mx-auto flex flex-col md:flex-row items-center md:items-center justify-center md:justify-between gap-6 md:gap-8 lg:gap-10 xl:gap-12 px-2 sm:px-4">
                   <Link
                     href={slide.redirectTo}
                     className="relative group w-[280px] h-[280px] sm:w-[320px] sm:h-[320px] md:w-[360px] md:h-[340px] lg:w-[420px] lg:h-[400px] xl:w-[480px] xl:h-[450px] flex-shrink-0"
