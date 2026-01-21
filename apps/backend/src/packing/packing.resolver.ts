@@ -1,7 +1,8 @@
-import { Resolver, Query, Mutation, Args, Context, ResolveField, Parent } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, Context, ResolveField, Parent, ObjectType, Field, Int } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { PackingService } from './services/packing.service';
 import { PackerService } from './services/packer.service';
+import { QueueCleanupService } from './services/domain/queue-cleanup.service';
 import { PackerAuthGuard } from './guards/packer-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -15,11 +16,21 @@ import { ScanLog } from './types/scan-log.type';
 import { BoxSize } from '../box-size/types/box-size.type';
 import { PackingEvidence } from './types/packing-evidence.type';
 
+@ObjectType()
+class CleanupResult {
+  @Field(() => Int)
+  removed: number;
+
+  @Field(() => Int)
+  checked: number;
+}
+
 @Resolver(() => PackingOrder)
 export class PackingResolver {
   constructor(
     private readonly packingService: PackingService,
     private readonly packerService: PackerService,
+    private readonly queueCleanupService: QueueCleanupService,
   ) {
     console.log('PackingResolver initialized');
   }
@@ -138,5 +149,12 @@ export class PackingResolver {
     @Args('packingOrderId') packingOrderId: string,
   ): Promise<any> {
     return this.packingService.getEvidenceByOrder(packingOrderId);
+  }
+
+  @Mutation(() => CleanupResult)
+  @UseGuards(RolesGuard)
+  @Roles(Role.ADMIN)
+  async cleanupOrphanedJobs(): Promise<CleanupResult> {
+    return this.queueCleanupService.cleanupOrphanedJobs();
   }
 }

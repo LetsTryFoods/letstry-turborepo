@@ -202,3 +202,12 @@ export const FLAG_PACKING_ERROR = gql`
     }
   }
 `;
+
+export const CLEANUP_ORPHANED_JOBS = gql`
+  mutation CleanupOrphanedJobs {
+    cleanupOrphanedJobs {
+      removed
+      checked
+    }
+  }
+`;

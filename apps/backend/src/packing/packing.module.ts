@@ -34,6 +34,7 @@ import { PackingOrderCreatorService } from './services/domain/packing-order-crea
 import { ReassignmentService } from './services/domain/reassignment.service';
 import { PackingSchedulerService } from './services/domain/packing-scheduler.service';
 import { UnassignedOrderProcessorService } from './services/domain/unassigned-order-processor.service';
+import { QueueCleanupService } from './services/domain/queue-cleanup.service';
 
 import { PackingService } from './services/packing.service';
 import { PackerService } from './services/packer.service';
@@ -101,6 +102,7 @@ import { ShipmentModule } from '../shipment/shipment.module';
     ReassignmentService,
     PackingSchedulerService,
     UnassignedOrderProcessorService,
+    QueueCleanupService,
     PackingService,
     PackerService,
     PackingResolver,

@@ -65,7 +65,10 @@ export class PackingQueueService {
         const packingOrder = await this.packingOrderCrud.findOne({ orderId });
 
         if (!packingOrder) {
-          throw new Error('Packing order not found');
+          this.packingLogger.logError('Packing order not found - likely deleted', new Error(), {
+            orderId,
+          });
+          return;
         }
 
         if (packingOrder.assignedTo) {

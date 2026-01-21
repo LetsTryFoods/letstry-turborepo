@@ -949,6 +949,11 @@ type PackingEvidence {
   uploadedAt: DateTime!
 }
 
+type CleanupResult {
+  removed: Int!
+  checked: Int!
+}
+
 type Packer {
   id: ID!
   employeeId: String!
@@ -1373,6 +1378,7 @@ type Mutation {
   batchScanItems(input: BatchScanInput!): BatchScanResult!
   uploadEvidence(input: UploadEvidenceInput!): PackingOrder!
   completePacking(packingOrderId: String!): PackingOrder!
+  cleanupOrphanedJobs: CleanupResult!
   createPacker(input: CreatePackerInput!): CreatePackerResponse!
   updatePacker(packerId: String!, input: UpdatePackerInput!): Packer!
   deletePacker(packerId: String!): Boolean!

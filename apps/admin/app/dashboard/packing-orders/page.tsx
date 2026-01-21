@@ -7,11 +7,12 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useQuery, useLazyQuery } from "@apollo/client/react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { useQuery, useLazyQuery, useMutation } from "@apollo/client/react"
 import { GET_ALL_PACKERS } from "@/lib/graphql/packers"
-import { GET_ALL_PACKING_ORDERS } from "@/lib/graphql/packing"
+import { GET_ALL_PACKING_ORDERS, CLEANUP_ORPHANED_JOBS } from "@/lib/graphql/packing"
 import { GET_EVIDENCE_BY_ORDER } from "@/lib/graphql/packing"
-import { Eye } from "lucide-react"
+import { Eye, Trash2 } from "lucide-react"
 
 export default function PackingOrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null)
@@ -35,6 +36,16 @@ export default function PackingOrdersPage() {
   })
 
   const [getEvidence, { data: evidenceData, loading: evidenceLoading }] = useLazyQuery(GET_EVIDENCE_BY_ORDER)
+
+  const [cleanupJobs, { loading: cleanupLoading }] = useMutation(CLEANUP_ORPHANED_JOBS, {
+    onCompleted: (data: any) => {
+      alert(`Cleanup Complete: Removed ${data.cleanupOrphanedJobs.removed} orphaned jobs out of ${data.cleanupOrphanedJobs.checked} checked.`)
+    },
+    onError: (error) => {
+      alert(`Cleanup Failed: ${error.message}`)
+    },
+    refetchQueries: [{ query: GET_ALL_PACKING_ORDERS, variables: { packerId: packerFilter === 'all' ? undefined : packerFilter, status: statusFilter === 'all' ? undefined : statusFilter } }],
+  })
 
   const orders = (ordersData as any)?.getAllPackingOrders || []
   const packers = (packersData as any)?.getAllPackers || []
@@ -64,6 +75,24 @@ export default function PackingOrdersPage() {
           <h2 className="text-3xl font-bold tracking-tight">Packing Orders</h2>
           <p className="text-muted-foreground">Monitor active packing operations</p>
         </div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                onClick={() => cleanupJobs()}
+                disabled={cleanupLoading}
+                variant="outline"
+                className="gap-2"
+              >
+                <Trash2 className="h-4 w-4" />
+                {cleanupLoading ? "Cleaning..." : "Cleanup Queue"}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Removes queue jobs for orders that no longer exist in the database</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       <div className="flex gap-4 items-center">
