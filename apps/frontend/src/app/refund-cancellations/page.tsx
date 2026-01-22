@@ -45,7 +45,6 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function RefundCancellationsPage() {
   const policy = await getPolicyByType("Refund & Cancellations");
-  console.log("Refund & Cancellations Policy:", policy);
 
   if (policy?.content) {
     return (

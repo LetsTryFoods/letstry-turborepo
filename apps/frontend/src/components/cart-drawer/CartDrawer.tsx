@@ -115,9 +115,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 }) => {
   const [isMobile, setIsMobile] = React.useState(false);
 
-  useEffect(() => {
-    console.log('CartDrawer - isAuthenticated:', isAuthenticated);
-  }, [isAuthenticated]);
 
   useEffect(() => {
     const checkMobile = () => {

@@ -49,7 +49,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({ product, isOutOfSt
 
   const handleBuyNow = () => {
     if (isOutOfStock) return;
-    console.log('Buy now:', product);
+
   };
 
   return (

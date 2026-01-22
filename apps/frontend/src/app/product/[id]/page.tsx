@@ -5,6 +5,7 @@ import { ProductPageContainer } from "@/components/product-page/ProductPageConta
 import { ProductDetails } from "@/components/product-page/ProductDetails";
 import { ProductAccordion } from "@/components/product-page/ProductAccordion";
 import { InfoTable } from "@/components/product-page/InfoTable";
+import { CategoryProductsSections } from "@/components/product-page/CategoryProductsSections";
 
 export const revalidate = 1800;
 
@@ -113,6 +114,7 @@ export default async function ProductDetailPage({
       <ProductAccordion title="Product Info">
         <InfoTable data={productInfo} />
       </ProductAccordion>
+      <CategoryProductsSections categoryIds={product.categoryIds} />
     </ProductPageContainer>
   );
 }

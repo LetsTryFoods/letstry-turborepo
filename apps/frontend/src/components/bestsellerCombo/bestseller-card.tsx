@@ -44,13 +44,7 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
   const cartItem = cart?.items?.find((item: any) => item.productId === product._id);
   const quantityInCart = cartItem?.quantity || 0;
   
-  console.log('BestsellerComboCard Debug:', {
-    productName: product.name,
-    productId: product._id,
-    cartItems: cart?.items,
-    cartItem,
-    quantityInCart
-  });
+
 
   const images = variant.images?.slice(0, 4) || [];
   const displayImages = images.length > 0 ? images : [{ url: variant.thumbnailUrl, alt: product.name }];

@@ -35,10 +35,8 @@ export const usePaymentSse = ({
     };
 
     eventSource.onmessage = (event) => {
-      console.log('[SSE] Raw event received:', event.data);
       try {
         const data: PaymentStatusEvent = JSON.parse(event.data);
-        console.log('[SSE] Parsed event:', data);
         onStatusChange(data);
       } catch (error) {
         console.error('[SSE] Failed to parse message:', error);

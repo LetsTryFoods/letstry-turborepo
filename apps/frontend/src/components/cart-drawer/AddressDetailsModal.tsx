@@ -45,9 +45,6 @@ export const AddressDetailsModal: React.FC<AddressDetailsModalProps> = ({
   const hasShownAlertRef = useRef(false);
   const lastCheckedPhoneRef = useRef('');
 
-  React.useEffect(() => {
-    console.log('AddressDetailsModal - isAuthenticated:', isAuthenticated);
-  }, [isAuthenticated]);
 
   const { register, handleSubmit, watch, setValue, getValues } = useForm<AddressFormData>({
     defaultValues: {
@@ -99,7 +96,6 @@ export const AddressDetailsModal: React.FC<AddressDetailsModalProps> = ({
   };
 
   const onSubmit = async (data: AddressFormData) => {
-    console.log('Form submitted with data:', data);
     await onSave(data);
     onClose();
   };
