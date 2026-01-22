@@ -69,8 +69,8 @@ export class CreateProductVariantInput {
 
 @InputType()
 export class UpdateProductVariantInput {
-  @Field()
-  _id: string;
+  @Field({ nullable: true })
+  _id?: string;
 
   @Field({ nullable: true })
   sku?: string;

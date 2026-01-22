@@ -418,8 +418,8 @@ function ProductsPageContent() {
                                 }
                               />
                             ) : columnKey === "categoryName" ? (
-                              product?.category?.name && (
-                                <span className="text-muted-foreground">{product.category.name}</span>
+                              product?.categories?.[0]?.name && (
+                                <span className="text-muted-foreground">{product.categories[0].name}</span>
                               )
                             ) : columnKey === "isVegetarian" ||
                               columnKey === "isGlutenFree" ? (
