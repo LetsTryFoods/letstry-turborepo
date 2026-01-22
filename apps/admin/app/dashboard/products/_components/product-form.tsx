@@ -181,7 +181,6 @@ export function ProductForm({
     try {
       console.log("Form submitted with data:", data);
 
-      // Format variants
       const formattedVariants = data.variants.map((variant) => {
         const formattedImages =
           variant.images
@@ -195,8 +194,7 @@ export function ProductForm({
               alt: img.alt || "",
             })) || [];
 
-        return {
-          _id: variant._id || undefined,
+        const baseVariant = {
           sku: variant.sku,
           name: variant.name,
           price: Number(variant.price),
@@ -216,16 +214,23 @@ export function ProductForm({
           isDefault: variant.isDefault,
           isActive: variant.isActive,
         };
+
+        if (initialData && variant._id) {
+          return {
+            _id: variant._id,
+            ...baseVariant,
+          };
+        }
+
+        return baseVariant;
       });
 
-      // Ensure at least one variant has images
       const hasImages = formattedVariants.some((v) => v.images.length > 0);
       if (!hasImages && !initialData) {
         alert("Please upload at least one image for at least one variant");
         return;
       }
 
-      // Ensure exactly one default variant
       const defaultVariants = formattedVariants.filter((v) => v.isDefault);
       if (defaultVariants.length === 0) {
         formattedVariants[0].isDefault = true;

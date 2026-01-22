@@ -1483,7 +1483,7 @@ input UpdateProductInput {
 }
 
 input UpdateProductVariantInput {
-  _id: String!
+  _id: String
   sku: String
   name: String
   price: Float

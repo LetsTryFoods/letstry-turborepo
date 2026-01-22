@@ -91,7 +91,7 @@ export interface Product {
   favourite?: boolean;
   createdAt: string;
   updatedAt: string;
-  category?: Category;
+  categories?: Category[];
   defaultVariant?: ProductVariant;
   priceRange?: PriceRange;
   availableVariants?: ProductVariant[];

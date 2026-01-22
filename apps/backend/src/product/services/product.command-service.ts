@@ -15,7 +15,7 @@ export class ProductCommandService {
     private readonly slugService: SlugService,
     private readonly cacheInvalidator: CacheInvalidatorService,
     private readonly logger: WinstonLoggerService,
-  ) {}
+  ) { }
 
   async create(input: CreateProductInput): Promise<Product> {
     ProductVariantValidator.validateVariants(input.variants);
@@ -43,25 +43,46 @@ export class ProductCommandService {
     }
 
     if (input.variants) {
-      ProductVariantValidator.validateVariants(input.variants);
+      const currentProduct = await this.repository.findById(id);
 
       for (const variant of input.variants) {
-        const currentProduct = await this.repository.findById(id);
-        const existingVariant = currentProduct?.variants?.find(
-          (v) => v._id === variant._id,
-        );
-
-        if (
-          variant.sku &&
-          (!existingVariant || existingVariant.sku !== variant.sku)
-        ) {
-          await ProductVariantValidator.validateSkuUnique(
-            this.repository,
-            variant.sku,
-            id,
+        if (variant._id) {
+          const existingVariant = currentProduct?.variants?.find(
+            (v) => v._id.toString() === variant._id,
           );
+
+          if (
+            variant.sku &&
+            (!existingVariant || existingVariant.sku !== variant.sku)
+          ) {
+            await ProductVariantValidator.validateSkuUnique(
+              this.repository,
+              variant.sku,
+              id,
+            );
+          }
+        } else {
+          if (variant.sku) {
+            await ProductVariantValidator.validateSkuUnique(
+              this.repository,
+              variant.sku,
+              id,
+            );
+          }
         }
       }
+
+      const processedVariants = input.variants.map((variant) => {
+        const { _id, ...rest } = variant as any;
+        return _id ? { _id, ...rest } : rest;
+      });
+
+      ProductVariantValidator.validateVariants(processedVariants as any);
+
+      input = {
+        ...input,
+        variants: processedVariants as any,
+      };
     }
 
     const oldProduct = await this.repository.findById(id);
@@ -127,19 +148,12 @@ export class ProductCommandService {
       variantInput.sku,
     );
 
-    const newVariant = {
-      ...variantInput,
-      _id:
-        new Date().getTime().toString() +
-        Math.random().toString(36).substr(2, 9),
-    };
-
-    const updatedVariants = [...product.variants, newVariant];
+    const updatedVariants = [...product.variants, variantInput];
     ProductVariantValidator.validateVariants(updatedVariants);
 
     const updatedProduct = await this.repository.findByIdAndUpdate(
       productId,
-      { $push: { variants: newVariant } },
+      { $push: { variants: variantInput } },
       { new: true },
     );
 
