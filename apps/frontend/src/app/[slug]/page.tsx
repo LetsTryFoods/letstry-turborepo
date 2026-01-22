@@ -8,6 +8,7 @@ import { ProductPageContainer } from '@/components/product-page/ProductPageConta
 import { ProductDetails } from '@/components/product-page/ProductDetails';
 import { ProductAccordion } from '@/components/product-page/ProductAccordion';
 import { InfoTable } from '@/components/product-page/InfoTable';
+import { CategoryProductsSections } from '@/components/product-page/CategoryProductsSections';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 
@@ -188,6 +189,7 @@ export default async function DynamicSlugPage({ params, searchParams }: PageProp
           <ProductAccordion title="Product Info">
             <InfoTable data={productInfo} />
           </ProductAccordion>
+          <CategoryProductsSections categoryIds={product.categoryIds} />
         </ProductPageContainer>
       );
     }

@@ -61,10 +61,7 @@ export const GET_PRODUCT_BY_SLUG = graphql(`
       description
       shelfLife
       isVegetarian
-      category {
-        name
-        imageUrl
-      }
+      categoryIds
       ingredients
       seo {
         metaTitle

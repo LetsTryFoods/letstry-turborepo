@@ -313,6 +313,12 @@ export type Charges = {
   handlingCharge: Scalars['Float']['output'];
 };
 
+export type CleanupResult = {
+  __typename?: 'CleanupResult';
+  checked: Scalars['Int']['output'];
+  removed: Scalars['Int']['output'];
+};
+
 export type Coupon = {
   __typename?: 'Coupon';
   _id: Scalars['ID']['output'];
@@ -548,6 +554,7 @@ export type CustomerDetails = {
   addresses: Array<Address>;
   createdAt: Scalars['DateTime']['output'];
   currentSessionId?: Maybe<Scalars['String']['output']>;
+  dateOfBirth?: Maybe<Scalars['DateTime']['output']>;
   deviceInfo?: Maybe<Scalars['JSON']['output']>;
   email?: Maybe<Scalars['String']['output']>;
   firebaseUid?: Maybe<Scalars['String']['output']>;
@@ -637,6 +644,7 @@ export type EnrichedCustomer = {
   activeCartItemsCount?: Maybe<Scalars['Int']['output']>;
   createdAt: Scalars['DateTime']['output'];
   currentSessionId?: Maybe<Scalars['String']['output']>;
+  dateOfBirth?: Maybe<Scalars['DateTime']['output']>;
   deviceInfo?: Maybe<Scalars['JSON']['output']>;
   displayPhone?: Maybe<Scalars['String']['output']>;
   email?: Maybe<Scalars['String']['output']>;
@@ -800,6 +808,7 @@ export type Mutation = {
   batchScanItems: BatchScanResult;
   cancelOrder: OrderType;
   cancelShipment: ShipmentResponse;
+  cleanupOrphanedJobs: CleanupResult;
   clearCart: Cart;
   completePacking: PackingOrder;
   createAddress: Address;
@@ -1930,6 +1939,7 @@ export type Query = {
   guestByGuestId?: Maybe<Guest>;
   hello: Scalars['String']['output'];
   listShipments: ShipmentListResponse;
+  me?: Maybe<User>;
   myAddresses: Array<Address>;
   myCart?: Maybe<Cart>;
   myPayments: Array<PaymentOrderType>;
@@ -2594,6 +2604,7 @@ export type UpdateRedirectInput = {
 };
 
 export type UpdateUserInput = {
+  dateOfBirth?: InputMaybe<Scalars['JSON']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
   firstName?: InputMaybe<Scalars['String']['input']>;
   lastName?: InputMaybe<Scalars['String']['input']>;
@@ -2611,6 +2622,7 @@ export type User = {
   __typename?: 'User';
   _id: Scalars['ID']['output'];
   createdAt: Scalars['DateTime']['output'];
+  dateOfBirth?: Maybe<Scalars['DateTime']['output']>;
   email?: Maybe<Scalars['String']['output']>;
   firstAuthMethod?: Maybe<Scalars['String']['output']>;
   firstName: Scalars['String']['output'];
@@ -2683,7 +2695,12 @@ export type UpdateUserMutationVariables = Exact<{
 }>;
 
 
-export type UpdateUserMutation = { __typename?: 'Mutation', updateUser: { __typename?: 'User', _id: string, firstName: string, lastName: string, email?: string | null, phoneNumber: string } };
+export type UpdateUserMutation = { __typename?: 'Mutation', updateUser: { __typename?: 'User', _id: string, firstName: string, lastName: string, email?: string | null, phoneNumber: string, dateOfBirth?: any | null } };
+
+export type MeQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'User', _id: string, phoneNumber: string, firstName: string, lastName: string, email?: string | null, dateOfBirth?: any | null } | null };
 
 export type GetActiveBannersQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -2787,6 +2804,20 @@ export type UpdateGuestMutationVariables = Exact<{
 
 export type UpdateGuestMutation = { __typename?: 'Mutation', updateGuest: { __typename?: 'Guest', _id: string, lastActiveAt: any } };
 
+export type GetMyOrdersQueryVariables = Exact<{
+  input: GetMyOrdersInput;
+}>;
+
+
+export type GetMyOrdersQuery = { __typename?: 'Query', getMyOrders: { __typename?: 'PaginatedOrdersResponse', orders: Array<{ __typename?: 'OrderType', _id: string, orderId: string, orderStatus: OrderStatus, totalAmount: string, subtotal: string, discount: string, deliveryCharge: string, currency: string, trackingNumber?: string | null, createdAt: any, deliveredAt?: any | null, cancelledAt?: any | null, cancellationReason?: string | null, items: Array<{ __typename?: 'OrderItemType', variantId?: string | null, quantity: number, price?: string | null, totalPrice?: string | null, name?: string | null, sku?: string | null, variant?: string | null, image?: string | null }>, payment?: { __typename?: 'OrderPaymentType', _id: string, status: PaymentStatus, method?: string | null, transactionId?: string | null, amount: string, paidAt?: any | null } | null, shippingAddress?: { __typename?: 'OrderShippingAddressType', fullName: string, phone: string, addressType?: string | null, addressLine1: string, addressLine2?: string | null, floor?: string | null, city: string, state: string, pincode: string, landmark?: string | null, formattedAddress?: string | null } | null, customer?: { __typename?: 'OrderCustomerType', _id: string, name: string, email?: string | null, phone?: string | null } | null }>, meta: { __typename?: 'PaginationMeta', totalCount: number, page: number, limit: number, totalPages: number } } };
+
+export type CancelOrderMutationVariables = Exact<{
+  input: CancelOrderInput;
+}>;
+
+
+export type CancelOrderMutation = { __typename?: 'Mutation', cancelOrder: { __typename?: 'OrderType', _id: string, orderId: string, orderStatus: OrderStatus, cancelledAt?: any | null, cancellationReason?: string | null } };
+
 export type InitiatePaymentMutationVariables = Exact<{
   input: InitiatePaymentInput;
 }>;
@@ -2814,7 +2845,7 @@ export type GetProductBySlugQueryVariables = Exact<{
 }>;
 
 
-export type GetProductBySlugQuery = { __typename?: 'Query', productBySlug?: { __typename?: 'Product', _id: string, name: string, slug: string, description?: string | null, shelfLife: string, isVegetarian: boolean, ingredients: string, category?: { __typename?: 'Category', name: string, imageUrl?: string | null } | null, seo?: { __typename?: 'ProductSeo', metaTitle?: string | null, metaDescription?: string | null, metaKeywords?: Array<string> | null, canonicalUrl?: string | null, ogTitle?: string | null, ogDescription?: string | null, ogImage?: string | null } | null, variants: Array<{ __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> }>, defaultVariant?: { __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> } | null, priceRange: { __typename?: 'PriceRange', min: number, max: number }, availableVariants: Array<{ __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> }> } | null };
+export type GetProductBySlugQuery = { __typename?: 'Query', productBySlug?: { __typename?: 'Product', _id: string, name: string, slug: string, description?: string | null, shelfLife: string, isVegetarian: boolean, categoryIds: Array<string>, ingredients: string, seo?: { __typename?: 'ProductSeo', metaTitle?: string | null, metaDescription?: string | null, metaKeywords?: Array<string> | null, canonicalUrl?: string | null, ogTitle?: string | null, ogDescription?: string | null, ogImage?: string | null } | null, variants: Array<{ __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> }>, defaultVariant?: { __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> } | null, priceRange: { __typename?: 'PriceRange', min: number, max: number }, availableVariants: Array<{ __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> }> } | null };
 
 export type SearchProductsQueryVariables = Exact<{
   searchTerm: Scalars['String']['input'];
@@ -2943,9 +2974,22 @@ export const UpdateUserDocument = new TypedDocumentString(`
     lastName
     email
     phoneNumber
+    dateOfBirth
   }
 }
     `) as unknown as TypedDocumentString<UpdateUserMutation, UpdateUserMutationVariables>;
+export const MeDocument = new TypedDocumentString(`
+    query Me {
+  me {
+    _id
+    phoneNumber
+    firstName
+    lastName
+    email
+    dateOfBirth
+  }
+}
+    `) as unknown as TypedDocumentString<MeQuery, MeQueryVariables>;
 export const GetActiveBannersDocument = new TypedDocumentString(`
     query GetActiveBanners {
   activeBanners {
@@ -3244,6 +3288,81 @@ export const UpdateGuestDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<UpdateGuestMutation, UpdateGuestMutationVariables>;
+export const GetMyOrdersDocument = new TypedDocumentString(`
+    query GetMyOrders($input: GetMyOrdersInput!) {
+  getMyOrders(input: $input) {
+    orders {
+      _id
+      orderId
+      orderStatus
+      totalAmount
+      subtotal
+      discount
+      deliveryCharge
+      currency
+      trackingNumber
+      createdAt
+      deliveredAt
+      cancelledAt
+      cancellationReason
+      items {
+        variantId
+        quantity
+        price
+        totalPrice
+        name
+        sku
+        variant
+        image
+      }
+      payment {
+        _id
+        status
+        method
+        transactionId
+        amount
+        paidAt
+      }
+      shippingAddress {
+        fullName
+        phone
+        addressType
+        addressLine1
+        addressLine2
+        floor
+        city
+        state
+        pincode
+        landmark
+        formattedAddress
+      }
+      customer {
+        _id
+        name
+        email
+        phone
+      }
+    }
+    meta {
+      totalCount
+      page
+      limit
+      totalPages
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<GetMyOrdersQuery, GetMyOrdersQueryVariables>;
+export const CancelOrderDocument = new TypedDocumentString(`
+    mutation CancelOrder($input: CancelOrderInput!) {
+  cancelOrder(input: $input) {
+    _id
+    orderId
+    orderStatus
+    cancelledAt
+    cancellationReason
+  }
+}
+    `) as unknown as TypedDocumentString<CancelOrderMutation, CancelOrderMutationVariables>;
 export const InitiatePaymentDocument = new TypedDocumentString(`
     mutation InitiatePayment($input: InitiatePaymentInput!) {
   initiatePayment(input: $input) {
@@ -3333,10 +3452,7 @@ export const GetProductBySlugDocument = new TypedDocumentString(`
     description
     shelfLife
     isVegetarian
-    category {
-      name
-      imageUrl
-    }
+    categoryIds
     ingredients
     seo {
       metaTitle

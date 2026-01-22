@@ -36,9 +36,6 @@ export const CouponsModal: React.FC<CouponsModalProps> = ({
   const [couponCode, setCouponCode] = useState('');
   const [applying, setApplying] = useState<string | null>(null);
 
-  useEffect(() => {
-    console.log('Coupons data:', coupons);
-  }, [coupons]);
 
   const handleApplyManual = async () => {
     if (!couponCode.trim()) {

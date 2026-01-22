@@ -5,7 +5,6 @@ import type { Category } from '@/types/category.types';
 export const CategoryGrid = async () => {
   const data = await getHomeCategories(100);
 
-  console.log('Home Categories:', data);
 
   const mappedCategories: Category[] = data.items
     .filter((c) => c.favourite === true)

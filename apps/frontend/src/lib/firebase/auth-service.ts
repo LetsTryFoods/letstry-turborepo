@@ -26,10 +26,8 @@ class AuthService {
     this.recaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
       size: 'invisible',
       callback: () => {
-        console.log('reCAPTCHA solved');
       },
       'expired-callback': () => {
-        console.log('reCAPTCHA expired');
         this.clearRecaptcha();
       },
     });

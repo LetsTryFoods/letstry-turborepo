@@ -16,7 +16,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({ images, isOutOfS
     <div className={cn("flex flex-col gap-4", isOutOfStock && "grayscale opacity-80")}>
       {/* Main Image */}
       <div className="relative w-full aspect-[4/5] bg-[#fdfbf7] rounded-3xl overflow-hidden flex items-center justify-center border border-gray-100">
-        <div className="relative w-3/4 h-3/4">
+        <div className="relative w-full h-full p-2 sm:p-4 md:p-6">
              <Image
             src={images[selectedIndex]}
             alt="Product Image"

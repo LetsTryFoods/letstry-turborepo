@@ -47,13 +47,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, categoryType 
   const cartItem = cart?.items?.find((item: any) => item.variantId === selectedVariantId);
   const quantityInCart = cartItem?.quantity || 0;
   
-  console.log('ProductCard Debug:', {
-    productName: product.name,
-    selectedVariantId,
-    cartItems: cart?.items,
-    cartItem,
-    quantityInCart
-  });
   
   const selectedVariant = product.variants.find(v => v.id === selectedVariantId) || {
     price: product.price,

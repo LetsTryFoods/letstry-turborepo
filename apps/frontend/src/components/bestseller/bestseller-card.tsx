@@ -45,13 +45,6 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
   const cartItem = cart?.items?.find((item: any) => item.productId === product._id);
   const quantityInCart = cartItem?.quantity || 0;
   
-  console.log('BestsellerCard Debug:', {
-    productName: product.name,
-    productId: product._id,
-    cartItems: cart?.items,
-    cartItem,
-    quantityInCart
-  });
 
   const handleAddToCart = async () => {
     if (isLoading) return;
