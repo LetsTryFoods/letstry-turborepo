@@ -34,36 +34,36 @@ export const DesktopNavbar = ({
   onLoginClick,
 }: DesktopNavbarProps) => {
   return (
-    <div className="hidden md:flex h-20 items-center justify-between gap-4">
+    <div className="hidden md:flex h-20 items-center relative px-4">
       <div className="flex items-center gap-6">
         <Logo className="h-16 w-16" />
         {/* <LocationSelector className="hidden md:flex" /> */}
       </div>
 
-      <div className="hidden lg:flex items-center gap-8">
+      <div className="absolute left-1/2 transform -translate-x-1/2 hidden lg:flex items-center gap-8">
         {navigationLinks.map((link) => (
           <div
             key={link.href}
-            className="relative group"
+            className="relative group flex items-center"
             onMouseEnter={() => link.hasDropdown && setHoveredMenu(link.label)}
             onMouseLeave={() => setHoveredMenu(null)}
           >
             {link.hasDropdown ? (
-              <span className="text-lg font-medium text-gray-900 hover:text-yellow-600 transition-colors flex items-center gap-1 py-2 cursor-default">
+              <span className="text-lg font-medium text-gray-900 hover:text-yellow-600 transition-colors flex items-center gap-1 h-full cursor-default">
                 {link.label}
-                <ChevronDown className="h-4 w-4"/>
+                <ChevronDown className="h-4 w-4" />
               </span>
             ) : link.isLogin ? (
               <button
                 onClick={onLoginClick}
-                className="text-lg font-medium text-gray-900 hover:text-yellow-600 transition-colors flex items-center gap-1 py-2"
+                className="text-lg font-medium text-gray-900 hover:text-yellow-600 transition-colors flex items-center gap-1 h-full"
               >
                 {link.label}
               </button>
             ) : (
               <Link
                 href={link.href}
-                className="text-lg font-medium text-gray-900 hover:text-yellow-600 transition-colors flex items-center gap-1 py-2"
+                className="text-lg font-medium text-gray-900 hover:text-yellow-600 transition-colors flex items-center gap-1 h-full"
               >
                 {link.label}
               </Link>
@@ -89,7 +89,7 @@ export const DesktopNavbar = ({
         ))}
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="ml-auto flex items-center gap-3">
         <SearchBar className="w-64" />
 
         <CartButton itemCount={cartItemCount} onClick={toggleCart} />
