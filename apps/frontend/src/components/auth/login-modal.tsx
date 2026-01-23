@@ -153,7 +153,7 @@ export function LoginModal({ isOpen, onClose, backendUrl, onSuccess }: LoginModa
                 <Button
                   type="submit"
                   disabled={loading || phoneNumber.length !== 10}
-                  className="mt-6 w-full py-6 rounded-[12px] bg-teal-700 text-white font-semibold hover:bg-teal-800 transition disabled:opacity-60"
+                  className="mt-6 w-full py-6 rounded-[12px] bg-[#0C5273] text-white font-semibold hover:bg-[#0C5273]/80 transition disabled:opacity-60"
                 >
                   {loading ? 'Processing…' : 'Continue'}
                 </Button>
@@ -162,7 +162,7 @@ export function LoginModal({ isOpen, onClose, backendUrl, onSuccess }: LoginModa
                   type="button"
                   onClick={handleSendSMS}
                   disabled={loading || phoneNumber.length !== 10}
-                  className="mt-3 w-full text-sm text-teal-700 hover:underline disabled:opacity-60"
+                  className="mt-3 w-full text-sm text-[#0C5273] hover:underline disabled:opacity-60"
                 >
                   Get message on SMS instead
                 </button>
@@ -174,7 +174,7 @@ export function LoginModal({ isOpen, onClose, backendUrl, onSuccess }: LoginModa
                 Enter OTP Code
               </h2>
               <p className="text-[15px] text-gray-700 mb-2">
-                {otpProvider === 'whatsapp' 
+                {otpProvider === 'whatsapp'
                   ? "We've sent an OTP to your WhatsApp"
                   : "We've sent an OTP to your device"}
               </p>

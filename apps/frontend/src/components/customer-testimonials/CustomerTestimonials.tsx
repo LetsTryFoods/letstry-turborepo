@@ -14,7 +14,7 @@ const testimonials: Testimonial[] = [
   {
     name: "Vipin Sharma",
     title: "Amazing taste",
-    text: "Perfect snack for summer, light and tasty. A better and healthy snacking item with good spicy taste...",
+    text: "Perfect snack for summer, light and tasty. A better and healthy snacking item with good spicy taste !!!",
   },
   {
     name: "Pooja Verma",

@@ -6,6 +6,7 @@ import { useAuth } from "@/providers/auth-provider";
 import { cn } from "@/lib/utils";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { LogoutConfirmDialog } from "@/components/auth/logout-confirm-dialog";
 
 interface SidebarItemProps {
   icon: React.ElementType;
@@ -47,11 +48,17 @@ export const ProfileSidebar = () => {
   const pathname = usePathname();
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
-  const handleLogout = async () => {
+  const handleLogoutClick = () => {
+    setShowLogoutDialog(true);
+  };
+
+  const handleLogoutConfirm = async () => {
     try {
       setIsLoggingOut(true);
       await logout();
+      setShowLogoutDialog(false);
       router.push('/');
     } catch (error) {
       console.error('Logout error:', error);
@@ -95,10 +102,17 @@ export const ProfileSidebar = () => {
         <SidebarItem
           icon={LogOut}
           label={isLoggingOut ? "Logging out..." : "Log Out"}
-          onClick={handleLogout}
+          onClick={handleLogoutClick}
           disabled={isLoggingOut}
         />
       </div>
+
+      <LogoutConfirmDialog
+        isOpen={showLogoutDialog}
+        onClose={() => setShowLogoutDialog(false)}
+        onConfirm={handleLogoutConfirm}
+        isLoading={isLoggingOut}
+      />
     </div>
   );
 };
