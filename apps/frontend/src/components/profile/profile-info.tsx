@@ -41,15 +41,22 @@ const ProfileField = ({ label, type = "text", disabled, control, name, placehold
     <Controller
       name={name}
       control={control}
-      render={({ field }) => (
-        <Input
-          {...field}
-          type={type}
-          className="border-0 text-right focus-visible:ring-0 px-0 w-2/3 text-black placeholder:text-black"
-          placeholder={placeholder}
-          disabled={disabled}
-        />
-      )}
+      render={({ field }) => {
+        const displayValue = type === "date" && field.value && disabled
+          ? new Date(field.value).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
+          : field.value;
+        
+        return (
+          <Input
+            {...field}
+            value={disabled && type === "date" ? displayValue : field.value}
+            type={disabled && type === "date" ? "text" : type}
+            className="border-0 text-right focus-visible:ring-0 px-0 w-2/3 text-black placeholder:text-black"
+            placeholder={placeholder}
+            disabled={disabled}
+          />
+        );
+      }}
     />
   </div>
 );
