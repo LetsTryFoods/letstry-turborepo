@@ -11,12 +11,12 @@ export function useSearchProducts(searchTerm: string, page: number = 1, limit: n
     ['searchProducts', trimmedSearchTerm, page, limit],
     SEARCH_PRODUCTS.toString(),
     {
-      searchTerm: trimmedSearchTerm || ' ',
+      searchTerm: trimmedSearchTerm,
       pagination: { page, limit },
     },
     {
       ...defaultGraphQLQueryOptions,
-      enabled: true,
+      enabled: trimmedSearchTerm.length > 0,
       staleTime: 0,
     }
   );
