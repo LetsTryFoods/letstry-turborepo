@@ -177,7 +177,7 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
       {quantityInCart > 0 ? (
         <div className="flex justify-center">
           <button
-            className="w-[30px] lg:w-[40px] h-[30px] pl-1 lg:pl-2 lg:h-[44px] text-[12px] lg:text-[18px] md:text-[16px] border-[#0C5273] text-white bg-[#0C5273] font-semibold rounded-l lg:hover:bg-[#003349] transition"
+            className="cursor-pointer w-[30px] lg:w-[40px] h-[30px] pl-1 lg:pl-2 lg:h-[44px] text-[12px] lg:text-[18px] md:text-[16px] border-[#0C5273] text-white bg-[#0C5273] font-semibold rounded-l lg:hover:bg-[#003349] transition"
             onClick={handleDecrement}
             disabled={isLoading}
           >
@@ -187,10 +187,10 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
             type="text"
             readOnly
             value={isLoading ? '...' : quantityInCart}
-            className="w-[60px] md:w-[80px] lg:w-[120px] h-[30px] lg:h-[44px] text-[14px] lg:text-[18px] md:text-[16px] text-center border-y-2 border-[#0C5273] text-white bg-[#0C5273] rounded-none"
+            className="w-[40px] md:w-[60px] lg:w-[80px] h-[30px] lg:h-[44px] text-[14px] lg:text-[18px] md:text-[16px] text-center border-y-2 border-[#0C5273] text-white bg-[#0C5273] rounded-none"
           />
           <button
-            className="w-[30px] lg:w-[40px] pl-1 lg:pl-2 h-[30px] lg:h-[44px] text-[12px] lg:text-[18px] md:text-[16px] border-2 border-[#0C5273] text-white bg-[#0C5273] font-semibold rounded-r lg:hover:bg-[#003349] transition"
+            className=" cursor-pointer w-[30px] lg:w-[40px] pl-1 lg:pl-2 h-[30px] lg:h-[44px] text-[12px] lg:text-[18px] md:text-[16px] border-2 border-[#0C5273] text-white bg-[#0C5273] font-semibold rounded-r lg:hover:bg-[#003349] transition"
             onClick={(e) => {
               triggerSpark(e, "#ffffff");
               handleIncrement();
@@ -201,9 +201,9 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
           </button>
         </div>
       ) : (
-        <div className="flex justify-center cursor-pointer">
+        <div className="flex justify-center">
           <button
-            className="w-[120px] lg:w-[200px] md:w-[140px] h-[30px] lg:h-[44px] bg-[#0C5273] text-white font-semibold text-[12px] lg:text-[16px] rounded-l rounded-r lg:hover:bg-[#003349] transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="cursor-pointer w-[120px] lg:w-[200px] md:w-[140px] h-[30px] lg:h-[44px] bg-[#0C5273] text-white font-semibold text-[12px] lg:text-[16px] rounded-l rounded-r lg:hover:bg-[#003349] transition disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={(e) => {
               triggerSpark(e, "#ffffff");
               handleAddToCart();
