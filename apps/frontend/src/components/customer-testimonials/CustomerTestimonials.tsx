@@ -86,7 +86,7 @@ const CustomerTestimonials = () => {
   return (
     <>
       <section className="w-full py-8 lg:py-12 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-7xl mx-auto">
+        <div className="container mx-auto">
           <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mb-6 lg:mb-8">
             Let our customer&apos;s speak for us
           </h2>
