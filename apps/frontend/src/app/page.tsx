@@ -9,6 +9,7 @@ import JourneyVideos from "@/components/journey-videos/journeyVideos";
 import CustomerTestimonials from "@/components/customer-testimonials/CustomerTestimonials";
 import BrandSlider from "@/components/brand-slider/BrandSlider";
 import { getWholesomeChoices } from "@/lib/category/get-wholesome-choices";
+import { getBestsellerProducts } from "@/lib/product";
 
 
 // export const revalidate = 86400;
@@ -16,6 +17,7 @@ import { getWholesomeChoices } from "@/lib/category/get-wholesome-choices";
 // export const revalidate = 60;
 export default async function Home() {
   const wholesomeChoicesData = await getWholesomeChoices();
+  const products = await getBestsellerProducts("best-selling", 20);
 
   return (
     <main>
