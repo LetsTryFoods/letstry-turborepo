@@ -32,8 +32,8 @@ const Logo = ({ name, img, i }: LogoProps) => (
 
 const BrandSlider = () => (
   <div className="bg-white py-2 lg:py-4">
-    <div className="container mx-auto">
-      <h2 className="text-lg md:text-2xl lg:text-3xl font-bold text-black mb-4">
+    <div className="container px-4 sm:px-2 sm:mb-3 md:mb-4 lg:mb-6">
+      <h2 className="text-lg  md:text-2xl lg:text-3xl font-bold text-black mb-2 sm:mb-3 md:mb-4 lg:mb-6">
         Also available on
       </h2>
     </div>

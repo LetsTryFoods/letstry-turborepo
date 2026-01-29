@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 import { Logo } from "./logo";
@@ -5,6 +6,7 @@ import { LocationSelector } from "./location-selector";
 import { SearchBar } from "./search-bar";
 import { CartButton } from "./cart-button";
 import { UserButton } from "./user-button";
+import { usePathname } from "next/navigation";
 
 interface DesktopNavbarProps {
   navigationLinks: Array<{
@@ -33,6 +35,8 @@ export const DesktopNavbar = ({
   isAuthenticated,
   onLoginClick,
 }: DesktopNavbarProps) => {
+  const pathname = usePathname();
+
   return (
     <div className="hidden md:flex h-20 items-center relative px-4">
       <div className="flex items-center gap-6">
@@ -49,21 +53,21 @@ export const DesktopNavbar = ({
             onMouseLeave={() => setHoveredMenu(null)}
           >
             {link.hasDropdown ? (
-              <span className="text-lg font-medium text-gray-900 hover:text-yellow-600 transition-colors flex items-center gap-1 h-full cursor-default">
+              <span className="text-lg font-medium text-gray-900 hover:text-[#0C5273] transition-colors flex items-center gap-1 h-full cursor-default">
                 {link.label}
                 <ChevronDown className="h-4 w-4" />
               </span>
             ) : link.isLogin ? (
               <button
                 onClick={onLoginClick}
-                className="text-lg font-medium text-gray-900 hover:text-yellow-600 transition-colors flex items-center gap-1 h-full"
+                className={`text-lg font-medium ${pathname === link.href ? "text-[#0C5273]" : "text-gray-900"} hover:text-[#0C5273] transition-colors flex items-center gap-1 h-full`}
               >
                 {link.label}
               </button>
             ) : (
               <Link
                 href={link.href}
-                className="text-lg font-medium text-gray-900 hover:text-yellow-600 transition-colors flex items-center gap-1 h-full"
+                className={`text-lg font-medium ${pathname === link.href ? "text-[#0C5273]" : "text-gray-900"} hover:text-[#0C5273] transition-colors flex items-center gap-1 h-full`}
               >
                 {link.label}
               </Link>
@@ -76,7 +80,7 @@ export const DesktopNavbar = ({
                     <Link
                       key={item.href}
                       href={item.href}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-yellow-50 hover:text-yellow-600 transition-colors"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-yellow-50 hover:text-[#0C5273] transition-colors"
                     >
                       {item.label}
                     </Link>

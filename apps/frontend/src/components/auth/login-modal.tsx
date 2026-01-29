@@ -155,7 +155,7 @@ export function LoginModal({ isOpen, onClose, backendUrl, onSuccess }: LoginModa
                 <Button
                   type="submit"
                   disabled={loading || phoneNumber.length !== 10}
-                  className="mt-6 w-full py-6 rounded-[12px] bg-[#0C5273] text-white font-semibold hover:bg-[#0C5273]/80 transition disabled:opacity-60"
+                  className="cursor-pointer mt-6 w-full py-6 rounded-[12px] bg-[#0C5273] text-white font-semibold hover:bg-[#0C5273] transition disabled:opacity-60"
                 >
                   {loading ? 'Processing…' : 'Continue'}
                 </Button>
@@ -175,7 +175,7 @@ export function LoginModal({ isOpen, onClose, backendUrl, onSuccess }: LoginModa
               <h2 className="text-[28px] leading-tight font-bold text-black mb-1">
                 Enter OTP Code
               </h2>
-              <p className="text-[15px] text-gray-700 mb-2">
+              <p className="text-[15px] text-[#0C5273] mb-2">
                 {otpProvider === 'whatsapp'
                   ? "We've sent an OTP to your WhatsApp"
                   : "We've sent an OTP to your device"}
@@ -211,7 +211,7 @@ export function LoginModal({ isOpen, onClose, backendUrl, onSuccess }: LoginModa
                 <Button
                   type="submit"
                   disabled={loading || otp.length !== 6}
-                  className="w-full py-6 rounded-[12px] bg-teal-700 text-white font-semibold hover:bg-teal-800 transition disabled:opacity-60"
+                  className="w-full py-6 rounded-[12px] bg-[#0C5273] text-white font-semibold hover:bg-[#0C5273]/80 transition disabled:opacity-60"
                 >
                   {loading ? 'Verifying…' : 'Verify Code'}
                 </Button>
@@ -222,7 +222,7 @@ export function LoginModal({ isOpen, onClose, backendUrl, onSuccess }: LoginModa
                     resetAuth();
                   }}
                   disabled={loading}
-                  className="mt-4 w-full text-sm text-teal-700 hover:underline disabled:opacity-60"
+                  className="mt-4 w-full text-sm text-[#0C5273] hover:underline disabled:opacity-60"
                 >
                   Change phone number
                 </button>
