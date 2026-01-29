@@ -45,7 +45,7 @@ export function WholesomeCarousel({ items }: WholesomeCarouselProps) {
 
   return (
     <>
-      <div className="relative overflow-visible px-2 md:px-6 lg:px-8 mx-4">
+      <div className="relative overflow-visible mx-4">
         <div className="max-w-screen overflow-hidden">
           <div
             ref={scrollRef}

@@ -115,9 +115,11 @@ export function LoginModal({ isOpen, onClose, backendUrl, onSuccess }: LoginModa
           </button>
 
           <div className="flex justify-center mb-6">
-            <div className="bg-[#F5C518] rounded-full w-20 h-20 flex items-center justify-center">
-              <span className="font-agbalumo text-[#1A2332] text-lg font-bold">Let's Try</span>
-            </div>
+            <img
+              src="/logo.webp"
+              alt="Letstry Logo"
+              className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24"
+            />
           </div>
 
           {!otpSent ? (

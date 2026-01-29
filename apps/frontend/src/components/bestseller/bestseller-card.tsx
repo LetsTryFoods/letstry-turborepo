@@ -7,6 +7,7 @@ import Link from "next/link";
 import { CartService } from '@/lib/cart/cart-service';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { useCart } from '@/lib/cart/use-cart';
+import { useClickSpark } from '@/hooks/use-click-spark';
 
 type ProductVariant = {
   _id: string;
@@ -25,6 +26,7 @@ type BestsellerProduct = {
   name: string;
   slug: string;
   defaultVariant: ProductVariant | null;
+  categorySlug?: string;
 };
 
 type BestsellerCardProps = {
@@ -40,9 +42,10 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
   const queryClient = useQueryClient();
   const { trackAddToCart } = useAnalytics();
   const { data: cartData } = useCart();
+  const triggerSpark = useClickSpark();
 
   const cart = cartData?.myCart;
-  const cartItem = cart?.items?.find((item: any) => item.productId === product._id);
+  const cartItem = cart?.items?.find((item: any) => item.variantId === variant._id);
   const quantityInCart = cartItem?.quantity || 0;
 
 
@@ -51,10 +54,10 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
 
     setIsLoading(true);
     try {
-      await CartService.addToCart(product._id, 1);
+      await CartService.addToCart(variant._id, 1);
 
       trackAddToCart({
-        id: product._id,
+        id: variant._id,
         name: product.name,
         price: variant.price,
         quantity: 1,
@@ -75,7 +78,7 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
 
     setIsLoading(true);
     try {
-      await CartService.updateCartItem(product._id, quantityInCart + 1);
+      await CartService.updateCartItem(variant._id, quantityInCart + 1);
       queryClient.invalidateQueries({ queryKey: ['cart'] });
     } catch (error) {
       toast.error('Failed to update cart');
@@ -90,9 +93,9 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
     setIsLoading(true);
     try {
       if (quantityInCart > 1) {
-        await CartService.updateCartItem(product._id, quantityInCart - 1);
+        await CartService.updateCartItem(variant._id, quantityInCart - 1);
       } else {
-        await CartService.removeFromCart(product._id);
+        await CartService.removeFromCart(variant._id);
       }
       queryClient.invalidateQueries({ queryKey: ['cart'] });
     } catch (error) {
@@ -103,76 +106,111 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
   };
 
   return (
-    <article className="relative flex flex-col rounded-xl bg-[#FCEFC0] p-3 sm:p-4 md:p-5 lg:p-6 h-full">
+    <article className="relative flex flex-col h-full p-3 sm:p-4 md:p-5 lg:p-6 text-center rounded-xl sm:rounded-2xl lg:rounded-3xl transition-shadow duration-800"
+      style={{
+        backgroundColor: "#FCEFC0",
+        boxShadow: "8px 8px 16px rgba(0, 0, 0, 0.40)",
+      }}
+    >
       {hasDiscount && (
-        <span
-          className="absolute top-0 left-4 z-10 bg-blue-600 text-white font-bold flex flex-col items-center justify-center w-12 pt-2 pb-4 shadow-sm leading-none"
-          style={{
-            clipPath: 'polygon(0 0, 100% 0, 100% 85%, 50% 100%, 0 85%)'
-          }}
-        >
-          <span className="text-xl tracking-tighter">{variant.discountPercent}%</span>
-          <span className="text-[10px] mt-0.5">OFF</span>
-        </span>
+        <>
+          <div className="absolute top-0 left-[23px] z-10">
+            <div
+              className="bg-[#00000020] text-[#00000020] font-bold text-[8px] md:text-[10px] lg:text-[13px] 
+                w-[30px] md:w-[45px] lg:w-[55px] pt-1 pb-[9.5px] px-[4.5px] md:px-[8px] lg:px-[10px]
+                leading-tight flex flex-col backdrop-blur-sm"
+              style={{
+                clipPath: "polygon(0 -1%, 80% -1%, 80% 100%, 40% 80%, 0 100%)",
+              }}
+            >
+              <div>{variant.discountPercent}%</div>
+              <div className="pb-[6px]">OFF</div>
+            </div>
+          </div>
+          <div className="absolute top-0 left-5 z-10">
+            <div
+              className="bg-[#3149A6] text-white font-bold text-[8px] md:text-[10px] lg:text-[13px] 
+                w-[30px] md:w-[45px] lg:w-[55px] pt-1 pb-2 px-[4.5px] md:px-[8px] lg:px-[10px]
+                leading-tight flex flex-col"
+              style={{
+                clipPath: "polygon(0 -1%, 80% -1%, 80% 100%, 40% 80%, 0 100%)",
+              }}
+            >
+              <div>{variant.discountPercent}%</div>
+              <div className="pb-[6px]">OFF</div>
+            </div>
+          </div>
+        </>
       )}
-      <Link href={`/${product.slug}`}>
-        <figure className="flex items-center justify-center h-32 sm:h-40 md:h-44 lg:h-48 mb-2 sm:mb-3 md:mb-4">
+      <Link href={`/product/${product.slug}`}>
+        <div className="relative w-full lg:h-40 md:h-[100px] h-[70px] lg:mb-[10px] md:mb-[10px] mb-[5px]">
           <Image
             src={variant.thumbnailUrl}
             alt={product.name}
-            width={160}
-            height={160}
-            className="object-contain max-h-full w-auto"
+            fill
+            className="object-contain"
           />
-        </figure>
-        <h3 className="text-xs sm:text-sm md:text-base lg:text-lg font-bold text-center text-gray-900 line-clamp-2 min-h-[32px] sm:min-h-[40px] md:min-h-[48px] lg:min-h-[56px]">
+        </div>
+        <h3 className="lg:text-[22px] md:text-[14px] text-[12px] font-bold text-black leading-snug min-h-[35px] md:min-h-[40px] lg:min-h-[70px] lg:mb-[10px] md:mb-[10px] mb-[5px]">
           {product.name}
         </h3>
-        <p className="text-[10px] sm:text-xs md:text-sm text-center text-gray-600 mt-0.5 sm:mt-1">{variant.packageSize}</p>
       </Link>
-      <div className="flex items-center justify-center gap-1 sm:gap-2 mt-1 sm:mt-2">
-        <span className="text-sm sm:text-base md:text-lg font-bold text-gray-900">
-          ₹{variant.price.toFixed(2)}
-        </span>
-        {hasDiscount && (
-          <span className="text-xs sm:text-sm text-gray-500 line-through">
-            MRP ₹{variant.mrp.toFixed(2)}
+      <div className="lg:text-[15px] text-[12px] text-black lg:mb-[10px] md:mb-[10px] mb-[5px] font-bold">
+        {variant.packageSize}
+      </div>
+      <div className="lg:mb-[10px] md:mb-[10px] mb-[5px]">
+        {hasDiscount ? (
+          <div className="text-black text-center">
+            <span className="lg:text-[18px] md:text-[14px] text-[12px] font-semibold">
+              ₹{variant.price.toFixed(2)}
+            </span>
+            <span className="line-through text-[#00000091] font-normal px-2 lg:text-[16px] md:text-[14px] text-[12px]">
+              ₹{variant.mrp.toFixed(2)}
+            </span>
+          </div>
+        ) : (
+          <span className="text-[18px] font-bold text-black">
+            ₹{variant.price.toFixed(2)}
           </span>
         )}
       </div>
-      {quantityInCart === 0 ? (
-        <button
-          style={{
-            backgroundRepeat: 'repeat-x',
-            backgroundPosition: '0 -100%',
-            transition: 'background-position 1s ease'
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.backgroundPosition = '150% 100%')}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundPosition = '0 -100%')}
-          className="mt-2 cursor-pointer sm:mt-3 md:mt-4 w-full bg-[#0C5273] border-2 border-[#0C5273] text-white text-xs sm:text-sm md:text-base font-semibold py-1.5 sm:py-2 rounded-lg hover:text-[#9ecce4] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          onClick={handleAddToCart}
-          disabled={isLoading}
-        >
-          {isLoading ? 'Adding...' : 'Add to cart'}
-        </button>
-      ) : (
-        <div className="mt-2 sm:mt-3 md:mt-4 w-full flex items-center justify-between border-2 border-[#0C5273] rounded-sm overflow-hidden">
+      {quantityInCart > 0 ? (
+        <div className="flex justify-center">
           <button
-            className="flex-1 py-1.5 sm:py-2 text-[#0C5273] font-bold text-lg sm:text-xl hover:bg-[#0C5273] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="cursor-pointer w-[30px] lg:w-[40px] h-[30px] pl-1 lg:pl-2 lg:h-[44px] text-[12px] lg:text-[18px] md:text-[16px] border-[#0C5273] text-white bg-[#0C5273] font-semibold rounded-l lg:hover:bg-[#003349] transition"
             onClick={handleDecrement}
             disabled={isLoading}
           >
             −
           </button>
-          <span className="flex-1 text-center py-1.5 sm:py-2 text-[#0C5273] font-semibold text-sm sm:text-base border-x-2 border-[#0C5273]">
-            {isLoading ? '...' : quantityInCart}
-          </span>
+          <input
+            type="text"
+            readOnly
+            value={isLoading ? '...' : quantityInCart}
+            className="w-[40px] md:w-[60px] lg:w-[80px] h-[30px] lg:h-[44px] text-[14px] lg:text-[18px] md:text-[16px] text-center border-y-2 border-[#0C5273] text-white bg-[#0C5273] rounded-none"
+          />
           <button
-            className="flex-1 py-1.5 sm:py-2 text-[#0C5273] font-bold text-lg sm:text-xl hover:bg-[#0C5273]  hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            onClick={handleIncrement}
+            className=" cursor-pointer w-[30px] lg:w-[40px] pl-1 lg:pl-2 h-[30px] lg:h-[44px] text-[12px] lg:text-[18px] md:text-[16px] border-2 border-[#0C5273] text-white bg-[#0C5273] font-semibold rounded-r lg:hover:bg-[#003349] transition"
+            onClick={(e) => {
+              triggerSpark(e, "#ffffff");
+              handleIncrement();
+            }}
             disabled={isLoading}
           >
             +
+          </button>
+        </div>
+      ) : (
+        <div className="flex justify-center">
+          <button
+            className="cursor-pointer w-[120px] lg:w-[200px] md:w-[140px] h-[30px] lg:h-[44px] bg-[#0C5273] text-white font-semibold text-[12px] lg:text-[16px] rounded-l rounded-r lg:hover:bg-[#003349] transition disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={(e) => {
+              triggerSpark(e, "#ffffff");
+              handleAddToCart();
+            }}
+            disabled={isLoading}
+          >
+            {isLoading ? 'Adding...' : 'Add to Cart'}
           </button>
         </div>
       )}

@@ -7,14 +7,21 @@ import { CategoryLink } from "./CategoryLink";
 import { PriceBlock } from "./PriceBlock";
 import { SizeSelector } from "./SizeSelector";
 import { ActionButtons } from "./ActionButtons";
+import { ProductBreadcrumb } from "./ProductBreadcrumb";
 import { GetProductBySlugQuery } from "@/gql/graphql";
 import { useAnalytics } from "@/hooks/use-analytics";
 
-interface ProductDetailsProps {
-  product: NonNullable<GetProductBySlugQuery["productBySlug"]>;
+interface BreadcrumbItem {
+  label: string;
+  href?: string;
 }
 
-export const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
+interface ProductDetailsProps {
+  product: NonNullable<GetProductBySlugQuery["productBySlug"]>;
+  breadcrumbItems?: BreadcrumbItem[];
+}
+
+export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, breadcrumbItems }) => {
   const [selectedVariantId, setSelectedVariantId] = useState(
     product.defaultVariant?._id || product.variants[0]?._id,
   );
@@ -57,6 +64,9 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
 
       <div>
         <ProductTitle title={product.name} />
+        {breadcrumbItems && breadcrumbItems.length > 0 && (
+          <ProductBreadcrumb items={breadcrumbItems} />
+        )}
 
         <div className="p-3 sm:p-4 md:p-5 lg:p-6 border border-gray-200 rounded-2xl sm:rounded-3xl">
           <PriceBlock

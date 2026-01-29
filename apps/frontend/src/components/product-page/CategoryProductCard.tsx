@@ -22,10 +22,12 @@ interface Product {
 
 interface CategoryProductCardProps {
   product: Product;
+  categorySlug: string;
 }
 
 export const CategoryProductCard: React.FC<CategoryProductCardProps> = ({
   product,
+  categorySlug,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
@@ -89,7 +91,7 @@ export const CategoryProductCard: React.FC<CategoryProductCardProps> = ({
 
   return (
     <article className="flex flex-col border border-gray-300 rounded-lg bg-gray-50 hover:shadow-lg transition-shadow">
-      <Link href={`/${product.slug}`}>
+      <Link href={`/product/${product.slug}`}>
         <div className="relative w-full aspect-square mb-4 bg-[#F3EEEA] rounded overflow-hidden">
           <Image
             src={displayImage}

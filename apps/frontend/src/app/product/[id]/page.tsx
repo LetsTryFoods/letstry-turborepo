@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { getProductBySlug } from "@/lib/product";
+import { getCategoriesByIds } from "@/lib/category/get-categories-by-ids";
 import { ProductPageContainer } from "@/components/product-page/ProductPageContainer";
 import { ProductDetails } from "@/components/product-page/ProductDetails";
 import { ProductAccordion } from "@/components/product-page/ProductAccordion";
@@ -108,9 +109,19 @@ export default async function ProductDetailPage({
     });
   }
 
+  const categories = await getCategoriesByIds(product.categoryIds);
+  const primaryCategory = categories[0];
+
+  const breadcrumbItems = primaryCategory
+    ? [
+        { label: primaryCategory.name, href: `/${primaryCategory.slug}` },
+        { label: product.name },
+      ]
+    : [{ label: product.name }];
+
   return (
     <ProductPageContainer variant={variant}>
-      <ProductDetails product={product} />
+      <ProductDetails product={product} breadcrumbItems={breadcrumbItems} />
       <ProductAccordion title="Product Info">
         <InfoTable data={productInfo} />
       </ProductAccordion>

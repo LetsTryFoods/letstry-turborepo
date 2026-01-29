@@ -112,11 +112,12 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
     }
 
     const products = category.products.map(mapProductData);
+    
 
     return (
       <CategoryPageContainer>
         <CategoryHeader title={category.name} productCount={category.productCount} />
-        <ProductGrid products={products} categoryType={categoryType} />
+        <ProductGrid products={products} categoryType={categoryType} slug={slug} />
       </CategoryPageContainer>
     );
   } catch (error) {

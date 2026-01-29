@@ -32,9 +32,11 @@ const Logo = ({ name, img, i }: LogoProps) => (
 
 const BrandSlider = () => (
   <div className="bg-white py-2 lg:py-4">
-    <h2 className="text-lg md:text-2xl lg:text-3xl font-bold text-black mb-4 md:mb-8 lg:mb-10 mx-4 md:mx-8">
-      Also available on
-    </h2>
+    <div className="container mx-auto">
+      <h2 className="text-lg md:text-2xl lg:text-3xl font-bold text-black mb-4">
+        Also available on
+      </h2>
+    </div>
 
     {/* Control speed here; smaller = faster */}
     <div className="marquee-outer" style={{ "--speed": "12s" } as React.CSSProperties}>

@@ -11,7 +11,7 @@ export function useSearchProducts(searchTerm: string, page: number = 1, limit: n
     ['searchProducts', page, limit],
     SEARCH_PRODUCTS.toString(),
     {
-      searchTerm: trimmedSearchTerm || ' ',
+      searchTerm: trimmedSearchTerm,
       pagination: { page, limit },
     },
     {
