@@ -5,6 +5,7 @@ import { PackerStatsService } from './domain/packer-stats.service';
 import { RetrospectiveErrorService } from './domain/retrospective-error.service';
 import { PackingOrderCrudService } from './core/packing-order-crud.service';
 import { WhatsAppService } from '../../whatsapp/whatsapp.service';
+import { PackingQueueService } from './domain/packing-queue.service';
 
 @Injectable()
 export class PackerService {
@@ -15,6 +16,7 @@ export class PackerService {
     private readonly retrospectiveError: RetrospectiveErrorService,
     private readonly packingOrderCrud: PackingOrderCrudService,
     private readonly whatsAppService: WhatsAppService,
+    private readonly packingQueueService: PackingQueueService,
   ) { }
 
   async createPacker(input: any): Promise<any> {
@@ -35,6 +37,8 @@ export class PackerService {
       password,
     );
 
+    await this.packingQueueService.processReassignment();
+
     return {
       packer,
       generatedPassword: password,
@@ -42,7 +46,13 @@ export class PackerService {
   }
 
   async updatePacker(packerId: string, input: any): Promise<any> {
-    return this.packerCrud.update(packerId, input);
+    const updatedPacker = await this.packerCrud.update(packerId, input);
+
+    if (input.isActive === true || input.status === 'online' || input.status === 'idle') {
+      await this.packingQueueService.processReassignment();
+    }
+
+    return updatedPacker;
   }
 
   async deletePacker(packerId: string): Promise<boolean> {
