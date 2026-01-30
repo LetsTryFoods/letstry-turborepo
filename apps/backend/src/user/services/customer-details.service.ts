@@ -55,8 +55,11 @@ export class CustomerDetailsService {
   }
 
   async fetchCustomerOrders(identityIds: string[]): Promise<Order[]> {
+    const objectIds = identityIds
+      .filter((id) => Types.ObjectId.isValid(id))
+      .map((id) => new Types.ObjectId(id));
     return this.orderModel
-      .find({ identityId: { $in: identityIds } })
+      .find({ identityId: { $in: objectIds } })
       .sort({ createdAt: -1 })
       .exec();
   }
