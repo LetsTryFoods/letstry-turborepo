@@ -20,30 +20,41 @@ interface ImageUploadProps {
   initialImages?: Array<{ url: string; alt: string }>
   maxFiles?: number
   allowedFileTypes?: string[]
+  disableCompression?: boolean
 }
 
 interface UploadedImageWithId extends UploadedFile {
   id: string
 }
 
-export function ImageUpload({ onImagesChange, initialImages = [], maxFiles = 10, allowedFileTypes = ['image/webp'] }: ImageUploadProps) {
+export function ImageUpload({ onImagesChange, initialImages = [], maxFiles = 10, allowedFileTypes = ['image/webp'], disableCompression = false }: ImageUploadProps) {
   const dashboardRef = useRef<HTMLDivElement>(null)
   const hasInitialized = useRef(false)
   const { uploadFile, isUploading } = useFileUpload()
-  const [uppy] = useState(() => new Uppy({
-    restrictions: {
-      maxNumberOfFiles: maxFiles,
-      allowedFileTypes: allowedFileTypes,
-      maxFileSize: 5 * 1024 * 1024,
-    },
-    autoProceed: false,
-  }).use(Compressor, {
-    quality: 0.2,
-    limit: 10,
-    convertSize: 0,
-  }).use(ImageEditor, {
-    quality: 0.8,
-  }))
+  const [uppy] = useState(() => {
+    const uppyInstance = new Uppy({
+      restrictions: {
+        maxNumberOfFiles: maxFiles,
+        allowedFileTypes: allowedFileTypes,
+        maxFileSize: 5 * 1024 * 1024,
+      },
+      autoProceed: false,
+    })
+
+    if (!disableCompression) {
+      uppyInstance.use(Compressor, {
+        quality: 0.2,
+        limit: 10,
+        convertSize: 0,
+      })
+    }
+
+    uppyInstance.use(ImageEditor, {
+      quality: 0.8,
+    })
+
+    return uppyInstance
+  })
 
   const [uploadedImages, setUploadedImages] = useState<UploadedImageWithId[]>([])
   const [altTexts, setAltTexts] = useState<Record<string, string>>({})
@@ -102,8 +113,33 @@ export function ImageUpload({ onImagesChange, initialImages = [], maxFiles = 10,
         disableInformer: false,
       })
     }
-    const handleFileAdded = (file: any) => {
-      uppy.upload()
+
+    const uploadImageFile = async (file: any) => {
+      if (file.meta.uploaded) return
+
+      try {
+        const uploadedFile = await uploadFile(file.data, '')
+        const imageId = `uploaded-${Date.now()}-${Math.random()}`
+        const imageWithId: UploadedImageWithId = {
+          ...uploadedFile,
+          id: imageId,
+        }
+
+        uppy.setFileMeta(file.id, { uploaded: true })
+        setUploadedImages(prev => [...prev, imageWithId])
+        setUppyFileMap(prev => new Map(prev).set(file.id, imageId))
+      } catch (error) {
+        console.error('Failed to upload file:', error)
+        uppy.removeFile(file.id)
+      }
+    }
+
+    const handleFileAdded = async (file: any) => {
+      if (disableCompression) {
+        await uploadImageFile(file)
+      } else {
+        uppy.upload()
+      }
     }
 
     const handleFileRemoved = async (file: any) => {
@@ -135,7 +171,29 @@ export function ImageUpload({ onImagesChange, initialImages = [], maxFiles = 10,
 
     const handlePreprocessComplete = (file: any) => {
       if (!file) return
-      uploadCompressedFile(file)
+      uploadImageFile(file)
+    }
+
+    const handleUploadSuccess = async (file: any, response: any) => {
+      if (disableCompression) {
+        if (file.meta.uploaded) return
+
+        try {
+          const uploadedFile = await uploadFile(file.data, '')
+          const imageId = `uploaded-${Date.now()}-${Math.random()}`
+          const imageWithId: UploadedImageWithId = {
+            ...uploadedFile,
+            id: imageId,
+          }
+
+          uppy.setFileMeta(file.id, { uploaded: true })
+          setUploadedImages(prev => [...prev, imageWithId])
+          setUppyFileMap(prev => new Map(prev).set(file.id, imageId))
+        } catch (error) {
+          console.error('Failed to upload file:', error)
+          uppy.removeFile(file.id)
+        }
+      }
     }
 
     const uploadCompressedFile = async (file: any) => {
@@ -160,14 +218,18 @@ export function ImageUpload({ onImagesChange, initialImages = [], maxFiles = 10,
 
     uppy.on('file-added', handleFileAdded)
     uppy.on('file-removed', handleFileRemoved)
-    uppy.on('preprocess-complete', handlePreprocessComplete)
+    uppy.on('upload-success', handleUploadSuccess)
+
+    if (!disableCompression) {
+      uppy.on('preprocess-complete', handlePreprocessComplete)
+    }
 
     return () => {
       uppy.off('file-added', handleFileAdded)
       uppy.off('file-removed', handleFileRemoved)
       uppy.off('preprocess-complete', handlePreprocessComplete)
     }
-  }, [uppy, uploadedImages, uppyFileMap])
+  }, [uppy, uploadedImages, uppyFileMap, disableCompression, uploadFile])
 
   useEffect(() => {
     const imagesWithAlt = uploadedImages.map((img, index) => ({
