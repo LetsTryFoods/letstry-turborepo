@@ -1,4 +1,5 @@
 import { graphqlClient } from '@/lib/graphql/client-factory';
+import { StorageService } from '@/lib/storage/storage-service';
 
 const SEND_OTP_MUTATION = `
   mutation SendOtp($phoneNumber: String!) {
@@ -73,6 +74,11 @@ export async function verifyWhatsAppOtp(
                 input,
             }
         ) as { verifyWhatsAppOtp: string };
+
+        StorageService.removeStorageItem('guestId');
+        StorageService.removeStorageItem('guestDbId');
+        StorageService.removeStorageItem('sessionId');
+        StorageService.removeStorageItem('lastActiveUpdate');
 
         return {
             success: true,

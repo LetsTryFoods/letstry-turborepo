@@ -1,6 +1,7 @@
 "use client";
 
 import { graphqlClient } from "@/lib/graphql/client-factory";
+import { StorageService } from "@/lib/storage/storage-service";
 
 type CreateUserInput = {
   phoneNumber: string;
@@ -26,15 +27,15 @@ export async function verifyOtpAndLogin(
   try {
     const input: CreateUserInput | undefined = userInput
       ? {
-          phoneNumber: userInput.phoneNumber || "",
-          firebaseUid: userInput.firebaseUid || "",
-          firstName: userInput.firstName,
-          lastName: userInput.lastName,
-          email: userInput.email,
-          marketingSmsOptIn: userInput.marketingSmsOptIn,
-          signupSource: userInput.signupSource,
-          lastIp: userInput.lastIp,
-        }
+        phoneNumber: userInput.phoneNumber || "",
+        firebaseUid: userInput.firebaseUid || "",
+        firstName: userInput.firstName,
+        lastName: userInput.lastName,
+        email: userInput.email,
+        marketingSmsOptIn: userInput.marketingSmsOptIn,
+        signupSource: userInput.signupSource,
+        lastIp: userInput.lastIp,
+      }
       : undefined;
 
     const data = await graphqlClient.request(
@@ -44,6 +45,11 @@ export async function verifyOtpAndLogin(
         input,
       }
     ) as { verifyOtpAndLogin: string };
+
+    StorageService.removeStorageItem('guestId');
+    StorageService.removeStorageItem('guestDbId');
+    StorageService.removeStorageItem('sessionId');
+    StorageService.removeStorageItem('lastActiveUpdate');
 
     return {
       success: true,

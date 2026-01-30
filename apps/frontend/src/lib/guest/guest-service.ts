@@ -2,7 +2,7 @@ import { graphqlClient } from '@/lib/graphql/client-factory';
 import { CREATE_GUEST_MUTATION, UPDATE_GUEST_MUTATION } from '@/lib/queries/guest';
 import { StorageService } from '@/lib/storage/storage-service';
 
-const ACTIVITY_THRESHOLD = 1 * 60 * 1000; 
+const ACTIVITY_THRESHOLD = 1 * 60 * 1000;
 
 const getClientInfo = async () => {
   let ipAddress = null;
@@ -17,11 +17,10 @@ const getClientInfo = async () => {
         ipAddress = data.ip;
       }
     } catch (e) {
-      // Ignore error
     }
   }
   return { ipAddress, deviceInfo };
-}; 
+};
 
 export const GuestService = {
   ensureGuestSession: async () => {
@@ -47,7 +46,6 @@ export const GuestService = {
 
       await GuestService.createGuestSession();
     } catch (error) {
-      console.error('Failed to ensure guest session:', error);
     }
   },
 

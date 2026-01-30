@@ -5,7 +5,7 @@ import { Public } from '../../common/decorators/public.decorator';
 
 @Resolver()
 export class UserAuthResolver {
-  constructor(private readonly userAuthService: UserAuthService) {}
+  constructor(private readonly userAuthService: UserAuthService) { }
 
   private getSessionId(context: any): string | undefined {
     const structuredCookie = context.req?.cookies?.guest_session;
@@ -17,7 +17,7 @@ export class UserAuthResolver {
         try {
           const parsed = JSON.parse(structuredCookie);
           sessionId = parsed.sessionId;
-        } catch (e) {}
+        } catch (e) { }
       } else if (
         typeof structuredCookie === 'object' &&
         structuredCookie.sessionId
@@ -57,7 +57,7 @@ export class UserAuthResolver {
 
     if (context.res) {
       context.res.cookie('access_token', token, {
-        httpOnly: true,
+        httpOnly: false,
         secure: process.env.NODE_ENV === 'production',
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -85,7 +85,7 @@ export class UserAuthResolver {
 
     if (context.res) {
       context.res.cookie('access_token', token, {
-        httpOnly: true,
+        httpOnly: false,
         secure: process.env.NODE_ENV === 'production',
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000,

@@ -180,6 +180,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         isGuest: false,
         error: null,
       });
+
+      window.location.reload();
     } catch (error: any) {
       const errorMessage = error.message || 'Failed to verify OTP';
       set({ error: errorMessage });
@@ -212,6 +214,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         isGuest: false,
         error: null,
       });
+
+      window.location.reload();
     } catch (error: any) {
       const errorMessage = error.message || 'Failed to verify WhatsApp OTP';
       set({ error: errorMessage });

@@ -5,7 +5,7 @@ export const StorageService = {
     if (typeof window !== 'undefined') {
       localStorage.setItem(key, value);
       sessionStorage.setItem(key, value);
-      setCookie(key, value, { maxAge: 60 * 60 * 24 * 30 }); 
+      setCookie(key, value, { maxAge: 60 * 60 * 24 * 30 });
     }
   },
 
@@ -13,7 +13,7 @@ export const StorageService = {
     if (typeof window !== 'undefined') {
       const cookieVal = getCookie(key);
       if (cookieVal) return cookieVal as string;
-      
+
       const localVal = localStorage.getItem(key);
       if (localVal) return localVal;
 
@@ -31,7 +31,7 @@ export const StorageService = {
   },
 
   isLoggedIn: (): boolean => {
-    const token = getCookie('auth_token'); 
+    const token = getCookie('access_token');
     return !!token;
   }
 };

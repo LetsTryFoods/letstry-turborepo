@@ -1,17 +1,23 @@
 "use client";
 
 import { useEffect } from 'react';
-import { StorageService } from '@/lib/storage/storage-service';
 import { GuestService } from '@/lib/guest/guest-service';
+import { graphqlClient } from '@/lib/graphql/client-factory';
+import { ME_QUERY } from '@/lib/queries/auth';
 
 export const GuestSessionManager = () => {
   useEffect(() => {
     const initGuestSession = async () => {
-      const isLoggedIn = StorageService.isLoggedIn();
-      
-      if (!isLoggedIn) {
-        await GuestService.ensureGuestSession();
+      try {
+        const data = await graphqlClient.request(ME_QUERY) as { me: any };
+
+        if (data.me) {
+          return;
+        }
+      } catch (error) {
       }
+
+      await GuestService.ensureGuestSession();
     };
 
     initGuestSession();
