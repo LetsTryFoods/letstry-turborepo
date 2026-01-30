@@ -1,4 +1,5 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Get, Query, Res } from '@nestjs/common';
+import type { Response } from 'express';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PaymentExecutorService } from './services/domain/payment-executor.service';
 import { ZaakpayGatewayService } from './gateways/zaakpay/zaakpay-gateway.service';
@@ -166,5 +167,35 @@ export class PaymentController {
       status,
     });
     this.webhookLogger.logEventEmission(paymentOrderId, status);
+  }
+
+  @Get('callback')
+  @Public()
+  async handleCallback(
+    @Query() query: any,
+    @Res() res: Response,
+  ): Promise<void> {
+    try {
+      this.paymentLogger.log('Payment callback received', query);
+
+      const responseCode = query.responseCode || query.status;
+      const orderId = query.orderId || query.orderid;
+      const paymentOrderId = query.paymentOrderId || orderId;
+
+      const successUrl = process.env.ZAAKPAY_SUCCESS_URL || 'https://frontend.krsna.site/payment-callback?status=success';
+      const failureUrl = process.env.ZAAKPAY_FAILURE_URL || 'https://frontend.krsna.site/payment-failed';
+
+      if (responseCode === '100' || responseCode === 'success') {
+        this.paymentLogger.log('Redirecting to success page', { orderId, paymentOrderId });
+        return res.redirect(`${successUrl}&orderId=${orderId || ''}&paymentOrderId=${paymentOrderId || ''}`);
+      } else {
+        this.paymentLogger.log('Redirecting to failure page', { orderId, paymentOrderId, responseCode });
+        return res.redirect(`${failureUrl}?paymentOrderId=${paymentOrderId || ''}&code=${responseCode || ''}`);
+      }
+    } catch (error) {
+      this.paymentLogger.error('Callback processing error', error.stack, query);
+      const failureUrl = process.env.ZAAKPAY_FAILURE_URL || 'https://frontend.krsna.site/payment-failed';
+      return res.redirect(`${failureUrl}?error=callback_error`);
+    }
   }
 }

@@ -34,10 +34,10 @@ function PaymentFailed() {
 
         <div className="space-y-4">
           <Link
-            href="/"
+            href="/profile?tab=orders"
             className="block w-full bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-3 px-4 rounded-lg transition-colors"
           >
-            Try Again
+            View Orders
           </Link>
 
           <Link

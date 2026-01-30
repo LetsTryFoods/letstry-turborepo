@@ -80,7 +80,13 @@ export default () => ({
       process.env.ZAAKPAY_SECRET_KEY || 'a3833da3c2234d218568a690c1714e5d',
     returnUrl:
       process.env.ZAAKPAY_RETURN_URL ||
-      'http://localhost:3000/payment/callback',
+      'https://backend.krsna.site/payment/callback',
+    successUrl:
+      process.env.ZAAKPAY_SUCCESS_URL ||
+      'https://frontend.krsna.site/payment-callback?status=success',
+    failureUrl:
+      process.env.ZAAKPAY_FAILURE_URL ||
+      'https://frontend.krsna.site/payment-failed',
     environment: process.env.ZAAKPAY_ENVIRONMENT || 'staging',
     baseUrl:
       (process.env.ZAAKPAY_ENVIRONMENT || 'staging') === 'production'
