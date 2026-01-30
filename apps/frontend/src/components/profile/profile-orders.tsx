@@ -91,17 +91,10 @@ export const ProfileOrders = () => {
     const { data, isLoading, error } = useQuery({
         queryKey: ["myOrders", page],
         queryFn: async () => {
-            console.log('[ProfileOrders] Fetching orders for page:', page);
-            try {
-                const result = await graphqlClient.request(GET_MY_ORDERS, {
-                    input: { page, limit: 10 },
-                });
-                console.log('[ProfileOrders] Orders fetched:', result.getMyOrders?.orders?.length || 0);
-                return result.getMyOrders;
-            } catch (error: any) {
-                console.log('[ProfileOrders] Error fetching orders:', error.message);
-                throw error;
-            }
+            const result = await graphqlClient.request(GET_MY_ORDERS, {
+                input: { page, limit: 10 },
+            });
+            return result.getMyOrders;
         },
     });
 

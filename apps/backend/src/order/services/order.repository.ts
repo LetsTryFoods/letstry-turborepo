@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Order, OrderStatus } from '../order.schema';
 
 @Injectable()
@@ -30,7 +30,8 @@ export class OrderRepository {
     skip?: number,
     limit?: number,
   ): Promise<Order[]> {
-    const query: any = { identityId: { $in: identityIds } };
+    const objectIds = identityIds.map(id => new Types.ObjectId(id));
+    const query: any = { identityId: { $in: objectIds } };
     if (status) {
       query.orderStatus = status;
     }
@@ -46,7 +47,8 @@ export class OrderRepository {
     identityIds: string[],
     status?: OrderStatus,
   ): Promise<number> {
-    const query: any = { identityId: { $in: identityIds } };
+    const objectIds = identityIds.map(id => new Types.ObjectId(id));
+    const query: any = { identityId: { $in: objectIds } };
     if (status) {
       query.orderStatus = status;
     }
