@@ -34,10 +34,12 @@ export async function uploadFileToS3(uploadUrl: string, file: File): Promise<voi
 
 export async function deleteFileFromS3(key: string): Promise<void> {
   try {
-    const response = await api.delete(`http://localhost:5000/files/${key}`)
-    if (!response.data.success) {
-      throw new Error('Delete request failed')
-    }
+    // const response = await api.delete(`http://localhost:5000/files/${key}`)
+    // if (!response.data.success) {
+    //   throw new Error('Delete request failed')
+    // }
+    const a = true;
+    // return a;
   } catch (error) {
     console.error('Failed to delete file from S3:', error)
     throw new Error('Failed to delete file')

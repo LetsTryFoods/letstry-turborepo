@@ -2648,14 +2648,6 @@ export type User = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
-export type SearchCategoriesQueryVariables = Exact<{
-  searchTerm: Scalars['String']['input'];
-  pagination?: InputMaybe<PaginationInput>;
-}>;
-
-
-export type SearchCategoriesQuery = { __typename?: 'Query', searchCategories: { __typename?: 'PaginatedCategories', items: Array<{ __typename?: 'Category', _id: string, id: string, name: string, slug: string, imageUrl?: string | null, productCount: number, isArchived: boolean }>, meta: { __typename?: 'PaginationMeta', totalCount: number, page: number, limit: number, totalPages: number, hasNextPage: boolean, hasPreviousPage: boolean } } };
-
 export type GetAllProductsForSitemapQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -2890,29 +2882,6 @@ export class TypedDocumentString<TResult, TVariables>
   }
 }
 
-export const SearchCategoriesDocument = new TypedDocumentString(`
-    query SearchCategories($searchTerm: String!, $pagination: PaginationInput) {
-  searchCategories(searchTerm: $searchTerm, pagination: $pagination) {
-    items {
-      _id
-      id
-      name
-      slug
-      imageUrl
-      productCount
-      isArchived
-    }
-    meta {
-      totalCount
-      page
-      limit
-      totalPages
-      hasNextPage
-      hasPreviousPage
-    }
-  }
-}
-    `) as unknown as TypedDocumentString<SearchCategoriesQuery, SearchCategoriesQueryVariables>;
 export const GetAllProductsForSitemapDocument = new TypedDocumentString(`
     query GetAllProductsForSitemap {
   products(pagination: {page: 1, limit: 1000}) {

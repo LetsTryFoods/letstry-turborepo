@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { 
+import {
   Bell,
   Mail,
   MessageSquare,
@@ -28,8 +28,8 @@ import {
   Clock,
   FileText
 } from "lucide-react"
-import { 
-  NotificationType, 
+import {
+  NotificationType,
   NotificationAudience,
   useSendNotification,
   useNotificationTemplates
@@ -177,8 +177,8 @@ export default function SendNotificationDialog({
           {/* Audience */}
           <div className="space-y-2">
             <Label>Target Audience</Label>
-            <Select 
-              value={audience} 
+            <Select
+              value={audience}
               onValueChange={(value) => setAudience(value as NotificationAudience)}
             >
               <SelectTrigger>
@@ -211,6 +211,8 @@ export default function SendNotificationDialog({
             {isScheduled && (
               <Input
                 type="datetime-local"
+                id="scheduled-at"
+                name="scheduledAt"
                 value={scheduledAt}
                 onChange={(e) => setScheduledAt(e.target.value)}
                 min={new Date().toISOString().slice(0, 16)}
@@ -223,8 +225,8 @@ export default function SendNotificationDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button 
-            onClick={handleSubmit} 
+          <Button
+            onClick={handleSubmit}
             disabled={!title.trim() || !message.trim() || loading}
           >
             {isScheduled ? (

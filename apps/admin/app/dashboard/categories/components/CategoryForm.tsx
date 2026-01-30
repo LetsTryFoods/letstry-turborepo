@@ -59,7 +59,7 @@ export function CategoryForm({ onClose, initialData, createCategory, updateCateg
         slug: data.slug || undefined,
         description: data.description || undefined,
         parentId: data.parentId || undefined,
-        imageUrl: uploadedImages[0]?.finalUrl || undefined,
+        imageUrl: uploadedImages[0]?.finalUrl || '',
       }
 
       if (initialData) {

@@ -309,27 +309,27 @@ export default function PaymentDetailPage() {
               <div className="border rounded p-4 space-y-2">
                 <p className="font-medium">{payment.cartSnapshot.shippingAddress.recipientName}</p>
                 <p className="text-sm text-gray-600">{payment.cartSnapshot.shippingAddress.recipientPhone}</p>
-                
+
                 {payment.cartSnapshot.shippingAddress.buildingName && (
                   <p className="text-sm text-gray-700">{payment.cartSnapshot.shippingAddress.buildingName}</p>
                 )}
-                
+
                 {payment.cartSnapshot.shippingAddress.floor && (
                   <p className="text-sm text-gray-700">Floor: {payment.cartSnapshot.shippingAddress.floor}</p>
                 )}
-                
+
                 {payment.cartSnapshot.shippingAddress.streetArea && (
                   <p className="text-sm text-gray-700">{payment.cartSnapshot.shippingAddress.streetArea}</p>
                 )}
-                
+
                 <p className="text-sm text-gray-700">
                   {payment.cartSnapshot.shippingAddress.addressLocality}, {payment.cartSnapshot.shippingAddress.addressRegion} - {payment.cartSnapshot.shippingAddress.postalCode}
                 </p>
-                
+
                 {payment.cartSnapshot.shippingAddress.landmark && (
                   <p className="text-sm text-gray-600">Landmark: {payment.cartSnapshot.shippingAddress.landmark}</p>
                 )}
-                
+
                 {payment.cartSnapshot.shippingAddress.formattedAddress && (
                   <div className="mt-3 pt-3 border-t">
                     <p className="text-xs text-gray-500 font-medium mb-1">Complete Address:</p>
@@ -383,6 +383,8 @@ export default function PaymentDetailPage() {
               <label className="block text-sm font-medium mb-1">Refund Amount</label>
               <input
                 type="number"
+                id="refund-amount"
+                name="refundAmount"
                 value={refundAmount}
                 onChange={(e) => setRefundAmount(e.target.value)}
                 max={remainingAmount}
@@ -398,6 +400,8 @@ export default function PaymentDetailPage() {
             <div>
               <label className="block text-sm font-medium mb-1">Reason (optional)</label>
               <textarea
+                id="refund-reason"
+                name="refundReason"
                 value={refundReason}
                 onChange={(e) => setRefundReason(e.target.value)}
                 className="w-full border rounded px-3 py-2"
