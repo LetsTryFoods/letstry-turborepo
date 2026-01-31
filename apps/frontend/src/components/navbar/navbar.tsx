@@ -54,11 +54,14 @@ export const Navbar = ({ initialAuth, categories = [] }: NavbarProps) => {
         href: "#",
         label: "Snacks",
         hasDropdown: true,
-        dropdownItems: categories
-          .filter((c) => c.favourite === true)
-          .map((c) => ({ href: c.href, label: c.label })),
+        dropdownItems: [
+          ...categories
+            .filter((c) => c.favourite === true)
+            .map((c) => ({ href: c.href, label: c.label })),
+          { href: "/bestselling-combos", label: "Combos" },
+        ],
       },
-      // { href: "/combo", label: "Combos"},
+      // { href: "/bestselling-combos", label: "Combos" },
       // {href: "/blog", label: "Blog"},
       { href: "/about-us", label: "About us" },
       ...(!isAuthenticated ? [{ href: "#", label: "Login", isLogin: true }] : []),

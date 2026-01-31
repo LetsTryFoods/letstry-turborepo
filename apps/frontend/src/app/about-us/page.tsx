@@ -25,7 +25,7 @@ const AnimatedCurvedArrow = () => {
   const animateArrow = () => {
     const path = pathRef.current;
     if (!path) return;
-    
+
     const dashCount = 35;
     const dashesArray: Dash[] = [];
 
@@ -370,7 +370,7 @@ export default function AboutUsPage() {
                 groundnut oil.
               </p>
               <Link
-                href="/range/Namkeen%20Range"
+                href="/namkeen"
                 className="text-[12px] text-[#0C5273] no-underline font-medium flex items-center gap-2 lg:hover:underline"
               >
                 Explore <GoArrowRight />
@@ -400,7 +400,7 @@ export default function AboutUsPage() {
                 mindful munch.
               </p>
               <Link
-                href="/Cookies"
+                href="/cookies"
                 className="text-[12px] text-[#0C5273] no-underline font-medium flex items-center gap-2 lg:hover:underline"
               >
                 Explore <GoArrowRight />
@@ -429,7 +429,7 @@ export default function AboutUsPage() {
                 <br /> junk.
               </p>
               <Link
-                href="/Munchies"
+                href="/munchies"
                 className="text-[12px] text-[#0C5273] no-underline font-medium flex items-center gap-2 lg:hover:underline"
               >
                 Explore <GoArrowRight />
@@ -462,7 +462,7 @@ export default function AboutUsPage() {
                 groundnut oil.
               </p>
               <Link
-                href="/cookies"
+                href="/namkeen"
                 className="text-xl text-[#0C5273] no-underline font-medium flex items-center gap-2 lg:hover:underline"
               >
                 Explore <GoArrowRight />
