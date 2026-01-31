@@ -22,7 +22,7 @@ export default function LoginPage() {
       })
 
       const token = (response.data as any)?.adminLogin
-      
+
       if (token) {
         toast.success('Login successful!')
         window.location.href = '/dashboard'
@@ -75,12 +75,12 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <div className="mt-4 text-center text-sm">
+          {/* <div className="mt-4 text-center text-sm">
             Don't have an account?{' '}
             <a href="/auth/register" className="text-blue-600 hover:text-blue-500">
               Sign up
             </a>
-          </div>
+          </div> */}
         </CardContent>
       </Card>
     </div>
