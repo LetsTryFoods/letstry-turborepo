@@ -147,10 +147,10 @@ export const ProfileOrders = () => {
                 return (
                     <Card key={order._id}>
                         <CardHeader className="cursor-pointer" onClick={() => setExpandedOrder(isExpanded ? null : order._id)}>
-                            <div className="flex items-center justify-between">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                                 <div className="flex-1">
-                                    <div className="flex items-center gap-4 mb-2">
-                                        <CardTitle className="text-lg">Order #{order.orderId}</CardTitle>
+                                    <div className="flex flex-wrap items-center gap-2 sm:gap-4 mb-2">
+                                        <CardTitle className="text-base sm:text-lg">Order #{order.orderId}</CardTitle>
                                         <Badge className={getStatusColor(order.orderStatus)}>
                                             {order.orderStatus}
                                         </Badge>
@@ -160,7 +160,7 @@ export const ProfileOrders = () => {
                                             </Badge>
                                         )}
                                     </div>
-                                    <div className="flex items-center gap-4 text-sm text-gray-600">
+                                    <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600">
                                         <span>{new Date(order.createdAt).toLocaleDateString()}</span>
                                         <span>•</span>
                                         <span>{order.items.length} items</span>
@@ -177,26 +177,26 @@ export const ProfileOrders = () => {
                         </CardHeader>
 
                         {isExpanded && (
-                            <CardContent className="space-y-6 border-t pt-6">
+                            <CardContent className="space-y-6 border-t pt-6 px-2 sm:px-6">
                                 <div>
                                     <h4 className="font-semibold text-gray-900 mb-4">Order Items</h4>
                                     <div className="space-y-3">
                                         {order.items.map((item, index) => (
-                                            <div key={index} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
+                                            <div key={index} className="flex flex-col xs:flex-row items-start xs:items-center gap-2 xs:gap-4 p-3 bg-gray-50 rounded-lg">
                                                 {item.image && (
                                                     <img
                                                         src={item.image}
                                                         alt={item.name || "Product"}
-                                                        className="w-16 h-16 object-cover rounded"
+                                                        className="w-20 h-20 xs:w-16 xs:h-16 object-cover rounded mb-2 xs:mb-0"
                                                     />
                                                 )}
-                                                <div className="flex-1">
+                                                <div className="flex-1 w-full">
                                                     <p className="font-medium text-gray-900">{item.name}</p>
-                                                    {item.variant && <p className="text-sm text-gray-600">{item.variant}</p>}
+                                                    {item.variant && <p className="text-xs sm:text-sm text-gray-600">{item.variant}</p>}
                                                     {item.sku && <p className="text-xs text-gray-500">SKU: {item.sku}</p>}
                                                 </div>
-                                                <div className="text-right">
-                                                    <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
+                                                <div className="text-left xs:text-right w-full xs:w-auto">
+                                                    <p className="text-xs sm:text-sm text-gray-600">Qty: {item.quantity}</p>
                                                     <p className="font-semibold text-gray-900">{order.currency} {item.totalPrice || item.price}</p>
                                                 </div>
                                             </div>
@@ -204,14 +204,14 @@ export const ProfileOrders = () => {
                                     </div>
                                 </div>
 
-                                <div className="grid md:grid-cols-2 gap-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                                     {order.shippingAddress && (
                                         <div>
                                             <div className="flex items-center gap-2 mb-3">
                                                 <MapPin className="h-5 w-5 text-gray-600" />
                                                 <h4 className="font-semibold text-gray-900">Shipping Address</h4>
                                             </div>
-                                            <div className="text-sm text-gray-600 space-y-1 bg-gray-50 p-4 rounded-lg">
+                                            <div className="text-xs sm:text-sm text-gray-600 space-y-1 bg-gray-50 p-4 rounded-lg">
                                                 <p className="font-medium text-gray-900">{order.shippingAddress.fullName}</p>
                                                 <p>{order.shippingAddress.phone}</p>
                                                 <p>{order.shippingAddress.addressLine1}</p>
@@ -231,7 +231,7 @@ export const ProfileOrders = () => {
                                                 <CreditCard className="h-5 w-5 text-gray-600" />
                                                 <h4 className="font-semibold text-gray-900">Payment Details</h4>
                                             </div>
-                                            <div className="text-sm text-gray-600 space-y-2 bg-gray-50 p-4 rounded-lg">
+                                            <div className="text-xs sm:text-sm text-gray-600 space-y-2 bg-gray-50 p-4 rounded-lg">
                                                 <div className="flex justify-between">
                                                     <span>Status:</span>
                                                     <Badge className={getPaymentStatusColor(order.payment.status)}>
@@ -267,7 +267,7 @@ export const ProfileOrders = () => {
 
                                 <div>
                                     <h4 className="font-semibold text-gray-900 mb-3">Order Summary</h4>
-                                    <div className="bg-gray-50 p-4 rounded-lg space-y-2 text-sm">
+                                    <div className="bg-gray-50 p-4 rounded-lg space-y-2 text-xs sm:text-sm">
                                         <div className="flex justify-between">
                                             <span className="text-gray-600">Subtotal:</span>
                                             <span className="text-gray-900">{order.currency} {order.subtotal}</span>
@@ -288,14 +288,14 @@ export const ProfileOrders = () => {
                                 </div>
 
                                 {order.trackingNumber && (
-                                    <div className="bg-blue-50 p-4 rounded-lg">
+                                    <div className="bg-blue-50 p-4 rounded-lg text-xs sm:text-sm">
                                         <p className="text-sm text-gray-600 mb-1">Tracking Number:</p>
                                         <p className="font-mono font-semibold text-blue-900">{order.trackingNumber}</p>
                                     </div>
                                 )}
 
                                 {order.cancellationReason && (
-                                    <div className="bg-red-50 p-4 rounded-lg">
+                                    <div className="bg-red-50 p-4 rounded-lg text-xs sm:text-sm">
                                         <p className="text-sm text-gray-600 mb-1">Cancellation Reason:</p>
                                         <p className="text-red-900">{order.cancellationReason}</p>
                                     </div>
@@ -307,7 +307,7 @@ export const ProfileOrders = () => {
             })}
 
             {meta && meta.totalPages > 1 && (
-                <div className="flex items-center justify-center gap-2 mt-6">
+                <div className="flex flex-col xs:flex-row items-center justify-center gap-2 mt-6">
                     <Button
                         variant="outline"
                         onClick={() => setPage(page - 1)}
@@ -315,7 +315,7 @@ export const ProfileOrders = () => {
                     >
                         Previous
                     </Button>
-                    <span className="text-sm text-gray-600">
+                    <span className="text-xs sm:text-sm text-gray-600">
                         Page {page} of {meta.totalPages}
                     </span>
                     <Button
