@@ -35,7 +35,7 @@ function PaymentFailed() {
         <div className="space-y-4">
           <Link
             href="/profile?tab=orders"
-            className="block w-full bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+            className="block w-full bg-[#0C5273] hover:bg-[#09455a] text-white font-medium py-3 px-4 rounded-lg transition-colors"
           >
             View Orders
           </Link>
