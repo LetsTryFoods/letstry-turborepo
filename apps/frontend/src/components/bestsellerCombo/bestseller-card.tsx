@@ -40,11 +40,11 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
   const { data: cartData } = useCart();
-  
+
   const cart = cartData?.myCart;
   const cartItem = cart?.items?.find((item: any) => item.productId === product._id);
   const quantityInCart = cartItem?.quantity || 0;
-  
+
 
 
   const images = variant.images?.slice(0, 4) || [];
@@ -52,7 +52,7 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
 
   const handleAddToCart = async () => {
     if (isLoading) return;
-    
+
     setIsLoading(true);
     try {
       await CartService.addToCart(product._id, 1);
@@ -67,7 +67,7 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
 
   const handleIncrement = async () => {
     if (isLoading) return;
-    
+
     setIsLoading(true);
     try {
       await CartService.updateCartItem(product._id, quantityInCart + 1);
@@ -81,7 +81,7 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
 
   const handleDecrement = async () => {
     if (isLoading) return;
-    
+
     setIsLoading(true);
     try {
       if (quantityInCart > 1) {
@@ -114,41 +114,53 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
         </h3>
         <h4 className="text-sm pb-1 text-center text-gray-600">{variant.packageSize}</h4>
       </Link>
-      <div className="flex items-center justify-center mb-2">
-        <span className="text-sm font-bold text-gray-900">
-          Rs {variant.price.toFixed(2)}
-        </span>
+      <div className="flex flex-col items-center justify-center mb-2 gap-1">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-bold text-gray-900">
+            ₹{variant.price.toFixed(2)}
+          </span>
+          {variant.mrp && variant.mrp > variant.price && (
+            <span className="text-xs text-gray-500 line-through">
+              ₹{variant.mrp.toFixed(2)}
+            </span>
+          )}
+        </div>
+        {variant.discountPercent > 0 && (
+          <span className="text-xs font-medium text-[#16a34a]">
+            {variant.discountPercent}% OFF
+          </span>
+        )}
       </div>
       <div className="px-4 pb-4 mt-auto">
-      {quantityInCart === 0 ? (
-        <button
-          className="cursor-pointer w-full border-2 border-[#0C5273] text-[#0C5273] text-sm font-semibold py-2 rounded-md hover:bg-[#0C5273] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          onClick={handleAddToCart}
-          disabled={isLoading}
-        >
-          {isLoading ? 'Adding...' : 'Add to cart'}
-        </button>
-      ) : (
-        <div className="w-full flex items-center justify-between border-2 border-[#0C5273] rounded-md overflow-hidden">
+        {quantityInCart === 0 ? (
           <button
-            className="flex-1 py-2 border-[#0C5273]  font-bold text-xl hover:bg-[#0C5273] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            onClick={handleDecrement}
+            className="cursor-pointer w-full border-2 border-[#0C5273] text-[#0C5273] text-sm font-semibold py-2 rounded-md hover:bg-[#0C5273] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={handleAddToCart}
             disabled={isLoading}
           >
-            −
+            {isLoading ? 'Adding...' : 'Add to cart'}
           </button>
-          <span className="flex-1 text-center py-2 text-[#0C5273] font-semibold text-base border-x-2 border-[#0C5273]">
-            {isLoading ? '...' : quantityInCart}
-          </span>
-          <button
-            className="flex-1 py-2 text-[#0C5273] font-bold text-xl hover:bg-[#0C5273] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            onClick={handleIncrement}
-            disabled={isLoading}
-          >
-            +
-          </button>
-        </div>
-      )}
+        ) : (
+          <div className="w-full flex items-center justify-between border-2 border-[#0C5273] rounded-md overflow-hidden">
+            <button
+              className="flex-1 py-2 border-[#0C5273]  font-bold text-xl hover:bg-[#0C5273] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={handleDecrement}
+              disabled={isLoading}
+            >
+              −
+            </button>
+            <span className="flex-1 text-center py-2 text-[#0C5273] font-semibold text-base border-x-2 border-[#0C5273]">
+              {isLoading ? '...' : quantityInCart}
+            </span>
+            <button
+              className="flex-1 py-2 text-[#0C5273] font-bold text-xl hover:bg-[#0C5273] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={handleIncrement}
+              disabled={isLoading}
+            >
+              +
+            </button>
+          </div>
+        )}
       </div>
     </article>
   );

@@ -19,6 +19,11 @@ export const PriceSection: React.FC<PriceSectionProps> = ({
         <span className="text-md font-bold text-gray-900">
           {currencySymbol}{price.toFixed(2)}
         </span>
+        {mrp && mrp > price && (
+          <span className="text-sm text-gray-500 line-through">
+            {currencySymbol}{mrp.toFixed(2)}
+          </span>
+        )}
       </div>
       {discount > 0 && (
         <span className="text-sm font-medium text-[#16a34a]">
