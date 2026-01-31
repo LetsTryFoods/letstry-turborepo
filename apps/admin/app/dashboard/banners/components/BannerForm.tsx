@@ -354,7 +354,7 @@ export function BannerForm({ onClose, initialData, createBanner, updateBanner }:
           <Button type="button" variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button type="submit">Create Banner</Button>
+          <Button type="submit">{initialData ? 'Update Banner' : 'Create Banner'}</Button>
         </div>
       </form>
     </Form>
