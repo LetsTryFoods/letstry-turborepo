@@ -23,7 +23,7 @@ const getGradient = (title: string): string => {
     'South Range': 'linear-gradient(180deg, #B0CC7B 0%, #24AD5E 100%)',
     'Wafers Range': 'linear-gradient(180deg, #E9A0AD 0%, #D12C4A 100%)',
     'Puff Range': 'linear-gradient(180deg, #EAB07C 0%, #CB6000 100%)',
-    'Muffins & Cakes': 'linear-gradient(180deg, #F2B177 0%, #D6753A 100%)',
+    'Muffin Range': 'linear-gradient(180deg, #F2B177 0%, #D6753A 100%)',
     'No Palm Oil Range': 'linear-gradient(180deg, #C7D6A0 0%, #A2C654 100%)',
     'Goodness of Wheat': 'linear-gradient(180deg, #DEC19F 0%, #B4824A 100%)',
     'No Maida Range': 'linear-gradient(180deg, #E9A0AD 0%, #D12C4A 100%)',

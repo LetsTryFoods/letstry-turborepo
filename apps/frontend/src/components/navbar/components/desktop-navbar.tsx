@@ -2,7 +2,6 @@
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 import { Logo } from "./logo";
-import { LocationSelector } from "./location-selector";
 import { SearchBar } from "./search-bar";
 import { CartButton } from "./cart-button";
 import { UserButton } from "./user-button";
