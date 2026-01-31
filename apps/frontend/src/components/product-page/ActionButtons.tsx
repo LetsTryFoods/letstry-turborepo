@@ -31,7 +31,9 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({ product, isOutOfSt
   const variant = product.defaultVariant || { id: product.id, price: product.price, weight: product.variantName };
   const variantId = variant.id;
   const cartItems = cartQuery.data?.myCart?.items || [];
-  const quantityInCart = cartItems.find((item) => item.productId === variantId)?.quantity || 0;
+  // Match by variantId if present, fallback to productId for non-variant products
+  const cartItem = cartItems.find((item) => (item.variantId ? item.variantId === variantId : item.productId === variantId));
+  const quantityInCart = cartItem?.quantity || 0;
 
   const handleAddToCart = async () => {
     if (isOutOfStock || isLoading) return;
