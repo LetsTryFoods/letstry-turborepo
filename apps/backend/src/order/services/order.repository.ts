@@ -30,7 +30,9 @@ export class OrderRepository {
     skip?: number,
     limit?: number,
   ): Promise<Order[]> {
-    const objectIds = identityIds.map(id => new Types.ObjectId(id));
+    const objectIds = identityIds
+      .filter(id => Types.ObjectId.isValid(id))
+      .map(id => new Types.ObjectId(id));
     const query: any = { identityId: { $in: objectIds } };
     if (status) {
       query.orderStatus = status;
@@ -47,7 +49,9 @@ export class OrderRepository {
     identityIds: string[],
     status?: OrderStatus,
   ): Promise<number> {
-    const objectIds = identityIds.map(id => new Types.ObjectId(id));
+    const objectIds = identityIds
+      .filter(id => Types.ObjectId.isValid(id))
+      .map(id => new Types.ObjectId(id));
     const query: any = { identityId: { $in: objectIds } };
     if (status) {
       query.orderStatus = status;

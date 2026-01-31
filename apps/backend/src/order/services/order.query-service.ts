@@ -21,7 +21,7 @@ export class OrderQueryService {
   constructor(
     private orderRepository: OrderRepository,
     @InjectModel(Identity.name) private identityModel: Model<IdentityDocument>,
-  ) {}
+  ) { }
 
   async getOrderById(orderId: string): Promise<Order | null> {
     return this.orderRepository.findById(orderId);
@@ -47,7 +47,7 @@ export class OrderQueryService {
     const allIdentityIds = [
       params.identityId,
       ...(params.mergedGuestIds || []),
-    ];
+    ].filter(id => id && id.trim() !== '');
 
     const [orders, total] = await Promise.all([
       this.orderRepository.findByIdentityIds(
