@@ -34,11 +34,7 @@ export const ExpressCheckout: React.FC<ExpressCheckoutProps> = ({
         onSuccess: (data) => {
             clearIdempotencyKey();
             if (data.redirectUrl) {
-                const form = document.createElement('form');
-                form.method = 'GET';
-                form.action = data.redirectUrl;
-                document.body.appendChild(form);
-                form.submit();
+                window.location.href = data.redirectUrl;
             }
         },
         onError: (error: any) => {

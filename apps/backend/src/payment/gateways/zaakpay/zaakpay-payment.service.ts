@@ -139,9 +139,10 @@ export class ZaakpayPaymentService {
     }
 
     private extractRedirectUrl(redirectPath: string): string {
-        return redirectPath.startsWith('http')
+        const url = redirectPath.startsWith('http')
             ? redirectPath
             : `${this.baseUrl}${redirectPath}`;
+        return url.replace(/^http:\/\//i, 'https://');
     }
 
     private logResponse(redirectUrl: string): void {
