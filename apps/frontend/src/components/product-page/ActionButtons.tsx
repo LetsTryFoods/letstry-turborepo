@@ -86,16 +86,25 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({ product, isOutOfSt
 
   return (
     <div className="flex flex-col gap-4 w-full">
-      {quantityInCart === 0 ? (
+      {isOutOfStock ? (
         <button
-          onClick={isOutOfStock || isLoading ? undefined : handleAddToCart}
-          disabled={isOutOfStock || isLoading}
+          disabled
           className={cn(
-            "cursor-pointer w-full py-1 sm:py-2 px-4 border border-brand-hover text-brand-hover text-lg font-bold rounded-lg transition-colors uppercase tracking-wide",
-            isOutOfStock || isLoading ? "opacity-50 cursor-not-allowed" : "hover:bg-brand-hover hover:text-white"
+            "cursor-not-allowed w-full py-1 sm:py-2 px-4 border border-brand-hover text-brand-hover text-lg font-bold rounded-lg transition-colors uppercase tracking-wide opacity-50"
           )}
         >
-          {isOutOfStock ? 'Out of Stock' : isLoading ? 'Adding...' : 'Add to cart'}
+          Out of Stock
+        </button>
+      ) : quantityInCart === 0 ? (
+        <button
+          onClick={isLoading ? undefined : handleAddToCart}
+          disabled={isLoading}
+          className={cn(
+            "cursor-pointer w-full py-1 sm:py-2 px-4 border border-brand-hover text-brand-hover text-lg font-bold rounded-lg transition-colors uppercase tracking-wide",
+            isLoading ? "opacity-50 cursor-not-allowed" : "hover:bg-brand-hover hover:text-white"
+          )}
+        >
+          {isLoading ? 'Adding...' : 'Add to cart'}
         </button>
       ) : (
         <div className="mt-2 w-full flex items-center justify-between border-2 border-brand-hover rounded-lg overflow-hidden">
