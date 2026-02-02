@@ -75,7 +75,7 @@ export function WholesomeCarousel({ items }: WholesomeCarouselProps) {
         </div>
       </div>
 
-      <div className="flex justify-center space-x-10 mt-6">
+      <div className="flex justify-center space-x-4 mt-6">
         <button
           onClick={() => handleScroll('left')}
           className="border-2 border-[#807171] rounded-full flex items-center justify-center w-6 h-6 md:w-10 md:h-10 lg:hover:bg-gray-100 transition-all duration-200"

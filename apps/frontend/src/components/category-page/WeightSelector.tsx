@@ -13,26 +13,23 @@ export const WeightSelector: React.FC<WeightSelectorProps> = ({
   onWeightChange,
 }) => {
   return (
-    <div className="w-full mt-2 sm:mt-3 md:mt-4">
-      <label className="block text-xs sm:text-sm md:text-md text-gray-500 mb-1 sm:mb-1.5 text-left">Weight :</label>
-      
-      
-        <div className="flex flex-wrap gap-1.5">
-          {weights.map((weight) => (
-            <button
-              key={weight}
-              onClick={() => onWeightChange(weight)}
-              className={`px-2 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm md:text-md font-semibold rounded border transition-colors ${
-                selectedWeight === weight
-                  ? 'bg-[#3f4166] text-white border-[#3f4166]'
-                  : 'bg-white text-gray-700 border-gray-300 hover:border-[#3f4166]'
+    <div className="w-full flex flex-row items-center gap-2 mt-2 sm:mt-3 md:mt-4">
+      <label className="text-xs sm:text-sm text-gray-500 whitespace-nowrap">Weight:</label>
+      <div className="flex pl-2 flex-wrap gap-1.5">
+        {weights.map((weight) => (
+          <button
+            key={weight}
+            onClick={() => onWeightChange(weight)}
+            className={`px-2 py-2 sm:px-3 sm:py-1.5 text-xs sm:text-sm font-semibold rounded-md border transition-all duration-200 ${selectedWeight === weight
+              ? 'bg-[#0C5273] text-white border-[#0C5273]'
+              : 'bg-white text-gray-700 border-gray-300 hover:border-[#0C5273] hover:text-[#0C5273]'
               }`}
-            >
-              {weight}
-            </button>
-          ))}
-        </div>
-     
+          >
+            {weight}
+          </button>
+        ))}
+      </div>
+
 
       {/* <div className="hidden sm:block relative">
         <select

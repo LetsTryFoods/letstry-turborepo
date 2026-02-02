@@ -160,17 +160,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, categoryType 
           ) : (
             <div className="mt-2 w-full flex items-center justify-between border-2 border-[#0C5273] rounded-lg overflow-hidden">
               <button
-                className="flex-1 py-1 text-[#0C5273] font-bold text-xl hover:bg-[#0C5273] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 py-1 bg-[#D1E9F2] text-[#0C5273] font-bold text-xl hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={handleDecrement}
                 disabled={isLoading}
               >
                 −
               </button>
-              <span className="flex-1 text-center py-1 text-[#0C5273] font-semibold text-base border-x-2 border-[#0C5273]">
+              <span className="flex-1 text-center py-1 text-[#0C5273] font-semibold text-base">
                 {isLoading ? '...' : quantityInCart}
               </span>
               <button
-                className="flex-1 py-1 text-[#0C5273] font-bold text-xl hover:bg-[#0C5273] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 py-1 bg-[#D1E9F2] text-[#0C5273] font-bold text-xl hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={handleIncrement}
                 disabled={isLoading}
               >

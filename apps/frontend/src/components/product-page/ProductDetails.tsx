@@ -27,7 +27,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, breadcr
   );
   const { trackViewItem } = useAnalytics();
 
-  
+
 
   const selectedVariant =
     product.variants.find((v) => v._id === selectedVariantId) ||
@@ -57,7 +57,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, breadcr
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8 lg:gap-10 xl:gap-12">
 
-   
+
       <div>
         <ProductGallery images={displayImages} isOutOfStock={isOutOfStock} />
       </div>
