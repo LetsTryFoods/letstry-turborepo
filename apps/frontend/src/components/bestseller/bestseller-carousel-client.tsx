@@ -41,11 +41,11 @@ export function BestsellerCarouselClient({ initialProducts }: BestsellerCarousel
           pointerEvents: "none",
           zIndex: "50",
         });
-        
+
         if (confettiContainerRef.current) {
           confettiContainerRef.current.appendChild(canvas);
         }
-        
+
         hasShownConfetti.current = true;
         sessionStorage.setItem("bestsellerConfettiFired", "true");
 
@@ -54,7 +54,7 @@ export function BestsellerCarouselClient({ initialProducts }: BestsellerCarousel
             resize: true,
             useWorker: true,
           });
-          
+
           setTimeout(() => {
             myConfetti({
               particleCount: 180,
@@ -63,7 +63,7 @@ export function BestsellerCarouselClient({ initialProducts }: BestsellerCarousel
               ticks: 90,
               origin: { y: 0.4 },
             });
-            
+
             setTimeout(() => {
               if (canvas && canvas.parentNode) {
                 canvas.parentNode.removeChild(canvas);
@@ -94,7 +94,7 @@ export function BestsellerCarouselClient({ initialProducts }: BestsellerCarousel
         ref={confettiContainerRef}
         className="absolute inset-0 pointer-events-none z-50"
       />
-      
+
       <div className="relative z-10">
         <div className="flex justify-center items-center mb-4 sm:mb-8">
           <div className="festival-heading-wrap relative inline-block">
@@ -116,19 +116,19 @@ export function BestsellerCarouselClient({ initialProducts }: BestsellerCarousel
 
         <div className="container relative mx-auto">
           <div className="overflow-x-auto hide-scrollbar">
-            <div className="flex gap-2 sm:gap-3 md:gap-4 lg:gap-5 px-1 sm:px-2 lg:px-8">{initialProducts.map((product: any) => (
-                <div
-                  key={product._id}
-                  className="min-w-[120px] sm:min-w-[180px] lg:min-w-[235px]"
-                >
-                  <BestsellerCard product={product} />
-                </div>
-              ))}
+            <div className="flex gap-2 sm:gap-3 md:gap-6 lg:gap-8 px-1 sm:px-2 lg:px-8 pb-4">{initialProducts.map((product: any) => (
+              <div
+                key={product._id}
+                className="min-w-[120px] sm:min-w-[180px] lg:min-w-[235px]"
+              >
+                <BestsellerCard product={product} />
+              </div>
+            ))}
             </div>
           </div>
         </div>
       </div>
-      
+
       <FestivalStyle />
     </section>
   );

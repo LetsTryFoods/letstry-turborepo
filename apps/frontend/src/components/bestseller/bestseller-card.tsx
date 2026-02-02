@@ -109,11 +109,13 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
   return (
     <article className="relative flex flex-col h-full p-3 sm:p-4 md:p-5 lg:p-6 text-center rounded-xl sm:rounded-2xl lg:rounded-3xl transition-shadow duration-800"
       style={{
-        backgroundColor: "#FFFFFF",
-        boxShadow: "8px 8px 16px rgba(0, 0, 0, 0.40)",
+        backgroundColor: "#ffffff",
+        boxShadow: "10px 5px 10px 4px #00000040",
       }}
     >
+
       {hasDiscount && <DiscountBadge discountPercent={variant.discountPercent} />}
+
       <Link href={`/product/${product.slug}`}>
         <div className="relative w-full lg:h-40 md:h-[100px] h-[70px] lg:mb-[10px] md:mb-[10px] mb-[5px]">
           <Image

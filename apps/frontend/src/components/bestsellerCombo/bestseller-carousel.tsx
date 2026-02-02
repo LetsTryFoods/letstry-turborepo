@@ -18,13 +18,13 @@ export const BestsellerCombo = async () => {
           </h2>
           <Link
             href="/bestselling-combos"
-            className="text-sm sm:text-xl text-gray-900 hover:text-[#0C5273] font-semibold"
+            className="text-sm sm:text-xl text-[#0C5273] font-semibold"
           >
             See all
           </Link>
         </div>
-        <div className="grid grid-cols-2 gap-4 sm:gap-6 md:gap-10 sm:grid-cols-4 md:grid-cols-5">
-          {products.slice(0, 5).map((product: any) => (
+        <div className="grid grid-cols-2 gap-4 sm:gap-6 md:gap-10 sm:grid-cols-4">
+          {products.slice(0, 4).map((product: any) => (
             <BestsellerCard key={product._id} product={product} />
           ))}
         </div>
