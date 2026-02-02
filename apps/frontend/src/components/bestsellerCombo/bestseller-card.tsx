@@ -136,7 +136,7 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
       <div className="px-4 pb-4 mt-auto">
         {quantityInCart === 0 ? (
           <button
-            className="cursor-pointer w-full border-2 border-[#0C5273] text-[#0C5273] text-sm font-semibold py-2 rounded-md hover:bg-[#0C5273] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="cursor-pointer w-full border-2 border-[#0C5273] text-[#0C5273] text-sm font-semibold py-2 rounded-md hover:bg-[#0C5273] hover:text-white transition-all duration-200 shadow-sm hover:shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={handleAddToCart}
             disabled={isLoading}
           >
@@ -145,17 +145,17 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
         ) : (
           <div className="w-full flex items-center justify-between border-2 border-[#0C5273] rounded-md overflow-hidden">
             <button
-              className="flex-1 py-2 border-[#0C5273]  font-bold text-xl hover:bg-[#0C5273] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 py-1 border-[#0C5273] font-bold text-xl hover:bg-[#0C5273] hover:text-white transition-all duration-200 active:scale-90 disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleDecrement}
               disabled={isLoading}
             >
               −
             </button>
-            <span className="flex-1 text-center py-2 text-[#0C5273] font-semibold text-base border-x-2 border-[#0C5273]">
+            <span className="flex-1 text-center py-1 text-[#0C5273] font-semibold text-base border-x-2 border-[#0C5273]">
               {isLoading ? '...' : quantityInCart}
             </span>
             <button
-              className="flex-1 py-2 text-[#0C5273] font-bold text-xl hover:bg-[#0C5273] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 py-1 text-[#0C5273] font-bold text-xl hover:bg-[#0C5273] hover:text-white transition-all duration-200 active:scale-90 disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleIncrement}
               disabled={isLoading}
             >

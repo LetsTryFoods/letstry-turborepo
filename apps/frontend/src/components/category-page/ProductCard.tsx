@@ -37,18 +37,18 @@ interface ProductCardProps {
   slug?: string;
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({ product, categoryType = 'default' , slug }) => {
+export const ProductCard: React.FC<ProductCardProps> = ({ product, categoryType = 'default', slug }) => {
   const [selectedVariantId, setSelectedVariantId] = useState(product.variants[0]?.id || product.id);
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
   const { trackAddToCart } = useAnalytics();
   const { data: cartData } = useCart();
-  
+
   const cart = cartData?.myCart;
   const cartItem = cart?.items?.find((item: any) => item.variantId === selectedVariantId);
   const quantityInCart = cartItem?.quantity || 0;
-  
-  
+
+
   const selectedVariant = product.variants.find(v => v.id === selectedVariantId) || {
     price: product.price,
     mrp: product.mrp,
@@ -67,12 +67,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, categoryType 
 
   const handleAddToCart = async () => {
     if (isLoading) return;
-    
+
     setIsLoading(true);
     try {
       await CartService.addToCart(selectedVariantId, 1);
       queryClient.invalidateQueries({ queryKey: ['cart'] });
-      
+
       trackAddToCart({
         id: selectedVariantId,
         name: product.name,
@@ -80,7 +80,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, categoryType 
         quantity: 1,
         variant: selectedVariant.weight,
       });
-      
+
       toast.success(`${product.name} added to cart`);
     } catch (error) {
       toast.error('Failed to add to cart');
@@ -91,7 +91,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, categoryType 
 
   const handleIncrement = async () => {
     if (isLoading) return;
-    
+
     setIsLoading(true);
     try {
       await CartService.updateCartItem(selectedVariantId, quantityInCart + 1);
@@ -105,7 +105,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, categoryType 
 
   const handleDecrement = async () => {
     if (isLoading) return;
-    
+
     setIsLoading(true);
     try {
       if (quantityInCart > 1) {
@@ -145,39 +145,39 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, categoryType 
             {product.name}
           </Link>
         </h3>
-        
+
         <PriceSection price={selectedVariant.price} mrp={selectedVariant.mrp} />
-        
+
         <div className="mt-auto w-full pointer-events-auto">
-            <WeightSelector
+          <WeightSelector
             weights={weights}
             selectedWeight={selectedWeight}
             onWeightChange={handleWeightChange}
-            />
-            
-            {quantityInCart === 0 ? (
-              <AddToCartButton onClick={handleAddToCart} />
-            ) : (
-              <div className="mt-2 w-full flex items-center justify-between border-2 border-[#0C5273] rounded-lg overflow-hidden">
-                <button
-                  className="flex-1 py-2 text-[#0C5273] font-bold text-xl hover:bg-[#0C5273] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  onClick={handleDecrement}
-                  disabled={isLoading}
-                >
-                  −
-                </button>
-                <span className="flex-1 text-center py-2 text-[#0C5273] font-semibold text-base border-x-2 border-[#0C5273]">
-                  {isLoading ? '...' : quantityInCart}
-                </span>
-                <button
-                  className="flex-1 py-2 text-[#0C5273] font-bold text-xl hover:bg-[#0C5273] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  onClick={handleIncrement}
-                  disabled={isLoading}
-                >
-                  +
-                </button>
-              </div>
-            )}
+          />
+
+          {quantityInCart === 0 ? (
+            <AddToCartButton onClick={handleAddToCart} />
+          ) : (
+            <div className="mt-2 w-full flex items-center justify-between border-2 border-[#0C5273] rounded-lg overflow-hidden">
+              <button
+                className="flex-1 py-1 text-[#0C5273] font-bold text-xl hover:bg-[#0C5273] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={handleDecrement}
+                disabled={isLoading}
+              >
+                −
+              </button>
+              <span className="flex-1 text-center py-1 text-[#0C5273] font-semibold text-base border-x-2 border-[#0C5273]">
+                {isLoading ? '...' : quantityInCart}
+              </span>
+              <button
+                className="flex-1 py-1 text-[#0C5273] font-bold text-xl hover:bg-[#0C5273] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={handleIncrement}
+                disabled={isLoading}
+              >
+                +
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
