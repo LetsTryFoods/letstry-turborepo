@@ -143,7 +143,7 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
             {isLoading ? 'Adding...' : 'Add to cart'}
           </button>
         ) : (
-          <div className="w-full flex items-center justify-between border-2 border-[#0C5273] rounded-md overflow-hidden">
+          <div className="w-full flex items-center justify-between border sm:border-2 border-[#0C5273] rounded-md overflow-hidden">
             <button
               className="flex-1 py-1 border-[#0C5273] bg-[#D1E9F2] font-bold text-xl transition-all duration-200 active:scale-90 disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleDecrement}
