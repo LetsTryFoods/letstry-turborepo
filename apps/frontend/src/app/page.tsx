@@ -18,8 +18,6 @@ export default async function Home() {
   const wholesomeChoicesData = await getWholesomeChoices();
   return (
     <main>
-
-
       <HeroCarousel />
       <CategoryGrid />
       <BestsellerCombo />
