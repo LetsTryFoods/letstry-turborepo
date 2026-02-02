@@ -11,7 +11,7 @@ export class QueryExecutor {
   constructor(
     private readonly repository: ProductRepository,
     private readonly cacheStrategyFactory: ProductCacheStrategyFactory,
-  ) {}
+  ) { }
 
   async executeFind(
     filter: ProductFilter,
@@ -71,5 +71,38 @@ export class QueryExecutor {
     cacheStrategy: CacheStrategy<number>,
   ): Promise<number> {
     return cacheStrategy.execute(() => this.repository.countDocuments(filter));
+  }
+
+  async executePaginatedSearch(
+    filter: ProductFilter,
+    page: number,
+    limit: number,
+    searchTerm: string,
+    cacheStrategy: CacheStrategy<PaginationResult<Product>>,
+  ): Promise<PaginationResult<Product>> {
+    return cacheStrategy.execute(async () => {
+      const paginationParams = PaginationCalculator.calculate(page, limit, 0);
+      const [totalCount, items] = await Promise.all([
+        this.repository.countDocuments(filter),
+        this.repository.findPaginatedWithSearch(
+          filter,
+          paginationParams.skip,
+          limit,
+          searchTerm,
+        ),
+      ]);
+      const finalParams = PaginationCalculator.calculate(
+        page,
+        limit,
+        totalCount,
+      );
+      return PaginationCalculator.createResult(
+        items,
+        page,
+        limit,
+        totalCount,
+        finalParams,
+      );
+    });
   }
 }

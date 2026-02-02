@@ -138,6 +138,8 @@ type PlatformStats {
   android: Int!
   ios: Int!
   web: Int!
+  macos: Int!
+  desktop: Int!
 }
 
 type StatusStats {
@@ -1156,7 +1158,7 @@ type Query {
   product(id: ID!): Product
   productBySlug(slug: String!): Product
   productsByCategory(categoryId: ID!, pagination: PaginationInput! = {page: 1, limit: 10}): PaginatedProducts!
-  searchProducts(searchTerm: String!, pagination: PaginationInput! = {page: 1, limit: 10}): PaginatedProducts!
+  searchProducts(searchTerm: String!, pagination: PaginationInput! = {page: 1, limit: 10}, nameOnly: Boolean! = false): PaginatedProducts!
   productVariant(productId: ID!, variantId: ID!): ProductVariant
   categories(pagination: PaginationInput! = {page: 1, limit: 10}, includeArchived: Boolean! = false): PaginatedCategories!
   rootCategories(pagination: PaginationInput! = {page: 1, limit: 10}, includeArchived: Boolean! = false): PaginatedCategories!
@@ -1243,6 +1245,8 @@ enum CustomerPlatform {
   ANDROID
   IOS
   WEB
+  MACOS
+  DESKTOP
 }
 
 enum CustomerSortField {

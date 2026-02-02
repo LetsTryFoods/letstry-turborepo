@@ -149,12 +149,14 @@ export class ProductService {
     searchTerm: string,
     page = DEFAULT_PAGE,
     limit = DEFAULT_LIMIT,
+    nameOnly = false,
     includeArchived = false,
   ): Promise<PaginationResult<Product>> {
     return this.queryService.searchProductsPaginated(
       searchTerm,
       page,
       limit,
+      nameOnly,
       includeArchived,
     );
   }

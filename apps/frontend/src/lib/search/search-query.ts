@@ -1,8 +1,8 @@
 import { graphql } from '@/gql';
 
 export const SEARCH_PRODUCTS = graphql(`
-  query SearchProducts($searchTerm: String!, $pagination: PaginationInput) {
-    searchProducts(searchTerm: $searchTerm, pagination: $pagination) {
+  query SearchProducts($searchTerm: String!, $pagination: PaginationInput, $nameOnly: Boolean) {
+    searchProducts(searchTerm: $searchTerm, pagination: $pagination, nameOnly: $nameOnly) {
       items {
         _id
         name

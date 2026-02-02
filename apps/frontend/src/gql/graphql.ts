@@ -587,7 +587,9 @@ export type CustomerDetails = {
 
 export enum CustomerPlatform {
   Android = 'ANDROID',
+  Desktop = 'DESKTOP',
   Ios = 'IOS',
+  Macos = 'MACOS',
   Web = 'WEB'
 }
 
@@ -1746,7 +1748,9 @@ export type PlacePredictionOutput = {
 export type PlatformStats = {
   __typename?: 'PlatformStats';
   android: Scalars['Int']['output'];
+  desktop: Scalars['Int']['output'];
   ios: Scalars['Int']['output'];
+  macos: Scalars['Int']['output'];
   web: Scalars['Int']['output'];
 };
 
@@ -2225,6 +2229,7 @@ export type QuerySearchPlacesArgs = {
 
 
 export type QuerySearchProductsArgs = {
+  nameOnly?: Scalars['Boolean']['input'];
   pagination?: PaginationInput;
   searchTerm: Scalars['String']['input'];
 };
@@ -2858,6 +2863,7 @@ export type GetProductBySlugQuery = { __typename?: 'Query', productBySlug?: { __
 export type SearchProductsQueryVariables = Exact<{
   searchTerm: Scalars['String']['input'];
   pagination?: InputMaybe<PaginationInput>;
+  nameOnly?: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
@@ -3536,8 +3542,12 @@ export const GetProductBySlugDocument = new TypedDocumentString(`
 }
     `) as unknown as TypedDocumentString<GetProductBySlugQuery, GetProductBySlugQueryVariables>;
 export const SearchProductsDocument = new TypedDocumentString(`
-    query SearchProducts($searchTerm: String!, $pagination: PaginationInput) {
-  searchProducts(searchTerm: $searchTerm, pagination: $pagination) {
+    query SearchProducts($searchTerm: String!, $pagination: PaginationInput, $nameOnly: Boolean) {
+  searchProducts(
+    searchTerm: $searchTerm
+    pagination: $pagination
+    nameOnly: $nameOnly
+  ) {
     items {
       _id
       name

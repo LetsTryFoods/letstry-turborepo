@@ -4,6 +4,7 @@ export const DEFAULT_LIMIT = 10;
 
 export interface ProductFilter {
   _id?: string | { $ne: string };
+  name?: RegExp;
   slug?: string;
   categoryIds?: string | string[];
   isArchived?: boolean;

@@ -109,11 +109,14 @@ export class ProductResolver {
       defaultValue: { page: 1, limit: 10 },
     })
     pagination: PaginationInput,
+    @Args('nameOnly', { type: () => Boolean, defaultValue: false })
+    nameOnly: boolean,
   ): Promise<PaginatedProducts> {
     const result = await this.productService.searchProductsPaginated(
       searchTerm,
       pagination.page,
       pagination.limit,
+      nameOnly,
     );
     return {
       items: result.items,

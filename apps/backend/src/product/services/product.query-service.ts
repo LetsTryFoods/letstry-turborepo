@@ -123,12 +123,21 @@ export class ProductQueryService {
     searchTerm: string,
     page: number,
     limit: number,
+    nameOnly: boolean,
     includeArchived: boolean,
   ): Promise<PaginationResult<Product>> {
-    const filter = ProductQueryBuilder.forSearch(searchTerm, includeArchived);
+    const filter = nameOnly
+      ? ProductQueryBuilder.forNameSearch(searchTerm, includeArchived)
+      : ProductQueryBuilder.forSearch(searchTerm, includeArchived);
     const strategy =
       this.cacheStrategyFactory.createNoCache<PaginationResult<Product>>();
-    return this.executor.executePaginated(filter, page, limit, strategy);
+    return this.executor.executePaginatedSearch(
+      filter,
+      page,
+      limit,
+      searchTerm,
+      strategy,
+    );
   }
 
   async countByCategoryId(

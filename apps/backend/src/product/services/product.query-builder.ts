@@ -55,7 +55,6 @@ export class ProductQueryBuilder {
       return {
         $or: [
           { name: regex },
-          { description: regex },
           { brand: regex },
           { keywords: regex },
           { tags: regex },
@@ -69,6 +68,19 @@ export class ProductQueryBuilder {
       this.filter.$and = keywordFilters;
     }
 
+    return this;
+  }
+
+  getSearchTerm(): string | undefined {
+    return this._searchTerm;
+  }
+
+  private _searchTerm?: string;
+
+  withNameOnlySearch(searchTerm: string): this {
+    if (!searchTerm) return this;
+    const regex = new RegExp(searchTerm, 'i');
+    this.filter.name = regex;
     return this;
   }
 
@@ -153,5 +165,16 @@ export class ProductQueryBuilder {
       builder.excludeId(excludeId);
     }
     return builder.build();
+  }
+
+  static forNameSearch(
+    searchTerm: string,
+    includeArchived: boolean,
+  ): ProductFilter {
+    return new ProductQueryBuilder()
+      .withNameOnlySearch(searchTerm)
+      .withArchived(includeArchived)
+      .withoutOutOfStock(false)
+      .build();
   }
 }
