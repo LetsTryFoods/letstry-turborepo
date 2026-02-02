@@ -7,6 +7,7 @@ interface Product {
   name: string;
   slug: string;
   defaultVariant?: {
+    discountPercent: number;
     price: number;
     mrp: number;
     thumbnailUrl: string;
