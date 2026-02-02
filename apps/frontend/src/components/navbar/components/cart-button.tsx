@@ -20,7 +20,7 @@ export const CartButton = ({ itemCount, onClick, className }: CartButtonProps) =
             <ShoppingCart className="h-8 w-8" />
 
             {itemCount > 0 && (
-                <span className="absolute -right-1 -top-1 flex h-2 sm:h-5 sm:w-5 w-2 items-center justify-center rounded-full bg-yellow-500 text-xs sm:text-sm font-bold text-white">
+                <span className="absolute -right-1 -top-1 flex h-3 sm:h-4 sm:w-4 w-3 items-center justify-center rounded-full bg-yellow-500 text-xs sm:text-sm font-bold text-white">
                     {itemCount}
                 </span>
             )}
