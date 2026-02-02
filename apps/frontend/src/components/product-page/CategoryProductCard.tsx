@@ -113,7 +113,7 @@ export const CategoryProductCard: React.FC<CategoryProductCardProps> = ({
       <div className="px-4 pb-4 mt-2">
         {quantityInCart === 0 ? (
           <button
-            className="w-full border-2 border-brand-hover text-brand-hover text-sm font-semibold py-2 rounded-md hover:bg-brand-hover hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full border sm:border-2 border-brand-hover text-brand-hover text-sm font-semibold py-1 rounded-md hover:bg-brand-hover hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={handleAddToCart}
             disabled={isLoading}
           >
@@ -122,17 +122,17 @@ export const CategoryProductCard: React.FC<CategoryProductCardProps> = ({
         ) : (
           <div className="w-full flex items-center justify-between border-2 border-brand-hover rounded-md overflow-hidden">
             <button
-              className="flex-1 py-2 border-brand-hover font-bold text-xl hover:bg-brand-hover hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 py-1 bg-[#D1E9F2] border-brand-hover font-bold text-xl  transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleDecrement}
               disabled={isLoading}
             >
               −
             </button>
-            <span className="flex-1 text-center py-2 text-brand-hover font-semibold text-base border-x-2 border-brand-hover">
+            <span className="flex-1 text-center py-1 text-brand-hover font-semibold text-base">
               {isLoading ? "..." : quantityInCart}
             </span>
             <button
-              className="flex-1 py-2 text-brand-hover font-bold text-xl hover:bg-brand-hover hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 py-1 bg-[#D1E9F2] text-brand-hover font-bold text-xl  transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleIncrement}
               disabled={isLoading}
             >
