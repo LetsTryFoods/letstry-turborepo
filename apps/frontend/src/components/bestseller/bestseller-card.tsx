@@ -9,6 +9,7 @@ import { useAnalytics } from '@/hooks/use-analytics';
 import { useCart } from '@/lib/cart/use-cart';
 import { useClickSpark } from '@/hooks/use-click-spark';
 import { DiscountBadge } from '@/components/ui/discount-badge';
+import { getCdnUrl } from '@/lib/image-utils';
 
 type ProductVariant = {
   _id: string;
@@ -119,7 +120,7 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
       <Link href={`/product/${product.slug}`}>
         <div className="relative w-full lg:h-40 md:h-[100px] h-[70px] lg:mb-[10px] md:mb-[10px] mb-[5px]">
           <Image
-            src={variant.thumbnailUrl}
+            src={getCdnUrl(variant.thumbnailUrl)}
             alt={product.name}
             fill
             className="object-contain"

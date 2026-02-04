@@ -51,16 +51,7 @@ export class UploadService {
   }
 
   getCloudFrontUrl(key: string): string {
-    const cloudfrontDomain = this.configService.get<string>(
-      'aws.cloudfrontDomain',
-    );
-
-    if (!cloudfrontDomain) {
-      throw new Error('AWS_CLOUDFRONT_DOMAIN environment variable is not set');
-    }
-
-    const baseUrl = cloudfrontDomain.replace(/\/$/, '');
-    return `${baseUrl}/${key}`;
+    return key;
   }
 
   async getPresignedUrl(key: string): Promise<string> {
@@ -110,7 +101,7 @@ export class UploadService {
     return {
       uploadUrl,
       key: finalKey,
-      finalUrl,
+      finalUrl: finalKey,
       baseUrl: this.configService.get<string>('aws.cloudfrontDomain'),
     };
   }

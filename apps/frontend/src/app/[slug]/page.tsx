@@ -5,6 +5,7 @@ import { ProductGrid } from '@/components/category-page/ProductGrid';
 import { Product } from '@/components/category-page/ProductCard';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import { getCdnUrl } from '@/lib/image-utils';
 
 export const revalidate = 1800;
 
@@ -32,14 +33,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       openGraph: {
         title: seo?.ogTitle || seo?.metaTitle || defaultTitle,
         description: seo?.ogDescription || seo?.metaDescription || defaultDescription,
-        images: seo?.ogImage ? [{ url: seo.ogImage }] : category.imageUrl ? [{ url: category.imageUrl }] : [],
+        images: seo?.ogImage ? [{ url: getCdnUrl(seo.ogImage) }] : category.imageUrl ? [{ url: getCdnUrl(category.imageUrl) }] : [],
         type: 'website',
       },
       twitter: {
         card: 'summary_large_image',
         title: seo?.ogTitle || seo?.metaTitle || defaultTitle,
         description: seo?.ogDescription || seo?.metaDescription || defaultDescription,
-        images: seo?.ogImage ? [seo.ogImage] : category.imageUrl ? [category.imageUrl] : [],
+        images: seo?.ogImage ? [getCdnUrl(seo.ogImage)] : category.imageUrl ? [getCdnUrl(category.imageUrl)] : [],
       },
     };
   }
@@ -81,7 +82,7 @@ function mapProductData(apiProduct: any): Product {
     id: apiProduct._id,
     name: apiProduct.name,
     slug: apiProduct.slug,
-    image: defaultVariant?.thumbnailUrl || apiProduct.thumbnailUrl,
+    image: getCdnUrl(defaultVariant?.thumbnailUrl || apiProduct.thumbnailUrl),
     price: defaultVariant?.price || 0,
     mrp: defaultVariant?.mrp,
     variants,

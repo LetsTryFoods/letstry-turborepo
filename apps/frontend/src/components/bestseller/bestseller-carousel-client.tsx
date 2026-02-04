@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { BestsellerCard } from "./bestseller-card";
+import { getCdnUrl } from "@/lib/image-utils";
 
 interface BestsellerCarouselClientProps {
   initialProducts: any[];
@@ -12,7 +13,6 @@ export function BestsellerCarouselClient({ initialProducts }: BestsellerCarousel
   const confettiContainerRef = useRef<HTMLDivElement>(null);
   const hasShownConfetti = useRef(false);
 
-  const imageUrl=process.env.NEXT_PUBLIC_API_IMAGE_URL
 
   useEffect(() => {
     sessionStorage.removeItem("bestsellerConfettiFired");
@@ -86,7 +86,7 @@ export function BestsellerCarouselClient({ initialProducts }: BestsellerCarousel
       ref={bestsellerRef}
       className="relative mt-6 px-4 sm:px-6 lg:px-8 pt-2 pb-8 sm:pb-12 md:pb-14 lg:pb-16 overflow-hidden"
       style={{
-        backgroundImage: `url(${imageUrl}/e9ba9be25cebd48419d4f1c78e0476f7.webp)`,
+        backgroundImage: `url(${getCdnUrl('e9ba9be25cebd48419d4f1c78e0476f7.webp')})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'

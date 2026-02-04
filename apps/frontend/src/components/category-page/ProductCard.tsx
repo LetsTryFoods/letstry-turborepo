@@ -11,6 +11,7 @@ import { CartService } from '@/lib/cart/cart-service';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { useCart } from '@/lib/cart/use-cart';
 import Link from 'next/link';
+import { getCdnUrl } from '@/lib/image-utils';
 
 export interface Product {
   id: string;
@@ -130,7 +131,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, categoryType 
         )}
         <div className="relative w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-40 lg:h-40">
           <Image
-            src={product.image}
+            src={getCdnUrl(product.image)}
             alt={product.name}
             fill
             className="object-contain"

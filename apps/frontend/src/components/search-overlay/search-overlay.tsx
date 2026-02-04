@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useSearchStore } from '@/stores/search-store';
 import Image from 'next/image';
+import { getCdnUrl } from '@/lib/image-utils';
 
 const POPULAR_SEARCHES = ['Bhujia', 'Murukku'];
 
@@ -15,7 +16,7 @@ const SUGGESTED_PRODUCTS = [
         id: '1',
         title: 'Makhana Mixture',
         price: 160,
-        image: 'https://d2tmwt8yl5m7qh.cloudfront.net/baf14c8fb442c0eadd20e2939de06905.webp',
+        image: getCdnUrl('baf14c8fb442c0eadd20e2939de06905.webp'),
         weight: '200 gm',
     },
     {
@@ -24,7 +25,7 @@ const SUGGESTED_PRODUCTS = [
         price: 160,
         mrp: 160,
         discount: '20% OFF',
-        image: 'https://d2tmwt8yl5m7qh.cloudfront.net/baf14c8fb442c0eadd20e2939de06905.webp',
+        image: getCdnUrl('baf14c8fb442c0eadd20e2939de06905.webp'),
         weight: '200 gm',
     },
 ];

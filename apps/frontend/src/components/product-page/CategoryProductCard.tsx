@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import Image from "next/image";
 import Link from "next/link";
+import { getCdnUrl } from "@/lib/image-utils";
 import { CartService } from "@/lib/cart/cart-service";
 import { useCart } from "@/lib/cart/use-cart";
 
@@ -41,7 +42,7 @@ export const CategoryProductCard: React.FC<CategoryProductCardProps> = ({
   const quantityInCart =
     cartItems.find((item) => item.productId === product._id)?.quantity || 0;
 
-  const displayImage = variant.thumbnailUrl || "/placeholder-image.svg";
+  const displayImage = getCdnUrl(variant.thumbnailUrl) || "/placeholder-image.svg";
 
   const handleAddToCart = async () => {
     if (isLoading) return;

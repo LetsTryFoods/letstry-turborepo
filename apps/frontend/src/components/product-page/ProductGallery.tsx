@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { ChevronLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { getCdnUrl } from '@/lib/image-utils';
 
 interface ProductGalleryProps {
   images: string[];
@@ -27,7 +28,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({ images, isOutOfS
 
         <div className="relative w-full h-full p-2 sm:p-4 md:p-6">
           <Image
-            src={images[selectedIndex]}
+            src={getCdnUrl(images[selectedIndex])}
             alt="Product Image"
             fill
             className="object-contain"
@@ -48,7 +49,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({ images, isOutOfS
           >
             <div className="relative w-full h-full">
               <Image
-                src={img}
+                src={getCdnUrl(img)}
                 alt={`Thumbnail ${idx + 1}`}
                 fill
                 className="object-contain"

@@ -7,6 +7,7 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import { useRouter } from "next/navigation";
 import type { Swiper as SwiperType } from 'swiper';
+import { getCdnUrl } from "@/lib/image-utils";
 
 const DESKTOP_BANNER_WIDTH = 1800;
 const DESKTOP_BANNER_HEIGHT = 500;
@@ -67,7 +68,7 @@ export const HeroCarouselClient = ({ banners }: HeroCarouselClientProps) => {
                   onClick={() => handleBannerClick(banner.url)}
                 >
                   <img
-                    src={banner.mobileImageUrl}
+                    src={getCdnUrl(banner.mobileImageUrl)}
                     alt={banner.headline || 'Promotional banner'}
                     width={MOBILE_BANNER_WIDTH}
                     height={MOBILE_BANNER_HEIGHT}
@@ -120,7 +121,7 @@ export const HeroCarouselClient = ({ banners }: HeroCarouselClientProps) => {
                   onClick={() => handleBannerClick(banner.url)}
                 >
                   <img
-                    src={banner.imageUrl}
+                    src={getCdnUrl(banner.imageUrl)}
                     alt={banner.headline || 'Promotional banner'}
                     width={DESKTOP_BANNER_WIDTH}
                     height={DESKTOP_BANNER_HEIGHT}

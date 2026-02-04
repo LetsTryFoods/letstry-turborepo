@@ -1,4 +1,5 @@
 "use client";
+import { getCdnUrl } from "@/lib/image-utils";
 
 interface Brand {
   name: string;
@@ -7,15 +8,15 @@ interface Brand {
 
 
 const brands: Brand[] = [
-  { name: "Amazon", img: "/images/amazon.png" },
-  { name: "BigBasket", img: "/images/bigbasket.png" },
-  { name: "Blinkit", img: "/images/blinkit.png" },
-  { name: "Flipkart", img: "/images/flipkart.png" },
-  { name: "Instamart", img: "/images/instamart.png" },
-  { name: "Reliance", img: "/images/reliance.png" },
-  { name: "Zepto", img: "/images/zepto.png" },
-  { name: "DMart", img: "/images/dmart.png" },
-  { name: "MilkBasket", img: "/images/milkbasket.png" },
+  { name: "Amazon", img: "amazon.webp" },
+  { name: "BigBasket", img: "bigbasket.webp" },
+  { name: "Blinkit", img: "blinkit.webp" },
+  { name: "Flipkart", img: "flipkart.webp" },
+  { name: "Instamart", img: "instamart.webp" },
+  { name: "Reliance", img: "reliance.webp" },
+  { name: "Zepto", img: "zepto.webp" },
+  { name: "DMart", img: "dmart.webp" },
+  { name: "MilkBasket", img: "milkbasket.webp" },
 ];
 
 interface LogoProps {
@@ -26,7 +27,7 @@ interface LogoProps {
 
 const Logo = ({ name, img, i }: LogoProps) => (
   <div key={`${name}-${i}`} className="brand-slide">
-    <img src={`${process.env.NEXT_PUBLIC_API_IMAGE_URL_OLD}${img}`} alt={name} loading="lazy" className="brand-img" draggable={false} />
+    <img src={getCdnUrl(img)} alt={name} loading="lazy" className="brand-img" draggable={false} />
   </div>
 );
 

@@ -7,6 +7,7 @@ import Link from "next/link";
 import { CartService } from '@/lib/cart/cart-service';
 import { useCart } from '@/lib/cart/use-cart';
 import { DiscountBadge } from '@/components/ui/discount-badge';
+import { getCdnUrl } from '@/lib/image-utils';
 
 type ProductVariant = {
   _id: string;
@@ -104,7 +105,7 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
       <Link href={`/product/${product.slug}`}>
         <div className="relative w-full aspect-square mb-2 sm:mb-4 bg-[#F3EEEA] rounded overflow-hidden">
           <Image
-            src={displayImages[0].url}
+            src={getCdnUrl(displayImages[0].url)}
             alt={displayImages[0].alt || product.name}
             fill
             className="object-contain p-4 sm:p-6"

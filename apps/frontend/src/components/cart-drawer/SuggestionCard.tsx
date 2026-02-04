@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import { getCdnUrl } from '@/lib/image-utils';
 
 interface SuggestionCardProps {
   id: string;
@@ -20,7 +21,7 @@ export const SuggestionCard: React.FC<SuggestionCardProps> = ({
     <div className="min-w-[160px] w-[160px] border border-gray-100 rounded-xl p-4 flex flex-col bg-white shadow-sm">
       <div className="relative w-full h-28 bg-gray-50 rounded-lg mb-3 overflow-hidden">
         <Image
-          src={image}
+          src={getCdnUrl(image)}
           alt={title}
           fill
           className="object-contain p-2"

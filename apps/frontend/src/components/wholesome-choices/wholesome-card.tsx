@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { getCdnUrl } from "@/lib/image-utils";
 import { ArrowUpRight } from "lucide-react";
 
 interface WholesomeCardProps {
@@ -23,9 +24,8 @@ export function WholesomeCard({
 }: WholesomeCardProps) {
   const content = (
     <div
-      className={`group rounded-2xl overflow-hidden flex flex-col h-[220px] md:h-[280px] lg:h-[400px] w-full transition-transform duration-300 ${
-        hasRange ? "hover:scale-105 cursor-pointer" : "opacity-70"
-      }`}
+      className={`group rounded-2xl overflow-hidden flex flex-col h-[220px] md:h-[280px] lg:h-[400px] w-full transition-transform duration-300 ${hasRange ? "hover:scale-105 cursor-pointer" : "opacity-70"
+        }`}
       style={{
         background: gradient,
         backgroundSize: "cover",
@@ -41,15 +41,14 @@ export function WholesomeCard({
       <div className="flex-1 flex items-center justify-center pt-6 sm:pt-8 md:pt-10 pb-2">
         <div className="relative w-full overflow-hidden flex items-center justify-center h-[90px] sm:h-[110px] md:h-[180px] lg:h-[260px] transition-transform duration-300 group-hover:scale-110">
           <Image
-            src={img}
+            src={getCdnUrl(img)}
             alt={name}
             width={280}
             height={260}
-            className={`transition-transform duration-300 ${
-              ["Muffins & Cakes", "No Maida Range"].includes(title)
+            className={`transition-transform duration-300 ${["Muffins & Cakes", "No Maida Range"].includes(title)
                 ? "object-contain w-auto max-w-[120px] sm:max-w-[120px] md:max-w-[200px] lg:max-w-[280px]"
                 : "w-full h-full object-contain"
-            }`}
+              }`}
             priority={false}
             loading="lazy"
           />

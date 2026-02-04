@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Category } from '@/types/category.types';
+import { getCdnUrl } from '@/lib/image-utils';
 
 export interface CategoryCardProps {
   category: Category;
@@ -12,11 +13,11 @@ export const CategoryCard = ({ category }: CategoryCardProps) => {
   return (
     <article className="flex flex-col items-center text-center">
       <Link href={category.href} className="group w-full">
-      {/* category-blob */}
+        {/* category-blob */}
         <div className="relative mx-auto w-full aspect-square flex items-center justify-center mb-1 sm:mb-2 md:mb-3">
           <div className="relative w-full h-full">
             <Image
-              src={category.imageUrl}
+              src={getCdnUrl(category.imageUrl)}
               alt={category.name}
               fill
               className="object-contain group-hover:scale-110 transition-transform duration-300"

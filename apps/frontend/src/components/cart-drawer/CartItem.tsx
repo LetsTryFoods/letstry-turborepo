@@ -1,6 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { Minus, Plus } from 'lucide-react';
+import { getCdnUrl } from '@/lib/image-utils';
 
 interface CartItemProps {
   id: string;
@@ -29,7 +30,7 @@ export const CartItem: React.FC<CartItemProps> = ({
     <div className="flex gap-4 p-4 bg-white border border-gray-100 rounded-xl mb-4">
       <div className="relative w-24 h-28 flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden border border-gray-100">
         <Image
-          src={image}
+          src={getCdnUrl(image)}
           alt={title}
           fill
           className="object-contain p-2"

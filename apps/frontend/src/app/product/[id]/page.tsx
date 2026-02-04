@@ -7,6 +7,7 @@ import { ProductDetails } from "@/components/product-page/ProductDetails";
 import { ProductAccordion } from "@/components/product-page/ProductAccordion";
 import { InfoTable } from "@/components/product-page/InfoTable";
 import { CategoryProductsSections } from "@/components/product-page/CategoryProductsSections";
+import { getCdnUrl } from "@/lib/image-utils";
 
 export const revalidate = 1800;
 
@@ -41,9 +42,9 @@ export async function generateMetadata({
         seo?.ogDescription || seo?.metaDescription || defaultDescription,
       //check this is array or not in backend according to open graph specs
       images: seo?.ogImage
-        ? [{ url: seo.ogImage }]
+        ? [{ url: getCdnUrl(seo.ogImage) }]
         : product?.defaultVariant?.images?.[0]?.url
-          ? [{ url: product.defaultVariant.images[0].url }]
+          ? [{ url: getCdnUrl(product.defaultVariant.images[0].url) }]
           : [],
       type: "website",
     },
@@ -55,9 +56,9 @@ export async function generateMetadata({
       //check this is array or not in backend according to open graph specs
 
       images: seo?.ogImage
-        ? [seo.ogImage]
+        ? [getCdnUrl(seo.ogImage)]
         : product?.defaultVariant?.images?.[0]?.url
-          ? [product.defaultVariant.images[0].url]
+          ? [getCdnUrl(product.defaultVariant.images[0].url)]
           : [],
     },
   };
