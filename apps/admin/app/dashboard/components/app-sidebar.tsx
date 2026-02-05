@@ -50,6 +50,11 @@ const items = [
     url: "/dashboard/categories",
     icon: FolderTree,
   },
+  {
+    title: "Blogs",
+    url: "/dashboard/blogs",
+    icon: FileText,
+  },
   // {
   //   title: "Address",
   //   url: "/dashboard/address",

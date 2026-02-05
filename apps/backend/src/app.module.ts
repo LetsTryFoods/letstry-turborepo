@@ -30,6 +30,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BullBoardModule } from './bull-board/bull-board.module';
 import { RedirectModule } from './redirect/redirect.module';
+import { BlogModule } from './blog/blog.module';
 
 @Module({
   imports: [
@@ -67,6 +68,7 @@ import { RedirectModule } from './redirect/redirect.module';
     BoxSizeModule,
     ShipmentModule,
     RedirectModule,
+    BlogModule,
     AuthenticationModule,
     AppCacheModule,
   ],

@@ -26,6 +26,12 @@ type Documents = {
     "\n  mutation UpdateUser($input: UpdateUserInput!) {\n    updateUser(input: $input) {\n      _id\n      firstName\n      lastName\n      email\n      phoneNumber\n      dateOfBirth\n    }\n  }\n": typeof types.UpdateUserDocument,
     "\n  query Me {\n    me {\n      _id\n      phoneNumber\n      firstName\n      lastName\n      email\n      dateOfBirth\n    }\n  }\n": typeof types.MeDocument,
     "\n  query GetActiveBanners {\n    activeBanners {\n      _id\n      name\n      headline\n      subheadline\n      description\n      imageUrl\n      mobileImageUrl\n      thumbnailUrl\n      url\n      ctaText\n      position\n      isActive\n      startDate\n      endDate\n      backgroundColor\n      textColor\n    }\n  }\n": typeof types.GetActiveBannersDocument,
+    "\n  mutation CreateBlog($input: CreateBlogInput!) {\n    createBlog(input: $input) {\n      _id\n      slug\n      title\n      excerpt \n      content\n      image\n      date\n      author\n      category\n      isActive\n      position\n    }\n  }\n": typeof types.CreateBlogDocument,
+    "\n  mutation UpdateBlog($id: ID!, $input: UpdateBlogInput!) {\n    updateBlog(id: $id, input: $input) {\n      _id\n      slug\n      title\n      excerpt\n      content\n      image\n      date\n      author\n      category\n      isActive\n      position\n    }\n  }\n": typeof types.UpdateBlogDocument,
+    "\n  mutation DeleteBlog($id: ID!) {\n    deleteBlog(id: $id) {\n      _id\n      slug\n      title\n    }\n  }\n": typeof types.DeleteBlogDocument,
+    "\n  query GetActiveBlogs {\n    activeBlogs {\n      _id\n      slug\n      title\n      excerpt\n      content\n      image\n      date\n      author\n      category\n      isActive\n      position\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.GetActiveBlogsDocument,
+    "\n  query GetBlogBySlug($slug: String!) {\n    blogBySlug(slug: $slug) {\n      _id\n      slug\n      title\n      excerpt\n      content\n      image\n      date\n      author\n      category\n      isActive\n      position\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.GetBlogBySlugDocument,
+    "\n  query GetAllBlogs {\n    blogs {\n      _id\n      slug\n      title\n      excerpt\n      content\n      image\n      date\n      author\n      category\n      isActive\n      position\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.GetAllBlogsDocument,
     "\n  query GetMyCart {\n    myCart {\n      _id\n      status\n      couponCode\n      items {\n        productId\n        variantId\n        sku\n        name\n        quantity\n        unitPrice\n        totalPrice\n        mrp\n        imageUrl\n        attributes\n      }\n      totalsSummary {\n        subtotal\n        discountAmount\n        shippingCost\n        estimatedTax\n        handlingCharge\n        grandTotal\n      }\n      createdAt\n      updatedAt\n    }\n  }\n": typeof types.GetMyCartDocument,
     "\n  mutation AddToCart($input: AddToCartInput!) {\n    addToCart(input: $input) {\n      _id\n      items {\n        productId\n        name\n        quantity\n        unitPrice\n        totalPrice\n        attributes\n      }\n      totalsSummary {\n        subtotal\n        discountAmount\n        grandTotal\n      }\n    }\n  }\n": typeof types.AddToCartDocument,
     "\n  mutation UpdateCartItem($input: UpdateCartItemInput!) {\n    updateCartItem(input: $input) {\n      _id\n      items {\n        productId\n        quantity\n        totalPrice\n      }\n      totalsSummary {\n        grandTotal\n      }\n    }\n  }\n": typeof types.UpdateCartItemDocument,
@@ -60,6 +66,12 @@ const documents: Documents = {
     "\n  mutation UpdateUser($input: UpdateUserInput!) {\n    updateUser(input: $input) {\n      _id\n      firstName\n      lastName\n      email\n      phoneNumber\n      dateOfBirth\n    }\n  }\n": types.UpdateUserDocument,
     "\n  query Me {\n    me {\n      _id\n      phoneNumber\n      firstName\n      lastName\n      email\n      dateOfBirth\n    }\n  }\n": types.MeDocument,
     "\n  query GetActiveBanners {\n    activeBanners {\n      _id\n      name\n      headline\n      subheadline\n      description\n      imageUrl\n      mobileImageUrl\n      thumbnailUrl\n      url\n      ctaText\n      position\n      isActive\n      startDate\n      endDate\n      backgroundColor\n      textColor\n    }\n  }\n": types.GetActiveBannersDocument,
+    "\n  mutation CreateBlog($input: CreateBlogInput!) {\n    createBlog(input: $input) {\n      _id\n      slug\n      title\n      excerpt \n      content\n      image\n      date\n      author\n      category\n      isActive\n      position\n    }\n  }\n": types.CreateBlogDocument,
+    "\n  mutation UpdateBlog($id: ID!, $input: UpdateBlogInput!) {\n    updateBlog(id: $id, input: $input) {\n      _id\n      slug\n      title\n      excerpt\n      content\n      image\n      date\n      author\n      category\n      isActive\n      position\n    }\n  }\n": types.UpdateBlogDocument,
+    "\n  mutation DeleteBlog($id: ID!) {\n    deleteBlog(id: $id) {\n      _id\n      slug\n      title\n    }\n  }\n": types.DeleteBlogDocument,
+    "\n  query GetActiveBlogs {\n    activeBlogs {\n      _id\n      slug\n      title\n      excerpt\n      content\n      image\n      date\n      author\n      category\n      isActive\n      position\n      createdAt\n      updatedAt\n    }\n  }\n": types.GetActiveBlogsDocument,
+    "\n  query GetBlogBySlug($slug: String!) {\n    blogBySlug(slug: $slug) {\n      _id\n      slug\n      title\n      excerpt\n      content\n      image\n      date\n      author\n      category\n      isActive\n      position\n      createdAt\n      updatedAt\n    }\n  }\n": types.GetBlogBySlugDocument,
+    "\n  query GetAllBlogs {\n    blogs {\n      _id\n      slug\n      title\n      excerpt\n      content\n      image\n      date\n      author\n      category\n      isActive\n      position\n      createdAt\n      updatedAt\n    }\n  }\n": types.GetAllBlogsDocument,
     "\n  query GetMyCart {\n    myCart {\n      _id\n      status\n      couponCode\n      items {\n        productId\n        variantId\n        sku\n        name\n        quantity\n        unitPrice\n        totalPrice\n        mrp\n        imageUrl\n        attributes\n      }\n      totalsSummary {\n        subtotal\n        discountAmount\n        shippingCost\n        estimatedTax\n        handlingCharge\n        grandTotal\n      }\n      createdAt\n      updatedAt\n    }\n  }\n": types.GetMyCartDocument,
     "\n  mutation AddToCart($input: AddToCartInput!) {\n    addToCart(input: $input) {\n      _id\n      items {\n        productId\n        name\n        quantity\n        unitPrice\n        totalPrice\n        attributes\n      }\n      totalsSummary {\n        subtotal\n        discountAmount\n        grandTotal\n      }\n    }\n  }\n": types.AddToCartDocument,
     "\n  mutation UpdateCartItem($input: UpdateCartItemInput!) {\n    updateCartItem(input: $input) {\n      _id\n      items {\n        productId\n        quantity\n        totalPrice\n      }\n      totalsSummary {\n        grandTotal\n      }\n    }\n  }\n": types.UpdateCartItemDocument,
@@ -127,6 +139,30 @@ export function graphql(source: "\n  query Me {\n    me {\n      _id\n      phon
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  query GetActiveBanners {\n    activeBanners {\n      _id\n      name\n      headline\n      subheadline\n      description\n      imageUrl\n      mobileImageUrl\n      thumbnailUrl\n      url\n      ctaText\n      position\n      isActive\n      startDate\n      endDate\n      backgroundColor\n      textColor\n    }\n  }\n"): typeof import('./graphql').GetActiveBannersDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation CreateBlog($input: CreateBlogInput!) {\n    createBlog(input: $input) {\n      _id\n      slug\n      title\n      excerpt \n      content\n      image\n      date\n      author\n      category\n      isActive\n      position\n    }\n  }\n"): typeof import('./graphql').CreateBlogDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation UpdateBlog($id: ID!, $input: UpdateBlogInput!) {\n    updateBlog(id: $id, input: $input) {\n      _id\n      slug\n      title\n      excerpt\n      content\n      image\n      date\n      author\n      category\n      isActive\n      position\n    }\n  }\n"): typeof import('./graphql').UpdateBlogDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation DeleteBlog($id: ID!) {\n    deleteBlog(id: $id) {\n      _id\n      slug\n      title\n    }\n  }\n"): typeof import('./graphql').DeleteBlogDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetActiveBlogs {\n    activeBlogs {\n      _id\n      slug\n      title\n      excerpt\n      content\n      image\n      date\n      author\n      category\n      isActive\n      position\n      createdAt\n      updatedAt\n    }\n  }\n"): typeof import('./graphql').GetActiveBlogsDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetBlogBySlug($slug: String!) {\n    blogBySlug(slug: $slug) {\n      _id\n      slug\n      title\n      excerpt\n      content\n      image\n      date\n      author\n      category\n      isActive\n      position\n      createdAt\n      updatedAt\n    }\n  }\n"): typeof import('./graphql').GetBlogBySlugDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetAllBlogs {\n    blogs {\n      _id\n      slug\n      title\n      excerpt\n      content\n      image\n      date\n      author\n      category\n      isActive\n      position\n      createdAt\n      updatedAt\n    }\n  }\n"): typeof import('./graphql').GetAllBlogsDocument;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

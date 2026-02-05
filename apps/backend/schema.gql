@@ -1146,6 +1146,22 @@ type PaginatedRedirects {
   limit: Int!
 }
 
+type Blog {
+  _id: ID!
+  slug: String!
+  title: String!
+  excerpt: String!
+  content: String!
+  image: String
+  date: String
+  author: String!
+  category: String!
+  isActive: Boolean
+  position: Float
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
 input BoxDimensionsInput {
   l: Float!
   w: Float!
@@ -1220,6 +1236,10 @@ type Query {
   redirect(id: String!): RedirectType!
   redirectByPath(fromPath: String!): RedirectType
   allActiveRedirects: [RedirectType!]!
+  blogs: [Blog!]!
+  activeBlogs: [Blog!]!
+  blog(id: ID!): Blog
+  blogBySlug(slug: String!): Blog
 }
 
 input PaginationInput {
@@ -1399,6 +1419,9 @@ type Mutation {
   createRedirect(input: CreateRedirectInput!): RedirectType!
   updateRedirect(id: String!, input: UpdateRedirectInput!): RedirectType!
   deleteRedirect(id: String!): Boolean!
+  createBlog(input: CreateBlogInput!): Blog!
+  updateBlog(id: ID!, input: UpdateBlogInput!): Blog!
+  deleteBlog(id: ID!): Blog!
   sendOtp(phoneNumber: String!): String!
   verifyWhatsAppOtp(phoneNumber: String!, otp: String!, input: CreateUserInput): String!
   verifyOtpAndLogin(idToken: String!, input: CreateUserInput): String!
@@ -1899,6 +1922,32 @@ input UpdateRedirectInput {
   isActive: Boolean
   description: String
   source: String
+}
+
+input CreateBlogInput {
+  slug: String!
+  title: String!
+  excerpt: String!
+  content: String!
+  image: String
+  date: String
+  author: String!
+  category: String!
+  isActive: Boolean
+  position: Float
+}
+
+input UpdateBlogInput {
+  slug: String
+  title: String
+  excerpt: String
+  content: String
+  image: String
+  date: String
+  author: String
+  category: String
+  isActive: Boolean
+  position: Float
 }
 
 input CreateUserInput {

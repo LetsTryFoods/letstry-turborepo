@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { Button } from "@/components/ui/button"
-import { Trash2 } from "lucide-react"
+import { Trash2, CheckCircle2 } from "lucide-react"
 import Uppy from '@uppy/core'
 import Dashboard from '@uppy/dashboard'
 import Compressor from '@uppy/compressor'
@@ -291,11 +291,18 @@ export function ImageUpload({ onImagesChange, initialImages = [], maxFiles = 10,
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
-                <img
-                  src={image.preview}
-                  alt={`Preview ${index + 1}`}
-                  className="w-full h-32 object-cover rounded"
-                />
+                <div className="relative">
+                  {image.finalUrl && (
+                    <div className="absolute -top-2 -right-2 bg-green-500 rounded-full p-1 shadow-md z-10">
+                      <CheckCircle2 className="h-4 w-4 text-white" />
+                    </div>
+                  )}
+                  <img
+                    src={image.preview}
+                    alt={`Preview ${index + 1}`}
+                    className="w-full h-32 object-cover rounded"
+                  />
+                </div>
                 <input
                   type="text"
                   id={`alt-text-${image.id}`}
@@ -308,10 +315,22 @@ export function ImageUpload({ onImagesChange, initialImages = [], maxFiles = 10,
                 <div className="text-xs text-gray-500 space-y-1">
                   <div>Size: {(image.file.size / 1024 / 1024).toFixed(2)} MB</div>
                   {image.finalUrl && (
-                    <div className="truncate">
-                      URL: <a href={image.finalUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                        {image.finalUrl}
-                      </a>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-1 text-green-600 font-medium">
+                        <CheckCircle2 className="h-3 w-3" />
+                        <span>Uploaded Successfully</span>
+                      </div>
+                      <div className="break-all">
+                        <span className="font-medium">URL:</span>{' '}
+                        <a
+                          href={image.finalUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline"
+                        >
+                          {image.finalUrl}
+                        </a>
+                      </div>
                     </div>
                   )}
                 </div>

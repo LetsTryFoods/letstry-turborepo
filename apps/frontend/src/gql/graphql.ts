@@ -127,6 +127,23 @@ export type BatchScanResult = {
   totalProcessed: Scalars['Int']['output'];
 };
 
+export type Blog = {
+  __typename?: 'Blog';
+  _id: Scalars['ID']['output'];
+  author: Scalars['String']['output'];
+  category: Scalars['String']['output'];
+  content: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  date?: Maybe<Scalars['String']['output']>;
+  excerpt: Scalars['String']['output'];
+  image?: Maybe<Scalars['String']['output']>;
+  isActive?: Maybe<Scalars['Boolean']['output']>;
+  position?: Maybe<Scalars['Float']['output']>;
+  slug: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
 export type BoxDimensions = {
   __typename?: 'BoxDimensions';
   h: Scalars['Float']['output'];
@@ -381,6 +398,19 @@ export type CreateBannerInput = {
   textColor?: InputMaybe<Scalars['String']['input']>;
   thumbnailUrl?: InputMaybe<Scalars['String']['input']>;
   url: Scalars['String']['input'];
+};
+
+export type CreateBlogInput = {
+  author: Scalars['String']['input'];
+  category: Scalars['String']['input'];
+  content: Scalars['String']['input'];
+  date?: InputMaybe<Scalars['String']['input']>;
+  excerpt: Scalars['String']['input'];
+  image?: InputMaybe<Scalars['String']['input']>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  position?: InputMaybe<Scalars['Float']['input']>;
+  slug: Scalars['String']['input'];
+  title: Scalars['String']['input'];
 };
 
 export type CreateBoxSizeInput = {
@@ -816,6 +846,7 @@ export type Mutation = {
   createAddress: Address;
   createAdmin: Scalars['String']['output'];
   createBanner: Banner;
+  createBlog: Blog;
   createBoxSize: BoxSize;
   createCategory: Category;
   createCoupon: Coupon;
@@ -828,6 +859,7 @@ export type Mutation = {
   createShipment: CreateShipmentResponse;
   deleteAddress: Address;
   deleteBanner: Banner;
+  deleteBlog: Blog;
   deleteBoxSize: Scalars['Boolean']['output'];
   deleteCategorySeo: Scalars['Boolean']['output'];
   deleteCoupon: Coupon;
@@ -857,6 +889,7 @@ export type Mutation = {
   unsubscribeNewsletter: SubscribeNewsletterResponse;
   updateAddress: Address;
   updateBanner: Banner;
+  updateBlog: Blog;
   updateBoxSize: BoxSize;
   updateCartItem: Cart;
   updateCategory: Category;
@@ -952,6 +985,11 @@ export type MutationCreateBannerArgs = {
 };
 
 
+export type MutationCreateBlogArgs = {
+  input: CreateBlogInput;
+};
+
+
 export type MutationCreateBoxSizeArgs = {
   input: CreateBoxSizeInput;
 };
@@ -1008,6 +1046,11 @@ export type MutationDeleteAddressArgs = {
 
 
 export type MutationDeleteBannerArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteBlogArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -1148,6 +1191,12 @@ export type MutationUpdateAddressArgs = {
 export type MutationUpdateBannerArgs = {
   id: Scalars['ID']['input'];
   input: UpdateBannerInput;
+};
+
+
+export type MutationUpdateBlogArgs = {
+  id: Scalars['ID']['input'];
+  input: UpdateBlogInput;
 };
 
 
@@ -1897,11 +1946,15 @@ export type ProductVariant = {
 export type Query = {
   __typename?: 'Query';
   activeBanners: Array<Banner>;
+  activeBlogs: Array<Blog>;
   activeCoupons: Array<Coupon>;
   address: Address;
   allActiveRedirects: Array<RedirectType>;
   banner?: Maybe<Banner>;
   banners: Array<Banner>;
+  blog?: Maybe<Blog>;
+  blogBySlug?: Maybe<Blog>;
+  blogs: Array<Blog>;
   categories: PaginatedCategories;
   category?: Maybe<Category>;
   categoryBySlug?: Maybe<Category>;
@@ -1973,6 +2026,16 @@ export type QueryAddressArgs = {
 
 export type QueryBannerArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryBlogArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryBlogBySlugArgs = {
+  slug: Scalars['String']['input'];
 };
 
 
@@ -2511,6 +2574,19 @@ export type UpdateBannerInput = {
   url?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type UpdateBlogInput = {
+  author?: InputMaybe<Scalars['String']['input']>;
+  category?: InputMaybe<Scalars['String']['input']>;
+  content?: InputMaybe<Scalars['String']['input']>;
+  date?: InputMaybe<Scalars['String']['input']>;
+  excerpt?: InputMaybe<Scalars['String']['input']>;
+  image?: InputMaybe<Scalars['String']['input']>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  position?: InputMaybe<Scalars['Float']['input']>;
+  slug?: InputMaybe<Scalars['String']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type UpdateBoxSizeInput = {
   cost?: InputMaybe<Scalars['Float']['input']>;
   internalDimensions?: InputMaybe<DimensionsInput>;
@@ -2719,6 +2795,45 @@ export type GetActiveBannersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type GetActiveBannersQuery = { __typename?: 'Query', activeBanners: Array<{ __typename?: 'Banner', _id: string, name: string, headline: string, subheadline: string, description?: string | null, imageUrl: string, mobileImageUrl: string, thumbnailUrl?: string | null, url: string, ctaText: string, position: number, isActive: boolean, startDate?: any | null, endDate?: any | null, backgroundColor?: string | null, textColor?: string | null }> };
+
+export type CreateBlogMutationVariables = Exact<{
+  input: CreateBlogInput;
+}>;
+
+
+export type CreateBlogMutation = { __typename?: 'Mutation', createBlog: { __typename?: 'Blog', _id: string, slug: string, title: string, excerpt: string, content: string, image?: string | null, date?: string | null, author: string, category: string, isActive?: boolean | null, position?: number | null } };
+
+export type UpdateBlogMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: UpdateBlogInput;
+}>;
+
+
+export type UpdateBlogMutation = { __typename?: 'Mutation', updateBlog: { __typename?: 'Blog', _id: string, slug: string, title: string, excerpt: string, content: string, image?: string | null, date?: string | null, author: string, category: string, isActive?: boolean | null, position?: number | null } };
+
+export type DeleteBlogMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteBlogMutation = { __typename?: 'Mutation', deleteBlog: { __typename?: 'Blog', _id: string, slug: string, title: string } };
+
+export type GetActiveBlogsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetActiveBlogsQuery = { __typename?: 'Query', activeBlogs: Array<{ __typename?: 'Blog', _id: string, slug: string, title: string, excerpt: string, content: string, image?: string | null, date?: string | null, author: string, category: string, isActive?: boolean | null, position?: number | null, createdAt: any, updatedAt: any }> };
+
+export type GetBlogBySlugQueryVariables = Exact<{
+  slug: Scalars['String']['input'];
+}>;
+
+
+export type GetBlogBySlugQuery = { __typename?: 'Query', blogBySlug?: { __typename?: 'Blog', _id: string, slug: string, title: string, excerpt: string, content: string, image?: string | null, date?: string | null, author: string, category: string, isActive?: boolean | null, position?: number | null, createdAt: any, updatedAt: any } | null };
+
+export type GetAllBlogsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetAllBlogsQuery = { __typename?: 'Query', blogs: Array<{ __typename?: 'Blog', _id: string, slug: string, title: string, excerpt: string, content: string, image?: string | null, date?: string | null, author: string, category: string, isActive?: boolean | null, position?: number | null, createdAt: any, updatedAt: any }> };
 
 export type GetMyCartQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -3026,6 +3141,106 @@ export const GetActiveBannersDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<GetActiveBannersQuery, GetActiveBannersQueryVariables>;
+export const CreateBlogDocument = new TypedDocumentString(`
+    mutation CreateBlog($input: CreateBlogInput!) {
+  createBlog(input: $input) {
+    _id
+    slug
+    title
+    excerpt
+    content
+    image
+    date
+    author
+    category
+    isActive
+    position
+  }
+}
+    `) as unknown as TypedDocumentString<CreateBlogMutation, CreateBlogMutationVariables>;
+export const UpdateBlogDocument = new TypedDocumentString(`
+    mutation UpdateBlog($id: ID!, $input: UpdateBlogInput!) {
+  updateBlog(id: $id, input: $input) {
+    _id
+    slug
+    title
+    excerpt
+    content
+    image
+    date
+    author
+    category
+    isActive
+    position
+  }
+}
+    `) as unknown as TypedDocumentString<UpdateBlogMutation, UpdateBlogMutationVariables>;
+export const DeleteBlogDocument = new TypedDocumentString(`
+    mutation DeleteBlog($id: ID!) {
+  deleteBlog(id: $id) {
+    _id
+    slug
+    title
+  }
+}
+    `) as unknown as TypedDocumentString<DeleteBlogMutation, DeleteBlogMutationVariables>;
+export const GetActiveBlogsDocument = new TypedDocumentString(`
+    query GetActiveBlogs {
+  activeBlogs {
+    _id
+    slug
+    title
+    excerpt
+    content
+    image
+    date
+    author
+    category
+    isActive
+    position
+    createdAt
+    updatedAt
+  }
+}
+    `) as unknown as TypedDocumentString<GetActiveBlogsQuery, GetActiveBlogsQueryVariables>;
+export const GetBlogBySlugDocument = new TypedDocumentString(`
+    query GetBlogBySlug($slug: String!) {
+  blogBySlug(slug: $slug) {
+    _id
+    slug
+    title
+    excerpt
+    content
+    image
+    date
+    author
+    category
+    isActive
+    position
+    createdAt
+    updatedAt
+  }
+}
+    `) as unknown as TypedDocumentString<GetBlogBySlugQuery, GetBlogBySlugQueryVariables>;
+export const GetAllBlogsDocument = new TypedDocumentString(`
+    query GetAllBlogs {
+  blogs {
+    _id
+    slug
+    title
+    excerpt
+    content
+    image
+    date
+    author
+    category
+    isActive
+    position
+    createdAt
+    updatedAt
+  }
+}
+    `) as unknown as TypedDocumentString<GetAllBlogsQuery, GetAllBlogsQueryVariables>;
 export const GetMyCartDocument = new TypedDocumentString(`
     query GetMyCart {
   myCart {

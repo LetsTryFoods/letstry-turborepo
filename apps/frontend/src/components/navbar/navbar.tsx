@@ -61,8 +61,8 @@ export const Navbar = ({ initialAuth, categories = [] }: NavbarProps) => {
           { href: "/bestselling-combos", label: "Combos" },
         ],
       },
-      // { href: "/bestselling-combos", label: "Combos" },
-      // {href: "/blog", label: "Blog"},
+
+      { href: "/blog", label: "Blog" },
       { href: "/about-us", label: "About us" },
       ...(!isAuthenticated ? [{ href: "#", label: "Login", isLogin: true }] : []),
     ],

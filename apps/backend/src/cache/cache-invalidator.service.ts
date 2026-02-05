@@ -10,7 +10,7 @@ export class CacheInvalidatorService {
   constructor(
     private readonly cacheService: CacheService,
     private readonly cacheKeyFactory: CacheKeyFactory,
-  ) {}
+  ) { }
 
   /**
    * Invalidate cache when a product is created, updated, or deleted.
@@ -90,5 +90,11 @@ export class CacheInvalidatorService {
       await this.cacheService.bumpVersion(
         this.cacheKeyFactory.getPolicyDetailVersionKey(policy.type),
       );
+  }
+
+  async invalidateBlog() {
+    await this.cacheService.bumpVersion(
+      this.cacheKeyFactory.getBlogListVersionKey(),
+    );
   }
 }

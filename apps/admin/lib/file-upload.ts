@@ -3,7 +3,7 @@ import type { PresignedUrlRequest, PresignedUrlResponse } from '@/types/file-upl
 
 export async function getPresignedUrl(request: PresignedUrlRequest): Promise<PresignedUrlResponse> {
   try {
-    const response = await api.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/files/presigned-url`, request)
+    const response = await api.post('/files/presigned-url', request)
     return response.data
   } catch (error) {
     console.error('Failed to get presigned URL:', error)
@@ -34,12 +34,10 @@ export async function uploadFileToS3(uploadUrl: string, file: File): Promise<voi
 
 export async function deleteFileFromS3(key: string): Promise<void> {
   try {
-    // const response = await api.delete(`http://localhost:5000/files/${key}`)
-    // if (!response.data.success) {
-    //   throw new Error('Delete request failed')
-    // }
-    const a = true;
-    // return a;
+    const response = await api.delete(`/files/${key}`)
+    if (!response.data) {
+      throw new Error('Delete request failed')
+    }
   } catch (error) {
     console.error('Failed to delete file from S3:', error)
     throw new Error('Failed to delete file')

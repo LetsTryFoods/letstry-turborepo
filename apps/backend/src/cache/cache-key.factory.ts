@@ -121,4 +121,20 @@ export class CacheKeyFactory {
   getPolicyDetailKey(slug: string, version: number): string {
     return `policy:detail:${slug}:v${version}`;
   }
+
+  getBlogListVersionKey(): string {
+    return `blog:list:version`;
+  }
+
+  getBlogListKey(version: number, type: string = 'all'): string {
+    return `blog:list:v${version}:type:${type}`;
+  }
+
+  getBlogDetailVersionKey(slug: string): string {
+    return `blog:detail:${slug}:version`;
+  }
+
+  getBlogDetailKey(slug: string, version: number): string {
+    return `blog:detail:${slug}:v${version}`;
+  }
 }
