@@ -72,6 +72,7 @@ export const HealthySnacking = () => {
                       alt={slide.tag}
                       fill
                       className="object-cover rounded-xl shadow-md"
+                      sizes="(max-width: 768px) 100vw, 480px"
                     />
                     <span className="absolute bottom-3 right-3 bg-white/40 p-2 rounded-full shadow group-hover:bg-white/60 transition-colors">
                       <ArrowUpRight className="w-5 h-5 md:w-6 md:h-6 text-white" />

@@ -34,6 +34,7 @@ export const CartItem: React.FC<CartItemProps> = ({
           alt={title}
           fill
           className="object-contain p-2"
+          sizes="96px"
         />
       </div>
       <div className="flex-1 flex flex-col">

@@ -75,6 +75,7 @@ export const HeroCarouselClient = ({ banners }: HeroCarouselClientProps) => {
                     priority={i === 0}
                     className="object-contain rounded-[10px] bg-gray-100"
                     sizes="(max-width: 1024px) 100vw, 400px"
+                    {...(i === 0 ? { fetchPriority: "high" } : {})}
                   />
                   <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10">
                     {banners.map((_, j) => (
@@ -126,7 +127,8 @@ export const HeroCarouselClient = ({ banners }: HeroCarouselClientProps) => {
                     fill
                     priority={i === 0}
                     className="object-cover rounded-[16px] bg-gray-100"
-                    sizes="100vw"
+                    sizes="(max-width: 1280px) 100vw, 1280px"
+                    {...(i === 0 ? { fetchPriority: "high" } : {})}
                   />
                   <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-10">
                     {banners.map((_, j) => (

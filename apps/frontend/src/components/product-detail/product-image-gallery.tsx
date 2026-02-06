@@ -21,6 +21,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
           fill
           className="object-contain p-8"
           priority
+          sizes="(max-width: 768px) 100vw, 500px"
         />
       </div>
 
@@ -30,8 +31,8 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
             key={index}
             onClick={() => setSelectedImage(index)}
             className={`relative aspect-square border-2 rounded-lg overflow-hidden transition-all ${selectedImage === index
-                ? 'border-teal-600'
-                : 'border-gray-200 hover:border-gray-300'
+              ? 'border-teal-600'
+              : 'border-gray-200 hover:border-gray-300'
               }`}
           >
             <Image
@@ -39,6 +40,7 @@ export function ProductImageGallery({ images, productName }: ProductImageGallery
               alt={`${productName} thumbnail ${index + 1}`}
               fill
               className="object-contain p-2"
+              sizes="80px"
             />
           </button>
         ))}

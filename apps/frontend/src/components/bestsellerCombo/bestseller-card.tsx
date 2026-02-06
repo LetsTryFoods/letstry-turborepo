@@ -109,7 +109,7 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
             alt={displayImages[0].alt || product.name}
             fill
             className="object-contain p-4 sm:p-6"
-            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 250px"
           />
         </div>
         <h3 className="text-sm sm:text-base font-semibold text-center text-gray-900 line-clamp-2 min-h-[48px] p-1 sm:p-2">

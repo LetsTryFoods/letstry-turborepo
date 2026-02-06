@@ -99,6 +99,7 @@ export const SearchOverlay = () => {
                                             alt={product.title}
                                             fill
                                             className="object-contain p-4"
+                                            sizes="(max-width: 768px) 50vw, 200px"
                                         />
                                     </div>
 

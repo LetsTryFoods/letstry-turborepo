@@ -137,7 +137,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, categoryType 
             className="object-contain"
             loading="lazy"
             quality={75}
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            sizes="(max-width: 640px) 112px, (max-width: 768px) 128px, (max-width: 1024px) 144px, 160px"
           />
         </div>
       </div>
