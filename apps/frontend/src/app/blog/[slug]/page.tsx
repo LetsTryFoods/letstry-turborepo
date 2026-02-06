@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getBlogBySlug, getActiveBlogs } from '@/lib/blog';
 import type { Metadata } from 'next';
+import { getCdnUrl } from '@/lib/image-utils';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -109,7 +110,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
         {blog.image && (
           <div className="relative h-96 mb-8 rounded-lg overflow-hidden bg-gray-100">
             <Image
-              src={blog.image}
+              src={getCdnUrl(blog.image)}
               alt={blog.title}
               fill
               className="object-cover"
@@ -137,7 +138,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
                   <div className="relative h-40 bg-gray-100">
                     {relatedBlog.image ? (
                       <Image
-                        src={relatedBlog.image}
+                        src={getCdnUrl(relatedBlog.image)}
                         alt={relatedBlog.title}
                         fill
                         className="object-cover"
