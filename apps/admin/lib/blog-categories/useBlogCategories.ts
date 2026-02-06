@@ -8,7 +8,7 @@ import {
 } from '../graphql/blog-categories';
 
 export function useBlogCategories() {
-    const { data, loading, error, refetch } = useQuery(GET_BLOG_CATEGORIES);
+    const { data, loading, error, refetch } = useQuery<{ blogCategories: any[] }>(GET_BLOG_CATEGORIES);
 
     const [createBlogCategory] = useMutation(CREATE_BLOG_CATEGORY, {
         refetchQueries: [{ query: GET_BLOG_CATEGORIES }],
@@ -34,7 +34,7 @@ export function useBlogCategories() {
 }
 
 export function useActiveBlogCategories() {
-    const { data, loading, error } = useQuery(GET_ACTIVE_BLOG_CATEGORIES);
+    const { data, loading, error } = useQuery<{ activeBlogCategories: any[] }>(GET_ACTIVE_BLOG_CATEGORIES);
 
     return {
         activeCategories: data?.activeBlogCategories || [],
