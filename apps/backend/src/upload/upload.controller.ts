@@ -10,7 +10,7 @@ import {
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { UploadService } from './upload.service';
 import * as crypto from 'crypto';
-import { Public } from '../common/decorators/public.decorator';
+import { Public } from 'src/common/decorators/public.decorator';
 
 @Controller('files')
 export class UploadController {
@@ -60,8 +60,7 @@ export class UploadController {
       files: uploadedFiles,
     };
   }
-
-  @Public()
+ @Public()
   @Post('presigned-url')
   async getPresignedUploadUrl(
     @Body() body: { filename: string; contentType?: string },
