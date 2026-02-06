@@ -19,17 +19,23 @@ import Script from 'next/script';
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: 'swap',
+  preload: true,
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: 'swap',
+  preload: true,
 });
 
 const agbalumo = Agbalumo({
   variable: "--font-agbalumo",
   subsets: ["latin"],
   weight: "400",
+  display: 'swap',
+  preload: true,
 });
 
 export const metadata: Metadata = {
@@ -43,21 +49,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const gtmId = process.env.NEXT_PUBLIC_GTM_ID;
-  
+
   return (
     <html lang="en">
       <head>
-        {/* <Script
-          data-partytown-config
-          dangerouslySetInnerHTML={{
-            __html: `
-              partytown = {
-                forward: ['dataLayer.push']
-              };
-            `,
-          }}
-        />
-        <Script src="/~partytown/partytown.js" /> */}
+        <link rel="preconnect" href="https://cdn.krishnaseth.xyz" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://admin-api.krsna.site" crossOrigin="anonymous" />
         {gtmId && <GoogleTagManager gtmId={gtmId} />}
       </head>
       <body
