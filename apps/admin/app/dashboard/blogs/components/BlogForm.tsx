@@ -6,11 +6,13 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { blogFormSchema, BlogFormValues } from "@/lib/validations/blog.schema"
 import { ImageUpload } from "@/components/custom/image-upload"
 import { WysiwygEditor } from "@/components/custom/wysiwyg-editor"
+import { useActiveBlogCategories } from "@/lib/blog-categories/useBlogCategories"
 
 interface BlogFormProps {
     onClose: () => void
@@ -20,6 +22,8 @@ interface BlogFormProps {
 }
 
 export function BlogForm({ onClose, initialData, createBlog, updateBlog }: BlogFormProps) {
+    const { activeCategories, activeCategoriesLoading } = useActiveBlogCategories()
+
     const [uploadedImages, setUploadedImages] = useState<Array<{ file: File | null; alt: string; preview: string; finalUrl?: string }>>(
         initialData?.image ? [{
             file: null,
@@ -75,14 +79,6 @@ export function BlogForm({ onClose, initialData, createBlog, updateBlog }: BlogF
             console.error("Failed to save blog:", error)
         }
     }
-
-    // Auto-generate slug from title
-    // const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    //     const title = e.target.value
-    //     field.onChange(title) // Update title field
-    //     const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
-    //     form.setValue('slug', slug, { shouldValidate: true, shouldDirty: true })
-    // }
 
     return (
         <Form {...form}>
@@ -142,9 +138,20 @@ export function BlogForm({ onClose, initialData, createBlog, updateBlog }: BlogF
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Category *</FormLabel>
-                                <FormControl>
-                                    <Input {...field} />
-                                </FormControl>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder={activeCategoriesLoading ? "Loading categories..." : "Select a category"} />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {activeCategories.map((category: any) => (
+                                            <SelectItem key={category._id} value={category.name}>
+                                                {category.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                                 <FormMessage />
                             </FormItem>
                         )}

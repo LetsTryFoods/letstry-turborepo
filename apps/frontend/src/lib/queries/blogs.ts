@@ -12,6 +12,15 @@ export const GET_ACTIVE_BLOGS = graphql(`
       date
       author
       category
+      seo {
+        metaTitle
+        metaDescription
+        metaKeywords
+        canonicalUrl
+        ogTitle
+        ogDescription
+        ogImage
+      }
       isActive
       position
       createdAt
@@ -32,6 +41,15 @@ export const GET_BLOG_BY_SLUG = graphql(`
       date
       author
       category
+      seo {
+        metaTitle
+        metaDescription
+        metaKeywords
+        canonicalUrl
+        ogTitle
+        ogDescription
+        ogImage
+      }
       isActive
       position
       createdAt
@@ -52,6 +70,15 @@ export const GET_ALL_BLOGS = graphql(`
       date
       author
       category
+      seo {
+        metaTitle
+        metaDescription
+        metaKeywords
+        canonicalUrl
+        ogTitle
+        ogDescription
+        ogImage
+      }
       isActive
       position
       createdAt

@@ -12,6 +12,15 @@ export const GET_BLOGS = gql`
       date
       author
       category
+      seo {
+        metaTitle
+        metaDescription
+        metaKeywords
+        canonicalUrl
+        ogTitle
+        ogDescription
+        ogImage
+      }
       isActive
       position
       createdAt
@@ -32,6 +41,15 @@ export const GET_ACTIVE_BLOGS = gql`
       date
       author
       category
+      seo {
+        metaTitle
+        metaDescription
+        metaKeywords
+        canonicalUrl
+        ogTitle
+        ogDescription
+        ogImage
+      }
       isActive
       position
       createdAt
@@ -52,6 +70,15 @@ export const GET_BLOG = gql`
       date
       author
       category
+      seo {
+        metaTitle
+        metaDescription
+        metaKeywords
+        canonicalUrl
+        ogTitle
+        ogDescription
+        ogImage
+      }
       isActive
       position
       createdAt
@@ -72,6 +99,15 @@ export const CREATE_BLOG = gql`
       date
       author
       category
+      seo {
+        metaTitle
+        metaDescription
+        metaKeywords
+        canonicalUrl
+        ogTitle
+        ogDescription
+        ogImage
+      }
       isActive
       position
       createdAt
@@ -92,6 +128,15 @@ export const UPDATE_BLOG = gql`
       date
       author
       category
+      seo {
+        metaTitle
+        metaDescription
+        metaKeywords
+        canonicalUrl
+        ogTitle
+        ogDescription
+        ogImage
+      }
       isActive
       position
       createdAt

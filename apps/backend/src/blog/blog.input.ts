@@ -1,4 +1,5 @@
 import { InputType, Field } from '@nestjs/graphql';
+import { BlogSeoInput } from './blog-seo.input';
 
 @InputType()
 export class CreateBlogInput {
@@ -25,6 +26,9 @@ export class CreateBlogInput {
 
     @Field()
     category: string;
+
+    @Field(() => BlogSeoInput, { nullable: true })
+    seo?: BlogSeoInput;
 
     @Field({ nullable: true })
     isActive?: boolean;
@@ -58,6 +62,9 @@ export class UpdateBlogInput {
 
     @Field({ nullable: true })
     category?: string;
+
+    @Field(() => BlogSeoInput, { nullable: true })
+    seo?: BlogSeoInput;
 
     @Field({ nullable: true })
     isActive?: boolean;

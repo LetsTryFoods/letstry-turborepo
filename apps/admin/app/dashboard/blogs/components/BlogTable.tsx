@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react"
+import { MoreHorizontal, Pencil, Trash2, FileText } from "lucide-react"
 
 interface BlogTableProps {
     blogs: any[]
@@ -13,6 +13,7 @@ interface BlogTableProps {
     onEdit: (id: string) => void
     onDelete: (id: string) => void
     onImagePreview: (url: string, title: string) => void
+    onSeo: (blog: any) => void
 }
 
 export function BlogTable({
@@ -21,7 +22,8 @@ export function BlogTable({
     onToggleActive,
     onEdit,
     onDelete,
-    onImagePreview
+    onImagePreview,
+    onSeo
 }: BlogTableProps) {
     return (
         <div className="rounded-md border">
@@ -76,6 +78,10 @@ export function BlogTable({
                                             <DropdownMenuItem onClick={() => onEdit(blog._id)}>
                                                 <Pencil className="mr-2 h-4 w-4" />
                                                 Edit
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => onSeo(blog)}>
+                                                <FileText className="mr-2 h-4 w-4" />
+                                                Add SEO
                                             </DropdownMenuItem>
                                             <DropdownMenuSeparator />
                                             <DropdownMenuItem

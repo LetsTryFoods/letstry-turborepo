@@ -31,6 +31,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BullBoardModule } from './bull-board/bull-board.module';
 import { RedirectModule } from './redirect/redirect.module';
 import { BlogModule } from './blog/blog.module';
+import { BlogCategoryModule } from './blog-category/blog-category.module';
 
 @Module({
   imports: [
@@ -69,6 +70,7 @@ import { BlogModule } from './blog/blog.module';
     ShipmentModule,
     RedirectModule,
     BlogModule,
+    BlogCategoryModule,
     AuthenticationModule,
     AppCacheModule,
   ],

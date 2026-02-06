@@ -18,9 +18,39 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
+  const seo = blog.seo;
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://letstry.com';
+  const blogUrl = `${baseUrl}/blog/${blog.slug}`;
+
   return {
-    title: `${blog.title} | Let's Try Blog`,
-    description: blog.excerpt,
+    title: seo?.metaTitle || `${blog.title} | Let's Try Blog`,
+    description: seo?.metaDescription || blog.excerpt,
+    keywords: seo?.metaKeywords || [],
+    alternates: {
+      canonical: seo?.canonicalUrl || blogUrl,
+    },
+    openGraph: {
+      title: seo?.ogTitle || seo?.metaTitle || blog.title,
+      description: seo?.ogDescription || seo?.metaDescription || blog.excerpt,
+      url: blogUrl,
+      type: 'article',
+      images: (seo?.ogImage || blog.image) ? [
+        {
+          url: (seo?.ogImage || blog.image) as string,
+          width: 1200,
+          height: 630,
+          alt: blog.title,
+        },
+      ] : [],
+      publishedTime: blog.date || undefined,
+      authors: [blog.author],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: seo?.ogTitle || seo?.metaTitle || blog.title,
+      description: seo?.ogDescription || seo?.metaDescription || blog.excerpt,
+      images: (seo?.ogImage || blog.image) ? [(seo?.ogImage || blog.image) as string] : [],
+    },
   };
 }
 

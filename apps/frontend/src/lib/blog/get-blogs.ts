@@ -11,6 +11,15 @@ export interface Blog {
     date?: string | null;
     author: string;
     category: string;
+    seo?: {
+        metaTitle?: string | null;
+        metaDescription?: string | null;
+        metaKeywords?: string[] | null;
+        canonicalUrl?: string | null;
+        ogTitle?: string | null;
+        ogDescription?: string | null;
+        ogImage?: string | null;
+    } | null;
     isActive?: boolean | null;
     position?: number | null;
     createdAt: string;

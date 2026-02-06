@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Blog, BlogDocument } from './blog.schema';
+import { BlogDocument, BLOG_MODEL } from './blog.schema';
+import { Blog } from './blog.graphql';
 import { CreateBlogInput, UpdateBlogInput } from './blog.input';
 import { CacheService } from '../cache/cache.service';
 import { CacheKeyFactory } from '../cache/cache-key.factory';
@@ -15,7 +16,7 @@ export class BlogService {
     private readonly CACHE_TYPE_ACTIVE = 'active';
 
     constructor(
-        @InjectModel(Blog.name) private blogModel: Model<BlogDocument>,
+        @InjectModel(BLOG_MODEL) private blogModel: Model<BlogDocument>,
         private readonly cacheService: CacheService,
         private readonly cacheKeyFactory: CacheKeyFactory,
         private readonly cacheInvalidatorService: CacheInvalidatorService,
@@ -28,7 +29,7 @@ export class BlogService {
         const savedBlog = await createdBlog.save();
         await this.cacheInvalidatorService.invalidateBlog();
         this.logger.log(`Blog created: ${savedBlog._id}`);
-        return savedBlog.toObject();
+        return savedBlog.toObject() as any as Blog;
     }
 
     async findAll(): Promise<Blog[]> {
@@ -60,7 +61,7 @@ export class BlogService {
         if (!blog) {
             throw new NotFoundException(`Blog with slug ${slug} not found`);
         }
-        return blog as Blog;
+        return blog as any as Blog;
     }
 
     async update(id: string, updateBlogInput: UpdateBlogInput): Promise<Blog> {
@@ -75,7 +76,7 @@ export class BlogService {
 
         await this.cacheInvalidatorService.invalidateBlog();
         this.logger.log(`Blog updated: ${id}`);
-        return blog as Blog;
+        return blog as any as Blog;
     }
 
     async remove(id: string): Promise<Blog> {
@@ -87,7 +88,7 @@ export class BlogService {
 
         await this.cacheInvalidatorService.invalidateBlog();
         this.logger.log(`Blog removed: ${id}`);
-        return blog as Blog;
+        return blog as any as Blog;
     }
 
     private async getCachedList(
@@ -111,6 +112,6 @@ export class BlogService {
         if (!blog) {
             throw new NotFoundException(`Blog with ID ${id} not found`);
         }
-        return blog as Blog;
+        return blog as any as Blog;
     }
 }

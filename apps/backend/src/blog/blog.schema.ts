@@ -1,59 +1,48 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { ObjectType, Field, ID, GraphQLISODateTime } from '@nestjs/graphql';
+import { SeoBaseSchema, SeoBase } from '../seo-core/seo-base.schema';
+
+export const BLOG_MODEL = 'Blog';
 
 export type BlogDocument = Blog & Document;
 
 @Schema({ timestamps: true })
-@ObjectType()
 export class Blog {
-    @Field(() => ID)
-    _id: string;
-
     @Prop({ required: true, unique: true })
-    @Field()
     slug: string;
 
     @Prop({ required: true })
-    @Field()
     title: string;
 
     @Prop({ required: true })
-    @Field()
     excerpt: string;
 
     @Prop({ required: true })
-    @Field()
     content: string;
 
     @Prop({ required: false })
-    @Field({ nullable: true })
     image?: string;
 
     @Prop({ required: false })
-    @Field({ nullable: true })
     date?: string;
 
     @Prop({ required: true })
-    @Field()
     author: string;
 
     @Prop({ required: true })
-    @Field()
     category: string;
 
+    @Prop({ type: SeoBaseSchema, required: false })
+    seo?: SeoBase;
+
     @Prop({ default: true })
-    @Field({ nullable: true })
     isActive?: boolean;
 
     @Prop({ required: false, type: Number, default: 0 })
-    @Field(() => Number, { nullable: true })
     position?: number;
 
-    @Field(() => GraphQLISODateTime)
     createdAt: Date;
 
-    @Field(() => GraphQLISODateTime)
     updatedAt: Date;
 }
 

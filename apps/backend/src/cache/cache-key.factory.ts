@@ -137,4 +137,12 @@ export class CacheKeyFactory {
   getBlogDetailKey(slug: string, version: number): string {
     return `blog:detail:${slug}:v${version}`;
   }
+
+  getBlogCategoryListVersionKey(): string {
+    return `blog-category:list:version`;
+  }
+
+  getBlogCategoryListKey(version: number, type: string = 'all'): string {
+    return `blog-category:list:v${version}:type:${type}`;
+  }
 }

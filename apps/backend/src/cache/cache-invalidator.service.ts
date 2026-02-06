@@ -97,4 +97,10 @@ export class CacheInvalidatorService {
       this.cacheKeyFactory.getBlogListVersionKey(),
     );
   }
+
+  async invalidateBlogCategory() {
+    await this.cacheService.bumpVersion(
+      this.cacheKeyFactory.getBlogCategoryListVersionKey(),
+    );
+  }
 }

@@ -139,9 +139,32 @@ export type Blog = {
   image?: Maybe<Scalars['String']['output']>;
   isActive?: Maybe<Scalars['Boolean']['output']>;
   position?: Maybe<Scalars['Float']['output']>;
+  seo?: Maybe<SeoBase>;
   slug: Scalars['String']['output'];
   title: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
+};
+
+export type BlogCategory = {
+  __typename?: 'BlogCategory';
+  _id: Scalars['ID']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  isActive?: Maybe<Scalars['Boolean']['output']>;
+  name: Scalars['String']['output'];
+  position?: Maybe<Scalars['Float']['output']>;
+  slug: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type BlogSeoInput = {
+  canonicalUrl?: InputMaybe<Scalars['String']['input']>;
+  metaDescription?: InputMaybe<Scalars['String']['input']>;
+  metaKeywords?: InputMaybe<Array<Scalars['String']['input']>>;
+  metaTitle?: InputMaybe<Scalars['String']['input']>;
+  ogDescription?: InputMaybe<Scalars['String']['input']>;
+  ogImage?: InputMaybe<Scalars['String']['input']>;
+  ogTitle?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type BoxDimensions = {
@@ -400,6 +423,14 @@ export type CreateBannerInput = {
   url: Scalars['String']['input'];
 };
 
+export type CreateBlogCategoryInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  position?: InputMaybe<Scalars['Float']['input']>;
+  slug: Scalars['String']['input'];
+};
+
 export type CreateBlogInput = {
   author: Scalars['String']['input'];
   category: Scalars['String']['input'];
@@ -409,6 +440,7 @@ export type CreateBlogInput = {
   image?: InputMaybe<Scalars['String']['input']>;
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   position?: InputMaybe<Scalars['Float']['input']>;
+  seo?: InputMaybe<BlogSeoInput>;
   slug: Scalars['String']['input'];
   title: Scalars['String']['input'];
 };
@@ -847,6 +879,7 @@ export type Mutation = {
   createAdmin: Scalars['String']['output'];
   createBanner: Banner;
   createBlog: Blog;
+  createBlogCategory: BlogCategory;
   createBoxSize: BoxSize;
   createCategory: Category;
   createCoupon: Coupon;
@@ -860,6 +893,7 @@ export type Mutation = {
   deleteAddress: Address;
   deleteBanner: Banner;
   deleteBlog: Blog;
+  deleteBlogCategory: BlogCategory;
   deleteBoxSize: Scalars['Boolean']['output'];
   deleteCategorySeo: Scalars['Boolean']['output'];
   deleteCoupon: Coupon;
@@ -890,6 +924,7 @@ export type Mutation = {
   updateAddress: Address;
   updateBanner: Banner;
   updateBlog: Blog;
+  updateBlogCategory: BlogCategory;
   updateBoxSize: BoxSize;
   updateCartItem: Cart;
   updateCategory: Category;
@@ -990,6 +1025,11 @@ export type MutationCreateBlogArgs = {
 };
 
 
+export type MutationCreateBlogCategoryArgs = {
+  input: CreateBlogCategoryInput;
+};
+
+
 export type MutationCreateBoxSizeArgs = {
   input: CreateBoxSizeInput;
 };
@@ -1051,6 +1091,11 @@ export type MutationDeleteBannerArgs = {
 
 
 export type MutationDeleteBlogArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteBlogCategoryArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -1197,6 +1242,12 @@ export type MutationUpdateBannerArgs = {
 export type MutationUpdateBlogArgs = {
   id: Scalars['ID']['input'];
   input: UpdateBlogInput;
+};
+
+
+export type MutationUpdateBlogCategoryArgs = {
+  id: Scalars['ID']['input'];
+  input: UpdateBlogCategoryInput;
 };
 
 
@@ -1946,6 +1997,7 @@ export type ProductVariant = {
 export type Query = {
   __typename?: 'Query';
   activeBanners: Array<Banner>;
+  activeBlogCategories: Array<BlogCategory>;
   activeBlogs: Array<Blog>;
   activeCoupons: Array<Coupon>;
   address: Address;
@@ -1954,6 +2006,8 @@ export type Query = {
   banners: Array<Banner>;
   blog?: Maybe<Blog>;
   blogBySlug?: Maybe<Blog>;
+  blogCategories: Array<BlogCategory>;
+  blogCategory?: Maybe<BlogCategory>;
   blogs: Array<Blog>;
   categories: PaginatedCategories;
   category?: Maybe<Category>;
@@ -2036,6 +2090,11 @@ export type QueryBlogArgs = {
 
 export type QueryBlogBySlugArgs = {
   slug: Scalars['String']['input'];
+};
+
+
+export type QueryBlogCategoryArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -2574,6 +2633,14 @@ export type UpdateBannerInput = {
   url?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type UpdateBlogCategoryInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  position?: InputMaybe<Scalars['Float']['input']>;
+  slug?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type UpdateBlogInput = {
   author?: InputMaybe<Scalars['String']['input']>;
   category?: InputMaybe<Scalars['String']['input']>;
@@ -2583,6 +2650,7 @@ export type UpdateBlogInput = {
   image?: InputMaybe<Scalars['String']['input']>;
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   position?: InputMaybe<Scalars['Float']['input']>;
+  seo?: InputMaybe<BlogSeoInput>;
   slug?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
 };
@@ -2821,19 +2889,19 @@ export type DeleteBlogMutation = { __typename?: 'Mutation', deleteBlog: { __type
 export type GetActiveBlogsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetActiveBlogsQuery = { __typename?: 'Query', activeBlogs: Array<{ __typename?: 'Blog', _id: string, slug: string, title: string, excerpt: string, content: string, image?: string | null, date?: string | null, author: string, category: string, isActive?: boolean | null, position?: number | null, createdAt: any, updatedAt: any }> };
+export type GetActiveBlogsQuery = { __typename?: 'Query', activeBlogs: Array<{ __typename?: 'Blog', _id: string, slug: string, title: string, excerpt: string, content: string, image?: string | null, date?: string | null, author: string, category: string, isActive?: boolean | null, position?: number | null, createdAt: any, updatedAt: any, seo?: { __typename?: 'SeoBase', metaTitle?: string | null, metaDescription?: string | null, metaKeywords?: Array<string> | null, canonicalUrl?: string | null, ogTitle?: string | null, ogDescription?: string | null, ogImage?: string | null } | null }> };
 
 export type GetBlogBySlugQueryVariables = Exact<{
   slug: Scalars['String']['input'];
 }>;
 
 
-export type GetBlogBySlugQuery = { __typename?: 'Query', blogBySlug?: { __typename?: 'Blog', _id: string, slug: string, title: string, excerpt: string, content: string, image?: string | null, date?: string | null, author: string, category: string, isActive?: boolean | null, position?: number | null, createdAt: any, updatedAt: any } | null };
+export type GetBlogBySlugQuery = { __typename?: 'Query', blogBySlug?: { __typename?: 'Blog', _id: string, slug: string, title: string, excerpt: string, content: string, image?: string | null, date?: string | null, author: string, category: string, isActive?: boolean | null, position?: number | null, createdAt: any, updatedAt: any, seo?: { __typename?: 'SeoBase', metaTitle?: string | null, metaDescription?: string | null, metaKeywords?: Array<string> | null, canonicalUrl?: string | null, ogTitle?: string | null, ogDescription?: string | null, ogImage?: string | null } | null } | null };
 
 export type GetAllBlogsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetAllBlogsQuery = { __typename?: 'Query', blogs: Array<{ __typename?: 'Blog', _id: string, slug: string, title: string, excerpt: string, content: string, image?: string | null, date?: string | null, author: string, category: string, isActive?: boolean | null, position?: number | null, createdAt: any, updatedAt: any }> };
+export type GetAllBlogsQuery = { __typename?: 'Query', blogs: Array<{ __typename?: 'Blog', _id: string, slug: string, title: string, excerpt: string, content: string, image?: string | null, date?: string | null, author: string, category: string, isActive?: boolean | null, position?: number | null, createdAt: any, updatedAt: any, seo?: { __typename?: 'SeoBase', metaTitle?: string | null, metaDescription?: string | null, metaKeywords?: Array<string> | null, canonicalUrl?: string | null, ogTitle?: string | null, ogDescription?: string | null, ogImage?: string | null } | null }> };
 
 export type GetMyCartQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -3196,6 +3264,15 @@ export const GetActiveBlogsDocument = new TypedDocumentString(`
     date
     author
     category
+    seo {
+      metaTitle
+      metaDescription
+      metaKeywords
+      canonicalUrl
+      ogTitle
+      ogDescription
+      ogImage
+    }
     isActive
     position
     createdAt
@@ -3215,6 +3292,15 @@ export const GetBlogBySlugDocument = new TypedDocumentString(`
     date
     author
     category
+    seo {
+      metaTitle
+      metaDescription
+      metaKeywords
+      canonicalUrl
+      ogTitle
+      ogDescription
+      ogImage
+    }
     isActive
     position
     createdAt
@@ -3234,6 +3320,15 @@ export const GetAllBlogsDocument = new TypedDocumentString(`
     date
     author
     category
+    seo {
+      metaTitle
+      metaDescription
+      metaKeywords
+      canonicalUrl
+      ogTitle
+      ogDescription
+      ogImage
+    }
     isActive
     position
     createdAt

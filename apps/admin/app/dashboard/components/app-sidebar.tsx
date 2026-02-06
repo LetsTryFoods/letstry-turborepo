@@ -157,7 +157,7 @@ export function AppSidebar() {
 
     try {
       await deletePolicy({
-        variables: { id: policyToDelete.id }
+        variables: { id: policyToDelete._id }
       })
       toast.success('Policy deleted successfully')
       setDeleteDialogOpen(false)
@@ -200,7 +200,7 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {policies.map((policy: any) => (
-                <SidebarMenuItem key={policy.id} className="group/item">
+                <SidebarMenuItem key={policy._id} className="group/item">
                   <SidebarMenuButton asChild>
                     <a href={`/dashboard/policies/${policy.title}`} className="flex justify-between items-center">
                       <div className="flex items-center gap-2">
