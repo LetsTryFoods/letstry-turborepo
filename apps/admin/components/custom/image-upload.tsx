@@ -9,6 +9,7 @@ import Compressor from '@uppy/compressor'
 import ImageEditor from '@uppy/image-editor'
 import { useFileUpload } from '@/hooks/use-file-upload'
 import { deleteFileFromS3 } from '@/lib/file-upload'
+import { getCdnUrl } from '@/lib/image-utils'
 import type { UploadedFile } from '@/types/file-upload'
 
 import '@uppy/core/css/style.min.css'

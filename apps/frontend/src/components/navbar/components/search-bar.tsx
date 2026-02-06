@@ -30,7 +30,7 @@ function SearchBarContent({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchValue(value);
-    
+
     if (pathname === '/search') {
       const params = new URLSearchParams();
       if (value) {
@@ -49,7 +49,7 @@ function SearchBarContent({
   return (
     <div
       className={cn(
-        'flex items-center gap-2 rounded-full border border-gray-300 bg-gray-50 px-4 py-2 hover:bg-gray-100 transition-colors',
+        'flex items-center gap-2 rounded-full border border-gray-300 bg-gray-50 px-4 py-2 hover:bg-gray-100 transition-colors focus-within:border-[#0c5273] focus-within:ring-1 focus-within:ring-[#0c5273]',
         className
       )}
     >
@@ -71,7 +71,7 @@ export const SearchBar = (props: SearchBarProps) => {
     <Suspense fallback={
       <div
         className={cn(
-          'flex items-center gap-2 rounded-full border border-gray-300 bg-gray-50 px-4 py-2',
+          'flex items-center gap-2 rounded-full border border-gray-300 bg-gray-50 px-4 py-2 focus-within:border-[#0c5273] focus-within:ring-1 focus-within:ring-[#0c5273]',
           props.className
         )}
       >

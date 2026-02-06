@@ -130,26 +130,26 @@ export const CategoryProductCard: React.FC<CategoryProductCardProps> = ({
       <div className="px-4 pb-4 mt-2">
         {quantityInCart === 0 ? (
           <button
-            className="w-full border sm:border-2 border-brand-hover text-brand-hover text-sm font-semibold py-1 sm:py-2 rounded-md hover:bg-brand-hover hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full h-10 flex items-center justify-center border sm:border-2 border-brand-hover text-brand-hover text-sm font-semibold rounded-lg hover:bg-brand-hover hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={handleAddToCart}
             disabled={isLoading}
           >
             {isLoading ? "Adding..." : "Add to cart"}
           </button>
         ) : (
-          <div className="w-full flex items-center justify-between border sm:border-2 border-brand-hover rounded-md overflow-hidden">
+          <div className="w-full h-10 flex items-center justify-between border sm:border-2 border-brand-hover rounded-lg overflow-hidden">
             <button
-              className="flex-1 py-1 bg-[#D1E9F2] border-brand-hover font-bold text-xl  transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 h-full bg-[#D1E9F2] border-brand-hover font-bold text-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               onClick={handleDecrement}
               disabled={isLoading}
             >
               −
             </button>
-            <span className="flex-1 text-center py-1 text-brand-hover font-semibold text-base">
+            <span className="flex-1 h-full text-center text-brand-hover font-semibold text-base flex items-center justify-center">
               {isLoading ? "..." : quantityInCart}
             </span>
             <button
-              className="flex-1 py-1 bg-[#D1E9F2] text-brand-hover font-bold text-xl  transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 h-full bg-[#D1E9F2] text-brand-hover font-bold text-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               onClick={handleIncrement}
               disabled={isLoading}
             >

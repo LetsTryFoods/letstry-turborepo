@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperType } from "swiper";
 import { Autoplay } from "swiper/modules";
@@ -82,14 +83,16 @@ const JourneyVideos = () => {
                   className={`relative cursor-pointer transition-transform duration-300 ${isActive ? "scale-100" : "scale-75"
                     }`}
                 >
-                  <img
-                    src={video.thumbnail}
-                    alt={`Video ${i + 1}`}
-                    className="w-full max-w-full h-[160px] lg:h-[250px] object-cover rounded-xl border border-gray-300 bg-gray-100"
-                    loading={i === 0 ? "eager" : "lazy"}
-                    fetchPriority={i === 0 ? "high" : "auto"}
-                    decoding="async"
-                  />
+                  <div className="relative w-full h-[160px] lg:h-[250px]">
+                    <Image
+                      src={video.thumbnail}
+                      alt={`Video ${i + 1}`}
+                      fill
+                      className="object-cover rounded-xl border border-gray-300 bg-gray-100"
+                      priority={i < 2}
+                      sizes="(max-width: 768px) 62vw, 33vw"
+                    />
+                  </div>
 
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                     <svg

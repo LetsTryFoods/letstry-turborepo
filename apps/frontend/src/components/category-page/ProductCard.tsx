@@ -161,19 +161,19 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, categoryType 
           {quantityInCart === 0 ? (
             <AddToCartButton onClick={handleAddToCart} />
           ) : (
-            <div className="mt-2 w-full flex items-center justify-between border sm:border-2 border-[#0C5273] rounded-lg overflow-hidden">
+            <div className="mt-2 mb-2 sm:mt-4 h-10 w-full flex items-center justify-between border sm:border-2 border-[#0C5273] rounded-lg overflow-hidden">
               <button
-                className="flex-1 py-1 bg-[#D1E9F2] text-[#0C5273] font-bold text-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                className="flex-1 h-full bg-[#D1E9F2] text-[#0C5273] font-bold text-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center"
                 onClick={handleDecrement}
                 disabled={isLoading}
               >
                 −
               </button>
-              <span className="flex-1 text-center py-1 text-[#0C5273] font-semibold text-base">
+              <span className="flex-1 h-full text-center text-[#0C5273] font-semibold text-base flex items-center justify-center">
                 {isLoading ? '...' : quantityInCart}
               </span>
               <button
-                className="flex-1 py-1 bg-[#D1E9F2] text-[#0C5273] font-bold text-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                className="flex-1 h-full bg-[#D1E9F2] text-[#0C5273] font-bold text-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center"
                 onClick={handleIncrement}
                 disabled={isLoading}
               >
