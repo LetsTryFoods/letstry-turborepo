@@ -6,6 +6,7 @@ import { Autoplay, Navigation } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import type { Swiper as SwiperType } from 'swiper';
 import { getCdnUrl } from "@/lib/image-utils";
 
@@ -67,14 +68,13 @@ export const HeroCarouselClient = ({ banners }: HeroCarouselClientProps) => {
                   className="relative w-full h-full cursor-pointer"
                   onClick={() => handleBannerClick(banner.url)}
                 >
-                  <img
+                  <Image
                     src={getCdnUrl(banner.mobileImageUrl)}
                     alt={banner.headline || 'Promotional banner'}
-                    width={MOBILE_BANNER_WIDTH}
-                    height={MOBILE_BANNER_HEIGHT}
-                    loading={i === 0 ? "eager" : "lazy"}
-                    decoding="async"
-                    className="absolute inset-0 w-full h-full object-contain rounded-[10px] bg-gray-100"
+                    fill
+                    priority={i === 0}
+                    className="object-contain rounded-[10px] bg-gray-100"
+                    sizes="(max-width: 1024px) 100vw, 400px"
                   />
                   <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10">
                     {banners.map((_, j) => (
@@ -120,14 +120,13 @@ export const HeroCarouselClient = ({ banners }: HeroCarouselClientProps) => {
                   className="relative w-full h-full cursor-pointer"
                   onClick={() => handleBannerClick(banner.url)}
                 >
-                  <img
+                  <Image
                     src={getCdnUrl(banner.imageUrl)}
                     alt={banner.headline || 'Promotional banner'}
-                    width={DESKTOP_BANNER_WIDTH}
-                    height={DESKTOP_BANNER_HEIGHT}
-                    loading={i === 0 ? "eager" : "lazy"}
-                    decoding="async"
-                    className="absolute inset-0 w-full h-full object-cover rounded-[16px] bg-gray-100"
+                    fill
+                    priority={i === 0}
+                    className="object-cover rounded-[16px] bg-gray-100"
+                    sizes="100vw"
                   />
                   <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-10">
                     {banners.map((_, j) => (

@@ -110,7 +110,7 @@ function SearchContent() {
               placeholder="Bhujia"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-yellow-500"
+              className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#0c5273] focus:ring-1 focus:ring-[#0c5273]"
               autoFocus
             />
           </div>

@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { getCdnUrl } from "@/lib/image-utils";
 
 interface Brand {
@@ -26,8 +27,15 @@ interface LogoProps {
 }
 
 const Logo = ({ name, img, i }: LogoProps) => (
-  <div key={`${name}-${i}`} className="brand-slide">
-    <img src={getCdnUrl(img)} alt={name} loading="lazy" className="brand-img" draggable={false} />
+  <div key={`${name}-${i}`} className="brand-slide relative h-[30px] sm:h-[40px] md:h-[70px] lg:h-[100px] w-[140px]">
+    <Image
+      src={getCdnUrl(img)}
+      alt={name}
+      fill
+      className="object-contain pointer-events-none"
+      draggable={false}
+      sizes="(min-width: 1024px) 140px, (min-width: 768px) 100px, 140px"
+    />
   </div>
 );
 
