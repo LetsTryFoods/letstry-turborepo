@@ -14,6 +14,7 @@ import type { UploadedFile } from '@/types/file-upload'
 import '@uppy/core/css/style.min.css'
 import '@uppy/dashboard/css/style.min.css'
 import '@uppy/image-editor/css/style.min.css'
+import { getCdnUrl } from "@/lib/image-utils"
 
 interface ImageUploadProps {
   onImagesChange: (images: Array<{ file: File; alt: string; preview: string; finalUrl?: string }>) => void
