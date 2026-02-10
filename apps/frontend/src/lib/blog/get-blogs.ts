@@ -40,25 +40,19 @@ interface GetAllBlogsResponse {
 
 export async function getActiveBlogs(): Promise<Blog[]> {
     const client = createServerGraphQLClient();
-    console.log('Fetching active blogs...');
-    console.log('GraphQL Endpoint:', process.env.NEXT_PUBLIC_GRAPHQL_URL);
 
     // Debugging the query object structure
     const queryObj = GET_ACTIVE_BLOGS as any;
-    console.log('Query Object Keys:', Object.keys(queryObj));
 
     // Attempting to extract query string safely
     const queryString = queryObj?.loc?.source?.body || queryObj?.value || queryObj?.toString();
-    console.log('Query String present:', !!queryString);
 
     try {
         const data = await client.request<GetActiveBlogsResponse>(
             queryString
-        );
-        console.log('Active blogs fetched:', data.activeBlogs?.length);
+        )
         return data.activeBlogs;
     } catch (error) {
-        console.error('Error fetching active blogs:', error);
         return [];
     }
 }
@@ -75,7 +69,6 @@ export async function getBlogBySlug(slug: string): Promise<Blog | null> {
         );
         return data.blogBySlug;
     } catch (error) {
-        console.error(`Error fetching blog with slug ${slug}:`, error);
         return null;
     }
 }
