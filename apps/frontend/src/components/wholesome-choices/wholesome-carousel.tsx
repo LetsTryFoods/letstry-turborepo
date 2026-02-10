@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { WholesomeCard } from './wholesome-card';
 
@@ -35,6 +35,25 @@ const getGradient = (title: string): string => {
 export function WholesomeCarousel({ items }: WholesomeCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const scrollByAmount = 300;
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkScrollability = () => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1);
+    }
+  };
+
+  useEffect(() => {
+    checkScrollability();
+    const scrollElement = scrollRef.current;
+    if (scrollElement) {
+      scrollElement.addEventListener('scroll', checkScrollability);
+      return () => scrollElement.removeEventListener('scroll', checkScrollability);
+    }
+  }, []);
 
   const handleScroll = (direction: 'left' | 'right') => {
     scrollRef.current?.scrollBy({
@@ -80,17 +99,19 @@ export function WholesomeCarousel({ items }: WholesomeCarouselProps) {
       <div className="flex justify-center items-center gap-4 mt-4">
         <button
           onClick={() => handleScroll('left')}
-          className="static translate-y-0 flex justify-center items-center cursor-pointer w-10 h-10 lg:w-12 lg:h-12 border-2 border-gray-500 rounded-full bg-transparent hover:bg-gray-100"
+          disabled={!canScrollLeft}
+          className="static translate-y-0 flex justify-center items-center cursor-pointer w-10 h-10 lg:w-12 lg:h-12 border-2 border-gray-500 rounded-full bg-transparent hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
           aria-label="Scroll left"
         >
-          <ChevronLeft className="w-5 h-5 lg:w-6 lg:h-6" />
+          <ChevronLeft className="w-5 h-5 lg:w-6 lg:h-6 text-gray-700" />
         </button>
         <button
           onClick={() => handleScroll('right')}
-          className="static translate-y-0 flex justify-center items-center cursor-pointer w-10 h-10 lg:w-12 lg:h-12 border-2 border-gray-500 rounded-full bg-transparent hover:bg-gray-100"
+          disabled={!canScrollRight}
+          className="static translate-y-0 flex justify-center items-center cursor-pointer w-10 h-10 lg:w-12 lg:h-12 border-2 border-gray-500 rounded-full bg-transparent hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent"
           aria-label="Scroll right"
         >
-          <ChevronRight className="w-5 h-5 lg:w-6 lg:h-6" />
+          <ChevronRight className="w-5 h-5 lg:w-6 lg:h-6 text-gray-700" />
         </button>
       </div>
     </>
