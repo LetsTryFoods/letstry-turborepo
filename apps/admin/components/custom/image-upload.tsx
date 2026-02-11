@@ -9,12 +9,12 @@ import Compressor from '@uppy/compressor'
 import ImageEditor from '@uppy/image-editor'
 import { useFileUpload } from '@/hooks/use-file-upload'
 import { deleteFileFromS3 } from '@/lib/file-upload'
-import { getCdnUrl } from '@/lib/image-utils'
 import type { UploadedFile } from '@/types/file-upload'
 
 import '@uppy/core/css/style.min.css'
 import '@uppy/dashboard/css/style.min.css'
 import '@uppy/image-editor/css/style.min.css'
+import { getCdnUrl } from "@/lib/image-utils"
 
 interface ImageUploadProps {
   onImagesChange: (images: Array<{ file: File; alt: string; preview: string; finalUrl?: string }>) => void
@@ -60,6 +60,8 @@ export function ImageUpload({ onImagesChange, initialImages = [], maxFiles = 10,
   const [uploadedImages, setUploadedImages] = useState<UploadedImageWithId[]>([])
   const [altTexts, setAltTexts] = useState<Record<string, string>>({})
   const [uppyFileMap, setUppyFileMap] = useState<Map<string, string>>(new Map())
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
 
   useEffect(() => {
     if (initialImages.length > 0 && !hasInitialized.current) {
@@ -268,6 +270,43 @@ export function ImageUpload({ onImagesChange, initialImages = [], maxFiles = 10,
     })
   }
 
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index)
+  }
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault()
+    setDragOverIndex(index)
+  }
+
+  const handleDragLeave = () => {
+    setDragOverIndex(null)
+  }
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault()
+
+    if (draggedIndex === null || draggedIndex === dropIndex) {
+      setDraggedIndex(null)
+      setDragOverIndex(null)
+      return
+    }
+
+    const newImages = [...uploadedImages]
+    const draggedImage = newImages[draggedIndex]
+    newImages.splice(draggedIndex, 1)
+    newImages.splice(dropIndex, 0, draggedImage)
+
+    setUploadedImages(newImages)
+    setDraggedIndex(null)
+    setDragOverIndex(null)
+  }
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null)
+    setDragOverIndex(null)
+  }
+
   return (
     <div className="space-y-4 w-full">
       <div ref={dashboardRef} className="border rounded-lg w-full" />
@@ -280,7 +319,18 @@ export function ImageUpload({ onImagesChange, initialImages = [], maxFiles = 10,
           <h4 className="font-medium">Uploaded Images & Alt Text</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {uploadedImages.map((image, index) => (
-              <div key={image.id} className="border rounded-lg p-3 space-y-2 relative group">
+              <div
+                key={image.id}
+                draggable
+                onDragStart={() => handleDragStart(index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, index)}
+                onDragEnd={handleDragEnd}
+                className={`border rounded-lg p-3 space-y-2 relative group cursor-move transition-all ${draggedIndex === index ? 'opacity-50 scale-95' : ''
+                  } ${dragOverIndex === index && draggedIndex !== index ? 'ring-2 ring-blue-500 scale-105' : ''
+                  }`}
+              >
                 <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                   <Button
                     variant="destructive"
