@@ -289,6 +289,8 @@ export function ProductForm({
     }
   };
 
+  //jai maa kali
+
   return (
     <Form {...form}>
       <form
@@ -973,6 +975,8 @@ export function ProductForm({
                             </FormItem>
                           )}
                         />
+
+
                         <FormField
                           control={form.control}
                           name={`variants.${index}.weight`}
