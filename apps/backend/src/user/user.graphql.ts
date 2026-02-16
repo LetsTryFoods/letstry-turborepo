@@ -20,6 +20,12 @@ export class PlatformStats {
 
   @Field(() => Int)
   desktop: number;
+
+  @Field(() => Int)
+  linux: number;
+
+  @Field(() => Int)
+  windows: number;
 }
 
 @ObjectType()

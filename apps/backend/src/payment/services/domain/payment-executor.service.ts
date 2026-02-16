@@ -301,12 +301,12 @@ export class PaymentExecutorService {
 
       const identity = await this.identityModel.findById(paymentOrder.identityId);
       const paymentEvent = await this.getPaymentEvent(paymentOrder.paymentEventId);
-      
-      const phoneNumber = 
-        identity?.phoneNumber || 
+
+      const phoneNumber =
+        identity?.phoneNumber ||
         order.recipientContact?.phone ||
         paymentEvent?.cartSnapshot?.shippingAddress?.recipientPhone;
-      
+
       this.paymentLogger.log('WhatsApp phone number resolution', {
         identityPhone: identity?.phoneNumber,
         orderPhone: order.recipientContact?.phone,
@@ -333,7 +333,7 @@ export class PaymentExecutorService {
       await this.whatsappQueue.add('payment-confirmation', {
         phoneNumber,
         orderId: order.orderId,
-        amountPaid: `₹${paymentOrder.amount}`,
+        amountPaid: paymentOrder.amount,
         paymentMode: paymentOrder.paymentMethod || 'Online',
         transactionId: paymentOrder.pspTxnId || paymentOrder.paymentOrderId,
         orderDate,

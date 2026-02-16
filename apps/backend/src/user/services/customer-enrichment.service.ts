@@ -8,6 +8,7 @@ import {
 import { Order } from '../../order/order.schema';
 import { Cart, CartStatus } from '../../cart/cart.schema';
 import { EnrichedCustomer } from '../user.graphql';
+import { CartStatusFilter } from '../user.input';
 
 @Injectable()
 export class CustomerEnrichmentService {
@@ -43,6 +44,23 @@ export class CustomerEnrichmentService {
         isGuest: customer.status === IdentityStatus.GUEST,
       };
     });
+  }
+
+  applyCartStatusFilter(
+    customers: EnrichedCustomer[],
+    cartStatus?: CartStatusFilter,
+  ): EnrichedCustomer[] {
+    if (!cartStatus) return customers;
+
+    if (cartStatus === CartStatusFilter.HAS_CART) {
+      return customers.filter(
+        (c) => c.activeCartItemsCount !== undefined && c.activeCartItemsCount > 0,
+      );
+    }
+
+    return customers.filter(
+      (c) => c.activeCartItemsCount === undefined || c.activeCartItemsCount === 0,
+    );
   }
 
   async getOrderStatsForCustomers(

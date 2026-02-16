@@ -20,7 +20,7 @@ export class UserService {
     private customerDetailsService: CustomerDetailsService,
     private userActivityService: UserActivityService,
     private paginationService: PaginationService,
-  ) {}
+  ) { }
 
   async createUser(data: CreateUserData): Promise<User> {
     return this.userCrudService.createUser(data);
@@ -59,6 +59,10 @@ export class UserService {
     enrichedCustomers = this.customerQueryService.applySpendingFilter(
       enrichedCustomers,
       input,
+    );
+    enrichedCustomers = this.customerEnrichmentService.applyCartStatusFilter(
+      enrichedCustomers,
+      input.cartStatus,
     );
     enrichedCustomers = this.customerQueryService.applySorting(
       enrichedCustomers,

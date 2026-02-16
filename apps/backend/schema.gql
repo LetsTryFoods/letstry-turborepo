@@ -140,6 +140,8 @@ type PlatformStats {
   web: Int!
   macos: Int!
   desktop: Int!
+  linux: Int!
+  windows: Int!
 }
 
 type StatusStats {
@@ -1274,6 +1276,7 @@ input GetCustomersInput {
   sortOrder: SortOrder
   minSpent: Float
   maxSpent: Float
+  cartStatus: CartStatusFilter
 }
 
 enum CustomerPlatform {
@@ -1282,6 +1285,8 @@ enum CustomerPlatform {
   WEB
   MACOS
   DESKTOP
+  LINUX
+  WINDOWS
 }
 
 enum CustomerSortField {
@@ -1294,6 +1299,11 @@ enum CustomerSortField {
 enum SortOrder {
   ASC
   DESC
+}
+
+enum CartStatusFilter {
+  HAS_CART
+  NO_CART
 }
 
 input GeocodeAddressInput {

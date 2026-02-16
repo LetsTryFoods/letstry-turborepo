@@ -42,15 +42,17 @@ export class CustomerStatsService {
   async getPlatformStats(): Promise<PlatformStats> {
     const baseFilter = { role: { $in: [Role.USER, Role.GUEST] } };
 
-    const [android, ios, web, macos, desktop] = await Promise.all([
+    const [android, ios, web, macos, desktop, linux, windows] = await Promise.all([
       this.countByPlatform(baseFilter, CustomerPlatform.ANDROID),
       this.countByPlatform(baseFilter, CustomerPlatform.IOS),
       this.countByPlatform(baseFilter, CustomerPlatform.WEB),
       this.countByPlatform(baseFilter, CustomerPlatform.MACOS),
       this.countByPlatform(baseFilter, CustomerPlatform.DESKTOP),
+      this.countByPlatform(baseFilter, CustomerPlatform.LINUX),
+      this.countByPlatform(baseFilter, CustomerPlatform.WINDOWS),
     ]);
 
-    return { android, ios, web, macos, desktop };
+    return { android, ios, web, macos, desktop, linux, windows };
   }
 
   async countByPlatform(

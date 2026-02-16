@@ -11,6 +11,10 @@ import {
   IndianRupee,
   UserPlus,
   Filter,
+  Smartphone,
+  Monitor,
+  Laptop,
+  Globe,
 } from "lucide-react";
 import { useCustomers } from "@/lib/customers/useCustomers";
 import CustomerTable from "./components/CustomerTable";
@@ -26,6 +30,7 @@ interface FilterValues {
   endDate: string;
   minSpent: string;
   maxSpent: string;
+  cartStatus: string;
 }
 
 export default function CustomersPage() {
@@ -38,6 +43,7 @@ export default function CustomersPage() {
     endDate: "",
     minSpent: "",
     maxSpent: "",
+    cartStatus: "",
   });
 
   const { data, refetch } = useCustomers({
@@ -48,6 +54,7 @@ export default function CustomersPage() {
     endDate: filters.endDate || undefined,
     minSpent: filters.minSpent ? parseFloat(filters.minSpent) : undefined,
     maxSpent: filters.maxSpent ? parseFloat(filters.maxSpent) : undefined,
+    cartStatus: (filters.cartStatus || undefined) as any,
   });
 
   const customers = data?.customers || [];
@@ -66,6 +73,7 @@ export default function CustomersPage() {
       endDate: "",
       minSpent: "",
       maxSpent: "",
+      cartStatus: "",
     });
   };
 
@@ -120,6 +128,63 @@ export default function CustomersPage() {
           iconClassName="h-4 w-4 text-blue-500"
         />
       </div>
+
+      <Card>
+        <CardContent className="pt-6">
+          <h3 className="text-sm font-medium text-muted-foreground mb-4">Platform Breakdown</h3>
+          <div className="grid gap-4 grid-cols-2 md:grid-cols-4 lg:grid-cols-7">
+            <div className="flex items-center gap-2">
+              <Smartphone className="h-4 w-4 text-green-600" />
+              <div>
+                <p className="text-lg font-bold">{summary?.platformStats?.android || 0}</p>
+                <p className="text-xs text-muted-foreground">Android</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Smartphone className="h-4 w-4 text-blue-600" />
+              <div>
+                <p className="text-lg font-bold">{summary?.platformStats?.ios || 0}</p>
+                <p className="text-xs text-muted-foreground">iOS</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Globe className="h-4 w-4 text-purple-600" />
+              <div>
+                <p className="text-lg font-bold">{summary?.platformStats?.web || 0}</p>
+                <p className="text-xs text-muted-foreground">Web</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Laptop className="h-4 w-4 text-gray-600" />
+              <div>
+                <p className="text-lg font-bold">{summary?.platformStats?.macos || 0}</p>
+                <p className="text-xs text-muted-foreground">macOS</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Monitor className="h-4 w-4 text-blue-500" />
+              <div>
+                <p className="text-lg font-bold">{summary?.platformStats?.windows || 0}</p>
+                <p className="text-xs text-muted-foreground">Windows</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Monitor className="h-4 w-4 text-orange-600" />
+              <div>
+                <p className="text-lg font-bold">{summary?.platformStats?.linux || 0}</p>
+                <p className="text-xs text-muted-foreground">Linux</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Monitor className="h-4 w-4 text-muted-foreground" />
+              <div>
+                <p className="text-lg font-bold">{summary?.platformStats?.desktop || 0}</p>
+                <p className="text-xs text-muted-foreground">Desktop</p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardContent className="pt-6 space-y-4">

@@ -26,6 +26,7 @@ interface FilterFormValues {
   endDate: string;
   minSpent: string;
   maxSpent: string;
+  cartStatus: string;
 }
 
 interface CustomerFiltersProps {
@@ -53,6 +54,7 @@ export default function CustomerFilters({
       endDate: "",
       minSpent: "",
       maxSpent: "",
+      cartStatus: "",
     },
   });
 
@@ -172,7 +174,7 @@ export default function CustomerFilters({
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <FormField
             control={form.control}
             name="startDate"
@@ -209,6 +211,33 @@ export default function CustomerFilters({
                     }}
                   />
                 </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="cartStatus"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Cart Status</FormLabel>
+                <Select
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    onFilterChange(form.getValues());
+                  }}
+                  value={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="HAS_CART">Has Active Cart</SelectItem>
+                    <SelectItem value="NO_CART">No Cart</SelectItem>
+                  </SelectContent>
+                </Select>
               </FormItem>
             )}
           />

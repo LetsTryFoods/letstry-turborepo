@@ -55,6 +55,10 @@ export interface CustomerSummary {
     android: number;
     ios: number;
     web: number;
+    macos: number;
+    desktop: number;
+    linux: number;
+    windows: number;
   };
   statusStats: {
     guest: number;
@@ -94,15 +98,15 @@ export interface GetCustomersInput {
   sortOrder?: "ASC" | "DESC";
   minSpent?: number;
   maxSpent?: number;
+  cartStatus?: "HAS_CART" | "NO_CART";
 }
 
 const mapBackendCustomerToFrontend = (backendCustomer: any): Customer => {
   return {
     _id: backendCustomer._id,
     name:
-      `${backendCustomer.firstName || ""} ${
-        backendCustomer.lastName || ""
-      }`.trim() || "Guest User",
+      `${backendCustomer.firstName || ""} ${backendCustomer.lastName || ""
+        }`.trim() || "Guest User",
     email: backendCustomer.email || "",
     phone: backendCustomer.displayPhone || backendCustomer.phoneNumber || "",
     status: backendCustomer.status.toUpperCase() as CustomerStatus,
@@ -132,6 +136,7 @@ export const useCustomers = (input?: GetCustomersInput) => {
           sortOrder: input?.sortOrder,
           minSpent: input?.minSpent,
           maxSpent: input?.maxSpent,
+          cartStatus: input?.cartStatus,
         },
       },
       fetchPolicy: "network-only",
@@ -193,7 +198,7 @@ export const getCustomerStats = (customers: Customer[]) => {
     avgOrderValue:
       Math.round(
         customers.reduce((sum, c) => sum + c.totalSpent, 0) /
-          customers.reduce((sum, c) => sum + c.totalOrders, 0)
+        customers.reduce((sum, c) => sum + c.totalOrders, 0)
       ) || 0,
     newThisMonth: customers.filter((c) => {
       const created = new Date(c.createdAt);
