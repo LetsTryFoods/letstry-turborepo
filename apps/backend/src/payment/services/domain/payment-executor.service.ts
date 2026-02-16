@@ -302,10 +302,13 @@ export class PaymentExecutorService {
       const identity = await this.identityModel.findById(paymentOrder.identityId);
       const paymentEvent = await this.getPaymentEvent(paymentOrder.paymentEventId);
 
+      const isValidPhone = (phone?: string) => phone && phone !== 'N/A';
+
       const phoneNumber =
-        identity?.phoneNumber ||
-        order.recipientContact?.phone ||
-        paymentEvent?.cartSnapshot?.shippingAddress?.recipientPhone;
+        (isValidPhone(identity?.phoneNumber) && identity?.phoneNumber) ||
+        (isValidPhone(order.recipientContact?.phone) && order.recipientContact.phone) ||
+        (isValidPhone(paymentEvent?.cartSnapshot?.shippingAddress?.recipientPhone) &&
+          paymentEvent.cartSnapshot.shippingAddress.recipientPhone);
 
       this.paymentLogger.log('WhatsApp phone number resolution', {
         identityPhone: identity?.phoneNumber,
@@ -330,8 +333,13 @@ export class PaymentExecutorService {
         year: 'numeric',
       });
 
+      const normalizedPhone = phoneNumber.replace(/^\+/, '');
+      const formattedPhone = normalizedPhone.length === 10
+        ? `91${normalizedPhone}`
+        : normalizedPhone;
+
       await this.whatsappQueue.add('payment-confirmation', {
-        phoneNumber,
+        phoneNumber: formattedPhone,
         orderId: order.orderId,
         amountPaid: paymentOrder.amount,
         paymentMode: paymentOrder.paymentMethod || 'Online',
