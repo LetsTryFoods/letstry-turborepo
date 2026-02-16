@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { InjectQueue } from '@nestjs/bullmq';
 import { Model, Types } from 'mongoose';
+import { Queue } from 'bullmq';
 import { PaymentOrder, PaymentStatus } from '../../entities/payment.schema';
 import { ZaakpayGatewayService } from '../../gateways/zaakpay/zaakpay-gateway.service';
 import { LedgerService } from '../core/ledger.service';
@@ -23,6 +25,8 @@ export class PaymentExecutorService {
     private orderCartLogger: OrderCartLoggerService,
     @InjectModel(Identity.name)
     private identityModel: Model<IdentityDocument>,
+    @InjectQueue('whatsapp-notification-queue')
+    private whatsappQueue: Queue,
   ) { }
 
   async executePaymentOrder(params: {
@@ -263,6 +267,8 @@ export class PaymentExecutorService {
         paymentOrder.identityId.toString(),
         cart.items.length,
       );
+
+      await this.queueWhatsAppNotification(paymentOrder, order);
     } catch (error) {
       this.orderCartLogger.logOrderCreationError(error.message, {
         paymentOrderId: paymentOrder.paymentOrderId,
@@ -281,6 +287,61 @@ export class PaymentExecutorService {
   private async getCartDetails(cartId: any): Promise<any> {
     const Cart = this.paymentOrderModel.db.model('Cart');
     return Cart.findById(cartId);
+  }
+
+  private async queueWhatsAppNotification(
+    paymentOrder: any,
+    order: any,
+  ): Promise<void> {
+    try {
+      const identity = await this.identityModel.findById(paymentOrder.identityId);
+      const paymentEvent = await this.getPaymentEvent(paymentOrder.paymentEventId);
+      
+      const phoneNumber = 
+        identity?.phoneNumber || 
+        order.recipientContact?.phone ||
+        paymentEvent?.cartSnapshot?.shippingAddress?.recipientPhone;
+
+      if (!phoneNumber || phoneNumber === 'N/A') {
+        this.paymentLogger.warn('No phone number available for WhatsApp notification', {
+          paymentOrderId: paymentOrder.paymentOrderId,
+          orderId: order.orderId,
+          identityPhone: identity?.phoneNumber,
+          orderPhone: order.recipientContact?.phone,
+        });
+        return;
+      }
+
+      const orderDate = new Date(order.createdAt).toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      });
+
+      await this.whatsappQueue.add('payment-confirmation', {
+        phoneNumber,
+        orderId: order.orderId,
+        amountPaid: `₹${paymentOrder.amount}`,
+        paymentMode: paymentOrder.paymentMethod || 'Online',
+        transactionId: paymentOrder.pspTxnId || paymentOrder.paymentOrderId,
+        orderDate,
+      });
+
+      this.paymentLogger.log('WhatsApp payment confirmation queued', {
+        paymentOrderId: paymentOrder.paymentOrderId,
+        orderId: order.orderId,
+        phoneNumber,
+      });
+    } catch (error) {
+      this.paymentLogger.error(
+        `Failed to queue WhatsApp notification: ${error.message}`,
+        'PaymentExecutorService',
+        {
+          paymentOrderId: paymentOrder.paymentOrderId,
+          orderId: order?.orderId,
+        },
+      );
+    }
   }
 
   async handlePaymentFailure(params: {

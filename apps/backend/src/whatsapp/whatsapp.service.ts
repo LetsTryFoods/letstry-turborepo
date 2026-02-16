@@ -76,6 +76,27 @@ export class WhatsAppService {
     return this.sendTemplate(payload);
   }
 
+  async sendPaymentConfirmation(
+    phoneNumber: string,
+    orderId: string,
+    amountPaid: string,
+    paymentMode: string,
+    transactionId: string,
+    orderDate: string,
+  ): Promise<boolean> {
+    const payload: WhatsAppTemplatePayload = {
+      template: 'paymentconfirm',
+      recipients: [
+        {
+          phone: phoneNumber,
+          variables: [orderId, amountPaid, paymentMode, transactionId, orderDate],
+        },
+      ],
+    };
+
+    return this.sendTemplate(payload);
+  }
+
   private async sendTemplate(
     payload: WhatsAppTemplatePayload,
   ): Promise<boolean> {

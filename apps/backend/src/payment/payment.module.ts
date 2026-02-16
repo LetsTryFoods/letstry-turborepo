@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { BullModule } from '@nestjs/bullmq';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { PaymentEvent, PaymentEventSchema } from './entities/payment.schema';
@@ -31,13 +32,27 @@ import { PaymentGatewayFactory } from './gateways/payment-gateway.factory';
 import { CartModule } from '../cart/cart.module';
 import { WebhookLoggerService } from './services/domain/webhook-logger.service';
 import { OrderModule } from '../order/order.module';
+import { WhatsAppModule } from '../whatsapp/whatsapp.module';
+import { WhatsAppNotificationProcessor } from './processors/whatsapp-notification.processor';
 
 @Module({
   imports: [
     ConfigModule,
     CartModule,
     OrderModule,
+    WhatsAppModule,
     EventEmitterModule.forRoot(),
+    BullModule.registerQueue({
+      name: 'whatsapp-notification-queue',
+      defaultJobOptions: {
+        removeOnComplete: true,
+        attempts: 3,
+        backoff: {
+          type: 'exponential',
+          delay: 5000,
+        },
+      },
+    }),
     MongooseModule.forFeature([
       { name: PaymentEvent.name, schema: PaymentEventSchema },
       { name: PaymentOrder.name, schema: PaymentOrderSchema },
@@ -66,6 +81,7 @@ import { OrderModule } from '../order/order.module';
     PaymentLoggerService,
     PaymentGatewayFactory,
     WebhookLoggerService,
+    WhatsAppNotificationProcessor,
   ],
   exports: [PaymentService],
 })
