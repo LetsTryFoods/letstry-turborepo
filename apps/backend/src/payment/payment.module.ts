@@ -45,7 +45,8 @@ import { WhatsAppNotificationProcessor } from './processors/whatsapp-notificatio
     BullModule.registerQueue({
       name: 'whatsapp-notification-queue',
       defaultJobOptions: {
-        removeOnComplete: true,
+        removeOnComplete: false,
+        removeOnFail: false,
         attempts: 3,
         backoff: {
           type: 'exponential',
