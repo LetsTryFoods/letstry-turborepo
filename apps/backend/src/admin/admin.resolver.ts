@@ -28,7 +28,7 @@ export class AdminResolver {
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
       maxAge: 60 * 60 * 1000,
-      domain: process.env.NODE_ENV === 'production' ? '.krsna.site' : undefined,
+      domain: process.env.NODE_ENV === 'production' ? '.letstryfoods.com' : undefined,
     });
     return token.access_token;
   }
@@ -53,7 +53,7 @@ export class AdminResolver {
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
         maxAge: 0,
         domain:
-          process.env.NODE_ENV === 'production' ? '.krsna.site' : undefined,
+          process.env.NODE_ENV === 'production' ? '.letstryfoods.com' : undefined,
       });
     }
     return 'Admin logged out successfully';

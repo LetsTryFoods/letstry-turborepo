@@ -199,8 +199,8 @@ export class PaymentController {
       const orderId = data.orderId || data.orderid;
       const paymentOrderId = data.paymentOrderId || orderId;
 
-      const successUrl = process.env.ZAAKPAY_SUCCESS_URL || 'https://frontend.krsna.site/payment-callback?status=success';
-      const failureUrl = process.env.ZAAKPAY_FAILURE_URL || 'https://frontend.krsna.site/payment-failed';
+      const successUrl = process.env.ZAAKPAY_SUCCESS_URL || 'https://letstryfoods.com/payment-callback?status=success';
+      const failureUrl = process.env.ZAAKPAY_FAILURE_URL || 'https://letstryfoods.com/payment-failed';
 
       if (responseCode === '100' || responseCode === 'success') {
         this.paymentLogger.log('Redirecting to success page', { orderId, paymentOrderId });
@@ -211,7 +211,7 @@ export class PaymentController {
       }
     } catch (error) {
       this.paymentLogger.error('Callback processing error', error.stack, data);
-      const failureUrl = process.env.ZAAKPAY_FAILURE_URL || 'https://frontend.krsna.site/payment-failed';
+      const failureUrl = process.env.ZAAKPAY_FAILURE_URL || 'https://letstryfoods.com/payment-failed';
       return res.redirect(`${failureUrl}?error=callback_error`);
     }
   }
