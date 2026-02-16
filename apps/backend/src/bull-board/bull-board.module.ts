@@ -15,6 +15,14 @@ import { Queue } from 'bullmq';
       name: 'packing-queue',
       adapter: BullMQAdapter,
     }),
+    BaseBullBoardModule.forFeature({
+      name: 'whatsapp-notification-queue',
+      adapter: BullMQAdapter,
+    }),
+    BaseBullBoardModule.forFeature({
+      name: 'shipment-webhook',
+      adapter: BullMQAdapter,
+    }),
   ],
 })
 export class BullBoardModule {}
