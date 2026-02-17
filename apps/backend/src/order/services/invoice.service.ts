@@ -80,6 +80,7 @@ export class InvoiceService {
         this.generateHr(doc, 175);
 
         const customerInfoTop = 185;
+        const address = order.shippingAddress;
 
         doc
             .fontSize(8)
@@ -90,46 +91,62 @@ export class InvoiceService {
             .text('Invoice Date:', 50, customerInfoTop + 12)
             .text(new Date(order.createdAt).toLocaleDateString(), 120, customerInfoTop + 12)
             .text('Payment Method:', 50, customerInfoTop + 24)
-            .text(order.payment?.method || 'N/A', 120, customerInfoTop + 24)
+            .text(order.payment?.method || 'UPI', 120, customerInfoTop + 24)
 
             .font('Helvetica-Bold')
-            .text(order.customer?.name || 'Customer', 300, customerInfoTop)
-            .font('Helvetica')
-            .text(order.shippingAddress?.addressLine1 || '', 300, customerInfoTop + 12)
-            .text(
-                `${order.shippingAddress?.city || ''}, ${order.shippingAddress?.state || ''}, ${order.shippingAddress?.pincode || ''}`,
-                300,
-                customerInfoTop + 24,
-            )
-            .text(order.customer?.phone || '', 300, customerInfoTop + 36)
-            .moveDown();
+            .text(order.customer?.name || order.recipientContact?.name || 'Customer', 300, customerInfoTop)
+            .font('Helvetica');
 
-        this.generateHr(doc, 245);
+        let currentY = customerInfoTop + 12;
+        if (address) {
+            const addressLines = [
+                address.buildingName,
+                address.floor ? `Floor ${address.floor}` : '',
+                address.streetArea,
+                address.landmark ? `Landmark: ${address.landmark}` : '',
+                `${address.addressLocality}, ${address.addressRegion} - ${address.postalCode}`,
+            ].filter(Boolean);
+
+            addressLines.forEach((line) => {
+                doc.text(line, 300, currentY, { width: 250 });
+                currentY += 10;
+            });
+        }
+
+        if (order.recipientContact?.phone) {
+            doc.text(order.recipientContact.phone, 300, currentY);
+        } else if (order.customer?.phone) {
+            doc.text(order.customer.phone, 300, currentY);
+        }
     }
 
     private generateInvoiceTable(doc: PDFKit.PDFDocument, order: any) {
-        let i;
-        const invoiceTableTop = 270;
+        let currentY = 270;
 
         doc.font('Helvetica-Bold').fontSize(8);
         this.generateTableRow(
             doc,
-            invoiceTableTop,
+            currentY,
             'Item',
             'Description',
             'Unit Cost',
             'Quantity',
             'Line Total',
         );
-        this.generateHr(doc, invoiceTableTop + 15);
+        this.generateHr(doc, currentY + 15);
         doc.font('Helvetica');
+        currentY += 20;
 
-        for (i = 0; i < order.items.length; i++) {
+        for (let i = 0; i < order.items.length; i++) {
             const item = order.items[i];
-            const position = invoiceTableTop + (i + 1) * 25;
+
+            const itemNameHeight = doc.heightOfString(item.name, { width: 140 });
+            const descHeight = doc.heightOfString(item.variant || '', { width: 140 });
+            const rowHeight = Math.max(itemNameHeight, descHeight, 15);
+
             this.generateTableRow(
                 doc,
-                position,
+                currentY,
                 item.name,
                 item.variant || '',
                 `INR ${item.price}`,
@@ -137,54 +154,43 @@ export class InvoiceService {
                 `INR ${item.totalPrice}`,
             );
 
-            this.generateHr(doc, position + 15);
+            currentY += rowHeight + 5;
+            this.generateHr(doc, currentY);
+            currentY += 10;
         }
 
-        const subtotalPosition = invoiceTableTop + (i + 1) * 25;
-        this.generateTableRow(
-            doc,
-            subtotalPosition,
-            '',
-            '',
-            'Subtotal',
-            '',
-            `INR ${order.subtotal}`,
-        );
+        currentY += 10;
 
-        const discountPosition = subtotalPosition + 15;
-        this.generateTableRow(
-            doc,
-            discountPosition,
-            '',
-            '',
-            'Discount',
-            '',
-            `INR ${order.discount || 0}`,
-        );
+        this.generateSummaryRow(doc, currentY, 'Subtotal', `INR ${order.subtotal}`);
+        currentY += 15;
 
-        const deliveryPosition = discountPosition + 15;
-        this.generateTableRow(
-            doc,
-            deliveryPosition,
-            '',
-            '',
-            'Delivery',
-            '',
-            `INR ${order.deliveryCharge || 0}`,
-        );
+        if (order.discount && order.discount !== '0') {
+            this.generateSummaryRow(doc, currentY, 'Discount', `INR -${order.discount}`);
+            currentY += 15;
+        }
 
-        const duePosition = deliveryPosition + 20;
+        if (order.deliveryCharge && order.deliveryCharge !== '0') {
+            this.generateSummaryRow(doc, currentY, 'Delivery', `INR ${order.deliveryCharge}`);
+            currentY += 15;
+        }
+
+        const handlingCharge = order.handlingCharge || order.metadata?.handlingCharge;
+        if (handlingCharge && handlingCharge !== '0') {
+            this.generateSummaryRow(doc, currentY, 'Handling Charges', `INR ${handlingCharge}`);
+            currentY += 15;
+        }
+
+        currentY += 5;
         doc.font('Helvetica-Bold');
-        this.generateTableRow(
-            doc,
-            duePosition,
-            '',
-            '',
-            'Total',
-            '',
-            `INR ${order.totalAmount}`,
-        );
+        this.generateSummaryRow(doc, currentY, 'Total', `INR ${order.totalAmount}`);
         doc.font('Helvetica');
+    }
+
+    private generateSummaryRow(doc: PDFKit.PDFDocument, y: number, label: string, value: string) {
+        doc
+            .fontSize(8)
+            .text(label, 330, y, { width: 130, align: 'right' })
+            .text(value, 460, y, { align: 'right' });
     }
 
     private generateFooter(doc: PDFKit.PDFDocument) {
