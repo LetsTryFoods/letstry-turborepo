@@ -849,18 +849,24 @@ type AdminOrdersResponse {
   summary: OrdersSummary!
 }
 
-type BatchItemResult {
-  ean: String!
+type ProductValidation {
+  productId: String!
   isValid: Boolean!
   errorType: String
-  itemName: String
+  errorMessage: String
+  expectedQuantity: Int
+  scannedQuantity: Int
+  productName: String
 }
 
 type BatchScanResult {
+  success: Boolean!
   totalProcessed: Int!
   successCount: Int!
   failureCount: Int!
-  results: [BatchItemResult!]!
+  validations: [ProductValidation!]!
+  errorMessage: String
+  totalScans: Int
 }
 
 type ItemDimensions {
@@ -1424,7 +1430,6 @@ type Mutation {
   cancelOrder(input: CancelOrderInput!): OrderType!
   updateOrderStatus(input: UpdateOrderStatusInput!): OrderType!
   startPacking(packingOrderId: String!): PackingOrder!
-  scanItem(input: ScanItemInput!): ScanLog!
   batchScanItems(input: BatchScanInput!): BatchScanResult!
   uploadEvidence(input: UploadEvidenceInput!): PackingOrder!
   completePacking(packingOrderId: String!): PackingOrder!
@@ -1800,18 +1805,14 @@ input UpdateOrderStatusInput {
   trackingNumber: String
 }
 
-input ScanItemInput {
-  packingOrderId: String!
-  ean: String!
-}
-
 input BatchScanInput {
   packingOrderId: String!
-  items: [BatchScanItem!]!
+  items: [ProductScanItem!]!
 }
 
-input BatchScanItem {
-  ean: String!
+input ProductScanItem {
+  productId: String!
+  eans: [String!]!
 }
 
 input UploadEvidenceInput {

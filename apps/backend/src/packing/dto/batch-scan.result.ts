@@ -1,9 +1,9 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
 
 @ObjectType()
-export class BatchItemResult {
+export class ProductValidation {
     @Field()
-    ean: string;
+    productId: string;
 
     @Field()
     isValid: boolean;
@@ -12,11 +12,23 @@ export class BatchItemResult {
     errorType?: string;
 
     @Field({ nullable: true })
-    itemName?: string;
+    errorMessage?: string;
+
+    @Field(() => Int, { nullable: true })
+    expectedQuantity?: number;
+
+    @Field(() => Int, { nullable: true })
+    scannedQuantity?: number;
+
+    @Field({ nullable: true })
+    productName?: string;
 }
 
 @ObjectType()
 export class BatchScanResult {
+    @Field()
+    success: boolean;
+
     @Field(() => Int)
     totalProcessed: number;
 
@@ -26,6 +38,12 @@ export class BatchScanResult {
     @Field(() => Int)
     failureCount: number;
 
-    @Field(() => [BatchItemResult])
-    results: BatchItemResult[];
+    @Field(() => [ProductValidation])
+    validations: ProductValidation[];
+
+    @Field({ nullable: true })
+    errorMessage?: string;
+
+    @Field(() => Int, { nullable: true })
+    totalScans?: number;
 }

@@ -9,8 +9,8 @@ export class ScanLog extends Document {
   @Prop({ required: true })
   packerId: string;
 
-  @Prop({ required: true })
-  ean: string;
+  @Prop()
+  ean?: string;
 
   @Prop({ required: true })
   scannedAt: Date;
@@ -44,6 +44,12 @@ export class ScanLog extends Document {
 
   @Prop()
   flaggedAt?: Date;
+
+  @Prop({ default: false })
+  isBatchSuccess: boolean;
+
+  @Prop({ type: [Object] })
+  items?: any[];
 }
 
 export const ScanLogSchema = SchemaFactory.createForClass(ScanLog);

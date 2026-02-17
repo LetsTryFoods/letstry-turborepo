@@ -4,4 +4,6 @@ export enum ScanErrorType {
   WRONG_ITEM = 'wrong_item',
   DUPLICATE_SCAN = 'duplicate_scan',
   MISSING_ITEM = 'missing_item',
+  QUANTITY_MISMATCH = 'quantity_mismatch',
+  EAN_MISMATCH = 'ean_mismatch',
 }

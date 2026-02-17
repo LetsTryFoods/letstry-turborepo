@@ -7,7 +7,7 @@ import { PackerAuthGuard } from './guards/packer-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Role } from '../common/enums/role.enum';
-import { ScanItemInput } from './dto/scan-item.input';
+
 import { UploadEvidenceInput } from './dto/upload-evidence.input';
 import { BatchScanInput } from './dto/batch-scan.input';
 import { BatchScanResult } from './dto/batch-scan.result';
@@ -72,19 +72,7 @@ export class PackingResolver {
     return this.packingService.startPacking(packingOrderId);
   }
 
-  @Mutation(() => ScanLog)
-  @UseGuards(PackerAuthGuard, RolesGuard)
-  @Roles(Role.PACKER)
-  async scanItem(
-    @Args('input', { type: () => ScanItemInput }) input: ScanItemInput,
-    @Context() ctx,
-  ): Promise<any> {
-    return this.packingService.scanItem(
-      input.packingOrderId,
-      input.ean,
-      ctx.req.user.packerId,
-    );
-  }
+
 
   @Mutation(() => BatchScanResult)
   @UseGuards(PackerAuthGuard, RolesGuard)
@@ -111,6 +99,7 @@ export class PackingResolver {
       input.packingOrderId,
       input.prePackImages || [],
       input.actualBoxCode || '',
+      ctx.req.user.packerId,
     );
   }
 
@@ -119,8 +108,9 @@ export class PackingResolver {
   @Roles(Role.PACKER)
   async completePacking(
     @Args('packingOrderId') packingOrderId: string,
+    @Context() ctx,
   ): Promise<any> {
-    return this.packingService.completePacking(packingOrderId);
+    return this.packingService.completePacking(packingOrderId, ctx.req.user.packerId);
   }
 
   @Query(() => BoxSize)

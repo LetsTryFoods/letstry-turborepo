@@ -1,13 +1,19 @@
-import { InputType, Field, Int } from '@nestjs/graphql';
-import { IsString, IsNotEmpty, IsArray, ValidateNested, IsInt, Min } from 'class-validator';
+import { InputType, Field } from '@nestjs/graphql';
+import { IsString, IsNotEmpty, IsArray, ValidateNested, ArrayMinSize } from 'class-validator';
 import { Type } from 'class-transformer';
 
 @InputType()
-export class BatchScanItem {
+export class ProductScanItem {
     @Field()
     @IsString()
     @IsNotEmpty()
-    ean: string;
+    productId: string;
+
+    @Field(() => [String])
+    @IsArray()
+    @ArrayMinSize(1)
+    @IsString({ each: true })
+    eans: string[];
 }
 
 @InputType()
@@ -17,9 +23,9 @@ export class BatchScanInput {
     @IsNotEmpty()
     packingOrderId: string;
 
-    @Field(() => [BatchScanItem])
+    @Field(() => [ProductScanItem])
     @IsArray()
     @ValidateNested({ each: true })
-    @Type(() => BatchScanItem)
-    items: BatchScanItem[];
+    @Type(() => ProductScanItem)
+    items: ProductScanItem[];
 }

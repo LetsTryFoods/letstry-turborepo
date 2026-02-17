@@ -48,4 +48,11 @@ export class ScanLogCrudService {
       .countDocuments({ packingOrderId: orderId, ean, isValid })
       .exec();
   }
+
+  async hasSuccessfulBatchScan(packingOrderId: string): Promise<boolean> {
+    const count = await this.scanLogModel
+      .countDocuments({ packingOrderId, isBatchSuccess: true })
+      .exec();
+    return count > 0;
+  }
 }

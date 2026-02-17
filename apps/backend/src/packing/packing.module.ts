@@ -25,7 +25,7 @@ import { PackerStatsService } from './services/domain/packer-stats.service';
 import { PackerAuthService } from './services/domain/packer-auth.service';
 import { OrderAssignmentService } from './services/domain/order-assignment.service';
 import { PackingLifecycleService } from './services/domain/packing-lifecycle.service';
-import { ScanValidationService } from './services/domain/scan-validation.service';
+
 import { PackingQueueService } from './services/domain/packing-queue.service';
 import { PriorityCalculatorService } from './services/domain/priority-calculator.service';
 import { RetrospectiveErrorService } from './services/domain/retrospective-error.service';
@@ -94,7 +94,7 @@ import { ShipmentModule } from '../shipment/shipment.module';
     PackerAuthService,
     OrderAssignmentService,
     PackingLifecycleService,
-    ScanValidationService,
+
     PackingQueueService,
     PriorityCalculatorService,
     RetrospectiveErrorService,

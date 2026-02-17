@@ -58,25 +58,27 @@ export class ScanLoggerService {
         });
     }
 
-    logBatchScanRequest(payload: { packingOrderId: string; items: { ean: string }[]; packerId: string }) {
+    logBatchScanRequest(payload: { packingOrderId: string; items: { productId: string; eans: string[] }[]; packerId: string }) {
         this.logger.info('Batch scan request received', {
             event: 'BATCH_SCAN_REQUEST',
             mutation: 'batchScanItems',
             packingOrderId: payload.packingOrderId,
             packerId: payload.packerId,
             itemCount: payload.items.length,
-            eans: payload.items.map((i) => i.ean),
+            products: payload.items.map((i) => ({ productId: i.productId, scanCount: i.eans.length })),
         });
     }
 
-    logBatchScanResponse(packingOrderId: string, response: { totalProcessed: number; successCount: number; failureCount: number }) {
+    logBatchScanResponse(packingOrderId: string, response: any) {
         this.logger.info('Batch scan response sent', {
             event: 'BATCH_SCAN_RESPONSE',
             mutation: 'batchScanItems',
             packingOrderId,
+            success: response.success,
             totalProcessed: response.totalProcessed,
             successCount: response.successCount,
             failureCount: response.failureCount,
+            totalScans: response.totalScans,
         });
     }
 
