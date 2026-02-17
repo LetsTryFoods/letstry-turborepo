@@ -915,6 +915,7 @@ type ScanLog {
   retrospectiveNotes: String
   flaggedBy: String
   flaggedAt: DateTime
+  itemName: String
 }
 
 type BoxDimensions {

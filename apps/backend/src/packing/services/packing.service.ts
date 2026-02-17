@@ -105,9 +105,9 @@ export class PackingService {
       );
     }
 
+    const logObj = scanLog.toObject ? scanLog.toObject() : scanLog;
     return {
-      isValid: validation.isValid,
-      errorType: validation.errorType,
+      ...logObj,
       itemName: validation.item?.name,
     };
   }
@@ -128,7 +128,7 @@ export class PackingService {
         item.ean,
       );
 
-      await this.scanLogCrud.create({
+      const scanLog = await this.scanLogCrud.create({
         packingOrderId,
         packerId,
         ean: item.ean,
@@ -152,10 +152,9 @@ export class PackingService {
         successCount++;
       }
 
+      const logObj = scanLog.toObject ? scanLog.toObject() : scanLog;
       results.push({
-        ean: item.ean,
-        isValid: validation.isValid,
-        errorType: validation.errorType,
+        ...logObj,
         itemName: validation.item?.name,
       });
     }

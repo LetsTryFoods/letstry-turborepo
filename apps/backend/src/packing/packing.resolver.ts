@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, Context, ResolveField, Parent, ObjectType, Field, Int } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, Context, ResolveField, Parent, ObjectType, Field, Int, ID } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { PackingService } from './services/packing.service';
 import { PackerService } from './services/packer.service';
@@ -156,5 +156,13 @@ export class PackingResolver {
   @Roles(Role.ADMIN)
   async cleanupOrphanedJobs(): Promise<CleanupResult> {
     return this.queueCleanupService.cleanupOrphanedJobs();
+  }
+}
+
+@Resolver(() => ScanLog)
+export class ScanLogResolver {
+  @ResolveField(() => ID)
+  id(@Parent() scanLog: any): string {
+    return scanLog._id?.toString() || scanLog.id;
   }
 }

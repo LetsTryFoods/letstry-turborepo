@@ -39,7 +39,7 @@ import { QueueCleanupService } from './services/domain/queue-cleanup.service';
 import { PackingService } from './services/packing.service';
 import { PackerService } from './services/packer.service';
 
-import { PackingResolver } from './packing.resolver';
+import { PackingResolver, ScanLogResolver } from './packing.resolver';
 import { PackerResolver } from './packer.resolver';
 
 import { PackerAuthGuard } from './guards/packer-auth.guard';
@@ -106,6 +106,7 @@ import { ShipmentModule } from '../shipment/shipment.module';
     PackingService,
     PackerService,
     PackingResolver,
+    ScanLogResolver,
     PackerResolver,
     PackerAuthGuard,
     PackingAssignmentProcessor,

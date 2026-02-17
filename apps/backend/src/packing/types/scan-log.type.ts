@@ -46,4 +46,7 @@ export class ScanLog {
 
   @Field({ nullable: true })
   flaggedAt?: Date;
+
+  @Field({ nullable: true })
+  itemName?: string;
 }
