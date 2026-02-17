@@ -18,7 +18,7 @@ import { OrderRepository } from './services/order.repository';
 import { OrderQueryService } from './services/order.query-service';
 import { OrderCommandService } from './services/order.command-service';
 import { OrderItemService } from './services/order.item-service';
-import { PaymentOrder } from '../payment/entities/payment.schema';
+import { PaymentOrder, PaymentEvent } from '../payment/entities/payment.schema';
 import { Address, AddressDocument } from '../address/address.schema';
 import {
   Identity,
@@ -39,6 +39,8 @@ export class OrderService {
     orderItemService: OrderItemService,
     @InjectModel(PaymentOrder.name)
     private paymentOrderModel: Model<PaymentOrder>,
+    @InjectModel(PaymentEvent.name)
+    private paymentEventModel: Model<PaymentEvent>,
     @InjectModel(Address.name)
     private addressModel: Model<AddressDocument>,
     @InjectModel(Identity.name)
@@ -168,6 +170,13 @@ export class OrderService {
     if (!payment) {
       return null;
     }
+
+    let handlingCharge: number | undefined;
+    if (payment.paymentEventId) {
+      const paymentEvent = await this.paymentEventModel.findById(payment.paymentEventId).exec();
+      handlingCharge = paymentEvent?.cartSnapshot?.totals?.handlingCharge;
+    }
+
     return {
       _id: payment._id.toString(),
       status: payment.paymentOrderStatus,
@@ -175,6 +184,7 @@ export class OrderService {
       transactionId: payment.pspTxnId || payment.bankTxnId,
       amount: payment.amount,
       paidAt: payment.completedAt,
+      handlingCharge,
     };
   }
 

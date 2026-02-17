@@ -94,17 +94,17 @@ export class InvoiceService {
             .text(order.payment?.method || 'UPI', 120, customerInfoTop + 24)
 
             .font('Helvetica-Bold')
-            .text(order.customer?.name || order.recipientContact?.name || 'Customer', 300, customerInfoTop)
+            .text(address?.fullName || order.customer?.name || order.recipientContact?.name || 'Customer', 300, customerInfoTop)
             .font('Helvetica');
 
         let currentY = customerInfoTop + 12;
         if (address) {
             const addressLines = [
-                address.buildingName,
+                address.addressLine1,
                 address.floor ? `Floor ${address.floor}` : '',
-                address.streetArea,
-                address.landmark ? `Landmark: ${address.landmark}` : '',
-                `${address.addressLocality}, ${address.addressRegion} - ${address.postalCode}`,
+                address.addressLine2,
+                address.landmark && address.landmark !== 'N/A' ? `Landmark: ${address.landmark}` : '',
+                `${address.city}, ${address.state} - ${address.pincode}`,
             ].filter(Boolean);
 
             addressLines.forEach((line) => {
@@ -113,10 +113,10 @@ export class InvoiceService {
             });
         }
 
-        if (order.recipientContact?.phone) {
+        if (address?.phone && address.phone !== 'N/A') {
+            doc.text(address.phone, 300, currentY);
+        } else if (order.recipientContact?.phone) {
             doc.text(order.recipientContact.phone, 300, currentY);
-        } else if (order.customer?.phone) {
-            doc.text(order.customer.phone, 300, currentY);
         }
     }
 
@@ -174,8 +174,8 @@ export class InvoiceService {
             currentY += 15;
         }
 
-        const handlingCharge = order.handlingCharge || order.metadata?.handlingCharge;
-        if (handlingCharge && handlingCharge !== '0') {
+        const handlingCharge = order.handlingCharge || order.payment?.handlingCharge || order.metadata?.handlingCharge;
+        if (handlingCharge && handlingCharge !== '0' && handlingCharge !== 0) {
             this.generateSummaryRow(doc, currentY, 'Handling Charges', `INR ${handlingCharge}`);
             currentY += 15;
         }

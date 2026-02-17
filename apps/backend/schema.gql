@@ -719,6 +719,7 @@ type OrderPaymentType {
   transactionId: String
   amount: String!
   paidAt: DateTime
+  handlingCharge: Float
 }
 
 type OrderShippingAddressType {

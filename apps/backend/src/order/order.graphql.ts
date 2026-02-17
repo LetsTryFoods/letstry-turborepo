@@ -32,6 +32,9 @@ export class OrderPaymentType {
 
   @Field({ nullable: true })
   paidAt?: Date;
+
+  @Field({ nullable: true })
+  handlingCharge?: number;
 }
 
 @ObjectType()
