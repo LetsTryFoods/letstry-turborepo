@@ -88,6 +88,48 @@ export class ScanLoggerService {
         });
     }
 
+    logEvidenceRequest(payload: { packingOrderId: string; imageCount: number; boxCode: string }) {
+        this.logger.info('Evidence upload request received', {
+            event: 'EVIDENCE_REQUEST',
+            mutation: 'uploadEvidence',
+            ...payload,
+        });
+    }
+
+    logEvidenceResponse(packingOrderId: string, evidenceId: string) {
+        this.logger.info('Evidence upload response sent', {
+            event: 'EVIDENCE_RESPONSE',
+            mutation: 'uploadEvidence',
+            packingOrderId,
+            evidenceId,
+        });
+    }
+
+    logCompletePackingRequest(packingOrderId: string) {
+        this.logger.info('Complete packing request received', {
+            event: 'COMPLETE_PACKING_REQUEST',
+            mutation: 'completePacking',
+            packingOrderId,
+        });
+    }
+
+    logCompletePackingStep(step: string, data: Record<string, any>) {
+        this.logger.info('Complete packing step', {
+            event: 'COMPLETE_PACKING_STEP',
+            step,
+            ...data,
+        });
+    }
+
+    logCompletePackingResponse(packingOrderId: string, data: Record<string, any>) {
+        this.logger.info('Complete packing response sent', {
+            event: 'COMPLETE_PACKING_RESPONSE',
+            mutation: 'completePacking',
+            packingOrderId,
+            ...data,
+        });
+    }
+
     logScanError(mutation: string, packingOrderId: string, error: any) {
         this.logger.error('Scan error occurred', {
             event: 'SCAN_ERROR',

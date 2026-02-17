@@ -15,7 +15,7 @@ export class ScanValidationService {
   async validateEAN(
     orderId: string,
     ean: string,
-  ): Promise<{ isValid: boolean; errorType?: string; item?: any }> {
+  ): Promise<{ isValid: boolean; errorType?: string; item?: any; scannedCount: number }> {
     const order = await this.packingOrderCrud.findById(orderId);
 
     this.scanLogger.logValidationStep('ORDER_LOOKUP', {
@@ -27,7 +27,7 @@ export class ScanValidationService {
     });
 
     if (!order)
-      return { isValid: false, errorType: ScanErrorType.ITEM_NOT_FOUND };
+      return { isValid: false, errorType: ScanErrorType.ITEM_NOT_FOUND, scannedCount: 0 };
 
     const item = order.items.find((i) => i.ean === ean);
 
@@ -42,7 +42,7 @@ export class ScanValidationService {
     });
 
     if (!item)
-      return { isValid: false, errorType: ScanErrorType.ITEM_NOT_FOUND };
+      return { isValid: false, errorType: ScanErrorType.ITEM_NOT_FOUND, scannedCount: 0 };
 
     const scannedCount = await this.scanLogCrud.countByOrderEanAndValid(
       orderId,
@@ -59,10 +59,10 @@ export class ScanValidationService {
     });
 
     if (scannedCount >= item.quantity) {
-      return { isValid: false, errorType: ScanErrorType.QUANTITY_EXCEEDED };
+      return { isValid: false, errorType: ScanErrorType.QUANTITY_EXCEEDED, scannedCount };
     }
 
-    return { isValid: true, item };
+    return { isValid: true, item, scannedCount };
   }
 
   async checkQuantity(

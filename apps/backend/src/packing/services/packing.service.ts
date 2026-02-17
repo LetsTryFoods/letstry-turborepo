@@ -100,6 +100,7 @@ export class PackingService {
       matchedProductId: validation.item?.productId,
       matchedSku: validation.item?.sku,
       expectedQuantity: validation.item?.quantity,
+      scannedQuantity: validation.scannedCount,
     });
 
     if (!validation.isValid) {
@@ -151,6 +152,7 @@ export class PackingService {
         matchedProductId: validation.item?.productId,
         matchedSku: validation.item?.sku,
         expectedQuantity: validation.item?.quantity,
+        scannedQuantity: validation.scannedCount,
       });
 
       if (!validation.isValid) {
@@ -189,35 +191,53 @@ export class PackingService {
     imageUrls: string[],
     boxCode: string,
   ): Promise<any> {
-
+    this.scanLogger.logEvidenceRequest({ packingOrderId, imageCount: imageUrls.length, boxCode });
 
     const evidence = await this.evidenceCrud.create({
       packingOrderId,
-      packerId: 'current_packer', // This should be updated to use actual packerId if available in context
+      packerId: 'current_packer',
       prePackImages: imageUrls,
-      postPackImages: [], // Or handle if postPackImages are sent separately
+      postPackImages: [],
       actualBox: { code: boxCode, dimensions: { l: 0, w: 0, h: 0 } },
       uploadedAt: new Date(),
     });
 
     this.packingLogger.logEvidenceUploaded(packingOrderId, imageUrls.length);
+    this.scanLogger.logEvidenceResponse(packingOrderId, evidence._id?.toString());
 
     return evidence;
   }
 
   async completePacking(packingOrderId: string): Promise<any> {
+    this.scanLogger.logCompletePackingRequest(packingOrderId);
+
     const packingOrder = await this.packingOrderCrud.findById(packingOrderId);
 
     if (!packingOrder) {
+      this.scanLogger.logScanError('completePacking', packingOrderId, new Error('Packing order not found'));
       throw new Error('Packing order not found');
     }
 
+    this.scanLogger.logCompletePackingStep('ORDER_FOUND', {
+      packingOrderId,
+      orderId: packingOrder.orderId,
+      assignedTo: packingOrder.assignedTo,
+      status: packingOrder.status,
+    });
+
     await this.packingLifecycle.completePacking(packingOrderId);
+
+    this.scanLogger.logCompletePackingStep('STATUS_COMPLETED', { packingOrderId });
 
     await this.orderRepository.updateOrderStatus(
       packingOrder.orderId,
       OrderStatus.PACKED,
     );
+
+    this.scanLogger.logCompletePackingStep('ORDER_STATUS_PACKED', {
+      packingOrderId,
+      orderId: packingOrder.orderId,
+    });
 
     const duration = this.calculatePackingDuration(packingOrder.packingStartedAt);
 
@@ -227,9 +247,21 @@ export class PackingService {
       duration,
     );
 
+    this.scanLogger.logCompletePackingStep('SHIPMENT_INITIATION', {
+      packingOrderId,
+      orderId: packingOrder.orderId,
+    });
+
     await this.initiateShipmentCreation(packingOrder.orderId, packingOrderId);
 
-    return this.packingOrderCrud.findById(packingOrderId);
+    const result = await this.packingOrderCrud.findById(packingOrderId);
+
+    this.scanLogger.logCompletePackingResponse(packingOrderId, {
+      status: result?.status,
+      durationMinutes: duration,
+    });
+
+    return result;
   }
 
   private calculatePackingDuration(packingStartedAt?: Date): number {
