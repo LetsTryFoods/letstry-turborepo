@@ -75,6 +75,10 @@ export type AdminOrdersResponse = {
   summary: OrdersSummary;
 };
 
+export type AdminPunchShipmentInput = {
+  orderId: Scalars['ID']['input'];
+};
+
 export enum AuthMethod {
   Firebase = 'FIREBASE',
   Whatsapp = 'WHATSAPP'
@@ -102,29 +106,20 @@ export type Banner = {
   url: Scalars['String']['output'];
 };
 
-export type BatchItemResult = {
-  __typename?: 'BatchItemResult';
-  ean: Scalars['String']['output'];
-  errorType?: Maybe<Scalars['String']['output']>;
-  isValid: Scalars['Boolean']['output'];
-  itemName?: Maybe<Scalars['String']['output']>;
-};
-
 export type BatchScanInput = {
-  items: Array<BatchScanItem>;
+  items: Array<ProductScanItem>;
   packingOrderId: Scalars['String']['input'];
-};
-
-export type BatchScanItem = {
-  ean: Scalars['String']['input'];
 };
 
 export type BatchScanResult = {
   __typename?: 'BatchScanResult';
+  errorMessage?: Maybe<Scalars['String']['output']>;
   failureCount: Scalars['Int']['output'];
-  results: Array<BatchItemResult>;
+  success: Scalars['Boolean']['output'];
   successCount: Scalars['Int']['output'];
   totalProcessed: Scalars['Int']['output'];
+  totalScans?: Maybe<Scalars['Int']['output']>;
+  validations: Array<ProductValidation>;
 };
 
 export type Blog = {
@@ -165,6 +160,13 @@ export type BlogSeoInput = {
   ogDescription?: InputMaybe<Scalars['String']['input']>;
   ogImage?: InputMaybe<Scalars['String']['input']>;
   ogTitle?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type BoxDimensionType = {
+  __typename?: 'BoxDimensionType';
+  h: Scalars['Float']['output'];
+  l: Scalars['Float']['output'];
+  w: Scalars['Float']['output'];
 };
 
 export type BoxDimensions = {
@@ -284,6 +286,11 @@ export enum CartStatus {
   Expired = 'EXPIRED',
   Merged = 'MERGED',
   Ordered = 'ORDERED'
+}
+
+export enum CartStatusFilter {
+  HasCart = 'HAS_CART',
+  NoCart = 'NO_CART'
 }
 
 export type CartTotals = {
@@ -596,6 +603,7 @@ export type CreateShipmentResponse = {
   message?: Maybe<Scalars['String']['output']>;
   shipment: ShipmentResponse;
   success: Scalars['Boolean']['output'];
+  trackingLink?: Maybe<Scalars['String']['output']>;
 };
 
 export type CreateUserInput = {
@@ -643,16 +651,17 @@ export type CustomerDetails = {
   signupSource?: Maybe<Scalars['JSON']['output']>;
   status: IdentityStatus;
   totalOrders: Scalars['Int']['output'];
-  totalSpent: Scalars['Int']['output'];
+  totalSpent: Scalars['Float']['output'];
   updatedAt: Scalars['DateTime']['output'];
 };
 
 export enum CustomerPlatform {
   Android = 'ANDROID',
-  Desktop = 'DESKTOP',
   Ios = 'IOS',
+  Linux = 'LINUX',
   Macos = 'MACOS',
-  Web = 'WEB'
+  Web = 'WEB',
+  Windows = 'WINDOWS'
 }
 
 export enum CustomerSortField {
@@ -735,7 +744,7 @@ export type EnrichedCustomer = {
   signupSource?: Maybe<Scalars['JSON']['output']>;
   status: IdentityStatus;
   totalOrders: Scalars['Int']['output'];
-  totalSpent: Scalars['Int']['output'];
+  totalSpent: Scalars['Float']['output'];
   updatedAt: Scalars['DateTime']['output'];
 };
 
@@ -774,6 +783,7 @@ export type GetAllOrdersInput = {
 };
 
 export type GetCustomersInput = {
+  cartStatus?: InputMaybe<CartStatusFilter>;
   endDate?: InputMaybe<Scalars['JSON']['input']>;
   limit?: Scalars['Int']['input'];
   maxSpent?: InputMaybe<Scalars['Float']['input']>;
@@ -866,6 +876,7 @@ export type Mutation = {
   addToCart: Cart;
   adminLogin: Scalars['String']['output'];
   adminLogout: Scalars['String']['output'];
+  adminPunchShipment: PackingOrder;
   applyCoupon: Cart;
   archiveCategory: Category;
   archiveProduct: Product;
@@ -912,7 +923,6 @@ export type Mutation = {
   removeFromCart: Cart;
   removeProductVariant: Product;
   removeProductsFromCategory: Scalars['Boolean']['output'];
-  scanItem: ScanLog;
   sendOtp: Scalars['String']['output'];
   setDefaultProductVariant: Product;
   setShippingAddress: Cart;
@@ -966,6 +976,11 @@ export type MutationAddToCartArgs = {
 export type MutationAdminLoginArgs = {
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
+};
+
+
+export type MutationAdminPunchShipmentArgs = {
+  input: AdminPunchShipmentInput;
 };
 
 
@@ -1181,11 +1196,6 @@ export type MutationRemoveProductsFromCategoryArgs = {
 };
 
 
-export type MutationScanItemArgs = {
-  input: ScanItemInput;
-};
-
-
 export type MutationSendOtpArgs = {
   phoneNumber: Scalars['String']['input'];
 };
@@ -1392,6 +1402,7 @@ export type OrderPaymentType = {
   __typename?: 'OrderPaymentType';
   _id: Scalars['String']['output'];
   amount: Scalars['String']['output'];
+  handlingCharge?: Maybe<Scalars['Float']['output']>;
   method?: Maybe<Scalars['String']['output']>;
   paidAt?: Maybe<Scalars['DateTime']['output']>;
   status: PaymentStatus;
@@ -1435,6 +1446,7 @@ export type OrderStatusCount = {
 export type OrderType = {
   __typename?: 'OrderType';
   _id: Scalars['String']['output'];
+  boxDimensions?: Maybe<BoxDimensionType>;
   cancellationReason?: Maybe<Scalars['String']['output']>;
   cancelledAt?: Maybe<Scalars['DateTime']['output']>;
   cartId: Scalars['String']['output'];
@@ -1444,6 +1456,7 @@ export type OrderType = {
   deliveredAt?: Maybe<Scalars['DateTime']['output']>;
   deliveryCharge: Scalars['String']['output'];
   discount: Scalars['String']['output'];
+  estimatedWeight?: Maybe<Scalars['Float']['output']>;
   identityId: Scalars['String']['output'];
   items: Array<OrderItemType>;
   orderId: Scalars['String']['output'];
@@ -1471,6 +1484,7 @@ export type OrderUserInfo = {
 export type OrderWithUserInfo = {
   __typename?: 'OrderWithUserInfo';
   _id: Scalars['String']['output'];
+  boxDimensions?: Maybe<BoxDimensionType>;
   cancellationReason?: Maybe<Scalars['String']['output']>;
   cancelledAt?: Maybe<Scalars['DateTime']['output']>;
   cartId: Scalars['String']['output'];
@@ -1480,6 +1494,7 @@ export type OrderWithUserInfo = {
   deliveredAt?: Maybe<Scalars['DateTime']['output']>;
   deliveryCharge: Scalars['String']['output'];
   discount: Scalars['String']['output'];
+  estimatedWeight?: Maybe<Scalars['Float']['output']>;
   identityId: Scalars['String']['output'];
   items: Array<OrderItemType>;
   orderId: Scalars['String']['output'];
@@ -1848,10 +1863,11 @@ export type PlacePredictionOutput = {
 export type PlatformStats = {
   __typename?: 'PlatformStats';
   android: Scalars['Int']['output'];
-  desktop: Scalars['Int']['output'];
   ios: Scalars['Int']['output'];
+  linux: Scalars['Int']['output'];
   macos: Scalars['Int']['output'];
   web: Scalars['Int']['output'];
+  windows: Scalars['Int']['output'];
 };
 
 export type Policy = {
@@ -1946,6 +1962,11 @@ export type ProductImageInput = {
   url: Scalars['String']['input'];
 };
 
+export type ProductScanItem = {
+  eans: Array<Scalars['String']['input']>;
+  productId: Scalars['String']['input'];
+};
+
 export type ProductSeo = {
   __typename?: 'ProductSeo';
   _id: Scalars['ID']['output'];
@@ -1969,6 +1990,17 @@ export type ProductSeoInput = {
   ogDescription?: InputMaybe<Scalars['String']['input']>;
   ogImage?: InputMaybe<Scalars['String']['input']>;
   ogTitle?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ProductValidation = {
+  __typename?: 'ProductValidation';
+  errorMessage?: Maybe<Scalars['String']['output']>;
+  errorType?: Maybe<Scalars['String']['output']>;
+  expectedQuantity?: Maybe<Scalars['Int']['output']>;
+  isValid: Scalars['Boolean']['output'];
+  productId: Scalars['String']['output'];
+  productName?: Maybe<Scalars['String']['output']>;
+  scannedQuantity?: Maybe<Scalars['Int']['output']>;
 };
 
 export type ProductVariant = {
@@ -2045,6 +2077,7 @@ export type Query = {
   getPlaceDetails: PlaceDetailsOutput;
   getShipmentByAwb?: Maybe<ShipmentResponse>;
   getShipmentById?: Maybe<ShipmentResponse>;
+  getShipmentLabel?: Maybe<Scalars['String']['output']>;
   getShipmentWithTracking: ShipmentWithTrackingResponse;
   guest?: Maybe<Guest>;
   guestByGuestId?: Maybe<Guest>;
@@ -2251,6 +2284,11 @@ export type QueryGetShipmentByIdArgs = {
 };
 
 
+export type QueryGetShipmentLabelArgs = {
+  awbNumber: Scalars['String']['input'];
+};
+
+
 export type QueryGetShipmentWithTrackingArgs = {
   awbNumber: Scalars['String']['input'];
 };
@@ -2393,11 +2431,6 @@ export type ReverseGeocodeInput = {
   longitude: Scalars['Float']['input'];
 };
 
-export type ScanItemInput = {
-  ean: Scalars['String']['input'];
-  packingOrderId: Scalars['String']['input'];
-};
-
 export type ScanLog = {
   __typename?: 'ScanLog';
   ean: Scalars['String']['output'];
@@ -2408,6 +2441,7 @@ export type ScanLog = {
   id: Scalars['ID']['output'];
   isRetrospective: Scalars['Boolean']['output'];
   isValid: Scalars['Boolean']['output'];
+  itemName?: Maybe<Scalars['String']['output']>;
   matchedProductId?: Maybe<Scalars['String']['output']>;
   matchedSku?: Maybe<Scalars['String']['output']>;
   packerId: Scalars['String']['output'];
@@ -2503,6 +2537,7 @@ export type ShipmentResponse = {
   revisedExpectedDeliveryDate?: Maybe<Scalars['DateTime']['output']>;
   rtoNumber?: Maybe<Scalars['String']['output']>;
   serviceType: Scalars['String']['output'];
+  trackingLink?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTime']['output'];
   webhookLastReceivedAt?: Maybe<Scalars['DateTime']['output']>;
   weight: Scalars['Float']['output'];
@@ -2546,6 +2581,7 @@ export type ShipmentWithTrackingResponse = {
   rtoNumber?: Maybe<Scalars['String']['output']>;
   serviceType: Scalars['String']['output'];
   trackingHistory: Array<TrackingHistoryResponse>;
+  trackingLink?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTime']['output'];
   webhookLastReceivedAt?: Maybe<Scalars['DateTime']['output']>;
   weight: Scalars['Float']['output'];

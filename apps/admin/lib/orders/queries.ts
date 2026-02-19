@@ -119,7 +119,6 @@ export interface Order {
   cancelledAt?: Date;
   cancellationReason?: string;
   createdAt: string;
-  createdAt: string;
   updatedAt: string;
   estimatedWeight?: number;
   boxDimensions?: {
