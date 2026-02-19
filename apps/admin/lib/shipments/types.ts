@@ -16,6 +16,7 @@ export enum ServiceType {
   B2C_PRIORITY = 'B2C PRIORITY',
   B2C_SMART = 'B2C SMART',
   EXPRESS = 'EXPRESS',
+  GROUND_EXPRESS = 'GROUND EXPRESS',
 }
 
 export enum LoadType {
@@ -91,6 +92,7 @@ export interface Shipment {
   webhookLastReceivedAt?: Date | string
   createdAt: Date | string
   updatedAt: Date | string
+  trackingLink?: string
 }
 
 export interface TrackingHistory {

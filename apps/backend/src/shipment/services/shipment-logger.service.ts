@@ -156,4 +156,8 @@ export class ShipmentLoggerService {
       ...context,
     });
   }
+
+  logInfo(message: string, context?: Record<string, any>) {
+    this.logger.info(message, context);
+  }
 }

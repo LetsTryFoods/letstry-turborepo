@@ -124,6 +124,12 @@ export function ShipmentTable({ shipments, onViewDetails, onCancelShipment }: Sh
                         Track Shipment
                       </Link>
                     </DropdownMenuItem>
+                    {shipment.trackingLink && (
+                      <DropdownMenuItem onClick={() => handleCopy(shipment.trackingLink!, 'Tracking Link')}>
+                        <Copy className="mr-2 h-4 w-4" />
+                        Copy Tracking Link
+                      </DropdownMenuItem>
+                    )}
                     {shipment.labelUrl && (
                       <DropdownMenuItem asChild>
                         <a href={shipment.labelUrl} target="_blank" rel="noopener noreferrer">

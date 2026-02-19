@@ -116,6 +116,9 @@ export class ShipmentResponse {
 
   @Field()
   updatedAt: Date;
+
+  @Field({ nullable: true })
+  trackingLink?: string;
 }
 
 @ObjectType()
@@ -188,6 +191,9 @@ export class CreateShipmentResponse {
 
   @Field({ nullable: true })
   message?: string;
+
+  @Field({ nullable: true })
+  trackingLink?: string;
 }
 
 @ObjectType()

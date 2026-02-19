@@ -74,15 +74,20 @@ export interface DtdcBookingPayload {
       address_line_1: string;
       address_line_2?: string;
       pincode: string;
-      city: string;
-      state: string;
-      country: string;
+      city?: string;
+      state?: string;
+      city_name?: string;
+      state_name?: string;
+      country?: string;
       email?: string;
+      latitude?: string;
+      longitude?: string;
     };
     customer_reference_number: string;
     cod_collection_mode?: string;
     cod_amount?: string;
     commodity_id: string;
+    is_risk_surcharge_applicable: boolean;
     description?: string;
     reference_number?: string;
     pieces_detail?: {
@@ -97,13 +102,15 @@ export interface DtdcBookingPayload {
 }
 
 export interface DtdcBookingResponse {
-  success: boolean;
-  consignments: {
+  status: string;
+  data: {
     reference_number: string;
     customer_reference_number: string;
     label_url?: string;
     success: boolean;
     remarks?: string;
+    message?: string;
+    reason?: string;
   }[];
 }
 

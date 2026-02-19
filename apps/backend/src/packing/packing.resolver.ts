@@ -4,12 +4,14 @@ import { PackingService } from './services/packing.service';
 import { PackerService } from './services/packer.service';
 import { QueueCleanupService } from './services/domain/queue-cleanup.service';
 import { PackerAuthGuard } from './guards/packer-auth.guard';
+import { JwtAuthGuard } from '../authentication/common/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Role } from '../common/enums/role.enum';
 
 import { UploadEvidenceInput } from './dto/upload-evidence.input';
 import { BatchScanInput } from './dto/batch-scan.input';
+import { AdminPunchShipmentInput } from './dto/admin-punch-shipment.input';
 import { BatchScanResult } from './dto/batch-scan.result';
 import { PackingOrder } from './types/packing-order.type';
 import { ScanLog } from './types/scan-log.type';
@@ -111,6 +113,15 @@ export class PackingResolver {
     @Context() ctx,
   ): Promise<any> {
     return this.packingService.completePacking(packingOrderId, ctx.req.user.packerId);
+  }
+
+  @Mutation(() => PackingOrder)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  async adminPunchShipment(
+    @Args('input') input: AdminPunchShipmentInput,
+  ): Promise<any> {
+    return this.packingService.adminPunchShipment(input);
   }
 
   @Query(() => BoxSize)

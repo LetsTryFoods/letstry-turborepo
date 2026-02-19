@@ -20,7 +20,7 @@ import {
 } from '@/lib/shipments/utils'
 import { ShipmentStatusBadge } from './ShipmentStatusBadge'
 import { TrackingTimeline } from './TrackingTimeline'
-import { Copy, MapPin, Package, FileText, ExternalLink } from 'lucide-react'
+import { Copy, MapPin, Package, FileText, ExternalLink, Download } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import Link from 'next/link'
 
@@ -92,50 +92,78 @@ export function ShipmentDetailsDialog({ isOpen, onClose, awbNumber }: ShipmentDe
         </DialogHeader>
 
         <div className="space-y-4 mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm">Shipment Information</CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <div className="text-muted-foreground">Order ID</div>
-                <div className="font-medium">{shipment.orderId || '-'}</div>
-              </div>
-              <div>
-                <div className="text-muted-foreground">Service Type</div>
-                <div className="font-medium">{getServiceTypeLabel(shipment.serviceType)}</div>
-              </div>
-              <div>
-                <div className="text-muted-foreground">Booked On</div>
-                <div className="font-medium">{formatDate(shipment.bookedOn)}</div>
-              </div>
-              <div>
-                <div className="text-muted-foreground">Expected Delivery</div>
-                <div className="font-medium">{formatDate(shipment.expectedDeliveryDate)}</div>
-              </div>
-              <div>
-                <div className="text-muted-foreground">Weight</div>
-                <div className="font-medium">{formatWeight(shipment.weight)}</div>
-              </div>
-              <div>
-                <div className="text-muted-foreground">COD Amount</div>
-                <div className="font-medium">{formatCurrency(shipment.codAmount)}</div>
-              </div>
-              {shipment.currentLocation && (
-                <div className="col-span-2">
-                  <div className="text-muted-foreground">Current Location</div>
-                  <div className="font-medium flex items-center gap-1">
-                    <MapPin className="h-3 w-3" />
-                    {shipment.currentLocation}
-                  </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card className="col-span-2">
+              <CardHeader>
+                <CardTitle className="text-sm">Shipment Information</CardTitle>
+              </CardHeader>
+              <CardContent className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <div className="text-muted-foreground">Order ID</div>
+                  <div className="font-medium">{shipment.orderId || '-'}</div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+                <div>
+                  <div className="text-muted-foreground">Service Type</div>
+                  <div className="font-medium">{getServiceTypeLabel(shipment.serviceType)}</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Booked On</div>
+                  <div className="font-medium">{formatDate(shipment.bookedOn)}</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Expected Delivery</div>
+                  <div className="font-medium">{formatDate(shipment.expectedDeliveryDate)}</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Weight</div>
+                  <div className="font-medium">{formatWeight(shipment.weight)}</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">COD Amount</div>
+                  <div className="font-medium">{formatCurrency(shipment.codAmount)}</div>
+                </div>
+                {shipment.currentLocation && (
+                  <div className="col-span-2">
+                    <div className="text-muted-foreground">Current Location</div>
+                    <div className="font-medium flex items-center gap-1">
+                      <MapPin className="h-3 w-3" />
+                      {shipment.currentLocation}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
-          <Separator />
+            <Card className="col-span-1">
+              <CardHeader>
+                <CardTitle className="text-sm">Quick Actions</CardTitle>
+              </CardHeader>
+              <CardContent className="grid gap-2">
+                {shipment.labelUrl && (
+                  <Button className="w-full" asChild>
+                    <a href={shipment.labelUrl} target="_blank" rel="noopener noreferrer">
+                      <Download className="mr-2 h-4 w-4" />
+                      Print Label
+                    </a>
+                  </Button>
+                )}
+                {shipment.trackingLink && (
+                  <Button variant="outline" className="w-full justify-start" onClick={() => handleCopy(shipment.trackingLink!, 'Tracking Link')}>
+                    <Copy className="mr-2 h-4 w-4" />
+                    Copy Tracking Link
+                  </Button>
+                )}
+                <Button variant="outline" className="w-full justify-start" asChild>
+                  <Link href={`/dashboard/shipments/${shipment.id}`}>
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    View Full Details
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
                 <CardTitle className="text-sm">Origin</CardTitle>

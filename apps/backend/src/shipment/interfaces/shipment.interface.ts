@@ -12,6 +12,7 @@ export interface ShipmentFilters {
 
 export interface CreateShipmentData {
   orderId?: string;
+  orderNumber?: string;
   serviceType: string;
   loadType: string;
   weight: number;
@@ -61,4 +62,5 @@ export interface CreateShipmentData {
     length: number;
     width: number;
   }[];
+  isRiskSurchargeApplicable?: boolean;
 }

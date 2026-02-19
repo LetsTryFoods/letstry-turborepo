@@ -245,6 +245,36 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
                 )}
               </CardContent>
             </Card>
+
+            {/* Shipment Data */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center">
+                  <Package className="h-4 w-4 mr-2" />
+                  Shipment Data
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Calculated Weight</span>
+                  <span className="font-medium">{order.estimatedWeight ? `${order.estimatedWeight} kg` : 'N/A'}</span>
+                </div>
+                {order.boxDimensions && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Box Dimensions</span>
+                    <span className="font-medium">
+                      {order.boxDimensions.l} x {order.boxDimensions.w} x {order.boxDimensions.h} cm
+                    </span>
+                  </div>
+                )}
+                {!order.boxDimensions && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Box Recommendation</span>
+                    <span className="text-muted-foreground italic">Not available</span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
 
           {/* Payment Details */}

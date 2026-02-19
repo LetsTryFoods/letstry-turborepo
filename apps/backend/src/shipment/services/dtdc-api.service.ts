@@ -10,6 +10,7 @@ import {
   DtdcCancelPayload,
   DtdcTrackingResponse,
 } from '../interfaces/dtdc-payload.interface';
+import { ShipmentLoggerService } from './shipment-logger.service';
 
 @Injectable()
 export class DtdcApiService {
@@ -21,6 +22,7 @@ export class DtdcApiService {
     @InjectModel(DtdcApiLog.name)
     private readonly apiLogModel: Model<DtdcApiLog>,
     private readonly configService: ConfigService,
+    private readonly shipmentLogger: ShipmentLoggerService,
   ) {
     this.axiosInstance = axios.create({
       timeout: 30000,
@@ -44,13 +46,21 @@ export class DtdcApiService {
     return baseUrls[env] || baseUrls['staging'];
   }
 
+  private getFullUrl(endpointKey: string): string {
+    const endpoint = this.getEndpoint(endpointKey);
+    if (endpoint.startsWith('http')) {
+      return endpoint;
+    }
+    return this.getBaseUrl() + endpoint;
+  }
+
   private getEndpoint(endpoint: string): string {
     const endpoints = this.configService.get<Record<string, string>>('dtdc.endpoints') || {};
     return endpoints[endpoint] || '';
   }
 
   async bookShipment(payload: DtdcBookingPayload): Promise<DtdcBookingResponse> {
-    const url = this.getBaseUrl() + this.getEndpoint('bookingApi');
+    const url = this.getFullUrl('bookingApi');
     const startTime = Date.now();
 
     try {
@@ -67,6 +77,7 @@ export class DtdcApiService {
         statusCode: response.status,
         duration: Date.now() - startTime,
         success: true,
+        url,
       });
 
       return response.data;
@@ -79,6 +90,7 @@ export class DtdcApiService {
         duration: Date.now() - startTime,
         success: false,
         error: error.message,
+        url,
       });
 
       throw error;
@@ -86,7 +98,7 @@ export class DtdcApiService {
   }
 
   async getLabel(awbNumber: string, shipmentId: string): Promise<string> {
-    const url = `${this.getBaseUrl()}${this.getEndpoint('labelApi')}/${awbNumber}`;
+    const url = `${this.getFullUrl('labelApi')}/${awbNumber}`;
     const startTime = Date.now();
 
     try {
@@ -108,6 +120,7 @@ export class DtdcApiService {
         duration: Date.now() - startTime,
         success: true,
         shipmentId,
+        url,
       });
 
       return labelUrl;
@@ -121,6 +134,7 @@ export class DtdcApiService {
         success: false,
         error: error.message,
         shipmentId,
+        url,
       });
 
       throw error;
@@ -128,7 +142,7 @@ export class DtdcApiService {
   }
 
   async cancelShipment(awbNumbers: string[], shipmentId?: string): Promise<any> {
-    const url = this.getBaseUrl() + this.getEndpoint('cancelApi');
+    const url = this.getFullUrl('cancelApi');
     const customerCode = this.configService.get<string>('DTDC_CUSTOMER_CODE') || '';
     const startTime = Date.now();
 
@@ -152,6 +166,7 @@ export class DtdcApiService {
         duration: Date.now() - startTime,
         success: true,
         shipmentId,
+        url,
       });
 
       return response.data;
@@ -165,6 +180,7 @@ export class DtdcApiService {
         success: false,
         error: error.message,
         shipmentId,
+        url,
       });
 
       throw error;
@@ -172,43 +188,46 @@ export class DtdcApiService {
   }
 
   async checkPincode(originPincode: string, destinationPincode: string): Promise<boolean> {
-    const url = this.getBaseUrl() + this.getEndpoint('pincodeApi');
+    const url = this.getFullUrl('pincodeApi');
     const startTime = Date.now();
 
-    const params = {
-      origin_pincode: originPincode,
-      destination_pincode: destinationPincode,
+    const payload = {
+      orgPincode: '131029',
+      desPincode: destinationPincode,
     };
 
     try {
-      const response = await this.axiosInstance.get(url, {
-        params,
+      const response = await this.axiosInstance.post(url, payload, {
         headers: {
           'api-key': this.getApiKey(),
         },
       });
 
-      const isServiceable = response.data?.serviceable === true;
+      const isServiceable =
+        response.data?.ZIPCODE_RESP?.[0]?.SERVFLAG === 'Y' ||
+        response.data?.SERV_LIST?.[0]?.b2C_SERVICEABLE === 'YES';
 
       await this.logApiCall({
         apiType: 'PINCODE',
-        request: params,
+        request: payload,
         response: response.data,
         statusCode: response.status,
         duration: Date.now() - startTime,
         success: true,
+        url: url + ' [POST Payload: ' + JSON.stringify(payload) + ']',
       });
 
       return isServiceable;
     } catch (error: any) {
       await this.logApiCall({
         apiType: 'PINCODE',
-        request: params,
+        request: payload,
         response: error.response?.data,
         statusCode: error.response?.status,
         duration: Date.now() - startTime,
         success: false,
         error: error.message,
+        url: url + ' [POST Payload: ' + JSON.stringify(payload) + ']',
       });
 
       return false;
@@ -217,7 +236,7 @@ export class DtdcApiService {
 
   async trackShipment(awbNumber: string): Promise<DtdcTrackingResponse | null> {
     const token = await this.getTrackingToken();
-    const url = this.getBaseUrl() + this.getEndpoint('trackApi');
+    const url = this.getFullUrl('trackApi');
     const startTime = Date.now();
 
     try {
@@ -235,6 +254,7 @@ export class DtdcApiService {
         statusCode: response.status,
         duration: Date.now() - startTime,
         success: true,
+        url: url + (url.includes('?') ? '&' : '?') + new URLSearchParams({ cnNo: awbNumber }).toString(),
       });
 
       return response.data;
@@ -247,6 +267,7 @@ export class DtdcApiService {
         duration: Date.now() - startTime,
         success: false,
         error: error.message,
+        url: url + (url.includes('?') ? '&' : '?') + new URLSearchParams({ cnNo: awbNumber }).toString(),
       });
 
       return null;
@@ -290,8 +311,18 @@ export class DtdcApiService {
     success: boolean;
     error?: string;
     shipmentId?: string;
+    url?: string;
   }): Promise<void> {
     try {
+      const requestStr = data.request ? JSON.stringify(data.request) : 'N/A';
+      const logMessage = `DTDC API call | URL: ${data.url || 'N/A'} | Request: ${requestStr}`;
+
+      if (!data.success) {
+        this.shipmentLogger.logApiError(logMessage, 'POST', data.error || 'Unknown Error', data.duration);
+      } else {
+        this.shipmentLogger.logApiCall(logMessage, 'POST', data.statusCode || 200, data.duration);
+      }
+
       await this.apiLogModel.create({
         shipmentId: data.shipmentId,
         apiType: data.apiType,

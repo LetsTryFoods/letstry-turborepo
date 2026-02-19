@@ -20,7 +20,7 @@ export class ShipmentService {
     private readonly statusMapper: ShipmentStatusMapperService,
     private readonly configService: ConfigService,
     private readonly shipmentLogger: ShipmentLoggerService,
-  ) {}
+  ) { }
 
   async createShipment(data: CreateShipmentData): Promise<{ shipment: Shipment; awbNumber: string; labelUrl: string }> {
     const serviceable = await this.dtdcApiService.checkPincode(
@@ -71,10 +71,11 @@ export class ShipmentService {
             latitude: data.destinationDetails.latitude,
             longitude: data.destinationDetails.longitude,
           },
-          customer_reference_number: data.orderId || `REF-${Date.now()}`,
+          customer_reference_number: data.orderNumber || data.orderId || `REF-${Date.now()}`,
           cod_collection_mode: data.codCollectionMode || '',
           cod_amount: data.codAmount?.toString() || '',
           commodity_id: data.commodityId,
+          is_risk_surcharge_applicable: data.isRiskSurchargeApplicable || false,
           description: data.description,
           invoice_number: data.invoiceNumber,
           invoice_date: data.invoiceDate ? data.invoiceDate.toISOString().split('T')[0] : undefined,
@@ -93,11 +94,12 @@ export class ShipmentService {
 
     const bookingResponse = await this.dtdcApiService.bookShipment(bookingPayload);
 
-    if (!bookingResponse.success || !bookingResponse.consignments[0].success) {
-      throw new BadRequestException(bookingResponse.consignments[0].remarks || 'Booking failed');
+    if (bookingResponse.status !== 'OK' || !bookingResponse.data?.[0]?.success) {
+      const errorMsg = bookingResponse.data?.[0]?.message || bookingResponse.data?.[0]?.remarks || 'Booking failed';
+      throw new BadRequestException(errorMsg);
     }
 
-    const awbNumber = bookingResponse.consignments[0].reference_number;
+    const awbNumber = bookingResponse.data[0].reference_number;
     const trackingDisabledAfter = new Date();
     const trackingValidityDays = this.configService.get<number>('dtdc.defaults.trackingValidityDays') || 90;
     trackingDisabledAfter.setDate(trackingDisabledAfter.getDate() + trackingValidityDays);

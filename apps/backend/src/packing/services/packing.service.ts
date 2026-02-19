@@ -9,15 +9,22 @@ import { PackingOrderCrudService } from './core/packing-order-crud.service';
 import { BoxRecommendationService } from '../../box-size/services/domain/box-recommendation.service';
 import { PackingLoggerService } from './domain/packing-logger.service';
 import { ScanLoggerService } from './domain/scan-logger.service';
+import { AdminPunchShipmentInput } from '../dto/admin-punch-shipment.input';
+import { CommonModule } from '../../common/common.module';
 import { OrderStatus } from '../../order/order.schema';
 import { PackingOrderCreatorService } from './domain/packing-order-creator.service';
 import { Order } from '../../order/order.schema';
 import { OrderRepository } from '../../order/services/order.repository';
 import { ShipmentService } from '../../shipment/services/shipment.service';
+import { ShipmentLoggerService } from '../../shipment/services/shipment-logger.service';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Address } from '../../address/address.schema';
+import {
+  PackingOrder,
+  PackingStatus,
+} from '../entities/packing-order.entity';
 import { PackingEvidence } from '../entities/packing-evidence.entity';
 
 @Injectable()
@@ -35,6 +42,7 @@ export class PackingService {
     private readonly orderRepository: OrderRepository,
     private readonly packingOrderCreator: PackingOrderCreatorService,
     private readonly shipmentService: ShipmentService,
+    private readonly shipmentLogger: ShipmentLoggerService,
     private readonly configService: ConfigService,
     @InjectModel(Address.name)
     private readonly addressModel: Model<Address>,
@@ -84,7 +92,6 @@ export class PackingService {
     this.scanLogger.logBatchScanRequest({ packingOrderId, items, packerId });
 
     const packingOrder = await this.packingOrderCrud.findById(packingOrderId);
-
     if (!packingOrder) {
       throw new Error('Packing order not found');
     }
@@ -270,7 +277,6 @@ export class PackingService {
       this.scanLogger.logScanError('completePacking', packingOrderId, new Error('No packing evidence found'));
       throw new Error('Cannot complete packing: Please upload pre-pack images first');
     }
-
     this.scanLogger.logCompletePackingStep('EVIDENCE_VERIFIED', {
       packingOrderId,
       evidenceId: evidence._id,
@@ -315,6 +321,57 @@ export class PackingService {
     return result;
   }
 
+  async adminPunchShipment(input: AdminPunchShipmentInput): Promise<any> {
+    const { orderId } = input;
+
+    this.packingLogger.logInfo('Admin punch shipment initiated', { orderId });
+
+    let packingOrder = await this.packingOrderCrud.findOne({ orderId });
+
+    if (!packingOrder) {
+      this.packingLogger.logInfo('Packing order missing, attempting to create on the fly', { orderId });
+
+      const order = await this.orderRepository.findByInternalId(orderId);
+
+      if (!order) {
+        this.packingLogger.logError('Order not found for admin punch', new Error('Order not found'), { orderId });
+        throw new Error('Order not found');
+      }
+
+      packingOrder = await this.packingOrderCreator.createFromOrder(order);
+      this.packingLogger.logInfo('Packing order created on the fly for admin punch', {
+        orderId: order._id.toString(),
+        packingOrderId: (packingOrder as any)._id.toString()
+      });
+    }
+
+    if (!packingOrder) {
+      throw new Error('Failed to ensure packing order exists');
+    }
+
+    this.packingLogger.logInfo('Packing order found for admin punch', {
+      orderId,
+      packingOrderId: packingOrder._id?.toString(),
+      status: packingOrder.status
+    });
+
+    const packingOrderId = packingOrder._id.toString();
+
+    await this.packingOrderCrud.update(packingOrderId, {
+      status: PackingStatus.COMPLETED,
+      packingCompletedAt: new Date(),
+    });
+
+    await this.orderRepository.updateStatusByInternalId(
+      packingOrder.orderId,
+      OrderStatus.PACKED,
+    );
+
+    await this.initiateShipmentCreation(packingOrder.orderId, packingOrderId);
+
+    return this.packingOrderCrud.findById(packingOrderId);
+  }
+
   private calculatePackingDuration(packingStartedAt?: Date): number {
     return packingStartedAt
       ? Math.floor((Date.now() - packingStartedAt.getTime()) / 60000)
@@ -323,46 +380,85 @@ export class PackingService {
 
   private async initiateShipmentCreation(orderId: string, packingOrderId: string): Promise<void> {
     try {
-      const order = await this.orderRepository.findById(orderId);
-      const packingEvidence = await this.packingEvidenceModel.findOne({ packingOrderId }).exec();
+      const order = await this.orderRepository.findByInternalId(orderId);
+
+      let packingEvidence = await this.packingEvidenceModel.findOne({ packingOrderId }).exec();
+
+      // Check if shipment already exists for this order
+      const existingShipments = await this.shipmentService.findByOrderId(orderId);
+      if (existingShipments && existingShipments.length > 0) {
+        this.shipmentLogger.logInfo('Shipment already exists for order', {
+          orderId,
+          shipmentId: existingShipments[0]._id.toString(),
+          awbNumber: existingShipments[0].dtdcAwbNumber,
+        });
+        return;
+      }
+
       const shippingAddress = order?.shippingAddressId
         ? await this.addressModel.findById(order.shippingAddressId).exec()
         : null;
 
-      if (!order || !packingEvidence || !shippingAddress) {
-        this.packingLogger.logError('Missing data for shipment creation', new Error('Incomplete data'), {
+      if (!order || !shippingAddress) {
+        this.shipmentLogger.logError('Missing data for shipment creation', new Error('Incomplete data'), {
           orderId,
           packingOrderId,
+          orderFound: !!order,
+          addressFound: !!shippingAddress,
+          shippingAddressId: order?.shippingAddressId,
         });
         return;
       }
 
-      const boxDimensions = packingEvidence.actualBox?.dimensions || packingEvidence.recommendedBox?.dimensions;
+      let boxDimensions: any;
+      let totalWeight = 0;
+
+      if (packingEvidence) {
+        boxDimensions = packingEvidence.actualBox?.dimensions || packingEvidence.recommendedBox?.dimensions;
+        totalWeight = order.items.reduce(
+          (sum: number, item: any) => sum + (item.dimensions?.weight || 0) * item.quantity,
+          0,
+        ) / 1000;
+      } else {
+        const packingOrder = await this.packingOrderCrud.findById(packingOrderId);
+        if (packingOrder) {
+          const recommendedBox = await this.boxRecommendation.selectOptimalBox(packingOrder.items);
+          boxDimensions = recommendedBox.internalDimensions;
+          totalWeight = packingOrder.items.reduce(
+            (sum: number, item: any) => sum + (item.dimensions?.weight || 0) * item.quantity,
+            0,
+          ) / 1000;
+        }
+      }
 
       if (!boxDimensions) {
-        this.packingLogger.logError('No box dimensions found', new Error('Missing dimensions'), {
+        this.shipmentLogger.logError('No box dimensions found', new Error('Missing dimensions'), {
           orderId,
           packingOrderId,
         });
         return;
       }
 
-      const shipmentPayload = this.buildShipmentPayload(orderId, order, boxDimensions, shippingAddress);
+      totalWeight = Math.max(totalWeight, 0.5);
+
+      const shipmentPayload = this.buildShipmentPayload(orderId, order, boxDimensions, shippingAddress, totalWeight);
       await this.shipmentService.createShipment(shipmentPayload);
     } catch (error) {
-      this.packingLogger.logError('Failed to create shipment', error, {
+      this.shipmentLogger.logError('Failed to create shipment', error, {
         orderId,
         packingOrderId,
       });
+      throw error;
     }
   }
 
-  private buildShipmentPayload(orderId: string, order: any, boxDimensions: any, shippingAddress: any) {
+  private buildShipmentPayload(orderId: string, order: any, boxDimensions: any, shippingAddress: any, weight: number) {
     return {
       orderId,
-      serviceType: this.configService.get('DTDC_DEFAULT_SERVICE_TYPE') || 'B2C SMART EXPRESS',
-      loadType: this.configService.get('DTDC_DEFAULT_LOAD_TYPE') || 'NON-DOCUMENT',
-      weight: 1,
+      orderNumber: order.orderId,
+      serviceType: this.configService.get('dtdc.defaults.serviceType') || 'GROUND EXPRESS',
+      loadType: this.configService.get('dtdc.defaults.loadType') || 'NON-DOCUMENT',
+      weight,
       declaredValue: parseFloat(order.totalAmount) || 0,
       numPieces: 1,
       dimensions: {
@@ -371,14 +467,14 @@ export class PackingService {
         height: boxDimensions.h,
       },
       originDetails: {
-        name: this.configService.get('WAREHOUSE_NAME') || 'LetsTry Foods',
-        phone: this.configService.get('WAREHOUSE_PHONE') || '',
+        name: this.configService.get('dtdc.origin.name'),
+        phone: this.configService.get('dtdc.origin.phone'),
         alternatePhone: this.configService.get('WAREHOUSE_ALT_PHONE'),
-        addressLine1: this.configService.get('WAREHOUSE_ADDRESS_LINE1') || '',
-        addressLine2: this.configService.get('WAREHOUSE_ADDRESS_LINE2'),
-        pincode: this.configService.get('WAREHOUSE_PINCODE') || '',
-        city: this.configService.get('WAREHOUSE_CITY') || '',
-        state: this.configService.get('WAREHOUSE_STATE') || '',
+        addressLine1: this.configService.get('dtdc.origin.addressLine1'),
+        addressLine2: this.configService.get('dtdc.origin.addressLine2'),
+        pincode: this.configService.get('dtdc.origin.pincode'),
+        city: this.configService.get('dtdc.origin.city'),
+        state: this.configService.get('dtdc.origin.state'),
         latitude: this.configService.get('WAREHOUSE_LATITUDE'),
         longitude: this.configService.get('WAREHOUSE_LONGITUDE'),
       },
@@ -398,8 +494,9 @@ export class PackingService {
       codCollectionMode: order.metadata?.paymentMethod === 'COD' ? 'CASH' : undefined,
       invoiceNumber: order.orderId,
       invoiceDate: order.createdAt,
-      commodityId: this.configService.get('DTDC_DEFAULT_COMMODITY_ID') || '10',
+      commodityId: this.configService.get('dtdc.defaults.commodityId') || '10',
       description: 'Food Products',
+      isRiskSurchargeApplicable: false,
     };
   }
 
@@ -454,5 +551,47 @@ export class PackingService {
     }
 
     return this.packingOrderCrud.findById(packingOrderId);
+  }
+  async getPackingDetailsByOrderId(orderId: string): Promise<{ packingOrder: any; evidence: any } | null> {
+    const packingOrder = await this.packingOrderCrud.findOne({ orderId });
+    if (!packingOrder) return null;
+
+    const evidence = await this.evidenceCrud.findByOrder(packingOrder._id.toString());
+    return { packingOrder, evidence };
+  }
+
+  calculateShipmentWeight(order: any, packingOrder: any, evidence: any): { weight: number; boxDimensions: any } | null {
+    let boxDimensions: any;
+    let totalWeight = 0;
+
+    if (evidence) {
+      boxDimensions = evidence.actualBox?.dimensions || evidence.recommendedBox?.dimensions;
+      // Calculate weight from order items as evidenced
+      totalWeight = order.items.reduce(
+        (sum: number, item: any) => sum + (item.dimensions?.weight || 0) * item.quantity,
+        0,
+      ) / 1000;
+    } else if (packingOrder) {
+      // Fallback to packing order items if evidence not found (rare but possible during packing)
+      // This might need box recommendation if not stored, but for now assuming we want what's available
+      // Ideally we should use boxRecommendation service here if needed, but let's stick to simple weight calc
+      totalWeight = packingOrder.items.reduce(
+        (sum: number, item: any) => sum + (item.dimensions?.weight || 0) * item.quantity,
+        0,
+      ) / 1000;
+      // We can't easily get dimensions without running recommendation, so returning null for dimensions if no evidence
+    }
+
+    if (!boxDimensions && packingOrder) {
+      // Optional: Run recommendation on fly if needed, but for display purposes maybe just weight is enough if no box
+    }
+
+    // Ensure minimum weight of 0.5kg
+    totalWeight = Math.max(totalWeight, 0.5);
+
+    return {
+      weight: totalWeight,
+      boxDimensions: boxDimensions || null
+    };
   }
 }

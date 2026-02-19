@@ -29,6 +29,10 @@ export class PackingLoggerService {
     });
   }
 
+  logInfo(message: string, context?: any) {
+    this.logger.info(message, { ...context });
+  }
+
   logOrderCreated(orderId: string, packingOrderId: string) {
     this.logger.info('Packing order created', {
       event: 'PACKING_ORDER_CREATED',

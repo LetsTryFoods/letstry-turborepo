@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { CartItem } from '../cart.schema';
 
 @Injectable()
@@ -23,10 +23,17 @@ export class CartItemService {
       newItem.productId,
     );
     if (existingIndex > -1) {
-      items[existingIndex].quantity += newItem.quantity;
+      const newQuantity = items[existingIndex].quantity + newItem.quantity;
+      if (newQuantity > 10) {
+        throw new BadRequestException('Cannot add more than 10 items of the same SKU');
+      }
+      items[existingIndex].quantity = newQuantity;
       items[existingIndex].totalPrice =
         items[existingIndex].quantity * items[existingIndex].unitPrice;
     } else {
+      if (newItem.quantity > 10) {
+        throw new BadRequestException('Cannot add more than 10 items of the same SKU');
+      }
       items.push(newItem);
     }
   }
@@ -41,6 +48,9 @@ export class CartItemService {
   }
 
   updateItemQuantity(item: CartItem, quantity: number): void {
+    if (quantity > 10) {
+      throw new BadRequestException('Cannot add more than 10 items of the same SKU');
+    }
     item.quantity = quantity;
     item.totalPrice = item.quantity * item.unitPrice;
   }

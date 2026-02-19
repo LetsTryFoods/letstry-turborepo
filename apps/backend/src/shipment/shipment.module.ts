@@ -50,6 +50,6 @@ import { ShipmentLoggerService } from './services/shipment-logger.service';
     DtdcWebhookAuthGuard,
     ShipmentLoggerService,
   ],
-  exports: [ShipmentService, DtdcApiService, TrackingService],
+  exports: [ShipmentService, DtdcApiService, TrackingService, ShipmentLoggerService],
 })
 export class ShipmentModule { }

@@ -246,5 +246,79 @@ describe('Cart (e2e)', () => {
           expect(res.body.data.clearCart.items).toHaveLength(0);
         });
     });
+
+    it('should fail when adding more than 10 items of same SKU', () => {
+      // First clear cart to ensure clean state
+      return agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({
+          query: `
+            mutation {
+              addToCart(input: {
+                productId: "${productId}"
+                quantity: 11
+              }) {
+                items {
+                  quantity
+                }
+              }
+            }
+          `,
+        })
+        .expect(200)
+        .expect((res) => {
+          expect(res.body.errors).toBeDefined();
+          expect(res.body.errors[0].message).toBe('Cannot add more than 10 items of the same SKU');
+        });
+    });
+
+    it('should fail when updating quantity to more than 10', async () => {
+      // First add item using the agent
+      await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({
+          query: `
+            mutation {
+              clearCart { _id }
+            }
+          `,
+        });
+
+      await agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({
+          query: `
+            mutation {
+              addToCart(input: { productId: "${productId}", quantity: 5 }) { _id }
+            }
+          `,
+        });
+
+      return agent
+        .post('/graphql')
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({
+          query: `
+            mutation {
+              updateCartItem(input: {
+                productId: "${productId}"
+                quantity: 11
+              }) {
+                items {
+                  quantity
+                }
+              }
+            }
+          `,
+        })
+        .expect(200)
+        .expect((res) => {
+          expect(res.body.errors).toBeDefined();
+          expect(res.body.errors[0].message).toBe('Cannot add more than 10 items of the same SKU');
+        });
+    });
   });
 });

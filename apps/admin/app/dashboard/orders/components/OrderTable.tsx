@@ -10,15 +10,16 @@ import {
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Eye, Package, Truck, CheckCircle, XCircle, RefreshCcw, Clock, Loader2, FileDown } from "lucide-react"
+import { Eye, Package, Truck, CheckCircle, XCircle, RefreshCcw, Clock, Loader2, FileDown, Zap } from "lucide-react"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { Order, OrderStatus, PaymentStatus } from "@/lib/orders/queries"
+import { Order, OrderStatus, PaymentStatus, useAdminPunchShipment } from "@/lib/orders/queries"
 import { format } from "date-fns"
+import { toast } from "react-hot-toast"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,6 +39,19 @@ interface OrderTableProps {
 const API_BASE_URL = process.env.NEXT_PUBLIC_GRAPHQL_URL?.replace('/graphql', '') || 'http://localhost:5000'
 
 export function OrderTable({ orders, onViewDetails, onUpdateStatus }: OrderTableProps) {
+  const { punchShipment, loading: punching } = useAdminPunchShipment()
+
+  const handlePunchShipment = async (order: Order) => {
+    try {
+      const result = await punchShipment({ orderId: order._id })
+      if (result) {
+        toast.success(`Successfully punched to DTDC!`)
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to punch to DTDC")
+    }
+  }
+
   const getOrderStatusBadge = (status: OrderStatus) => {
     switch (status) {
       case 'CONFIRMED':
@@ -206,6 +220,25 @@ export function OrderTable({ orders, onViewDetails, onUpdateStatus }: OrderTable
                       <TooltipContent>Download Invoice</TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
+
+                  {(order.orderStatus === 'CONFIRMED' || order.orderStatus === 'PACKED') && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                            onClick={() => handlePunchShipment(order)}
+                            disabled={punching}
+                          >
+                            <Zap className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Direct Punch to DTDC (Bypass Packer)</TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
 
                   {order.orderStatus !== 'DELIVERED' && (
                     <DropdownMenu>

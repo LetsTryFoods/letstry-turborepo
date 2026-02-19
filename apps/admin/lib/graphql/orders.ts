@@ -50,6 +50,13 @@ export const GET_ALL_ORDERS = gql`
         discount
         totalAmount
         orderStatus
+        trackingNumber
+        estimatedWeight
+        boxDimensions {
+          l
+          w
+          h
+        }
         createdAt
         updatedAt
       }
@@ -126,6 +133,12 @@ export const GET_ORDER_BY_ID = gql`
       totalAmount
       orderStatus
       trackingNumber
+      estimatedWeight
+      boxDimensions {
+        l
+        w
+        h
+      }
       deliveredAt
       cancelledAt
       cancellationReason
@@ -143,6 +156,16 @@ export const UPDATE_ORDER_STATUS = gql`
       orderStatus
       trackingNumber
       updatedAt
+    }
+  }
+`
+
+export const ADMIN_PUNCH_SHIPMENT = gql`
+  mutation AdminPunchShipment($input: AdminPunchShipmentInput!) {
+    adminPunchShipment(input: $input) {
+      id
+      orderId
+      status
     }
   }
 `

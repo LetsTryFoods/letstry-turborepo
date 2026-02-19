@@ -765,6 +765,12 @@ type OrderUserInfo {
   status: String!
 }
 
+type BoxDimensionType {
+  l: Float!
+  w: Float!
+  h: Float!
+}
+
 type OrderType {
   _id: String!
   orderId: String!
@@ -786,6 +792,8 @@ type OrderType {
   cancelledAt: DateTime
   trackingNumber: String
   cancellationReason: String
+  estimatedWeight: Float
+  boxDimensions: BoxDimensionType
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -819,6 +827,8 @@ type OrderWithUserInfo {
   cancelledAt: DateTime
   trackingNumber: String
   cancellationReason: String
+  estimatedWeight: Float
+  boxDimensions: BoxDimensionType
   createdAt: DateTime!
   updatedAt: DateTime!
   userInfo: OrderUserInfo
@@ -1044,6 +1054,7 @@ type ShipmentResponse {
   webhookLastReceivedAt: DateTime
   createdAt: DateTime!
   updatedAt: DateTime!
+  trackingLink: String
 }
 
 type TrackingHistoryResponse {
@@ -1103,6 +1114,7 @@ type ShipmentWithTrackingResponse {
   webhookLastReceivedAt: DateTime
   createdAt: DateTime!
   updatedAt: DateTime!
+  trackingLink: String
   trackingHistory: [TrackingHistoryResponse!]!
 }
 
@@ -1112,6 +1124,7 @@ type CreateShipmentResponse {
   awbNumber: String!
   labelUrl: String
   message: String
+  trackingLink: String
 }
 
 type ShipmentListResponse {
@@ -1251,6 +1264,7 @@ type Query {
   getShipmentById(id: ID!): ShipmentResponse
   listShipments(filters: ShipmentFiltersInput): ShipmentListResponse!
   getShipmentWithTracking(awbNumber: String!): ShipmentWithTrackingResponse!
+  getShipmentLabel(awbNumber: String!): String
   getAllNewsletterSubscriptions(isActive: Boolean): [NewsletterSubscription!]!
   getNewsletterSubscriptionCount(isActive: Boolean): Float!
   redirects(page: Int! = 1, limit: Int! = 20, search: String): PaginatedRedirects!
@@ -1433,6 +1447,7 @@ type Mutation {
   batchScanItems(input: BatchScanInput!): BatchScanResult!
   uploadEvidence(input: UploadEvidenceInput!): PackingOrder!
   completePacking(packingOrderId: String!): PackingOrder!
+  adminPunchShipment(input: AdminPunchShipmentInput!): PackingOrder!
   cleanupOrphanedJobs: CleanupResult!
   createPacker(input: CreatePackerInput!): CreatePackerResponse!
   updatePacker(packerId: String!, input: UpdatePackerInput!): Packer!
@@ -1820,6 +1835,10 @@ input UploadEvidenceInput {
   prePackImages: [String!]
   postPackImages: [String!]
   actualBoxCode: String
+}
+
+input AdminPunchShipmentInput {
+  orderId: ID!
 }
 
 input CreatePackerInput {

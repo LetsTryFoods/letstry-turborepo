@@ -143,6 +143,18 @@ export class OrderUserInfo {
 }
 
 @ObjectType()
+export class BoxDimensionType {
+  @Field()
+  l: number;
+
+  @Field()
+  w: number;
+
+  @Field()
+  h: number;
+}
+
+@ObjectType()
 export class OrderType {
   @Field()
   _id: string;
@@ -204,12 +216,20 @@ export class OrderType {
   @Field({ nullable: true })
   cancellationReason?: string;
 
+  @Field({ nullable: true })
+  estimatedWeight?: number;
+
+  @Field(() => BoxDimensionType, { nullable: true })
+  boxDimensions?: BoxDimensionType;
+
   @Field()
   createdAt: Date;
 
   @Field()
   updatedAt: Date;
 }
+
+
 
 @ObjectType()
 export class OrderWithUserInfo extends OrderType {

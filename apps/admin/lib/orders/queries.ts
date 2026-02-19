@@ -3,6 +3,7 @@ import {
   GET_ALL_ORDERS,
   GET_ORDER_BY_ID,
   UPDATE_ORDER_STATUS,
+  ADMIN_PUNCH_SHIPMENT,
 } from "../graphql/orders";
 
 export type OrderStatus =
@@ -51,6 +52,14 @@ interface GetOrderByIdData {
 
 interface UpdateOrderStatusData {
   updateOrderStatus: Order;
+}
+
+interface AdminPunchShipmentData {
+  adminPunchShipment: {
+    id: string;
+    orderId: string;
+    status: string;
+  };
 }
 
 export interface Customer {
@@ -110,7 +119,14 @@ export interface Order {
   cancelledAt?: Date;
   cancellationReason?: string;
   createdAt: string;
+  createdAt: string;
   updatedAt: string;
+  estimatedWeight?: number;
+  boxDimensions?: {
+    l: number;
+    w: number;
+    h: number;
+  };
 }
 
 export interface OrdersSummary {
@@ -138,6 +154,10 @@ export interface UpdateOrderStatusInput {
   orderId: string;
   status: OrderStatus;
   trackingNumber?: string;
+}
+
+export interface AdminPunchShipmentInput {
+  orderId: string;
 }
 
 export const useAllOrders = (input: GetAllOrdersInput = {}) => {
@@ -197,6 +217,25 @@ export const useUpdateOrderStatus = () => {
 
   return {
     updateStatus,
+    loading,
+    error,
+  };
+};
+
+export const useAdminPunchShipment = () => {
+  const [adminPunchShipment, { loading, error }] =
+    useMutation<AdminPunchShipmentData>(ADMIN_PUNCH_SHIPMENT);
+
+  const punchShipment = async (input: AdminPunchShipmentInput) => {
+    const result = await adminPunchShipment({
+      variables: { input },
+      refetchQueries: ["GetAllOrders"],
+    });
+    return result.data?.adminPunchShipment;
+  };
+
+  return {
+    punchShipment,
     loading,
     error,
   };

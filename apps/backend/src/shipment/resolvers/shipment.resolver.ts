@@ -24,7 +24,7 @@ export class ShipmentResolver {
   constructor(
     private readonly shipmentService: ShipmentService,
     private readonly trackingService: TrackingService,
-  ) {}
+  ) { }
 
   @Mutation(() => CreateShipmentResponse)
   async createShipment(@Args('input') input: CreateShipmentInput): Promise<CreateShipmentResponse> {
@@ -90,6 +90,7 @@ export class ShipmentResolver {
       },
       awbNumber: result.awbNumber,
       labelUrl: result.labelUrl,
+      trackingLink: `https://www.dtdc.in/tracking/shipment-tracking.html?cnno=${result.awbNumber}`,
     };
   }
 
@@ -145,6 +146,7 @@ export class ShipmentResolver {
         ...(s.toObject() as any),
         id: s._id.toString(),
         orderId: s.orderId?.toString(),
+        trackingLink: `https://www.dtdc.in/tracking/shipment-tracking.html?cnno=${s.dtdcAwbNumber}`,
       })),
       total: shipments.length,
     };
@@ -158,6 +160,7 @@ export class ShipmentResolver {
       ...(result.shipment.toObject() as any),
       id: result.shipment._id.toString(),
       orderId: result.shipment.orderId?.toString(),
+      trackingLink: `https://www.dtdc.in/tracking/shipment-tracking.html?cnno=${result.shipment.dtdcAwbNumber}`,
       trackingHistory: result.tracking.map((t) => ({
         ...(t.toObject() as any),
         id: t._id.toString(),
@@ -174,6 +177,30 @@ export class ShipmentResolver {
       ...obj,
       id: shipment._id.toString(),
       orderId: shipment.orderId?.toString(),
+      trackingLink: `https://www.dtdc.in/tracking/shipment-tracking.html?cnno=${shipment.dtdcAwbNumber}`,
     };
+  }
+
+  @Query(() => String, { nullable: true })
+  async getShipmentLabel(@Args('awbNumber') awbNumber: string): Promise<string | null> {
+    const shipment = await this.shipmentService.findByAwbNumber(awbNumber);
+    if (!shipment) {
+      return null;
+    }
+
+    // If labelUrl is already saved and valid, return it.
+    // Note: The Label URL from DTDC might be temporary or a direct download link. 
+    // If it's a base64 string (data:application/pdf;base64,...), it's good to return directly.
+    if (shipment.labelUrl) {
+      return shipment.labelUrl;
+    }
+
+    // Attempt to fetch if not present (this logic might belong in service, but keeping it simple here or calling service method if it existed alone)
+    // Actually shipment.service.createShipment fetches and saves it. 
+    // If we want to re-fetch, we can use dtdcApiService directly if we injected it, but better to use a service method.
+    // However, existing service methods are `createShipment`, `findBy...`, `updateStatus`.
+    // Let's rely on what's in the DB for now as per plan, or maybe we should have exposed a service method to refresh label.
+    // For now, I will just return what is in the DB.
+    return null;
   }
 }

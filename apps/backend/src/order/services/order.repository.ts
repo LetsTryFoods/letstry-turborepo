@@ -90,6 +90,20 @@ export class OrderRepository {
       .exec();
   }
 
+  async updateStatusByInternalId(
+    id: string,
+    status: OrderStatus,
+    additionalFields?: any,
+  ): Promise<Order | null> {
+    return this.orderModel
+      .findByIdAndUpdate(
+        id,
+        { orderStatus: status, ...additionalFields },
+        { new: true },
+      )
+      .exec();
+  }
+
   async countByStatus(status: OrderStatus): Promise<number> {
     return this.orderModel.countDocuments({ orderStatus: status }).exec();
   }
