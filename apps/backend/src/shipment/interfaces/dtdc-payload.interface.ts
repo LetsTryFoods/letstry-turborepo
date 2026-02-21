@@ -120,15 +120,53 @@ export interface DtdcCancelPayload {
 }
 
 export interface DtdcTrackingResponse {
-  trkType: string;
-  strcnno: string;
-  addtnlDtl: string;
-  trackingDetails: {
-    cnNo: string;
-    statusCode: string;
-    statusDescription: string;
-    location: string;
-    date: string;
-    time: string;
-  }[];
+  statusCode: number;
+  statusFlag: boolean;
+  status: string;
+  errorDetails: { name: string; value: string }[] | null;
+  trackHeader: {
+    strShipmentNo: string;
+    strRefNo: string;
+    strCNType: string;
+    strCNTypeCode: string;
+    strCNTypeName: string;
+    strCNProduct: string;
+    strModeCode: string;
+    strMode: string;
+    strCNProdCODFOD: string;
+    strOrigin: string;
+    strOriginRemarks: string;
+    strBookedDate: string;
+    strBookedTime: string;
+    strPieces: string;
+    strWeightUnit: string;
+    strWeight: string;
+    strDestination: string;
+    strStatus: string;
+    strStatusTransOn: string;
+    strStatusTransTime: string;
+    strStatusRelCode: string;
+    strStatusRelName: string;
+    strRemarks: string;
+    strNoOfAttempts: string;
+    strRtoNumber: string;
+    strExpectedDeliveryDate: string;
+    strRevExpectedDeliveryDate: string;
+  } | null;
+  trackDetails: {
+    strCode: string;
+    strAction: string;
+    strManifestNo: string;
+    strOrigin: string;
+    strDestination: string;
+    strOriginCode: string;
+    strDestinationCode: string;
+    strActionDate: string;
+    strActionTime: string;
+    sTrRemarks: string;
+    strLatitude: string;
+    strLongitude: string;
+    strNDCOTP: string;
+    strSCDOTP?: string;
+  }[] | null;
 }

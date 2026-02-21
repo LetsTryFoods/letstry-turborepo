@@ -20,9 +20,13 @@ import { DtdcWebhookService } from './services/dtdc-webhook.service';
 import { ShipmentResolver } from './resolvers/shipment.resolver';
 import { ShipmentSubscriptionResolver } from './resolvers/shipment-subscription.resolver';
 import { DtdcWebhookController } from './controllers/dtdc-webhook.controller';
+import { ShipmentController } from './controllers/shipment.controller';
 import { ShipmentWebhookProcessor } from './processors/shipment-webhook.processor';
 import { DtdcWebhookAuthGuard } from './guards/dtdc-webhook-auth.guard';
 import { ShipmentLoggerService } from './services/shipment-logger.service';
+import { TrackingCronService } from './services/tracking-cron.service';
+import { TrackingProcessor } from './processors/tracking.processor';
+import { TrackingLoggerService } from './services/tracking-logger.service';
 
 @Module({
   imports: [
@@ -35,9 +39,12 @@ import { ShipmentLoggerService } from './services/shipment-logger.service';
     BullModule.registerQueue({
       name: 'shipment-webhook',
     }),
+    BullModule.registerQueue({
+      name: 'tracking-queue',
+    }),
     ConfigModule,
   ],
-  controllers: [DtdcWebhookController],
+  controllers: [DtdcWebhookController, ShipmentController],
   providers: [
     ShipmentService,
     DtdcApiService,
@@ -49,6 +56,9 @@ import { ShipmentLoggerService } from './services/shipment-logger.service';
     ShipmentWebhookProcessor,
     DtdcWebhookAuthGuard,
     ShipmentLoggerService,
+    TrackingCronService,
+    TrackingProcessor,
+    TrackingLoggerService,
   ],
   exports: [ShipmentService, DtdcApiService, TrackingService, ShipmentLoggerService],
 })

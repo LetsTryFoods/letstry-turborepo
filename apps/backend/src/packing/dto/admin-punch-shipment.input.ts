@@ -1,5 +1,5 @@
 import { InputType, Field, ID } from '@nestjs/graphql';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 @InputType()
 export class AdminPunchShipmentInput {
@@ -7,4 +7,9 @@ export class AdminPunchShipmentInput {
     @IsNotEmpty()
     @IsString()
     orderId: string;
+
+    @Field({ nullable: true })
+    @IsOptional()
+    @IsString()
+    serviceType?: string;
 }

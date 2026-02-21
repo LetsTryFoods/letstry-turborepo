@@ -2,6 +2,7 @@ import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { ShipmentService } from '../services/shipment.service';
 import { TrackingService } from '../services/tracking.service';
+import { DtdcApiService } from '../services/dtdc-api.service';
 import { JwtAuthGuard } from '../../authentication/common/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -24,6 +25,7 @@ export class ShipmentResolver {
   constructor(
     private readonly shipmentService: ShipmentService,
     private readonly trackingService: TrackingService,
+    private readonly dtdcApiService: DtdcApiService,
   ) { }
 
   @Mutation(() => CreateShipmentResponse)
@@ -90,7 +92,7 @@ export class ShipmentResolver {
       },
       awbNumber: result.awbNumber,
       labelUrl: result.labelUrl,
-      trackingLink: `https://www.dtdc.in/tracking/shipment-tracking.html?cnno=${result.awbNumber}`,
+      trackingLink: `https://www.dtdc.com/track-your-shipment/?awb=${result.awbNumber}`,
     };
   }
 
@@ -146,7 +148,7 @@ export class ShipmentResolver {
         ...(s.toObject() as any),
         id: s._id.toString(),
         orderId: s.orderId?.toString(),
-        trackingLink: `https://www.dtdc.in/tracking/shipment-tracking.html?cnno=${s.dtdcAwbNumber}`,
+        trackingLink: `https://www.dtdc.com/track-your-shipment/?awb=${s.dtdcAwbNumber}`,
       })),
       total: shipments.length,
     };
@@ -160,7 +162,7 @@ export class ShipmentResolver {
       ...(result.shipment.toObject() as any),
       id: result.shipment._id.toString(),
       orderId: result.shipment.orderId?.toString(),
-      trackingLink: `https://www.dtdc.in/tracking/shipment-tracking.html?cnno=${result.shipment.dtdcAwbNumber}`,
+      trackingLink: `https://www.dtdc.com/track-your-shipment/?awb=${result.shipment.dtdcAwbNumber}`,
       trackingHistory: result.tracking.map((t) => ({
         ...(t.toObject() as any),
         id: t._id.toString(),
@@ -177,7 +179,7 @@ export class ShipmentResolver {
       ...obj,
       id: shipment._id.toString(),
       orderId: shipment.orderId?.toString(),
-      trackingLink: `https://www.dtdc.in/tracking/shipment-tracking.html?cnno=${shipment.dtdcAwbNumber}`,
+      trackingLink: `https://www.dtdc.com/track-your-shipment/?awb=${shipment.dtdcAwbNumber}`,
     };
   }
 
@@ -188,19 +190,21 @@ export class ShipmentResolver {
       return null;
     }
 
-    // If labelUrl is already saved and valid, return it.
-    // Note: The Label URL from DTDC might be temporary or a direct download link. 
-    // If it's a base64 string (data:application/pdf;base64,...), it's good to return directly.
-    if (shipment.labelUrl) {
-      return shipment.labelUrl;
+    if (shipment.labelUrl && shipment.labelUrl.startsWith('data:application/pdf;base64,')) {
+      return shipment.labelUrl.replace('data:application/pdf;base64,', '');
     }
 
-    // Attempt to fetch if not present (this logic might belong in service, but keeping it simple here or calling service method if it existed alone)
-    // Actually shipment.service.createShipment fetches and saves it. 
-    // If we want to re-fetch, we can use dtdcApiService directly if we injected it, but better to use a service method.
-    // However, existing service methods are `createShipment`, `findBy...`, `updateStatus`.
-    // Let's rely on what's in the DB for now as per plan, or maybe we should have exposed a service method to refresh label.
-    // For now, I will just return what is in the DB.
+    try {
+      const liveLabelUrl = await this.dtdcApiService.getLabel(awbNumber, shipment._id.toString());
+      if (liveLabelUrl && liveLabelUrl.startsWith('data:application/pdf;base64,')) {
+        shipment.labelUrl = liveLabelUrl;
+        await shipment.save();
+        return liveLabelUrl.replace('data:application/pdf;base64,', '');
+      }
+    } catch (error) {
+      console.error('Failed to fetch live DTDC label:', error);
+    }
+
     return null;
   }
 }

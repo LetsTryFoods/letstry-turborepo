@@ -98,7 +98,7 @@ export class DtdcApiService {
   }
 
   async getLabel(awbNumber: string, shipmentId: string): Promise<string> {
-    const url = `${this.getFullUrl('labelApi')}/${awbNumber}`;
+    const url = `${this.getFullUrl('labelApi')}?reference_number=${awbNumber}&label_code=SHIP_LABEL_4X6&label_format=pdf`;
     const startTime = Date.now();
 
     try {
@@ -236,38 +236,40 @@ export class DtdcApiService {
 
   async trackShipment(awbNumber: string): Promise<DtdcTrackingResponse | null> {
     const token = await this.getTrackingToken();
-    const url = this.getFullUrl('trackApi');
+    const trackingBase = this.configService.get<string>('dtdc.tracking.baseUrl') || 'https://blktracksvc.dtdc.com/dtdc-api';
+    const trackPath = this.configService.get<string>('dtdc.tracking.trackPath') || '/rest/JSONCnTrk/getTrackDetails';
+    const url = trackingBase + trackPath;
     const startTime = Date.now();
+    const payload = { trkType: 'cnno', strcnno: awbNumber, addtnlDtl: 'Y' };
 
     try {
-      const response = await this.axiosInstance.get<DtdcTrackingResponse>(url, {
-        params: { cnNo: awbNumber },
+      const response = await this.axiosInstance.post<DtdcTrackingResponse>(url, payload, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          'x-access-token': token,
         },
       });
 
       await this.logApiCall({
         apiType: 'TRACKING',
-        request: { awbNumber },
+        request: payload,
         response: response.data,
         statusCode: response.status,
         duration: Date.now() - startTime,
         success: true,
-        url: url + (url.includes('?') ? '&' : '?') + new URLSearchParams({ cnNo: awbNumber }).toString(),
+        url,
       });
 
       return response.data;
     } catch (error: any) {
       await this.logApiCall({
         apiType: 'TRACKING',
-        request: { awbNumber },
+        request: payload,
         response: error.response?.data,
         statusCode: error.response?.status,
         duration: Date.now() - startTime,
         success: false,
         error: error.message,
-        url: url + (url.includes('?') ? '&' : '?') + new URLSearchParams({ cnNo: awbNumber }).toString(),
+        url,
       });
 
       return null;
@@ -279,15 +281,14 @@ export class DtdcApiService {
       return this.trackingTokenCache.token;
     }
 
-    const url = this.getBaseUrl() + '/dtdc-api/rest/JSONCustTokenGeneration/TokenGeneration';
+    const trackingBase = this.configService.get<string>('dtdc.tracking.baseUrl') || 'https://blktracksvc.dtdc.com/dtdc-api';
+    const tokenPath = this.configService.get<string>('dtdc.tracking.tokenPath') || '/api/dtdc/authenticate';
     const username = this.configService.get<string>('DTDC_TRACKING_USERNAME') || '';
     const password = this.configService.get<string>('DTDC_TRACKING_PASSWORD') || '';
+    const url = `${trackingBase}${tokenPath}?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
 
     try {
-      const response = await this.axiosInstance.post(url, {
-        username,
-        password,
-      });
+      const response = await this.axiosInstance.get(url);
 
       const token = response.data.token;
       this.trackingTokenCache = {

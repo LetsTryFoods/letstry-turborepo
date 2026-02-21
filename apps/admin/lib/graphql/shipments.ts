@@ -216,3 +216,9 @@ export const CANCEL_SHIPMENT = gql`
     }
   }
 `
+
+export const GET_SHIPMENT_LABEL = gql`
+  query GetShipmentLabel($awbNumber: String!) {
+    getShipmentLabel(awbNumber: $awbNumber)
+  }
+`

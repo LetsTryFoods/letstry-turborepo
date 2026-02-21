@@ -41,9 +41,9 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_GRAPHQL_URL?.replace('/graphql', ''
 export function OrderTable({ orders, onViewDetails, onUpdateStatus }: OrderTableProps) {
   const { punchShipment, loading: punching } = useAdminPunchShipment()
 
-  const handlePunchShipment = async (order: Order) => {
+  const handlePunchShipment = async (order: Order, serviceType: string) => {
     try {
-      const result = await punchShipment({ orderId: order._id })
+      const result = await punchShipment({ orderId: order._id, serviceType })
       if (result) {
         toast.success(`Successfully punched to DTDC!`)
       }
@@ -222,22 +222,28 @@ export function OrderTable({ orders, onViewDetails, onUpdateStatus }: OrderTable
                   </TooltipProvider>
 
                   {(order.orderStatus === 'CONFIRMED' || order.orderStatus === 'PACKED') && (
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
-                            onClick={() => handlePunchShipment(order)}
-                            disabled={punching}
-                          >
-                            <Zap className="h-4 w-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>Direct Punch to DTDC (Bypass Packer)</TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                          disabled={punching}
+                        >
+                          <Zap className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Punch to DTDC</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => handlePunchShipment(order, 'B2C SMART EXPRESS')}>
+                          B2C Smart Express
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handlePunchShipment(order, 'B2C PRIORITY')}>
+                          B2C Priority
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   )}
 
                   {order.orderStatus !== 'DELIVERED' && (

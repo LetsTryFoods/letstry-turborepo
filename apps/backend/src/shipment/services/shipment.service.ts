@@ -155,6 +155,15 @@ export class ShipmentService {
     return this.shipmentModel.findById(id).exec();
   }
 
+  async findActiveShipmentsForTracking(): Promise<Shipment[]> {
+    return this.shipmentModel.find({
+      isDelivered: false,
+      isCancelled: false,
+      isRto: false,
+      dtdcAwbNumber: { $ne: null },
+    }).exec();
+  }
+
   async findByOrderId(orderId: string): Promise<Shipment[]> {
     return this.shipmentModel.find({ orderId: new Types.ObjectId(orderId) }).exec();
   }

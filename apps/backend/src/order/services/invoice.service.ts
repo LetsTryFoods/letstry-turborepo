@@ -108,8 +108,9 @@ export class InvoiceService {
             ].filter(Boolean);
 
             addressLines.forEach((line) => {
+                const lineHeight = doc.heightOfString(line, { width: 250 });
                 doc.text(line, 300, currentY, { width: 250 });
-                currentY += 10;
+                currentY += lineHeight + 2;
             });
         }
 

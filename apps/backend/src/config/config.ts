@@ -17,6 +17,7 @@ export default () => ({
     packingFile: process.env.PACKING_LOG_FILE || 'logs/packing.log',
     scanFile: process.env.SCAN_LOG_FILE || 'logs/scan.log',
     shipmentFile: process.env.SHIPMENT_LOG_FILE || 'logs/shipment.log',
+    trackingFile: process.env.TRACKING_LOG_FILE || 'logs/tracking.log',
   },
   packing: {
     acceptTimeoutHours: parseInt(
@@ -112,10 +113,15 @@ export default () => ({
     },
     endpoints: {
       bookingApi: 'consignment/softdata',
-      labelApi: 'consignment/label',
-      trackApi: 'consignment/track',
+      labelApi: 'consignment/shippinglabel/stream',
       cancelApi: 'consignment/cancel',
       pincodeApi: 'http://smarttrack.ctbsplus.dtdc.com/ratecalapi/PincodeApiCall',
+    },
+    tracking: {
+      baseUrl: 'https://blktracksvc.dtdc.com/dtdc-api',
+      tokenPath: '/api/dtdc/authenticate',
+      trackPath: '/rest/JSONCnTrk/getTrackDetails',
+      pollIntervalHours: parseInt(process.env.DTDC_TRACKING_POLL_INTERVAL_HOURS || '1', 10),
     },
     defaults: {
       dimensionUnit: 'cm',

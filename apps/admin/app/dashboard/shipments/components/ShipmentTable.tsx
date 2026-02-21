@@ -26,6 +26,7 @@ import {
 import { ShipmentStatusBadge } from './ShipmentStatusBadge'
 import { MoreHorizontal, Eye, Copy, XCircle, Download, MapPin } from 'lucide-react'
 import { toast } from 'react-hot-toast'
+import { useShipmentLabel } from '@/lib/shipments/queries'
 
 interface ShipmentTableProps {
   shipments: Shipment[]
@@ -34,6 +35,8 @@ interface ShipmentTableProps {
 }
 
 export function ShipmentTable({ shipments, onViewDetails, onCancelShipment }: ShipmentTableProps) {
+  const { downloadLabel } = useShipmentLabel()
+
   const handleCopy = async (text: string, label: string) => {
     const success = await copyToClipboard(text)
     if (success) {
@@ -130,12 +133,10 @@ export function ShipmentTable({ shipments, onViewDetails, onCancelShipment }: Sh
                         Copy Tracking Link
                       </DropdownMenuItem>
                     )}
-                    {shipment.labelUrl && (
-                      <DropdownMenuItem asChild>
-                        <a href={shipment.labelUrl} target="_blank" rel="noopener noreferrer">
-                          <Download className="mr-2 h-4 w-4" />
-                          Download Label
-                        </a>
+                    {!shipment.isCancelled && !shipment.isDelivered && (
+                      <DropdownMenuItem onClick={() => downloadLabel(shipment.dtdcAwbNumber)}>
+                        <Download className="mr-2 h-4 w-4" />
+                        Download Label
                       </DropdownMenuItem>
                     )}
                     {!shipment.isCancelled && !shipment.isDelivered && (

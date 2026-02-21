@@ -79,6 +79,7 @@ export const getServiceTypeLabel = (type: string): string => {
     LITE: 'Lite',
     'B2C PRIORITY': 'Priority',
     'B2C SMART': 'Smart',
+    'B2C SMART EXPRESS': 'Smart Express',
     EXPRESS: 'Express',
   }
 

@@ -322,7 +322,7 @@ export class PackingService {
   }
 
   async adminPunchShipment(input: AdminPunchShipmentInput): Promise<any> {
-    const { orderId } = input;
+    const { orderId, serviceType } = input;
 
     this.packingLogger.logInfo('Admin punch shipment initiated', { orderId });
 
@@ -367,7 +367,7 @@ export class PackingService {
       OrderStatus.PACKED,
     );
 
-    await this.initiateShipmentCreation(packingOrder.orderId, packingOrderId);
+    await this.initiateShipmentCreation(packingOrder.orderId, packingOrderId, serviceType);
 
     return this.packingOrderCrud.findById(packingOrderId);
   }
@@ -378,7 +378,7 @@ export class PackingService {
       : 0;
   }
 
-  private async initiateShipmentCreation(orderId: string, packingOrderId: string): Promise<void> {
+  private async initiateShipmentCreation(orderId: string, packingOrderId: string, serviceType?: string): Promise<void> {
     try {
       const order = await this.orderRepository.findByInternalId(orderId);
 
@@ -441,7 +441,7 @@ export class PackingService {
 
       totalWeight = Math.max(totalWeight, 0.5);
 
-      const shipmentPayload = this.buildShipmentPayload(orderId, order, boxDimensions, shippingAddress, totalWeight);
+      const shipmentPayload = this.buildShipmentPayload(orderId, order, boxDimensions, shippingAddress, totalWeight, serviceType);
       await this.shipmentService.createShipment(shipmentPayload);
     } catch (error) {
       this.shipmentLogger.logError('Failed to create shipment', error, {
@@ -452,11 +452,11 @@ export class PackingService {
     }
   }
 
-  private buildShipmentPayload(orderId: string, order: any, boxDimensions: any, shippingAddress: any, weight: number) {
+  private buildShipmentPayload(orderId: string, order: any, boxDimensions: any, shippingAddress: any, weight: number, serviceType?: string) {
     return {
       orderId,
       orderNumber: order.orderId,
-      serviceType: this.configService.get('dtdc.defaults.serviceType') || 'GROUND EXPRESS',
+      serviceType: serviceType || this.configService.get('dtdc.defaults.serviceType') || 'GROUND EXPRESS',
       loadType: this.configService.get('dtdc.defaults.loadType') || 'NON-DOCUMENT',
       weight,
       declaredValue: parseFloat(order.totalAmount) || 0,

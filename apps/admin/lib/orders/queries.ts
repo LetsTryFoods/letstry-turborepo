@@ -157,6 +157,7 @@ export interface UpdateOrderStatusInput {
 
 export interface AdminPunchShipmentInput {
   orderId: string;
+  serviceType?: string;
 }
 
 export const useAllOrders = (input: GetAllOrdersInput = {}) => {

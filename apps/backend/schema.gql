@@ -1839,6 +1839,7 @@ input UploadEvidenceInput {
 
 input AdminPunchShipmentInput {
   orderId: ID!
+  serviceType: String
 }
 
 input CreatePackerInput {

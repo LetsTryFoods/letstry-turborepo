@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { ShipmentTrackingHistory } from '../entities/shipment-tracking-history.entity';
 import { ShipmentStatusMapperService } from './shipment-status-mapper.service';
-import { DtdcWebhookPayload } from '../interfaces/dtdc-payload.interface';
+import { DtdcWebhookPayload, DtdcTrackingResponse } from '../interfaces/dtdc-payload.interface';
 
 @Injectable()
 export class TrackingService {
@@ -13,7 +13,7 @@ export class TrackingService {
     @InjectModel(ShipmentTrackingHistory.name)
     private readonly trackingHistoryModel: Model<ShipmentTrackingHistory>,
     private readonly statusMapper: ShipmentStatusMapperService,
-  ) {}
+  ) { }
 
   async addTrackingEvent(
     shipmentId: string,
@@ -44,6 +44,61 @@ export class TrackingService {
     } as any);
 
     return trackingEvent;
+  }
+
+  async syncTrackingData(
+    shipmentId: string,
+    trackDetails: DtdcTrackingResponse['trackDetails'],
+  ): Promise<any[]> {
+    if (!trackDetails || !trackDetails.length) return [];
+
+    const newEvents: any[] = [];
+
+    // Sort by chronological order just in case
+    const sortedDetails = [...trackDetails].sort((a, b) => {
+      const dateA = this.combineDateAndTime(a.strActionDate, a.strActionTime);
+      const dateB = this.combineDateAndTime(b.strActionDate, b.strActionTime);
+      return dateA.getTime() - dateB.getTime();
+    });
+
+    for (const detail of sortedDetails) {
+      const actionDate = this.parseDtdcDate(detail.strActionDate);
+      const actionTime = this.parseDtdcTime(detail.strActionTime);
+      const actionDatetime = this.combineDateAndTime(
+        detail.strActionDate,
+        detail.strActionTime,
+      );
+
+      // DTDC API is sometimes loose with exact seconds, so we check for same code + location
+      const existing = await this.trackingHistoryModel.findOne({
+        shipmentId: new Types.ObjectId(shipmentId),
+        statusCode: detail.strCode,
+        actionDate: actionDate,
+        actionTime: actionTime,
+      });
+
+      if (!existing) {
+        const trackingEvent = await this.trackingHistoryModel.create({
+          shipmentId: new Types.ObjectId(shipmentId),
+          statusCode: detail.strCode,
+          statusDescription: detail.strAction,
+          location: detail.strOrigin,
+          manifestNumber: detail.strManifestNo,
+          actionDate,
+          actionTime,
+          actionDatetime,
+          remarks: detail.sTrRemarks,
+          latitude: this.parseCoordinate(detail.strLatitude),
+          longitude: this.parseCoordinate(detail.strLongitude),
+          scdOtp: this.statusMapper.parseOtpFlag(detail.strSCDOTP),
+          ndcOtp: this.statusMapper.parseOtpFlag(detail.strNDCOTP),
+          rawPayload: detail,
+        } as any);
+        newEvents.push(trackingEvent);
+      }
+    }
+
+    return newEvents;
   }
 
   async getShipmentTimeline(

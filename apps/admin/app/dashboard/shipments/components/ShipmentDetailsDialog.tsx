@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Separator } from '@/components/ui/separator'
-import { useShipmentWithTracking } from '@/lib/shipments/queries'
+import { useShipmentWithTracking, useShipmentLabel } from '@/lib/shipments/queries'
 import { Shipment } from '@/lib/shipments/types'
 import {
   formatDate,
@@ -32,6 +32,7 @@ interface ShipmentDetailsDialogProps {
 
 export function ShipmentDetailsDialog({ isOpen, onClose, awbNumber }: ShipmentDetailsDialogProps) {
   const { shipment, trackingHistory, loading } = useShipmentWithTracking(awbNumber)
+  const { downloadLabel, loading: downloadingLabel } = useShipmentLabel()
 
   const handleCopy = async (text: string, label: string) => {
     const success = await copyToClipboard(text)
@@ -43,7 +44,7 @@ export function ShipmentDetailsDialog({ isOpen, onClose, awbNumber }: ShipmentDe
   if (loading) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-[95vw] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <Skeleton className="h-6 w-48" />
           </DialogHeader>
@@ -61,7 +62,7 @@ export function ShipmentDetailsDialog({ isOpen, onClose, awbNumber }: ShipmentDe
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-[95vw] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -92,15 +93,15 @@ export function ShipmentDetailsDialog({ isOpen, onClose, awbNumber }: ShipmentDe
         </DialogHeader>
 
         <div className="space-y-4 mt-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="col-span-2">
+          <div className="grid grid-cols-4 gap-4">
+            <Card className="col-span-3">
               <CardHeader>
                 <CardTitle className="text-sm">Shipment Information</CardTitle>
               </CardHeader>
-              <CardContent className="grid grid-cols-2 gap-4 text-sm">
+              <CardContent className="grid grid-cols-4 gap-4 text-sm">
                 <div>
                   <div className="text-muted-foreground">Order ID</div>
-                  <div className="font-medium">{shipment.orderId || '-'}</div>
+                  <div className="font-medium break-all">{shipment.orderId || '-'}</div>
                 </div>
                 <div>
                   <div className="text-muted-foreground">Service Type</div>
@@ -122,6 +123,27 @@ export function ShipmentDetailsDialog({ isOpen, onClose, awbNumber }: ShipmentDe
                   <div className="text-muted-foreground">COD Amount</div>
                   <div className="font-medium">{formatCurrency(shipment.codAmount)}</div>
                 </div>
+                <div>
+                  <div className="text-muted-foreground">Pieces</div>
+                  <div className="font-medium">{shipment.numPieces}</div>
+                </div>
+                {shipment.dimensions && (
+                  <div>
+                    <div className="text-muted-foreground">Dimensions</div>
+                    <div className="font-medium">
+                      {shipment.dimensions.length} × {shipment.dimensions.width} × {shipment.dimensions.height} {shipment.dimensions.unit}
+                    </div>
+                  </div>
+                )}
+                {shipment.invoiceNumber && (
+                  <div>
+                    <div className="text-muted-foreground flex items-center gap-1">
+                      <FileText className="h-3 w-3" />
+                      Invoice
+                    </div>
+                    <div className="font-medium">{shipment.invoiceNumber}</div>
+                  </div>
+                )}
                 {shipment.currentLocation && (
                   <div className="col-span-2">
                     <div className="text-muted-foreground">Current Location</div>
@@ -139,12 +161,10 @@ export function ShipmentDetailsDialog({ isOpen, onClose, awbNumber }: ShipmentDe
                 <CardTitle className="text-sm">Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="grid gap-2">
-                {shipment.labelUrl && (
-                  <Button className="w-full" asChild>
-                    <a href={shipment.labelUrl} target="_blank" rel="noopener noreferrer">
-                      <Download className="mr-2 h-4 w-4" />
-                      Print Label
-                    </a>
+                {!shipment.isCancelled && !shipment.isDelivered && (
+                  <Button className="w-full" onClick={() => downloadLabel(shipment.dtdcAwbNumber)} disabled={downloadingLabel}>
+                    <Download className="mr-2 h-4 w-4" />
+                    {downloadingLabel ? 'Downloading...' : 'Download Label'}
                   </Button>
                 )}
                 {shipment.trackingLink && (
@@ -163,7 +183,7 @@ export function ShipmentDetailsDialog({ isOpen, onClose, awbNumber }: ShipmentDe
             </Card>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <Card>
               <CardHeader>
                 <CardTitle className="text-sm">Origin</CardTitle>
@@ -210,38 +230,6 @@ export function ShipmentDetailsDialog({ isOpen, onClose, awbNumber }: ShipmentDe
               </CardContent>
             </Card>
           </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm flex items-center gap-2">
-                <Package className="h-4 w-4" />
-                Package Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm space-y-4">
-              {shipment.dimensions && (
-                <div>
-                  <div className="text-muted-foreground">Dimensions</div>
-                  <div className="font-medium">
-                    {shipment.dimensions.length} × {shipment.dimensions.width} × {shipment.dimensions.height} {shipment.dimensions.unit}
-                  </div>
-                </div>
-              )}
-              <div>
-                <div className="text-muted-foreground">Number of Pieces</div>
-                <div className="font-medium">{shipment.numPieces}</div>
-              </div>
-              {shipment.invoiceNumber && (
-                <div>
-                  <div className="text-muted-foreground flex items-center gap-1">
-                    <FileText className="h-3 w-3" />
-                    Invoice Number
-                  </div>
-                  <div className="font-medium">{shipment.invoiceNumber}</div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
 
           <Card>
             <CardHeader>
