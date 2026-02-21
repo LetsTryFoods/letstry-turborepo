@@ -841,6 +841,7 @@ type OrderStatusCount {
   shipped: Int!
   inTransit: Int!
   delivered: Int!
+  shipmentFailed: Int!
 }
 
 type OrdersSummary {

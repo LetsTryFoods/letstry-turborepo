@@ -77,6 +77,7 @@ export const GET_ALL_ORDERS = gql`
           shipped
           inTransit
           delivered
+          shipmentFailed
         }
       }
     }

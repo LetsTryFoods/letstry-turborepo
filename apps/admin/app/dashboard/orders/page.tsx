@@ -150,7 +150,7 @@ export default function OrdersPage() {
             <Clock className="h-4 w-4 text-yellow-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{stats.confirmed + stats.packed}</div>
+            <div className="text-2xl font-bold text-yellow-600">{stats.confirmed + stats.packed + (stats.shipmentFailed ?? 0)}</div>
             <p className="text-xs text-muted-foreground">Need attention</p>
           </CardContent>
         </Card>
@@ -167,7 +167,7 @@ export default function OrdersPage() {
       </div>
 
       {/* Secondary Stats */}
-      <div className="grid gap-4 md:grid-cols-5">
+      <div className="grid gap-4 md:grid-cols-6">
         <Card className="border-blue-200">
           <CardContent className="pt-4 pb-4">
             <div className="flex items-center justify-between">
@@ -220,6 +220,17 @@ export default function OrdersPage() {
                 <p className="text-lg font-bold">{stats.delivered}</p>
               </div>
               <CheckCircle className="h-5 w-5 text-green-500" />
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="border-red-200">
+          <CardContent className="pt-4 pb-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground">Failed</p>
+                <p className="text-lg font-bold">{stats.shipmentFailed ?? 0}</p>
+              </div>
+              <XCircle className="h-5 w-5 text-red-500" />
             </div>
           </CardContent>
         </Card>

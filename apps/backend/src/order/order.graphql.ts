@@ -253,6 +253,9 @@ export class OrderStatusCount {
 
   @Field(() => Int)
   delivered: number;
+
+  @Field(() => Int)
+  shipmentFailed: number;
 }
 
 @ObjectType()

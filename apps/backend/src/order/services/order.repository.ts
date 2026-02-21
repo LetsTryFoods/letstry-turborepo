@@ -115,4 +115,16 @@ export class OrderRepository {
   async countTotal(): Promise<number> {
     return this.orderModel.countDocuments().exec();
   }
+
+  async sumTotalRevenue(): Promise<string> {
+    const result = await this.orderModel.aggregate([
+      {
+        $group: {
+          _id: null,
+          total: { $sum: { $toDouble: '$totalAmount' } },
+        },
+      },
+    ]);
+    return result.length > 0 ? result[0].total.toString() : '0';
+  }
 }

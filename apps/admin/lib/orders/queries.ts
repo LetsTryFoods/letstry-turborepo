@@ -37,6 +37,7 @@ interface StatusCounts {
   shipped: number;
   inTransit: number;
   delivered: number;
+  shipmentFailed: number;
 }
 
 interface GetAllOrdersData {
@@ -251,6 +252,7 @@ export const getOrderStats = (summary?: OrdersSummary) => {
       shipped: 0,
       inTransit: 0,
       delivered: 0,
+      shipmentFailed: 0,
       totalRevenue: 0,
     };
   }
@@ -262,6 +264,7 @@ export const getOrderStats = (summary?: OrdersSummary) => {
     shipped: summary.statusCounts.shipped,
     inTransit: summary.statusCounts.inTransit,
     delivered: summary.statusCounts.delivered,
+    shipmentFailed: summary.statusCounts.shipmentFailed,
     totalRevenue: parseFloat(summary.totalRevenue || "0"),
   };
 };
