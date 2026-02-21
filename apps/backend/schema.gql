@@ -804,6 +804,7 @@ enum OrderStatus {
   SHIPPED
   IN_TRANSIT
   DELIVERED
+  SHIPMENT_FAILED
 }
 
 type OrderWithUserInfo {

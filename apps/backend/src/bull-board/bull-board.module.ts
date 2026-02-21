@@ -23,6 +23,10 @@ import { Queue } from 'bullmq';
       name: 'shipment-webhook',
       adapter: BullMQAdapter,
     }),
+    BaseBullBoardModule.forFeature({
+      name: 'tracking-queue',
+      adapter: BullMQAdapter,
+    }),
   ],
 })
 export class BullBoardModule {}

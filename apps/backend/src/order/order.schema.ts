@@ -7,6 +7,7 @@ export enum OrderStatus {
   SHIPPED = 'SHIPPED',
   IN_TRANSIT = 'IN_TRANSIT',
   DELIVERED = 'DELIVERED',
+  SHIPMENT_FAILED = 'SHIPMENT_FAILED',
 }
 
 @Schema({ timestamps: true })

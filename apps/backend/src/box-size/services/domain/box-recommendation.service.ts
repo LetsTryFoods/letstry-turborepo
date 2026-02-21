@@ -39,7 +39,7 @@ export class BoxRecommendationService {
       }
     }
 
-    return boxes[boxes.length - 1];
+    return boxes.length > 0 ? boxes[boxes.length - 1] : null;
   }
 
   async applyConstraints(items: any[], box: any): Promise<boolean> {

@@ -423,7 +423,7 @@ export class PackingService {
         const packingOrder = await this.packingOrderCrud.findById(packingOrderId);
         if (packingOrder) {
           const recommendedBox = await this.boxRecommendation.selectOptimalBox(packingOrder.items);
-          boxDimensions = recommendedBox.internalDimensions;
+          boxDimensions = recommendedBox?.internalDimensions;
           totalWeight = packingOrder.items.reduce(
             (sum: number, item: any) => sum + (item.dimensions?.weight || 0) * item.quantity,
             0,
@@ -436,6 +436,7 @@ export class PackingService {
           orderId,
           packingOrderId,
         });
+        await this.orderRepository.updateStatusByInternalId(orderId, OrderStatus.SHIPMENT_FAILED);
         return;
       }
 
@@ -448,6 +449,7 @@ export class PackingService {
         orderId,
         packingOrderId,
       });
+      await this.orderRepository.updateStatusByInternalId(orderId, OrderStatus.SHIPMENT_FAILED);
       throw error;
     }
   }

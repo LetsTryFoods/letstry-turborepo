@@ -272,4 +272,34 @@ export class ShipmentService {
 
     return { shipment, tracking };
   }
+
+  async getShipmentWithFreshTracking(awbNumber: string): Promise<{ shipment: Shipment; tracking: any[] }> {
+    const shipment = await this.findByAwbNumber(awbNumber);
+
+    if (!shipment) {
+      throw new NotFoundException(`Shipment with AWB ${awbNumber} not found`);
+    }
+
+    const shipmentId = shipment._id.toString();
+
+    try {
+      const trackResponse = await this.dtdcApiService.trackShipment(awbNumber);
+
+      if (trackResponse?.statusFlag && trackResponse.trackDetails?.length) {
+        const newEvents = await this.trackingService.syncTrackingData(shipmentId, trackResponse.trackDetails);
+
+        if (newEvents && newEvents.length > 0) {
+          const latestEvent = newEvents[newEvents.length - 1];
+          const statusDescription = this.statusMapper.getStatusDescription(latestEvent.statusCode);
+          await this.updateStatus(awbNumber, latestEvent.statusCode, statusDescription, latestEvent.location);
+        }
+      }
+    } catch {
+    }
+
+    const updatedShipment = await this.findByAwbNumber(awbNumber);
+    const tracking = await this.trackingService.getShipmentTimeline(shipmentId);
+
+    return { shipment: updatedShipment!, tracking };
+  }
 }

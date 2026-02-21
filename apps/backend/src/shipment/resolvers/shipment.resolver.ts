@@ -92,7 +92,7 @@ export class ShipmentResolver {
       },
       awbNumber: result.awbNumber,
       labelUrl: result.labelUrl,
-      trackingLink: `https://www.dtdc.com/track-your-shipment/?awb=${result.awbNumber}`,
+      trackingLink: `https://letstryfoods.com/track/${result.awbNumber}`,
     };
   }
 
@@ -148,7 +148,7 @@ export class ShipmentResolver {
         ...(s.toObject() as any),
         id: s._id.toString(),
         orderId: s.orderId?.toString(),
-        trackingLink: `https://www.dtdc.com/track-your-shipment/?awb=${s.dtdcAwbNumber}`,
+        trackingLink: `https://letstryfoods.com/track/${s.dtdcAwbNumber}`,
       })),
       total: shipments.length,
     };
@@ -162,7 +162,7 @@ export class ShipmentResolver {
       ...(result.shipment.toObject() as any),
       id: result.shipment._id.toString(),
       orderId: result.shipment.orderId?.toString(),
-      trackingLink: `https://www.dtdc.com/track-your-shipment/?awb=${result.shipment.dtdcAwbNumber}`,
+      trackingLink: `https://letstryfoods.com/track/${result.shipment.dtdcAwbNumber}`,
       trackingHistory: result.tracking.map((t) => ({
         ...(t.toObject() as any),
         id: t._id.toString(),
@@ -179,7 +179,7 @@ export class ShipmentResolver {
       ...obj,
       id: shipment._id.toString(),
       orderId: shipment.orderId?.toString(),
-      trackingLink: `https://www.dtdc.com/track-your-shipment/?awb=${shipment.dtdcAwbNumber}`,
+      trackingLink: `https://letstryfoods.com/track/${shipment.dtdcAwbNumber}`,
     };
   }
 
