@@ -277,6 +277,11 @@ export class DtdcApiService {
   }
 
   private async getTrackingToken(): Promise<string> {
+    const staticToken = this.configService.get<string>('DTDC_TRACKING_TOKEN');
+    if (staticToken) {
+      return staticToken;
+    }
+
     if (this.trackingTokenCache && this.trackingTokenCache.expiresAt > Date.now()) {
       return this.trackingTokenCache.token;
     }
