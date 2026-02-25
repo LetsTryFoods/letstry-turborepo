@@ -56,6 +56,8 @@ export class TrackingProcessor extends WorkerHost {
 
             const trackResponse = await this.dtdcApiService.trackShipment(awbNumber);
 
+            this.trackingLogger.logDtdcApiResponse(awbNumber, trackResponse);
+
             if (!trackResponse || !trackResponse.statusFlag || !trackResponse.trackDetails) {
                 this.trackingLogger.logNoValidTrackingDetails(awbNumber);
                 return;

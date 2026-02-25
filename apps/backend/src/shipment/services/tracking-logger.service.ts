@@ -59,6 +59,18 @@ export class TrackingLoggerService {
         });
     }
 
+    logDtdcApiResponse(awbNumber: string, response: any) {
+        this.logger.info('DTDC API response received', {
+            event: 'DTDC_API_RESPONSE',
+            awbNumber,
+            statusFlag: response?.statusFlag,
+            status: response?.status,
+            trackDetailsCount: response?.trackDetails?.length ?? null,
+            errorDetails: response?.errorDetails ?? null,
+            rawResponse: response,
+        });
+    }
+
     logNoValidTrackingDetails(awbNumber: string) {
         this.logger.warn(`No valid tracking details found for AWB`, {
             event: 'NO_TRACKING_DETAILS',
