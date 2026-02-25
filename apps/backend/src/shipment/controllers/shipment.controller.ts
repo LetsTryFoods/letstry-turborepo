@@ -10,6 +10,7 @@ export class ShipmentController {
         private readonly shipmentService: ShipmentService,
     ) {}
 
+    @Public()
     @Post('trigger-tracking-sync')
     @HttpCode(HttpStatus.OK)
     async triggerTrackingSync(): Promise<{ message: string }> {
