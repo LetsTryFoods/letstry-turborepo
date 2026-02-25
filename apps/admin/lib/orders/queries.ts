@@ -139,6 +139,7 @@ export interface OrdersSummary {
     shipped: number;
     inTransit: number;
     delivered: number;
+    shipmentFailed: number;
   };
 }
 

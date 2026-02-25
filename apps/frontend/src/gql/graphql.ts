@@ -77,6 +77,7 @@ export type AdminOrdersResponse = {
 
 export type AdminPunchShipmentInput = {
   orderId: Scalars['ID']['input'];
+  serviceType?: InputMaybe<Scalars['String']['input']>;
 };
 
 export enum AuthMethod {
@@ -1431,6 +1432,7 @@ export enum OrderStatus {
   Delivered = 'DELIVERED',
   InTransit = 'IN_TRANSIT',
   Packed = 'PACKED',
+  ShipmentFailed = 'SHIPMENT_FAILED',
   Shipped = 'SHIPPED'
 }
 
@@ -1440,6 +1442,7 @@ export type OrderStatusCount = {
   delivered: Scalars['Int']['output'];
   inTransit: Scalars['Int']['output'];
   packed: Scalars['Int']['output'];
+  shipmentFailed: Scalars['Int']['output'];
   shipped: Scalars['Int']['output'];
 };
 
