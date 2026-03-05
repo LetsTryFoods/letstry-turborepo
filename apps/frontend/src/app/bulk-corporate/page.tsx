@@ -8,7 +8,7 @@ import { submitCorporateEnquiry } from "@/lib/queries/corporate-enquiry";
 const PURPOSE_OPTIONS = [
     { value: "FestiveGifting", label: "Festive Gifting" },
     { value: "WholesaleRetail", label: "Wholesale / Retail" },
-    { value: "WeddingGifting", label: "Wedding Gifting" },
+    // { value: "WeddingGifting", label: "Wedding Gifting" },
     { value: "CorporateGifting", label: "Corporate Gifting" },
     { value: "PantrySnacking", label: "Pantry Snacking" },
     { value: "PersonalGifting", label: "Personal Gifting" },
@@ -101,7 +101,7 @@ export default function BulkCorporatePage() {
                         </div>
 
                         <div className="flex flex-col gap-5">
-                            <div className="flex items-start gap-4 rounded-2xl border border-gray-100 bg-gray-50 p-5">
+                            {/* <div className="flex items-start gap-4 rounded-2xl border border-gray-100 bg-gray-50 p-5">
                                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style={{ background: "#001F3F1A", color: NAVY }}>
                                     <Phone className="h-5 w-5" />
                                 </div>
@@ -122,7 +122,7 @@ export default function BulkCorporatePage() {
                                         9100259090
                                     </a>
                                 </div>
-                            </div>
+                            </div> */}
 
                             <div className="flex items-start gap-4 rounded-2xl border border-gray-100 bg-gray-50 p-5">
                                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl" style={{ background: "#001F3F1A", color: NAVY }}>
