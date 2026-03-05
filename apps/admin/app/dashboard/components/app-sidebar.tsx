@@ -11,7 +11,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { LogOut, Image, FolderTree, Tag, DollarSign, ShoppingBag, ShoppingCart, Users, Star, Bell, BarChart3, HelpCircle, MessageSquare, UserCheck, PackageCheck, CreditCard, Package2, ArrowRightLeft } from "lucide-react"
+import { LogOut, Image, FolderTree, Tag, DollarSign, ShoppingBag, ShoppingCart, Users, Star, Bell, BarChart3, HelpCircle, MessageSquare, UserCheck, PackageCheck, CreditCard, Package2, ArrowRightLeft, Briefcase } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Package, Settings, LayoutDashboard, Truck, RefreshCcw, FileText, Trash2, Search, } from "lucide-react"
 import { usePolicies, useDeletePolicy } from "@/lib/policies/usePolicies"
@@ -134,7 +134,12 @@ const items = [
     title: "URL Redirects",
     url: "/dashboard/redirects",
     icon: ArrowRightLeft,
-  }
+  },
+  {
+    title: "Corporate Enquiries",
+    url: "/dashboard/corporate-enquiries",
+    icon: Briefcase,
+  },
 ]
 
 export function AppSidebar() {

@@ -1198,6 +1198,34 @@ type BlogCategory {
   updatedAt: DateTime!
 }
 
+type CorporateEnquiry {
+  _id: ID!
+  companyName: String
+  name: String!
+  phone: String!
+  email: String!
+  purposeOfInquiry: PurposeOfInquiry!
+  otherPurpose: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+enum PurposeOfInquiry {
+  FestiveGifting
+  WholesaleRetail
+  WeddingGifting
+  CorporateGifting
+  PantrySnacking
+  PersonalGifting
+  EmployeeGifting
+  Others
+}
+
+type CorporateEnquiryResponse {
+  success: Boolean!
+  message: String!
+}
+
 input BoxDimensionsInput {
   l: Float!
   w: Float!
@@ -1280,6 +1308,7 @@ type Query {
   blogCategories: [BlogCategory!]!
   activeBlogCategories: [BlogCategory!]!
   blogCategory(id: ID!): BlogCategory
+  getAllCorporateEnquiries: [CorporateEnquiry!]!
 }
 
 input PaginationInput {
@@ -1472,6 +1501,7 @@ type Mutation {
   createBlogCategory(input: CreateBlogCategoryInput!): BlogCategory!
   updateBlogCategory(id: ID!, input: UpdateBlogCategoryInput!): BlogCategory!
   deleteBlogCategory(id: ID!): BlogCategory!
+  submitCorporateEnquiry(input: SubmitCorporateEnquiryInput!): CorporateEnquiryResponse!
   sendOtp(phoneNumber: String!): String!
   verifyWhatsAppOtp(phoneNumber: String!, otp: String!, input: CreateUserInput): String!
   verifyOtpAndLogin(idToken: String!, input: CreateUserInput): String!
@@ -2027,6 +2057,15 @@ input UpdateBlogCategoryInput {
   description: String
   isActive: Boolean
   position: Float
+}
+
+input SubmitCorporateEnquiryInput {
+  companyName: String
+  name: String!
+  phone: String!
+  email: String!
+  purposeOfInquiry: PurposeOfInquiry!
+  otherPurpose: String
 }
 
 input CreateUserInput {

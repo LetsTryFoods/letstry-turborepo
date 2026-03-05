@@ -32,6 +32,7 @@ import { BullBoardModule } from './bull-board/bull-board.module';
 import { RedirectModule } from './redirect/redirect.module';
 import { BlogModule } from './blog/blog.module';
 import { BlogCategoryModule } from './blog-category/blog-category.module';
+import { CorporateEnquiryModule } from './corporate-enquiry/corporate-enquiry.module';
 
 @Module({
   imports: [
@@ -71,6 +72,7 @@ import { BlogCategoryModule } from './blog-category/blog-category.module';
     RedirectModule,
     BlogModule,
     BlogCategoryModule,
+    CorporateEnquiryModule,
     AuthenticationModule,
     AppCacheModule,
   ],

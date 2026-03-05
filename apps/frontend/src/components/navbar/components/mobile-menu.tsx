@@ -7,7 +7,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/s
 interface MobileMenuProps {
     isOpen: boolean;
     setIsOpen: (open: boolean) => void;
-    navigationLinks: Array<{ href: string; label: string }>;
+    navigationLinks: Array<{ href: string; label: string; hasDropdown?: boolean; dropdownItems?: Array<{ href: string; label: string }>; isLogin?: boolean; disableActive?: boolean; }>;
     cartItemCount: number;
     toggleCart: () => void;
     isAuthenticated: boolean;
@@ -59,7 +59,7 @@ export const MobileMenu = ({
                     >
                         Home
                     </Link>
-                  
+
                     <button
                         className="text-left text-xl font-bold text-black hover:text-yellow-600 transition-colors"
                         onClick={() => {
@@ -76,6 +76,13 @@ export const MobileMenu = ({
                     >
                         About Us
                     </Link>
+                    <Link
+                        href="/bulk-corporate"
+                        className="text-xl font-bold text-black hover:text-yellow-600 transition-colors"
+                        onClick={() => setIsOpen(false)}
+                    >
+                        Bulk & Corporate
+                    </Link>
                     {
                         isAuthenticated ? (
                             <Link
@@ -85,18 +92,18 @@ export const MobileMenu = ({
                             >
                                 Profile
                             </Link>
-                        ) : 
-                        <button
-                            className="text-left text-xl font-bold text-black hover:text-yellow-600 transition-colors"
-                            onClick={() => {
-                                onLoginClick();
-                                setIsOpen(false);
-                            }}
-                        >
-                            Login
-                        </button>
+                        ) :
+                            <button
+                                className="text-left text-xl font-bold text-black hover:text-yellow-600 transition-colors"
+                                onClick={() => {
+                                    onLoginClick();
+                                    setIsOpen(false);
+                                }}
+                            >
+                                Login
+                            </button>
                     }
-                  
+
                 </nav>
             </SheetContent>
         </Sheet>

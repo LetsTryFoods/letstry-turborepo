@@ -14,6 +14,7 @@ interface DesktopNavbarProps {
     hasDropdown?: boolean;
     dropdownItems?: Array<{ href: string; label: string }>;
     isLogin?: boolean;
+    disableActive?: boolean;
   }>;
   cartItemCount: number;
   toggleCart: () => void;
@@ -56,7 +57,7 @@ export const DesktopNavbar = ({
                 {link.label}
                 <ChevronDown className="h-4 w-4" />
               </span>
-            ) : link.isLogin ? (
+            ) : link.isLogin === true ? (
               <button
                 onClick={onLoginClick}
                 className={`text-lg font-medium ${pathname === link.href ? "text-[#0C5273]" : "text-gray-900"} hover:text-[#0C5273] transition-colors flex items-center gap-1 h-full`}
@@ -66,7 +67,7 @@ export const DesktopNavbar = ({
             ) : (
               <Link
                 href={link.href}
-                className={`text-lg font-medium ${pathname === link.href ? "text-[#0C5273]" : "text-gray-900"} hover:text-[#0C5273] transition-colors flex items-center gap-1 h-full`}
+                className={`text-lg font-medium ${!link.disableActive && pathname === link.href ? "text-[#0C5273]" : "text-gray-900"} hover:text-[#0C5273] transition-colors flex items-center gap-1 h-full`}
               >
                 {link.label}
               </Link>

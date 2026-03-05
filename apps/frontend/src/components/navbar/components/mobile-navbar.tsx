@@ -13,7 +13,7 @@ interface MobileNavbarProps {
     toggleCart: () => void;
     isOpen: boolean;
     setIsOpen: (open: boolean) => void;
-    navigationLinks: Array<{ href: string; label: string }>;
+    navigationLinks: Array<{ href: string; label: string; hasDropdown?: boolean; dropdownItems?: Array<{ href: string; label: string }>; isLogin?: boolean; disableActive?: boolean; }>;
     isAuthenticated: boolean;
     onProfileClick: () => void;
     onLoginClick: () => void;

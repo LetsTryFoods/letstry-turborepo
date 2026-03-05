@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { LoginModal } from "@/components/auth";
 import { useAuth } from "@/providers/auth-provider";
 import { useLoginModalStore } from "@/stores/login-modal-store";
@@ -32,8 +32,16 @@ export const Navbar = ({ initialAuth, categories = [] }: NavbarProps) => {
   const { data: cartData } = useCart();
   const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
 
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const cartItemCount = (cartData as any)?.myCart?.items?.length || 0;
-  const isAuthenticated = initialAuth?.isAuthenticated ?? clientAuth;
+  const isAuthenticated = mounted
+    ? (initialAuth?.isAuthenticated ?? clientAuth)
+    : (initialAuth?.isAuthenticated ?? false);
 
   const handleLoginSuccess = useCallback(() => {
     closeModal();
@@ -50,6 +58,7 @@ export const Navbar = ({ initialAuth, categories = [] }: NavbarProps) => {
   const navigationLinks = useMemo(
     () => [
       { href: "/", label: "Home" },
+      { href: "/bulk-corporate", label: "Bulk & Corporate" },
       {
         href: "#",
         label: "Snacks",
@@ -64,6 +73,7 @@ export const Navbar = ({ initialAuth, categories = [] }: NavbarProps) => {
 
       // { href: "/blog", label: "Blog" },
       { href: "/about-us", label: "About us" },
+      
       ...(!isAuthenticated ? [{ href: "#", label: "Login", isLogin: true }] : []),
     ],
     [categories, isAuthenticated],
