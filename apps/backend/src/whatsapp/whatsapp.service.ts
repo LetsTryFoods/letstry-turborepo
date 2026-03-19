@@ -65,11 +65,11 @@ export class WhatsAppService {
     trackingUrl: string,
   ): Promise<boolean> {
     const payload: WhatsAppTemplatePayload = {
-      template: 'deliveryutility',
+      template: 'deliveryutilitymarchtwo',
       recipients: [
         {
           phone: phoneNumber,
-          variables: [orderId, orderDate, trackingUrl],
+          variables: [trackingUrl, orderDate],
         },
       ],
     };
