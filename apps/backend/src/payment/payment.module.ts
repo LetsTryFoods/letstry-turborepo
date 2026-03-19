@@ -33,7 +33,6 @@ import { CartModule } from '../cart/cart.module';
 import { WebhookLoggerService } from './services/domain/webhook-logger.service';
 import { OrderModule } from '../order/order.module';
 import { WhatsAppModule } from '../whatsapp/whatsapp.module';
-import { WhatsAppNotificationProcessor } from './processors/whatsapp-notification.processor';
 
 @Module({
   imports: [
@@ -82,7 +81,6 @@ import { WhatsAppNotificationProcessor } from './processors/whatsapp-notificatio
     PaymentLoggerService,
     PaymentGatewayFactory,
     WebhookLoggerService,
-    WhatsAppNotificationProcessor,
   ],
   exports: [PaymentService],
 })

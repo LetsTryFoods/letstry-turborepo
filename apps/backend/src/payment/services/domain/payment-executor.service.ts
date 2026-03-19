@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Model, Types } from 'mongoose';
 import { Queue } from 'bullmq';
+import { ConfigService } from '@nestjs/config';
 import { PaymentOrder, PaymentStatus } from '../../entities/payment.schema';
 import { ZaakpayGatewayService } from '../../gateways/zaakpay/zaakpay-gateway.service';
 import { LedgerService } from '../core/ledger.service';
@@ -27,6 +28,7 @@ export class PaymentExecutorService {
     private identityModel: Model<IdentityDocument>,
     @InjectQueue('whatsapp-notification-queue')
     private whatsappQueue: Queue,
+    private configService: ConfigService,
   ) { }
 
   async executePaymentOrder(params: {
@@ -92,7 +94,12 @@ export class PaymentExecutorService {
     });
 
     if (!paymentOrder) {
-      throw new Error('Payment order not found');
+      // For app integration, query external DB for order and send WhatsApp
+      const externalOrder = await this.queryExternalOrder(params.paymentOrderId);
+      if (externalOrder) {
+        await this.sendWhatsAppForExternalOrder(externalOrder, params);
+      }
+      return;
     }
 
     await this.paymentOrderModel.findOneAndUpdate(
@@ -481,5 +488,90 @@ export class PaymentExecutorService {
       status: paymentOrder.paymentOrderStatus,
       details: paymentOrder,
     };
+  }
+
+  private async queryExternalOrder(orderId: string): Promise<any> {
+    const mongoose = require('mongoose');
+    const mongoUrl = this.configService.get<string>('TEMP_APP_ORDERS_MONGO_URL');
+    if (!mongoUrl) {
+      this.paymentLogger.error('TEMP_APP_ORDERS_MONGO_URL not configured');
+      return null;
+    }
+
+    let conn;
+    try {
+      conn = await mongoose.createConnection(mongoUrl);
+      const OrderModel = conn.model('Order', new mongoose.Schema({
+        orderId: String,
+        address: {
+          recipientPhoneNumber: String,
+        },
+        createdAt: Date,
+        totalAmount: Number,
+      }));
+      const order = await OrderModel.findOne({ orderId });
+      return order;
+    } catch (error) {
+      this.paymentLogger.error('Error querying external order', error.message, { orderId });
+      return null;
+    } finally {
+      if (conn) await conn.close();
+    }
+  }
+
+  private async sendWhatsAppForExternalOrder(
+    order: any,
+    params: {
+      paymentOrderId: string;
+      pspTxnId: string;
+      paymentMethod: string;
+      bankTxnId?: string;
+      cardType?: string;
+      cardNumber?: string;
+      pspRawResponse: any;
+    },
+  ): Promise<void> {
+    try {
+      this.paymentLogger.log('Attempting to send WhatsApp for external order', {
+        orderId: params.paymentOrderId,
+      });
+
+      const phoneNumber = order.address?.recipientPhoneNumber;
+      if (!phoneNumber) {
+        this.paymentLogger.warn('No phone number in external order', { orderId: params.paymentOrderId });
+        return;
+      }
+
+      const orderDate = new Date(order.createdAt).toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      });
+
+      const normalizedPhone = phoneNumber.replace(/^\+/, '');
+      const formattedPhone = normalizedPhone.length === 10
+        ? `91${normalizedPhone}`
+        : normalizedPhone;
+
+      const amountInRupees = (parseInt(params.pspRawResponse.amount) / 100).toFixed(2);
+
+      await this.whatsappQueue.add('payment-confirmation', {
+        phoneNumber: formattedPhone,
+        orderId: params.paymentOrderId,
+        amountPaid: amountInRupees,
+        paymentMode: params.pspRawResponse.paymentMode || 'Online',
+        transactionId: params.pspTxnId || params.paymentOrderId,
+        orderDate,
+      });
+
+      this.paymentLogger.log('WhatsApp queued for external order', {
+        orderId: params.paymentOrderId,
+        phoneNumber: formattedPhone,
+      });
+    } catch (error) {
+      this.paymentLogger.error('Error sending WhatsApp for external order', error.message, {
+        orderId: params.paymentOrderId,
+      });
+    }
   }
 }

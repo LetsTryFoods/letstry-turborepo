@@ -1,4 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 import { OrderAssignmentService } from './domain/order-assignment.service';
 import { PackingQueueService } from './domain/packing-queue.service';
 
@@ -44,6 +46,8 @@ export class PackingService {
     private readonly shipmentService: ShipmentService,
     private readonly shipmentLogger: ShipmentLoggerService,
     private readonly configService: ConfigService,
+    @InjectQueue('whatsapp-notification-queue')
+    private readonly whatsappQueue: Queue,
     @InjectModel(Address.name)
     private readonly addressModel: Model<Address>,
     @InjectModel(PackingEvidence.name)
@@ -309,7 +313,33 @@ export class PackingService {
       orderId: packingOrder.orderId,
     });
 
-    await this.initiateShipmentCreation(packingOrder.orderId, packingOrderId);
+    const shipment = await this.initiateShipmentCreation(packingOrder.orderId, packingOrderId);
+
+    // Send WhatsApp notification for order packed
+    if (shipment && shipment.dtdcAwbNumber) {
+      const order = await this.orderRepository.findByInternalId(packingOrder.orderId);
+      if (order && order.recipientContact?.phone) {
+        const trackingUrl = `https://letstryfoods.com/track/${shipment.dtdcAwbNumber}`;
+        const orderDate = new Date(order.createdAt).toLocaleDateString('en-IN', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        });
+
+        await this.whatsappQueue.add('order-packed', {
+          phoneNumber: order.recipientContact.phone,
+          orderId: order.orderId,
+          orderDate,
+          trackingUrl,
+        });
+
+        this.scanLogger.logCompletePackingStep('WHATSAPP_NOTIFICATION_QUEUED', {
+          packingOrderId,
+          orderId: packingOrder.orderId,
+          awbNumber: shipment.dtdcAwbNumber,
+        });
+      }
+    }
 
     const result = await this.packingOrderCrud.findById(packingOrderId);
 
@@ -367,7 +397,32 @@ export class PackingService {
       OrderStatus.PACKED,
     );
 
-    await this.initiateShipmentCreation(packingOrder.orderId, packingOrderId, serviceType);
+    const shipment = await this.initiateShipmentCreation(packingOrder.orderId, packingOrderId, serviceType);
+
+    // Send WhatsApp notification for order packed
+    if (shipment && shipment.dtdcAwbNumber) {
+      const order = await this.orderRepository.findByInternalId(packingOrder.orderId);
+      if (order && order.recipientContact?.phone) {
+        const trackingUrl = `https://letstryfoods.com/track/${shipment.dtdcAwbNumber}`;
+        const orderDate = new Date(order.createdAt).toLocaleDateString('en-IN', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        });
+
+        await this.whatsappQueue.add('order-packed', {
+          phoneNumber: order.recipientContact.phone,
+          orderId: order.orderId,
+          orderDate,
+          trackingUrl,
+        });
+
+        this.packingLogger.logInfo('WhatsApp notification queued for admin punch shipment', {
+          orderId: packingOrder.orderId,
+          awbNumber: shipment.dtdcAwbNumber,
+        });
+      }
+    }
 
     return this.packingOrderCrud.findById(packingOrderId);
   }
@@ -378,7 +433,7 @@ export class PackingService {
       : 0;
   }
 
-  private async initiateShipmentCreation(orderId: string, packingOrderId: string, serviceType?: string): Promise<void> {
+  private async initiateShipmentCreation(orderId: string, packingOrderId: string, serviceType?: string): Promise<any> {
     try {
       const order = await this.orderRepository.findByInternalId(orderId);
 
@@ -392,7 +447,30 @@ export class PackingService {
           shipmentId: existingShipments[0]._id.toString(),
           awbNumber: existingShipments[0].dtdcAwbNumber,
         });
-        return;
+
+        // Send WhatsApp notification for order packed
+        const phoneNumber = order?.recipientContact?.phone;
+        if (!phoneNumber) {
+          this.shipmentLogger.logInfo('No phone number found for order, skipping WhatsApp notification', { orderId });
+          return existingShipments[0];
+        }
+        const orderDate = new Date(order.createdAt).toLocaleDateString('en-IN'); // Format as DD/MM/YYYY
+        const trackingUrl = `https://letstryfoods.com/track/${existingShipments[0].dtdcAwbNumber}`;
+
+        await this.whatsappQueue.add('order-packed', {
+          phoneNumber,
+          orderId,
+          orderDate,
+          trackingUrl,
+        });
+
+        this.shipmentLogger.logInfo('WhatsApp notification queued for order packed (existing shipment)', {
+          orderId,
+          awbNumber: existingShipments[0].dtdcAwbNumber,
+          phoneNumber,
+        });
+
+        return existingShipments[0];
       }
 
       const shippingAddress = order?.shippingAddressId
@@ -443,7 +521,31 @@ export class PackingService {
       totalWeight = Math.max(totalWeight, 0.5);
 
       const shipmentPayload = this.buildShipmentPayload(orderId, order, boxDimensions, shippingAddress, totalWeight, serviceType);
-      await this.shipmentService.createShipment(shipmentPayload);
+      const shipmentResult = await this.shipmentService.createShipment(shipmentPayload);
+
+      // Send WhatsApp notification for order packed
+      const phoneNumber = order?.recipientContact?.phone;
+      if (!phoneNumber) {
+        this.shipmentLogger.logInfo('No phone number found for order, skipping WhatsApp notification', { orderId });
+        return;
+      }
+      const orderDate = new Date(order.createdAt).toLocaleDateString('en-IN'); // Format as DD/MM/YYYY
+      const trackingUrl = `https://letstryfoods.com/track/${shipmentResult.awbNumber}`;
+
+      await this.whatsappQueue.add('order-packed', {
+        phoneNumber,
+        orderId,
+        orderDate,
+        trackingUrl,
+      });
+
+      this.shipmentLogger.logInfo('WhatsApp notification queued for order packed', {
+        orderId,
+        awbNumber: shipmentResult.awbNumber,
+        phoneNumber,
+      });
+
+      return shipmentResult;
     } catch (error) {
       this.shipmentLogger.logError('Failed to create shipment', error, {
         orderId,

@@ -73,6 +73,18 @@ import { ShipmentModule } from '../shipment/shipment.module';
         },
       },
     }),
+    BullModule.registerQueue({
+      name: 'whatsapp-notification-queue',
+      defaultJobOptions: {
+        removeOnComplete: false,
+        removeOnFail: false,
+        attempts: Number.MAX_SAFE_INTEGER,
+        backoff: {
+          type: 'exponential',
+          delay: 30000,
+        },
+      },
+    }),
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'default-secret',
       signOptions: { expiresIn: '7d' },
