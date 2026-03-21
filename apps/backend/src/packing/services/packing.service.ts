@@ -376,6 +376,15 @@ export class PackingService {
     return this.packingOrderCrud.findById(packingOrderId);
   }
 
+  private resolvePhone(order: any, address: any): string | null {
+    const isValid = (p?: string) => p && p !== 'N/A';
+    return (
+      (isValid(order?.recipientContact?.phone) && order.recipientContact.phone) ||
+      (isValid(address?.recipientPhone) && address.recipientPhone) ||
+      null
+    );
+  }
+
   private calculatePackingDuration(packingStartedAt?: Date): number {
     return packingStartedAt
       ? Math.floor((Date.now() - packingStartedAt.getTime()) / 60000)
@@ -397,13 +406,15 @@ export class PackingService {
           awbNumber: existingShipments[0].dtdcAwbNumber,
         });
 
-        // Send WhatsApp notification for order packed
-        const phoneNumber = order?.recipientContact?.phone;
-        if (!phoneNumber || phoneNumber === 'N/A') {
+        const existingAddress = order?.shippingAddressId
+          ? await this.addressModel.findById(order.shippingAddressId).exec()
+          : null;
+        const phoneNumber = this.resolvePhone(order, existingAddress);
+        if (!phoneNumber || !order) {
           this.shipmentLogger.logInfo('No phone number found for order, skipping WhatsApp notification', { orderId });
           return existingShipments[0];
         }
-        const orderDate = new Date(order.createdAt).toLocaleDateString('en-IN'); // Format as DD/MM/YYYY
+        const orderDate = new Date(order.createdAt).toLocaleDateString('en-IN');
         const trackingUrl = `https://letstryfoods.com/track/${existingShipments[0].dtdcAwbNumber}`;
 
         await this.whatsappQueue.add('order-packed', {
@@ -472,13 +483,12 @@ export class PackingService {
       const shipmentPayload = this.buildShipmentPayload(orderId, order, boxDimensions, shippingAddress, totalWeight, serviceType);
       const shipmentResult = await this.shipmentService.createShipment(shipmentPayload);
 
-      // Send WhatsApp notification for order packed
-      const phoneNumber = order?.recipientContact?.phone;
-      if (!phoneNumber || phoneNumber === 'N/A') {
+      const phoneNumber = this.resolvePhone(order, shippingAddress);
+      if (!phoneNumber) {
         this.shipmentLogger.logInfo('No phone number found for order, skipping WhatsApp notification', { orderId });
         return shipmentResult;
       }
-      const orderDate = new Date(order.createdAt).toLocaleDateString('en-IN'); // Format as DD/MM/YYYY
+      const orderDate = new Date(order.createdAt).toLocaleDateString('en-IN');
       const trackingUrl = `https://letstryfoods.com/track/${shipmentResult.awbNumber}`;
 
       await this.whatsappQueue.add('order-packed', {
