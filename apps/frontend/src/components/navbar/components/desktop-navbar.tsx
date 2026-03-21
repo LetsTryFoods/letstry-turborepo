@@ -38,13 +38,13 @@ export const DesktopNavbar = ({
   const pathname = usePathname();
 
   return (
-    <div className="hidden md:flex h-20 items-center relative px-4">
-      <div className="flex items-center gap-6">
+    <div className="hidden md:flex h-20 items-center px-4 w-full">
+      <div className="flex items-center gap-6 shrink-0">
         <Logo className="h-16 w-16" />
         {/* <LocationSelector className="hidden md:flex" /> */}
       </div>
 
-      <div className="absolute left-1/2 transform -translate-x-1/2 hidden lg:flex items-center gap-4 xl:gap-8">
+      <div className="hidden lg:flex flex-1 justify-center items-center gap-4 xl:gap-8 px-4">
         {navigationLinks.map((link) => (
           <div
             key={link.href}
@@ -53,21 +53,21 @@ export const DesktopNavbar = ({
             onMouseLeave={() => setHoveredMenu(null)}
           >
             {link.hasDropdown ? (
-              <span className="text-lg font-medium text-gray-900 hover:text-[#0C5273] transition-colors flex items-center gap-1 h-full cursor-default whitespace-nowrap">
+              <span className="text-base xl:text-lg font-medium text-gray-900 hover:text-[#0C5273] transition-colors flex items-center gap-1 h-full cursor-default whitespace-nowrap">
                 {link.label}
                 <ChevronDown className="h-4 w-4" />
               </span>
             ) : link.isLogin === true ? (
               <button
                 onClick={onLoginClick}
-                className={`text-lg font-medium whitespace-nowrap ${pathname === link.href ? "text-[#0C5273]" : "text-gray-900"} hover:text-[#0C5273] transition-colors flex items-center gap-1 h-full`}
+                className={`text-base xl:text-lg font-medium whitespace-nowrap ${pathname === link.href ? "text-[#0C5273]" : "text-gray-900"} hover:text-[#0C5273] transition-colors flex items-center gap-1 h-full`}
               >
                 {link.label}
               </button>
             ) : (
               <Link
                 href={link.href}
-                className={`text-lg font-medium whitespace-nowrap ${!link.disableActive && pathname === link.href ? "text-[#0C5273]" : "text-gray-900"} hover:text-[#0C5273] transition-colors flex items-center gap-1 h-full`}
+                className={`text-base xl:text-lg font-medium whitespace-nowrap ${!link.disableActive && pathname === link.href ? "text-[#0C5273]" : "text-gray-900"} hover:text-[#0C5273] transition-colors flex items-center gap-1 h-full`}
               >
                 {link.label}
               </Link>
@@ -93,8 +93,8 @@ export const DesktopNavbar = ({
         ))}
       </div>
 
-      <div className="ml-auto flex items-center gap-3">
-        <SearchBar className="w-64" />
+      <div className="ml-auto flex items-center gap-3 shrink-0">
+        <SearchBar className="w-40 xl:w-64" />
 
         <CartButton itemCount={cartItemCount} onClick={toggleCart} />
 
