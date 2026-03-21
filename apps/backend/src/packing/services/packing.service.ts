@@ -313,33 +313,7 @@ export class PackingService {
       orderId: packingOrder.orderId,
     });
 
-    const shipment = await this.initiateShipmentCreation(packingOrder.orderId, packingOrderId);
-
-    // Send WhatsApp notification for order packed
-    if (shipment && shipment.dtdcAwbNumber) {
-      const order = await this.orderRepository.findByInternalId(packingOrder.orderId);
-      if (order && order.recipientContact?.phone) {
-        const trackingUrl = `https://letstryfoods.com/track/${shipment.dtdcAwbNumber}`;
-        const orderDate = new Date(order.createdAt).toLocaleDateString('en-IN', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-        });
-
-        await this.whatsappQueue.add('order-packed', {
-          phoneNumber: order.recipientContact.phone,
-          orderId: order.orderId,
-          orderDate,
-          trackingUrl,
-        });
-
-        this.scanLogger.logCompletePackingStep('WHATSAPP_NOTIFICATION_QUEUED', {
-          packingOrderId,
-          orderId: packingOrder.orderId,
-          awbNumber: shipment.dtdcAwbNumber,
-        });
-      }
-    }
+    await this.initiateShipmentCreation(packingOrder.orderId, packingOrderId);
 
     const result = await this.packingOrderCrud.findById(packingOrderId);
 
@@ -397,32 +371,7 @@ export class PackingService {
       OrderStatus.PACKED,
     );
 
-    const shipment = await this.initiateShipmentCreation(packingOrder.orderId, packingOrderId, serviceType);
-
-    // Send WhatsApp notification for order packed
-    if (shipment && shipment.dtdcAwbNumber) {
-      const order = await this.orderRepository.findByInternalId(packingOrder.orderId);
-      if (order && order.recipientContact?.phone) {
-        const trackingUrl = `https://letstryfoods.com/track/${shipment.dtdcAwbNumber}`;
-        const orderDate = new Date(order.createdAt).toLocaleDateString('en-IN', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-        });
-
-        await this.whatsappQueue.add('order-packed', {
-          phoneNumber: order.recipientContact.phone,
-          orderId: order.orderId,
-          orderDate,
-          trackingUrl,
-        });
-
-        this.packingLogger.logInfo('WhatsApp notification queued for admin punch shipment', {
-          orderId: packingOrder.orderId,
-          awbNumber: shipment.dtdcAwbNumber,
-        });
-      }
-    }
+    await this.initiateShipmentCreation(packingOrder.orderId, packingOrderId, serviceType);
 
     return this.packingOrderCrud.findById(packingOrderId);
   }
