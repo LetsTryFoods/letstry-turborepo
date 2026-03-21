@@ -378,11 +378,13 @@ export class PackingService {
 
   private resolvePhone(order: any, address: any): string | null {
     const isValid = (p?: string) => p && p !== 'N/A';
-    return (
+    const raw =
       (isValid(order?.recipientContact?.phone) && order.recipientContact.phone) ||
       (isValid(address?.recipientPhone) && address.recipientPhone) ||
-      null
-    );
+      null;
+    if (!raw) return null;
+    const normalized = raw.replace(/^\+/, '');
+    return normalized.length === 10 ? `91${normalized}` : normalized;
   }
 
   private calculatePackingDuration(packingStartedAt?: Date): number {
