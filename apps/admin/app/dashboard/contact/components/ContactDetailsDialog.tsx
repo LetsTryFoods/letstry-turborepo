@@ -36,11 +36,10 @@ interface ContactDetailsDialogProps {
   onReply: (query: ContactQuery) => void
 }
 
-const statusConfig: Record<ContactStatus, { variant: "default" | "secondary" | "destructive" | "outline" }> = {
-  NEW: { variant: "destructive" },
-  IN_PROGRESS: { variant: "default" },
+const statusConfig: Record<ContactStatus | string, { variant: "default" | "secondary" | "destructive" | "outline" }> = {
+  PENDING: { variant: "destructive" },
+  REVIEWED: { variant: "default" },
   RESOLVED: { variant: "secondary" },
-  CLOSED: { variant: "outline" }
 }
 
 const priorityConfig: Record<ContactPriority, { className: string }> = {
@@ -58,8 +57,8 @@ export default function ContactDetailsDialog({
 }: ContactDetailsDialogProps) {
   if (!query) return null
 
-  const status = statusConfig[query.status]
-  const priority = priorityConfig[query.priority]
+  const status = statusConfig[query.status] || statusConfig["PENDING"]
+  const priority = query.priority ? priorityConfig[query.priority] : priorityConfig["LOW"]
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -79,11 +78,13 @@ export default function ContactDetailsDialog({
                 {statusLabels[query.status]}
               </Badge>
               <span className={`px-2 py-1 rounded-full text-xs font-medium ${priority.className}`}>
-                {priorityLabels[query.priority]} Priority
+                {query.priority ? priorityLabels[query.priority] : "Low"} Priority
               </span>
-              <Badge variant="outline">
-                {typeLabels[query.type]}
-              </Badge>
+              {query.type && (
+                <Badge variant="outline">
+                  {typeLabels[query.type]}
+                </Badge>
+              )}
             </div>
 
             {/* Customer Info */}
@@ -145,7 +146,7 @@ export default function ContactDetailsDialog({
             </div>
 
             {/* Conversation Thread */}
-            {query.replies.length > 0 && (
+            {query.replies && query.replies.length > 0 && (
               <>
                 <Separator />
                 <div className="space-y-3">
@@ -153,7 +154,7 @@ export default function ContactDetailsDialog({
                     Conversation ({query.replies.length} {query.replies.length === 1 ? 'reply' : 'replies'})
                   </h3>
                   <div className="space-y-4">
-                    {query.replies.map((reply) => (
+                    {query.replies.map((reply: any) => (
                       <div 
                         key={reply._id}
                         className={`p-4 rounded-lg ${
@@ -198,7 +199,7 @@ export default function ContactDetailsDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Close
           </Button>
-          {query.status !== "CLOSED" && (
+          {query.status !== "RESOLVED" && (
             <Button onClick={() => {
               onOpenChange(false)
               onReply(query)

@@ -61,11 +61,10 @@ interface ContactTableProps {
   onReply: (query: ContactQuery) => void
 }
 
-const statusConfig: Record<ContactStatus, { label: string; variant: "default" | "secondary" | "destructive" | "outline"; icon: React.ReactNode }> = {
-  NEW: { label: "New", variant: "destructive", icon: <AlertTriangle className="h-3 w-3" /> },
-  IN_PROGRESS: { label: "In Progress", variant: "default", icon: <Clock className="h-3 w-3" /> },
+const statusConfig: Record<ContactStatus | string, { label: string; variant: "default" | "secondary" | "destructive" | "outline"; icon: React.ReactNode }> = {
+  PENDING: { label: "Pending", variant: "destructive", icon: <AlertTriangle className="h-3 w-3" /> },
+  REVIEWED: { label: "Reviewed", variant: "default", icon: <Clock className="h-3 w-3" /> },
   RESOLVED: { label: "Resolved", variant: "secondary", icon: <CheckCircle className="h-3 w-3" /> },
-  CLOSED: { label: "Closed", variant: "outline", icon: <XCircle className="h-3 w-3" /> }
 }
 
 const priorityConfig: Record<ContactPriority, { label: string; className: string }> = {
@@ -125,8 +124,8 @@ export default function ContactTable({ queries, onRefresh, onView, onReply }: Co
               </TableRow>
             ) : (
               queries.map((query) => {
-                const status = statusConfig[query.status]
-                const priority = priorityConfig[query.priority]
+                const status = statusConfig[query.status] || statusConfig["PENDING"]
+                const priority = query.priority ? priorityConfig[query.priority] : priorityConfig["LOW"]
                 return (
                   <TableRow key={query._id}>
                     <TableCell>
@@ -146,9 +145,11 @@ export default function ContactTable({ queries, onRefresh, onView, onReply }: Co
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline">
-                        {typeLabels[query.type]}
-                      </Badge>
+                      {query.type && (
+                        <Badge variant="outline">
+                          {typeLabels[query.type]}
+                        </Badge>
+                      )}
                     </TableCell>
                     <TableCell className="text-center">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${priority.className}`}>
@@ -165,7 +166,7 @@ export default function ContactTable({ queries, onRefresh, onView, onReply }: Co
                       <div className="text-sm">
                         {formatDistanceToNow(new Date(query.createdAt), { addSuffix: true })}
                       </div>
-                      {query.replies.length > 0 && (
+                      {query.replies && query.replies.length > 0 && (
                         <p className="text-xs text-muted-foreground">
                           {query.replies.length} {query.replies.length === 1 ? 'reply' : 'replies'}
                         </p>

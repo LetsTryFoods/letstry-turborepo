@@ -36,7 +36,7 @@ import ContactTable from "./components/ContactTable"
 import ContactDetailsDialog from "./components/ContactDetailsDialog"
 import ContactReplyDialog from "./components/ContactReplyDialog"
 
-const statuses: (ContactStatus | "ALL")[] = ["ALL", "NEW", "IN_PROGRESS", "RESOLVED", "CLOSED"]
+const statuses: (ContactStatus | "ALL")[] = ["ALL", "PENDING", "REVIEWED", "RESOLVED"]
 const types: (ContactType | "ALL")[] = ["ALL", "GENERAL", "ORDER_ISSUE", "PRODUCT_INQUIRY", "COMPLAINT", "FEEDBACK", "RETURN_REQUEST"]
 const priorities: (ContactPriority | "ALL")[] = ["ALL", "LOW", "MEDIUM", "HIGH", "URGENT"]
 
@@ -60,8 +60,8 @@ export default function ContactPage() {
         const search = searchQuery.toLowerCase()
         if (
           !query.name.toLowerCase().includes(search) &&
-          !query.email.toLowerCase().includes(search) &&
-          !query.subject.toLowerCase().includes(search) &&
+          !query.email?.toLowerCase().includes(search) &&
+          !query.subject?.toLowerCase().includes(search) &&
           !query.message.toLowerCase().includes(search) &&
           !(query.orderId?.toLowerCase().includes(search))
         ) {

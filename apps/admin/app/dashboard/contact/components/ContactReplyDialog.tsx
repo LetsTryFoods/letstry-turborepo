@@ -42,7 +42,7 @@ import {
 const replySchema = z.object({
   message: z.string().min(10, "Reply must be at least 10 characters"),
   updateStatus: z.boolean(),
-  newStatus: z.enum(["NEW", "IN_PROGRESS", "RESOLVED", "CLOSED"]).optional()
+  newStatus: z.enum(["PENDING", "REVIEWED", "RESOLVED"]).optional()
 })
 
 type ReplyFormData = z.infer<typeof replySchema>
@@ -68,7 +68,7 @@ export default function ContactReplyDialog({
     defaultValues: {
       message: "",
       updateStatus: false,
-      newStatus: "IN_PROGRESS"
+      newStatus: "REVIEWED"
     }
   })
 
