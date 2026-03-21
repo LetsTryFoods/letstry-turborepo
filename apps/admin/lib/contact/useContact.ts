@@ -1,5 +1,5 @@
-import { useQuery } from "@apollo/client/react"
-import { GET_CONTACT_MESSAGES } from "../graphql/contact"
+import { useQuery, useMutation } from "@apollo/client/react"
+import { GET_CONTACT_MESSAGES, UPDATE_CONTACT_STATUS, DELETE_CONTACT_MESSAGE } from "../graphql/contact"
 
 // Types
 export type ContactStatus = "PENDING" | "REVIEWED" | "RESOLVED"
@@ -14,7 +14,7 @@ export interface ContactQuery {
   status: ContactStatus
   createdAt: string
   updatedAt: string
-  
+
   // Optional fields just for type safety from the UI
   email?: string
   subject?: string
@@ -90,10 +90,18 @@ export function useContactQueries() {
 }
 
 export function useUpdateContactStatus() {
-  const updateStatus = async (id: string, status: ContactStatus) => {
-    return true
+  const [updateContactStatusMutation, { loading }] = useMutation(UPDATE_CONTACT_STATUS)
+
+  const updateStatus = async (id: string, status: ContactStatus | string) => {
+    try {
+      await updateContactStatusMutation({ variables: { id, status } })
+      return true
+    } catch (e) {
+      console.error(e)
+      return false
+    }
   }
-  return { updateStatus, loading: false }
+  return { updateStatus, loading }
 }
 
 export function useUpdateContactPriority() {
@@ -118,8 +126,16 @@ export function useAssignContact() {
 }
 
 export function useDeleteContact() {
+  const [deleteContactMutation, { loading }] = useMutation(DELETE_CONTACT_MESSAGE)
+
   const deleteContact = async (id: string) => {
-    return true
+    try {
+      await deleteContactMutation({ variables: { id } })
+      return true
+    } catch (e) {
+      console.error(e)
+      return false
+    }
   }
-  return { deleteContact, loading: false }
+  return { deleteContact, loading }
 }

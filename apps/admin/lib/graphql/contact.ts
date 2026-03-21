@@ -16,3 +16,19 @@ export const GET_CONTACT_MESSAGES = gql`
     }
   }
 `;
+
+export const UPDATE_CONTACT_STATUS = gql`
+  mutation UpdateContactStatus($id: String!, $status: String!) {
+    updateContactStatus(id: $id, status: $status) {
+      _id
+      status
+      updatedAt
+    }
+  }
+`;
+
+export const DELETE_CONTACT_MESSAGE = gql`
+  mutation DeleteContactMessage($id: String!) {
+    deleteContactMessage(id: $id)
+  }
+`;

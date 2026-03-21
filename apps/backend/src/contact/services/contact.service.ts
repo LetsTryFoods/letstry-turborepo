@@ -24,4 +24,19 @@ export class ContactService {
   async countAll(): Promise<number> {
     return this.contactModel.countDocuments().exec();
   }
+
+  async updateStatus(id: string, status: string): Promise<Contact> {
+    const contact = await this.contactModel.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    ).exec();
+    if (!contact) throw new Error('Contact not found');
+    return contact;
+  }
+
+  async delete(id: string): Promise<boolean> {
+    const result = await this.contactModel.findByIdAndDelete(id).exec();
+    return !!result;
+  }
 }

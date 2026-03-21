@@ -57,4 +57,19 @@ export class ContactResolver {
     ]);
     return { data, total };
   }
+
+  @Mutation(() => Contact)
+  async updateContactStatus(
+    @Args('id') id: string,
+    @Args('status') status: string,
+  ): Promise<Contact> {
+    return this.contactService.updateStatus(id, status);
+  }
+
+  @Mutation(() => Boolean)
+  async deleteContactMessage(
+    @Args('id') id: string,
+  ): Promise<boolean> {
+    return this.contactService.delete(id);
+  }
 }
