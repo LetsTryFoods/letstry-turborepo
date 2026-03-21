@@ -1,4 +1,5 @@
 ## General Rules
+# Give me commits at the end of code change keep commit 3 line long and relevant accoridng to the code change
 
 * **Do NOT add comments** in the code under any circumstances.
 * **Do NOT add README files, documentation files, or explanatory text**.
