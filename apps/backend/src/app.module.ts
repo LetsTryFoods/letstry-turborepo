@@ -33,6 +33,7 @@ import { RedirectModule } from './redirect/redirect.module';
 import { BlogModule } from './blog/blog.module';
 import { BlogCategoryModule } from './blog-category/blog-category.module';
 import { CorporateEnquiryModule } from './corporate-enquiry/corporate-enquiry.module';
+import { ContactModule } from './contact/contact.module';
 
 @Module({
   imports: [
@@ -73,6 +74,7 @@ import { CorporateEnquiryModule } from './corporate-enquiry/corporate-enquiry.mo
     BlogModule,
     BlogCategoryModule,
     CorporateEnquiryModule,
+    ContactModule,
     AuthenticationModule,
     AppCacheModule,
   ],

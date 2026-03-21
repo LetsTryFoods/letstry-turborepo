@@ -90,6 +90,13 @@ export const MobileMenu = ({
                     >
                         Track Order
                     </Link>
+                    <Link
+                        href="/contact-us"
+                        className="text-xl font-bold text-black hover:text-yellow-600 transition-colors"
+                        onClick={() => setIsOpen(false)}
+                    >
+                        Contact Us
+                    </Link>
                     {
                         isAuthenticated ? (
                             <Link
