@@ -129,14 +129,38 @@ export class OrderRepository {
   }
 
   async findByPhone(phone: string): Promise<Order | null> {
-    return this.orderModel
-      .findOne({
-        $or: [
-          { 'placerContact.phone': phone },
-          { 'recipientContact.phone': phone },
-        ],
-      })
-      .sort({ createdAt: -1 })
+    const cleanPhone = phone.replace(/\D/g, '');
+    const searchPhone = cleanPhone.length >= 10 ? cleanPhone.slice(-10) : cleanPhone;
+    const regex = new RegExp(searchPhone, 'i');
+
+    const orders = await this.orderModel
+      .aggregate([
+        {
+          $lookup: {
+            from: 'identities',
+            localField: 'identityId',
+            foreignField: '_id',
+            as: 'identity',
+          },
+        },
+        {
+          $match: {
+            $or: [
+              { 'placerContact.phone': regex },
+              { 'recipientContact.phone': regex },
+              { 'identity.phoneNumber': regex },
+            ],
+          },
+        },
+        { $sort: { createdAt: -1 } },
+        { $limit: 1 },
+      ])
       .exec();
+
+    if (orders && orders.length > 0) {
+      return this.orderModel.hydrate(orders[0]);
+    }
+
+    return null;
   }
 }
