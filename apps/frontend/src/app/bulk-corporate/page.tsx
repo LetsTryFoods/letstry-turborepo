@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Phone, Mail, MapPin } from "lucide-react";
+import Image from "next/image";
 import { submitCorporateEnquiry } from "@/lib/queries/corporate-enquiry";
 
 const PURPOSE_OPTIONS = [
@@ -66,7 +67,7 @@ export default function BulkCorporatePage() {
     return (
         <main className="min-h-screen bg-white">
             <section
-                className="relative overflow-hidden px-6 py-20 text-white md:px-16 lg:px-24"
+                className="relative overflow-hidden md:hidden px-6 py-20 text-white"
                 style={{ background: "linear-gradient(135deg, #001F3F 0%, #003366 50%, #00509E 100%)" }}
             >
                 <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
@@ -75,17 +76,28 @@ export default function BulkCorporatePage() {
                     <p className="mb-3 text-sm font-medium uppercase tracking-widest text-blue-200">
                         Bulk &amp; Corporate
                     </p>
-                    <h1 className="text-4xl font-extrabold leading-tight md:text-5xl lg:text-6xl">
+                    <h1 className="text-4xl font-extrabold leading-tight">
                         Healthy Snacking,
                         <br />
                         <span className="text-yellow-300">At Scale.</span>
                     </h1>
-                    <p className="mx-auto mt-6 max-w-xl text-base text-blue-100 md:text-lg">
+                    <p className="mx-auto mt-6 max-w-xl text-base text-blue-100">
                         Partner with Let&apos;s Try Foods for bulk gifting, corporate pantry
                         setups, and wholesale requirements. We bring clean, healthy snacks
                         to your team.
                     </p>
                 </div>
+            </section>
+
+            <section className="relative hidden md:block w-full">
+                <Image 
+                    src="https://d11a0m43ek7ap8.cloudfront.net/BULK+%26+CORPORATE.png" 
+                    alt="Bulk & Corporate" 
+                    width={1920} 
+                    height={400} 
+                    className="w-full h-auto object-cover"
+                    priority
+                />
             </section>
 
             <section className="mx-auto max-w-5xl px-6 py-16 md:px-12 lg:px-0">
