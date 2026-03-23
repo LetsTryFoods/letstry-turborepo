@@ -85,7 +85,13 @@ export default function ContactUsPage() {
                 <input
                   id="phone"
                   type="tel"
-                  {...register('phone', { required: 'Phone Number is required' })}
+                  {...register('phone', { 
+                    required: 'Phone Number is required',
+                    pattern: {
+                      value: /^\d{10}$/,
+                      message: 'Phone number must be exactly 10 digits'
+                    }
+                  })}
                   className="block w-full px-4 py-3 border border-gray-300 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm transition-colors"
                   placeholder="e.g. 9876543210"
                 />
