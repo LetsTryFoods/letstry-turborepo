@@ -13,6 +13,7 @@ import {
   DtdcWebhookLogSchema,
 } from './entities/dtdc-webhook-log.entity';
 import { DtdcApiLog, DtdcApiLogSchema } from './entities/dtdc-api-log.entity';
+import { OrderTrackingAnalytics, OrderTrackingAnalyticsSchema } from './entities/order-tracking-analytics.entity';
 import { ShipmentService } from './services/shipment.service';
 import { DtdcApiService } from './services/dtdc-api.service';
 import { TrackingService } from './services/tracking.service';
@@ -36,6 +37,7 @@ import { TrackingLoggerService } from './services/tracking-logger.service';
       { name: ShipmentTrackingHistory.name, schema: ShipmentTrackingHistorySchema },
       { name: DtdcWebhookLog.name, schema: DtdcWebhookLogSchema },
       { name: DtdcApiLog.name, schema: DtdcApiLogSchema },
+      { name: OrderTrackingAnalytics.name, schema: OrderTrackingAnalyticsSchema },
     ]),
     BullModule.registerQueue({
       name: 'shipment-webhook',

@@ -1,3 +1,6 @@
 packages:
   - "apps/*"
   - "packages/*"
+
+onlyBuiltDependencies:
+  - "@react-native-clipboard/clipboard"

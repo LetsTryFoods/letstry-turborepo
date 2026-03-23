@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, ID, Int } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { ShipmentService } from '../services/shipment.service';
 import { TrackingService } from '../services/tracking.service';
@@ -17,6 +17,7 @@ import {
   ShipmentWithTrackingResponse,
   CreateShipmentResponse,
 } from '../dto/shipment-response.dto';
+import { TrackingAnalyticsResponse } from '../dto/tracking-analytics.dto';
 
 @Resolver()
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -206,5 +207,18 @@ export class ShipmentResolver {
     }
 
     return null;
+  }
+
+  @Query(() => TrackingAnalyticsResponse)
+  async getTrackingAnalytics(
+    @Args('startDate', { nullable: true }) startDate?: string,
+    @Args('endDate', { nullable: true }) endDate?: string,
+    @Args('limit', { nullable: true, type: () => Int }) limit?: number,
+  ): Promise<TrackingAnalyticsResponse> {
+    return this.shipmentService.getTrackingAnalytics({
+      startDate: startDate ? new Date(startDate) : undefined,
+      endDate: endDate ? new Date(endDate) : undefined,
+      limit: limit || 100,
+    });
   }
 }

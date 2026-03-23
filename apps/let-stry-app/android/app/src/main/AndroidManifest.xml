@@ -1,0 +1,48 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    
+    <application
+      android:name=".MainApplication"
+      android:label="@string/app_name"
+      android:icon="@mipmap/ic_launcher_round"
+      android:roundIcon="@mipmap/ic_launcher_round"
+      android:allowBackup="true"
+      android:theme="@style/AppTheme"
+      android:supportsRtl="true"
+      android:usesCleartextTraffic="true"
+      tools:replace="android:allowBackup"
+      xmlns:tools="http://schemas.android.com/tools">
+
+      <activity
+        android:name=".MainActivity"
+        android:label="@string/app_name"
+        android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
+        android:launchMode="singleTask"
+        android:windowSoftInputMode="adjustResize"
+        android:exported="true">
+
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+      </activity>
+
+      <!-- Google Play Services meta-data for geolocation -->
+      <meta-data
+        android:name="com.google.android.geo.API_KEY"
+        android:value="AIzaSyA44Ri5mmnDX-wE8folHq69LjEy1u8NLF0"/>
+
+    </application>
+    <queries>
+      <package android:name="com.google.android.apps.nbu.paisa.user" />
+      <package android:name="net.one97.paytm" />
+      <package android:name="com.phonepe.app" />
+      <package android:name="in.org.npci.upiapp" />
+      <package android:name="in.amazon.mShop.android.shopping" />
+      <package android:name="com.whatsapp" />
+    </queries>
+</manifest>

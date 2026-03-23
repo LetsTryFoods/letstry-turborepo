@@ -1,0 +1,26 @@
+workflows:
+  react-native-ios-ipa:
+    name: React Native iOS IPA Build
+    environment:
+      vars:
+        XCODE_WORKSPACE: "csk.xcworkspace"    # Change to your workspace name
+        XCODE_SCHEME: "csk"                       # Change to your scheme name
+    scripts:
+      - name: Install npm dependencies
+        script: |
+          npm install --legacy-peer-deps
+      - name: Install CocoaPods dependencies
+        script: |
+          cd ios
+          pod install
+      - name: Build unsigned IPA
+        script: |
+          xcode-project build-ipa \
+            --workspace "$CM_BUILD_DIR/ios/$XCODE_WORKSPACE" \
+            --scheme "$XCODE_SCHEME" \
+            --export-options-plist ios/exportOptions.plist \
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM

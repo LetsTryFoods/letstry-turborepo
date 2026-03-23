@@ -21,19 +21,23 @@ import {
   Package,
   BarChart3,
   PieChart,
-  Download
+  Download,
+  Search
 } from "lucide-react"
 import { 
   useReports,
   formatCurrency,
   formatCompactNumber
 } from "@/lib/reports/useReports"
+import { useTrackingAnalytics } from "@/lib/reports/useTrackingAnalytics"
 
 export default function ReportsPage() {
   const [period, setPeriod] = useState<'week' | 'month' | 'quarter' | 'year'>('month')
   
   const { data } = useReports(period)
   const { summary, dailySales, topProducts, topCustomers, categorySales } = data
+
+  const { data: trackingData } = useTrackingAnalytics()
 
   // Calculate max values for chart scaling
   const maxRevenue = Math.max(...dailySales.map(d => d.revenue))
@@ -315,6 +319,99 @@ export default function ReportsPage() {
                 </p>
               </div>
             ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Order Tracking Analytics */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Track Searches</CardTitle>
+            <Search className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{trackingData?.getTrackingAnalytics?.totalSearches || 0}</div>
+            <p className="text-xs text-muted-foreground">All time</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Successful Searches</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{trackingData?.getTrackingAnalytics?.successfulSearches || 0}</div>
+            <p className="text-xs text-muted-foreground">
+              {trackingData?.getTrackingAnalytics ? `${trackingData.getTrackingAnalytics.successRate.toFixed(1)}% success rate` : '0% success rate'}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Search by Order ID</CardTitle>
+            <Package className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {trackingData?.getTrackingAnalytics?.searchTypeBreakdown.find(s => s._id === 'orderId')?.count || 0}
+            </div>
+            <p className="text-xs text-muted-foreground">Total searches</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Search by Phone</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {trackingData?.getTrackingAnalytics?.searchTypeBreakdown.find(s => s._id === 'phone')?.count || 0}
+            </div>
+            <p className="text-xs text-muted-foreground">Total searches</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Recent Tracking Searches */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BarChart3 className="h-5 w-5" />
+            Recent Tracking Searches
+          </CardTitle>
+          <CardDescription>Latest order tracking search activity</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {trackingData?.getTrackingAnalytics?.recentSearches.slice(0, 10).map((search) => (
+              <div key={search.id} className="flex items-center justify-between p-3 border rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className={`w-3 h-3 rounded-full ${search.foundResult ? 'bg-green-500' : 'bg-red-500'}`} />
+                  <div>
+                    <p className="font-medium">
+                      {search.searchType === 'phone' ? 'Phone' : search.searchType === 'orderId' ? 'Order ID' : 'AWB'}: 
+                      <span className="text-muted-foreground">{search.searchQuery}</span>
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(search.createdAt).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className={`text-sm font-medium ${search.foundResult ? 'text-green-600' : 'text-red-600'}`}>
+                    {search.foundResult ? 'Found' : 'Not Found'}
+                  </p>
+                  <p className="text-xs text-muted-foreground">{search.ipAddress}</p>
+                </div>
+              </div>
+            ))}
+            {(!trackingData?.getTrackingAnalytics?.recentSearches || trackingData.getTrackingAnalytics.recentSearches.length === 0) && (
+              <p className="text-center text-muted-foreground py-8">No tracking searches yet</p>
+            )}
           </div>
         </CardContent>
       </Card>

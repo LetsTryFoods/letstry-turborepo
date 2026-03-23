@@ -4,8 +4,7 @@ import { GET_CONTACT_MESSAGES, UPDATE_CONTACT_STATUS, DELETE_CONTACT_MESSAGE } f
 // Types
 export type ContactStatus = "PENDING" | "REVIEWED" | "RESOLVED"
 export type ContactType = "GENERAL" | "ORDER_ISSUE" | "PRODUCT_INQUIRY" | "COMPLAINT" | "FEEDBACK" | "RETURN_REQUEST"
-export type ContactPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT" // Kept for UI compatibility, but unused
-
+export type ContactPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT"
 export interface ContactQuery {
   _id: string
   name: string

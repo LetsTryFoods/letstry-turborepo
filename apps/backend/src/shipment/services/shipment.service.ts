@@ -2,6 +2,7 @@ import { Injectable, Logger, NotFoundException, BadRequestException } from '@nes
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Shipment } from '../entities/shipment.entity';
+import { OrderTrackingAnalytics } from '../entities/order-tracking-analytics.entity';
 import { DtdcApiService } from './dtdc-api.service';
 import { TrackingService } from './tracking.service';
 import { ShipmentStatusMapperService } from './shipment-status-mapper.service';
@@ -16,6 +17,8 @@ export class ShipmentService {
   constructor(
     @InjectModel(Shipment.name)
     private readonly shipmentModel: Model<Shipment>,
+    @InjectModel(OrderTrackingAnalytics.name)
+    private readonly analyticsModel: Model<OrderTrackingAnalytics>,
     private readonly dtdcApiService: DtdcApiService,
     private readonly trackingService: TrackingService,
     private readonly statusMapper: ShipmentStatusMapperService,
@@ -310,22 +313,104 @@ export class ShipmentService {
     return { shipment: updatedShipment!, tracking, order };
   }
 
-  async findAwbByLookup(query: string): Promise<string | null> {
+  async findAwbByLookup(query: string, analyticsData?: {
+    searchType: 'orderId' | 'phone' | 'awb';
+    userAgent: string;
+    ipAddress: string;
+    userId?: string;
+  }): Promise<string | null> {
+    let foundResult = false;
+    let awbNumber: string | null = null;
+
     const byAwb = await this.shipmentModel.findOne({ dtdcAwbNumber: query }).exec();
-    if (byAwb) return byAwb.dtdcAwbNumber;
-
-    const byOrderId = await this.orderRepository.findById(query);
-    if (byOrderId) {
-      const shipments = await this.findByOrderId(byOrderId._id.toString());
-      if (shipments.length > 0) return shipments[0].dtdcAwbNumber;
+    if (byAwb) {
+      foundResult = true;
+      awbNumber = byAwb.dtdcAwbNumber;
     }
 
-    const byPhone = await this.orderRepository.findByPhone(query);
-    if (byPhone) {
-      const shipments = await this.findByOrderId(byPhone._id.toString());
-      if (shipments.length > 0) return shipments[0].dtdcAwbNumber;
+    if (!awbNumber) {
+      const byOrderId = await this.orderRepository.findById(query);
+      if (byOrderId) {
+        const shipments = await this.findByOrderId(byOrderId._id.toString());
+        if (shipments.length > 0) {
+          foundResult = true;
+          awbNumber = shipments[0].dtdcAwbNumber;
+        }
+      }
     }
 
-    return null;
+    if (!awbNumber) {
+      const byPhone = await this.orderRepository.findByPhone(query);
+      if (byPhone) {
+        const shipments = await this.findByOrderId(byPhone._id.toString());
+        if (shipments.length > 0) {
+          foundResult = true;
+          awbNumber = shipments[0].dtdcAwbNumber;
+        }
+      }
+    }
+
+    // Save analytics data
+    if (analyticsData) {
+      try {
+        await this.analyticsModel.create({
+          searchQuery: query,
+          searchType: analyticsData.searchType,
+          userAgent: analyticsData.userAgent,
+          ipAddress: analyticsData.ipAddress,
+          userId: analyticsData.userId,
+          foundResult,
+          awbNumber: foundResult ? awbNumber : null,
+        });
+      } catch (error) {
+        Logger.error('Failed to save tracking analytics', error);
+      }
+    }
+
+    return awbNumber;
+  }
+
+  async getTrackingAnalytics(filters: {
+    startDate?: Date;
+    endDate?: Date;
+    limit?: number;
+  }) {
+    const query: any = {};
+
+    if (filters.startDate || filters.endDate) {
+      query.createdAt = {};
+      if (filters.startDate) query.createdAt.$gte = filters.startDate;
+      if (filters.endDate) query.createdAt.$lte = filters.endDate;
+    }
+
+    const analytics = await this.analyticsModel
+      .find(query)
+      .sort({ createdAt: -1 })
+      .limit(filters.limit || 100)
+      .exec();
+
+    // Calculate summary statistics
+    const totalSearches = await this.analyticsModel.countDocuments(query).exec();
+    const successfulSearches = await this.analyticsModel.countDocuments({ ...query, foundResult: true }).exec();
+    const searchTypeBreakdown = await this.analyticsModel.aggregate([
+      { $match: query },
+      { $group: { _id: '$searchType', count: { $sum: 1 } } },
+    ]).exec();
+
+    return {
+      totalSearches,
+      successfulSearches,
+      successRate: totalSearches > 0 ? (successfulSearches / totalSearches) * 100 : 0,
+      searchTypeBreakdown,
+      recentSearches: analytics.map((item) => ({
+        id: item._id,
+        searchQuery: item.searchQuery,
+        searchType: item.searchType,
+        foundResult: item.foundResult,
+        createdAt: item.createdAt,
+        userAgent: item.userAgent,
+        ipAddress: item.ipAddress,
+      })),
+    };
   }
 }

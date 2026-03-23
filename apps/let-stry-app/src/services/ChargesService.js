@@ -1,0 +1,46 @@
+
+const API_BASE_URL = "https://apiv2.letstryfoods.com";
+
+// Function now accepts subtotal, state, and pincode
+const getBillCharges = async (subtotal, state, pincode) => {
+  // Use 0 as default for subtotal if null or undefined
+  const safeSubtotal = subtotal || 0;
+  
+  // Only proceed if we have a subtotal greater than 0 and a valid state/pincode
+  if (safeSubtotal <= 0 || !state || !pincode) {
+    return {
+      delivery_charge: 0,
+      handling_charge: 0,
+      gst_total: 0,
+    };
+  }
+
+  // Construct the API URL with all required query parameters
+  const API_URL = `${API_BASE_URL}/api/charges/quote?subtotal=${safeSubtotal}&state=${state}&pincode=${pincode}`;
+
+  try {
+    const response = await fetch(API_URL, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      const error = new Error(`HTTP Error: ${response.status} ${response.statusText}`);
+      error.status = response.status; 
+      throw error;
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Failed to fetch bill charges quote:", error);
+    // Return a safe default object on API failure to prevent context crash
+    return { delivery_charge: 0, handling_charge: 0, gst_total: 0, error };
+  }
+};
+
+export const chargesService = {
+  getBillCharges,
+};

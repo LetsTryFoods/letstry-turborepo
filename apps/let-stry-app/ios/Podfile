@@ -1,0 +1,98 @@
+# # platform :ios, '16.4'
+# # require_relative '../node_modules/react-native/scripts/react_native_pods'
+# # prepare_react_native_project!
+
+# # # ✅ Enable frameworks for Swift + Firebase compatibility
+# # use_frameworks! :linkage => :static
+
+# # target 'csk' do
+# #   config = use_native_modules!
+
+# #   use_react_native!(
+# #     :path => config[:reactNativePath],
+# #     :app_path => "#{Pod::Config.instance.installation_root}/.."
+# #   )
+
+# #   # ✅ Firebase dependencies
+# #   pod 'FirebaseCore'
+# #   pod 'FirebaseAuth'
+# #   pod 'FirebaseAnalytics'
+# #   pod 'FirebaseCrashlytics' # ✅ <--- Added Crashlytics
+
+# #   post_install do |installer|
+# #     react_native_post_install(
+# #       installer,
+# #       config[:reactNativePath],
+# #       :mac_catalyst_enabled => false
+# #     )
+
+# #     installer.pods_project.targets.each do |target|
+# #       target.build_configurations.each do |config|
+# #         config.build_settings['SWIFT_VERSION'] = '5.0'
+# #       end
+# #     end
+# #   end
+# # end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+platform :ios, '16.4'
+require_relative '../node_modules/react-native/scripts/react_native_pods'
+prepare_react_native_project!
+
+# ✅ Enable frameworks for Swift + Firebase compatibility
+use_frameworks! :linkage => :static
+
+target 'csk' do
+  config = use_native_modules!
+
+  use_react_native!(
+    :path => config[:reactNativePath],
+    :app_path => "#{Pod::Config.instance.installation_root}/.."
+  )
+
+  # ✅ Firebase dependencies
+  pod 'FirebaseCore'
+  pod 'FirebaseAuth'
+  pod 'FirebaseAnalytics'
+  pod 'FirebaseCrashlytics'
+  pod 'Firebase/Messaging' # ✅ Notifications ke liye add kiya gaya
+
+  post_install do |installer|
+    react_native_post_install(
+      installer,
+      config[:reactNativePath],
+      :mac_catalyst_enabled => false
+    )
+
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings['SWIFT_VERSION'] = '5.0'
+      end
+    end
+  end
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
