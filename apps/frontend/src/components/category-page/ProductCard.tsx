@@ -129,7 +129,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, categoryType 
         {product.badge && (
           <Badge label={product.badge.label} variant={product.badge.variant} />
         )}
-        <div className="relative w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-40 lg:h-40">
+        <div className="relative w-full h-full">
           <Image
             src={getCdnUrl(product.image)}
             alt={product.name}
