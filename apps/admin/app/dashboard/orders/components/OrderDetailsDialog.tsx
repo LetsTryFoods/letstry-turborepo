@@ -34,7 +34,8 @@ import {
   Phone,
   Mail,
   IndianRupee,
-  FileDown
+  FileDown,
+  Download
 } from "lucide-react"
 
 interface OrderDetailsDialogProps {
@@ -45,9 +46,16 @@ interface OrderDetailsDialogProps {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_GRAPHQL_URL?.replace('/graphql', '') || 'http://localhost:5000'
 
+const downloadFile = async (url: string, filename: string): Promise<Blob> => {
+  const response = await fetch(url)
+  if (!response.ok) throw new Error(`Failed to download ${filename}`)
+  return response.blob()
+}
+
 export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDialogProps) {
   const { downloadLabel, loading: downloadingLabel } = useShipmentLabel()
   const [isDownloading, setIsDownloading] = useState(false)
+  const [isDownloadingAll, setIsDownloadingAll] = useState(false)
 
   if (!order) return null
 
@@ -69,6 +77,39 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
       toast.error('Error downloading label')
     } finally {
       setIsDownloading(false)
+    }
+  }
+
+  const handleDownloadAll = async () => {
+    if (!order.shipment?.dtdcAwbNumber) {
+      toast.error('Label not available. Please ensure shipment is created.')
+      return
+    }
+
+    setIsDownloadingAll(true)
+    try {
+      const labels = []
+      
+      const success = await downloadLabel(order.shipment.dtdcAwbNumber)
+      if (!success) {
+        toast.error('Failed to download label')
+        return
+      }
+      labels.push('label')
+
+      const link = document.createElement('a')
+      link.href = `${API_BASE_URL}/orders/${order._id}/invoice`
+      link.download = `invoice-${order.orderId}.pdf`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+
+      labels.push('invoice')
+      toast.success('Downloaded: ' + labels.join(', '))
+    } catch (error) {
+      toast.error('Error downloading documents')
+    } finally {
+      setIsDownloadingAll(false)
     }
   }
 
@@ -130,6 +171,18 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
               {getOrderStatusBadge(order.orderStatus)}
             </div>
             <div className="flex gap-2">
+              {order.shipment?.dtdcAwbNumber && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-green-600 border-green-200 hover:bg-green-50"
+                  onClick={handleDownloadAll}
+                  disabled={isDownloadingAll || downloadingLabel}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  {isDownloadingAll || downloadingLabel ? 'Downloading...' : 'Download All'}
+                </Button>
+              )}
               {order.shipment?.dtdcAwbNumber && (
                 <Button
                   variant="outline"
