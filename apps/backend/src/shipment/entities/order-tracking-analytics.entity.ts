@@ -23,6 +23,12 @@ export class OrderTrackingAnalytics extends Document {
 
   @Prop({ default: null })
   awbNumber?: string;
+
+  @Prop()
+  createdAt?: Date;
+
+  @Prop()
+  updatedAt?: Date;
 }
 
 export const OrderTrackingAnalyticsSchema = SchemaFactory.createForClass(OrderTrackingAnalytics);
