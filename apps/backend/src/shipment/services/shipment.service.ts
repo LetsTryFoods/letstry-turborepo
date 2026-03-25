@@ -353,15 +353,20 @@ export class ShipmentService {
     // Save analytics data
     if (analyticsData) {
       try {
-        await this.analyticsModel.create({
+        const analyticsCreate: any = {
           searchQuery: query,
           searchType: analyticsData.searchType,
           userAgent: analyticsData.userAgent,
           ipAddress: analyticsData.ipAddress,
-          userId: analyticsData.userId,
           foundResult,
-          awbNumber: foundResult ? awbNumber : null,
-        });
+        };
+        if (analyticsData.userId) {
+          analyticsCreate.userId = analyticsData.userId;
+        }
+        if (foundResult) {
+          analyticsCreate.awbNumber = awbNumber;
+        }
+        await this.analyticsModel.create(analyticsCreate);
       } catch (error) {
         Logger.error('Failed to save tracking analytics', error);
       }
@@ -403,11 +408,11 @@ export class ShipmentService {
       successRate: totalSearches > 0 ? (successfulSearches / totalSearches) * 100 : 0,
       searchTypeBreakdown,
       recentSearches: analytics.map((item) => ({
-        id: item._id,
+        id: item._id.toString(),
         searchQuery: item.searchQuery,
         searchType: item.searchType,
         foundResult: item.foundResult,
-        createdAt: item.createdAt,
+        createdAt: item.createdAt!.toISOString(),
         userAgent: item.userAgent,
         ipAddress: item.ipAddress,
       })),
