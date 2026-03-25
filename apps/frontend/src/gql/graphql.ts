@@ -1529,6 +1529,7 @@ export type OrderWithUserInfo = {
   orderStatus: OrderStatus;
   payment?: Maybe<OrderPaymentType>;
   paymentOrderId: Scalars['String']['output'];
+  shipment?: Maybe<ShipmentResponse>;
   shippingAddress?: Maybe<OrderShippingAddressType>;
   shippingAddressId?: Maybe<Scalars['String']['output']>;
   subtotal: Scalars['String']['output'];

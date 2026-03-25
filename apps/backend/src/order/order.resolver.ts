@@ -223,17 +223,10 @@ export class OrderWithUserInfoResolver {
     }
     return (await this.packingService.calculateWeightAndBoxFromOrder(order))?.boxDimensions || null;
   }
-}
-  @ResolveField(() => ShipmentResponse, { nullable: true })
-  async shipment(@Parent() order: any): Promise<ShipmentResponse | null> {
-    const shipments = await this.shipmentService.findByOrderId(order._id.toString());
-    return shipments.length > 0 ? shipments[0] : null;
-  }
-}
 
   @ResolveField(() => ShipmentResponse, { nullable: true })
   async shipment(@Parent() order: any): Promise<ShipmentResponse | null> {
     const shipments = await this.shipmentService.findByOrderId(order._id.toString());
-    return shipments.length > 0 ? shipments[0] : null;
+    return shipments.length > 0 ? (shipments[0] as any as ShipmentResponse) : null;
   }
 }
