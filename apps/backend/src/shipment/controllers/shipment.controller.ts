@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Param, Query, HttpCode, HttpStatus, NotFoundException, BadRequestException, Req } from '@nestjs/common';
-import { Request } from 'express';
+import type { Request } from 'express';
 import { TrackingCronService } from '../services/tracking-cron.service';
 import { ShipmentService } from '../services/shipment.service';
 import { Public } from '../../common/decorators/public.decorator';
