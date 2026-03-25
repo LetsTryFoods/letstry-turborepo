@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import {
   Dialog,
   DialogContent,
@@ -16,6 +17,8 @@ import {
   OrderStatus,
   PaymentStatus
 } from "@/lib/orders/queries"
+import { toast } from "react-hot-toast"
+import { useShipmentLabel } from "@/lib/shipments/queries"
 import { format } from "date-fns"
 import {
   Package,
@@ -43,7 +46,31 @@ interface OrderDetailsDialogProps {
 const API_BASE_URL = process.env.NEXT_PUBLIC_GRAPHQL_URL?.replace('/graphql', '') || 'http://localhost:5000'
 
 export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDialogProps) {
+  const { downloadLabel, loading: downloadingLabel } = useShipmentLabel()
+  const [isDownloading, setIsDownloading] = useState(false)
+
   if (!order) return null
+
+  const handleDownloadLabel = async () => {
+    if (!order.shipment?.dtdcAwbNumber) {
+      toast.error('Label not available. Please ensure shipment is created.')
+      return
+    }
+
+    setIsDownloading(true)
+    try {
+      const success = await downloadLabel(order.shipment.dtdcAwbNumber)
+      if (success) {
+        toast.success('Label downloaded successfully')
+      } else {
+        toast.error('Failed to download label')
+      }
+    } catch (error) {
+      toast.error('Error downloading label')
+    } finally {
+      setIsDownloading(false)
+    }
+  }
 
   const getOrderStatusBadge = (status: OrderStatus) => {
     switch (status) {
@@ -102,15 +129,29 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
               <span>Order {order.orderId}</span>
               {getOrderStatusBadge(order.orderStatus)}
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-blue-600 border-blue-200 hover:bg-blue-50"
-              onClick={() => window.open(`${API_BASE_URL}/orders/${order._id}/invoice`, '_blank')}
-            >
-              <FileDown className="h-4 w-4 mr-2" />
-              Download Invoice
-            </Button>
+            <div className="flex gap-2">
+              {order.shipment?.dtdcAwbNumber && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-purple-600 border-purple-200 hover:bg-purple-50"
+                  onClick={handleDownloadLabel}
+                  disabled={isDownloading || downloadingLabel}
+                >
+                  <FileDown className="h-4 w-4 mr-2" />
+                  {isDownloading || downloadingLabel ? 'Downloading...' : 'Download Label'}
+                </Button>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                onClick={() => window.open(`${API_BASE_URL}/orders/${order._id}/invoice`, '_blank')}
+              >
+                <FileDown className="h-4 w-4 mr-2" />
+                Download Invoice
+              </Button>
+            </div>
           </DialogTitle>
           <DialogDescription>
             Placed on {format(new Date(order.createdAt), 'dd MMM yyyy, hh:mm a')}

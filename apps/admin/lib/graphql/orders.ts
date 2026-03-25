@@ -57,6 +57,9 @@ export const GET_ALL_ORDERS = gql`
           w
           h
         }
+        shipment {
+          dtdcAwbNumber
+        }
         createdAt
         updatedAt
       }
@@ -139,6 +142,9 @@ export const GET_ORDER_BY_ID = gql`
         l
         w
         h
+      }
+      shipment {
+        dtdcAwbNumber
       }
       deliveredAt
       cancelledAt

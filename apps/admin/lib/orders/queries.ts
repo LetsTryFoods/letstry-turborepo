@@ -103,6 +103,10 @@ export interface Payment {
   paidAt?: Date;
 }
 
+export interface Shipment {
+  dtdcAwbNumber?: string;
+}
+
 export interface Order {
   _id: string;
   orderId: string;
@@ -128,6 +132,7 @@ export interface Order {
     w: number;
     h: number;
   };
+  shipment?: Shipment;
 }
 
 export interface OrdersSummary {
