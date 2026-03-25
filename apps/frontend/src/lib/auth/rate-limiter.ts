@@ -5,7 +5,7 @@ type RateLimitEntry = {
 
 class RateLimiter {
   private attempts: Map<string, RateLimitEntry>;
-  private cleanupInterval: NodeJS.Timeout | null;
+  private cleanupInterval: ReturnType<typeof setInterval> | null;
 
   constructor() {
     this.attempts = new Map();
