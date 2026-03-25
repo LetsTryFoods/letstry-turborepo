@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import {
   Table,
   TableBody,
@@ -10,7 +11,7 @@ import {
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Eye, Package, Truck, CheckCircle, XCircle, RefreshCcw, Clock, Loader2, FileDown, Zap } from "lucide-react"
+import { Eye, Package, Truck, CheckCircle, XCircle, RefreshCcw, Clock, Loader2, FileDown, Zap, Download } from "lucide-react"
 import {
   Tooltip,
   TooltipContent,
@@ -18,6 +19,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { Order, OrderStatus, PaymentStatus, useAdminPunchShipment } from "@/lib/orders/queries"
+import { useShipmentLabel } from "@/lib/shipments/queries"
 import { format } from "date-fns"
 import { toast } from "react-hot-toast"
 import {
@@ -40,6 +42,8 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_GRAPHQL_URL?.replace('/graphql', ''
 
 export function OrderTable({ orders, onViewDetails, onUpdateStatus }: OrderTableProps) {
   const { punchShipment, loading: punching } = useAdminPunchShipment()
+  const { downloadLabel, loading: downloadingLabel } = useShipmentLabel()
+  const [downloadingAll, setDownloadingAll] = useState<string | null>(null)
 
   const handlePunchShipment = async (order: Order, serviceType: string) => {
     try {
@@ -49,6 +53,35 @@ export function OrderTable({ orders, onViewDetails, onUpdateStatus }: OrderTable
       }
     } catch (error: any) {
       toast.error(error.message || "Failed to punch to DTDC")
+    }
+  }
+
+  const handleDownloadAll = async (order: Order) => {
+    if (!order.shipment?.dtdcAwbNumber) {
+      toast.error('Label not available. Please create shipment first.')
+      return
+    }
+
+    setDownloadingAll(order._id)
+    try {
+      const success = await downloadLabel(order.shipment.dtdcAwbNumber)
+      if (!success) {
+        toast.error('Failed to download label')
+        return
+      }
+
+      const link = document.createElement('a')
+      link.href = `${API_BASE_URL}/orders/${order._id}/invoice`
+      link.download = `invoice-${order.orderId}.pdf`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+
+      toast.success('Downloaded: label & invoice')
+    } catch (error) {
+      toast.error('Error downloading documents')
+    } finally {
+      setDownloadingAll(null)
     }
   }
 
@@ -205,6 +238,23 @@ export function OrderTable({ orders, onViewDetails, onUpdateStatus }: OrderTable
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>View Details</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                          onClick={() => handleDownloadAll(order)}
+                          disabled={downloadingAll === order._id || downloadingLabel}
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Download All (Label & Invoice)</TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
 
