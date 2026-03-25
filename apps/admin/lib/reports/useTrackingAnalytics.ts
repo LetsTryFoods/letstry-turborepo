@@ -25,7 +25,7 @@ export function useTrackingAnalytics(
   endDate?: string,
   limit: number = 100
 ) {
-  return useQuery(GET_TRACKING_ANALYTICS, {
+  return useQuery<{ getTrackingAnalytics: TrackingAnalytics }>(GET_TRACKING_ANALYTICS, {
     variables: { startDate, endDate, limit },
     fetchPolicy: 'cache-and-network',
   });
