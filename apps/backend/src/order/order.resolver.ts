@@ -23,6 +23,8 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { Role } from '../common/enums/role.enum';
 import { OptionalUser } from '../common/decorators/optional-user.decorator';
 import { PackingService } from '../packing/services/packing.service';
+import { ShipmentService } from '../shipment/services/shipment.service';
+import { ShipmentResponse } from '../shipment/dto/shipment-response.dto';
 
 @Resolver(() => OrderType)
 export class OrderResolver {
@@ -179,6 +181,7 @@ export class OrderWithUserInfoResolver {
   constructor(
     private readonly orderService: OrderService,
     private readonly packingService: PackingService,
+    private readonly shipmentService: ShipmentService,
   ) { }
 
   @ResolveField(() => OrderPaymentType, { nullable: true })
@@ -219,5 +222,18 @@ export class OrderWithUserInfoResolver {
       return (await this.packingService.calculateShipmentWeight(order, details.packingOrder, details.evidence))?.boxDimensions || null;
     }
     return (await this.packingService.calculateWeightAndBoxFromOrder(order))?.boxDimensions || null;
+  }
+}
+  @ResolveField(() => ShipmentResponse, { nullable: true })
+  async shipment(@Parent() order: any): Promise<ShipmentResponse | null> {
+    const shipments = await this.shipmentService.findByOrderId(order._id.toString());
+    return shipments.length > 0 ? shipments[0] : null;
+  }
+}
+
+  @ResolveField(() => ShipmentResponse, { nullable: true })
+  async shipment(@Parent() order: any): Promise<ShipmentResponse | null> {
+    const shipments = await this.shipmentService.findByOrderId(order._id.toString());
+    return shipments.length > 0 ? shipments[0] : null;
   }
 }

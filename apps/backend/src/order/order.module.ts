@@ -14,6 +14,7 @@ import { PaymentOrder, PaymentOrderSchema, PaymentEvent, PaymentEventSchema } fr
 import { Address, AddressSchema } from '../address/address.schema'; import { PackingModule } from '../packing/packing.module';
 import { OrderController } from './order.controller';
 import { InvoiceService } from './services/invoice.service';
+import { ShipmentModule } from '../shipment/shipment.module';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -25,6 +26,7 @@ import { InvoiceService } from './services/invoice.service';
     ]),
     ProductModule,
     forwardRef(() => PackingModule),
+    ShipmentModule,
   ],
   controllers: [OrderController],
   providers: [

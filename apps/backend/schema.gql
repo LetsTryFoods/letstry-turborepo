@@ -830,6 +830,7 @@ type OrderWithUserInfo {
   cancellationReason: String
   estimatedWeight: Float
   boxDimensions: BoxDimensionType
+  shipment: ShipmentResponse
   createdAt: DateTime!
   updatedAt: DateTime!
   userInfo: OrderUserInfo
