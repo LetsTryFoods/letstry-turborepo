@@ -182,4 +182,8 @@
     border-radius: 50%;
     box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
   }
+
+  .bestseller-card-bg {
+    background-color: #FCEFC0;
+  }
 }
