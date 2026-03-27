@@ -18,10 +18,18 @@ export default async function Home() {
   const wholesomeChoicesData = await getWholesomeChoices();
   return (
     <main>
-      <HeroCarousel />
-      <CategoryGrid />
-      <BestsellerCombo />
-      <BestsellerCarousel />
+      <div
+        style={{
+          background: "linear-gradient(180deg, #F5F6F5 0%, #FCF3E3 45%, #C3E0C5 100%)",
+        }}
+      >
+        <HeroCarousel />
+        <CategoryGrid />
+        <BestsellerCombo />
+     
+
+      </div>
+   <BestsellerCarousel />
       <WhyChooseUs />
       <HealthySnacking />
       <WholesomeChoices categories={wholesomeChoicesData?.children || []} />

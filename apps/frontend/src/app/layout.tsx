@@ -14,6 +14,7 @@ import { CartContainer } from "@/components/cart-drawer/CartContainer";
 import { SearchOverlay } from "@/components/search-overlay";
 import { GoogleTagManager, GoogleTagManagerNoscript } from "@/components/analytics/google-tag-manager";
 import { PageViewTracker } from "@/components/analytics/page-view-tracker";
+import { SpinWheelContainer } from "@/components/spin-wheel/SpinWheelContainer";
 import Script from 'next/script';
 
 const geistSans = Geist({
@@ -72,6 +73,7 @@ export default function RootLayout({
               <SearchOverlay />
               <GuestSessionManager />
               <CartContainer />
+              {/* <SpinWheelContainer /> */}
               {children}
               <ToastProvider />
               <Footer />

@@ -23,68 +23,12 @@ export function BestsellerCarouselClient({ initialProducts }: BestsellerCarousel
     hasShownConfetti.current = hasFired === "true";
   }, []);
 
-  useEffect(() => {
-    const el = bestsellerRef.current;
-    if (!el || initialProducts.length === 0) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        const visible = entry.isIntersecting && entry.intersectionRatio >= 0.3;
-        if (!visible || hasShownConfetti.current) return;
-
-        const canvas = document.createElement("canvas");
-        Object.assign(canvas.style, {
-          position: "absolute",
-          top: "-120px",
-          left: "0",
-          width: "100%",
-          height: "100%",
-          pointerEvents: "none",
-          zIndex: "50",
-        });
-
-        if (confettiContainerRef.current) {
-          confettiContainerRef.current.appendChild(canvas);
-        }
-
-        hasShownConfetti.current = true;
-        sessionStorage.setItem("bestsellerConfettiFired", "true");
-
-        import("canvas-confetti").then(({ default: confetti }) => {
-          const myConfetti = confetti.create(canvas, {
-            resize: true,
-            useWorker: true,
-          });
-
-          setTimeout(() => {
-            myConfetti({
-              particleCount: 180,
-              spread: 100,
-              startVelocity: 25,
-              ticks: 90,
-              origin: { y: 0.4 },
-            });
-
-            setTimeout(() => {
-              if (canvas && canvas.parentNode) {
-                canvas.parentNode.removeChild(canvas);
-              }
-            }, 2200);
-          }, 50);
-        });
-      },
-      { threshold: 0.3 }
-    );
-
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [initialProducts]);
 
   return (
     <section
       ref={bestsellerRef}
-      className="relative mt-6 px-4 sm:px-6 lg:px-8 pt-2 pb-8 sm:pb-12 md:pb-14 lg:pb-16 overflow-hidden"
+      className="relative  px-4 sm:px-6 lg:px-8 pt-2 pb-8 sm:pb-12 md:pb-14 lg:pb-16 overflow-hidden"
       style={{
         backgroundImage: `url(${getCdnUrl('e9ba9be25cebd48419d4f1c78e0476f7.webp')})`,
         backgroundSize: 'cover',

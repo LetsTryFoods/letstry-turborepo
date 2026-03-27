@@ -103,7 +103,7 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
     <article className="relative flex flex-col border border-gray-300 rounded-lg bg-gray-50 hover:shadow-lg transition-shadow">
       {variant.discountPercent > 0 && <DiscountBadge discountPercent={variant.discountPercent} />}
       <Link href={`/product/${product.slug}`}>
-        <div className="relative w-full aspect-square mb-2 sm:mb-4 bg-[#F3EEEA] rounded overflow-hidden">
+        <div className="relative w-full aspect-square mb-2 sm:mb-4 rounded overflow-hidden">
           <Image
             src={getCdnUrl(displayImages[0].url)}
             alt={displayImages[0].alt || product.name}
@@ -112,13 +112,13 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 250px"
           />
         </div>
-        <h3 className="text-sm sm:text-base font-semibold text-center text-gray-900 line-clamp-2 min-h-[48px] p-1 sm:p-2">
+        <h3 className="text-sm bg-[#F3EEEA] sm:text-base font-semibold text-center text-gray-900 line-clamp-2 min-h-[48px] p-1 sm:p-2">
           {product.name}
         </h3>
-        <h4 className="text-sm pb-1 text-center text-gray-600">{variant.packageSize}</h4>
+        <h4 className="text-sm pb-1 text-center bg-[#F3EEEA] text-gray-600">{variant.packageSize}</h4>
       </Link>
-      <div className="flex flex-col items-center justify-center mb-2 gap-1">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col items-center justify-center bg-[#F3EEEA] py-2 gap-1">
+        <div className="flex items-center bg-[#F3EEEA] gap-2">
           <span className="text-sm font-bold text-gray-900">
             ₹{variant.price.toFixed(2)}
           </span>
@@ -134,7 +134,7 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
           </span>
         )}
       </div>
-      <div className="px-4 pb-4 mt-auto">
+      <div className="px-4 pb-4 mt-auto bg-[#F3EEEA]">
         {quantityInCart === 0 ? (
           <button
             className="cursor-pointer w-full border sm:border-2 border-[#0C5273] text-[#0C5273] text-sm font-semibold py-2 rounded-md hover:bg-[#0C5273] hover:text-white transition-all duration-200 shadow-sm hover:shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
