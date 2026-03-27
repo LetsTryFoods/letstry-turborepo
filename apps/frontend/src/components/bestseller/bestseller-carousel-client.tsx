@@ -134,7 +134,7 @@ export function BestsellerCarouselClient({ initialProducts }: BestsellerCarousel
       </div>
 
       {/* ── Title ── */}
-      <div className="relative z-20 flex justify-center pt-4 pb-2 sm:pt-8 sm:pb-6 mt-10">
+      <div className="relative z-20 flex justify-center pt-4 pb-2 sm:pt-8 sm:pb-6 mt-5">
         <h2
           className="bestseller-title text-[48px] sm:text-[56px] lg:text-[64px] font-bold text-center leading-none"
           style={{ fontFamily: "var(--font-agbalumo)" }}
