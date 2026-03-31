@@ -43,6 +43,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'img.youtube.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'pub-24bb8fd4da6246bf880d4f21d58670d8.r2.dev',
+      }
     ],
   },
 

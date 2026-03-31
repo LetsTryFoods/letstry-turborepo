@@ -109,12 +109,6 @@ type PlaceDetailsOutput {
   longitude: Float!
 }
 
-type PhoneCheckOutput {
-  exists: Boolean!
-  requiresLogin: Boolean!
-  message: String
-}
-
 type PaginationMeta {
   totalCount: Int!
   page: Int!
@@ -830,10 +824,10 @@ type OrderWithUserInfo {
   cancellationReason: String
   estimatedWeight: Float
   boxDimensions: BoxDimensionType
-  shipment: ShipmentResponse
   createdAt: DateTime!
   updatedAt: DateTime!
   userInfo: OrderUserInfo
+  shipment: ShipmentResponse
 }
 
 type OrderStatusCount {
@@ -860,6 +854,124 @@ type AdminOrdersResponse {
   orders: [OrderWithUserInfo!]!
   meta: PaginationMeta!
   summary: OrdersSummary!
+}
+
+type ShipmentResponse {
+  id: ID!
+  orderId: String
+  dtdcAwbNumber: String!
+  dtdcReferenceNumber: String
+  customerCode: String!
+  serviceType: String!
+  loadType: String!
+  originCity: String!
+  destinationCity: String
+  weight: Float!
+  declaredValue: Float
+  bookedOn: DateTime!
+  expectedDeliveryDate: DateTime
+  revisedExpectedDeliveryDate: DateTime
+  rtoNumber: String
+  currentStatusCode: String
+  currentStatusDescription: String
+  currentLocation: String
+  isDelivered: Boolean!
+  deliveredAt: DateTime
+  isRto: Boolean!
+  isCancelled: Boolean!
+  cancelledAt: DateTime
+  labelUrl: String
+  codAmount: Float
+  codCollectionMode: String
+  dimensions: JSON
+  originDetails: JSON
+  destinationDetails: JSON
+  invoiceNumber: String
+  invoiceDate: DateTime
+  ewayBill: String
+  commodityId: String
+  numPieces: Int!
+  piecesDetail: JSON
+  webhookLastReceivedAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  trackingLink: String
+}
+
+type TrackingHistoryResponse {
+  id: ID!
+  shipmentId: String!
+  statusCode: String!
+  statusDescription: String!
+  location: String
+  manifestNumber: String
+  actionDate: DateTime!
+  actionTime: String!
+  actionDatetime: DateTime!
+  remarks: String
+  latitude: Float
+  longitude: Float
+  scdOtp: Boolean
+  ndcOtp: Boolean
+  createdAt: DateTime!
+}
+
+type ShipmentWithTrackingResponse {
+  id: ID!
+  orderId: String
+  dtdcAwbNumber: String!
+  dtdcReferenceNumber: String
+  customerCode: String!
+  serviceType: String!
+  loadType: String!
+  originCity: String!
+  destinationCity: String
+  weight: Float!
+  declaredValue: Float
+  bookedOn: DateTime!
+  expectedDeliveryDate: DateTime
+  revisedExpectedDeliveryDate: DateTime
+  rtoNumber: String
+  currentStatusCode: String
+  currentStatusDescription: String
+  currentLocation: String
+  isDelivered: Boolean!
+  deliveredAt: DateTime
+  isRto: Boolean!
+  isCancelled: Boolean!
+  cancelledAt: DateTime
+  labelUrl: String
+  codAmount: Float
+  codCollectionMode: String
+  dimensions: JSON
+  originDetails: JSON
+  destinationDetails: JSON
+  invoiceNumber: String
+  invoiceDate: DateTime
+  ewayBill: String
+  commodityId: String
+  numPieces: Int!
+  piecesDetail: JSON
+  webhookLastReceivedAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  trackingLink: String
+  trackingHistory: [TrackingHistoryResponse!]!
+}
+
+type CreateShipmentResponse {
+  success: Boolean!
+  shipment: ShipmentResponse!
+  awbNumber: String!
+  labelUrl: String
+  message: String
+  trackingLink: String
+}
+
+type ShipmentListResponse {
+  success: Boolean!
+  shipments: [ShipmentResponse!]!
+  total: Int!
 }
 
 type ProductValidation {
@@ -1018,122 +1130,27 @@ type CreatePackerResponse {
   generatedPassword: String!
 }
 
-type ShipmentResponse {
-  id: ID!
-  orderId: String
-  dtdcAwbNumber: String!
-  dtdcReferenceNumber: String
-  customerCode: String!
-  serviceType: String!
-  loadType: String!
-  originCity: String!
-  destinationCity: String
-  weight: Float!
-  declaredValue: Float
-  bookedOn: DateTime!
-  expectedDeliveryDate: DateTime
-  revisedExpectedDeliveryDate: DateTime
-  rtoNumber: String
-  currentStatusCode: String
-  currentStatusDescription: String
-  currentLocation: String
-  isDelivered: Boolean!
-  deliveredAt: DateTime
-  isRto: Boolean!
-  isCancelled: Boolean!
-  cancelledAt: DateTime
-  labelUrl: String
-  codAmount: Float
-  codCollectionMode: String
-  dimensions: JSON
-  originDetails: JSON
-  destinationDetails: JSON
-  invoiceNumber: String
-  invoiceDate: DateTime
-  ewayBill: String
-  commodityId: String
-  numPieces: Int!
-  piecesDetail: JSON
-  webhookLastReceivedAt: DateTime
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  trackingLink: String
+type SearchTypeBreakdown {
+  _id: String!
+  count: Int!
 }
 
-type TrackingHistoryResponse {
-  id: ID!
-  shipmentId: String!
-  statusCode: String!
-  statusDescription: String!
-  location: String
-  manifestNumber: String
-  actionDate: DateTime!
-  actionTime: String!
-  actionDatetime: DateTime!
-  remarks: String
-  latitude: Float
-  longitude: Float
-  scdOtp: Boolean
-  ndcOtp: Boolean
-  createdAt: DateTime!
+type RecentSearch {
+  id: String!
+  searchQuery: String!
+  searchType: String!
+  foundResult: Boolean!
+  createdAt: String!
+  userAgent: String!
+  ipAddress: String!
 }
 
-type ShipmentWithTrackingResponse {
-  id: ID!
-  orderId: String
-  dtdcAwbNumber: String!
-  dtdcReferenceNumber: String
-  customerCode: String!
-  serviceType: String!
-  loadType: String!
-  originCity: String!
-  destinationCity: String
-  weight: Float!
-  declaredValue: Float
-  bookedOn: DateTime!
-  expectedDeliveryDate: DateTime
-  revisedExpectedDeliveryDate: DateTime
-  rtoNumber: String
-  currentStatusCode: String
-  currentStatusDescription: String
-  currentLocation: String
-  isDelivered: Boolean!
-  deliveredAt: DateTime
-  isRto: Boolean!
-  isCancelled: Boolean!
-  cancelledAt: DateTime
-  labelUrl: String
-  codAmount: Float
-  codCollectionMode: String
-  dimensions: JSON
-  originDetails: JSON
-  destinationDetails: JSON
-  invoiceNumber: String
-  invoiceDate: DateTime
-  ewayBill: String
-  commodityId: String
-  numPieces: Int!
-  piecesDetail: JSON
-  webhookLastReceivedAt: DateTime
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  trackingLink: String
-  trackingHistory: [TrackingHistoryResponse!]!
-}
-
-type CreateShipmentResponse {
-  success: Boolean!
-  shipment: ShipmentResponse!
-  awbNumber: String!
-  labelUrl: String
-  message: String
-  trackingLink: String
-}
-
-type ShipmentListResponse {
-  success: Boolean!
-  shipments: [ShipmentResponse!]!
-  total: Int!
+type TrackingAnalyticsResponse {
+  totalSearches: Int!
+  successfulSearches: Int!
+  successRate: Float!
+  searchTypeBreakdown: [SearchTypeBreakdown!]!
+  recentSearches: [RecentSearch!]!
 }
 
 type NewsletterSubscription {
@@ -1227,6 +1244,33 @@ type CorporateEnquiryResponse {
   message: String!
 }
 
+type Contact {
+  _id: ID!
+  name: String!
+  phone: String!
+  message: String!
+  status: ContactStatus!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""The status of the contact complaint"""
+enum ContactStatus {
+  PENDING
+  REVIEWED
+  RESOLVED
+}
+
+type ContactSubmissionResponse {
+  success: Boolean!
+  message: String!
+}
+
+type PaginatedContactsResponse {
+  data: [Contact!]!
+  total: Int!
+}
+
 input BoxDimensionsInput {
   l: Float!
   w: Float!
@@ -1256,7 +1300,6 @@ type Query {
   reverseGeocode(input: ReverseGeocodeInput!): GoogleMapsAddressOutput!
   searchPlaces(input: SearchPlacesInput!): [PlacePredictionOutput!]!
   getPlaceDetails(input: PlaceDetailsInput!): PlaceDetailsOutput!
-  checkPhoneExists(phoneNumber: String!): PhoneCheckOutput!
   banners: [Banner!]!
   activeBanners: [Banner!]!
   banner(id: ID!): Banner
@@ -1296,6 +1339,7 @@ type Query {
   listShipments(filters: ShipmentFiltersInput): ShipmentListResponse!
   getShipmentWithTracking(awbNumber: String!): ShipmentWithTrackingResponse!
   getShipmentLabel(awbNumber: String!): String
+  getTrackingAnalytics(startDate: String, endDate: String, limit: Int): TrackingAnalyticsResponse!
   getAllNewsletterSubscriptions(isActive: Boolean): [NewsletterSubscription!]!
   getNewsletterSubscriptionCount(isActive: Boolean): Float!
   redirects(page: Int! = 1, limit: Int! = 20, search: String): PaginatedRedirects!
@@ -1310,6 +1354,7 @@ type Query {
   activeBlogCategories: [BlogCategory!]!
   blogCategory(id: ID!): BlogCategory
   getAllCorporateEnquiries: [CorporateEnquiry!]!
+  getContactMessages(skip: Int! = 0, limit: Int! = 50): PaginatedContactsResponse!
 }
 
 input PaginationInput {
@@ -1503,6 +1548,9 @@ type Mutation {
   updateBlogCategory(id: ID!, input: UpdateBlogCategoryInput!): BlogCategory!
   deleteBlogCategory(id: ID!): BlogCategory!
   submitCorporateEnquiry(input: SubmitCorporateEnquiryInput!): CorporateEnquiryResponse!
+  submitContactMessage(input: SubmitContactInput!): ContactSubmissionResponse!
+  updateContactStatus(id: String!, status: String!): Contact!
+  deleteContactMessage(id: String!): Boolean!
   sendOtp(phoneNumber: String!): String!
   verifyWhatsAppOtp(phoneNumber: String!, otp: String!, input: CreateUserInput): String!
   verifyOtpAndLogin(idToken: String!, input: CreateUserInput): String!
@@ -2067,6 +2115,12 @@ input SubmitCorporateEnquiryInput {
   email: String!
   purposeOfInquiry: PurposeOfInquiry!
   otherPurpose: String
+}
+
+input SubmitContactInput {
+  name: String!
+  phone: String!
+  message: String!
 }
 
 input CreateUserInput {
