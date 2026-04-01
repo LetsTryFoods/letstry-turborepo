@@ -16,7 +16,8 @@ export class UploadService {
 
   constructor(private configService: ConfigService) {
     this.s3Client = new S3Client({
-      region: this.configService.get<string>('aws.region'),
+      region: 'auto',
+      endpoint: this.configService.get<string>('aws.r2Endpoint'),
       credentials: {
         accessKeyId: this.configService.get<string>('aws.accessKeyId')!,
         secretAccessKey: this.configService.get<string>('aws.secretAccessKey')!,
@@ -46,8 +47,8 @@ export class UploadService {
 
   getS3Url(key: string): string {
     const bucketName = this.configService.get<string>('aws.bucketName')!;
-    const region = this.configService.get<string>('aws.region')!;
-    return `https://${bucketName}.s3.${region}.amazonaws.com/${key}`;
+    const r2Endpoint = this.configService.get<string>('aws.r2Endpoint')!;
+    return `${r2Endpoint}/${bucketName}/${key}`;
   }
 
   getCloudFrontUrl(key: string): string {

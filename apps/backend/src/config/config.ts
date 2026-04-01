@@ -39,6 +39,7 @@ export default () => ({
     bucketName: process.env.BUCKET_NAME,
     region: process.env.AWS_REGION,
     cloudfrontDomain: process.env.AWS_CLOUDFRONT_DOMAIN,
+    r2Endpoint: process.env.R2_ENDPOINT,
   },
   redis: {
     host: process.env.REDIS_HOST || 'localhost',

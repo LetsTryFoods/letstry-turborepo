@@ -24,7 +24,8 @@
     "compare-products": "ts-node -r tsconfig-paths/register scripts/compare-products.ts",
     "compare-final": "ts-node -r tsconfig-paths/register scripts/compare-final.ts",
     "db:backup": "ts-node -r tsconfig-paths/register scripts/backup-db.ts",
-    "db:clean": "ts-node -r tsconfig-paths/register scripts/clean-image-urls.ts"
+    "db:clean": "ts-node -r tsconfig-paths/register scripts/clean-image-urls.ts",
+    "db:migrate-r2": "ts-node -r tsconfig-paths/register scripts/migrate-to-r2.ts"
   },
   "dependencies": {
     "@apollo/server": "^5.2.0",
