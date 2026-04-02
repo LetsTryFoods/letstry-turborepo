@@ -1,0 +1,47 @@
+{
+  "expo": {
+    "name": "letstry-mobile",
+    "slug": "letstry-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "letstry-mobile",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFFFFF"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.letstryfoods.mobile",
+      "icon": "./assets/icon.png"
+    },
+    "android": {
+      "package": "com.letstryfoods.mobile",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyA44Ri5mmnDX-wE8folHq69LjEy1u8NLF0"
+        }
+      },
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-foreground.png",
+        "backgroundColor": "#FFFFFF"
+      }
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "graphqlUrl": "http://localhost:3001/graphql",
+      "router": {},
+      "eas": {
+        "projectId": "b4a3a21a-6e97-4eef-8285-801285342be7"
+      }
+    }
+  }
+}

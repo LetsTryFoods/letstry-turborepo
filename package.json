@@ -7,7 +7,12 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
-    "seed": "turbo run seed"
+    "seed": "turbo run seed",
+    "app:android": "pnpm --filter csk run run:android",
+    "mobile:start": "pnpm --filter letstry-mobile start",
+    "mobile:android": "pnpm --filter letstry-mobile android",
+    "mobile:ios": "pnpm --filter letstry-mobile ios",
+    "mobile:ngrok": "pnpm --filter letstry-mobile dev:ngrok"
   },
   "devDependencies": {
     "@types/canvas-confetti": "^1.9.0",
@@ -22,5 +27,11 @@
   },
   "dependencies": {
     "canvas-confetti": "^1.9.4"
+  },
+  "pnpm": {
+    "overrides": {
+      "react": "19.1.0",
+      "react-dom": "19.1.0"
+    }
   }
 }

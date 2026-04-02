@@ -1,5 +1,8 @@
 packages:
-  - "apps/*"
+  - "apps/admin"
+  - "apps/backend"
+  - "apps/frontend"
+  - "apps/letstry-mobile"
   - "packages/*"
 
 onlyBuiltDependencies:

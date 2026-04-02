@@ -68,6 +68,7 @@ import { ImagePreviewDialog } from "@/app/dashboard/components/image-preview-dia
 import { Pagination } from "@/app/dashboard/components/pagination";
 import { ProductForm } from "./_components/product-form";
 
+
 const allColumns: ColumnDefinition[] = [
   { key: "_id", label: "ID" },
   { key: "name", label: "Name" },

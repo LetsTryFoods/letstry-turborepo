@@ -34,6 +34,7 @@ import { BlogModule } from './blog/blog.module';
 import { BlogCategoryModule } from './blog-category/blog-category.module';
 import { CorporateEnquiryModule } from './corporate-enquiry/corporate-enquiry.module';
 import { ContactModule } from './contact/contact.module';
+import { DataExportModule } from './data-export/data-export.module';
 
 @Module({
   imports: [
@@ -76,6 +77,7 @@ import { ContactModule } from './contact/contact.module';
     CorporateEnquiryModule,
     ContactModule,
     AuthenticationModule,
+    DataExportModule,
     AppCacheModule,
   ],
   controllers: [AppController],

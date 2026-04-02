@@ -8,7 +8,7 @@ export class UserAuthResolver {
   constructor(private readonly userAuthService: UserAuthService) { }
 
   private getSessionId(context: any): string | undefined {
-    const structuredCookie = context.req?.cookies?.guest_session;
+    const structuredCookie = context.req?.cookies?.guest_session || context.req?.headers['x-guest-session'];
 
     let sessionId: string | undefined;
 
@@ -27,7 +27,7 @@ export class UserAuthResolver {
     }
 
     if (!sessionId) {
-      sessionId = context.req?.cookies?.sessionId;
+      sessionId = context.req?.cookies?.sessionId || context.req?.headers['x-session-id'];
     }
 
     return sessionId;

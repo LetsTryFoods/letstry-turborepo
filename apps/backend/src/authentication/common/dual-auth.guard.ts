@@ -31,7 +31,7 @@ export class DualAuthGuard extends AuthGuard('jwt') {
       }
     } catch (err) {}
 
-    let sessionId = request.cookies?.sessionId;
+    let sessionId = request.cookies?.sessionId || request.headers['x-session-id'];
 
     if (!sessionId && request.cookies?.guest_session) {
       if (typeof request.cookies.guest_session === 'string') {
@@ -41,6 +41,15 @@ export class DualAuthGuard extends AuthGuard('jwt') {
         } catch (e) {}
       } else if (typeof request.cookies.guest_session === 'object') {
         sessionId = request.cookies.guest_session.sessionId;
+      }
+    }
+
+    if (!sessionId && request.headers['x-guest-session']) {
+      try {
+        const parsed = JSON.parse(request.headers['x-guest-session']);
+        sessionId = parsed.sessionId;
+      } catch (e) {
+        sessionId = request.headers['x-guest-session'];
       }
     }
 
