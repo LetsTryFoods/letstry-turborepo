@@ -64,7 +64,7 @@ jobs:
           SOURCE: "apps/backend/"
           REMOTE_HOST: ${{ secrets.EC2_HOST }}
           REMOTE_USER: ${{ secrets.EC2_USER }}
-          TARGET: "/var/www/letstry-turborepo/apps/backend"
+          TARGET: "/home/ubuntu/letstry-turborepo/apps/backend"
           EXCLUDE: "/node_modules/, /.git/"
 
       - name: Deploy Root Files
@@ -75,7 +75,7 @@ jobs:
           SOURCE: "./"
           REMOTE_HOST: ${{ secrets.EC2_HOST }}
           REMOTE_USER: ${{ secrets.EC2_USER }}
-          TARGET: "/var/www/letstry-turborepo"
+          TARGET: "/home/ubuntu/letstry-turborepo"
           EXCLUDE: "/node_modules/, /.git/, /.github/, /apps/"
 
       - name: Start Backend on EC2
@@ -86,7 +86,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             set -e
-            cd /var/www/letstry-turborepo
+            cd /home/ubuntu/letstry-turborepo
             
             # Install production dependencies on the server
             if command -v pnpm &> /dev/null; then
@@ -140,7 +140,7 @@ jobs:
           SOURCE: "apps/"
           REMOTE_HOST: ${{ secrets.EC2_HOST }}
           REMOTE_USER: ${{ secrets.EC2_USER }}
-          TARGET: "/var/www/letstry-turborepo/apps"
+          TARGET: "/home/ubuntu/letstry-turborepo/apps"
           EXCLUDE: "/node_modules/, /.git/, /backend/"
 
       - name: Restart Frontend and Admin Services
@@ -150,7 +150,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /var/www/letstry-turborepo
+            cd /home/ubuntu/letstry-turborepo
             pm2 restart frontend || pm2 start ecosystem.config.js --only frontend
             pm2 restart admin || pm2 start ecosystem.config.js --only admin
             pm2 save
