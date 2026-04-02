@@ -108,17 +108,16 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
   };
 
   return (
-    <article className="relative flex flex-col h-full p-3 sm:p-4 md:p-5 lg:p-6 text-center rounded-xl sm:rounded-2xl lg:rounded-3xl transition-shadow duration-800"
+    <article className="bestseller-card-bg relative flex flex-col h-full p-2 sm:p-4 md:p-5 lg:p-6 text-center rounded-xl sm:rounded-2xl lg:rounded-3xl"
       style={{
-        backgroundColor: "#ffffff",
         boxShadow: "10px 5px 10px 4px #00000040",
+        transition: "box-shadow 0.3s",
       }}
     >
-
       {hasDiscount && <DiscountBadge discountPercent={variant.discountPercent} />}
 
       <Link href={`/product/${product.slug}`}>
-        <div className="relative w-full lg:h-40 md:h-[100px] h-[70px] lg:mb-[10px] md:mb-[10px] mb-[5px]">
+        <div className="relative w-full h-[90px] sm:h-[110px] md:h-[100px] lg:h-40 mb-2 lg:mb-[10px]">
           <Image
             src={getCdnUrl(variant.thumbnailUrl)}
             alt={product.name}
@@ -129,33 +128,36 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
             sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
           />
         </div>
-        <h3 className="lg:text-[22px] md:text-[14px] text-[12px] font-bold text-black leading-snug min-h-[35px] md:min-h-[40px] lg:min-h-[70px] lg:mb-[10px] md:mb-[10px] mb-[5px]">
+        <h3 className="text-[11px] sm:text-[13px] md:text-[14px] lg:text-[22px] font-bold text-black leading-snug min-h-[28px] sm:min-h-[36px] md:min-h-[40px] lg:min-h-[70px] mb-1 lg:mb-[10px]">
           {product.name}
         </h3>
       </Link>
-      <div className="lg:text-[15px] text-[12px] text-black lg:mb-[10px] md:mb-[10px] mb-[5px] font-bold">
+
+      <div className="text-[11px] sm:text-[12px] lg:text-[15px] text-black mb-1 lg:mb-[10px] font-bold">
         {variant.packageSize}
       </div>
-      <div className="lg:mb-[10px] md:mb-[10px] mb-[5px]">
+
+      <div className="mb-2 lg:mb-[10px]">
         {hasDiscount ? (
           <div className="text-black text-center">
-            <span className="lg:text-[18px] md:text-[14px] text-[12px] font-semibold">
+            <span className="text-[11px] sm:text-[13px] md:text-[14px] lg:text-[18px] font-semibold">
               ₹{variant.price.toFixed(2)}
             </span>
-            <span className="line-through text-[#00000091] font-normal px-2 lg:text-[16px] md:text-[14px] text-[12px]">
-              ₹{variant.mrp.toFixed(2)}
+            <span className="line-through text-[#00000091] font-normal px-1 text-[10px] sm:text-[12px] md:text-[14px] lg:text-[16px]">
+              MRP ₹{variant.mrp.toFixed(2)}
             </span>
           </div>
         ) : (
-          <span className="text-[18px] font-bold text-black">
+          <span className="text-[12px] sm:text-[14px] lg:text-[18px] font-bold text-black">
             ₹{variant.price.toFixed(2)}
           </span>
         )}
       </div>
+
       {quantityInCart > 0 ? (
-        <div className="flex justify-center">
+        <div className="flex justify-center mt-auto">
           <button
-            className="cursor-pointer w-[30px] lg:w-[40px] h-[30px] pl-1 lg:pl-2 lg:h-[44px] text-[12px] lg:text-[18px] md:text-[16px] border-[#0C5273] text-white bg-[#0C5273] font-semibold rounded-l lg:hover:bg-[#003349] transition"
+            className="cursor-pointer w-[26px] sm:w-[34px] lg:w-[40px] h-[28px] sm:h-[34px] lg:h-[44px] text-[12px] lg:text-[18px] bg-[#0C5273] text-white font-semibold rounded-l hover:bg-[#003349] transition"
             onClick={handleDecrement}
             disabled={isLoading}
           >
@@ -165,27 +167,21 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
             type="text"
             readOnly
             value={isLoading ? '...' : quantityInCart}
-            className="w-[40px] md:w-[60px] lg:w-[80px] h-[30px] lg:h-[44px] text-[14px] lg:text-[18px] md:text-[16px] text-center border-y-2 border-[#0C5273] text-white bg-[#0C5273] rounded-none"
+            className="w-[36px] sm:w-[50px] lg:w-[80px] h-[28px] sm:h-[34px] lg:h-[44px] text-[12px] lg:text-[18px] text-center border-y-2 border-[#0C5273] text-white bg-[#0C5273] rounded-none"
           />
           <button
-            className=" cursor-pointer w-[30px] lg:w-[40px] pl-1 lg:pl-2 h-[30px] lg:h-[44px] text-[12px] lg:text-[18px] md:text-[16px] border-2 border-[#0C5273] text-white bg-[#0C5273] font-semibold rounded-r lg:hover:bg-[#003349] transition"
-            onClick={(e) => {
-              triggerSpark(e, "#ffffff");
-              handleIncrement();
-            }}
+            className="cursor-pointer w-[26px] sm:w-[34px] lg:w-[40px] h-[28px] sm:h-[34px] lg:h-[44px] text-[12px] lg:text-[18px] border-2 border-[#0C5273] text-white bg-[#0C5273] font-semibold rounded-r hover:bg-[#003349] transition"
+            onClick={(e) => { triggerSpark(e, "#ffffff"); handleIncrement(); }}
             disabled={isLoading}
           >
             +
           </button>
         </div>
       ) : (
-        <div className="flex justify-center">
+        <div className="flex justify-center mt-auto">
           <button
-            className="cursor-pointer w-[120px] lg:w-[200px] md:w-[140px] h-[30px] lg:h-[44px] bg-[#0C5273] text-white font-semibold text-[12px] lg:text-[16px] rounded-l rounded-r lg:hover:bg-[#003349] transition disabled:opacity-50 disabled:cursor-not-allowed"
-            onClick={(e) => {
-              triggerSpark(e, "#ffffff");
-              handleAddToCart();
-            }}
+            className="cursor-pointer w-full h-[28px] sm:h-[34px] lg:h-[44px] bg-[#0C5273] text-white font-semibold text-[10px] sm:text-[12px] lg:text-[16px] rounded-lg hover:bg-[#003349] transition disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={(e) => { triggerSpark(e, "#ffffff"); handleAddToCart(); }}
             disabled={isLoading}
           >
             {isLoading ? 'Adding...' : 'Add to Cart'}

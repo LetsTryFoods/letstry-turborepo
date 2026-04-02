@@ -39,6 +39,9 @@ export function Footer() {
               <Link href="/address" className="text-gray-300 hover:text-white transition-colors">
                 Address
               </Link>
+              <Link href="/contact-us" className="text-gray-300 hover:text-white transition-colors">
+                Contact Us
+              </Link>
               <Link href="/refund-cancellations" className="text-gray-300 hover:text-white transition-colors">
                 Refund & Cancellations
               </Link>
@@ -74,7 +77,7 @@ export function Footer() {
         </div>
 
         <div className="border-t border-gray-600 pt-8 pb-6">
-          <div className="mb-6">
+          {/* <div className="mb-6">
             <h3 className="text-white font-semibold text-base mb-4">Subscribe to our emails</h3>
             <form onSubmit={handleSubscribe} className="flex gap-3 max-w-md">
               <Input
@@ -92,13 +95,13 @@ export function Footer() {
                 SUBSCRIBE
               </Button>
             </form>
-          </div>
+          </div> */}
 
           <div>
             <h3 className="text-white font-semibold text-base mb-3">Follow us</h3>
             <div className="flex gap-3">
               <Link
-                href="https://facebook.com"
+                href="https://www.facebook.com/p/Lets-Try-100067844378739/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 bg-[#1877F2] rounded flex items-center justify-center hover:opacity-80 transition-opacity"
@@ -109,7 +112,7 @@ export function Footer() {
                 </svg>
               </Link>
               <Link
-                href="https://instagram.com"
+                href="https://www.instagram.com/letstry_foods/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 bg-gradient-to-br from-[#833AB4] via-[#FD1D1D] to-[#F77737] rounded flex items-center justify-center hover:opacity-80 transition-opacity"

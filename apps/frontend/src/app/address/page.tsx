@@ -28,7 +28,7 @@ const manufacturingUnits = [
         companyName: "Earth Crust Private Limited",
         address:
             "118H, PHASE-V, SECTOR-56, HSIIDC, KUNDLI, DISTT. SONIPAT, HARYANA-131028",
-        fssaiLicense: "XXXXXXXXXXXXXXX",
+        fssaiLicense: "10824999000091",
     },
     {
         batchCode: "R",
