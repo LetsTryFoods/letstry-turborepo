@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: "frontend",
-      cwd: "/var/www/letstry-turborepo/apps/frontend",
+      cwd: "/home/ubuntu/letstry-turborepo/apps/frontend",
       script: "./.next/standalone/apps/frontend/server.js",
       env: {
         NODE_ENV: "production",
@@ -11,7 +11,7 @@ module.exports = {
     },
     {
       name: "admin",
-      cwd: "/var/www/letstry-turborepo/apps/admin",
+      cwd: "/home/ubuntu/letstry-turborepo/apps/admin",
       script: "./.next/standalone/apps/admin/server.js",
       env: {
         NODE_ENV: "production",
