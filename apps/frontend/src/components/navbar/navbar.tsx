@@ -72,7 +72,7 @@ export const Navbar = ({ initialAuth, categories = [] }: NavbarProps) => {
       },
 
       { href: '/track', label: 'Track Order', disableActive: true },
-      // { href: "/blog", label: "Blog" },
+      // { href: "/landing", label: "Landing" },
       { href: "/about-us", label: "About us" },
       // { href: "/contact-us", label: "Contact Us" },
       

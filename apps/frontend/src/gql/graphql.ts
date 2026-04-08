@@ -367,6 +367,30 @@ export type CleanupResult = {
   removed: Scalars['Int']['output'];
 };
 
+export type Contact = {
+  __typename?: 'Contact';
+  _id: Scalars['ID']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  message: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  phone: Scalars['String']['output'];
+  status: ContactStatus;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+/** The status of the contact complaint */
+export enum ContactStatus {
+  Pending = 'PENDING',
+  Resolved = 'RESOLVED',
+  Reviewed = 'REVIEWED'
+}
+
+export type ContactSubmissionResponse = {
+  __typename?: 'ContactSubmissionResponse';
+  message: Scalars['String']['output'];
+  success: Scalars['Boolean']['output'];
+};
+
 export type CorporateEnquiry = {
   __typename?: 'CorporateEnquiry';
   _id: Scalars['ID']['output'];
@@ -521,6 +545,17 @@ export type CreateCouponInput = {
 export type CreateGuestInput = {
   deviceInfo?: InputMaybe<Scalars['JSON']['input']>;
   ipAddress?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CreateLandingPageInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  position?: InputMaybe<Scalars['Int']['input']>;
+  sections?: InputMaybe<Array<LandingPageSectionInput>>;
+  seo?: InputMaybe<LandingPageSeoInput>;
+  slug: Scalars['String']['input'];
+  thumbnailUrl?: InputMaybe<Scalars['String']['input']>;
+  title: Scalars['String']['input'];
 };
 
 export type CreatePackerInput = {
@@ -889,6 +924,62 @@ export type ItemDimensions = {
   width: Scalars['Float']['output'];
 };
 
+export type LandingPage = {
+  __typename?: 'LandingPage';
+  _id: Scalars['ID']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  isActive: Scalars['Boolean']['output'];
+  position?: Maybe<Scalars['Int']['output']>;
+  sections: Array<LandingPageSection>;
+  seo?: Maybe<SeoBase>;
+  slug: Scalars['String']['output'];
+  thumbnailUrl?: Maybe<Scalars['String']['output']>;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type LandingPageSection = {
+  __typename?: 'LandingPageSection';
+  backgroundColor?: Maybe<Scalars['String']['output']>;
+  buttonLink?: Maybe<Scalars['String']['output']>;
+  buttonText?: Maybe<Scalars['String']['output']>;
+  description?: Maybe<Scalars['String']['output']>;
+  imageUrl?: Maybe<Scalars['String']['output']>;
+  isActive: Scalars['Boolean']['output'];
+  platformLinks: Array<SectionPlatformLink>;
+  position: Scalars['Int']['output'];
+  productSlugs: Array<Scalars['String']['output']>;
+  subtitle?: Maybe<Scalars['String']['output']>;
+  title: Scalars['String']['output'];
+  type: Scalars['String']['output'];
+};
+
+export type LandingPageSectionInput = {
+  backgroundColor?: InputMaybe<Scalars['String']['input']>;
+  buttonLink?: InputMaybe<Scalars['String']['input']>;
+  buttonText?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  imageUrl?: InputMaybe<Scalars['String']['input']>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  platformLinks?: InputMaybe<Array<SectionPlatformLinkInput>>;
+  position?: InputMaybe<Scalars['Int']['input']>;
+  productSlugs?: InputMaybe<Array<Scalars['String']['input']>>;
+  subtitle?: InputMaybe<Scalars['String']['input']>;
+  title: Scalars['String']['input'];
+  type: Scalars['String']['input'];
+};
+
+export type LandingPageSeoInput = {
+  canonicalUrl?: InputMaybe<Scalars['String']['input']>;
+  metaDescription?: InputMaybe<Scalars['String']['input']>;
+  metaKeywords?: InputMaybe<Array<Scalars['String']['input']>>;
+  metaTitle?: InputMaybe<Scalars['String']['input']>;
+  ogDescription?: InputMaybe<Scalars['String']['input']>;
+  ogImage?: InputMaybe<Scalars['String']['input']>;
+  ogTitle?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   addProductVariant: Product;
@@ -915,6 +1006,7 @@ export type Mutation = {
   createCategory: Category;
   createCoupon: Coupon;
   createGuest: Guest;
+  createLandingPage: LandingPage;
   createOrUpdateCharges: Charges;
   createPacker: CreatePackerResponse;
   createPolicy: Policy;
@@ -927,7 +1019,9 @@ export type Mutation = {
   deleteBlogCategory: BlogCategory;
   deleteBoxSize: Scalars['Boolean']['output'];
   deleteCategorySeo: Scalars['Boolean']['output'];
+  deleteContactMessage: Scalars['Boolean']['output'];
   deleteCoupon: Coupon;
+  deleteLandingPage: LandingPage;
   deletePacker: Scalars['Boolean']['output'];
   deletePolicy: Policy;
   deletePolicySeo: Scalars['Boolean']['output'];
@@ -947,6 +1041,7 @@ export type Mutation = {
   setDefaultProductVariant: Product;
   setShippingAddress: Cart;
   startPacking: PackingOrder;
+  submitContactMessage: ContactSubmissionResponse;
   submitCorporateEnquiry: CorporateEnquiryResponse;
   subscribeNewsletter: SubscribeNewsletterResponse;
   unarchiveCategory: Category;
@@ -960,7 +1055,9 @@ export type Mutation = {
   updateCartItem: Cart;
   updateCategory: Category;
   updateCategorySeo: CategorySeo;
+  updateContactStatus: Contact;
   updateGuest: Guest;
+  updateLandingPage: LandingPage;
   updateOrderStatus: OrderType;
   updatePacker: Packer;
   updatePolicy: Policy;
@@ -1086,6 +1183,11 @@ export type MutationCreateGuestArgs = {
 };
 
 
+export type MutationCreateLandingPageArgs = {
+  input: CreateLandingPageInput;
+};
+
+
 export type MutationCreateOrUpdateChargesArgs = {
   input: CreateChargesInput;
 };
@@ -1146,7 +1248,17 @@ export type MutationDeleteCategorySeoArgs = {
 };
 
 
+export type MutationDeleteContactMessageArgs = {
+  id: Scalars['String']['input'];
+};
+
+
 export type MutationDeleteCouponArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteLandingPageArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -1238,6 +1350,11 @@ export type MutationStartPackingArgs = {
 };
 
 
+export type MutationSubmitContactMessageArgs = {
+  input: SubmitContactInput;
+};
+
+
 export type MutationSubmitCorporateEnquiryArgs = {
   input: SubmitCorporateEnquiryInput;
 };
@@ -1310,9 +1427,21 @@ export type MutationUpdateCategorySeoArgs = {
 };
 
 
+export type MutationUpdateContactStatusArgs = {
+  id: Scalars['String']['input'];
+  status: Scalars['String']['input'];
+};
+
+
 export type MutationUpdateGuestArgs = {
   id: Scalars['ID']['input'];
   input: UpdateGuestInput;
+};
+
+
+export type MutationUpdateLandingPageArgs = {
+  id: Scalars['ID']['input'];
+  input: UpdateLandingPageInput;
 };
 
 
@@ -1636,6 +1765,12 @@ export type PaginatedCategories = {
   meta: PaginationMeta;
 };
 
+export type PaginatedContactsResponse = {
+  __typename?: 'PaginatedContactsResponse';
+  data: Array<Contact>;
+  total: Scalars['Int']['output'];
+};
+
 export type PaginatedCustomersResponse = {
   __typename?: 'PaginatedCustomersResponse';
   customers: Array<EnrichedCustomer>;
@@ -1845,13 +1980,6 @@ export type PaymentsSummaryType = {
   totalAmount: Scalars['String']['output'];
   totalPayments: Scalars['Int']['output'];
   totalRefunded: Scalars['String']['output'];
-};
-
-export type PhoneCheckOutput = {
-  __typename?: 'PhoneCheckOutput';
-  exists: Scalars['Boolean']['output'];
-  message?: Maybe<Scalars['String']['output']>;
-  requiresLogin: Scalars['Boolean']['output'];
 };
 
 export type PieceDetailInput = {
@@ -2072,6 +2200,7 @@ export type Query = {
   activeBlogCategories: Array<BlogCategory>;
   activeBlogs: Array<Blog>;
   activeCoupons: Array<Coupon>;
+  activeLandingPages: Array<LandingPage>;
   address: Address;
   allActiveRedirects: Array<RedirectType>;
   banner?: Maybe<Banner>;
@@ -2086,7 +2215,6 @@ export type Query = {
   categoryBySlug?: Maybe<Category>;
   categoryChildren: PaginatedCategories;
   charges?: Maybe<Charges>;
-  checkPhoneExists: PhoneCheckOutput;
   coupon: Coupon;
   coupons: Array<Coupon>;
   dashboardStats: DashboardStats;
@@ -2105,6 +2233,7 @@ export type Query = {
   getAllPackingOrders: Array<PackingOrder>;
   getAssignedOrder: PackingOrder;
   getBoxRecommendation: BoxSize;
+  getContactMessages: PaginatedContactsResponse;
   getCustomerDetails: CustomerDetails;
   getEvidenceByOrder: PackingEvidence;
   getMyAssignedOrders: Array<PackingOrder>;
@@ -2120,9 +2249,13 @@ export type Query = {
   getShipmentById?: Maybe<ShipmentResponse>;
   getShipmentLabel?: Maybe<Scalars['String']['output']>;
   getShipmentWithTracking: ShipmentWithTrackingResponse;
+  getTrackingAnalytics: TrackingAnalyticsResponse;
   guest?: Maybe<Guest>;
   guestByGuestId?: Maybe<Guest>;
   hello: Scalars['String']['output'];
+  landingPage?: Maybe<LandingPage>;
+  landingPageBySlug?: Maybe<LandingPage>;
+  landingPages: Array<LandingPage>;
   listShipments: ShipmentListResponse;
   me?: Maybe<User>;
   myAddresses: Array<Address>;
@@ -2136,6 +2269,7 @@ export type Query = {
   productVariant?: Maybe<ProductVariant>;
   products: PaginatedProducts;
   productsByCategory: PaginatedProducts;
+  productsBySlugList: Array<Product>;
   redirect: RedirectType;
   redirectByPath?: Maybe<RedirectType>;
   redirects: PaginatedRedirects;
@@ -2197,11 +2331,6 @@ export type QueryCategoryChildrenArgs = {
 };
 
 
-export type QueryCheckPhoneExistsArgs = {
-  phoneNumber: Scalars['String']['input'];
-};
-
-
 export type QueryCouponArgs = {
   code: Scalars['String']['input'];
 };
@@ -2260,6 +2389,12 @@ export type QueryGetAllPackingOrdersArgs = {
 
 export type QueryGetBoxRecommendationArgs = {
   packingOrderId: Scalars['String']['input'];
+};
+
+
+export type QueryGetContactMessagesArgs = {
+  limit?: Scalars['Int']['input'];
+  skip?: Scalars['Int']['input'];
 };
 
 
@@ -2335,6 +2470,13 @@ export type QueryGetShipmentWithTrackingArgs = {
 };
 
 
+export type QueryGetTrackingAnalyticsArgs = {
+  endDate?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  startDate?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type QueryGuestArgs = {
   id: Scalars['ID']['input'];
 };
@@ -2342,6 +2484,16 @@ export type QueryGuestArgs = {
 
 export type QueryGuestByGuestIdArgs = {
   guestId: Scalars['String']['input'];
+};
+
+
+export type QueryLandingPageArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryLandingPageBySlugArgs = {
+  slug: Scalars['String']['input'];
 };
 
 
@@ -2389,6 +2541,11 @@ export type QueryProductsByCategoryArgs = {
 };
 
 
+export type QueryProductsBySlugListArgs = {
+  slugs: Array<Scalars['String']['input']>;
+};
+
+
 export type QueryRedirectArgs = {
   id: Scalars['String']['input'];
 };
@@ -2433,6 +2590,17 @@ export type QuerySearchProductsArgs = {
   nameOnly?: Scalars['Boolean']['input'];
   pagination?: PaginationInput;
   searchTerm: Scalars['String']['input'];
+};
+
+export type RecentSearch = {
+  __typename?: 'RecentSearch';
+  createdAt: Scalars['String']['output'];
+  foundResult: Scalars['Boolean']['output'];
+  id: Scalars['String']['output'];
+  ipAddress: Scalars['String']['output'];
+  searchQuery: Scalars['String']['output'];
+  searchType: Scalars['String']['output'];
+  userAgent: Scalars['String']['output'];
 };
 
 export type RedirectType = {
@@ -2495,6 +2663,23 @@ export type ScanLog = {
 export type SearchPlacesInput = {
   query: Scalars['String']['input'];
   sessionToken?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type SearchTypeBreakdown = {
+  __typename?: 'SearchTypeBreakdown';
+  _id: Scalars['String']['output'];
+  count: Scalars['Int']['output'];
+};
+
+export type SectionPlatformLink = {
+  __typename?: 'SectionPlatformLink';
+  platform: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+};
+
+export type SectionPlatformLinkInput = {
+  platform: Scalars['String']['input'];
+  url: Scalars['String']['input'];
 };
 
 export type SeoBase = {
@@ -2642,6 +2827,12 @@ export type StatusStats = {
   verified: Scalars['Int']['output'];
 };
 
+export type SubmitContactInput = {
+  message: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  phone: Scalars['String']['input'];
+};
+
 export type SubmitCorporateEnquiryInput = {
   companyName?: InputMaybe<Scalars['String']['input']>;
   email: Scalars['String']['input'];
@@ -2661,6 +2852,15 @@ export type SubscribeNewsletterResponse = {
   email?: Maybe<Scalars['String']['output']>;
   message: Scalars['String']['output'];
   success: Scalars['Boolean']['output'];
+};
+
+export type TrackingAnalyticsResponse = {
+  __typename?: 'TrackingAnalyticsResponse';
+  recentSearches: Array<RecentSearch>;
+  searchTypeBreakdown: Array<SearchTypeBreakdown>;
+  successRate: Scalars['Float']['output'];
+  successfulSearches: Scalars['Int']['output'];
+  totalSearches: Scalars['Int']['output'];
 };
 
 export type TrackingHistoryResponse = {
@@ -2770,6 +2970,17 @@ export type UpdateCategoryInput = {
 export type UpdateGuestInput = {
   deviceInfo?: InputMaybe<Scalars['JSON']['input']>;
   ipAddress?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateLandingPageInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  position?: InputMaybe<Scalars['Int']['input']>;
+  sections?: InputMaybe<Array<LandingPageSectionInput>>;
+  seo?: InputMaybe<LandingPageSeoInput>;
+  slug?: InputMaybe<Scalars['String']['input']>;
+  thumbnailUrl?: InputMaybe<Scalars['String']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateOrderStatusInput = {

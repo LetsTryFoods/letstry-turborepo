@@ -24,6 +24,7 @@ type LandingProduct = {
 type LandingProductsProps = {
     heading: string;
     products: LandingProduct[];
+    sectionId?: string;
 };
 
 const platformIcons: Record<string, string> = {
@@ -37,9 +38,10 @@ const platformIcons: Record<string, string> = {
 export const LandingProducts = ({
     heading,
     products,
+    sectionId = 'products',
 }: LandingProductsProps) => {
     return (
-        <section id="products" className="py-12 md:py-16 lg:py-20 bg-gray-50">
+        <section id={sectionId} className="py-12 md:py-16 lg:py-20 bg-gray-50">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <motion.h2
                     initial={{ opacity: 0, y: 20 }}
