@@ -37,7 +37,7 @@ export function ImageUpload({ onImagesChange, initialImages = [], maxFiles = 10,
       restrictions: {
         maxNumberOfFiles: maxFiles,
         allowedFileTypes: allowedFileTypes,
-        maxFileSize: 5 * 1024 * 1024,
+        maxFileSize: 50 * 1024 * 1024,
       },
       autoProceed: false,
     })
