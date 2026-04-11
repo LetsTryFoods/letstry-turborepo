@@ -9,7 +9,7 @@ export class ProductQueryService {
   private readonly executor: QueryExecutor;
 
   constructor(
-    repository: ProductRepository,
+    private readonly repository: ProductRepository,
     private readonly cacheStrategyFactory: ProductCacheStrategyFactory,
   ) {
     this.executor = new QueryExecutor(repository, cacheStrategyFactory);
@@ -147,5 +147,9 @@ export class ProductQueryService {
     const filter = ProductQueryBuilder.forCategory(categoryId, includeArchived);
     const strategy = this.cacheStrategyFactory.createNoCache<number>();
     return this.executor.executeCount(filter, strategy);
+  }
+
+  async findBySlugs(slugs: string[]): Promise<Product[]> {
+    return this.repository.findBySlugs(slugs);
   }
 }

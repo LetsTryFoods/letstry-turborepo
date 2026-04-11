@@ -1271,6 +1271,40 @@ type PaginatedContactsResponse {
   total: Int!
 }
 
+type SectionPlatformLink {
+  platform: String!
+  url: String!
+}
+
+type LandingPageSection {
+  type: String!
+  title: String!
+  subtitle: String
+  description: String
+  imageUrl: String
+  buttonText: String
+  buttonLink: String
+  productSlugs: [String!]!
+  platformLinks: [SectionPlatformLink!]!
+  backgroundColor: String
+  position: Int!
+  isActive: Boolean!
+}
+
+type LandingPage {
+  _id: ID!
+  slug: String!
+  title: String!
+  description: String
+  thumbnailUrl: String
+  sections: [LandingPageSection!]!
+  seo: SeoBase
+  isActive: Boolean!
+  position: Int
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
 input BoxDimensionsInput {
   l: Float!
   w: Float!
@@ -1282,6 +1316,7 @@ type Query {
   products(pagination: PaginationInput! = {page: 1, limit: 10}, includeOutOfStock: Boolean! = false, includeArchived: Boolean! = false): PaginatedProducts!
   product(id: ID!): Product
   productBySlug(slug: String!): Product
+  productsBySlugList(slugs: [String!]!): [Product!]!
   productsByCategory(categoryId: ID!, pagination: PaginationInput! = {page: 1, limit: 10}): PaginatedProducts!
   searchProducts(searchTerm: String!, pagination: PaginationInput! = {page: 1, limit: 10}, nameOnly: Boolean! = false): PaginatedProducts!
   productVariant(productId: ID!, variantId: ID!): ProductVariant
@@ -1355,6 +1390,10 @@ type Query {
   blogCategory(id: ID!): BlogCategory
   getAllCorporateEnquiries: [CorporateEnquiry!]!
   getContactMessages(skip: Int! = 0, limit: Int! = 50): PaginatedContactsResponse!
+  landingPages: [LandingPage!]!
+  activeLandingPages: [LandingPage!]!
+  landingPage(id: ID!): LandingPage
+  landingPageBySlug(slug: String!): LandingPage
 }
 
 input PaginationInput {
@@ -1555,6 +1594,9 @@ type Mutation {
   verifyWhatsAppOtp(phoneNumber: String!, otp: String!, input: CreateUserInput): String!
   verifyOtpAndLogin(idToken: String!, input: CreateUserInput): String!
   logout: String!
+  createLandingPage(input: CreateLandingPageInput!): LandingPage!
+  updateLandingPage(id: ID!, input: UpdateLandingPageInput!): LandingPage!
+  deleteLandingPage(id: ID!): LandingPage!
 }
 
 input CreateProductInput {
@@ -2132,4 +2174,56 @@ input CreateUserInput {
   marketingSmsOptIn: Boolean
   signupSource: JSON
   lastIp: String
+}
+
+input CreateLandingPageInput {
+  slug: String!
+  title: String!
+  description: String
+  thumbnailUrl: String
+  sections: [LandingPageSectionInput!]
+  seo: LandingPageSeoInput
+  isActive: Boolean
+  position: Int
+}
+
+input LandingPageSectionInput {
+  type: String!
+  title: String!
+  subtitle: String
+  description: String
+  imageUrl: String
+  buttonText: String
+  buttonLink: String
+  productSlugs: [String!]
+  platformLinks: [SectionPlatformLinkInput!]
+  backgroundColor: String
+  position: Int
+  isActive: Boolean
+}
+
+input SectionPlatformLinkInput {
+  platform: String!
+  url: String!
+}
+
+input LandingPageSeoInput {
+  metaTitle: String
+  metaDescription: String
+  metaKeywords: [String!]
+  canonicalUrl: String
+  ogTitle: String
+  ogDescription: String
+  ogImage: String
+}
+
+input UpdateLandingPageInput {
+  slug: String
+  title: String
+  description: String
+  thumbnailUrl: String
+  sections: [LandingPageSectionInput!]
+  seo: LandingPageSeoInput
+  isActive: Boolean
+  position: Int
 }
