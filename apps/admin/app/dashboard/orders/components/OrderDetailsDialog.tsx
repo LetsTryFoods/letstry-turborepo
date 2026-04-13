@@ -64,7 +64,7 @@ export function OrderDetailsDialog({ order: initialOrder, open, onOpenChange }: 
   if (!initialOrder) return null
 
   const handleDownloadLabel = async () => {
-    if (!order.shipment?.dtdcAwbNumber) {
+    if (!order || !order.shipment?.dtdcAwbNumber) {
       toast.error('Label not available. Please ensure shipment is created.')
       return
     }
@@ -85,7 +85,7 @@ export function OrderDetailsDialog({ order: initialOrder, open, onOpenChange }: 
   }
 
   const handleDownloadAll = async () => {
-    if (!order.shipment?.dtdcAwbNumber) {
+    if (!order || !order.shipment?.dtdcAwbNumber) {
       toast.error('Label not available. Please ensure shipment is created.')
       return
     }
