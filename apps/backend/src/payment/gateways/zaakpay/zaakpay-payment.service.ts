@@ -82,7 +82,7 @@ export class ZaakpayPaymentService {
             orderId: params.orderId,
             productDescription: params.productDescription,
             returnUrl: params.returnUrl,
-            txnType: '14',
+            txnType: '1', // '1' = All enabled payment methods
         };
 
         // Zaakpay docs: "The empty parameters are not to be used in the checksum calculation"
@@ -97,7 +97,7 @@ export class ZaakpayPaymentService {
         // Empty params must already be filtered out in buildQueryParams
         const sortedKeys = Object.keys(queryParams).sort();
         const checksumString = sortedKeys
-            .map((key) => ⁠ ${ key } = ${ queryParams[key]} & ⁠)
+            .map((key) => `${key}=${queryParams[key]}&`)
             .join('');
         return this.checksumService.generateChecksum(checksumString);
     }
@@ -105,7 +105,7 @@ export class ZaakpayPaymentService {
     private getExpressCheckoutUrl(): string {
         return (
             this.configService.get<string>('zaakpay.expressCheckoutUrl') ||
-            ⁠ ${ this.baseUrl } /api/paymentTransact / V8 ⁠
+            `${this.baseUrl}/api/paymentTransact/V8`
         );
     }
 
@@ -153,10 +153,10 @@ export class ZaakpayPaymentService {
                 });
 
                 const queryString = params.toString();
-                return ⁠ ${ url }?${ queryString } ⁠;
+                return `${url}?${queryString}`;
             }
 
-            throw new Error(⁠ Unexpected status code: ${ response.status } ⁠);
+            throw new Error(`Unexpected status code: ${response.status}`);
         } catch (error: any) {
             if (error.response && (error.response.status === 302 || error.response.status === 301)) {
                 return this.extractRedirectUrl(error.response.headers.location);
@@ -168,7 +168,7 @@ export class ZaakpayPaymentService {
     private extractRedirectUrl(redirectPath: string): string {
         const url = redirectPath.startsWith('http')
             ? redirectPath
-            : ⁠ ${ this.baseUrl }${ redirectPath } ⁠;
+            : `${this.baseUrl}${redirectPath}`;
         return url.replace(/^http:\/\//i, 'https://');
     }
 
