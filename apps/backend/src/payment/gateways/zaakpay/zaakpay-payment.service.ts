@@ -50,6 +50,8 @@ export class ZaakpayPaymentService {
         orderId: string;
         amount: string;
         buyerEmail: string;
+        buyerName: string;
+        buyerPhone: string;
         productDescription: string;
         returnUrl: string;
     }) {
@@ -58,6 +60,8 @@ export class ZaakpayPaymentService {
         return {
             amount: amountInPaisa,
             buyerEmail: params.buyerEmail,
+            buyerName: params.buyerName,
+            buyerPhone: params.buyerPhone,
             currency: 'INR',
             merchantIdentifier: this.merchantId,
             orderId: params.orderId,

@@ -15,6 +15,7 @@ import {
   ProcessRefundInput,
 } from '../../dto/payment.input';
 import { CartService } from '../../../cart/cart.service';
+import { Address, AddressDocument } from '../../../address/address.schema';
 
 @Injectable()
 export class PaymentService {
@@ -90,15 +91,28 @@ export class PaymentService {
         idempotencyKey,
       });
 
+      let buyerName = 'Customer';
+      let buyerPhone = '9999999999';
+      let buyerEmail = `identity_${identityId}@temp.com`;
+
+      if (cart.shippingAddressId) {
+        const AddressModel = this.paymentEventModel.db.model('Address');
+        const address = await AddressModel.findById(cart.shippingAddressId).lean().exec();
+        if (address) {
+          buyerName = (address as any).recipientName || buyerName;
+          buyerPhone = (address as any).recipientPhone || buyerPhone;
+        }
+      }
+
       const paymentData =
         await this.paymentExecutorService.executePaymentOrder({
           paymentOrderId: paymentOrder.paymentOrderId,
           identityId,
           amount,
           currency,
-          buyerEmail: `identity_${identityId}@temp.com`,
-          buyerName: 'Customer',
-          buyerPhone: '9999999999',
+          buyerEmail,
+          buyerName,
+          buyerPhone,
           productDescription: 'Order Payment',
           returnUrl: this.getReturnUrl(),
         });
