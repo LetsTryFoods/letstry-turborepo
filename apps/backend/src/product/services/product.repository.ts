@@ -82,4 +82,8 @@ export class ProductRepository {
   async findById(id: string): Promise<Product | null> {
     return this.productModel.findById(id).exec();
   }
+
+  async findBySlugs(slugs: string[]): Promise<Product[]> {
+    return this.productModel.find({ slug: { $in: slugs } }).exec();
+  }
 }

@@ -145,4 +145,12 @@ export class CacheKeyFactory {
   getBlogCategoryListKey(version: number, type: string = 'all'): string {
     return `blog-category:list:v${version}:type:${type}`;
   }
+
+  getLandingPageListVersionKey(): string {
+    return `landing-page:list:version`;
+  }
+
+  getLandingPageListKey(version: number, type: string = 'all'): string {
+    return `landing-page:list:v${version}:type:${type}`;
+  }
 }

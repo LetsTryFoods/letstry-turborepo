@@ -79,6 +79,14 @@ export class ProductResolver {
     }
   }
 
+  @Query(() => [Product], { name: 'productsBySlugList' })
+  @Public()
+  async getProductsBySlugList(
+    @Args('slugs', { type: () => [String] }) slugs: string[],
+  ): Promise<Product[]> {
+    return this.productService.findBySlugList(slugs);
+  }
+
   @Query(() => PaginatedProducts, { name: 'productsByCategory' })
   @Public()
   async getProductsByCategory(

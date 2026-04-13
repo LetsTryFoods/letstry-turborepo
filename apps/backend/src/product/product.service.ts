@@ -96,6 +96,10 @@ export class ProductService {
     return this.queryService.findBySlug(slug, includeArchived);
   }
 
+  findBySlugList(slugs: string[]): Promise<Product[]> {
+    return this.queryService.findBySlugs(slugs);
+  }
+
   findByCategoryId(
     categoryId: string,
     includeArchived = false,

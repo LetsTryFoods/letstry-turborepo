@@ -12,9 +12,10 @@ type FAQItem = {
 type LandingFAQProps = {
     heading: string;
     faqs: FAQItem[];
+    sectionId?: string;
 };
 
-export const LandingFAQ = ({ heading, faqs }: LandingFAQProps) => {
+export const LandingFAQ = ({ heading, faqs, sectionId = 'faq' }: LandingFAQProps) => {
     const [openIndex, setOpenIndex] = useState<number | null>(null);
 
     const toggle = (index: number) => {
@@ -22,7 +23,7 @@ export const LandingFAQ = ({ heading, faqs }: LandingFAQProps) => {
     };
 
     return (
-        <section id="faq" className="py-12 md:py-16 lg:py-20 bg-white">
+        <section id={sectionId} className="py-12 md:py-16 lg:py-20 bg-white">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
                 <motion.h2
                     initial={{ opacity: 0, y: 20 }}

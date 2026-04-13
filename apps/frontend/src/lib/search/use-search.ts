@@ -1,30 +1,30 @@
 'use client';
 
-import { useGraphQLQuery } from '@/lib/graphql/use-graphql-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { graphqlClient } from '@/lib/graphql/client-factory';
 import { SEARCH_PRODUCTS } from './search-query';
 import type { SearchProductsQuery, SearchProductsQueryVariables } from '@/gql/graphql';
 
-export function useSearchProducts(
-  searchTerm: string,
-  page: number = 1,
-  limit: number = 50,
-  nameOnly: boolean = false
-) {
+const LIMIT = 50;
+
+export function useSearchProducts(searchTerm: string, nameOnly: boolean = false) {
   const trimmedSearchTerm = searchTerm.trim();
 
-  const result = useGraphQLQuery<SearchProductsQuery, SearchProductsQueryVariables>(
-    ['searchProducts', page, limit, nameOnly],
-    SEARCH_PRODUCTS.toString(),
-    {
-      searchTerm: trimmedSearchTerm,
-      pagination: { page, limit },
-      nameOnly,
+  return useInfiniteQuery<SearchProductsQuery, Error>({
+    queryKey: ['searchProducts', trimmedSearchTerm, nameOnly],
+    queryFn: async ({ pageParam }) => {
+      const vars: SearchProductsQueryVariables = {
+        searchTerm: trimmedSearchTerm,
+        pagination: { page: pageParam as number, limit: LIMIT },
+        nameOnly,
+      };
+      return graphqlClient.request(SEARCH_PRODUCTS as any, vars);
     },
-    {
-      enabled: true,
-      staleTime: 0,
-    }
-  );
-
-  return result;
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      const meta = lastPage?.searchProducts?.meta;
+      return meta?.hasNextPage ? meta.page + 1 : undefined;
+    },
+    staleTime: 0,
+  });
 }

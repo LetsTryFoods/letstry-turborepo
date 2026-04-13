@@ -14,6 +14,7 @@ type ContentBlock = {
 type LandingContentProps = {
     title: string;
     blocks: ContentBlock[];
+    sectionId?: string;
 };
 
 const fadeInUp = {
@@ -21,9 +22,9 @@ const fadeInUp = {
     visible: { opacity: 1, y: 0 },
 };
 
-export const LandingContent = ({ title, blocks }: LandingContentProps) => {
+export const LandingContent = ({ title, blocks, sectionId = 'content' }: LandingContentProps) => {
     return (
-        <section id="content" className="py-12 md:py-16 lg:py-20 bg-white">
+        <section id={sectionId} className="py-12 md:py-16 lg:py-20 bg-white">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
                 <motion.h1
                     variants={fadeInUp}

@@ -35,6 +35,7 @@ import { BlogCategoryModule } from './blog-category/blog-category.module';
 import { CorporateEnquiryModule } from './corporate-enquiry/corporate-enquiry.module';
 import { ContactModule } from './contact/contact.module';
 import { DataExportModule } from './data-export/data-export.module';
+import { LandingPageModule } from './landing-page/landing-page.module';
 
 @Module({
   imports: [
@@ -78,6 +79,7 @@ import { DataExportModule } from './data-export/data-export.module';
     ContactModule,
     AuthenticationModule,
     DataExportModule,
+    LandingPageModule,
     AppCacheModule,
   ],
   controllers: [AppController],

@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useCallback, useState, useEffect } from 'react';
+import { Suspense, useCallback, useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ChevronLeft, Search } from 'lucide-react';
 import { useSearchProducts } from '@/lib/search/use-search';
@@ -55,13 +55,18 @@ function SearchContent() {
   const [searchInput, setSearchInput] = useState(initialSearchTerm);
   const [isScrolled, setIsScrolled] = useState(false);
   const debouncedSearchTerm = useDebounce(searchInput, 500);
-  const { data, isLoading } = useSearchProducts(debouncedSearchTerm);
+  const loaderRef = useRef<HTMLDivElement>(null);
+
+  const {
+    data,
+    isLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+  } = useSearchProducts(debouncedSearchTerm);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-
+    const handleScroll = () => setIsScrolled(window.scrollY > 10);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -73,26 +78,38 @@ function SearchContent() {
     }
   }, [searchParams]);
 
-  const handlePopularSearch = useCallback((term: string) => {
-    setSearchInput(term);
-  }, []);
-
   useEffect(() => {
-    if (debouncedSearchTerm === searchParams.get('q')) {
-      return;
-    }
+    if (debouncedSearchTerm === searchParams.get('q')) return;
     const currentParams = new URLSearchParams(window.location.search);
     if (debouncedSearchTerm) {
       currentParams.set('q', debouncedSearchTerm);
     } else {
       currentParams.delete('q');
     }
-    const newUrl = `${window.location.pathname}?${currentParams.toString()}`;
-    router.replace(newUrl, { scroll: false });
+    router.replace(`${window.location.pathname}?${currentParams.toString()}`, { scroll: false });
   }, [debouncedSearchTerm, router]);
 
-  const products = data?.searchProducts?.items?.map(mapProductData) || [];
-  const meta = data?.searchProducts?.meta;
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    if (loaderRef.current) observer.observe(loaderRef.current);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  const handlePopularSearch = useCallback((term: string) => {
+    setSearchInput(term);
+  }, []);
+
+  const products = data?.pages.flatMap(
+    (page) => page?.searchProducts?.items?.map(mapProductData) ?? []
+  ) ?? [];
+  const meta = data?.pages[data.pages.length - 1]?.searchProducts?.meta;
   const hasSearched = debouncedSearchTerm.trim().length > 0;
 
   return (
@@ -168,6 +185,11 @@ function SearchContent() {
               {products.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
+            </div>
+            <div ref={loaderRef} className="py-6 flex justify-center">
+              {isFetchingNextPage && (
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500" />
+              )}
             </div>
           </div>
         )}

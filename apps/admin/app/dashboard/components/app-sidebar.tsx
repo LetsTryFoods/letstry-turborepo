@@ -11,7 +11,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { LogOut, Image, FolderTree, Tag, DollarSign, ShoppingBag, ShoppingCart, Users, Star, Bell, BarChart3, HelpCircle, MessageSquare, UserCheck, PackageCheck, CreditCard, Package2, ArrowRightLeft, Briefcase } from "lucide-react"
+import { LogOut, Image, FolderTree, Tag, DollarSign, ShoppingBag, ShoppingCart, Users, Star, Bell, BarChart3, HelpCircle, MessageSquare, UserCheck, PackageCheck, CreditCard, Package2, ArrowRightLeft, Briefcase, Layers } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Package, Settings, LayoutDashboard, Truck, RefreshCcw, FileText, Trash2, Search, } from "lucide-react"
 import { usePolicies, useDeletePolicy } from "@/lib/policies/usePolicies"
@@ -54,6 +54,11 @@ const items = [
     title: "Blogs",
     url: "/dashboard/blogs",
     icon: FileText,
+  },
+  {
+    title: "Landing Pages",
+    url: "/dashboard/landing-pages",
+    icon: Layers,
   },
   // {
   //   title: "Address",

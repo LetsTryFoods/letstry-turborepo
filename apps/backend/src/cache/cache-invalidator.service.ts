@@ -103,4 +103,10 @@ export class CacheInvalidatorService {
       this.cacheKeyFactory.getBlogCategoryListVersionKey(),
     );
   }
+
+  async invalidateLandingPage() {
+    await this.cacheService.bumpVersion(
+      this.cacheKeyFactory.getLandingPageListVersionKey(),
+    );
+  }
 }
