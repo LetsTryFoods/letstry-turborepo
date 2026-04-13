@@ -82,7 +82,7 @@ export class ZaakpayPaymentService {
             orderId: params.orderId,
             productDescription: params.productDescription,
             returnUrl: params.returnUrl,
-            // txnType: '1',
+            txnType: '1',
             paymentOptionTypes: '1', // '1' = All enabled payment methods
         };
 
@@ -100,6 +100,7 @@ export class ZaakpayPaymentService {
         const checksumString = sortedKeys
             .map((key) => `${key}=${queryParams[key]}&`)
             .join('');
+        this.paymentLogger.log('Checksum string generated', { checksumString });
         return this.checksumService.generateChecksum(checksumString);
     }
 
