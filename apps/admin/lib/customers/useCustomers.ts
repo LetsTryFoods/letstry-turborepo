@@ -112,6 +112,7 @@ const mapBackendCustomerToFrontend = (backendCustomer: any): Customer => {
     phone: backendCustomer.displayPhone || backendCustomer.phoneNumber || "",
     status: backendCustomer.status.toUpperCase() as CustomerStatus,
     totalOrders: backendCustomer.totalOrders || 0,
+    totalSpent: backendCustomer.totalSpent || 0,
     activeCartItemsCount: backendCustomer.activeCartItemsCount,
     isGuest: backendCustomer.isGuest || false,
     avatar: getCdnUrl(backendCustomer.avatar),
