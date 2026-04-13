@@ -2,12 +2,13 @@ import { useEffect, useRef } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GuestService } from '../services/guest.service';
+import AuthLogger from '../../../lib/utils/auth-logger';
 
 const UPDATE_INTERVAL = 60 * 1000; // 1 minute
 
 export const useGuestSession = () => {
   const appState = useRef(AppState.currentState);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const checkAndInitSession = async () => {
     try {
@@ -17,7 +18,7 @@ export const useGuestSession = () => {
         await GuestService.ensureGuestSession();
       }
     } catch (error) {
-      console.error('[useGuestSession] Error checking session:', error);
+      AuthLogger.error('useGuestSession: Error checking session:', error);
     }
   };
 

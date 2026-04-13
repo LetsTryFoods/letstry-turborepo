@@ -19,6 +19,7 @@ import { RFValue, wp } from '../../src/lib/utils/ui-utils';
 import { SEND_OTP, VERIFY_WHATSAPP_OTP, ME_QUERY } from '../../src/lib/graphql/auth';
 import { useAuthStore } from '../../src/store/auth-store';
 import { client as apolloClient } from '../../src/lib/apollo-client';
+import AuthLogger from '../../src/lib/utils/auth-logger';
 
 type AuthStep = 'phone' | 'otp';
 
@@ -53,13 +54,15 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      const formattedPhone = phone.startsWith('+91') ? phone : `+91${phone}`;
+      const formattedPhone = phone.replace(/^\+91/, '').replace(/^91/, '').slice(-10);
       await sendOtpMutation({ variables: { phoneNumber: formattedPhone } });
       setStep('otp');
       setTimer(30);
       // Focus OTP input after a short delay
       setTimeout(() => otpInputRef.current?.focus(), 500);
+      AuthLogger.info('OTP sent successfully to:', formattedPhone);
     } catch (error: any) {
+      AuthLogger.error('Failed to send OTP:', error);
       Alert.alert('Error', error.message || 'Failed to send OTP');
     } finally {
       setLoading(false);
@@ -71,60 +74,51 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      const formattedPhone = phone.startsWith('+91') ? phone : `+91${phone}`;
-      console.log('[VerifyOtp] Attempting verification for:', formattedPhone);
+      const formattedPhone = phone.replace(/^\+91/, '').replace(/^91/, '').slice(-10);
+      AuthLogger.step(1, 'Attempting verification for:', formattedPhone);
       
       const { data } = await verifyOtpMutation({
         variables: {
           phoneNumber: formattedPhone,
           otp: code,
-          // sessionId: sessionId // Removed as it might not be in the mutation definition
         }
       });
 
       if (data?.verifyWhatsAppOtp) {
         const token = data.verifyWhatsAppOtp;
-        console.log('[VerifyOtp] Success! Token received.');
-        console.log('[VerifyOtp] Exact Token Value:', token);
-        console.log('[VerifyOtp] Token Length:', token.length);
+        AuthLogger.step(2, 'Success! Token received.', { length: token.length });
         
         // Manual set in store immediately. 
-        // We set sessionId to null so the backend doesn't reject us for having a guest ID + user Token.
         useAuthStore.setState({ accessToken: token, isAuthenticated: true, sessionId: null });
-        
-        const storeState = useAuthStore.getState();
-        console.log('[VerifyOtp] Token Set in Store:', storeState.accessToken);
-        console.log('[VerifyOtp] IsAuthenticated:', storeState.isAuthenticated);
-        console.log('[VerifyOtp] SessionId in Store:', storeState.sessionId);
+        AuthLogger.step(3, 'Auth state updated in store (sessionId cleared)');
 
         // WAIT 100ms for Zustand + AsyncStorage internal state loops to fully settle
         await new Promise(resolve => setTimeout(resolve, 100));
 
-        console.log('[VerifyOtp] Fetching user profile...');
-        // Now fetch user details. authLink will now correctly read the exact token from state.
+        AuthLogger.step(4, 'Fetching user profile...');
         const { data: meData, error: meError } = await apolloClient.query({
           query: ME_QUERY,
           fetchPolicy: 'network-only'
         });
 
         if (meError) {
-          console.error('[VerifyOtp] Profile Fetch Error:', meError);
+          AuthLogger.error('Profile Fetch Error:', meError);
           throw new Error(`Profile sync failed: ${meError.message}`);
         }
 
         if (meData?.me) {
-          console.log('[VerifyOtp] Profile synced:', meData.me.firstName);
+          AuthLogger.step(5, 'Profile synced successfully:', meData.me.firstName);
           await setAuth(meData.me, token);
           router.replace('/(tabs)/profile');
         } else {
-          console.error('[VerifyOtp] Profile query returned no data');
+          AuthLogger.error('Profile query returned no data');
           throw new Error('User profile not found. Please contact support.');
         }
       } else {
         throw new Error('Invalid response from server. Please try again.');
       }
     } catch (error: any) {
-      console.error('[VerifyOtp] Critical failure:', error);
+      AuthLogger.error('Verification Critical Failure:', error);
       const errorMessage = error.graphQLErrors?.[0]?.message || error.message || 'Invalid OTP';
       Alert.alert('Verification Failed', errorMessage);
     } finally {

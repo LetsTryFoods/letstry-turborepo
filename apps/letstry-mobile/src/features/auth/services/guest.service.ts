@@ -2,6 +2,7 @@ import { Platform } from 'react-native';
 import { client as apolloClient } from '../../../lib/apollo-client';
 import { CREATE_GUEST, UPDATE_GUEST_MUTATION } from '../../../lib/graphql/guest';
 import { useAuthStore } from '../../../store/auth-store';
+import AuthLogger from '../../../lib/utils/auth-logger';
 
 const ACTIVITY_THRESHOLD = 5 * 60 * 1000; // 5 minutes
 
@@ -14,7 +15,7 @@ const getClientInfo = async () => {
       ipAddress = data.ip || 'mobile-app';
     }
   } catch (error) {
-    console.warn('[GuestService] Failed to fetch IP address:', error);
+    AuthLogger.warn('Failed to fetch IP address:', error);
   }
 
   return {
@@ -39,7 +40,7 @@ export const GuestService = {
       await GuestService.createGuestSession();
       setInitialized(true);
     } catch (error) {
-      console.error('[GuestService] Error in ensureGuestSession:', error);
+      AuthLogger.error('Error in ensureGuestSession:', error);
       setInitialized(true); // Don't block the app even if guest creation fails
     }
   },
@@ -62,10 +63,10 @@ export const GuestService = {
       if (data?.createGuest) {
         const { sessionId } = data.createGuest;
         await setSessionId(sessionId);
-        console.log('[GuestService] Guest session created:', sessionId);
+        AuthLogger.info('Guest session created:', sessionId);
       }
     } catch (error) {
-      console.error('[GuestService] Error in createGuestSession:', error);
+      AuthLogger.error('Error in createGuestSession:', error);
       throw error;
     }
   },

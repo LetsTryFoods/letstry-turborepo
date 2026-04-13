@@ -22,6 +22,7 @@ export class UploadController {
     return { url };
   }
 
+
   @Post('upload')
   @UseInterceptors(FilesInterceptor('files'))
   async uploadFile(@UploadedFiles() files: Express.Multer.File[]) {
@@ -60,7 +61,7 @@ export class UploadController {
       files: uploadedFiles,
     };
   }
- @Public()
+  @Public()
   @Post('presigned-url')
   async getPresignedUploadUrl(
     @Body() body: { filename: string; contentType?: string },
