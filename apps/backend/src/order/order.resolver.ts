@@ -94,7 +94,7 @@ export class OrderResolver {
       );
     }
 
-    const order = await this.orderService.getOrderById(orderId);
+    const order = await this.orderService.getOrderByInternalId(orderId);
     return order.toObject ? order.toObject() : order;
   }
 
