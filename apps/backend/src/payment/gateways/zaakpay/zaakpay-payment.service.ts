@@ -24,6 +24,11 @@ export class ZaakpayPaymentService {
         buyerEmail: string;
         buyerName: string;
         buyerPhone: string;
+        buyerAddress?: string;
+        buyerCity?: string;
+        buyerState?: string;
+        buyerCountry?: string;
+        buyerPincode?: string;
         productDescription: string;
         returnUrl: string;
     }): Promise<{ redirectUrl: string }> {
@@ -52,16 +57,26 @@ export class ZaakpayPaymentService {
         buyerEmail: string;
         buyerName: string;
         buyerPhone: string;
+        buyerAddress?: string;
+        buyerCity?: string;
+        buyerState?: string;
+        buyerCountry?: string;
+        buyerPincode?: string;
         productDescription: string;
         returnUrl: string;
     }) {
         const amountInPaisa = Math.round(parseFloat(params.amount) * 100).toString();
 
-        return {
+        const allParams: Record<string, string> = {
             amount: amountInPaisa,
+            buyerAddress: params.buyerAddress || '',
+            buyerCity: params.buyerCity || '',
+            buyerCountry: params.buyerCountry || '',
             buyerEmail: params.buyerEmail,
-            buyerName: params.buyerName,
-            buyerPhone: params.buyerPhone,
+            buyerFirstName: params.buyerName,
+            buyerPhoneNumber: params.buyerPhone,
+            buyerPincode: params.buyerPincode || '',
+            buyerState: params.buyerState || '',
             currency: 'INR',
             merchantIdentifier: this.merchantId,
             orderId: params.orderId,
@@ -69,9 +84,17 @@ export class ZaakpayPaymentService {
             txnType: '1',
             returnUrl: params.returnUrl,
         };
+
+        // Zaakpay docs: "The empty parameters are not to be used in the checksum calculation"
+        // Remove empty/undefined/null values before checksum and posting
+        return Object.fromEntries(
+            Object.entries(allParams).filter(([_, v]) => v !== undefined && v !== null && v !== '')
+        );
     }
 
-    private generateChecksum(queryParams: any): string {
+    private generateChecksum(queryParams: Record<string, string>): string {
+        // Zaakpay docs: sort alphabetically, format as key=value& for each param
+        // Empty params must already be filtered out in buildQueryParams
         const sortedKeys = Object.keys(queryParams).sort();
         const checksumString = sortedKeys
             .map((key) => `${key}=${queryParams[key]}&`)

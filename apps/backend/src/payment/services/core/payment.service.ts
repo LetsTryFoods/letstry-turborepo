@@ -94,6 +94,11 @@ export class PaymentService {
       let buyerName = 'Customer';
       let buyerPhone = '9999999999';
       let buyerEmail = `identity_${identityId}@temp.com`;
+      let buyerAddress = '';
+      let buyerCity = '';
+      let buyerState = '';
+      let buyerCountry = '';
+      let buyerPincode = '';
 
       if (cart.shippingAddressId) {
         const AddressModel = this.paymentEventModel.db.model('Address');
@@ -101,6 +106,11 @@ export class PaymentService {
         if (address) {
           buyerName = (address as any).recipientName || buyerName;
           buyerPhone = (address as any).recipientPhone || buyerPhone;
+          buyerAddress = [(address as any).buildingName, (address as any).streetArea, (address as any).landmark].filter(Boolean).join(', ');
+          buyerCity = (address as any).addressLocality || '';
+          buyerState = (address as any).addressRegion || '';
+          buyerCountry = (address as any).addressCountry || '';
+          buyerPincode = (address as any).postalCode || '';
         }
       }
 
@@ -113,6 +123,11 @@ export class PaymentService {
           buyerEmail,
           buyerName,
           buyerPhone,
+          buyerAddress,
+          buyerCity,
+          buyerState,
+          buyerCountry,
+          buyerPincode,
           productDescription: 'Order Payment',
           returnUrl: this.getReturnUrl(),
         });

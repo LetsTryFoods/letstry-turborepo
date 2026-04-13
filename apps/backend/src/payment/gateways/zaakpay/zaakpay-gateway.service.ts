@@ -21,6 +21,11 @@ export class ZaakpayGatewayService {
         buyerEmail: string;
         buyerName: string;
         buyerPhone: string;
+        buyerAddress?: string;
+        buyerCity?: string;
+        buyerState?: string;
+        buyerCountry?: string;
+        buyerPincode?: string;
         productDescription: string;
         returnUrl: string;
     }): Promise<{ redirectUrl: string }> {
