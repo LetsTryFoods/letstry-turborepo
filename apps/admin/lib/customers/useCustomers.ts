@@ -114,6 +114,7 @@ const mapBackendCustomerToFrontend = (backendCustomer: any): Customer => {
     totalSpent: backendCustomer.totalSpent || 0,
     activeCartItemsCount: backendCustomer.activeCartItemsCount,
     isGuest: backendCustomer.isGuest || false,
+    avatar: backendCustomer.avatar || undefined,
     createdAt: backendCustomer.createdAt,
     updatedAt: backendCustomer.updatedAt,
   };
