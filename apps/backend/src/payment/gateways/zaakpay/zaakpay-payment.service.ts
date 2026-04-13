@@ -82,7 +82,8 @@ export class ZaakpayPaymentService {
             orderId: params.orderId,
             productDescription: params.productDescription,
             returnUrl: params.returnUrl,
-            txnType: '1', // '1' = All enabled payment methods
+            txnType: '1',
+            paymentOptionTypes: '1', // '1' = All enabled payment methods
         };
 
         // Zaakpay docs: "The empty parameters are not to be used in the checksum calculation"
