@@ -81,8 +81,9 @@ export class ZaakpayPaymentService {
             merchantIdentifier: this.merchantId,
             orderId: params.orderId,
             productDescription: params.productDescription,
-            txnType: '1',
             returnUrl: params.returnUrl,
+            txnType: '1',
+            paymentOptionTypes: '1',
         };
 
         // Zaakpay docs: "The empty parameters are not to be used in the checksum calculation"
@@ -92,11 +93,26 @@ export class ZaakpayPaymentService {
         );
     }
 
+    // Exact parameter order from Zaakpay docs table:
+    // "These Attributes are mentioned in the same order in which Zaakpay Payment Gateway calculates the checksum"
+    private static readonly CHECKSUM_PARAM_ORDER = [
+        'amount', 'bankid', 'buyerAddress', 'buyerCity', 'buyerCountry',
+        'buyerEmail', 'buyerFirstName', 'buyerLastName', 'buyerPhoneNumber',
+        'buyerPincode', 'buyerState', 'currency', 'isAutoRedirect',
+        'debitorcredit', 'merchantIdentifier', 'merchantIpAddress', 'mode',
+        'orderId', 'product1Description', 'product2Description',
+        'product3Description', 'product4Description', 'productDescription',
+        'productInfo', 'purpose', 'returnUrl', 'shipToAddress', 'shipToCity',
+        'shipToCountry', 'shipToFirstname', 'shipToLastname',
+        'shipToPhoneNumber', 'shipToPincode', 'shipToState', 'showMobile',
+        'txnDate', 'txnType', 'paymentOptionTypes', 'zpPayOption',
+    ];
+
     private generateChecksum(queryParams: Record<string, string>): string {
-        // Zaakpay docs: sort alphabetically, format as key=value& for each param
-        // Empty params must already be filtered out in buildQueryParams
-        const sortedKeys = Object.keys(queryParams).sort();
-        const checksumString = sortedKeys
+        // Use the exact order from Zaakpay's docs table, not alphabetical sort.
+        // Only include params that have non-empty values.
+        const checksumString = ZaakpayPaymentService.CHECKSUM_PARAM_ORDER
+            .filter((key) => queryParams[key] !== undefined && queryParams[key] !== null && queryParams[key] !== '')
             .map((key) => `${key}=${queryParams[key]}&`)
             .join('');
         return this.checksumService.generateChecksum(checksumString);
