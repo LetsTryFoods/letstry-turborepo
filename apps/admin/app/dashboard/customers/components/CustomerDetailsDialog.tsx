@@ -29,6 +29,7 @@ import {
 import { Customer } from "@/lib/customers/useCustomers";
 import CustomerStatCard from "./CustomerStatCard";
 import { getInitials, formatCurrency } from "../utils/customerUtils";
+import { getCdnUrl } from "@/lib/utils/image-utils";
 
 interface CustomerDetailsDialogProps {
   customer: Customer;
@@ -86,7 +87,7 @@ export default function CustomerDetailsDialog({
             <div className="flex items-center gap-4">
               <Avatar className="h-16 w-16">
                 {customer.avatar ? (
-                  <img src={customer.avatar} alt={customer.name} />
+                  <img src={getCdnUrl(customer.avatar)} alt={customer.name} />
                 ) : (
                   <AvatarFallback className="text-lg">
                     {getInitials(customer.name)}

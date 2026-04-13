@@ -7,6 +7,7 @@ import { DeleteProductSeoDialog } from "./DeleteProductSeoDialog";
 import { Product, ProductSeo, useUpdateProductSeo } from "@/lib/products/useProducts";
 import { GenericSeoTable } from "@/components/seo/GenericSeoTable";
 import { Image as ImageIcon } from "lucide-react";
+import { getCdnUrl } from "@/lib/utils/image-utils";
 
 interface ProductSeoTableProps {
   products: Product[];
@@ -27,7 +28,7 @@ export function ProductSeoTable({
       render: (p: Product) => (
         p?.variants?.[0]?.images?.[0]?.url ? (
           <img
-            src={p.variants[0].images[0].url}
+            src={getCdnUrl(p.variants[0].images[0].url)}
             alt={p.name}
             className="w-10 h-10 object-cover rounded"
           />

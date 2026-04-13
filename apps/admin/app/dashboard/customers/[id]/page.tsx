@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { getCdnUrl } from "@/lib/utils/image-utils";
 import {
   ArrowLeft,
   Mail,
@@ -82,6 +83,10 @@ export default function CustomerDetailPage() {
           <CardHeader>
             <div className="flex items-center gap-4">
               <Avatar className="h-16 w-16">
+                <AvatarImage
+                  src={getCdnUrl(customer.avatar)}
+                  alt={customerName}
+                />
                 <AvatarFallback className="text-lg">
                   {getInitials(customerName)}
                 </AvatarFallback>
@@ -180,7 +185,7 @@ export default function CustomerDetailPage() {
                       {item.imageUrl && (
                         <div className="flex-shrink-0">
                           <img
-                            src={item.imageUrl}
+                            src={getCdnUrl(item.imageUrl)}
                             alt={item.name}
                             className="w-16 h-16 object-cover rounded-md border"
                           />

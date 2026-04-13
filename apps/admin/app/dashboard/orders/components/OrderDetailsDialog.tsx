@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { getInitials, formatCurrency } from "../../customers/utils/customerUtils";
+import { getCdnUrl } from "@/lib/utils/image-utils";
 import { Separator } from "@/components/ui/separator"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -200,7 +202,7 @@ export function OrderDetailsDialog({ order: initialOrder, open, onOpenChange }: 
                   <div className="relative h-16 w-16 rounded-md overflow-hidden border bg-muted">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={item.image}
+                      src={getCdnUrl(item.image)}
                       alt={item.name}
                       className="h-full w-full object-cover"
                     />

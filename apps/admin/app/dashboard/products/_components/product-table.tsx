@@ -17,6 +17,7 @@ import { Pagination } from "@/app/dashboard/components/pagination";
 import { ProductActions } from "./product-actions";
 import { Product } from "@/types/product";
 import { Badge } from "@/components/ui/badge";
+import { getCdnUrl } from "@/lib/utils/image-utils";
 
 export const allColumns: ColumnDefinition[] = [
   { key: "_id", label: "ID" },
@@ -155,7 +156,7 @@ export function ProductTable({
                                 <button
                                   onClick={() =>
                                     onImagePreview(
-                                      String(thumbnailUrl),
+                                      getCdnUrl(String(thumbnailUrl)),
                                       "Product Thumbnail"
                                     )
                                   }

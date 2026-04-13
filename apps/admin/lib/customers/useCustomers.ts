@@ -1,5 +1,6 @@
 import { useQuery } from "@apollo/client/react";
 import { GET_ALL_CUSTOMERS, GET_CUSTOMER_DETAILS } from "../graphql/customers";
+import { getCdnUrl } from "../utils/image-utils";
 
 export type CustomerStatus =
   | "GUEST"
@@ -111,10 +112,9 @@ const mapBackendCustomerToFrontend = (backendCustomer: any): Customer => {
     phone: backendCustomer.displayPhone || backendCustomer.phoneNumber || "",
     status: backendCustomer.status.toUpperCase() as CustomerStatus,
     totalOrders: backendCustomer.totalOrders || 0,
-    totalSpent: backendCustomer.totalSpent || 0,
     activeCartItemsCount: backendCustomer.activeCartItemsCount,
     isGuest: backendCustomer.isGuest || false,
-    avatar: backendCustomer.avatar || undefined,
+    avatar: getCdnUrl(backendCustomer.avatar),
     createdAt: backendCustomer.createdAt,
     updatedAt: backendCustomer.updatedAt,
   };

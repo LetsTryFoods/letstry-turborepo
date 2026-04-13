@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Folder, Edit, ExternalLink } from "lucide-react";
 import { SeoStatusBadge } from "@/components/seo/SeoStatusBadge";
 import { Category } from "@/lib/categories/useCategories";
+import { getCdnUrl } from "@/lib/utils/image-utils";
 
 interface ArchiveDialogProps {
     open: boolean
@@ -54,7 +55,7 @@ export function CategorySeoTable({ categories, loading, onManageSeo }: CategoryS
                             <TableCell className="font-medium">
                                 <div className="flex items-center gap-2">
                                     {category.imageUrl ? (
-                                        <img src={category.imageUrl} className="w-8 h-8 rounded object-cover border" alt={category.name} />
+                                        <img src={getCdnUrl(category.imageUrl)} className="w-8 h-8 rounded object-cover border" alt={category.name} />
                                     ) : (
                                         <Folder className="h-4 w-4 text-muted-foreground" />
                                     )}

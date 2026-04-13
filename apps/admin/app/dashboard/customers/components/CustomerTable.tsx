@@ -44,6 +44,7 @@ import {
 import { Customer, useDeleteCustomer } from "@/lib/customers/useCustomers";
 import CustomerDetailsDialog from "./CustomerDetailsDialog";
 import { getInitials, formatCurrency } from "../utils/customerUtils";
+import { getCdnUrl } from "@/lib/utils/image-utils";
 
 interface CustomerTableProps {
   customers: Customer[];
@@ -123,7 +124,7 @@ export default function CustomerTable({
                       <div className="flex items-center gap-3">
                         <Avatar>
                           {customer.avatar ? (
-                            <img src={customer.avatar} alt={customer.name} />
+                            <img src={getCdnUrl(customer.avatar)} alt={customer.name} />
                           ) : (
                             <AvatarFallback>
                               {getInitials(customer.name)}
