@@ -82,7 +82,7 @@ export class ZaakpayPaymentService {
             orderId: params.orderId,
             productDescription: params.productDescription,
             returnUrl: params.returnUrl,
-            txnType: '1',
+            txnType: '14',
         };
 
         // Zaakpay docs: "The empty parameters are not to be used in the checksum calculation"
