@@ -216,7 +216,7 @@ export class PaymentRefundType {
 }
 
 @ObjectType()
-export class OrderType {
+export class PaymentOrderMinimalType {
   @Field()
   _id: string;
 

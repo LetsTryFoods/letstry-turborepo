@@ -9,59 +9,25 @@ export const GET_ALL_ORDERS = gql`
         customer {
           _id
           name
-          email
           phone
         }
         items {
-          variantId
           name
-          sku
-          variant
-          image
           quantity
-          price
-          totalPrice
-        }
-        shippingAddress {
-          fullName
-          phone
-          addressType
-          addressLine1
-          addressLine2
-          floor
-          city
-          state
-          pincode
-          landmark
-          formattedAddress
-          latitude
-          longitude
         }
         payment {
           _id
           status
           method
-          transactionId
-          amount
-          paidAt
         }
-        subtotal
-        deliveryCharge
-        discount
         totalAmount
+        discount
         orderStatus
-        trackingNumber
-        estimatedWeight
-        boxDimensions {
-          l
-          w
-          h
-        }
+        createdAt
+        updatedAt
         shipment {
           dtdcAwbNumber
         }
-        createdAt
-        updatedAt
       }
       meta {
         totalCount
