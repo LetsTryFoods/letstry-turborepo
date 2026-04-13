@@ -63,7 +63,18 @@ export class OrderRepository {
     return this.orderModel.countDocuments(query).exec();
   }
 
-  async findAll(filter: any, skip: number, limit: number): Promise<Order[]> {
+  async findAll(filter: any, skip: number, limit: number, userSearch?: string): Promise<Order[]> {
+    if (userSearch) {
+      const pipeline = this.buildSearchPipeline(filter, userSearch);
+      pipeline.push(
+        { $sort: { createdAt: -1 } as any },
+        { $skip: skip },
+        { $limit: limit }
+      );
+      const results = await this.orderModel.aggregate(pipeline).exec();
+      return results.map(r => this.orderModel.hydrate(r));
+    }
+
     return this.orderModel
       .find(filter)
       .sort({ createdAt: -1 })
@@ -72,8 +83,43 @@ export class OrderRepository {
       .exec();
   }
 
-  async countAll(filter: any): Promise<number> {
+  async countAll(filter: any, userSearch?: string): Promise<number> {
+    if (userSearch) {
+      const pipeline = this.buildSearchPipeline(filter, userSearch);
+      pipeline.push({ $count: 'total' });
+      const result = await this.orderModel.aggregate(pipeline).exec();
+      return result.length > 0 ? result[0].total : 0;
+    }
     return this.orderModel.countDocuments(filter).exec();
+  }
+
+  private buildSearchPipeline(filter: any, userSearch: string): any[] {
+    const regex = new RegExp(userSearch, 'i');
+    return [
+      { $match: filter },
+      {
+        $lookup: {
+          from: 'identities',
+          localField: 'identityId',
+          foreignField: '_id',
+          as: 'identity',
+        },
+      },
+      {
+        $match: {
+          $or: [
+            { orderId: regex },
+            { 'placerContact.phone': regex },
+            { 'recipientContact.phone': regex },
+            { 'identity.phoneNumber': regex },
+            { 'identity.firstName': regex },
+            { 'identity.lastName': regex },
+            { 'items.name': regex },
+            { 'items.sku': regex },
+          ],
+        },
+      },
+    ];
   }
 
   async updateOrderStatus(
@@ -104,20 +150,21 @@ export class OrderRepository {
       .exec();
   }
 
-  async countByStatus(status: OrderStatus): Promise<number> {
-    return this.orderModel.countDocuments({ orderStatus: status }).exec();
+  async countByStatus(status: OrderStatus, filter: any = {}): Promise<number> {
+    return this.orderModel.countDocuments({ ...filter, orderStatus: status }).exec();
   }
 
   async findByStatus(status: OrderStatus): Promise<Order[]> {
     return this.orderModel.find({ orderStatus: status }).exec();
   }
 
-  async countTotal(): Promise<number> {
-    return this.orderModel.countDocuments().exec();
+  async countTotal(filter: any = {}): Promise<number> {
+    return this.orderModel.countDocuments(filter).exec();
   }
 
-  async sumTotalRevenue(): Promise<string> {
+  async sumTotalRevenue(filter: any = {}): Promise<string> {
     const result = await this.orderModel.aggregate([
+      { $match: filter },
       {
         $group: {
           _id: null,

@@ -20,6 +20,8 @@ import {
 } from "@/lib/orders/queries"
 import { OrderTable } from "./components/OrderTable"
 import { OrderDetailsDialog } from "./components/OrderDetailsDialog"
+import { Pagination } from "@/components/ui/pagination"
+import { useEffect } from "react"
 import {
   Search,
   RefreshCw,
@@ -38,23 +40,28 @@ export default function OrdersPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(10)
+  const [debouncedSearch, setDebouncedSearch] = useState("")
 
-  const { orders, summary, loading, error, refetch } = useAllOrders({
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm)
+      setPage(1) // Reset to page 1 on search
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [searchTerm])
+
+  const { orders, summary, meta, loading, error, refetch } = useAllOrders({
     status: statusFilter !== "ALL" ? statusFilter as OrderStatus : undefined,
-    page: 1,
-    limit: 100
+    page,
+    limit,
+    userSearch: debouncedSearch || undefined
   })
   const { updateStatus } = useUpdateOrderStatus()
 
   const stats = getOrderStats(summary)
-
-  const filteredOrders = orders.filter(order =>
-    order.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    order.customer?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    order.customer?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    order.customer?.phone?.includes(searchTerm) ||
-    order.items.some(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()))
-  )
 
   const handleViewDetails = (order: Order) => {
     setSelectedOrder(order)
@@ -249,7 +256,13 @@ export default function OrdersPage() {
                 className="pl-10"
               />
             </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <Select 
+              value={statusFilter} 
+              onValueChange={(val) => {
+                setStatusFilter(val)
+                setPage(1)
+              }}
+            >
               <SelectTrigger className="w-full sm:w-[180px]">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
@@ -260,6 +273,7 @@ export default function OrdersPage() {
                 <SelectItem value="SHIPPED">Shipped</SelectItem>
                 <SelectItem value="IN_TRANSIT">In Transit</SelectItem>
                 <SelectItem value="DELIVERED">Delivered</SelectItem>
+                <SelectItem value="SHIPMENT_FAILED">Failed</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -270,7 +284,7 @@ export default function OrdersPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            <span>Orders ({filteredOrders.length})</span>
+            <span>Orders ({meta?.totalCount || 0})</span>
             {searchTerm && (
               <Button
                 variant="ghost"
@@ -282,12 +296,23 @@ export default function OrdersPage() {
             )}
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <OrderTable
-            orders={filteredOrders}
+            orders={orders}
             onViewDetails={handleViewDetails}
             onUpdateStatus={handleUpdateStatus}
           />
+          <div className="flex items-center justify-between pt-4 border-t">
+            <p className="text-sm text-muted-foreground">
+              Showing page <span className="font-medium">{page}</span> of{" "}
+              <span className="font-medium">{meta?.totalPages || 1}</span>
+            </p>
+            <Pagination
+              currentPage={page}
+              totalPages={meta?.totalPages || 1}
+              onPageChange={setPage}
+            />
+          </div>
         </CardContent>
       </Card>
 

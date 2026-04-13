@@ -78,9 +78,9 @@ export class OrderQueryService {
     const skip = (page - 1) * limit;
 
     const [orders, totalCount, summary] = await Promise.all([
-      this.orderRepository.findAll(filter, skip, limit),
-      this.orderRepository.countAll(filter),
-      this.getOrdersSummary(),
+      this.orderRepository.findAll(filter, skip, limit, input.userSearch),
+      this.orderRepository.countAll(filter, input.userSearch),
+      this.getOrdersSummary(filter),
     ]);
 
     const ordersWithUserInfo = await this.enrichOrdersWithUserInfo(orders);
@@ -165,28 +165,28 @@ export class OrderQueryService {
     };
   }
 
-  private async getOrdersSummary(): Promise<OrdersSummary> {
+  private async getOrdersSummary(filter: any = {}): Promise<OrdersSummary> {
     const [totalOrders, statusCounts, totalRevenue] = await Promise.all([
-      this.orderRepository.countTotal(),
-      this.getStatusCounts(),
-      this.calculateTotalRevenue(),
+      this.orderRepository.countTotal(filter),
+      this.getStatusCounts(filter),
+      this.calculateTotalRevenue(filter),
     ]);
 
     return { totalOrders, statusCounts, totalRevenue };
   }
 
-  private async calculateTotalRevenue(): Promise<string> {
-    return this.orderRepository.sumTotalRevenue();
+  private async calculateTotalRevenue(filter: any = {}): Promise<string> {
+    return this.orderRepository.sumTotalRevenue(filter);
   }
 
-  private async getStatusCounts(): Promise<OrderStatusCount> {
+  private async getStatusCounts(filter: any = {}): Promise<OrderStatusCount> {
     const [confirmed, packed, shipped, inTransit, delivered, shipmentFailed] = await Promise.all([
-      this.orderRepository.countByStatus(OrderStatus.CONFIRMED),
-      this.orderRepository.countByStatus(OrderStatus.PACKED),
-      this.orderRepository.countByStatus(OrderStatus.SHIPPED),
-      this.orderRepository.countByStatus(OrderStatus.IN_TRANSIT),
-      this.orderRepository.countByStatus(OrderStatus.DELIVERED),
-      this.orderRepository.countByStatus(OrderStatus.SHIPMENT_FAILED),
+      this.orderRepository.countByStatus(OrderStatus.CONFIRMED, filter),
+      this.orderRepository.countByStatus(OrderStatus.PACKED, filter),
+      this.orderRepository.countByStatus(OrderStatus.SHIPPED, filter),
+      this.orderRepository.countByStatus(OrderStatus.IN_TRANSIT, filter),
+      this.orderRepository.countByStatus(OrderStatus.DELIVERED, filter),
+      this.orderRepository.countByStatus(OrderStatus.SHIPMENT_FAILED, filter),
     ]);
 
     return {
