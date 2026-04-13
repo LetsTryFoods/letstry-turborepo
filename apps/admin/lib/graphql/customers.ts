@@ -5,30 +5,18 @@ export const GET_ALL_CUSTOMERS = gql`
     getAllCustomers(input: $input) {
       customers {
         _id
-        identityId
         status
         phoneNumber
         firstName
         lastName
         email
-        isPhoneVerified
-        isEmailVerified
-        lastLoginAt
-        registeredAt
-        lastActiveAt
-        lifetimeValue
-        marketingSmsOptIn
-        signupSource
-        ipAddress
-        deviceInfo
-        role
         createdAt
-        updatedAt
         totalOrders
         totalSpent
         activeCartItemsCount
         displayPhone
         isGuest
+        avatar
       }
       meta {
         totalCount

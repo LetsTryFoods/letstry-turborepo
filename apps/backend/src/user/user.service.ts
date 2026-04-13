@@ -46,6 +46,36 @@ export class UserService {
     const limit = input.limit || 10;
     const skip = (page - 1) * limit;
 
+    // Check if we can do database-level pagination
+    const hasComplexFilters =
+      input.minSpent !== undefined ||
+      input.maxSpent !== undefined ||
+      input.cartStatus !== undefined ||
+      (input.sortBy && ['TOTAL_SPENT', 'TOTAL_ORDERS'].includes(input.sortBy));
+
+    if (!hasComplexFilters) {
+      // Optimized Path: Fetch only the paginated slice
+      const [customers, totalCount, summary] = await Promise.all([
+        this.customerQueryService.fetchCustomers(filter, skip, limit),
+        this.customerQueryService.countCustomers(filter),
+        this.customerStatsService.getCustomerSummary(),
+      ]);
+
+      const enrichedCustomers =
+        await this.customerEnrichmentService.enrichCustomersWithOrderData(
+          customers,
+        );
+
+      const meta = this.paginationService.buildPaginationMeta(
+        totalCount,
+        page,
+        limit,
+      );
+
+      return { customers: enrichedCustomers, meta, summary };
+    }
+
+    // Legacy Path: Fetch all, calculate, then slice (needed for spending/order filters)
     const [allCustomers, summary] = await Promise.all([
       this.customerQueryService.fetchAllCustomers(filter),
       this.customerStatsService.getCustomerSummary(),

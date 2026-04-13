@@ -126,7 +126,7 @@ export const useCustomers = (input?: GetCustomersInput) => {
       variables: {
         input: {
           page: input?.page || 1,
-          limit: input?.limit || 100,
+          limit: input?.limit || 10,
           status: input?.status,
           platform: input?.platform,
           searchTerm: input?.searchTerm,
