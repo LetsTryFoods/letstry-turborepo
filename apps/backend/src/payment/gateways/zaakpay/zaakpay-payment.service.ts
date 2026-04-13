@@ -82,6 +82,7 @@ export class ZaakpayPaymentService {
             orderId: params.orderId,
             productDescription: params.productDescription,
             txnType: '1',
+            paymentOptionTypes: '1',
             returnUrl: params.returnUrl,
         };
 
