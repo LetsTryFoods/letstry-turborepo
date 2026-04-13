@@ -40,6 +40,9 @@ import {
   ThumbsUp,
   ShieldCheck
 } from "lucide-react"
+import { 
+  Review, 
+  ReviewStatus, 
   useUpdateReviewStatus, 
   useDeleteReview 
 } from "@/lib/reviews/useReviews"

@@ -13,6 +13,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { AbandonedCart } from "@/lib/abandoned-carts/useAbandonedCarts"
 import { format, formatDistanceToNow } from "date-fns"
+import { 
+  ShoppingCart, 
+  User, 
+  Phone,
+  Mail,
+  Clock,
+  MessageCircle,
   MessageSquare, 
   IndianRupee
 } from "lucide-react"
