@@ -147,14 +147,6 @@ export class ZaakpayAdapter implements PaymentGatewayProvider {
   }
 
   private mapPaymentMethod(method: string): string {
-    const methodMap: { [key: string]: string } = {
-      CC: 'CREDIT_CARD',
-      DC: 'DEBIT_CARD',
-      NB: 'NET_BANKING',
-      UPI: 'UPI',
-      WALLET: 'WALLET',
-    };
-
-    return methodMap[method] || 'CREDIT_CARD';
+    return method;
   }
 }

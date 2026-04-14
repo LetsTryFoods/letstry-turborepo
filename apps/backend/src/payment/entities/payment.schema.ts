@@ -105,8 +105,8 @@ export class PaymentOrder extends Document {
   })
   paymentOrderStatus: PaymentStatus;
 
-  @Prop({ type: String, enum: PaymentMethod })
-  paymentMethod: PaymentMethod;
+  @Prop({ type: String })
+  paymentMethod: string;
 
   @Prop()
   pspTxnId: string;

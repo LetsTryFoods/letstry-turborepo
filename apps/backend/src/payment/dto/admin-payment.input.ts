@@ -16,10 +16,9 @@ export class PaymentFiltersInput {
   @IsEnum(PaymentStatus, { each: true })
   statuses?: PaymentStatus[];
 
-  @Field(() => [PaymentMethod], { nullable: true })
+  @Field(() => [String], { nullable: true })
   @IsOptional()
-  @IsEnum(PaymentMethod, { each: true })
-  paymentMethods?: PaymentMethod[];
+  paymentMethods?: string[];
 
   @Field({ nullable: true })
   @IsOptional()
