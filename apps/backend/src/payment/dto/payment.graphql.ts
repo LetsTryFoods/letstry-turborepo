@@ -67,8 +67,8 @@ export class PaymentOrderType {
   @Field(() => PaymentStatus)
   paymentOrderStatus: PaymentStatus;
 
-  @Field(() => PaymentMethod, { nullable: true })
-  paymentMethod?: PaymentMethod;
+  @Field(() => String, { nullable: true })
+  paymentMethod?: string;
 
   @Field({ nullable: true })
   pspTxnId?: string;
@@ -216,7 +216,7 @@ export class PaymentRefundType {
 }
 
 @ObjectType()
-export class OrderType {
+export class PaymentOrderMinimalType {
   @Field()
   _id: string;
 

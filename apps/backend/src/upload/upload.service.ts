@@ -18,6 +18,7 @@ export class UploadService {
     this.s3Client = new S3Client({
       region: 'auto',
       endpoint: this.configService.get<string>('aws.r2Endpoint'),
+      forcePathStyle: true,
       credentials: {
         accessKeyId: this.configService.get<string>('aws.accessKeyId')!,
         secretAccessKey: this.configService.get<string>('aws.secretAccessKey')!,
@@ -52,7 +53,9 @@ export class UploadService {
   }
 
   getCloudFrontUrl(key: string): string {
-    return key;
+    const domain = this.configService.get<string>('aws.cloudfrontDomain')!;
+    const cleanDomain = domain.endsWith('/') ? domain.slice(0, -1) : domain;
+    return `${cleanDomain}/${key}`;
   }
 
   async getPresignedUrl(key: string): Promise<string> {
@@ -102,7 +105,7 @@ export class UploadService {
     return {
       uploadUrl,
       key: finalKey,
-      finalUrl: finalKey,
+      finalUrl: finalUrl,
       baseUrl: this.configService.get<string>('aws.cloudfrontDomain'),
     };
   }

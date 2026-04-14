@@ -11,6 +11,7 @@ import {
 } from '@/lib/payment/utils';
 import { useOrderById } from '@/lib/orders/queries';
 import { useCustomerDetails } from '@/lib/customers/useCustomers';
+import { getCdnUrl } from '@/lib/utils/image-utils';
 
 export default function PaymentDetailPage() {
   const params = useParams();
@@ -243,7 +244,7 @@ export default function PaymentDetailPage() {
                   <div key={idx} className="flex items-center gap-4 border rounded p-3">
                     {item.imageUrl && (
                       <img
-                        src={item.imageUrl}
+                        src={getCdnUrl(item.imageUrl)}
                         alt={item.name}
                         className="w-16 h-16 object-cover rounded"
                       />

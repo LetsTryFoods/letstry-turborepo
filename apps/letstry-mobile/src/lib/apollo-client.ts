@@ -1,7 +1,8 @@
-import { ApolloClient, InMemoryCache, createHttpLink, from, ApolloLink, Observable } from '@apollo/client';
+import { ApolloClient, InMemoryCache, createHttpLink, from, Observable } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
 import { useAuthStore } from '../store/auth-store';
+import AuthLogger from './utils/auth-logger';
 
 const GRAPHQL_URL =
   process.env.EXPO_PUBLIC_GRAPHQL_URL || 'https://apiv3.letstryfoods.com/graphql';
@@ -16,16 +17,6 @@ const authLink = setContext(async (operation, { headers }) => {
 
     const finalAuthHeader = token ? `Bearer ${token}` : (headers?.authorization || '');
 
-    if (operation.operationName === 'Me') {
-      console.log('[Apollo Debug] Me Query - Raw Token:', token);
-      console.log('[Apollo Debug] Me Query - Full Auth Header:', finalAuthHeader);
-      console.log('[Apollo Debug] Me Query - Session ID:', sessionId || 'MISSING');
-      console.log('[Apollo Debug] Me Query - All Headers:', {
-        authorization: finalAuthHeader,
-        'x-session-id': sessionId || '',
-      });
-    }
-
     return {
       headers: {
         ...(headers || {}),
@@ -34,7 +25,7 @@ const authLink = setContext(async (operation, { headers }) => {
       },
     };
   } catch (error) {
-    console.error('[Apollo] Error reading auth state:', error);
+    AuthLogger.error('Error reading auth state:', error);
     return { headers };
   }
 });
@@ -44,7 +35,7 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
     let isUnauthenticated = false;
 
     graphQLErrors.forEach(({ message, path, extensions }) => {
-      console.warn(`[GraphQL error]: ${message} | Path: ${path}`);
+      AuthLogger.warn(`GraphQL error: ${message} | Path: ${path}`);
       
       const isAuthError = 
         extensions?.code === 'UNAUTHENTICATED' || 
@@ -57,7 +48,7 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
     });
 
     if (isUnauthenticated && operation.operationName !== 'CreateGuest') {
-      console.log('[Apollo] Token expired/invalid. Re-initializing guest session...');
+      AuthLogger.info('Token expired/invalid. Re-initializing guest session...');
       return new Observable((observer) => {
         (async () => {
           try {
@@ -96,7 +87,7 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
             forward(operation).subscribe(subscriber);
             
           } catch (err) {
-            console.error('[Apollo] Failed to re-initialize guest session on expiry:', err);
+            AuthLogger.error('Failed to re-initialize guest session on expiry:', err);
             observer.error(err);
           }
         })();
@@ -105,23 +96,11 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
   }
 
   if (networkError) {
-    console.warn(`[Network error]: ${networkError}`);
+    AuthLogger.warn(`Network error: ${networkError}`);
   }
-});
-
-const loggerLink = new ApolloLink((operation, forward) => {
-  const context = operation.getContext();
-  console.log(`[GraphQL Request]: ${operation.operationName}`, operation.variables);
-  if (operation.operationName === 'Me') {
-    console.log('[GraphQL Request Headers for Me]:', context.headers);
-  }
-  return forward(operation).map((response) => {
-    console.log(`[GraphQL Response]: ${operation.operationName}`, response.data);
-    return response;
-  });
 });
 
 export const client = new ApolloClient({
-  link: from([authLink, loggerLink, errorLink, httpLink]),
+  link: from([authLink, errorLink, httpLink]),
   cache: new InMemoryCache(),
 });

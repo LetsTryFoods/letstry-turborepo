@@ -8,6 +8,7 @@ import {
 import { OrderStatus } from './order.schema';
 import { PaginationMeta } from '../common/pagination';
 import { PaymentStatus } from '../payment/entities/payment.schema';
+import { ShipmentResponse } from '../shipment/dto/shipment-response.dto';
 
 registerEnumType(OrderStatus, {
   name: 'OrderStatus',
@@ -221,6 +222,9 @@ export class OrderType {
 
   @Field(() => BoxDimensionType, { nullable: true })
   boxDimensions?: BoxDimensionType;
+
+  @Field(() => ShipmentResponse, { nullable: true })
+  shipment?: ShipmentResponse;
 
   @Field()
   createdAt: Date;

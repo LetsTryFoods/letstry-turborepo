@@ -1,6 +1,5 @@
-'use client'
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { getCdnUrl } from "@/lib/utils/image-utils"
 
 interface ImagePreviewDialogProps {
   imageUrl: string | null
@@ -19,7 +18,7 @@ export function ImagePreviewDialog({ imageUrl, title, open, onOpenChange }: Imag
         <div className="flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-lg p-4 min-h-[400px]">
           {imageUrl ? (
             <img 
-              src={imageUrl} 
+              src={getCdnUrl(imageUrl)} 
               alt={title}
               className="max-w-full max-h-[70vh] object-contain rounded"
               onError={(e) => {
@@ -31,7 +30,7 @@ export function ImagePreviewDialog({ imageUrl, title, open, onOpenChange }: Imag
           )}
         </div>
         <div className="text-sm text-muted-foreground break-all">
-          <strong>URL:</strong> {imageUrl}
+          <strong>URL:</strong> {getCdnUrl(imageUrl)}
         </div>
       </DialogContent>
     </Dialog>

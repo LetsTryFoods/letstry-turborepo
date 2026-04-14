@@ -30,6 +30,7 @@ import {
   formatCompactNumber
 } from "@/lib/reports/useReports"
 import { useTrackingAnalytics } from "@/lib/reports/useTrackingAnalytics"
+import { getCdnUrl } from "@/lib/utils/image-utils"
 
 export default function ReportsPage() {
   const [period, setPeriod] = useState<'week' | 'month' | 'quarter' | 'year'>('month')
@@ -223,7 +224,7 @@ export default function ReportsPage() {
                     #{index + 1}
                   </span>
                   <img
-                    src={product.image}
+                    src={getCdnUrl(product.image)}
                     alt={product.name}
                     className="h-10 w-10 rounded-md object-cover"
                     onError={(e) => {

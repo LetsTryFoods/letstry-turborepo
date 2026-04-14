@@ -13,6 +13,7 @@ import { GET_ALL_PACKERS } from "@/lib/graphql/packers"
 import { GET_ALL_PACKING_ORDERS, CLEANUP_ORPHANED_JOBS } from "@/lib/graphql/packing"
 import { GET_EVIDENCE_BY_ORDER } from "@/lib/graphql/packing"
 import { Eye, Trash2 } from "lucide-react"
+import { getCdnUrl } from "@/lib/utils/image-utils"
 
 export default function PackingOrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null)
@@ -355,11 +356,11 @@ export default function PackingOrdersPage() {
                                 <div
                                   key={`pre-${index}`}
                                   className="relative aspect-square rounded-md overflow-hidden border cursor-pointer hover:opacity-90 transition-opacity"
-                                  onClick={() => window.open(url, '_blank')}
+                                  onClick={() => window.open(getCdnUrl(url), '_blank')}
                                   title="Click to view full image"
                                 >
                                   <img
-                                    src={url}
+                                    src={getCdnUrl(url)}
                                     alt={`Pre-pack evidence ${index + 1}`}
                                     className="object-cover w-full h-full"
                                     loading="lazy"
@@ -380,11 +381,11 @@ export default function PackingOrdersPage() {
                                 <div
                                   key={`post-${index}`}
                                   className="relative aspect-square rounded-md overflow-hidden border cursor-pointer hover:opacity-90 transition-opacity"
-                                  onClick={() => window.open(url, '_blank')}
+                                  onClick={() => window.open(getCdnUrl(url), '_blank')}
                                   title="Click to view full image"
                                 >
                                   <img
-                                    src={url}
+                                    src={getCdnUrl(url)}
                                     alt={`Post-pack evidence ${index + 1}`}
                                     className="object-cover w-full h-full"
                                     loading="lazy"

@@ -39,6 +39,11 @@ export class PaymentExecutorService {
     buyerEmail: string;
     buyerName: string;
     buyerPhone: string;
+    buyerAddress?: string;
+    buyerCity?: string;
+    buyerState?: string;
+    buyerCountry?: string;
+    buyerPincode?: string;
     productDescription: string;
     returnUrl: string;
   }): Promise<{
@@ -64,6 +69,11 @@ export class PaymentExecutorService {
       buyerEmail: params.buyerEmail,
       buyerName: params.buyerName,
       buyerPhone: params.buyerPhone,
+      buyerAddress: params.buyerAddress,
+      buyerCity: params.buyerCity,
+      buyerState: params.buyerState,
+      buyerCountry: params.buyerCountry,
+      buyerPincode: params.buyerPincode,
       productDescription: params.productDescription,
       returnUrl: params.returnUrl,
     });

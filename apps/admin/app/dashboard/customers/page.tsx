@@ -22,6 +22,7 @@ import CustomerFilters from "./components/CustomerFilters";
 import StatCard from "./components/StatCard";
 import { formatCurrency } from "./utils/customerUtils";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
+import { Pagination } from "@/components/ui/pagination";
 
 interface FilterValues {
   sortBy: string;
@@ -35,6 +36,7 @@ interface FilterValues {
 
 export default function CustomersPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState<FilterValues>({
     sortBy: "",
@@ -48,6 +50,7 @@ export default function CustomersPage() {
 
   const { data, refetch } = useCustomers({
     searchTerm: searchQuery,
+    page: currentPage,
     sortBy: (filters.sortBy || undefined) as any,
     sortOrder: (filters.sortOrder || undefined) as any,
     startDate: filters.startDate || undefined,
@@ -63,6 +66,7 @@ export default function CustomersPage() {
 
   const handleFilterChange = (values: FilterValues) => {
     setFilters(values);
+    setCurrentPage(1);
   };
 
   const handleClearFilters = () => {
@@ -75,10 +79,12 @@ export default function CustomersPage() {
       maxSpent: "",
       cartStatus: "",
     });
+    setCurrentPage(1);
   };
 
   const handleClearSearch = () => {
     setSearchQuery("");
+    setCurrentPage(1);
   };
 
   return (
@@ -187,7 +193,10 @@ export default function CustomersPage() {
               <Input
                 placeholder="Search by name, email or phone..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="pl-10"
               />
             </div>
@@ -218,6 +227,11 @@ export default function CustomersPage() {
         <p className="text-sm text-muted-foreground">
           Showing {customers.length} of {meta?.totalCount || 0} customers
         </p>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={meta?.totalPages || 1}
+          onPageChange={setCurrentPage}
+        />
       </div>
 
       <CustomerTable customers={customers} onRefresh={refetch} />

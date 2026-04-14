@@ -25,6 +25,7 @@ import {
   Package
 } from "lucide-react"
 import { Review, ReviewStatus } from "@/lib/reviews/useReviews"
+import { getCdnUrl } from "@/lib/utils/image-utils"
 
 interface ReviewDetailsDialogProps {
   review: Review
@@ -83,7 +84,7 @@ export default function ReviewDetailsDialog({
             <CardContent className="p-4">
               <div className="flex items-center gap-4">
                 <img
-                  src={review.productImage}
+                  src={getCdnUrl(review.productImage)}
                   alt={review.productName}
                   className="h-16 w-16 rounded-md object-cover"
                   onError={(e) => {
@@ -173,7 +174,7 @@ export default function ReviewDetailsDialog({
                 {review.images.map((image, index) => (
                   <img
                     key={index}
-                    src={image}
+                    src={getCdnUrl(image)}
                     alt={`Review image ${index + 1}`}
                     className="h-24 w-24 rounded-md object-cover border"
                     onError={(e) => {

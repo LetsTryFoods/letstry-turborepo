@@ -61,6 +61,10 @@ export class Identity {
 
   @Prop()
   @Field({ nullable: true })
+  avatar?: string;
+
+  @Prop()
+  @Field({ nullable: true })
   email?: string;
 
   @Prop({ type: Date })

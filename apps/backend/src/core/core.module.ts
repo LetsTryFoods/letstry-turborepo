@@ -16,7 +16,7 @@ import { CommonModule } from '../common/common.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
+      envFilePath: [`.env.${process.env.NODE_ENV || 'development'}`, '.env'],
       isGlobal: true,
       load: [config],
       validationSchema: Joi.object({
@@ -54,10 +54,10 @@ import { CommonModule } from '../common/common.module';
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
-      playground: true,
-      introspection: true,
+      playground: process.env.NODE_ENV !== 'production',
+      introspection: process.env.NODE_ENV !== 'production',
       autoSchemaFile: 'schema.gql',
-      graphiql: true,
+      graphiql: process.env.NODE_ENV !== 'production',
       context: ({ req, res }) => ({ req, res }),
     }),
     UploadModule,

@@ -15,6 +15,7 @@ import {
   ProcessRefundInput,
 } from '../../dto/payment.input';
 import { CartService } from '../../../cart/cart.service';
+import { Address, AddressDocument } from '../../../address/address.schema';
 
 @Injectable()
 export class PaymentService {
@@ -90,15 +91,43 @@ export class PaymentService {
         idempotencyKey,
       });
 
+      let buyerName = 'Customer';
+      let buyerPhone = '9999999999';
+      let buyerEmail = `identity_${identityId}@temp.com`;
+      let buyerAddress = '';
+      let buyerCity = '';
+      let buyerState = '';
+      let buyerCountry = '';
+      let buyerPincode = '';
+
+      if (cart.shippingAddressId) {
+        const AddressModel = this.paymentEventModel.db.model('Address');
+        const address = await AddressModel.findById(cart.shippingAddressId).lean().exec();
+        if (address) {
+          buyerName = (address as any).recipientName || buyerName;
+          buyerPhone = (address as any).recipientPhone || buyerPhone;
+          buyerAddress = [(address as any).buildingName, (address as any).streetArea, (address as any).landmark].filter(Boolean).join(', ');
+          buyerCity = (address as any).addressLocality || '';
+          buyerState = (address as any).addressRegion || '';
+          buyerCountry = (address as any).addressCountry || '';
+          buyerPincode = (address as any).postalCode || '';
+        }
+      }
+
       const paymentData =
         await this.paymentExecutorService.executePaymentOrder({
           paymentOrderId: paymentOrder.paymentOrderId,
           identityId,
           amount,
           currency,
-          buyerEmail: `identity_${identityId}@temp.com`,
-          buyerName: 'Customer',
-          buyerPhone: '9999999999',
+          buyerEmail,
+          buyerName,
+          buyerPhone,
+          buyerAddress,
+          buyerCity,
+          buyerState,
+          buyerCountry,
+          buyerPincode,
           productDescription: 'Order Payment',
           returnUrl: this.getReturnUrl(),
         });

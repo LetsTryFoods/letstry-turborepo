@@ -46,6 +46,7 @@ import {
   useUpdateReviewStatus, 
   useDeleteReview 
 } from "@/lib/reviews/useReviews"
+import { getCdnUrl } from "@/lib/utils/image-utils"
 import ReviewDetailsDialog from "./ReviewDetailsDialog"
 
 interface ReviewTableProps {
@@ -152,7 +153,7 @@ export default function ReviewTable({ reviews, onRefresh }: ReviewTableProps) {
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <img
-                          src={review.productImage}
+                          src={getCdnUrl(review.productImage)}
                           alt={review.productName}
                           className="h-10 w-10 rounded-md object-cover"
                           onError={(e) => {

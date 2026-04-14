@@ -20,9 +20,10 @@ import {
   Mail,
   Clock,
   MessageCircle,
-  MessageSquare,
+  MessageSquare, 
   IndianRupee
 } from "lucide-react"
+import { getCdnUrl } from "@/lib/utils/image-utils"
 
 interface CartDetailsDialogProps {
   cart: AbandonedCart | null
@@ -123,7 +124,7 @@ export function CartDetailsDialog({ cart, open, onOpenChange, onSendWhatsApp, on
                     <div className="relative h-16 w-16 rounded-md overflow-hidden border bg-muted">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={item.product.image}
+                        src={getCdnUrl(item.product.image)}
                         alt={item.product.name}
                         className="h-full w-full object-cover"
                       />

@@ -8,6 +8,7 @@ import { MoreHorizontal, Pencil, Archive, ArchiveRestore, Package } from "lucide
 import { Pagination } from "@/app/dashboard/components/pagination"
 import { ColumnDefinition } from "@/app/dashboard/components/column-selector"
 import Link from "next/link"
+import { getCdnUrl } from "@/lib/utils/image-utils"
 
 interface CategoryTableProps {
   categories: any[]
@@ -99,7 +100,7 @@ export function CategoryTable({
                       category.imageUrl ? (
                         <button
                           onClick={() => onImagePreview(
-                            String(category.imageUrl || ''),
+                            getCdnUrl(category.imageUrl || ''),
                             'Category Image'
                           )}
                           className="text-blue-600 hover:text-blue-800 underline text-left max-w-[200px] truncate block"

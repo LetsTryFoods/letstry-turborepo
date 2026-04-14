@@ -6,6 +6,7 @@ import { Switch } from "@/components/ui/switch"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react"
 import { ColumnDefinition } from "@/app/dashboard/components/column-selector"
+import { getCdnUrl } from "@/lib/utils/image-utils"
 
 interface FooterTableProps {
   footerDetails: any[]
@@ -76,7 +77,7 @@ export function FooterTable({
                     />
                   ) : columnKey === 'logoUrl' ? (
                     footer.logoUrl ? (
-                      <img src={footer.logoUrl} alt="Logo" className="h-8 w-auto object-contain" />
+                      <img src={getCdnUrl(footer.logoUrl)} alt="Logo" className="h-8 w-auto object-contain" />
                     ) : '-'
                   ) : columnKey === 'address' ? (
                     <div className="max-w-[250px] truncate" title={footer.address}>
@@ -102,7 +103,7 @@ export function FooterTable({
                             title={link.platform}
                           >
                             {link.iconUrl ? (
-                              <img src={link.iconUrl} alt={link.platform} className="h-5 w-5 object-contain" />
+                              <img src={getCdnUrl(link.iconUrl)} alt={link.platform} className="h-5 w-5 object-contain" />
                             ) : (
                               <span className="text-xs text-primary hover:underline">{link.platform}</span>
                             )}
