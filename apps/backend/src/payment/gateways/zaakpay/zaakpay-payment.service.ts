@@ -29,6 +29,7 @@ export class ZaakpayPaymentService {
         buyerState?: string;
         buyerCountry?: string;
         buyerPincode?: string;
+        productDescription: string;
         returnUrl: string;
     }): Promise<{ redirectUrl: string }> {
         const queryParams = this.buildQueryParams(params);
@@ -61,12 +62,12 @@ export class ZaakpayPaymentService {
         buyerState?: string;
         buyerCountry?: string;
         buyerPincode?: string;
+        productDescription: string;
         returnUrl: string;
     }) {
         const amountInPaisa = Math.round(parseFloat(params.amount) * 100).toString();
 
-        // productDescription is NOT part of the checksum — it's a display-only field
-        const checksumParams: Record<string, string> = {
+        const allParams: Record<string, string> = {
             amount: amountInPaisa,
             buyerAddress: params.buyerAddress || '',
             buyerCity: params.buyerCity || '',
@@ -79,22 +80,22 @@ export class ZaakpayPaymentService {
             currency: 'INR',
             merchantIdentifier: this.merchantId,
             orderId: params.orderId,
+            productDescription: params.productDescription,
             returnUrl: params.returnUrl,
             txnType: '1',
         };
 
         return Object.fromEntries(
-            Object.entries(checksumParams).filter(([_, v]) => v !== undefined && v !== null && v !== '')
+            Object.entries(allParams).filter(([_, v]) => v !== undefined && v !== null && v !== '')
         );
     }
 
     private generateChecksum(queryParams: Record<string, string>): string {
-        // Sort alphabetically, join with & — NO trailing &
-        const checksumString = Object.keys(queryParams)
-            .sort()
-            .map((key) => `${key}=${queryParams[key]}`)
-            .join('&');
-
+        // Zaakpay docs: sort alphabetically, format as key=value& for each param
+        const sortedKeys = Object.keys(queryParams).sort();
+        const checksumString = sortedKeys
+            .map((key) => `${key}=${queryParams[key]}&`)
+            .join('');
         this.paymentLogger.log('Checksum string generated', { checksumString });
         return this.checksumService.generateChecksum(checksumString);
     }
