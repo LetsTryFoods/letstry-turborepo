@@ -31,7 +31,6 @@ export class OrderResolver {
   constructor(
     private readonly orderService: OrderService,
     private readonly packingService: PackingService,
-    private readonly shipmentService: ShipmentService,
   ) { }
 
   @Query(() => PaginatedOrdersResponse)
@@ -94,7 +93,7 @@ export class OrderResolver {
       );
     }
 
-    const order = await this.orderService.getOrderByInternalId(orderId);
+    const order = await this.orderService.getOrderById(orderId);
     return order.toObject ? order.toObject() : order;
   }
 
@@ -174,12 +173,6 @@ export class OrderResolver {
       return (await this.packingService.calculateShipmentWeight(order, details.packingOrder, details.evidence))?.boxDimensions || null;
     }
     return (await this.packingService.calculateWeightAndBoxFromOrder(order))?.boxDimensions || null;
-  }
-
-  @ResolveField(() => ShipmentResponse, { nullable: true })
-  async shipment(@Parent() order: any): Promise<ShipmentResponse | null> {
-    const shipments = await this.shipmentService.findByOrderId(order._id.toString());
-    return shipments.length > 0 ? (shipments[0] as any as ShipmentResponse) : null;
   }
 }
 

@@ -10,16 +10,12 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { getInitials, formatCurrency } from "../../customers/utils/customerUtils";
-import { getCdnUrl } from "@/lib/utils/image-utils";
 import { Separator } from "@/components/ui/separator"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
 import {
   Order,
   OrderStatus,
-  PaymentStatus,
-  useOrderById
+  PaymentStatus
 } from "@/lib/orders/queries"
 import { toast } from "react-hot-toast"
 import { useShipmentLabel } from "@/lib/shipments/queries"
@@ -56,17 +52,15 @@ const downloadFile = async (url: string, filename: string): Promise<Blob> => {
   return response.blob()
 }
 
-export function OrderDetailsDialog({ order: initialOrder, open, onOpenChange }: OrderDetailsDialogProps) {
+export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDialogProps) {
   const { downloadLabel, loading: downloadingLabel } = useShipmentLabel()
   const [isDownloading, setIsDownloading] = useState(false)
   const [isDownloadingAll, setIsDownloadingAll] = useState(false)
 
-  const { order, loading: fetchingOrder } = useOrderById(initialOrder?._id || "")
-
-  if (!initialOrder) return null
+  if (!order) return null
 
   const handleDownloadLabel = async () => {
-    if (!order || !order.shipment?.dtdcAwbNumber) {
+    if (!order.shipment?.dtdcAwbNumber) {
       toast.error('Label not available. Please ensure shipment is created.')
       return
     }
@@ -87,7 +81,7 @@ export function OrderDetailsDialog({ order: initialOrder, open, onOpenChange }: 
   }
 
   const handleDownloadAll = async () => {
-    if (!order || !order.shipment?.dtdcAwbNumber) {
+    if (!order.shipment?.dtdcAwbNumber) {
       toast.error('Label not available. Please ensure shipment is created.')
       return
     }
@@ -167,269 +161,17 @@ export function OrderDetailsDialog({ order: initialOrder, open, onOpenChange }: 
     }
   }
 
-  const renderContent = () => {
-    if (fetchingOrder) {
-      return (
-        <div className="space-y-6">
-          <Skeleton className="h-[200px] w-full" />
-          <div className="grid gap-6 md:grid-cols-2">
-            <Skeleton className="h-[150px] w-full" />
-            <Skeleton className="h-[150px] w-full" />
-            <Skeleton className="h-[100px] w-full" />
-          </div>
-          <Skeleton className="h-[150px] w-full" />
-          <Skeleton className="h-[100px] w-full" />
-        </div>
-      )
-    }
-
-    if (!order) return <p className="text-center py-10 text-muted-foreground">Order details could not be loaded.</p>
-
-    return (
-      <div className="space-y-6">
-        {/* Order Items */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center">
-              <Package className="h-4 w-4 mr-2" />
-              Order Items ({order.items.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {order.items.map((item, idx) => (
-                <div key={idx} className="flex items-center gap-4">
-                  <div className="relative h-16 w-16 rounded-md overflow-hidden border bg-muted">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={getCdnUrl(item.image)}
-                      alt={item.name}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium truncate">{item.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      Variant: {item.variant} • Qty: {item.quantity}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium">₹{(Number(item.price) * Number(item.quantity)).toLocaleString()}</p>
-                    <p className="text-xs text-muted-foreground">₹{item.price} each</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <Separator className="my-4" />
-
-            {/* Price Summary */}
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Subtotal</span>
-                <span>₹{Number(order.subtotal).toLocaleString()}</span>
-              </div>
-              {Number(order.deliveryCharge) > 0 && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Delivery Charge</span>
-                  <span>₹{order.deliveryCharge}</span>
-                </div>
-              )}
-              {Number(order.deliveryCharge) === 0 && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Delivery Charge</span>
-                  <span className="text-green-600">FREE</span>
-                </div>
-              )}
-              {Number(order.discount) > 0 && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Discount</span>
-                  <span className="text-green-600">-₹{order.discount}</span>
-                </div>
-              )}
-              <Separator />
-              <div className="flex justify-between font-semibold">
-                <span>Total</span>
-                <span className="text-lg">₹{Number(order.totalAmount).toLocaleString()}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <div className="grid gap-6 md:grid-cols-2">
-          {/* Customer Details */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center">
-                <User className="h-4 w-4 mr-2" />
-                Customer Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <p className="font-medium">{order.customer?.name}</p>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Mail className="h-4 w-4" />
-                <span>{order.customer?.email || 'N/A'}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Phone className="h-4 w-4" />
-                <span>{order.customer?.phone || 'N/A'}</span>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Shipping Address */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center">
-                <MapPin className="h-4 w-4 mr-2" />
-                Shipping Address
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-1 text-sm">
-              <p className="font-medium">{order.shippingAddress?.fullName}</p>
-              <p className="text-muted-foreground">{order.shippingAddress?.addressLine1}</p>
-              {order.shippingAddress?.addressLine2 && (
-                <p className="text-muted-foreground">{order.shippingAddress?.addressLine2}</p>
-              )}
-              <p className="text-muted-foreground">
-                {order.shippingAddress?.city}, {order.shippingAddress?.state} - {order.shippingAddress?.pincode}
-              </p>
-              {order.shippingAddress?.landmark && (
-                <p className="text-muted-foreground text-xs">
-                  Landmark: {order.shippingAddress?.landmark}
-                </p>
-              )}
-              <div className="flex items-center gap-2 pt-2 text-muted-foreground">
-                <Phone className="h-4 w-4" />
-                <span>{order.shippingAddress?.phone}</span>
-              </div>
-              {order.shippingAddress?.formattedAddress && (
-                <div className="mt-3 pt-3 border-t">
-                  <p className="text-xs text-muted-foreground font-medium mb-1">Complete Address:</p>
-                  <p className="text-sm">{order.shippingAddress?.formattedAddress}</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Shipment Data */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center">
-                <Package className="h-4 w-4 mr-2" />
-                Shipment Data
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Calculated Weight</span>
-                <span className="font-medium">{order.estimatedWeight ? `${order.estimatedWeight} kg` : 'N/A'}</span>
-              </div>
-              {order.boxDimensions && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Box Dimensions</span>
-                  <span className="font-medium">
-                    {order.boxDimensions.l} x {order.boxDimensions.w} x {order.boxDimensions.h} cm
-                  </span>
-                </div>
-              )}
-              {!order.boxDimensions && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Box Recommendation</span>
-                  <span className="text-muted-foreground italic">Not available</span>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Payment Details */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center justify-between">
-              <div className="flex items-center">
-                <CreditCard className="h-4 w-4 mr-2" />
-                Payment Details
-              </div>
-              {getPaymentStatusBadge(order.payment?.status)}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Payment Method</span>
-                  <span className="font-medium">{getPaymentMethodLabel(order.payment?.method || '')}</span>
-                </div>
-                {order.payment?.transactionId && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Transaction ID</span>
-                    <code className="font-mono text-xs bg-muted px-2 py-0.5 rounded">
-                      {order.payment?.transactionId}
-                    </code>
-                  </div>
-                )}
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Amount</span>
-                  <span className="font-semibold flex items-center">
-                    <IndianRupee className="h-3 w-3" />
-                    {Number(order.payment?.amount || 0).toLocaleString()}
-                  </span>
-                </div>
-                {order.payment?.paidAt && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Paid At</span>
-                    <span>{format(new Date(order.payment?.paidAt), 'dd MMM yyyy, hh:mm a')}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Order Timeline */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base flex items-center">
-              <Clock className="h-4 w-4 mr-2" />
-              Order Timeline
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Order Placed</span>
-                <span>{format(new Date(order.createdAt), 'dd MMM yyyy, hh:mm a')}</span>
-              </div>
-              {order.updatedAt !== order.createdAt && (
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Last Updated</span>
-                  <span>{format(new Date(order.updatedAt), 'dd MMM yyyy, hh:mm a')}</span>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-6xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <span>Order {initialOrder.orderId}</span>
-              {getOrderStatusBadge(initialOrder.orderStatus)}
+              <span>Order {order.orderId}</span>
+              {getOrderStatusBadge(order.orderStatus)}
             </div>
             <div className="flex gap-2">
-              {order?.shipment?.dtdcAwbNumber && (
+              {order.shipment?.dtdcAwbNumber && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -441,7 +183,7 @@ export function OrderDetailsDialog({ order: initialOrder, open, onOpenChange }: 
                   {isDownloadingAll || downloadingLabel ? 'Downloading...' : 'Download All'}
                 </Button>
               )}
-              {order?.shipment?.dtdcAwbNumber && (
+              {order.shipment?.dtdcAwbNumber && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -457,7 +199,7 @@ export function OrderDetailsDialog({ order: initialOrder, open, onOpenChange }: 
                 variant="outline"
                 size="sm"
                 className="text-blue-600 border-blue-200 hover:bg-blue-50"
-                onClick={() => window.open(`${API_BASE_URL}/orders/${initialOrder._id}/invoice`, '_blank')}
+                onClick={() => window.open(`${API_BASE_URL}/orders/${order._id}/invoice`, '_blank')}
               >
                 <FileDown className="h-4 w-4 mr-2" />
                 Download Invoice
@@ -465,11 +207,240 @@ export function OrderDetailsDialog({ order: initialOrder, open, onOpenChange }: 
             </div>
           </DialogTitle>
           <DialogDescription>
-            Placed on {format(new Date(initialOrder.createdAt), 'dd MMM yyyy, hh:mm a')}
+            Placed on {format(new Date(order.createdAt), 'dd MMM yyyy, hh:mm a')}
           </DialogDescription>
         </DialogHeader>
 
-        {renderContent()}
+        <div className="space-y-6">
+          {/* Order Items */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center">
+                <Package className="h-4 w-4 mr-2" />
+                Order Items ({order.items.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {order.items.map((item, idx) => (
+                  <div key={idx} className="flex items-center gap-4">
+                    <div className="relative h-16 w-16 rounded-md overflow-hidden border bg-muted">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium truncate">{item.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Variant: {item.variant} • Qty: {item.quantity}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-medium">₹{(Number(item.price) * Number(item.quantity)).toLocaleString()}</p>
+                      <p className="text-xs text-muted-foreground">₹{item.price} each</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <Separator className="my-4" />
+
+              {/* Price Summary */}
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span>₹{order.subtotal.toLocaleString()}</span>
+                </div>
+                {Number(order.deliveryCharge) > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Delivery Charge</span>
+                    <span>₹{order.deliveryCharge}</span>
+                  </div>
+                )}
+                {Number(order.deliveryCharge) === 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Delivery Charge</span>
+                    <span className="text-green-600">FREE</span>
+                  </div>
+                )}
+                {Number(order.discount) > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Discount</span>
+                    <span className="text-green-600">-₹{order.discount}</span>
+                  </div>
+                )}
+                <Separator />
+                <div className="flex justify-between font-semibold">
+                  <span>Total</span>
+                  <span className="text-lg">₹{order.totalAmount.toLocaleString()}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* Customer Details */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center">
+                  <User className="h-4 w-4 mr-2" />
+                  Customer Details
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div>
+                  <p className="font-medium">{order.customer?.name}</p>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Mail className="h-4 w-4" />
+                  <span>{order.customer?.email}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Phone className="h-4 w-4" />
+                  <span>{order.customer?.phone}</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Shipping Address */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center">
+                  <MapPin className="h-4 w-4 mr-2" />
+                  Shipping Address
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-1 text-sm">
+                <p className="font-medium">{order.shippingAddress?.fullName}</p>
+                <p className="text-muted-foreground">{order.shippingAddress?.addressLine1}</p>
+                {order.shippingAddress?.addressLine2 && (
+                  <p className="text-muted-foreground">{order.shippingAddress?.addressLine2}</p>
+                )}
+                <p className="text-muted-foreground">
+                  {order.shippingAddress?.city}, {order.shippingAddress?.state} - {order.shippingAddress?.pincode}
+                </p>
+                {order.shippingAddress?.landmark && (
+                  <p className="text-muted-foreground text-xs">
+                    Landmark: {order.shippingAddress?.landmark}
+                  </p>
+                )}
+                <div className="flex items-center gap-2 pt-2 text-muted-foreground">
+                  <Phone className="h-4 w-4" />
+                  <span>{order.shippingAddress?.phone}</span>
+                </div>
+                {order.shippingAddress?.formattedAddress && (
+                  <div className="mt-3 pt-3 border-t">
+                    <p className="text-xs text-muted-foreground font-medium mb-1">Complete Address:</p>
+                    <p className="text-sm">{order.shippingAddress?.formattedAddress}</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Shipment Data */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center">
+                  <Package className="h-4 w-4 mr-2" />
+                  Shipment Data
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Calculated Weight</span>
+                  <span className="font-medium">{order.estimatedWeight ? `${order.estimatedWeight} kg` : 'N/A'}</span>
+                </div>
+                {order.boxDimensions && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Box Dimensions</span>
+                    <span className="font-medium">
+                      {order.boxDimensions.l} x {order.boxDimensions.w} x {order.boxDimensions.h} cm
+                    </span>
+                  </div>
+                )}
+                {!order.boxDimensions && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Box Recommendation</span>
+                    <span className="text-muted-foreground italic">Not available</span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Payment Details */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center justify-between">
+                <div className="flex items-center">
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  Payment Details
+                </div>
+                {getPaymentStatusBadge(order.payment?.status)}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Payment Method</span>
+                    <span className="font-medium">{getPaymentMethodLabel(order.payment?.method || '')}</span>
+                  </div>
+                  {order.payment?.transactionId && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Transaction ID</span>
+                      <code className="font-mono text-xs bg-muted px-2 py-0.5 rounded">
+                        {order.payment?.transactionId}
+                      </code>
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Amount</span>
+                    <span className="font-semibold flex items-center">
+                      <IndianRupee className="h-3 w-3" />
+                      {order.payment?.amount.toLocaleString()}
+                    </span>
+                  </div>
+                  {order.payment?.paidAt && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Paid At</span>
+                      <span>{format(new Date(order.payment?.paidAt), 'dd MMM yyyy, hh:mm a')}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Order Timeline */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center">
+                <Clock className="h-4 w-4 mr-2" />
+                Order Timeline
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Order Placed</span>
+                  <span>{format(new Date(order.createdAt), 'dd MMM yyyy, hh:mm a')}</span>
+                </div>
+                {order.updatedAt !== order.createdAt && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Last Updated</span>
+                    <span>{format(new Date(order.updatedAt), 'dd MMM yyyy, hh:mm a')}</span>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </DialogContent>
     </Dialog>
   )

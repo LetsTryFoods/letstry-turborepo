@@ -65,7 +65,15 @@ log "Upload completed"
 
 # Retention management: Keep only last 5 days
 log "Checking retention policy (keep last 5 days)..."
-FIVE_DAYS_AGO=$(date -v-5d +%Y-%m-%d)
+
+# Calculate 5 days ago in a cross-platform way
+if date -v-1d >/dev/null 2>&1; then
+    # BSD/macOS
+    FIVE_DAYS_AGO=$(date -v-5d +%Y-%m-%d)
+else
+    # GNU/Linux
+    FIVE_DAYS_AGO=$(date --date="5 days ago" +%Y-%m-%d)
+fi
 
 # List objects in the prefix
 OBJECT_LIST=$(AWS_ACCESS_KEY_ID="$R2_ACCESS_KEY" AWS_SECRET_ACCESS_KEY="$R2_SECRET_KEY" AWS_DEFAULT_REGION=auto aws s3 ls "s3://$R2_BUCKET/$PREFIX" --endpoint-url="$R2_ENDPOINT_URL" --recursive | awk '{print $4}')
