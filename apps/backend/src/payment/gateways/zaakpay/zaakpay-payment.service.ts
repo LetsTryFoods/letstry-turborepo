@@ -81,7 +81,8 @@ export class ZaakpayPaymentService {
             merchantIdentifier: this.merchantId,
             orderId: params.orderId,
             productDescription: params.productDescription,
-            returnUrl: params.returnUrl
+            returnUrl: params.returnUrl,
+            txnType: '1',
         };
 
         return Object.fromEntries(
