@@ -16,34 +16,22 @@ import {
 } from 'react-native';
 import { COLORS } from '../constants/theme';
 
-// 1. IMPORTS FOR BACKEND
 import { useMutation } from '@apollo/client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PACKER_LOGIN } from '../graphql/queries';
 
 const LoginScreen = ({ navigation }) => {
-  const [employeeId, setEmployeeId] = useState(''); // Renamed state for clarity
+  const [employeeId, setEmployeeId] = useState('');
   const [password, setPassword] = useState('');
 
-  // 2. SETUP MUTATION
   const [login, { loading }] = useMutation(PACKER_LOGIN, {
     onCompleted: async (data) => {
-      // 3. SUCCESS HANDLER
-      // Debug log to ensure we got data
-      console.log("Login Response:", data);
-
       const { accessToken, packer } = data.packerLogin;
-      
-      // Save credentials to storage
-      await AsyncStorage.setItem('userToken', accessToken); // Using 'accessToken'
+      await AsyncStorage.setItem('userToken', accessToken);
       await AsyncStorage.setItem('packerId', packer.id);
-      
-      // Navigate to Dashboard
       navigation.replace('Dashboard', { user: packer });
     },
     onError: (error) => {
-      // 4. ERROR HANDLER
-      console.log("Login Error Detailed:", JSON.stringify(error, null, 2));
       Alert.alert('Login Failed', error.message || 'Please check your ID and Password');
     }
   });
@@ -54,15 +42,13 @@ const LoginScreen = ({ navigation }) => {
       return;
     }
 
-    // Trigger the mutation
-    login({ 
-      variables: { 
-        input: { 
-          // 👇 CORRECTED: Backend expects 'employeeId'
-          employeeId: employeeId, 
-          password: password 
-        } 
-      } 
+    login({
+      variables: {
+        input: {
+          employeeId: employeeId,
+          password: password,
+        },
+      },
     });
   };
 

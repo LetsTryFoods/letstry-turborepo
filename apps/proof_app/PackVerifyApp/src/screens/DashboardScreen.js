@@ -27,44 +27,51 @@ const DashboardScreen = ({ navigation, route }) => {
 
   // 2. FETCH ORDERS
   const { data, loading, error, refetch } = useQuery(GET_MY_ASSIGNED_ORDERS, {
-    pollInterval: 5000, // Auto-refresh every 5s
-    onError: (err) => console.log("Dashboard Error:", err.message)
+    pollInterval: 5000,
   });
 
   const handleOrderPress = (order) => {
-    console.log("👉 CLICKED ORDER:", order.orderNumber);
-    console.log("🆔 ID BEING PASSED:", order.id); // <--- DEBUG CHECK
-
     if (!order.id) {
-        Alert.alert("Error", "This order has no ID. Cannot open.");
-        return;
+      Alert.alert('Error', 'This order has no ID. Cannot open.');
+      return;
     }
-
-    navigation.navigate('OrderDetails', { 
-      order: order, // Passing the FULL order object
-      user: user 
+    navigation.navigate('OrderDetails', {
+      order: order,
+      user: user,
     });
   };
 
   const renderOrderCard = ({ item }) => (
-    <TouchableOpacity 
-      style={styles.card} 
+    <TouchableOpacity
+      style={styles.card}
       onPress={() => handleOrderPress(item)}
       activeOpacity={0.7}
     >
       <View style={styles.cardHeader}>
         <Text style={styles.orderId}>#{item.orderNumber || item.orderId}</Text>
-        <View style={[styles.badge, item.status === 'ASSIGNED' ? styles.badgeAssigned : styles.badgeProgress]}>
-          <Text style={styles.badgeText}>{item.status}</Text>
+        <View style={styles.badges}>
+          {item.isExpress && (
+            <View style={styles.badgeExpress}>
+              <Text style={styles.badgeText}>⚡ EXPRESS</Text>
+            </View>
+          )}
+          <View style={[styles.badge, item.status === 'assigned' ? styles.badgeAssigned : styles.badgeProgress]}>
+            <Text style={styles.badgeText}>{item.status.toUpperCase()}</Text>
+          </View>
         </View>
       </View>
-      
-      <Text style={styles.date}>Assigned: {new Date(item.assignedAt).toLocaleTimeString()}</Text>
-      
+
+      {item.specialInstructions ? (
+        <Text style={styles.instructions}>⚠ {item.specialInstructions}</Text>
+      ) : null}
+
       <View style={styles.divider} />
-      
+
       <View style={styles.cardFooter}>
-        <Text style={styles.itemsText}>{item.items?.length || 0} Items</Text>
+        <Text style={styles.itemsText}>{item.items?.length || 0} product type(s)</Text>
+        <Text style={styles.totalQty}>
+          {item.items?.reduce((s, i) => s + i.quantity, 0) || 0} items total
+        </Text>
         <Ionicons name="chevron-forward" size={20} color={COLORS.textLight} />
       </View>
     </TouchableOpacity>
@@ -118,18 +125,21 @@ const styles = StyleSheet.create({
   listContainer: { flex: 1, padding: 20 },
   sectionTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 15, color: COLORS.textDark },
   emptyText: { textAlign: 'center', color: '#94a3b8', marginTop: 50 },
-  
+
   card: { backgroundColor: 'white', borderRadius: 16, padding: 16, marginBottom: 12, elevation: 2 },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  orderId: { fontSize: 16, fontWeight: 'bold', color: COLORS.textDark },
+  orderId: { fontSize: 16, fontWeight: 'bold', color: COLORS.textDark, flex: 1 },
+  badges: { flexDirection: 'row', gap: 6 },
   badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 },
+  badgeExpress: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8, backgroundColor: '#fef3c7' },
   badgeAssigned: { backgroundColor: '#e0f2fe' },
   badgeProgress: { backgroundColor: '#fef3c7' },
   badgeText: { fontSize: 10, fontWeight: 'bold', color: COLORS.textDark, textTransform: 'uppercase' },
-  date: { fontSize: 12, color: COLORS.textLight, marginTop: 4 },
+  instructions: { fontSize: 12, color: '#f59e0b', marginTop: 6 },
   divider: { height: 1, backgroundColor: '#f1f5f9', marginVertical: 12 },
   cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   itemsText: { fontSize: 14, fontWeight: '600', color: COLORS.primary },
+  totalQty: { fontSize: 12, color: COLORS.textLight },
 });
 
 export default DashboardScreen;

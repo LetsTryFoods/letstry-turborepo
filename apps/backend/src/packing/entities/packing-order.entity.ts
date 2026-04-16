@@ -36,6 +36,7 @@ export class PackingOrder extends Document {
     ean: string;
     name: string;
     quantity: number;
+    scannedCount: number;
     dimensions: {
       length: number;
       width: number;

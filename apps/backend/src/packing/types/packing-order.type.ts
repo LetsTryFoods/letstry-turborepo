@@ -35,6 +35,9 @@ export class PackingItem {
   @Field(() => Int)
   quantity: number;
 
+  @Field(() => Int, { nullable: true })
+  scannedCount?: number;
+
   @Field(() => ItemDimensions)
   dimensions: ItemDimensions;
 
