@@ -21,17 +21,19 @@ export const PACKER_LOGIN = gql`
 export const GET_MY_ASSIGNED_ORDERS = gql`
   query GetMyAssignedOrders {
     getMyAssignedOrders {
-      id  
+      id
       orderId
       orderNumber
       status
       specialInstructions
+      isExpress
       items {
         productId
         sku
         ean
         name
         quantity
+        scannedCount
         imageUrl
         isFragile
       }
@@ -46,6 +48,8 @@ export const GET_ORDER_DETAILS = gql`
       orderId
       orderNumber
       status
+      specialInstructions
+      isExpress
       items {
         productId
         sku

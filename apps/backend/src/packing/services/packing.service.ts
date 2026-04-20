@@ -167,6 +167,14 @@ export class PackingService {
       }
     }
 
+    if (!hasAnyError) {
+      const updatedItems = packingOrder.items.map((i: any) => {
+        const scanned = items.find((s) => s.productId === i.productId);
+        return scanned ? { ...i, scannedCount: scanned.eans.length } : i;
+      });
+      await this.packingOrderCrud.update(packingOrderId, { items: updatedItems });
+    }
+
     await this.scanLogCrud.create({
       packingOrderId,
       packerId,
@@ -228,7 +236,7 @@ export class PackingService {
 
     const evidence = await this.evidenceCrud.create({
       packingOrderId,
-      packerId: 'current_packer',
+      packerId,
       prePackImages: imageUrls,
       postPackImages: [],
       actualBox: { code: boxCode, dimensions: { l: 0, w: 0, h: 0 } },
@@ -275,17 +283,6 @@ export class PackingService {
       hasSuccessfulScan: true,
     });
 
-    const evidence = await this.evidenceCrud.findByOrder(packingOrderId);
-
-    if (!evidence || !evidence.prePackImages || evidence.prePackImages.length === 0) {
-      this.scanLogger.logScanError('completePacking', packingOrderId, new Error('No packing evidence found'));
-      throw new Error('Cannot complete packing: Please upload pre-pack images first');
-    }
-    this.scanLogger.logCompletePackingStep('EVIDENCE_VERIFIED', {
-      packingOrderId,
-      evidenceId: evidence._id,
-    });
-
     await this.packingLifecycle.completePacking(packingOrderId);
 
     this.scanLogger.logCompletePackingStep('STATUS_COMPLETED', { packingOrderId });
@@ -313,7 +310,14 @@ export class PackingService {
       orderId: packingOrder.orderId,
     });
 
-    await this.initiateShipmentCreation(packingOrder.orderId, packingOrderId);
+    try {
+      await this.initiateShipmentCreation(packingOrder.orderId, packingOrderId);
+    } catch (shipmentError) {
+      this.scanLogger.logCompletePackingStep('SHIPMENT_SKIPPED', {
+        packingOrderId,
+        reason: shipmentError.message,
+      });
+    }
 
     const result = await this.packingOrderCrud.findById(packingOrderId);
 
@@ -512,7 +516,9 @@ export class PackingService {
         orderId,
         packingOrderId,
       });
-      await this.orderRepository.updateStatusByInternalId(orderId, OrderStatus.SHIPMENT_FAILED);
+      try {
+        await this.orderRepository.updateStatusByInternalId(orderId, OrderStatus.SHIPMENT_FAILED);
+      } catch (_) {}
       throw error;
     }
   }

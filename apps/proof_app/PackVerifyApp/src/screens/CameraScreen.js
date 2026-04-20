@@ -1,460 +1,36 @@
-
-
-
-// import { Ionicons } from '@expo/vector-icons';
-// import { CameraView, useCameraPermissions } from 'expo-camera';
-// import * as FileSystem from 'expo-file-system';
-// import { LinearGradient } from 'expo-linear-gradient';
-// import * as MediaLibrary from 'expo-media-library';
-// import { useEffect, useRef, useState } from 'react';
-// import {
-//   ActivityIndicator,
-//   Alert,
-//   Image,
-//   StatusBar,
-//   StyleSheet,
-//   Text,
-//   TouchableOpacity,
-//   Vibration,
-//   View
-// } from 'react-native';
-// import ViewShot from 'react-native-view-shot';
-// import { COLORS } from '../constants/theme';
-
-// import { useMutation } from '@apollo/client';
-// import { COMPLETE_PACKING, SCAN_ITEM, UPLOAD_EVIDENCE } from '../graphql/queries';
-
-
-// /* ======================================================
-// PHOTO STEPS
-// ====================================================== */
-// const PHOTO_STEPS = [
-//   { id: 'inner', group: 'PRE', label: 'STEP 1 / 3', desc: 'Capture items inside box' },
-//   { id: 'protective', group: 'PRE', label: 'STEP 2 / 3', desc: 'Capture protective packaging' },
-//   { id: 'label', group: 'POST', label: 'STEP 3 / 3', desc: 'Capture sealed box & label' },
-// ];
-
-
-// /* ======================================================
-// COMPONENT
-// ====================================================== */
-// const CameraScreen = ({ navigation, route }) => {
-//   const { order, user } = route.params;
-
-//   const cameraRef = useRef(null);
-//   const viewShotRef = useRef(null);
-
-//   const [permission, requestPermission] = useCameraPermissions();
-//   const [mediaPermission, requestMediaPermission] = MediaLibrary.usePermissions();
-
-//   /* ===============================
-//      PACKING STATE
-//   =============================== */
-//   const [items, setItems] = useState(
-//     order.items.map(i => ({
-//       ...i,
-//       scannedQty: i.scannedCount || 0
-//     }))
-//   );
-
-//   const [scanLocked, setScanLocked] = useState(false);
-//   const [packingDone, setPackingDone] = useState(false);
-
-//   /* ===============================
-//      DEBUG STATE
-//   =============================== */
-//   const [lastScannedEAN, setLastScannedEAN] = useState(null);
-//   const [lastScanResult, setLastScanResult] = useState(null);
-
-//   /* ===============================
-//      PHOTO STATE
-//   =============================== */
-//   const [currentStepIndex, setCurrentStepIndex] = useState(0);
-//   const [currentPhoto, setCurrentPhoto] = useState(null);
-//   const [evidencePaths, setEvidencePaths] = useState({ pre: [], post: [] });
-//   const [isProcessing, setIsProcessing] = useState(false);
-
-//   const currentStep = PHOTO_STEPS[currentStepIndex];
-
-//   /* ===============================
-//      GRAPHQL
-//   =============================== */
-//   const [scanItemMutation] = useMutation(SCAN_ITEM);
-//   const [uploadEvidenceMutation] = useMutation(UPLOAD_EVIDENCE);
-//   const [completePackingMutation] = useMutation(COMPLETE_PACKING);
-
-//   useEffect(() => {
-//     if (!permission?.granted) requestPermission();
-//     if (!mediaPermission?.granted) requestMediaPermission();
-//   }, []);
-
-
-//   /* ======================================================
-//      SCAN HANDLER
-//   ====================================================== */
-//   const handleBarcodeScan = async ({ data }) => {
-//     if (scanLocked) return;
-//     setScanLocked(true);
-//     setLastScannedEAN(data);
-
-//     try {
-//       const variables = {
-//         input: {
-//           packingOrderId: order.id,
-//           ean: data
-//         }
-//       };
-
-//       console.log("📤 SCAN REQUEST", variables);
-
-//       const response = await scanItemMutation({
-//         variables,
-//         errorPolicy: 'all'
-//       });
-
-//       console.log("📥 SCAN RESPONSE", response);
-
-//       if (response.errors?.length) {
-//         Vibration.vibrate();
-//         Alert.alert("Scan Error", response.errors[0].message);
-//         return;
-//       }
-
-//       const log = response?.data?.scanItem;
-//       setLastScanResult(log);   // ⭐ store backend result
-
-//       if (!log) {
-//         Alert.alert("Scan Failed", "No result returned");
-//         return;
-//       }
-
-//       if (!log.isValid) {
-//         Vibration.vibrate();
-//         Alert.alert("Invalid Item", log.errorType || "Unknown error");
-//         return;
-//       }
-
-//       setItems(prev => {
-//         const updated = [...prev];
-//         const index = updated.findIndex(i => i.productId === log.matchedProductId);
-//         if (index !== -1) updated[index].scannedQty = log.scannedQuantity;
-//         return updated;
-//       });
-
-//     } catch (err) {
-//       console.log("NETWORK ERROR", err);
-//       Alert.alert("Network Error", err.message);
-//     } finally {
-//       setTimeout(() => setScanLocked(false), 800);
-//     }
-//   };
-
-
-//   /* ======================================================
-//      CHECK COMPLETE
-//   ====================================================== */
-//   useEffect(() => {
-//     const done = items.every(i => i.scannedQty >= i.quantity);
-//     if (done && !packingDone) {
-//       setPackingDone(true);
-//       Alert.alert("Scanning Complete");
-//     }
-//   }, [items]);
-
-
-//   /* ======================================================
-//      CAMERA CAPTURE
-//   ====================================================== */
-//   const takePicture = async () => {
-//     if (!cameraRef.current) return;
-//     const data = await cameraRef.current.takePictureAsync({ quality: 0.6 });
-//     setCurrentPhoto(data.uri);
-//   };
-
-
-//   /* ======================================================
-//      PHOTO FLOW
-//   ====================================================== */
-//   const confirmAndNext = async () => {
-//     setIsProcessing(true);
-//     try {
-//       const uri = await viewShotRef.current.capture();
-//       const newPaths = { ...evidencePaths };
-
-//       if (currentStep.group === 'PRE') newPaths.pre.push(uri);
-//       else newPaths.post.push(uri);
-
-//       setEvidencePaths(newPaths);
-
-//       if (currentStepIndex < PHOTO_STEPS.length - 1) {
-//         setCurrentPhoto(null);
-//         setCurrentStepIndex(i => i + 1);
-//         setIsProcessing(false);
-//       } else {
-//         await finalSubmission(newPaths);
-//       }
-//     } catch {
-//       Alert.alert("Photo processing failed");
-//       setIsProcessing(false);
-//     }
-//   };
-
-
-//   /* ======================================================
-//      FINAL SUBMIT
-//   ====================================================== */
-//   const finalSubmission = async (paths) => {
-//     try {
-//       const preImages = await Promise.all(
-//         paths.pre.map(uri => FileSystem.readAsStringAsync(uri, { encoding: 'base64' }))
-//       );
-
-//       const postImages = await Promise.all(
-//         paths.post.map(uri => FileSystem.readAsStringAsync(uri, { encoding: 'base64' }))
-//       );
-
-//       await uploadEvidenceMutation({
-//         variables: {
-//           input: {
-//             packingOrderId: order.id,
-//             prePackImages: preImages,
-//             postPackImages: postImages,
-//             actualBoxCode: null
-//           }
-//         }
-//       });
-
-//       await completePackingMutation({
-//         variables: { packingOrderId: order.id }
-//       });
-
-//       Alert.alert("SUCCESS", "Order packed", [
-//         { text: "Dashboard", onPress: () => navigation.navigate('Dashboard') }
-//       ]);
-
-//     } catch (err) {
-//       Alert.alert("Submission Error", err.message);
-//     } finally {
-//       setIsProcessing(false);
-//     }
-//   };
-
-
-//   /* ======================================================
-//      PHOTO PREVIEW
-//   ====================================================== */
-//   if (currentPhoto) {
-//     return (
-//       <View style={styles.container}>
-//         <StatusBar hidden />
-//         <ViewShot ref={viewShotRef} style={{ flex: 1 }}>
-//           <Image source={{ uri: currentPhoto }} style={{ flex: 1 }} />
-//           <LinearGradient colors={['transparent','rgba(0,0,0,0.8)']} style={styles.watermarkGradient}>
-//             <Text style={styles.wmTitle}>PACKED BY {user.name}</Text>
-//             <Text style={styles.wmSub}>{currentStep.desc}</Text>
-//           </LinearGradient>
-//         </ViewShot>
-
-//         <View style={styles.actionOverlay}>
-//           <TouchableOpacity onPress={() => setCurrentPhoto(null)} style={styles.btnBlur}>
-//             <Ionicons name="refresh" size={24} color="#fff"/>
-//           </TouchableOpacity>
-//           <TouchableOpacity onPress={confirmAndNext} style={styles.btnPrimary}>
-//             {isProcessing ? <ActivityIndicator color="#fff"/> : <Text style={styles.btnText}>NEXT</Text>}
-//           </TouchableOpacity>
-//         </View>
-//       </View>
-//     );
-//   }
-
-
-//   /* ======================================================
-//      SCANNER UI WITH FULL DEBUG
-//   ====================================================== */
-//   if (!packingDone) {
-//     return (
-//       <View style={styles.container}>
-//         <StatusBar hidden />
-//         <CameraView
-//           style={{ flex: 1 }}
-//           ref={cameraRef}
-//           barcodeScannerSettings={{ barcodeTypes: ['ean13','ean8','qr'] }}
-//           onBarcodeScanned={handleBarcodeScan}
-//         >
-//           <View style={styles.scanOverlay}>
-
-//             <View style={styles.debugBox}>
-//               <Text style={styles.debugTitle}>DEBUG INFO</Text>
-
-//               <Text style={styles.debugText}>
-//                 Camera scanned: {lastScannedEAN || "None"}
-//               </Text>
-
-//               {lastScanResult && (
-//                 <>
-//                   <Text style={styles.debugTitle}>Backend Response</Text>
-
-//                   <Text style={styles.debugText}>Backend EAN: {lastScanResult.ean}</Text>
-//                   <Text style={{
-//                     color: lastScanResult.isValid ? '#00ff00' : '#ff4444',
-//                     fontSize: 12
-//                   }}>
-//                     isValid: {String(lastScanResult.isValid)}
-//                   </Text>
-//                   <Text style={styles.debugText}>errorType: {lastScanResult.errorType || "none"}</Text>
-//                   <Text style={styles.debugText}>matchedProductId: {lastScanResult.matchedProductId || "none"}</Text>
-//                   <Text style={styles.debugText}>matchedSku: {lastScanResult.matchedSku || "none"}</Text>
-//                   <Text style={styles.debugText}>expectedQty: {lastScanResult.expectedQuantity ?? "null"}</Text>
-//                   <Text style={styles.debugText}>scannedQty: {lastScanResult.scannedQuantity ?? "null"}</Text>
-//                 </>
-//               )}
-
-//               <Text style={styles.debugTitle}>Expected Order EANs</Text>
-//               {order.items.map((item, i) => (
-//                 <Text
-//                   key={i}
-//                   style={{
-//                     color: item.ean === lastScannedEAN ? '#00ff00' : '#fff',
-//                     fontSize: 12
-//                   }}
-//                 >
-//                   • {item.name} → {item.ean || "NO EAN"}
-//                 </Text>
-//               ))}
-//             </View>
-
-//             {items.map((i, idx) => (
-//               <View key={idx} style={styles.scanRow}>
-//                 <Text>{i.name}</Text>
-//                 <Text>{i.scannedQty}/{i.quantity}</Text>
-//               </View>
-//             ))}
-
-//           </View>
-//         </CameraView>
-//       </View>
-//     );
-//   }
-
-
-//   return (
-//     <View style={styles.container}>
-//       <StatusBar hidden />
-//       <CameraView style={{ flex: 1 }} ref={cameraRef}>
-//         <View style={styles.bottomControls}>
-//           <TouchableOpacity onPress={takePicture} style={styles.shutterBtn}/>
-//         </View>
-//       </CameraView>
-//     </View>
-//   );
-// };
-
-
-// const styles = StyleSheet.create({
-//   container:{flex:1,backgroundColor:'#000'},
-//   watermarkGradient:{position:'absolute',bottom:0,left:0,right:0,padding:20},
-//   wmTitle:{color:'#fff',fontWeight:'bold',fontSize:16},
-//   wmSub:{color:'#ccc',fontSize:12},
-//   actionOverlay:{position:'absolute',bottom:40,left:20,right:20,flexDirection:'row'},
-//   btnBlur:{width:50,height:50,borderRadius:25,backgroundColor:'rgba(255,255,255,0.2)',alignItems:'center',justifyContent:'center'},
-//   btnPrimary:{flex:1,marginLeft:16,backgroundColor:COLORS.primary,borderRadius:30,alignItems:'center',justifyContent:'center'},
-//   btnText:{color:'#fff',fontWeight:'bold'},
-//   scanOverlay:{position:'absolute',top:50,left:20,right:20,backgroundColor:'rgba(0,0,0,0.85)',borderRadius:12,padding:16},
-//   scanRow:{flexDirection:'row',justifyContent:'space-between',marginBottom:6},
-//   bottomControls:{position:'absolute',bottom:50,width:'100%',alignItems:'center'},
-//   shutterBtn:{width:80,height:80,borderRadius:40,borderWidth:4,borderColor:'#fff'},
-
-//   debugBox:{backgroundColor:'#111',padding:10,borderRadius:8,marginBottom:12},
-//   debugTitle:{color:'#0f0',fontWeight:'bold',marginTop:6},
-//   debugText:{color:'#fff',fontSize:12}
-// });
-
-// export default CameraScreen;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+import { Ionicons } from '@expo/vector-icons';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import * as FileSystem from 'expo-file-system';
-import * as MediaLibrary from 'expo-media-library';
+import * as FileSystem from 'expo-file-system/legacy';
 import { useEffect, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   StatusBar,
   StyleSheet,
   Text,
+  TouchableOpacity,
   Vibration,
-  View
+  View,
 } from 'react-native';
 
 import { useMutation } from '@apollo/client';
-import {
-  BATCH_SCAN_ITEMS,
-  COMPLETE_PACKING,
-  UPLOAD_EVIDENCE
-} from '../graphql/queries';
-
-/* ======================================================
-PHOTO STEPS
-====================================================== */
-const PHOTO_STEPS = [
-  { id: 'inner', group: 'PRE', label: 'STEP 1 / 3', desc: 'Capture items inside box' },
-  { id: 'protective', group: 'PRE', label: 'STEP 2 / 3', desc: 'Capture protective packaging' },
-  { id: 'label', group: 'POST', label: 'STEP 3 / 3', desc: 'Capture sealed box & label' },
-];
+import { BATCH_SCAN_ITEMS, COMPLETE_PACKING, UPLOAD_EVIDENCE } from '../graphql/queries';
+import { COLORS } from '../constants/theme';
 
 const CameraScreen = ({ navigation, route }) => {
   const { order, user } = route.params;
-
   const cameraRef = useRef(null);
-  const viewShotRef = useRef(null);
 
   const [permission, requestPermission] = useCameraPermissions();
-  const [mediaPermission, requestMediaPermission] = MediaLibrary.usePermissions();
-
   const [items, setItems] = useState(
-    order.items.map(i => ({
-      ...i,
-      scannedQty: i.scannedCount || 0
-    }))
+    order.items.map(i => ({ ...i, scannedQty: i.scannedCount || 0 }))
   );
-
+  const pendingScans = useRef({});
   const [scanLocked, setScanLocked] = useState(false);
-  const [packingDone, setPackingDone] = useState(false);
-
-  const [lastScannedEAN, setLastScannedEAN] = useState(null);
-  const [lastScanResult, setLastScanResult] = useState(null);
-
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const [currentPhoto, setCurrentPhoto] = useState(null);
-  const [evidencePaths, setEvidencePaths] = useState({ pre: [], post: [] });
-  const [isProcessing, setIsProcessing] = useState(false);
-
-  const currentStep = PHOTO_STEPS[currentStepIndex];
+  const [allScanned, setAllScanned] = useState(false);
+  const [boxPhotoUri, setBoxPhotoUri] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [lastScanned, setLastScanned] = useState(null);
 
   const [batchScanMutation] = useMutation(BATCH_SCAN_ITEMS);
   const [uploadEvidenceMutation] = useMutation(UPLOAD_EVIDENCE);
@@ -462,198 +38,281 @@ const CameraScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     if (!permission?.granted) requestPermission();
-    if (!mediaPermission?.granted) requestMediaPermission();
   }, []);
 
-  /* ======================================================
-     SCAN HANDLER — FIXED PAYLOAD
-  ====================================================== */
+  useEffect(() => {
+    const done = items.every(i => i.scannedQty >= i.quantity);
+    if (done && items.length > 0 && !allScanned) {
+      setAllScanned(true);
+      Alert.alert('✅ All Items Scanned!', 'Now take a photo of the packed box.');
+    }
+  }, [items]);
+
   const handleBarcodeScan = async ({ data }) => {
-    if (scanLocked) return;
+    if (scanLocked || allScanned) return;
     setScanLocked(true);
-    setLastScannedEAN(data);
+    setLastScanned(data);
 
-    const matchedItem = order.items.find(i => i.ean === data);
-
+    const matchedItem = items.find(i => i.ean === data);
     if (!matchedItem) {
       Vibration.vibrate();
-      Alert.alert('Unknown Item', `EAN ${data} does not match any item in this order.`);
+      Alert.alert('Unknown EAN', `${data} is not in this order.`);
+      setTimeout(() => setScanLocked(false), 800);
+      return;
+    }
+
+    if (matchedItem.scannedQty >= matchedItem.quantity) {
+      Vibration.vibrate();
+      Alert.alert('Already Scanned', `${matchedItem.name} is already fully scanned.`);
+      setTimeout(() => setScanLocked(false), 800);
+      return;
+    }
+
+    const pid = matchedItem.productId;
+    if (!pendingScans.current[pid]) pendingScans.current[pid] = [];
+    pendingScans.current[pid].push(data);
+
+    const collected = pendingScans.current[pid].length;
+    const needed = matchedItem.quantity;
+
+    if (collected < needed) {
+      setItems(prev =>
+        prev.map(i => i.productId === pid ? { ...i, scannedQty: collected } : i)
+      );
       setTimeout(() => setScanLocked(false), 800);
       return;
     }
 
     try {
-      const variables = {
-        input: {
-          packingOrderId: order.id,
-          items: [
-            { productId: matchedItem.productId, eans: [data] }
-          ]
-        }
-      };
-
-      console.log('BATCH SCAN PAYLOAD:', JSON.stringify(variables, null, 2));
-
-      const response = await batchScanMutation({ variables, errorPolicy: 'all' });
-
-      console.log('BATCH SCAN RESPONSE:', JSON.stringify(response, null, 2));
+      const response = await batchScanMutation({
+        variables: {
+          input: {
+            packingOrderId: order.id,
+            items: [{ productId: pid, eans: pendingScans.current[pid] }],
+          },
+        },
+        errorPolicy: 'all',
+      });
 
       if (response.errors?.length) {
         Vibration.vibrate();
+        pendingScans.current[pid] = [];
         Alert.alert('Scan Error', response.errors[0].message);
         return;
       }
 
       const validation = response?.data?.batchScanItems?.validations?.[0];
-      setLastScanResult(validation);
-
       if (!validation?.isValid) {
         Vibration.vibrate();
-        Alert.alert('Invalid Item', validation?.errorMessage || validation?.errorType || 'Unknown error');
+        pendingScans.current[pid] = [];
+        Alert.alert('Invalid', validation?.errorMessage || 'Scan failed');
         return;
       }
 
-      setItems(prev => {
-        const updated = [...prev];
-        const index = updated.findIndex(i => i.productId === validation.productId);
-        if (index !== -1) {
-          updated[index] = {
-            ...updated[index],
-            scannedQty: validation.scannedQuantity ?? updated[index].scannedQty + 1,
-          };
-        }
-        return updated;
-      });
-
+      setItems(prev =>
+        prev.map(i => i.productId === pid ? { ...i, scannedQty: needed } : i)
+      );
     } catch (err) {
-      console.log('NETWORK ERROR', err);
+      pendingScans.current[pid] = [];
       Alert.alert('Network Error', err.message);
     } finally {
       setTimeout(() => setScanLocked(false), 800);
     }
   };
 
-  /* ======================================================
-     CHECK COMPLETE
-  ====================================================== */
-  useEffect(() => {
-    const done = items.every(i => i.scannedQty >= i.quantity);
-    if (done && !packingDone) {
-      setPackingDone(true);
-      Alert.alert("Scanning Complete");
-    }
-  }, [items]);
-
-  /* ======================================================
-     CAMERA CAPTURE
-  ====================================================== */
-  const takePicture = async () => {
+  const takeBoxPhoto = async () => {
     if (!cameraRef.current) return;
-    const data = await cameraRef.current.takePictureAsync({ quality: 0.6 });
-    setCurrentPhoto(data.uri);
+    const photo = await cameraRef.current.takePictureAsync({ quality: 0.7 });
+    setBoxPhotoUri(photo.uri);
   };
 
-  /* ======================================================
-     PHOTO FLOW
-  ====================================================== */
-  const confirmAndNext = async () => {
-    setIsProcessing(true);
-    try {
-      const uri = await viewShotRef.current.capture();
-      const newPaths = { ...evidencePaths };
+  const retakePhoto = () => setBoxPhotoUri(null);
 
-      if (currentStep.group === 'PRE') newPaths.pre.push(uri);
-      else newPaths.post.push(uri);
-
-      setEvidencePaths(newPaths);
-
-      if (currentStepIndex < PHOTO_STEPS.length - 1) {
-        setCurrentPhoto(null);
-        setCurrentStepIndex(i => i + 1);
-        setIsProcessing(false);
-      } else {
-        await finalSubmission(newPaths);
-      }
-    } catch {
-      Alert.alert("Photo processing failed");
-      setIsProcessing(false);
+  const submitOrder = async () => {
+    if (!boxPhotoUri) {
+      Alert.alert('Missing Photo', 'Please take a photo of the packed box.');
+      return;
     }
-  };
-
-  const finalSubmission = async (paths) => {
+    setIsSubmitting(true);
     try {
-      const preImages = await Promise.all(
-        paths.pre.map(uri => FileSystem.readAsStringAsync(uri, { encoding: 'base64' }))
-      );
-
-      const postImages = await Promise.all(
-        paths.post.map(uri => FileSystem.readAsStringAsync(uri, { encoding: 'base64' }))
-      );
+      const base64 = await FileSystem.readAsStringAsync(boxPhotoUri, { encoding: 'base64' });
 
       await uploadEvidenceMutation({
         variables: {
           input: {
             packingOrderId: order.id,
-            prePackImages: preImages,
-            postPackImages: postImages,
-            actualBoxCode: null
-          }
-        }
+            prePackImages: [base64],
+            postPackImages: [],
+            actualBoxCode: null,
+          },
+        },
       });
 
       await completePackingMutation({
-        variables: { packingOrderId: order.id }
+        variables: { packingOrderId: order.id },
       });
 
-      Alert.alert("SUCCESS", "Order packed", [
-        { text: "Dashboard", onPress: () => navigation.navigate('Dashboard') }
+      Alert.alert('🎉 Order Complete!', `Order #${order.orderNumber} packed by ${user.name}`, [
+        { text: 'Back to Dashboard', onPress: () => navigation.navigate('Dashboard') },
       ]);
-
     } catch (err) {
-      Alert.alert("Submission Error", err.message);
+      Alert.alert('Submit Error', err.message);
     } finally {
-      setIsProcessing(false);
+      setIsSubmitting(false);
     }
   };
 
-  /* ======================================================
-     UI
-  ====================================================== */
-
-  if (!packingDone) {
+  if (!permission) return <View style={styles.container} />;
+  if (!permission.granted) {
     return (
-      <View style={styles.container}>
-        <StatusBar hidden />
-        <CameraView
-          style={{ flex: 1 }}
-          ref={cameraRef}
-          barcodeScannerSettings={{ barcodeTypes: ['ean13','ean8','qr'] }}
-          onBarcodeScanned={handleBarcodeScan}
-        >
-          <View style={styles.scanOverlay}>
-
-            <Text style={{color:'#fff'}}>Scanned: {lastScannedEAN}</Text>
-
-            {items.map((i, idx) => (
-              <View key={idx} style={styles.scanRow}>
-                <Text style={{color:'#fff'}}>{i.name}</Text>
-                <Text style={{color:'#fff'}}>{i.scannedQty}/{i.quantity}</Text>
-              </View>
-            ))}
-
-          </View>
-        </CameraView>
+      <View style={[styles.container, styles.center]}>
+        <Text style={styles.permText}>Camera permission required</Text>
+        <TouchableOpacity style={styles.permBtn} onPress={requestPermission}>
+          <Text style={styles.permBtnText}>Grant Permission</Text>
+        </TouchableOpacity>
       </View>
     );
   }
 
-  return null;
+  if (allScanned) {
+    return (
+      <View style={styles.container}>
+        <StatusBar hidden />
+        {boxPhotoUri ? (
+          <View style={styles.container}>
+            <View style={styles.photoHeader}>
+              <Text style={styles.photoTitle}>Box Photo Preview</Text>
+              <Text style={styles.photoSub}>Order #{order.orderNumber} — Packed by {user.name}</Text>
+            </View>
+            <View style={styles.photoPreview}>
+              <Ionicons name="image" size={80} color="#555" />
+              <Text style={styles.photoCapured}>Photo captured ✓</Text>
+            </View>
+            <View style={styles.photoActions}>
+              <TouchableOpacity style={styles.retakeBtn} onPress={retakePhoto}>
+                <Ionicons name="refresh" size={20} color={COLORS.textDark} />
+                <Text style={styles.retakeBtnText}>Retake</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.submitBtn} onPress={submitOrder} disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <>
+                    <Ionicons name="checkmark-circle" size={20} color="#fff" />
+                    <Text style={styles.submitBtnText}>Complete Order</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : (
+          <CameraView style={{ flex: 1 }} ref={cameraRef}>
+            <View style={styles.photoOverlay}>
+              <View style={styles.photoPromptBox}>
+                <Ionicons name="camera" size={36} color="#fff" />
+                <Text style={styles.photoPromptTitle}>Take Box Photo</Text>
+                <Text style={styles.photoPromptSub}>Capture the sealed packed box with all items inside</Text>
+              </View>
+              <TouchableOpacity style={styles.shutterBtn} onPress={takeBoxPhoto}>
+                <View style={styles.shutterInner} />
+              </TouchableOpacity>
+            </View>
+          </CameraView>
+        )}
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <StatusBar hidden />
+      <CameraView
+        style={{ flex: 1 }}
+        ref={cameraRef}
+        barcodeScannerSettings={{ barcodeTypes: ['ean13', 'ean8', 'qr', 'code128'] }}
+        onBarcodeScanned={handleBarcodeScan}
+      >
+        <View style={styles.scanOverlay}>
+          <Text style={styles.overlayTitle}>📦 Scan Items — Order #{order.orderNumber}</Text>
+          {lastScanned ? (
+            <Text style={styles.lastScanned}>Last scanned: {lastScanned}</Text>
+          ) : null}
+          <View style={styles.divider} />
+          {items.map((item, idx) => {
+            const done = item.scannedQty >= item.quantity;
+            const pending = pendingScans.current[item.productId]?.length || 0;
+            const display = done ? item.quantity : pending;
+            return (
+              <View key={idx} style={styles.itemRow}>
+                <Ionicons
+                  name={done ? 'checkmark-circle' : pending > 0 ? 'hourglass-outline' : 'ellipse-outline'}
+                  size={20}
+                  color={done ? '#4ade80' : pending > 0 ? '#fb923c' : '#facc15'}
+                  style={{ marginRight: 8 }}
+                />
+                <Text style={[styles.itemName, done && styles.itemDone]} numberOfLines={1}>
+                  {item.name}
+                </Text>
+                <Text style={[styles.itemCount, done && styles.itemCountDone]}>
+                  {display}/{item.quantity}
+                </Text>
+              </View>
+            );
+          })}
+          <View style={styles.progressBar}>
+            <View style={[styles.progressFill, {
+              width: `${(items.reduce((s, i) => s + Math.min(i.scannedQty, i.quantity), 0) / items.reduce((s, i) => s + i.quantity, 0)) * 100}%`
+            }]} />
+          </View>
+          <Text style={styles.progressText}>
+            {items.reduce((s, i) => s + Math.min(i.scannedQty, i.quantity), 0)} / {items.reduce((s, i) => s + i.quantity, 0)} scanned
+          </Text>
+        </View>
+      </CameraView>
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
-  container:{flex:1,backgroundColor:'#000'},
-  scanOverlay:{position:'absolute',top:50,left:20,right:20,backgroundColor:'rgba(0,0,0,0.85)',borderRadius:12,padding:16},
-  scanRow:{flexDirection:'row',justifyContent:'space-between',marginBottom:6}
+  container: { flex: 1, backgroundColor: '#000' },
+  center: { justifyContent: 'center', alignItems: 'center' },
+  permText: { color: '#fff', fontSize: 16, marginBottom: 16 },
+  permBtn: { backgroundColor: COLORS.primary, paddingHorizontal: 24, paddingVertical: 12, borderRadius: 10 },
+  permBtnText: { color: '#fff', fontWeight: 'bold' },
+
+  scanOverlay: {
+    position: 'absolute', bottom: 0, left: 0, right: 0,
+    backgroundColor: 'rgba(0,0,0,0.88)', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20,
+  },
+  overlayTitle: { color: '#fff', fontWeight: 'bold', fontSize: 15, marginBottom: 4 },
+  lastScanned: { color: '#94a3b8', fontSize: 12, marginBottom: 8 },
+  divider: { height: 1, backgroundColor: 'rgba(255,255,255,0.15)', marginBottom: 12 },
+  itemRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
+  itemName: { flex: 1, color: '#e2e8f0', fontSize: 14 },
+  itemDone: { color: '#4ade80' },
+  itemCount: { color: '#facc15', fontWeight: 'bold', fontSize: 14, minWidth: 36, textAlign: 'right' },
+  itemCountDone: { color: '#4ade80' },
+  progressBar: { height: 6, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 3, marginTop: 12, overflow: 'hidden' },
+  progressFill: { height: 6, backgroundColor: COLORS.primary, borderRadius: 3 },
+  progressText: { color: '#94a3b8', fontSize: 12, textAlign: 'center', marginTop: 6 },
+
+  photoOverlay: { flex: 1, justifyContent: 'space-between', alignItems: 'center', paddingVertical: 60 },
+  photoPromptBox: { backgroundColor: 'rgba(0,0,0,0.75)', borderRadius: 16, padding: 24, alignItems: 'center', marginHorizontal: 24 },
+  photoPromptTitle: { color: '#fff', fontWeight: 'bold', fontSize: 20, marginTop: 12 },
+  photoPromptSub: { color: '#94a3b8', fontSize: 13, textAlign: 'center', marginTop: 8 },
+  shutterBtn: { width: 80, height: 80, borderRadius: 40, borderWidth: 4, borderColor: '#fff', justifyContent: 'center', alignItems: 'center' },
+  shutterInner: { width: 60, height: 60, borderRadius: 30, backgroundColor: '#fff' },
+
+  photoHeader: { backgroundColor: COLORS.primary, padding: 20, paddingTop: 50 },
+  photoTitle: { color: '#fff', fontWeight: 'bold', fontSize: 18 },
+  photoSub: { color: 'rgba(255,255,255,0.8)', fontSize: 13, marginTop: 4 },
+  photoPreview: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#111' },
+  photoCapured: { color: '#aaa', marginTop: 12 },
+  photoActions: { flexDirection: 'row', padding: 16, backgroundColor: '#fff', gap: 12 },
+  retakeBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, height: 52, gap: 8 },
+  retakeBtnText: { fontWeight: '600', color: COLORS.textDark },
+  submitBtn: { flex: 2, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#22c55e', borderRadius: 12, height: 52, gap: 8 },
+  submitBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
 });
 
 export default CameraScreen;

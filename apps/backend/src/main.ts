@@ -4,6 +4,7 @@ import { WinstonLoggerService } from './logger/logger.service';
 import { ConfigService } from '@nestjs/config';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import cookieParser from 'cookie-parser';
+import { json } from 'express';
 
 process.setMaxListeners(20);
 
@@ -27,6 +28,7 @@ async function bootstrap() {
     });
 
     app.useGlobalFilters(new GlobalExceptionFilter());
+    app.use(json({ limit: '20mb' }));
     app.use(cookieParser());
 
     const port = configService.get('PORT') ?? 3000;
