@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zaakpay Payment Debugger</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet" />
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #0d0f14;
+            --surface: #13161e;
+            --card: #1a1e2a;
+            --border: #2a2f3d;
+            --accent: #6c63ff;
+            --accent2: #00d4ff;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warn: #f59e0b;
+            --text: #e8eaf0;
+            --muted: #6b7280;
+            --input-bg: #111318;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        /* ── Header ── */
+        .header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            color: var(--muted);
+            margin-top: .4rem;
+            font-size: .9rem;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(108, 99, 255, .15);
+            border: 1px solid rgba(108, 99, 255, .35);
+            color: var(--accent);
+            font-size: .72rem;
+            font-weight: 600;
+            padding: .2rem .65rem;
+            border-radius: 999px;
+            margin-top: .6rem;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+        }
+
+        /* ── Layout ── */
+        .layout {
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            gap: 1.5rem;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 900px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ── Card ── */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.5rem;
+        }
+
+        .card-title {
+            font-size: .8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            color: var(--muted);
+            margin-bottom: 1.2rem;
+        }
+
+        /* ── Form ── */
+        .form-grid {
+            display: flex;
+            flex-direction: column;
+            gap: .9rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: .9rem;
+        }
+
+        label {
+            font-size: .78rem;
+            color: var(--muted);
+            display: block;
+            margin-bottom: .35rem;
+            font-weight: 500;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: .6rem .85rem;
+            color: var(--text);
+            font-family: inherit;
+            font-size: .85rem;
+            outline: none;
+            transition: border-color .2s;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--accent);
+        }
+
+        select option {
+            background: var(--card);
+        }
+
+        /* ── Section header inside form ── */
+        .section-label {
+            font-size: .72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            color: var(--accent2);
+            padding: .3rem 0 .2rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: .2rem;
+        }
+
+        /* ── Buttons ── */
+        .btn-group {
+            display: flex;
+            gap: .75rem;
+            margin-top: 1.2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            padding: .7rem 1.2rem;
+            border-radius: 9px;
+            border: none;
+            font-family: inherit;
+            font-size: .85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity .2s, transform .1s;
+        }
+
+        .btn:active {
+            transform: scale(.97);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), #a78bfa);
+            color: #fff;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, .06);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn:hover {
+            opacity: .88;
+        }
+
+        /* ── Right panel ── */
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* ── Diff Section ── */
+        .diff-block {
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .75rem;
+            line-height: 1.7;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            color: var(--text);
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .diff-block .param-key {
+            color: var(--accent2);
+        }
+
+        .diff-block .param-val {
+            color: #a8d8a8;
+        }
+
+        .diff-block .param-sep {
+            color: var(--warn);
+        }
+
+        .diff-block .trailing {
+            background: rgba(239, 68, 68, .3);
+            border-radius: 3px;
+            padding: 0 2px;
+            color: var(--danger);
+        }
+
+        /* ── Status row ── */
+        .status-row {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            padding: .7rem 1rem;
+            border-radius: 9px;
+            font-size: .83rem;
+            font-weight: 500;
+        }
+
+        .status-ok {
+            background: rgba(34, 197, 94, .1);
+            border: 1px solid rgba(34, 197, 94, .3);
+            color: var(--success);
+        }
+
+        .status-warn {
+            background: rgba(245, 158, 11, .1);
+            border: 1px solid rgba(245, 158, 11, .3);
+            color: var(--warn);
+        }
+
+        .status-err {
+            background: rgba(239, 68, 68, .1);
+            border: 1px solid rgba(239, 68, 68, .3);
+            color: var(--danger);
+        }
+
+        /* ── Checksum compare ── */
+        .cs-compare {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: .9rem;
+        }
+
+        @media (max-width: 700px) {
+            .cs-compare {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .cs-box {
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: .85rem 1rem;
+        }
+
+        .cs-box .cs-label {
+            font-size: .72rem;
+            color: var(--muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            margin-bottom: .4rem;
+        }
+
+        .cs-box .cs-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .73rem;
+            word-break: break-all;
+            line-height: 1.6;
+        }
+
+        .cs-match {
+            border-color: var(--success) !important;
+        }
+
+        .cs-mismatch {
+            border-color: var(--danger) !important;
+        }
+
+        /* ── URL box ── */
+        .url-box {
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: .85rem 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .72rem;
+            word-break: break-all;
+            line-height: 1.8;
+            color: var(--accent2);
+        }
+
+        .url-box a {
+            color: var(--accent2);
+            text-decoration: none;
+        }
+
+        .url-box a:hover {
+            text-decoration: underline;
+        }
+
+        /* ── Param table ── */
+        .param-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: .8rem;
+        }
+
+        .param-table th {
+            text-align: left;
+            padding: .5rem .75rem;
+            color: var(--muted);
+            font-weight: 600;
+            font-size: .72rem;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .param-table td {
+            padding: .5rem .75rem;
+            border-bottom: 1px solid rgba(42, 47, 61, .5);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .75rem;
+            vertical-align: top;
+        }
+
+        .param-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .param-table .key-col {
+            color: var(--accent2);
+        }
+
+        .param-table .val-col {
+            color: var(--text);
+            word-break: break-all;
+        }
+
+        /* ── Open payment button ── */
+        .open-btn {
+            display: block;
+            width: 100%;
+            padding: .85rem;
+            background: linear-gradient(135deg, var(--success), #16a34a);
+            color: #fff;
+            font-size: .9rem;
+            font-weight: 700;
+            border-radius: 10px;
+            text-align: center;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            transition: opacity .2s, transform .1s;
+        }
+
+        .open-btn:hover {
+            opacity: .88;
+        }
+
+        .open-btn:active {
+            transform: scale(.98);
+        }
+
+        .open-btn:disabled {
+            background: #374151;
+            color: var(--muted);
+            cursor: not-allowed;
+        }
+
+        /* ── Placeholder ── */
+        .placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: .7rem;
+            padding: 3rem 1rem;
+            color: var(--muted);
+            font-size: .85rem;
+            text-align: center;
+        }
+
+        .placeholder svg {
+            opacity: .25;
+        }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--surface);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>⚡ Zaakpay Payment Debugger</h1>
+        <p>Replicates backend logic in-browser — no backend call needed</p>
+        <span class="badge">Frontend-only · HMAC-SHA256</span>
+    </div>
+
+    <div class="layout">
+        <!-- ── LEFT: Form ── -->
+        <div class="card">
+            <div class="card-title">Payment Parameters</div>
+            <div class="form-grid">
+
+                <div class="section-label">🔑 Credentials</div>
+                <div>
+                    <label>Merchant Identifier</label>
+                    <input id="merchantIdentifier" value="ec1aef36b2074f3790e193627ee7c7ca" />
+                </div>
+                <div>
+                    <label>Secret Key</label>
+                    <input id="secretKey" type="password" value="a3833da3c2234d218568a690c1714e5d"
+                        placeholder="Your Zaakpay secret key" />
+                </div>
+
+                <div class="section-label">🧾 Order</div>
+                <div>
+                    <label>Order ID</label>
+                    <input id="orderId" value="PAY_1776150104787_hjydrhpi6" />
+                </div>
+                <div>
+                    <label>Amount (₹ in rupees — will be multiplied ×100)</label>
+                    <input id="amount" value="153" type="number" step="0.01" />
+                </div>
+                <div>
+                    <label>Product Description</label>
+                    <input id="productDescription" value="Order Payment" />
+                </div>
+                <div>
+                    <label>Return URL</label>
+                    <input id="returnUrl" value="https://apiv3.letstryfoods.com/payment/callback" />
+                </div>
+                <div>
+                    <label>txnType</label>
+                    <select id="txnType">
+                        <option value="1">1 — All options (card, netbanking, wallet)</option>
+                        <option value="14" selected>14 — All + UPI</option>
+                    </select>
+                </div>
+
+                <div class="section-label">👤 Buyer</div>
+                <div class="form-row">
+                    <div>
+                        <label>First Name</label>
+                        <input id="buyerFirstName" value="dsfdsfds" />
+                    </div>
+                    <div>
+                        <label>Phone</label>
+                        <input id="buyerPhoneNumber" value="8840330284" />
+                    </div>
+                </div>
+                <div>
+                    <label>Email</label>
+                    <input id="buyerEmail" value="identity_69dddc0360c95c97d945ada3@temp.com" />
+                </div>
+                <div class="form-row">
+                    <div>
+                        <label>City</label>
+                        <input id="buyerCity" value="Gurugram" />
+                    </div>
+                    <div>
+                        <label>State</label>
+                        <input id="buyerState" value="Haryana" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div>
+                        <label>Pincode</label>
+                        <input id="buyerPincode" value="201016" />
+                    </div>
+                    <div>
+                        <label>Country</label>
+                        <input id="buyerCountry" value="India" />
+                    </div>
+                </div>
+                <div>
+                    <label>Address</label>
+                    <input id="buyerAddress" value="sdfsdfdsf" />
+                </div>
+                <div>
+                    <label>Currency</label>
+                    <input id="currency" value="INR" />
+                </div>
+
+                <!-- Mode Toggle -->
+                <div style="margin-bottom:.4rem">
+                    <div class="section-label">⚙️ Request Mode</div>
+                    <div class="mode-toggle" style="margin-top:.6rem">
+                        <button class="mode-btn active-get" id="btnGet" onclick="setMode('get')">🌐 GET Mode
+                            (HTML)</button>
+                        <button class="mode-btn" id="btnPost" onclick="setMode('post')">📡 POST Mode (Backend)</button>
+                    </div>
+                    <div class="mode-hint" id="modeHint">Builds GET URL → opens directly in browser (current HTML logic)
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="generate()">⚡ Generate & Debug</button>
+                    <button class="btn btn-secondary" onclick="reset()">↺ Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── RIGHT: Debug output ── -->
+        <div class="right-panel" id="rightPanel">
+            <div class="card">
+                <div class="placeholder">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 8v4l3 3" />
+                    </svg>
+                    <span>Fill in the form and click <strong>Generate & Debug</strong></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SubtleCrypto HMAC-SHA256 -->
+    <script>
+        let currentMode = 'get';
+
+        function setMode(m) {
+            currentMode = m;
+            document.getElementById('btnGet').className = 'mode-btn' + (m === 'get' ? ' active-get' : '');
+            document.getElementById('btnPost').className = 'mode-btn' + (m === 'post' ? ' active-post' : '');
+            document.getElementById('modeHint').textContent = m === 'get'
+                ? 'Builds GET URL → opens directly in browser (current HTML logic)'
+                : 'POST form-data to Zaakpay → extract redirect URL from response (exact backend logic)';
+        }
+
+        async function hmacSha256(secret, message) {
+            const enc = new TextEncoder();
+            const key = await crypto.subtle.importKey(
+                'raw', enc.encode(secret),
+                { name: 'HMAC', hash: 'SHA-256' },
+                false, ['sign']
+            );
+            const sig = await crypto.subtle.sign('HMAC', key, enc.encode(message));
+            return Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        function val(id) { return document.getElementById(id).value.trim(); }
+
+        async function generate() {
+            const secretKey = val('secretKey');
+            if (!secretKey) { alert('Please enter your Secret Key'); return; }
+
+            // ── 1. Build params exactly as backend does ──
+            const amountRaw = parseFloat(val('amount')) || 0;
+            const amountPaisa = Math.round(amountRaw * 100).toString();
+
+            const allParams = {
+                amount: amountPaisa,
+                buyerAddress: val('buyerAddress'),
+                buyerCity: val('buyerCity'),
+                buyerCountry: val('buyerCountry'),
+                buyerEmail: val('buyerEmail'),
+                buyerFirstName: val('buyerFirstName'),
+                buyerPhoneNumber: val('buyerPhoneNumber'),
+                buyerPincode: val('buyerPincode'),
+                buyerState: val('buyerState'),
+                currency: val('currency'),
+                merchantIdentifier: val('merchantIdentifier'),
+                orderId: val('orderId'),
+                productDescription: val('productDescription'),
+                returnUrl: val('returnUrl'),
+                txnType: val('txnType'),
+            };
+
+            // Filter empty — exactly what backend does
+            const filtered = Object.fromEntries(
+                Object.entries(allParams).filter(([_, v]) => v !== undefined && v !== null && v !== '')
+            );
+
+            // ── 2. Sort and build checksum strings (TWO versions to compare) ──
+            const sortedKeys = Object.keys(filtered).sort();
+
+            // Current backend: trailing & on every param including last
+            const csStringWithTrailing = sortedKeys.map(k => `${k}=${filtered[k]}&`).join('');
+
+            // Correct: join with & only BETWEEN params (no trailing &)
+            const csStringWithoutTrailing = sortedKeys.map(k => `${k}=${filtered[k]}`).join('&');
+
+            // ── 3. Compute both checksums ──
+            const [csWithTrailing, csWithoutTrailing] = await Promise.all([
+                hmacSha256(secretKey, csStringWithTrailing),
+                hmacSha256(secretKey, csStringWithoutTrailing),
+            ]);
+
+            // ── 4. Build final URL (using "with trailing &" checksum — matches Zaakpay's format) ──
+            const base = 'https://api.zaakpay.com/api/paymentTransact/V8';
+            const urlParams = new URLSearchParams({ ...filtered, checksum: csWithTrailing });
+            const finalUrl = `${base}?${urlParams.toString()}`;
+
+            // ── 5. Render ──
+            if (currentMode === 'get') {
+                renderOutput({
+                    filtered, sortedKeys,
+                    csStringWithTrailing, csStringWithoutTrailing,
+                    csWithTrailing, csWithoutTrailing,
+                    finalUrl, base,
+                    mode: 'get',
+                });
+            } else {
+                // POST mode — replicate exact backend logic
+                renderOutput({
+                    filtered, sortedKeys,
+                    csStringWithTrailing, csStringWithoutTrailing,
+                    csWithTrailing, csWithoutTrailing,
+                    finalUrl, base,
+                    mode: 'post',
+                });
+                // Now actually POST like the backend does
+                await executePostMode(filtered, csWithTrailing, base);
+            }
+        }
+
+        async function executePostMode(filtered, checksum, base) {
+            const panel = document.getElementById('rightPanel');
+
+            // Build form data — exact same as backend URLSearchParams
+            const params = new URLSearchParams();
+            Object.keys(filtered).forEach(k => params.append(k, filtered[k]));
+            params.append('checksum', checksum);
+
+            // Show loading
+            const postResultEl = document.getElementById('postResult');
+            if (postResultEl) {
+                postResultEl.innerHTML = `<div class="status-row status-warn">⏳ POSTing to backend server...</div>`;
+            }
+
+            try {
+                // POST to backend server instead of directly to Zaakpay (to avoid CORS)
+                const backendUrl = '/payment/backend-redirect';
+                const response = await fetch(backendUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: params.toString(),
+                    redirect: 'manual',
+                });
+
+                let redirectUrl = '';
+                const status = response.status;
+
+                if (status === 302 || status === 301 || response.type === 'opaqueredirect') {
+                    // For opaque redirects (browser hides location), try response.url
+                    redirectUrl = response.url || response.headers.get('location') || '';
+                    if (postResultEl) {
+                        postResultEl.innerHTML = `
+                <div class="status-row status-ok" style="margin-bottom:.8rem">✅ Got ${status} redirect from Zaakpay (POST mode)</div>
+                <div style="font-size:.75rem;color:var(--muted);margin-bottom:.4rem;font-weight:600">Redirect URL (from Location header):</div>
+                <div class="url-box" style="margin-bottom:.8rem">${escapeHtml(redirectUrl || '(location header hidden by browser — copy from network tab)')}</div>
+                ${redirectUrl ? `<button class="open-btn" onclick="window.open('${redirectUrl}', '_blank')">🚀 Open Redirect URL (POST result)</button>` : ''}
+                `;
+                    }
+                } else if (status === 200) {
+                    const text = await response.text();
+                    redirectUrl = `${base}?${params.toString()}`;
+                    if (postResultEl) {
+                        postResultEl.innerHTML = `
+                <div class="status-row status-warn" style="margin-bottom:.8rem">⚠️ Got 200 OK (not a redirect). Zaakpay may have returned an error.</div>
+                <div style="font-size:.75rem;color:var(--muted);margin-bottom:.4rem;font-weight:600">Response body:</div>
+                <div class="diff-block">${escapeHtml(text.slice(0, 1000))}</div>
+                `;
+                    }
+                }
+            } catch (err) {
+                if (postResultEl) {
+                    postResultEl.innerHTML = `
+            <div class="status-row status-err" style="margin-bottom:.8rem">❌ POST failed: ${escapeHtml(err.message)}</div>
+            <div style="font-size:.75rem;color:var(--muted);margin-bottom:.6rem">This is usually a <strong>CORS error</strong> — browsers block cross-origin POSTs from local HTML files.
+            The backend (Node.js) makes this same POST from the server where CORS does not apply.</div>
+            <div class="status-row status-ok">ℹ️ The GET URL below still works — use that to verify the payment page.</div>
+            `;
+                }
+            }
+        }
+
+        function highlightString(s) {
+            // Highlight key=value& segments
+            return s.replace(/([^=&]+)=([^&]*)(&?)/g, (_, k, v, amp) =>
+                `<span class="param-key">${k}</span>=<span class="param-val">${v}</span>` +
+                (amp ? `<span class="param-sep">&amp;</span>` : '')
+            );
+        }
+
+        function renderOutput({ filtered, sortedKeys, csStringWithTrailing, csStringWithoutTrailing, csWithTrailing, csWithoutTrailing, finalUrl, base, mode }) {
+            const panel = document.getElementById('rightPanel');
+            const modeLabel = mode === 'post'
+                ? `<div class="status-row status-warn" style="margin-bottom:1rem">📡 <strong>POST Mode</strong> — Replicating exact backend logic</div>`
+                : `<div class="status-row status-ok" style="margin-bottom:1rem">🌐 <strong>GET Mode</strong> — HTML direct URL approach</div>`;
+
+            // Check if the two checksums differ
+            const differ = csWithTrailing !== csWithoutTrailing;
+
+            panel.innerHTML = modeLabel + `
+    <!-- ──  Checksum String Diff ── -->
+    <div class="card">
+        <div class="card-title">📋 Checksum String Comparison</div>
+
+        <div style="margin-bottom:.8rem">
+            <div style="font-size:.75rem;color:var(--warn);font-weight:600;margin-bottom:.4rem">
+                ⚠️ Current Backend (trailing &amp; on last param)
+            </div>
+            <div class="diff-block">${highlightString(csStringWithTrailing.slice(0, -1))}<span class="trailing" title="Trailing ampersand — causes checksum mismatch">&amp;</span></div>
+        </div>
+
+        <div>
+            <div style="font-size:.75rem;color:var(--success);font-weight:600;margin-bottom:.4rem">
+                ✅ Correct Format (no trailing &amp;)
+            </div>
+            <div class="diff-block">${highlightString(csStringWithoutTrailing)}</div>
+        </div>
+    </div>
+
+    <!-- ── Checksum Values ── -->
+    <div class="card">
+        <div class="card-title">🔐 Generated Checksums</div>
+        <div class="cs-compare">
+            <div class="cs-box cs-mismatch">
+                <div class="cs-label">⚠️ Without trailing &amp; (alternative)</div>
+                <div class="cs-value" style="color:var(--muted)">${csWithoutTrailing}</div>
+            </div>
+            <div class="cs-box cs-match">
+                <div class="cs-label">✅ With trailing &amp; — used in URL (matches Zaakpay sample)</div>
+                <div class="cs-value" style="color:var(--success)">${csWithTrailing}</div>
+            </div>
+        </div>
+        <div style="margin-top:.9rem">
+            <div class="status-row status-ok">✅ Trailing <strong>&amp;</strong> checksum matches Zaakpay's expected format — this is what the backend sends and what Zaakpay verified.</div>
+        </div>
+    </div>
+
+    <!-- ── Sorted Params ── -->
+    <div class="card">
+        <div class="card-title">🗂 Sorted Parameters Sent (${sortedKeys.length} params)</div>
+        <table class="param-table">
+            <thead>
+                <tr><th>#</th><th>Key</th><th>Value</th></tr>
+            </thead>
+            <tbody>
+                ${sortedKeys.map((k, i) => `
+                    <tr>
+                        <td style="color:var(--muted)">${i + 1}</td>
+                        <td class="key-col">${k}</td>
+                        <td class="val-col">${escapeHtml(filtered[k])}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ── Final URL + Open ── -->
+    <div class="card">
+        <div class="card-title">🌐 GET URL — Direct checkout (HTML mode)</div>
+        <div class="url-box" style="margin-bottom:1rem">${escapeHtml(finalUrl)}</div>
+        <button class="open-btn" onclick="window.open('${finalUrl}', '_blank')">
+            🚀 Open Payment Page (GET)
+        </button>
+        <button class="btn btn-secondary" style="margin-top:.6rem;width:100%" onclick="copyUrl('${finalUrl}')">
+            📋 Copy URL
+        </button>
+    </div>
+
+    ${mode === 'post' ? `
+    <!-- ── POST Result ── -->
+    <div class="card">
+        <div class="card-title">📡 POST Response (Backend Mode)</div>
+        <div id="postResult"><div class="status-row status-warn">⏳ Waiting for POST response...</div></div>
+    </div>` : ''}
+    `;
+        }
+
+        function escapeHtml(s) {
+            return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function copyUrl(url) {
+            navigator.clipboard.writeText(url).then(() => alert('URL copied!'));
+        }
+
+        function reset() {
+            document.getElementById('rightPanel').innerHTML = `
+    <div class="card">
+        <div class="placeholder">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+            <span>Fill in the form and click <strong>Generate &amp; Debug</strong></span>
+        </div>
+    </div>`;
+        }
+    </script>
+
+</body>
+
+</html>

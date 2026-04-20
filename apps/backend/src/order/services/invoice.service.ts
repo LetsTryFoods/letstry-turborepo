@@ -123,6 +123,7 @@ export class InvoiceService {
 
     private generateInvoiceTable(doc: PDFKit.PDFDocument, order: any) {
         let currentY = 270;
+        const pageBottom = doc.page.height - 50;
 
         doc.font('Helvetica-Bold').fontSize(8);
         this.generateTableRow(
@@ -145,6 +146,25 @@ export class InvoiceService {
             const descHeight = doc.heightOfString(item.variant || '', { width: 140 });
             const rowHeight = Math.max(itemNameHeight, descHeight, 15);
 
+            if (currentY + rowHeight + 25 > pageBottom) {
+                doc.addPage();
+                currentY = 50;
+
+                doc.font('Helvetica-Bold').fontSize(8);
+                this.generateTableRow(
+                    doc,
+                    currentY,
+                    'Item',
+                    'Description',
+                    'Unit Cost',
+                    'Quantity',
+                    'Line Total',
+                );
+                this.generateHr(doc, currentY + 15);
+                doc.font('Helvetica');
+                currentY += 20;
+            }
+
             this.generateTableRow(
                 doc,
                 currentY,
@@ -158,6 +178,11 @@ export class InvoiceService {
             currentY += rowHeight + 5;
             this.generateHr(doc, currentY);
             currentY += 10;
+        }
+
+        if (currentY + 100 > pageBottom) {
+            doc.addPage();
+            currentY = 50;
         }
 
         currentY += 10;
