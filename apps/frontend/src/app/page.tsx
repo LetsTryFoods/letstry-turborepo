@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { HeroCarousel } from "@/components/hero-carousel";
 import { CategoryGrid } from "@/components/category-grid";
 import { BestsellerCarousel } from "@/components/bestseller";
@@ -10,6 +11,33 @@ import CustomerTestimonials from "@/components/customer-testimonials/CustomerTes
 import BrandSlider from "@/components/brand-slider/BrandSlider";
 import { getWholesomeChoices } from "@/lib/category/get-wholesome-choices";
 
+const SITE_URL = (process.env.NEXT_PUBLIC_BASE_URL || 'https://letstryfoods.com').replace(/\/$/, '');
+
+const HOME_TITLE = "Let's Try Foods | Healthy Indian Snacks — No Palm Oil, No Maida";
+const HOME_DESCRIPTION =
+  "Let's Try Foods — healthy Indian snacks with no palm oil and no maida. Shop bhujia, makhana, cookies, chikki, murukku, rusk and more. Shipped across India from Delhi.";
+
+export const metadata: Metadata = {
+  title: {
+    absolute: HOME_TITLE,
+  },
+  description: HOME_DESCRIPTION,
+  alternates: {
+    canonical: SITE_URL,
+  },
+  openGraph: {
+    title: HOME_TITLE,
+    description: HOME_DESCRIPTION,
+    url: SITE_URL,
+    type: 'website',
+    siteName: "Let's Try Foods",
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: HOME_TITLE,
+    description: HOME_DESCRIPTION,
+  },
+};
 
 // export const revalidate = 86400;
 
