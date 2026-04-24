@@ -27,13 +27,32 @@ export async function generateMetadata({
   }
 
   const seo = product.seo;
-  const defaultTitle = product.name;
-  const defaultDescription =
-    product.description || `Buy ${product.name} online`;
+  const brand = product.brand || "Let's Try";
+  const variant = product.defaultVariant;
+  const pack =
+    variant?.packageSize ||
+    (variant?.weight && variant?.weightUnit
+      ? `${variant.weight}${variant.weightUnit}`
+      : null);
+
+  const titleParts = [product.name, pack ? `(${pack})` : null].filter(Boolean);
+  const defaultTitle = `${titleParts.join(' ')} | ${brand} | Let's Try Foods`;
+
+  const descParts: string[] = [];
+  if (product.description) {
+    descParts.push(product.description);
+  } else {
+    descParts.push(`Buy ${product.name}${pack ? ` (${pack})` : ''} online from Let's Try Foods.`);
+  }
+  if (product.isVegetarian) descParts.push('100% vegetarian.');
+  if (product.shelfLife) descParts.push(`Shelf life: ${product.shelfLife}.`);
+  descParts.push('Shipped across India.');
+  const defaultDescription = descParts.join(' ').slice(0, 300);
+
   const canonical = seo?.canonicalUrl || `${SITE_URL}/product/${slug}`;
 
   return {
-    title: seo?.metaTitle || defaultTitle,
+    title: { absolute: seo?.metaTitle || defaultTitle },
     description: seo?.metaDescription || defaultDescription,
     keywords: seo?.metaKeywords || [],
     alternates: {

@@ -22,12 +22,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const category = await getCategoryBySlug(slug);
   if (category) {
     const seo = category.seo;
-    const defaultTitle = `${category.name} | Letstry`;
-    const defaultDescription = category.description || `Shop ${category.name} products at Letstry. Browse our collection of premium quality items.`;
+    const defaultTitle = `${category.name} – Buy Online | Let's Try Foods`;
+    const countHint = category.productCount
+      ? `Choose from ${category.productCount} ${category.productCount === 1 ? 'product' : 'products'}. `
+      : '';
+    const defaultDescription =
+      category.description ||
+      `Shop ${category.name} at Let's Try Foods. ${countHint}Shipped across India.`.trim();
     const canonical = seo?.canonicalUrl || `${SITE_URL}/${slug}`;
 
     return {
-      title: seo?.metaTitle || defaultTitle,
+      title: { absolute: seo?.metaTitle || defaultTitle },
       description: seo?.metaDescription || defaultDescription,
       keywords: seo?.metaKeywords || [],
       alternates: {
