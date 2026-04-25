@@ -57,6 +57,10 @@ export class OrderService {
     paymentOrder?: Types.ObjectId;
     cartId: Types.ObjectId;
     totalAmount: string;
+    subtotal?: string;
+    discount?: string;
+    deliveryCharge?: string;
+    handlingCharge?: string;
     currency: string;
     shippingAddressId?: Types.ObjectId;
     placerContact?: {

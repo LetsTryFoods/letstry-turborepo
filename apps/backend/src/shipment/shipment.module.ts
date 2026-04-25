@@ -41,9 +41,17 @@ import { TrackingLoggerService } from './services/tracking-logger.service';
     ]),
     BullModule.registerQueue({
       name: 'shipment-webhook',
+      defaultJobOptions: {
+        removeOnComplete: false,
+        removeOnFail: false,
+      },
     }),
     BullModule.registerQueue({
       name: 'tracking-queue',
+      defaultJobOptions: {
+        removeOnComplete: false,
+        removeOnFail: false,
+      },
     }),
     ConfigModule,
     forwardRef(() => OrderModule),

@@ -184,6 +184,9 @@ export class OrderType {
   @Field()
   deliveryCharge: string;
 
+  @Field({ nullable: true })
+  handlingCharge?: string;
+
   @Field()
   currency: string;
 

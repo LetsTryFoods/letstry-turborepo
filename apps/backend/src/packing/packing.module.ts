@@ -65,7 +65,8 @@ import { ShipmentModule } from '../shipment/shipment.module';
     BullModule.registerQueue({
       name: 'packing-queue',
       defaultJobOptions: {
-        removeOnComplete: true,
+        removeOnComplete: false,
+        removeOnFail: false,
         attempts: 3,
         backoff: {
           type: 'exponential',

@@ -26,5 +26,13 @@ module.exports = {
         PORT: 5000,
       },
     },
+    {
+      name: "ota-sdui-server",
+      script: "./apps/ota-sdui-server/dist/index.js",
+      env: {
+        NODE_ENV: "production",
+        PORT: 4000,
+      },
+    },
   ],
 };

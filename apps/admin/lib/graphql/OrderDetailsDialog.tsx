@@ -20,7 +20,6 @@ import {
 } from "@/lib/orders/queries"
 import { toast } from "react-hot-toast"
 import { useShipmentLabel } from "@/lib/shipments/queries"
-import { getCdnUrl } from "@/lib/utils/image-utils"
 import { format } from "date-fns"
 import {
   Package,
@@ -237,7 +236,7 @@ export function OrderDetailsDialog({ order: summaryOrder, open, onOpenChange }: 
                       {item.image ? (
                         /* eslint-disable-next-line @next/next/no-img-element */
                         <img
-                          src={getCdnUrl(item.image)}
+                          src={item.image}
                           alt={item.name}
                           className="h-full w-full object-cover"
                         />
