@@ -10,6 +10,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { categoryFormSchema } from "@/lib/validations/category.schema"
 import { ImageUpload } from "@/components/custom/image-upload"
+import { getCdnUrl, extractKeyFromUrl } from "@/lib/image-utils"
 
 interface CategoryFormProps {
   onClose: () => void
@@ -19,12 +20,23 @@ interface CategoryFormProps {
 }
 
 export function CategoryForm({ onClose, initialData, createCategory, updateCategory }: CategoryFormProps) {
-  const [uploadedImages, setUploadedImages] = useState<Array<{ file: File | null; alt: string; preview: string; finalUrl?: string }>>(
+  const [uploadedImages, setUploadedImages] = useState<Array<{ file: File | null; alt: string; preview: string; finalUrl?: string; key?: string }>>(
     initialData?.imageUrl ? [{
       file: null,
       alt: initialData.name || "Category Image",
-      preview: initialData.imageUrl,
-      finalUrl: initialData.imageUrl
+      preview: getCdnUrl(initialData.imageUrl),
+      finalUrl: getCdnUrl(initialData.imageUrl),
+      key: extractKeyFromUrl(initialData.imageUrl)
+    }] : []
+  )
+
+  const [uploadedMobileImages, setUploadedMobileImages] = useState<Array<{ file: File | null; alt: string; preview: string; finalUrl?: string; key?: string }>>(
+    initialData?.mobileImageUrl ? [{
+      file: null,
+      alt: initialData.name || "Mobile Category Image",
+      preview: getCdnUrl(initialData.mobileImageUrl),
+      finalUrl: getCdnUrl(initialData.mobileImageUrl),
+      key: extractKeyFromUrl(initialData.mobileImageUrl)
     }] : []
   )
 
@@ -35,22 +47,33 @@ export function CategoryForm({ onClose, initialData, createCategory, updateCateg
       slug: initialData?.slug || "",
       description: initialData?.description || "",
       parentId: initialData?.parentId || "",
-      imageUrl: initialData?.imageUrl || "",
+      imageUrl: extractKeyFromUrl(initialData?.imageUrl) || "",
+      mobileImageUrl: extractKeyFromUrl(initialData?.mobileImageUrl) || "",
       codeValue: initialData?.codeValue || "",
       inCodeSet: initialData?.inCodeSet || "",
       favourite: initialData?.favourite ?? false,
+      mobile: initialData?.mobile ?? false,
       isArchived: initialData?.isArchived ?? false,
     },
   })
 
-  const handleImagesChange = useCallback((images: Array<{ file: File | null; alt: string; preview: string; finalUrl?: string }>) => {
+  const handleImagesChange = useCallback((images: Array<{ file: File | null; alt: string; preview: string; finalUrl?: string; key?: string }>) => {
     setUploadedImages(images)
   }, [])
 
+  const handleMobileImagesChange = useCallback((images: Array<{ file: File | null; alt: string; preview: string; finalUrl?: string; key?: string }>) => {
+    setUploadedMobileImages(images)
+  }, [])
+
   useEffect(() => {
-    const imageUrl = uploadedImages[0]?.finalUrl || ''
+    const imageUrl = uploadedImages[0]?.key || ''
     form.setValue('imageUrl', imageUrl, { shouldValidate: true, shouldDirty: true })
   }, [uploadedImages, form])
+
+  useEffect(() => {
+    const mobileImageUrl = uploadedMobileImages[0]?.key || ''
+    form.setValue('mobileImageUrl', mobileImageUrl, { shouldValidate: true, shouldDirty: true })
+  }, [uploadedMobileImages, form])
 
   const onSubmit = async (data: any) => {
     try {
@@ -59,7 +82,8 @@ export function CategoryForm({ onClose, initialData, createCategory, updateCateg
         slug: data.slug || undefined,
         description: data.description || undefined,
         parentId: data.parentId || undefined,
-        imageUrl: uploadedImages[0]?.finalUrl || '',
+        imageUrl: uploadedImages[0]?.key || '',
+        mobileImageUrl: uploadedMobileImages[0]?.key || '',
       }
 
       if (initialData) {
@@ -153,15 +177,38 @@ export function CategoryForm({ onClose, initialData, createCategory, updateCateg
           />
         </div>
 
-        <div className="space-y-2">
-          <FormLabel>Category Image</FormLabel>
-          <ImageUpload
-            onImagesChange={handleImagesChange}
-            initialImages={initialData?.imageUrl ? [{ url: initialData.imageUrl, alt: initialData.name }] : []}
-            maxFiles={1}
-            allowedFileTypes={['image/webp']}
-          />
-          <input type="hidden" {...form.register('imageUrl')} />
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <FormLabel>Category Image</FormLabel>
+            <ImageUpload
+              onImagesChange={handleImagesChange}
+              initialImages={initialData?.imageUrl ? [{ url: getCdnUrl(initialData.imageUrl), alt: initialData.name }] : []}
+              maxFiles={1}
+              allowedFileTypes={['image/webp']}
+            />
+            <input type="hidden" {...form.register('imageUrl')} />
+          </div>
+
+          <div className="space-y-2">
+            <FormLabel>Mobile Category Image</FormLabel>
+            <div 
+              onClickCapture={(e) => {
+                if (!form.getValues('mobile')) {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  alert("Please enable the 'Mobile' option before uploading a mobile category image.");
+                }
+              }}
+            >
+              <ImageUpload
+                onImagesChange={handleMobileImagesChange}
+                initialImages={initialData?.mobileImageUrl ? [{ url: getCdnUrl(initialData.mobileImageUrl), alt: initialData.name }] : []}
+                maxFiles={1}
+                allowedFileTypes={['image/webp']}
+              />
+            </div>
+            <input type="hidden" {...form.register('mobileImageUrl')} />
+          </div>
         </div>
 
         <FormField
@@ -191,6 +238,21 @@ export function CategoryForm({ onClose, initialData, createCategory, updateCateg
                   />
                 </FormControl>
                 <FormLabel className="!mt-0">Favourite</FormLabel>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="mobile"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <FormLabel className="!mt-0">Mobile</FormLabel>
               </FormItem>
             )}
           />

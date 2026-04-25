@@ -24,6 +24,7 @@ import {
   ProductFormValues,
   getDefaultVariant,
 } from "@/lib/validations/product";
+import { getCdnUrl, extractKeyFromUrl } from "@/lib/image-utils";
 import {
   Select,
   SelectContent,
@@ -95,10 +96,11 @@ export function ProductForm({
         images: v.images?.map((img) => ({
           file: null,
           alt: img.alt,
-          preview: img.url || "",
-          finalUrl: img.url,
+          preview: getCdnUrl(img.url) || "",
+          finalUrl: getCdnUrl(img.url),
+          key: extractKeyFromUrl(img.url),
         })) || [{ file: null, alt: "", preview: "" }],
-        thumbnailUrl: v.thumbnailUrl || "",
+        thumbnailUrl: extractKeyFromUrl(v.thumbnailUrl) || "",
         isDefault: v.isDefault ?? false,
         isActive: v.isActive ?? true,
       })) || [getDefaultVariant()],
@@ -187,9 +189,10 @@ export function ProductForm({
             ?.filter((img) => img.preview || img.finalUrl || img.url)
             .map((img) => ({
               url:
-                img.finalUrl ||
-                img.url ||
-                img.preview ||
+                (img as any).key ||
+                extractKeyFromUrl(img.finalUrl) ||
+                extractKeyFromUrl((img as any).url) ||
+                extractKeyFromUrl(img.preview) ||
                 `uploaded-image-${Date.now()}.webp`,
               alt: img.alt || "",
             })) || [];

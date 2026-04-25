@@ -15,11 +15,17 @@ export class CreateCategoryInput {
   @Field({ nullable: true })
   favourite?: boolean;
 
+  @Field({ nullable: true })
+  mobile?: boolean;
+
   @Field(() => String, { nullable: true })
   parentId?: string;
 
   @Field({ nullable: true })
   imageUrl?: string;
+
+  @Field({ nullable: true })
+  mobileImageUrl?: string;
 
   @Field({ nullable: true })
   codeValue?: string;
@@ -48,11 +54,17 @@ export class UpdateCategoryInput {
   @Field({ nullable: true })
   favourite?: boolean;
 
+  @Field({ nullable: true })
+  mobile?: boolean;
+
   @Field(() => String, { nullable: true })
   parentId?: string;
 
   @Field({ nullable: true })
   imageUrl?: string;
+
+  @Field({ nullable: true })
+  mobileImageUrl?: string;
 
   @Field({ nullable: true })
   codeValue?: string;

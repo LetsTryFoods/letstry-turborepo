@@ -27,7 +27,13 @@ export class Category {
   favourite?: boolean;
 
   @Field({ nullable: true })
+  mobile?: boolean;
+
+  @Field({ nullable: true })
   imageUrl?: string;
+
+  @Field({ nullable: true })
+  mobileImageUrl?: string;
 
   @Field({ nullable: true })
   codeValue?: string;

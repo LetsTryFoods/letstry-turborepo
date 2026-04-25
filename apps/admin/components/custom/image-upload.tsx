@@ -17,7 +17,7 @@ import '@uppy/image-editor/css/style.min.css'
 import { getCdnUrl } from "@/lib/image-utils"
 
 interface ImageUploadProps {
-  onImagesChange: (images: Array<{ file: File; alt: string; preview: string; finalUrl?: string }>) => void
+  onImagesChange: (images: Array<{ file: File; alt: string; preview: string; finalUrl?: string; key?: string }>) => void
   initialImages?: Array<{ url: string; alt: string }>
   maxFiles?: number
   allowedFileTypes?: string[]
@@ -240,6 +240,7 @@ export function ImageUpload({ onImagesChange, initialImages = [], maxFiles = 10,
       alt: altTexts[img.id] || img.alt || `Product image ${index + 1}`,
       preview: img.preview,
       finalUrl: img.finalUrl,
+      key: img.key,
     }))
     onImagesChange(imagesWithAlt)
   }, [uploadedImages, altTexts, onImagesChange])

@@ -12,6 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { bannerFormSchema } from "@/lib/validations/banner.schema"
 import { z } from "zod"
 import { ImageUpload } from "@/components/custom/image-upload"
+import { getCdnUrl, extractKeyFromUrl } from "@/lib/image-utils"
 
 type BannerFormValues = z.infer<typeof bannerFormSchema>
 
@@ -31,29 +32,31 @@ export function BannerForm({ onClose, initialData, createBanner, updateBanner }:
     return date.toISOString().slice(0, 16)
   }
 
-  const [uploadedImages, setUploadedImages] = useState<Array<{ file: File | null; alt: string; preview: string; finalUrl?: string }>>(
+  const [uploadedImages, setUploadedImages] = useState<Array<{ file: File | null; alt: string; preview: string; finalUrl?: string; key?: string }>>(
     initialData?.imageUrl ? [{
       file: null,
       alt: initialData.name || "Banner Image",
-      preview: initialData.imageUrl,
-      finalUrl: initialData.imageUrl
+      preview: getCdnUrl(initialData.imageUrl),
+      finalUrl: getCdnUrl(initialData.imageUrl),
+      key: extractKeyFromUrl(initialData.imageUrl)
     }] : []
   )
 
-  const [uploadedMobileImages, setUploadedMobileImages] = useState<Array<{ file: File | null; alt: string; preview: string; finalUrl?: string }>>(
+  const [uploadedMobileImages, setUploadedMobileImages] = useState<Array<{ file: File | null; alt: string; preview: string; finalUrl?: string; key?: string }>>(
     initialData?.mobileImageUrl ? [{
       file: null,
       alt: initialData.name || "Banner Mobile Image",
-      preview: initialData.mobileImageUrl,
-      finalUrl: initialData.mobileImageUrl
+      preview: getCdnUrl(initialData.mobileImageUrl),
+      finalUrl: getCdnUrl(initialData.mobileImageUrl),
+      key: extractKeyFromUrl(initialData.mobileImageUrl)
     }] : []
   )
 
-  const handleImagesChange = useCallback((images: Array<{ file: File | null; alt: string; preview: string; finalUrl?: string }>) => {
+  const handleImagesChange = useCallback((images: Array<{ file: File | null; alt: string; preview: string; finalUrl?: string; key?: string }>) => {
     setUploadedImages(images)
   }, [])
 
-  const handleMobileImagesChange = useCallback((images: Array<{ file: File | null; alt: string; preview: string; finalUrl?: string }>) => {
+  const handleMobileImagesChange = useCallback((images: Array<{ file: File | null; alt: string; preview: string; finalUrl?: string; key?: string }>) => {
     setUploadedMobileImages(images)
   }, [])
 
@@ -79,12 +82,12 @@ export function BannerForm({ onClose, initialData, createBanner, updateBanner }:
   })
 
   useEffect(() => {
-    const imageUrl = uploadedImages[0]?.finalUrl || ''
+    const imageUrl = uploadedImages[0]?.key || ''
     form.setValue('imageUrl', imageUrl, { shouldValidate: true, shouldDirty: true })
   }, [uploadedImages, form])
 
   useEffect(() => {
-    const mobileImageUrl = uploadedMobileImages[0]?.finalUrl || ''
+    const mobileImageUrl = uploadedMobileImages[0]?.key || ''
     form.setValue('mobileImageUrl', mobileImageUrl, { shouldValidate: true, shouldDirty: true })
   }, [uploadedMobileImages, form])
 
@@ -164,7 +167,7 @@ export function BannerForm({ onClose, initialData, createBanner, updateBanner }:
             <FormLabel>Banner Image *</FormLabel>
             <ImageUpload
               onImagesChange={handleImagesChange}
-              initialImages={initialData?.imageUrl ? [{ url: initialData.imageUrl, alt: initialData.name }] : []}
+              initialImages={initialData?.imageUrl ? [{ url: getCdnUrl(initialData.imageUrl), alt: initialData.name }] : []}
               maxFiles={1}
               allowedFileTypes={['image/webp', 'image/gif']}
               disableCompression={true}
@@ -175,7 +178,7 @@ export function BannerForm({ onClose, initialData, createBanner, updateBanner }:
             <FormLabel>Mobile Image *</FormLabel>
             <ImageUpload
               onImagesChange={handleMobileImagesChange}
-              initialImages={initialData?.mobileImageUrl ? [{ url: initialData.mobileImageUrl, alt: initialData.name }] : []}
+              initialImages={initialData?.mobileImageUrl ? [{ url: getCdnUrl(initialData.mobileImageUrl), alt: initialData.name }] : []}
               maxFiles={1}
               allowedFileTypes={['image/webp', 'image/gif']}
               disableCompression={true}
