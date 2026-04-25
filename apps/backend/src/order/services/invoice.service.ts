@@ -13,7 +13,7 @@ export class InvoiceService {
         this.logger.log(`Starting PDF generation for Order: ${order.orderId} (ID: ${order._id})`);
         return new Promise(async (resolve, reject) => {
             try {
-                const doc = new PDFDocumensrt({ size: 'A4', margin: 50 });
+                const doc = new PDFDocument({ size: 'A4', margin: 50 });
                 const chunks: Buffer[] = [];
 
                 doc.on('data', (chunk) => chunks.push(chunk));
