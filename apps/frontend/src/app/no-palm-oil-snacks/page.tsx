@@ -5,7 +5,7 @@ const SITE_URL = (process.env.NEXT_PUBLIC_BASE_URL || 'https://letstryfoods.com'
 
 const PAGE_TITLE = "No Palm Oil Snacks – Healthy Indian Namkeen & Chips | Let's Try Foods";
 const PAGE_DESCRIPTION =
-  "Buy Indian snacks without palm oil — bhujia, chips, cookies, makhana and more. Let's Try Foods uses sunflower and groundnut oil instead of palm oil. Shipped across India.";
+  "Buy Indian snacks without palm oil — bhujia, chips, cookies, makhana and more. Let's Try Foods doesn't use palm oil in any of its snacks. Shipped across India.";
 const PAGE_URL = `${SITE_URL}/no-palm-oil-snacks`;
 
 export const metadata: Metadata = {
@@ -40,7 +40,7 @@ const CATEGORY_TILES = [
   {
     slug: 'cookies',
     name: 'Healthy Cookies',
-    blurb: 'Ragi, oats, jowar and millet cookies with no palm oil and no refined sugar.',
+    blurb: 'Ragi, oats, jowar and millet cookies with no palm oil and no white sugar.',
   },
   {
     slug: 'healthy-snacks',
@@ -66,7 +66,7 @@ const FAQS = [
   },
   {
     q: 'What oil does Let\'s Try Foods use instead of palm oil?',
-    a: 'Let\'s Try Foods uses sunflower oil and groundnut oil across its namkeen, bhujia, chips and cookie ranges in place of palm oil. Products like roasted chana and roasted makhana use no frying oil at all.',
+    a: 'Let\'s Try Foods does not use palm oil in any of its snack ranges — bhujia, chips, cookies, makhana, rusk and namkeen. Products like roasted chana and roasted makhana are roasted, not fried.',
   },
   {
     q: 'Are all Let\'s Try snacks free of palm oil?',
@@ -130,9 +130,9 @@ export default function NoPalmOilSnacksPage() {
           <p className="text-base sm:text-lg text-gray-700 leading-relaxed mb-4">
             Most mass-market Indian snacks are fried in palm oil because it&apos;s cheap
             and extends shelf life. At Let&apos;s Try Foods we don&apos;t use palm oil in any
-            of our bhujia, chips, cookies, makhana or rusk ranges — we use sunflower
-            and groundnut oil instead, and for some products (like roasted chana and
-            roasted makhana) we don&apos;t fry at all.
+            of our bhujia, chips, cookies, makhana or rusk ranges. For some
+            products (like roasted chana and roasted makhana) we don&apos;t fry
+            at all — they&apos;re roasted.
           </p>
 
           <p className="text-base sm:text-lg text-gray-700 leading-relaxed mb-10">

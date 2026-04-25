@@ -1,6 +1,7 @@
 import { getCategoryBySlug } from '@/lib/category';
 import { CategoryPageContainer } from '@/components/category-page/CategoryPageContainer';
 import { CategoryHeader } from '@/components/category-page/CategoryHeader';
+import { CategoryAbout, CategoryFAQ } from '@/components/category-page/CategoryContent';
 import { ProductGrid } from '@/components/category-page/ProductGrid';
 import { Product } from '@/components/category-page/ProductCard';
 import { notFound } from 'next/navigation';
@@ -115,6 +116,7 @@ export default async function DynamicSlugPage({ params, searchParams }: PageProp
       const categoryType = type === 'special' ? 'special' : 'default';
       const products = category.products.map(mapProductData);
       const categoryUrl = `${SITE_URL}/${slug}`;
+      const override = getCategoryOverride(slug);
 
       const breadcrumbSchema = {
         '@context': 'https://schema.org',
@@ -138,6 +140,22 @@ export default async function DynamicSlugPage({ params, searchParams }: PageProp
         })),
       };
 
+      const faqSchema =
+        override?.faqs && override.faqs.length > 0
+          ? {
+              '@context': 'https://schema.org',
+              '@type': 'FAQPage',
+              mainEntity: override.faqs.map((f) => ({
+                '@type': 'Question',
+                name: f.q,
+                acceptedAnswer: {
+                  '@type': 'Answer',
+                  text: f.a,
+                },
+              })),
+            }
+          : null;
+
       return (
         <>
           <script
@@ -148,9 +166,24 @@ export default async function DynamicSlugPage({ params, searchParams }: PageProp
             type="application/ld+json"
             dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
           />
+          {faqSchema && (
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+            />
+          )}
           <CategoryPageContainer>
-            <CategoryHeader title={category.name} productCount={category.productCount} />
+            <CategoryHeader
+              title={override?.h1 || category.name}
+              productCount={category.productCount}
+              tagline={override?.tagline}
+            />
             <ProductGrid products={products} categoryType={categoryType} slug={slug} />
+            <CategoryAbout
+              heading={override?.aboutHeading || `About ${category.name}`}
+              paragraphs={override?.about}
+            />
+            <CategoryFAQ faqs={override?.faqs} />
           </CategoryPageContainer>
         </>
       );
