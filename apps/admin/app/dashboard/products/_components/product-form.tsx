@@ -1156,13 +1156,15 @@ function VariantImageUpload({
       alt: string;
       preview: string;
       finalUrl?: string;
+      key?: string;
     }>
   >(
     initialImages.map((img) => ({
       file: null,
       alt: img.alt,
-      preview: img.url || "",
-      finalUrl: img.url,
+      preview: img.url ? getCdnUrl(img.url) : "",
+      finalUrl: img.url ? getCdnUrl(img.url) : "",
+      key: extractKeyFromUrl(img.url),
     })) || []
   );
 
@@ -1173,6 +1175,7 @@ function VariantImageUpload({
         alt: string;
         preview: string;
         finalUrl?: string;
+        key?: string;
       }>
     ) => {
       setImages(newImages);
@@ -1183,19 +1186,16 @@ function VariantImageUpload({
           alt: img.alt,
           preview: img.preview,
           finalUrl: img.finalUrl,
+          key: img.key,
         })),
         { shouldValidate: false, shouldDirty: true }
       );
 
-      // Set thumbnail URL to first image
-      if (
-        newImages.length > 0 &&
-        (newImages[0].finalUrl || newImages[0].preview)
-      ) {
-        form.setValue(
-          `variants.${index}.thumbnailUrl`,
-          newImages[0].finalUrl || newImages[0].preview
-        );
+      // Set thumbnail URL to first image (prefer key)
+      if (newImages.length > 0) {
+        const firstImage = newImages[0];
+        const thumbnail = firstImage.key || extractKeyFromUrl(firstImage.finalUrl) || extractKeyFromUrl(firstImage.preview) || "";
+        form.setValue(`variants.${index}.thumbnailUrl`, thumbnail);
       }
     },
     [form, index]

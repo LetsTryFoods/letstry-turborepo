@@ -67,9 +67,9 @@ export function BannerForm({ onClose, initialData, createBanner, updateBanner }:
       headline: initialData?.headline || "",
       subheadline: initialData?.subheadline || "",
       description: initialData?.description || "",
-      imageUrl: initialData?.imageUrl || "",
-      mobileImageUrl: initialData?.mobileImageUrl || "",
-      thumbnailUrl: initialData?.thumbnailUrl || "",
+      imageUrl: extractKeyFromUrl(initialData?.imageUrl) || "",
+      mobileImageUrl: extractKeyFromUrl(initialData?.mobileImageUrl) || "",
+      thumbnailUrl: extractKeyFromUrl(initialData?.thumbnailUrl) || "",
       url: initialData?.url || "",
       ctaText: initialData?.ctaText || "",
       position: initialData?.position || 0,
@@ -80,6 +80,64 @@ export function BannerForm({ onClose, initialData, createBanner, updateBanner }:
       textColor: initialData?.textColor || "",
     },
   })
+
+  useEffect(() => {
+    if (initialData) {
+      form.reset({
+        name: initialData.name || "",
+        headline: initialData.headline || "",
+        subheadline: initialData.subheadline || "",
+        description: initialData.description || "",
+        imageUrl: extractKeyFromUrl(initialData.imageUrl) || "",
+        mobileImageUrl: extractKeyFromUrl(initialData.mobileImageUrl) || "",
+        thumbnailUrl: extractKeyFromUrl(initialData.thumbnailUrl) || "",
+        url: initialData.url || "",
+        ctaText: initialData.ctaText || "",
+        position: initialData.position || 0,
+        isActive: initialData.isActive ?? true,
+        startDate: formatDateForInput(initialData.startDate),
+        endDate: formatDateForInput(initialData.endDate),
+        backgroundColor: initialData.backgroundColor || "",
+        textColor: initialData.textColor || "",
+      })
+
+      setUploadedImages(initialData.imageUrl ? [{
+        file: null,
+        alt: initialData.name || "Banner Image",
+        preview: getCdnUrl(initialData.imageUrl),
+        finalUrl: getCdnUrl(initialData.imageUrl),
+        key: extractKeyFromUrl(initialData.imageUrl)
+      }] : [])
+
+      setUploadedMobileImages(initialData.mobileImageUrl ? [{
+        file: null,
+        alt: initialData.name || "Banner Mobile Image",
+        preview: getCdnUrl(initialData.mobileImageUrl),
+        finalUrl: getCdnUrl(initialData.mobileImageUrl),
+        key: extractKeyFromUrl(initialData.mobileImageUrl)
+      }] : [])
+    } else {
+      form.reset({
+        name: "",
+        headline: "",
+        subheadline: "",
+        description: "",
+        imageUrl: "",
+        mobileImageUrl: "",
+        thumbnailUrl: "",
+        url: "",
+        ctaText: "",
+        position: 0,
+        isActive: true,
+        startDate: "",
+        endDate: "",
+        backgroundColor: "",
+        textColor: "",
+      })
+      setUploadedImages([])
+      setUploadedMobileImages([])
+    }
+  }, [initialData, form])
 
   useEffect(() => {
     const imageUrl = uploadedImages[0]?.key || ''
