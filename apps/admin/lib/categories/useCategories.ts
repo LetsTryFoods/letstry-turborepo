@@ -18,12 +18,14 @@ export interface Category {
   slug: string
   description?: string
   parentId?: string
-  imageUrl?: string
   codeValue: string
   inCodeSet: string
   productCount: number
   favourite: boolean
+  mobile: boolean
   isArchived: boolean
+  imageUrl?: string
+  mobileImageUrl?: string
   seo?: any // Using any for simplicity here or I can define SeoBase
   createdAt: string
   updatedAt: string
@@ -60,9 +62,11 @@ export interface CreateCategoryInput {
   description?: string
   parentId?: string
   imageUrl?: string
+  mobileImageUrl?: string
   codeValue: string
   inCodeSet: string
   favourite?: boolean
+  mobile?: boolean
   isArchived?: boolean
   seo?: any
 }
@@ -73,9 +77,11 @@ export interface UpdateCategoryInput {
   description?: string
   parentId?: string
   imageUrl?: string
+  mobileImageUrl?: string
   codeValue?: string
   inCodeSet?: string
   favourite?: boolean
+  mobile?: boolean
   isArchived?: boolean
   seo?: any
 }

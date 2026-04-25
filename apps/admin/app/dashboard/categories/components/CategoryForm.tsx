@@ -66,6 +66,56 @@ export function CategoryForm({ onClose, initialData, createCategory, updateCateg
   }, [])
 
   useEffect(() => {
+    if (initialData) {
+      form.reset({
+        name: initialData.name || "",
+        slug: initialData.slug || "",
+        description: initialData.description || "",
+        parentId: initialData.parentId || "",
+        imageUrl: extractKeyFromUrl(initialData.imageUrl) || "",
+        mobileImageUrl: extractKeyFromUrl(initialData.mobileImageUrl) || "",
+        codeValue: initialData.codeValue || "",
+        inCodeSet: initialData.inCodeSet || "",
+        favourite: initialData.favourite ?? false,
+        mobile: initialData.mobile ?? false,
+        isArchived: initialData.isArchived ?? false,
+      })
+
+      setUploadedImages(initialData.imageUrl ? [{
+        file: null,
+        alt: initialData.name || "Category Image",
+        preview: getCdnUrl(initialData.imageUrl),
+        finalUrl: getCdnUrl(initialData.imageUrl),
+        key: extractKeyFromUrl(initialData.imageUrl)
+      }] : [])
+
+      setUploadedMobileImages(initialData.mobileImageUrl ? [{
+        file: null,
+        alt: initialData.name || "Mobile Category Image",
+        preview: getCdnUrl(initialData.mobileImageUrl),
+        finalUrl: getCdnUrl(initialData.mobileImageUrl),
+        key: extractKeyFromUrl(initialData.mobileImageUrl)
+      }] : [])
+    } else {
+      form.reset({
+        name: "",
+        slug: "",
+        description: "",
+        parentId: "",
+        imageUrl: "",
+        mobileImageUrl: "",
+        codeValue: "",
+        inCodeSet: "",
+        favourite: false,
+        mobile: false,
+        isArchived: false,
+      })
+      setUploadedImages([])
+      setUploadedMobileImages([])
+    }
+  }, [initialData, form])
+
+  useEffect(() => {
     const imageUrl = uploadedImages[0]?.key || ''
     form.setValue('imageUrl', imageUrl, { shouldValidate: true, shouldDirty: true })
   }, [uploadedImages, form])

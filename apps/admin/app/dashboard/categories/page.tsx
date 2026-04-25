@@ -24,6 +24,8 @@ const allColumns: ColumnDefinition[] = [
   { key: "productCount", label: "Product Count" },
   { key: "isArchived", label: "Archived" },
   { key: "favourite", label: "Favourite" },
+  { key: "mobile", label: "Mobile" },
+  { key: "mobileImageUrl", label: "Mobile Image" },
   { key: "createdAt", label: "Created At" },
   { key: "updatedAt", label: "Updated At" },
 ]

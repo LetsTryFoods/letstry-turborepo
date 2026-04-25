@@ -677,6 +677,7 @@ export type CustomerDetails = {
   _id: Scalars['ID']['output'];
   activeCart?: Maybe<Scalars['JSON']['output']>;
   addresses: Array<Address>;
+  avatar?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   currentSessionId?: Maybe<Scalars['String']['output']>;
   dateOfBirth?: Maybe<Scalars['DateTime']['output']>;
@@ -770,6 +771,7 @@ export type EnrichedCustomer = {
   __typename?: 'EnrichedCustomer';
   _id: Scalars['ID']['output'];
   activeCartItemsCount?: Maybe<Scalars['Int']['output']>;
+  avatar?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   currentSessionId?: Maybe<Scalars['String']['output']>;
   dateOfBirth?: Maybe<Scalars['DateTime']['output']>;
@@ -1620,6 +1622,7 @@ export type OrderType = {
   orderStatus: OrderStatus;
   payment?: Maybe<OrderPaymentType>;
   paymentOrderId: Scalars['String']['output'];
+  shipment?: Maybe<ShipmentResponse>;
   shippingAddress?: Maybe<OrderShippingAddressType>;
   shippingAddressId?: Maybe<Scalars['String']['output']>;
   subtotal: Scalars['String']['output'];
@@ -1737,6 +1740,7 @@ export type PackingItem = {
   name: Scalars['String']['output'];
   productId: Scalars['String']['output'];
   quantity: Scalars['Int']['output'];
+  scannedCount?: Maybe<Scalars['Int']['output']>;
   sku: Scalars['String']['output'];
 };
 
@@ -1837,7 +1841,7 @@ export type PaymentDetailType = {
   ledgerUpdated?: Maybe<Scalars['Boolean']['output']>;
   orderId?: Maybe<Scalars['String']['output']>;
   paymentEventId?: Maybe<Scalars['String']['output']>;
-  paymentMethod?: Maybe<PaymentMethod>;
+  paymentMethod?: Maybe<Scalars['String']['output']>;
   paymentMethodId?: Maybe<Scalars['String']['output']>;
   paymentMode?: Maybe<Scalars['String']['output']>;
   paymentOrderId: Scalars['String']['output'];
@@ -1860,7 +1864,7 @@ export type PaymentFiltersInput = {
   maxAmount?: InputMaybe<Scalars['String']['input']>;
   minAmount?: InputMaybe<Scalars['String']['input']>;
   orderId?: InputMaybe<Scalars['String']['input']>;
-  paymentMethods?: InputMaybe<Array<PaymentMethod>>;
+  paymentMethods?: InputMaybe<Array<Scalars['String']['input']>>;
   searchQuery?: InputMaybe<Scalars['String']['input']>;
   startDate?: InputMaybe<Scalars['String']['input']>;
   statuses?: InputMaybe<Array<PaymentStatus>>;
@@ -1880,15 +1884,6 @@ export type PaymentListItemType = {
   paymentOrderStatus: Scalars['String']['output'];
   pspTxnId?: Maybe<Scalars['String']['output']>;
 };
-
-export enum PaymentMethod {
-  Card = 'CARD',
-  CreditCard = 'CREDIT_CARD',
-  DebitCard = 'DEBIT_CARD',
-  NetBanking = 'NET_BANKING',
-  Upi = 'UPI',
-  Wallet = 'WALLET'
-}
 
 export type PaymentOrderType = {
   __typename?: 'PaymentOrderType';
@@ -1911,7 +1906,7 @@ export type PaymentOrderType = {
   ledgerUpdated?: Maybe<Scalars['Boolean']['output']>;
   orderId?: Maybe<Scalars['String']['output']>;
   paymentEventId?: Maybe<Scalars['String']['output']>;
-  paymentMethod?: Maybe<PaymentMethod>;
+  paymentMethod?: Maybe<Scalars['String']['output']>;
   paymentMethodId?: Maybe<Scalars['String']['output']>;
   paymentMode?: Maybe<Scalars['String']['output']>;
   paymentOrderId: Scalars['String']['output'];
