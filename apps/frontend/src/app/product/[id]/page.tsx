@@ -8,6 +8,7 @@ import { ProductAccordion } from "@/components/product-page/ProductAccordion";
 import { InfoTable } from "@/components/product-page/InfoTable";
 import { CategoryProductsSections } from "@/components/product-page/CategoryProductsSections";
 import { getCdnUrl } from "@/lib/image-utils";
+import { getProductOverride } from "@/lib/seo/overrides";
 
 export const revalidate = 1800;
 
@@ -49,19 +50,21 @@ export async function generateMetadata({
   descParts.push('Shipped across India.');
   const defaultDescription = descParts.join(' ').slice(0, 300);
 
+  const override = getProductOverride(slug);
+  const finalTitle = seo?.metaTitle || override?.title || defaultTitle;
+  const finalDescription = seo?.metaDescription || override?.description || defaultDescription;
   const canonical = seo?.canonicalUrl || `${SITE_URL}/product/${slug}`;
 
   return {
-    title: { absolute: seo?.metaTitle || defaultTitle },
-    description: seo?.metaDescription || defaultDescription,
+    title: { absolute: finalTitle },
+    description: finalDescription,
     keywords: seo?.metaKeywords || [],
     alternates: {
       canonical,
     },
     openGraph: {
-      title: seo?.ogTitle || seo?.metaTitle || defaultTitle,
-      description:
-        seo?.ogDescription || seo?.metaDescription || defaultDescription,
+      title: seo?.ogTitle || finalTitle,
+      description: seo?.ogDescription || finalDescription,
       url: canonical,
       images: seo?.ogImage
         ? [{ url: getCdnUrl(seo.ogImage) }]
@@ -72,9 +75,8 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: seo?.ogTitle || seo?.metaTitle || defaultTitle,
-      description:
-        seo?.ogDescription || seo?.metaDescription || defaultDescription,
+      title: seo?.ogTitle || finalTitle,
+      description: seo?.ogDescription || finalDescription,
       images: seo?.ogImage
         ? [getCdnUrl(seo.ogImage)]
         : product?.defaultVariant?.images?.[0]?.url

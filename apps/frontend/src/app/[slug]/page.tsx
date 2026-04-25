@@ -6,6 +6,7 @@ import { Product } from '@/components/category-page/ProductCard';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getCdnUrl } from '@/lib/image-utils';
+import { getCategoryOverride } from '@/lib/seo/overrides';
 
 export const revalidate = 1800;
 
@@ -22,6 +23,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const category = await getCategoryBySlug(slug);
   if (category) {
     const seo = category.seo;
+    const override = getCategoryOverride(slug);
+
     const defaultTitle = `${category.name} – Buy Online | Let's Try Foods`;
     const countHint = category.productCount
       ? `Choose from ${category.productCount} ${category.productCount === 1 ? 'product' : 'products'}. `
@@ -29,26 +32,29 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const defaultDescription =
       category.description ||
       `Shop ${category.name} at Let's Try Foods. ${countHint}Shipped across India.`.trim();
+
+    const finalTitle = seo?.metaTitle || override?.title || defaultTitle;
+    const finalDescription = seo?.metaDescription || override?.description || defaultDescription;
     const canonical = seo?.canonicalUrl || `${SITE_URL}/${slug}`;
 
     return {
-      title: { absolute: seo?.metaTitle || defaultTitle },
-      description: seo?.metaDescription || defaultDescription,
+      title: { absolute: finalTitle },
+      description: finalDescription,
       keywords: seo?.metaKeywords || [],
       alternates: {
         canonical,
       },
       openGraph: {
-        title: seo?.ogTitle || seo?.metaTitle || defaultTitle,
-        description: seo?.ogDescription || seo?.metaDescription || defaultDescription,
+        title: seo?.ogTitle || finalTitle,
+        description: seo?.ogDescription || finalDescription,
         url: canonical,
         images: seo?.ogImage ? [{ url: getCdnUrl(seo.ogImage) }] : category.imageUrl ? [{ url: getCdnUrl(category.imageUrl) }] : [],
         type: 'website',
       },
       twitter: {
         card: 'summary_large_image',
-        title: seo?.ogTitle || seo?.metaTitle || defaultTitle,
-        description: seo?.ogDescription || seo?.metaDescription || defaultDescription,
+        title: seo?.ogTitle || finalTitle,
+        description: seo?.ogDescription || finalDescription,
         images: seo?.ogImage ? [getCdnUrl(seo.ogImage)] : category.imageUrl ? [getCdnUrl(category.imageUrl)] : [],
       },
     };
