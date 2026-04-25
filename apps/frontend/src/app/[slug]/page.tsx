@@ -9,6 +9,8 @@ import { getCdnUrl } from '@/lib/image-utils';
 
 export const revalidate = 1800;
 
+const SITE_URL = (process.env.NEXT_PUBLIC_BASE_URL || 'https://letstryfoods.com').replace(/\/$/, '');
+
 interface PageProps {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -22,17 +24,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const seo = category.seo;
     const defaultTitle = `${category.name} | Letstry`;
     const defaultDescription = category.description || `Shop ${category.name} products at Letstry. Browse our collection of premium quality items.`;
+    const canonical = seo?.canonicalUrl || `${SITE_URL}/${slug}`;
 
     return {
       title: seo?.metaTitle || defaultTitle,
       description: seo?.metaDescription || defaultDescription,
       keywords: seo?.metaKeywords || [],
       alternates: {
-        canonical: seo?.canonicalUrl || undefined,
+        canonical,
       },
       openGraph: {
         title: seo?.ogTitle || seo?.metaTitle || defaultTitle,
         description: seo?.ogDescription || seo?.metaDescription || defaultDescription,
+        url: canonical,
         images: seo?.ogImage ? [{ url: getCdnUrl(seo.ogImage) }] : category.imageUrl ? [{ url: getCdnUrl(category.imageUrl) }] : [],
         type: 'website',
       },
@@ -99,12 +103,45 @@ export default async function DynamicSlugPage({ params, searchParams }: PageProp
     if (category) {
       const categoryType = type === 'special' ? 'special' : 'default';
       const products = category.products.map(mapProductData);
+      const categoryUrl = `${SITE_URL}/${slug}`;
+
+      const breadcrumbSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+          { '@type': 'ListItem', position: 2, name: category.name, item: categoryUrl },
+        ],
+      };
+
+      const itemListSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        name: category.name,
+        numberOfItems: products.length,
+        itemListElement: products.slice(0, 30).map((p, idx) => ({
+          '@type': 'ListItem',
+          position: idx + 1,
+          url: `${SITE_URL}/product/${p.slug}`,
+          name: p.name,
+        })),
+      };
 
       return (
-        <CategoryPageContainer>
-          <CategoryHeader title={category.name} productCount={category.productCount} />
-          <ProductGrid products={products} categoryType={categoryType} slug={slug} />
-        </CategoryPageContainer>
+        <>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+          />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+          />
+          <CategoryPageContainer>
+            <CategoryHeader title={category.name} productCount={category.productCount} />
+            <ProductGrid products={products} categoryType={categoryType} slug={slug} />
+          </CategoryPageContainer>
+        </>
       );
     }
   } catch (error) {

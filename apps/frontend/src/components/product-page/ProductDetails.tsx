@@ -59,7 +59,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, breadcr
 
 
       <div>
-        <ProductGallery images={displayImages} isOutOfStock={isOutOfStock} />
+        <ProductGallery images={displayImages} isOutOfStock={isOutOfStock} productName={product.name} />
       </div>
 
       <div>

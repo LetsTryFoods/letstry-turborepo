@@ -39,9 +39,79 @@ const agbalumo = Agbalumo({
   preload: true,
 });
 
+const SITE_URL = (process.env.NEXT_PUBLIC_BASE_URL || 'https://letstryfoods.com').replace(/\/$/, '');
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "Let's Try",
   description: "Let's Try E-commerce Platform",
+};
+
+const organizationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  '@id': `${SITE_URL}#organization`,
+  name: "Let's Try Foods",
+  alternateName: "Let's Try",
+  legalName: 'Earth Crust Pvt Ltd',
+  url: SITE_URL,
+  logo: {
+    '@type': 'ImageObject',
+    url: `${SITE_URL}/logo.webp`,
+    width: 120,
+    height: 120,
+  },
+  sameAs: [
+    'https://www.facebook.com/p/Lets-Try-100067844378739/',
+    'https://www.instagram.com/letstry_foods/',
+  ],
+  identifier: 'U15549DL2020PTC365385',
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: '329, 1st Floor, Indra Vihar',
+    addressLocality: 'Delhi',
+    postalCode: '110009',
+    addressCountry: 'IN',
+  },
+  contactPoint: [
+    {
+      '@type': 'ContactPoint',
+      telephone: '+91-9654-932-262',
+      email: 'ecom@earthcrust.co.in',
+      contactType: 'customer service',
+      areaServed: 'IN',
+      availableLanguage: ['English', 'Hindi'],
+    },
+    {
+      '@type': 'ContactPoint',
+      email: 'corporate@letstryfoods.com',
+      contactType: 'sales',
+      areaServed: 'IN',
+    },
+    {
+      '@type': 'ContactPoint',
+      email: 'export@earthcrust.co.in',
+      contactType: 'sales',
+      areaServed: 'Worldwide',
+    },
+  ],
+};
+
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  '@id': `${SITE_URL}#website`,
+  url: SITE_URL,
+  name: "Let's Try Foods",
+  publisher: { '@id': `${SITE_URL}#organization` },
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: {
+      '@type': 'EntryPoint',
+      urlTemplate: `${SITE_URL}/search?q={search_term_string}`,
+    },
+    'query-input': 'required name=search_term_string',
+  },
 };
 
 export default function RootLayout({
@@ -56,6 +126,14 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://cdn.krishnaseth.xyz" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://admin-api.krsna.site" crossOrigin="anonymous" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
         {gtmId && <GoogleTagManager gtmId={gtmId} />}
       </head>
       <body
