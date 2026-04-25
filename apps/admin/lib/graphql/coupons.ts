@@ -14,7 +14,7 @@ export const GET_COUPONS = gql`
       startDate
       endDate
       isActive
-   
+      isPublic
       createdAt
       updatedAt
     }
@@ -35,7 +35,7 @@ export const GET_COUPON_BY_CODE = gql`
       startDate
       endDate
       isActive
-    
+      isPublic
       createdAt
       updatedAt
     }
@@ -56,6 +56,7 @@ export const CREATE_COUPON = gql`
       startDate
       endDate
       isActive
+      isPublic
     }
   }
 `

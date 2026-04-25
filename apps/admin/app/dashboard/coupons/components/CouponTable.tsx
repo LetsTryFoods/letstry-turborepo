@@ -83,6 +83,7 @@ export function CouponTable({ coupons, onDelete }: CouponTableProps) {
             <TableHead>Code</TableHead>
             <TableHead>Name</TableHead>
             <TableHead>Discount</TableHead>
+            <TableHead>Visibility</TableHead>
             <TableHead>Eligibility</TableHead>
             {/* <TableHead>Usage</TableHead>
             <TableHead>Validity</TableHead> */}
@@ -137,6 +138,17 @@ export function CouponTable({ coupons, onDelete }: CouponTableProps) {
                     </p>
                   )}
                 </div>
+              </TableCell>
+              <TableCell>
+                {coupon.isPublic ? (
+                  <Badge variant="outline" className="border-green-500 text-green-600 bg-green-50">
+                    Public
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="border-amber-500 text-amber-600 bg-amber-50">
+                    Hidden
+                  </Badge>
+                )}
               </TableCell>
               {/* <TableCell>
                 {getEligibilityBadge(coupon.eligibilityType)}

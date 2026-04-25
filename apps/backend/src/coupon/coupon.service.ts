@@ -108,6 +108,7 @@ export class CouponService {
     return this.couponModel
       .find({
         isActive: true,
+        isPublic: true,
         startDate: { $lte: now },
         $or: [
           { hasInfiniteValidity: true },

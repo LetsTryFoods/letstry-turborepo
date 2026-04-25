@@ -39,6 +39,9 @@ export class CreateCouponInput {
   @Field({ nullable: true })
   isActive?: boolean;
 
+  @Field({ defaultValue: true })
+  isPublic?: boolean;
+
   @Field(() => Int, { nullable: true })
   usageLimit?: number;
 }

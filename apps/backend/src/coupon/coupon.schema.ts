@@ -80,6 +80,10 @@ export class Coupon {
   @Field()
   isActive: boolean;
 
+  @Prop({ default: true })
+  @Field()
+  isPublic: boolean;
+
   @Prop()
   @Field(() => Int, { nullable: true })
   usageLimit?: number;
