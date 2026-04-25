@@ -20,11 +20,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const seo = blog.seo;
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://letstry.com';
+  const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'https://letstryfoods.com').replace(/\/$/, '');
   const blogUrl = `${baseUrl}/blog/${blog.slug}`;
+  const defaultTitle = `${blog.title} | Let's Try Foods Blog`;
 
   return {
-    title: seo?.metaTitle || `${blog.title} | Let's Try Blog`,
+    title: { absolute: seo?.metaTitle || defaultTitle },
     description: seo?.metaDescription || blog.excerpt,
     keywords: seo?.metaKeywords || [],
     alternates: {

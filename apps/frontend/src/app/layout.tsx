@@ -43,8 +43,11 @@ const SITE_URL = (process.env.NEXT_PUBLIC_BASE_URL || 'https://letstryfoods.com'
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "Let's Try",
-  description: "Let's Try E-commerce Platform",
+  title: {
+    default: "Let's Try Foods",
+    template: "%s | Let's Try Foods",
+  },
+  description: "Let's Try Foods — healthy Indian snacks with no palm oil and no maida.",
 };
 
 const organizationSchema = {

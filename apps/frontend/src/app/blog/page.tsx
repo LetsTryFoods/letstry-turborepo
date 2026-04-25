@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import BlogGrid from './BlogGrid';
 
 export const metadata: Metadata = {
-  title: 'Blog - Stories of Good Food and Better Choices | Let\'s Try',
+  title: { absolute: "Blog – Stories of Good Food and Better Choices | Let's Try Foods" },
   description: 'Discover healthy eating tips, nutritional advice, and stories about making better food choices for you and your family.',
 };
 
