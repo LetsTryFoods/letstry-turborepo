@@ -5,9 +5,9 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Image, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { COLORS } from '../constants/theme';
 import { getCdnUrl } from '../config/api';
-import { useQuery } from '@apollo/client';
+import { useQuery, useLazyQuery } from '@apollo/client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { GET_MY_ASSIGNED_ORDERS, GET_ALL_PACKING_ORDERS, GET_EVIDENCE_BY_ORDER } from '../graphql/queries';
+import { GET_MY_ASSIGNED_ORDERS, GET_ALL_PACKING_ORDERS, GET_EVIDENCE_BY_ORDER, GET_ASSIGNED_ORDER } from '../graphql/queries';
 
 const formatOrderTime = (createdAt) => {
   if (!createdAt) return 'N/A';
@@ -32,8 +32,8 @@ const formatOrderTime = (createdAt) => {
 const DashboardScreen = ({ navigation, route }) => {
   const [user, setUser] = useState({ name: 'Packer' });
   const [activeTab, setActiveTab] = useState('pending');
-  const [completedOrders, setCompletedOrders] = useState([]);
   const [evidenceMap, setEvidenceMap] = useState({});
+  const [assigning, setAssigning] = useState(false);
   
   useEffect(() => {
     if (route.params?.user) {
@@ -49,14 +49,31 @@ const DashboardScreen = ({ navigation, route }) => {
     pollInterval: 5000,
   });
 
+  const [requestNewOrder] = useLazyQuery(GET_ASSIGNED_ORDER, {
+    fetchPolicy: 'network-only',
+    onCompleted: (data) => {
+      setAssigning(false);
+      if (data?.getAssignedOrder) {
+        refetchPending();
+        Alert.alert('New Order Received', `Order #${data.getAssignedOrder.orderNumber || data.getAssignedOrder.orderId} has been assigned to you.`);
+      } else {
+        Alert.alert('No Orders Available', 'There are no items waiting in the queue to be packed.');
+      }
+    },
+    onError: (err) => {
+      setAssigning(false);
+      Alert.alert('Error', err.message || 'Failed to request new order');
+    }
+  });
+
+  const handleRequestOrder = () => {
+    setAssigning(true);
+    requestNewOrder();
+  };
+
   const { data: completedData, loading: completedLoading, refetch: refetchCompleted } = useQuery(GET_ALL_PACKING_ORDERS, {
     variables: { status: 'completed' },
     skip: activeTab !== 'completed',
-    onCompleted: async (data) => {
-      if (data?.getAllPackingOrders) {
-        setCompletedOrders(data.getAllPackingOrders);
-      }
-    },
   });
 
   const handleOrderPress = (order) => {
@@ -78,6 +95,7 @@ const DashboardScreen = ({ navigation, route }) => {
   };
 
   const pendingOrders = assignedData?.getMyAssignedOrders || [];
+  const completedOrders = completedData?.getAllPackingOrders || [];
   const stats = {
     pending: pendingOrders.length,
     totalItems: pendingOrders.reduce((sum, o) => sum + (o.items?.length || 0), 0),
@@ -209,15 +227,35 @@ const DashboardScreen = ({ navigation, route }) => {
               {pendingLoading && !assignedData ? (
                 <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 20 }} />
               ) : (
-                <FlatList
-                  scrollEnabled={false}
-                  data={pendingOrders}
-                  keyExtractor={item => item.id}
-                  renderItem={({ item }) => renderOrderCard({ item, showEvidence: false })}
-                  ListEmptyComponent={
-                    <Text style={styles.emptyText}>No orders assigned right now.</Text>
-                  }
-                />
+                <View>
+                  <FlatList
+                    scrollEnabled={false}
+                    data={pendingOrders}
+                    keyExtractor={item => item.id}
+                    renderItem={({ item }) => renderOrderCard({ item, showEvidence: false })}
+                    ListEmptyComponent={
+                      <View style={styles.emptyContainer}>
+                        <Ionicons name="clipboard-outline" size={60} color="#cbd5e1" />
+                        <Text style={styles.emptyText}>No orders assigned right now.</Text>
+                      </View>
+                    }
+                  />
+                  
+                  <TouchableOpacity 
+                    style={[styles.requestButton, assigning && styles.disabledButton]} 
+                    onPress={handleRequestOrder}
+                    disabled={assigning}
+                  >
+                    {assigning ? (
+                      <ActivityIndicator color="white" size="small" />
+                    ) : (
+                      <>
+                        <Ionicons name="add-circle-outline" size={20} color="white" />
+                        <Text style={styles.requestButtonText}>Request New Assignment</Text>
+                      </>
+                    )}
+                  </TouchableOpacity>
+                </View>
               )}
             </>
           ) : (
@@ -266,7 +304,34 @@ const styles = StyleSheet.create({
   tabTextActive: { color: COLORS.primary },
 
   listContainer: { paddingHorizontal: 16, paddingBottom: 20 },
-  emptyText: { textAlign: 'center', color: '#94a3b8', marginTop: 50 },
+  emptyContainer: { alignItems: 'center', marginTop: 40, marginBottom: 20 },
+  emptyText: { textAlign: 'center', color: '#94a3b8', marginTop: 10, fontSize: 14 },
+
+  requestButton: {
+    backgroundColor: COLORS.primary,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    borderRadius: 12,
+    marginTop: 10,
+    gap: 8,
+    elevation: 2,
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  disabledButton: {
+    backgroundColor: '#94a3b8',
+    elevation: 0,
+    shadowOpacity: 0,
+  },
+  requestButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 
   card: { backgroundColor: 'white', borderRadius: 16, padding: 16, marginBottom: 12, elevation: 2 },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },

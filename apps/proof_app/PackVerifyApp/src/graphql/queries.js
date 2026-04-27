@@ -18,6 +18,30 @@ export const PACKER_LOGIN = gql`
   }
 `;
 
+export const GET_ASSIGNED_ORDER = gql`
+  query GetAssignedOrder {
+    getAssignedOrder {
+      id
+      orderId
+      orderNumber
+      status
+      specialInstructions
+      isExpress
+      createdAt
+      items {
+        productId
+        sku
+        ean
+        name
+        quantity
+        scannedCount
+        imageUrl
+        isFragile
+      }
+    }
+  }
+`;
+
 export const GET_MY_ASSIGNED_ORDERS = gql`
   query GetMyAssignedOrders {
     getMyAssignedOrders {
