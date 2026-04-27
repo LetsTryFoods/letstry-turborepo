@@ -10,6 +10,7 @@ import { OrderAssignmentService } from './order-assignment.service';
 import { ReassignmentService } from './reassignment.service';
 import { PackingLoggerService } from './packing-logger.service';
 import { UnassignedOrderProcessorService } from './unassigned-order-processor.service';
+import { PackingStatus } from '../../../common/enums/packing-status.enum';
 import Redis from 'ioredis';
 
 @Injectable()
@@ -145,9 +146,9 @@ export class PackingQueueService {
         if (packerId && !activePackerIds.has(packerId)) {
           // Packer was deleted — reset order so it can be reassigned
           await this.packingOrderCrud.update(order._id.toString(), {
-            assignedTo: null,
-            assignedAt: null,
-            status: 'pending',
+            assignedTo: undefined,
+            assignedAt: undefined,
+            status: PackingStatus.PENDING,
           });
 
           const alreadyInQueue = await this.isOrderInQueue(order.orderId);
