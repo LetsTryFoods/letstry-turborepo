@@ -1,7 +1,8 @@
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, Context } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { PackerService } from './services/packer.service';
 import { RolesGuard } from '../common/guards/roles.guard';
+import { PackerAuthGuard } from './guards/packer-auth.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Public } from '../common/decorators/public.decorator';
 import { Role } from '../common/enums/role.enum';
@@ -63,6 +64,13 @@ export class PackerResolver {
     @Args('endDate') endDate?: Date,
   ): Promise<any> {
     return this.packerService.getPackerStats(packerId, { startDate, endDate });
+  }
+
+  @Query(() => PackerStats)
+  @Roles(Role.PACKER)
+  @UseGuards(PackerAuthGuard, RolesGuard)
+  async getMyStats(@Context() ctx): Promise<any> {
+    return this.packerService.getPackerStats(ctx.req.user.packerId);
   }
 
   @Mutation(() => PackerLoginResponse)

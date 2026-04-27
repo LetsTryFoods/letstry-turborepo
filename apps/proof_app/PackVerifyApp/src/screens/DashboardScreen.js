@@ -1,40 +1,31 @@
-
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, Image, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { COLORS } from '../constants/theme';
-import { getCdnUrl } from '../config/api';
-import { useQuery, useLazyQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { GET_MY_ASSIGNED_ORDERS, GET_ALL_PACKING_ORDERS, GET_EVIDENCE_BY_ORDER, GET_ASSIGNED_ORDER } from '../graphql/queries';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useEffect, useState, useCallback } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  RefreshControl,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Dimensions,
+  StatusBar
+} from 'react-native';
+import { COLORS, SIZES } from '../constants/theme';
+import { GET_MY_ASSIGNED_ORDERS, GET_MY_HISTORY, GET_MY_STATS } from '../graphql/queries';
+import HistoryCard from '../components/HistoryCard';
 
-const formatOrderTime = (createdAt) => {
-  if (!createdAt) return 'N/A';
-  const orderDate = new Date(createdAt);
-  const now = new Date();
-  const diffInMinutes = Math.floor((now - orderDate) / (1000 * 60));
-
-  if (diffInMinutes < 1) return 'Just now';
-  if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-  if (diffInMinutes < 1440) {
-    const hours = Math.floor(diffInMinutes / 60);
-    return `${hours}h ago`;
-  }
-  if (diffInMinutes < 2880) return 'Yesterday';
-  
-  const days = Math.floor(diffInMinutes / 1440);
-  if (days < 7) return `${days}d ago`;
-  
-  return orderDate.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
-};
+const { width } = Dimensions.get('window');
 
 const DashboardScreen = ({ navigation, route }) => {
   const [user, setUser] = useState({ name: 'Packer' });
-  const [activeTab, setActiveTab] = useState('pending');
-  const [evidenceMap, setEvidenceMap] = useState({});
-  const [assigning, setAssigning] = useState(false);
-  
+  const [activeTab, setActiveTab] = useState('active'); // 'active' or 'history'
+
+  // 1. Get User from Storage
   useEffect(() => {
     if (route.params?.user) {
       setUser(route.params.user);
@@ -45,36 +36,33 @@ const DashboardScreen = ({ navigation, route }) => {
     }
   }, [route.params]);
 
-  const { data: assignedData, loading: pendingLoading, error: pendingError, refetch: refetchPending } = useQuery(GET_MY_ASSIGNED_ORDERS, {
-    pollInterval: 5000,
-  });
+  // 2. FETCH DATA
+  const { 
+    data: activeData, 
+    loading: activeLoading, 
+    refetch: refetchActive 
+  } = useQuery(GET_MY_ASSIGNED_ORDERS, { pollInterval: 10000 });
 
-  const [requestNewOrder] = useLazyQuery(GET_ASSIGNED_ORDER, {
-    fetchPolicy: 'network-only',
-    onCompleted: (data) => {
-      setAssigning(false);
-      if (data?.getAssignedOrder) {
-        refetchPending();
-        Alert.alert('New Order Received', `Order #${data.getAssignedOrder.orderNumber || data.getAssignedOrder.orderId} has been assigned to you.`);
-      } else {
-        Alert.alert('No Orders Available', 'There are no items waiting in the queue to be packed.');
-      }
-    },
-    onError: (err) => {
-      setAssigning(false);
-      Alert.alert('Error', err.message || 'Failed to request new order');
+  const { 
+    data: historyData, 
+    loading: historyLoading, 
+    refetch: refetchHistory 
+  } = useQuery(GET_MY_HISTORY, { skip: activeTab !== 'history' });
+
+  const { 
+    data: statsData, 
+    loading: statsLoading, 
+    refetch: refetchStats 
+  } = useQuery(GET_MY_STATS);
+
+  const onRefresh = useCallback(() => {
+    refetchStats();
+    if (activeTab === 'active') {
+      refetchActive();
+    } else {
+      refetchHistory();
     }
-  });
-
-  const handleRequestOrder = () => {
-    setAssigning(true);
-    requestNewOrder();
-  };
-
-  const { data: completedData, loading: completedLoading, refetch: refetchCompleted } = useQuery(GET_ALL_PACKING_ORDERS, {
-    variables: { status: 'completed' },
-    skip: activeTab !== 'completed',
-  });
+  }, [activeTab]);
 
   const handleOrderPress = (order) => {
     if (!order.id) {
@@ -87,276 +75,300 @@ const DashboardScreen = ({ navigation, route }) => {
     });
   };
 
-  const handleRefresh = async () => {
-    await refetchPending();
-    if (activeTab === 'completed') {
-      await refetchCompleted();
-    }
+  const renderStats = () => {
+    const stats = statsData?.getMyStats || {
+      ordersPackedToday: 0,
+      accuracyRate: 0,
+      averagePackTime: 0
+    };
+
+    return (
+      <View style={styles.statsContainer}>
+        <LinearGradient colors={['#4f46e5', '#6366f1']} style={styles.statsCard}>
+          <Text style={styles.statsLabel}>Packed Today</Text>
+          <Text style={styles.statsValue}>{stats.ordersPackedToday}</Text>
+          <View style={styles.statsIconBg}>
+            <Ionicons name="cube" size={20} color="white" />
+          </View>
+        </LinearGradient>
+
+        <LinearGradient colors={['#10b981', '#34d399']} style={styles.statsCard}>
+          <Text style={styles.statsLabel}>Accuracy</Text>
+          <Text style={styles.statsValue}>{stats.accuracyRate.toFixed(1)}%</Text>
+          <View style={styles.statsIconBg}>
+            <Ionicons name="checkmark-circle" size={20} color="white" />
+          </View>
+        </LinearGradient>
+
+        <LinearGradient colors={['#f59e0b', '#fbbf24']} style={styles.statsCard}>
+          <Text style={styles.statsLabel}>Avg Time</Text>
+          <Text style={styles.statsValue}>{stats.averagePackTime.toFixed(1)}m</Text>
+          <View style={styles.statsIconBg}>
+            <Ionicons name="time" size={20} color="white" />
+          </View>
+        </LinearGradient>
+      </View>
+    );
   };
 
-  const pendingOrders = assignedData?.getMyAssignedOrders || [];
-  const completedOrders = completedData?.getAllPackingOrders || [];
-  const stats = {
-    pending: pendingOrders.length,
-    totalItems: pendingOrders.reduce((sum, o) => sum + (o.items?.length || 0), 0),
-    completed: completedOrders.length,
-  };
-
-  const renderOrderCard = ({ item, showEvidence }) => (
+  const renderOrderCard = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
       onPress={() => handleOrderPress(item)}
       activeOpacity={0.7}
     >
       <View style={styles.cardHeader}>
-        <Text style={styles.orderId}>#{item.orderNumber || item.orderId}</Text>
-        <View style={styles.badges}>
+        <View>
+          <Text style={styles.orderId}>#{item.orderNumber || item.orderId}</Text>
           {item.isExpress && (
-            <View style={styles.badgeExpress}>
-              <Text style={styles.badgeText}>⚡ EXPRESS</Text>
+            <View style={styles.expressBadge}>
+              <Ionicons name="flash" size={10} color="#92400e" />
+              <Text style={styles.expressBadgeText}>EXPRESS</Text>
             </View>
           )}
-          <View style={[styles.badge, item.status === 'assigned' ? styles.badgeAssigned : item.status === 'completed' ? styles.badgeCompleted : styles.badgeProgress]}>
-            <Text style={styles.badgeText}>{item.status.toUpperCase()}</Text>
-          </View>
+        </View>
+        <View style={[styles.statusBadge, item.status === 'packing' ? styles.statusPacking : styles.statusAssigned]}>
+          <Text style={styles.statusBadgeText}>{item.status.toUpperCase()}</Text>
         </View>
       </View>
 
       {item.specialInstructions ? (
-        <Text style={styles.instructions}>⚠ {item.specialInstructions}</Text>
+        <View style={styles.instructionContainer}>
+          <Ionicons name="warning" size={14} color="#f59e0b" />
+          <Text style={styles.instructions} numberOfLines={1}>{item.specialInstructions}</Text>
+        </View>
       ) : null}
 
-      <View style={styles.timeRow}>
-        <Ionicons name="calendar-outline" size={14} color={COLORS.textLight} />
-        <Text style={styles.timeText}>Placed {formatOrderTime(item.createdAt)}</Text>
-      </View>
-
-      <View style={styles.divider} />
-
       <View style={styles.cardFooter}>
-        <Text style={styles.itemsText}>{item.items?.length || 0} product type(s)</Text>
-        <Text style={styles.totalQty}>
-          {item.items?.reduce((s, i) => s + i.quantity, 0) || 0} items total
-        </Text>
-        <Ionicons name="chevron-forward" size={20} color={COLORS.textLight} />
-      </View>
-
-      {showEvidence && item.id && evidenceMap[item.id]?.prePackImages?.length > 0 && (
-        <View style={styles.evidenceSection}>
-          <Text style={styles.evidenceTitle}>📸 Evidence</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageScroll}>
-            {evidenceMap[item.id].prePackImages.slice(0, 3).map((img, idx) => (
-              <Image
-                key={idx}
-                source={{ uri: getCdnUrl(img) }}
-                style={styles.evidenceImage}
-              />
-            ))}
-            {evidenceMap[item.id].prePackImages.length > 3 && (
-              <View style={[styles.evidenceImage, styles.moreImages]}>
-                <Text style={styles.moreText}>+{evidenceMap[item.id].prePackImages.length - 3}</Text>
-              </View>
-            )}
-          </ScrollView>
+        <View style={styles.footerInfo}>
+          <Ionicons name="list" size={14} color={COLORS.textLight} />
+          <Text style={styles.footerText}>{item.items?.length || 0} items</Text>
         </View>
-      )}
+        <Ionicons name="chevron-forward" size={18} color={COLORS.textLight} />
+      </View>
     </TouchableOpacity>
-  );
-
-  const renderStatsCard = ({ label, value, icon, color }) => (
-    <View style={[styles.statCard, { borderLeftColor: color }]}>
-      <View style={[styles.statIcon, { backgroundColor: color + '20' }]}>
-        <Ionicons name={icon} size={24} color={color} />
-      </View>
-      <View style={styles.statContent}>
-        <Text style={styles.statValue}>{value}</Text>
-        <Text style={styles.statLabel}>{label}</Text>
-      </View>
-    </View>
   );
 
   return (
     <View style={styles.container}>
+      <StatusBar barStyle="light-content" />
+      
+      {/* Header */}
       <LinearGradient colors={[COLORS.primary, COLORS.primaryLight]} style={styles.header}>
-        <View style={styles.headerContent}>
+        <View style={styles.headerTop}>
           <View>
-            <Text style={styles.welcomeText}>Welcome,</Text>
+            <Text style={styles.welcomeText}>Good Day,</Text>
             <Text style={styles.userName}>{user.name}</Text>
           </View>
-          <TouchableOpacity onPress={handleRefresh} style={styles.refreshBtn}>
-            <Ionicons name="reload" size={20} color="white" />
+          <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.profileBtn}>
+            <Ionicons name="person-circle-outline" size={32} color="white" />
           </TouchableOpacity>
         </View>
+        {renderStats()}
       </LinearGradient>
 
-      <ScrollView 
-        style={styles.content}
-        refreshControl={<RefreshControl refreshing={pendingLoading || completedLoading} onRefresh={handleRefresh} />}
-      >
-        <View style={styles.statsContainer}>
-          {renderStatsCard({ label: 'Pending', value: stats.pending, icon: 'time', color: COLORS.primary })}
-          {renderStatsCard({ label: 'Completed', value: stats.completed, icon: 'checkmark-circle', color: COLORS.secondary })}
-          {renderStatsCard({ label: 'Items', value: stats.totalItems, icon: 'cube', color: '#8b5cf6' })}
-        </View>
-
-        <View style={styles.tabsContainer}>
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'pending' && styles.tabActive]}
-            onPress={() => setActiveTab('pending')}
-          >
-            <Ionicons name="time-outline" size={18} color={activeTab === 'pending' ? COLORS.primary : COLORS.textLight} />
-            <Text style={[styles.tabText, activeTab === 'pending' && styles.tabTextActive]}>
-              Pending ({stats.pending})
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'completed' && styles.tabActive]}
-            onPress={() => setActiveTab('completed')}
-          >
-            <Ionicons name="checkmark-circle-outline" size={18} color={activeTab === 'completed' ? COLORS.primary : COLORS.textLight} />
-            <Text style={[styles.tabText, activeTab === 'completed' && styles.tabTextActive]}>
-              Completed ({stats.completed})
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.listContainer}>
-          {activeTab === 'pending' ? (
-            <>
-              {pendingLoading && !assignedData ? (
-                <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 20 }} />
-              ) : (
-                <View>
-                  <FlatList
-                    scrollEnabled={false}
-                    data={pendingOrders}
-                    keyExtractor={item => item.id}
-                    renderItem={({ item }) => renderOrderCard({ item, showEvidence: false })}
-                    ListEmptyComponent={
-                      <View style={styles.emptyContainer}>
-                        <Ionicons name="clipboard-outline" size={60} color="#cbd5e1" />
-                        <Text style={styles.emptyText}>No orders assigned right now.</Text>
-                      </View>
-                    }
-                  />
-                  
-                  <TouchableOpacity 
-                    style={[styles.requestButton, assigning && styles.disabledButton]} 
-                    onPress={handleRequestOrder}
-                    disabled={assigning}
-                  >
-                    {assigning ? (
-                      <ActivityIndicator color="white" size="small" />
-                    ) : (
-                      <>
-                        <Ionicons name="add-circle-outline" size={20} color="white" />
-                        <Text style={styles.requestButtonText}>Request New Assignment</Text>
-                      </>
-                    )}
-                  </TouchableOpacity>
-                </View>
-              )}
-            </>
-          ) : (
-            <>
-              {completedLoading ? (
-                <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 20 }} />
-              ) : (
-                <FlatList
-                  scrollEnabled={false}
-                  data={completedOrders}
-                  keyExtractor={item => item.id}
-                  renderItem={({ item }) => renderOrderCard({ item, showEvidence: true })}
-                  ListEmptyComponent={
-                    <Text style={styles.emptyText}>No completed orders yet.</Text>
-                  }
-                />
-              )}
-            </>
+      {/* Tabs */}
+      <View style={styles.tabBar}>
+        <TouchableOpacity 
+          style={[styles.tab, activeTab === 'active' && styles.activeTab]} 
+          onPress={() => setActiveTab('active')}
+        >
+          <Text style={[styles.tabText, activeTab === 'active' && styles.activeTabText]}>Active Tasks</Text>
+          {activeData?.getMyAssignedOrders?.length > 0 && (
+            <View style={styles.countBadge}>
+              <Text style={styles.countText}>{activeData.getMyAssignedOrders.length}</Text>
+            </View>
           )}
-        </View>
-      </ScrollView>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={[styles.tab, activeTab === 'history' && styles.activeTab]} 
+          onPress={() => setActiveTab('history')}
+        >
+          <Text style={[styles.tabText, activeTab === 'history' && styles.activeTabText]}>History</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* List */}
+      <FlatList
+        data={activeTab === 'active' ? activeData?.getMyAssignedOrders : historyData?.getMyOrderHistory}
+        keyExtractor={item => item.id}
+        renderItem={activeTab === 'active' ? renderOrderCard : ({ item }) => <HistoryCard order={item} />}
+        refreshControl={
+          <RefreshControl 
+            refreshing={activeLoading || historyLoading || statsLoading} 
+            onRefresh={onRefresh} 
+            colors={[COLORS.primary]}
+          />
+        }
+        contentContainerStyle={styles.listContent}
+        ListEmptyComponent={
+          !activeLoading && !historyLoading ? (
+            <View style={styles.emptyContainer}>
+              <Ionicons name="clipboard-outline" size={64} color="#e2e8f0" />
+              <Text style={styles.emptyText}>
+                {activeTab === 'active' ? 'No orders assigned right now.' : 'No history found.'}
+              </Text>
+              {activeTab === 'active' && (
+                <TouchableOpacity style={styles.refreshBtn} onPress={onRefresh}>
+                  <Text style={styles.refreshBtnText}>Check for Tasks</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          ) : null
+        }
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8fafc' },
-  header: { padding: 20, paddingTop: 60, borderBottomLeftRadius: 30, borderBottomRightRadius: 30 },
-  headerContent: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  welcomeText: { color: '#e2e8f0', fontSize: 14 },
-  userName: { color: 'white', fontSize: 22, fontWeight: 'bold' },
-  refreshBtn: { backgroundColor: 'rgba(255,255,255,0.2)', padding: 8, borderRadius: 8 },
-  content: { flex: 1 },
+  container: { flex: 1, backgroundColor: COLORS.background },
+  header: { 
+    paddingTop: 60, 
+    paddingBottom: 25, 
+    paddingHorizontal: 20, 
+    borderBottomLeftRadius: 32, 
+    borderBottomRightRadius: 32 
+  },
+  headerTop: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center',
+    marginBottom: 20
+  },
+  welcomeText: { color: 'rgba(255,255,255,0.7)', fontSize: 14, fontWeight: '500' },
+  userName: { color: 'white', fontSize: 24, fontWeight: 'bold' },
+  profileBtn: { opacity: 0.9 },
+  
+  statsContainer: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between',
+    gap: 10
+  },
+  statsCard: {
+    flex: 1,
+    borderRadius: 16,
+    padding: 12,
+    height: 100,
+    justifyContent: 'space-between',
+    position: 'relative',
+    overflow: 'hidden'
+  },
+  statsLabel: { color: 'rgba(255,255,255,0.8)', fontSize: 11, fontWeight: '600' },
+  statsValue: { color: 'white', fontSize: 18, fontWeight: 'bold' },
+  statsIconBg: {
+    position: 'absolute',
+    bottom: -5,
+    right: -5,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    padding: 10,
+    borderRadius: 20
+  },
 
-  statsContainer: { paddingHorizontal: 16, paddingVertical: 16, gap: 12 },
-  statCard: { backgroundColor: 'white', borderRadius: 12, padding: 12, flexDirection: 'row', alignItems: 'center', borderLeftWidth: 4, elevation: 1 },
-  statIcon: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
-  statContent: { flex: 1 },
-  statValue: { fontSize: 18, fontWeight: 'bold', color: COLORS.textDark },
-  statLabel: { fontSize: 12, color: COLORS.textLight, marginTop: 2 },
-
-  tabsContainer: { flexDirection: 'row', paddingHorizontal: 16, paddingBottom: 12, gap: 8 },
-  tab: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 10, borderRadius: 10, backgroundColor: '#f1f5f9', gap: 6 },
-  tabActive: { backgroundColor: 'white', borderBottomWidth: 2, borderBottomColor: COLORS.primary },
-  tabText: { fontSize: 12, fontWeight: '600', color: COLORS.textLight },
-  tabTextActive: { color: COLORS.primary },
-
-  listContainer: { paddingHorizontal: 16, paddingBottom: 20 },
-  emptyContainer: { alignItems: 'center', marginTop: 40, marginBottom: 20 },
-  emptyText: { textAlign: 'center', color: '#94a3b8', marginTop: 10, fontSize: 14 },
-
-  requestButton: {
-    backgroundColor: COLORS.primary,
+  tabBar: {
+    flexDirection: 'row',
+    paddingHorizontal: 20,
+    marginTop: 20,
+    marginBottom: 10,
+    gap: 15
+  },
+  tab: {
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+    borderBottomWidth: 3,
+    borderBottomColor: 'transparent',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 14,
-    borderRadius: 12,
-    marginTop: 10,
-    gap: 8,
-    elevation: 2,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+    gap: 6
   },
-  disabledButton: {
-    backgroundColor: '#94a3b8',
-    elevation: 0,
-    shadowOpacity: 0,
+  activeTab: {
+    borderBottomColor: COLORS.primary,
   },
-  requestButtonText: {
-    color: 'white',
+  tabText: {
     fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.textLight,
+  },
+  activeTabText: {
+    color: COLORS.primary,
+  },
+  countBadge: {
+    backgroundColor: COLORS.danger,
+    borderRadius: 10,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  countText: {
+    color: 'white',
+    fontSize: 10,
     fontWeight: 'bold',
   },
 
-  card: { backgroundColor: 'white', borderRadius: 16, padding: 16, marginBottom: 12, elevation: 2 },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  orderId: { fontSize: 16, fontWeight: 'bold', color: COLORS.textDark, flex: 1 },
-  badges: { flexDirection: 'row', gap: 6 },
-  badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 },
-  badgeExpress: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8, backgroundColor: '#fef3c7' },
-  badgeAssigned: { backgroundColor: '#e0f2fe' },
-  badgeProgress: { backgroundColor: '#fef3c7' },
-  badgeCompleted: { backgroundColor: '#f0fdf4' },
-  badgeText: { fontSize: 10, fontWeight: 'bold', color: COLORS.textDark, textTransform: 'uppercase' },
-  instructions: { fontSize: 12, color: '#f59e0b', marginTop: 6 },
-  timeRow: { flexDirection: 'row', alignItems: 'center', marginTop: 8, marginBottom: 6, gap: 6 },
-  timeText: { fontSize: 11, color: COLORS.textLight, fontStyle: 'italic' },
-  divider: { height: 1, backgroundColor: '#f1f5f9', marginVertical: 12 },
-  cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  itemsText: { fontSize: 14, fontWeight: '600', color: COLORS.primary },
-  totalQty: { fontSize: 12, color: COLORS.textLight },
+  listContent: { padding: 20, paddingBottom: 40 },
+  card: { 
+    backgroundColor: 'white', 
+    borderRadius: 20, 
+    padding: 18, 
+    marginBottom: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#f1f5f9'
+  },
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
+  orderId: { fontSize: 17, fontWeight: 'bold', color: COLORS.textDark },
+  expressBadge: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: '#fef3c7', 
+    paddingHorizontal: 6, 
+    paddingVertical: 2, 
+    borderRadius: 4,
+    marginTop: 4,
+    gap: 2
+  },
+  expressBadgeText: { fontSize: 9, fontWeight: 'bold', color: '#92400e' },
+  statusBadge: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8 },
+  statusAssigned: { backgroundColor: '#e0f2fe' },
+  statusPacking: { backgroundColor: '#fef3c7' },
+  statusBadgeText: { fontSize: 10, fontWeight: '800', color: COLORS.textDark },
+  
+  instructionContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fffbeb',
+    padding: 8,
+    borderRadius: 8,
+    marginTop: 12,
+    gap: 6
+  },
+  instructions: { fontSize: 12, color: '#92400e', flex: 1 },
+  
+  cardFooter: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center',
+    marginTop: 15,
+    paddingTop: 15,
+    borderTopWidth: 1,
+    borderTopColor: '#f1f5f9'
+  },
+  footerInfo: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  footerText: { fontSize: 13, color: COLORS.textLight, fontWeight: '500' },
 
-  evidenceSection: { marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#f1f5f9' },
-  evidenceTitle: { fontSize: 12, fontWeight: '600', color: COLORS.textDark, marginBottom: 8 },
-  imageScroll: { flexDirection: 'row', gap: 8 },
-  evidenceImage: { width: 60, height: 60, borderRadius: 8, backgroundColor: '#f1f5f9' },
-  moreImages: { justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.primary },
-  moreText: { fontSize: 12, fontWeight: 'bold', color: 'white' },
+  emptyContainer: { alignItems: 'center', marginTop: 60 },
+  emptyText: { textAlign: 'center', color: '#94a3b8', marginTop: 15, fontSize: 16, fontWeight: '500' },
+  refreshBtn: { 
+    marginTop: 20, 
+    backgroundColor: COLORS.primary, 
+    paddingHorizontal: 20, 
+    paddingVertical: 10, 
+    borderRadius: 12 
+  },
+  refreshBtnText: { color: 'white', fontWeight: 'bold' },
 });
 
 export default DashboardScreen;

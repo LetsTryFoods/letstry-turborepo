@@ -53,6 +53,12 @@ export class PackingResolver {
     return packer?.name || null;
   }
 
+  @ResolveField(() => PackingEvidence, { nullable: true })
+  async evidence(@Parent() packingOrder: any): Promise<any> {
+    const id = packingOrder._id?.toString() || packingOrder.id;
+    return this.packingService.getEvidenceByOrder(id);
+  }
+
   @Query(() => PackingOrder)
   @UseGuards(PackerAuthGuard, RolesGuard)
   @Roles(Role.PACKER, Role.ADMIN)
@@ -126,6 +132,13 @@ export class PackingResolver {
     return this.packingService.adminPunchShipment(input);
   }
 
+  @Query(() => [PackingOrder])
+  @UseGuards(PackerAuthGuard, RolesGuard)
+  @Roles(Role.PACKER, Role.ADMIN)
+  async getMyOrderHistory(@Context() ctx): Promise<any[]> {
+    return this.packingService.getPackerHistory(ctx.req.user.packerId);
+  }
+
   @Query(() => BoxSize)
   @UseGuards(PackerAuthGuard, RolesGuard)
   @Roles(Role.PACKER, Role.ADMIN)
@@ -146,8 +159,8 @@ export class PackingResolver {
   }
 
   @Query(() => PackingEvidence)
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
+  @UseGuards(PackerAuthGuard, RolesGuard)
+  @Roles(Role.PACKER, Role.ADMIN)
   async getEvidenceByOrder(
     @Args('packingOrderId') packingOrderId: string,
   ): Promise<any> {

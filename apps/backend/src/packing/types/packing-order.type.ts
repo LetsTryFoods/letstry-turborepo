@@ -1,4 +1,5 @@
 import { ObjectType, Field, ID, Float, Int } from '@nestjs/graphql';
+import { PackingEvidence } from './packing-evidence.type';
 
 @ObjectType()
 export class ItemDimensions {
@@ -94,4 +95,7 @@ export class PackingOrder {
 
   @Field()
   isExpress: boolean;
+
+  @Field(() => PackingEvidence, { nullable: true })
+  evidence?: PackingEvidence;
 }

@@ -18,16 +18,15 @@ export const PACKER_LOGIN = gql`
   }
 `;
 
-export const GET_ASSIGNED_ORDER = gql`
-  query GetAssignedOrder {
-    getAssignedOrder {
+export const GET_MY_ASSIGNED_ORDERS = gql`
+  query GetMyAssignedOrders {
+    getMyAssignedOrders {
       id
       orderId
       orderNumber
       status
       specialInstructions
       isExpress
-      createdAt
       items {
         productId
         sku
@@ -42,25 +41,45 @@ export const GET_ASSIGNED_ORDER = gql`
   }
 `;
 
-export const GET_MY_ASSIGNED_ORDERS = gql`
-  query GetMyAssignedOrders {
-    getMyAssignedOrders {
+export const GET_MY_HISTORY = gql`
+  query GetMyHistory {
+    getMyOrderHistory {
       id
       orderId
       orderNumber
       status
-      specialInstructions
+      packingCompletedAt
       isExpress
-      createdAt
       items {
-        productId
-        sku
-        ean
         name
         quantity
-        scannedCount
-        imageUrl
-        isFragile
+      }
+      evidence {
+        prePackImages
+      }
+    }
+  }
+`;
+
+export const GET_MY_STATS = gql`
+  query GetMyStats {
+    getMyStats {
+      packerId
+      totalOrders
+      accuracyRate
+      averagePackTime
+      ordersPackedToday
+    }
+  }
+`;
+
+export const GET_EVIDENCE_BY_ORDER = gql`
+  query GetEvidenceByOrder($packingOrderId: String!) {
+    getEvidenceByOrder(packingOrderId: $packingOrderId) {
+      id
+      prePackImages
+      actualBox {
+        code
       }
     }
   }
@@ -159,61 +178,6 @@ export const COMPLETE_PACKING = gql`
       id
       status
       packingCompletedAt
-    }
-  }
-`;
-
-export const GET_ALL_PACKING_ORDERS = gql`
-  query GetAllPackingOrders($status: String) {
-    getAllPackingOrders(status: $status) {
-      id
-      orderId
-      orderNumber
-      status
-      assignedTo
-      packerName
-      items {
-        productId
-        sku
-        ean
-        name
-        quantity
-      }
-      packingStartedAt
-      packingCompletedAt
-      createdAt
-      specialInstructions
-      isExpress
-    }
-  }
-`;
-
-export const GET_EVIDENCE_BY_ORDER = gql`
-  query GetEvidenceByOrder($packingOrderId: String!) {
-    getEvidenceByOrder(packingOrderId: $packingOrderId) {
-      id
-      packingOrderId
-      packerId
-      prePackImages
-      postPackImages
-      recommendedBox {
-        code
-        dimensions {
-          l
-          w
-          h
-        }
-      }
-      actualBox {
-        code
-        dimensions {
-          l
-          w
-          h
-        }
-      }
-      boxMismatch
-      uploadedAt
     }
   }
 `;
