@@ -1,1 +1,1 @@
-export const API_URL = "http://192.168.1.21:5001/graphql";
+export const API_URL = "https://apiv3.letstryfoods.com/graphql";

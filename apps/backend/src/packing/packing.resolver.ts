@@ -3,6 +3,7 @@ import { UseGuards } from '@nestjs/common';
 import { PackingService } from './services/packing.service';
 import { PackerService } from './services/packer.service';
 import { QueueCleanupService } from './services/domain/queue-cleanup.service';
+import { PackingQueueService } from './services/domain/packing-queue.service';
 import { PackerAuthGuard } from './guards/packer-auth.guard';
 import { JwtAuthGuard } from '../authentication/common/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -33,6 +34,7 @@ export class PackingResolver {
     private readonly packingService: PackingService,
     private readonly packerService: PackerService,
     private readonly queueCleanupService: QueueCleanupService,
+    private readonly packingQueueService: PackingQueueService,
   ) {
     console.log('PackingResolver initialized');
   }
@@ -157,6 +159,14 @@ export class PackingResolver {
   @Roles(Role.ADMIN)
   async cleanupOrphanedJobs(): Promise<CleanupResult> {
     return this.queueCleanupService.cleanupOrphanedJobs();
+  }
+
+  @Mutation(() => Boolean)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  async triggerReassignmentCycle(): Promise<boolean> {
+    await this.packingQueueService.processReassignment();
+    return true;
   }
 }
 

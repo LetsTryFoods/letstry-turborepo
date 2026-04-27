@@ -211,3 +211,9 @@ export const CLEANUP_ORPHANED_JOBS = gql`
     }
   }
 `;
+
+export const TRIGGER_REASSIGNMENT_CYCLE = gql`
+  mutation TriggerReassignmentCycle {
+    triggerReassignmentCycle
+  }
+`;

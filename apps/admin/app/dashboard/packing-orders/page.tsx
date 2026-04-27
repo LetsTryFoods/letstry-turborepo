@@ -10,9 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useQuery, useLazyQuery, useMutation } from "@apollo/client/react"
 import { GET_ALL_PACKERS } from "@/lib/graphql/packers"
-import { GET_ALL_PACKING_ORDERS, CLEANUP_ORPHANED_JOBS } from "@/lib/graphql/packing"
+import { GET_ALL_PACKING_ORDERS, CLEANUP_ORPHANED_JOBS, TRIGGER_REASSIGNMENT_CYCLE } from "@/lib/graphql/packing"
 import { GET_EVIDENCE_BY_ORDER } from "@/lib/graphql/packing"
-import { Eye, Trash2 } from "lucide-react"
+import { Eye, Trash2, RefreshCw } from "lucide-react"
 import { getCdnUrl } from "@/lib/utils/image-utils"
 
 export default function PackingOrdersPage() {
@@ -48,6 +48,16 @@ export default function PackingOrdersPage() {
     refetchQueries: [{ query: GET_ALL_PACKING_ORDERS, variables: { packerId: packerFilter === 'all' ? undefined : packerFilter, status: statusFilter === 'all' ? undefined : statusFilter } }],
   })
 
+  const [triggerReassignment, { loading: reassignLoading }] = useMutation(TRIGGER_REASSIGNMENT_CYCLE, {
+    onCompleted: () => {
+      alert('Reassignment cycle completed! Unassigned and stale orders have been processed.')
+    },
+    onError: (error) => {
+      alert(`Reassignment Failed: ${error.message}`)
+    },
+    refetchQueries: [{ query: GET_ALL_PACKING_ORDERS, variables: { packerId: packerFilter === 'all' ? undefined : packerFilter, status: statusFilter === 'all' ? undefined : statusFilter } }],
+  })
+
   const orders = (ordersData as any)?.getAllPackingOrders || []
   const packers = (packersData as any)?.getAllPackers || []
   const evidence = (evidenceData as any)?.getEvidenceByOrder
@@ -76,24 +86,45 @@ export default function PackingOrdersPage() {
           <h2 className="text-3xl font-bold tracking-tight">Packing Orders</h2>
           <p className="text-muted-foreground">Monitor active packing operations</p>
         </div>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                onClick={() => cleanupJobs()}
-                disabled={cleanupLoading}
-                variant="outline"
-                className="gap-2"
-              >
-                <Trash2 className="h-4 w-4" />
-                {cleanupLoading ? "Cleaning..." : "Cleanup Queue"}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Removes queue jobs for orders that no longer exist in the database</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <div className="flex gap-2">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  onClick={() => triggerReassignment()}
+                  disabled={reassignLoading}
+                  variant="default"
+                  className="gap-2"
+                >
+                  <RefreshCw className={`h-4 w-4 ${reassignLoading ? 'animate-spin' : ''}`} />
+                  {reassignLoading ? "Running..." : "Run Assignment Cycle"}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Immediately assigns all unassigned orders to available packers</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  onClick={() => cleanupJobs()}
+                  disabled={cleanupLoading}
+                  variant="outline"
+                  className="gap-2"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  {cleanupLoading ? "Cleaning..." : "Cleanup Queue"}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Removes queue jobs for orders that no longer exist in the database</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </div>
 
       <div className="flex gap-4 items-center">
