@@ -144,12 +144,11 @@ export class PackingQueueService {
       for (const order of assignedOrders) {
         const packerId = order.assignedTo?.toString();
         if (packerId && !activePackerIds.has(packerId)) {
-          // Packer was deleted — reset order so it can be reassigned
-          await this.packingOrderCrud.update(order._id.toString(), {
-            assignedTo: undefined,
-            assignedAt: undefined,
-            status: PackingStatus.PENDING,
-          });
+          // Packer was deleted — use $unset to properly clear assignedTo in MongoDB
+          await this.packingOrderCrud.resetForReassignment(
+            order._id.toString(),
+            PackingStatus.PENDING,
+          );
 
           const alreadyInQueue = await this.isOrderInQueue(order.orderId);
           if (!alreadyInQueue) {

@@ -48,6 +48,19 @@ export class PackingOrderCrudService {
       .exec();
   }
 
+  async resetForReassignment(id: string, newStatus: string): Promise<PackingOrder | null> {
+    return this.packingOrderModel
+      .findByIdAndUpdate(
+        id,
+        {
+          $set: { status: newStatus },
+          $unset: { assignedTo: '', assignedAt: '' },
+        },
+        { new: true },
+      )
+      .exec();
+  }
+
   async delete(id: string): Promise<PackingOrder | null> {
     return this.packingOrderModel.findByIdAndDelete(id).exec();
   }
