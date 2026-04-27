@@ -137,3 +137,57 @@ export const COMPLETE_PACKING = gql`
     }
   }
 `;
+
+export const GET_ALL_PACKING_ORDERS = gql`
+  query GetAllPackingOrders($status: String) {
+    getAllPackingOrders(status: $status) {
+      id
+      orderId
+      orderNumber
+      status
+      assignedTo
+      packerName
+      items {
+        productId
+        sku
+        ean
+        name
+        quantity
+      }
+      packingStartedAt
+      packingCompletedAt
+      specialInstructions
+      isExpress
+    }
+  }
+`;
+
+export const GET_EVIDENCE_BY_ORDER = gql`
+  query GetEvidenceByOrder($packingOrderId: String!) {
+    getEvidenceByOrder(packingOrderId: $packingOrderId) {
+      id
+      packingOrderId
+      packerId
+      prePackImages
+      postPackImages
+      recommendedBox {
+        code
+        dimensions {
+          l
+          w
+          h
+        }
+      }
+      actualBox {
+        code
+        dimensions {
+          l
+          w
+          h
+        }
+      }
+      boxMismatch
+      uploadedAt
+    }
+  }
+`;

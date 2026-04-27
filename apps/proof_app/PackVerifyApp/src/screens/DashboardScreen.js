@@ -2,32 +2,41 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, RefreshControl, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Image, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { COLORS } from '../constants/theme';
-
-// BACKEND IMPORTS
+import { getCdnUrl } from '../config/api';
 import { useQuery } from '@apollo/client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { GET_MY_ASSIGNED_ORDERS } from '../graphql/queries';
+import { GET_MY_ASSIGNED_ORDERS, GET_ALL_PACKING_ORDERS, GET_EVIDENCE_BY_ORDER } from '../graphql/queries';
 
 const DashboardScreen = ({ navigation, route }) => {
   const [user, setUser] = useState({ name: 'Packer' });
+  const [activeTab, setActiveTab] = useState('pending');
+  const [completedOrders, setCompletedOrders] = useState([]);
+  const [evidenceMap, setEvidenceMap] = useState({});
   
-  // 1. Get User from Storage
   useEffect(() => {
-    // Try to get user from params OR storage
     if (route.params?.user) {
-        setUser(route.params.user);
+      setUser(route.params.user);
     } else {
-        AsyncStorage.getItem('user').then(u => {
-            if (u) setUser(JSON.parse(u));
-        });
+      AsyncStorage.getItem('user').then(u => {
+        if (u) setUser(JSON.parse(u));
+      });
     }
   }, [route.params]);
 
-  // 2. FETCH ORDERS
-  const { data, loading, error, refetch } = useQuery(GET_MY_ASSIGNED_ORDERS, {
+  const { data: assignedData, loading: pendingLoading, error: pendingError, refetch: refetchPending } = useQuery(GET_MY_ASSIGNED_ORDERS, {
     pollInterval: 5000,
+  });
+
+  const { data: completedData, loading: completedLoading, refetch: refetchCompleted } = useQuery(GET_ALL_PACKING_ORDERS, {
+    variables: { status: 'completed' },
+    skip: activeTab !== 'completed',
+    onCompleted: async (data) => {
+      if (data?.getAllPackingOrders) {
+        setCompletedOrders(data.getAllPackingOrders);
+      }
+    },
   });
 
   const handleOrderPress = (order) => {
@@ -41,7 +50,21 @@ const DashboardScreen = ({ navigation, route }) => {
     });
   };
 
-  const renderOrderCard = ({ item }) => (
+  const handleRefresh = async () => {
+    await refetchPending();
+    if (activeTab === 'completed') {
+      await refetchCompleted();
+    }
+  };
+
+  const pendingOrders = assignedData?.getMyAssignedOrders || [];
+  const stats = {
+    pending: pendingOrders.length,
+    totalItems: pendingOrders.reduce((sum, o) => sum + (o.items?.length || 0), 0),
+    completed: completedOrders.length,
+  };
+
+  const renderOrderCard = ({ item, showEvidence }) => (
     <TouchableOpacity
       style={styles.card}
       onPress={() => handleOrderPress(item)}
@@ -55,7 +78,7 @@ const DashboardScreen = ({ navigation, route }) => {
               <Text style={styles.badgeText}>⚡ EXPRESS</Text>
             </View>
           )}
-          <View style={[styles.badge, item.status === 'assigned' ? styles.badgeAssigned : styles.badgeProgress]}>
+          <View style={[styles.badge, item.status === 'assigned' ? styles.badgeAssigned : item.status === 'completed' ? styles.badgeCompleted : styles.badgeProgress]}>
             <Text style={styles.badgeText}>{item.status.toUpperCase()}</Text>
           </View>
         </View>
@@ -74,43 +97,123 @@ const DashboardScreen = ({ navigation, route }) => {
         </Text>
         <Ionicons name="chevron-forward" size={20} color={COLORS.textLight} />
       </View>
+
+      {showEvidence && item.id && evidenceMap[item.id]?.prePackImages?.length > 0 && (
+        <View style={styles.evidenceSection}>
+          <Text style={styles.evidenceTitle}>📸 Evidence</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageScroll}>
+            {evidenceMap[item.id].prePackImages.slice(0, 3).map((img, idx) => (
+              <Image
+                key={idx}
+                source={{ uri: getCdnUrl(img) }}
+                style={styles.evidenceImage}
+              />
+            ))}
+            {evidenceMap[item.id].prePackImages.length > 3 && (
+              <View style={[styles.evidenceImage, styles.moreImages]}>
+                <Text style={styles.moreText}>+{evidenceMap[item.id].prePackImages.length - 3}</Text>
+              </View>
+            )}
+          </ScrollView>
+        </View>
+      )}
     </TouchableOpacity>
+  );
+
+  const renderStatsCard = ({ label, value, icon, color }) => (
+    <View style={[styles.statCard, { borderLeftColor: color }]}>
+      <View style={[styles.statIcon, { backgroundColor: color + '20' }]}>
+        <Ionicons name={icon} size={24} color={color} />
+      </View>
+      <View style={styles.statContent}>
+        <Text style={styles.statValue}>{value}</Text>
+        <Text style={styles.statLabel}>{label}</Text>
+      </View>
+    </View>
   );
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <LinearGradient colors={[COLORS.primary, COLORS.primaryLight]} style={styles.header}>
         <View style={styles.headerContent}>
           <View>
             <Text style={styles.welcomeText}>Welcome,</Text>
             <Text style={styles.userName}>{user.name}</Text>
           </View>
-          <TouchableOpacity onPress={() => refetch()} style={styles.refreshBtn}>
+          <TouchableOpacity onPress={handleRefresh} style={styles.refreshBtn}>
             <Ionicons name="reload" size={20} color="white" />
           </TouchableOpacity>
         </View>
       </LinearGradient>
 
-      {/* List */}
-      <View style={styles.listContainer}>
-        <Text style={styles.sectionTitle}>My Tasks</Text>
+      <ScrollView 
+        style={styles.content}
+        refreshControl={<RefreshControl refreshing={pendingLoading || completedLoading} onRefresh={handleRefresh} />}
+      >
+        <View style={styles.statsContainer}>
+          {renderStatsCard({ label: 'Pending', value: stats.pending, icon: 'time', color: COLORS.primary })}
+          {renderStatsCard({ label: 'Completed', value: stats.completed, icon: 'checkmark-circle', color: COLORS.secondary })}
+          {renderStatsCard({ label: 'Items', value: stats.totalItems, icon: 'cube', color: '#8b5cf6' })}
+        </View>
 
-        {loading && !data ? (
-          <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 20 }} />
-        ) : (
-          <FlatList
-            data={data?.getMyAssignedOrders || []}
-            keyExtractor={item => item.id}
-            renderItem={renderOrderCard}
-            refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} />}
-            ListEmptyComponent={
-              <Text style={styles.emptyText}>No orders assigned right now.</Text>
-            }
-            contentContainerStyle={{ paddingBottom: 20 }}
-          />
-        )}
-      </View>
+        <View style={styles.tabsContainer}>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'pending' && styles.tabActive]}
+            onPress={() => setActiveTab('pending')}
+          >
+            <Ionicons name="time-outline" size={18} color={activeTab === 'pending' ? COLORS.primary : COLORS.textLight} />
+            <Text style={[styles.tabText, activeTab === 'pending' && styles.tabTextActive]}>
+              Pending ({stats.pending})
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'completed' && styles.tabActive]}
+            onPress={() => setActiveTab('completed')}
+          >
+            <Ionicons name="checkmark-circle-outline" size={18} color={activeTab === 'completed' ? COLORS.primary : COLORS.textLight} />
+            <Text style={[styles.tabText, activeTab === 'completed' && styles.tabTextActive]}>
+              Completed ({stats.completed})
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.listContainer}>
+          {activeTab === 'pending' ? (
+            <>
+              {pendingLoading && !assignedData ? (
+                <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 20 }} />
+              ) : (
+                <FlatList
+                  scrollEnabled={false}
+                  data={pendingOrders}
+                  keyExtractor={item => item.id}
+                  renderItem={({ item }) => renderOrderCard({ item, showEvidence: false })}
+                  ListEmptyComponent={
+                    <Text style={styles.emptyText}>No orders assigned right now.</Text>
+                  }
+                />
+              )}
+            </>
+          ) : (
+            <>
+              {completedLoading ? (
+                <ActivityIndicator size="large" color={COLORS.primary} style={{ marginTop: 20 }} />
+              ) : (
+                <FlatList
+                  scrollEnabled={false}
+                  data={completedOrders}
+                  keyExtractor={item => item.id}
+                  renderItem={({ item }) => renderOrderCard({ item, showEvidence: true })}
+                  ListEmptyComponent={
+                    <Text style={styles.emptyText}>No completed orders yet.</Text>
+                  }
+                />
+              )}
+            </>
+          )}
+        </View>
+      </ScrollView>
     </View>
   );
 };
@@ -122,8 +225,22 @@ const styles = StyleSheet.create({
   welcomeText: { color: '#e2e8f0', fontSize: 14 },
   userName: { color: 'white', fontSize: 22, fontWeight: 'bold' },
   refreshBtn: { backgroundColor: 'rgba(255,255,255,0.2)', padding: 8, borderRadius: 8 },
-  listContainer: { flex: 1, padding: 20 },
-  sectionTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 15, color: COLORS.textDark },
+  content: { flex: 1 },
+
+  statsContainer: { paddingHorizontal: 16, paddingVertical: 16, gap: 12 },
+  statCard: { backgroundColor: 'white', borderRadius: 12, padding: 12, flexDirection: 'row', alignItems: 'center', borderLeftWidth: 4, elevation: 1 },
+  statIcon: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
+  statContent: { flex: 1 },
+  statValue: { fontSize: 18, fontWeight: 'bold', color: COLORS.textDark },
+  statLabel: { fontSize: 12, color: COLORS.textLight, marginTop: 2 },
+
+  tabsContainer: { flexDirection: 'row', paddingHorizontal: 16, paddingBottom: 12, gap: 8 },
+  tab: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 10, borderRadius: 10, backgroundColor: '#f1f5f9', gap: 6 },
+  tabActive: { backgroundColor: 'white', borderBottomWidth: 2, borderBottomColor: COLORS.primary },
+  tabText: { fontSize: 12, fontWeight: '600', color: COLORS.textLight },
+  tabTextActive: { color: COLORS.primary },
+
+  listContainer: { paddingHorizontal: 16, paddingBottom: 20 },
   emptyText: { textAlign: 'center', color: '#94a3b8', marginTop: 50 },
 
   card: { backgroundColor: 'white', borderRadius: 16, padding: 16, marginBottom: 12, elevation: 2 },
@@ -134,12 +251,20 @@ const styles = StyleSheet.create({
   badgeExpress: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8, backgroundColor: '#fef3c7' },
   badgeAssigned: { backgroundColor: '#e0f2fe' },
   badgeProgress: { backgroundColor: '#fef3c7' },
+  badgeCompleted: { backgroundColor: '#f0fdf4' },
   badgeText: { fontSize: 10, fontWeight: 'bold', color: COLORS.textDark, textTransform: 'uppercase' },
   instructions: { fontSize: 12, color: '#f59e0b', marginTop: 6 },
   divider: { height: 1, backgroundColor: '#f1f5f9', marginVertical: 12 },
   cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   itemsText: { fontSize: 14, fontWeight: '600', color: COLORS.primary },
   totalQty: { fontSize: 12, color: COLORS.textLight },
+
+  evidenceSection: { marginTop: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: '#f1f5f9' },
+  evidenceTitle: { fontSize: 12, fontWeight: '600', color: COLORS.textDark, marginBottom: 8 },
+  imageScroll: { flexDirection: 'row', gap: 8 },
+  evidenceImage: { width: 60, height: 60, borderRadius: 8, backgroundColor: '#f1f5f9' },
+  moreImages: { justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.primary },
+  moreText: { fontSize: 12, fontWeight: 'bold', color: 'white' },
 });
 
 export default DashboardScreen;
