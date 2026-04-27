@@ -27,6 +27,7 @@ export const GET_MY_ASSIGNED_ORDERS = gql`
       status
       specialInstructions
       isExpress
+      createdAt
       items {
         productId
         sku
@@ -156,6 +157,7 @@ export const GET_ALL_PACKING_ORDERS = gql`
       }
       packingStartedAt
       packingCompletedAt
+      createdAt
       specialInstructions
       isExpress
     }

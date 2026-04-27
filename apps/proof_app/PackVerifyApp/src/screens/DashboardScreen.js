@@ -9,6 +9,26 @@ import { useQuery } from '@apollo/client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { GET_MY_ASSIGNED_ORDERS, GET_ALL_PACKING_ORDERS, GET_EVIDENCE_BY_ORDER } from '../graphql/queries';
 
+const formatOrderTime = (createdAt) => {
+  if (!createdAt) return 'N/A';
+  const orderDate = new Date(createdAt);
+  const now = new Date();
+  const diffInMinutes = Math.floor((now - orderDate) / (1000 * 60));
+
+  if (diffInMinutes < 1) return 'Just now';
+  if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+  if (diffInMinutes < 1440) {
+    const hours = Math.floor(diffInMinutes / 60);
+    return `${hours}h ago`;
+  }
+  if (diffInMinutes < 2880) return 'Yesterday';
+  
+  const days = Math.floor(diffInMinutes / 1440);
+  if (days < 7) return `${days}d ago`;
+  
+  return orderDate.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+};
+
 const DashboardScreen = ({ navigation, route }) => {
   const [user, setUser] = useState({ name: 'Packer' });
   const [activeTab, setActiveTab] = useState('pending');
@@ -87,6 +107,11 @@ const DashboardScreen = ({ navigation, route }) => {
       {item.specialInstructions ? (
         <Text style={styles.instructions}>⚠ {item.specialInstructions}</Text>
       ) : null}
+
+      <View style={styles.timeRow}>
+        <Ionicons name="calendar-outline" size={14} color={COLORS.textLight} />
+        <Text style={styles.timeText}>Placed {formatOrderTime(item.createdAt)}</Text>
+      </View>
 
       <View style={styles.divider} />
 
@@ -254,6 +279,8 @@ const styles = StyleSheet.create({
   badgeCompleted: { backgroundColor: '#f0fdf4' },
   badgeText: { fontSize: 10, fontWeight: 'bold', color: COLORS.textDark, textTransform: 'uppercase' },
   instructions: { fontSize: 12, color: '#f59e0b', marginTop: 6 },
+  timeRow: { flexDirection: 'row', alignItems: 'center', marginTop: 8, marginBottom: 6, gap: 6 },
+  timeText: { fontSize: 11, color: COLORS.textLight, fontStyle: 'italic' },
   divider: { height: 1, backgroundColor: '#f1f5f9', marginVertical: 12 },
   cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   itemsText: { fontSize: 14, fontWeight: '600', color: COLORS.primary },
