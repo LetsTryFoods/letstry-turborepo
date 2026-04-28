@@ -45,6 +45,8 @@ import {
 import { useTrackingAnalytics } from "@/lib/reports/useTrackingAnalytics"
 import { getCdnUrl } from "@/lib/utils/image-utils"
 
+import * as XLSX from 'xlsx'
+
 const ChartTooltip = ({ active, payload, label, isCurrency }: any) => {
   if (active && payload && payload.length) {
     return (
@@ -61,7 +63,8 @@ const ChartTooltip = ({ active, payload, label, isCurrency }: any) => {
 
 export default function ReportsPage() {
   const [isMounted, setIsMounted] = useState(false)
-  const [period, setPeriod] = useState<'week' | 'month' | 'quarter' | 'year'>('month')
+  const [period, setPeriod] = useState<'week' | 'month' | 'quarter' | 'year' | 'all'>('month')
+  const [productSortBy, setProductSortBy] = useState<'quantity' | 'revenue'>('quantity')
   
   const { data, loading } = useReports(period)
   const { summary, dailySales, topProducts, topCustomers, categorySales } = data
@@ -71,6 +74,36 @@ export default function ReportsPage() {
   useEffect(() => {
     setIsMounted(true)
   }, [])
+
+  const sortedProducts = useMemo(() => {
+    return [...topProducts].sort((a, b) => {
+      if (productSortBy === 'quantity') return b.soldQuantity - a.soldQuantity
+      return b.revenue - a.revenue
+    })
+  }, [topProducts, productSortBy])
+
+  const handleExport = () => {
+    // Prepare data for Excel
+    const exportData = sortedProducts.map((product, index) => ({
+      'Rank': index + 1,
+      'Product ID': product._id,
+      'Product Name': product.name,
+      'Image Link': getCdnUrl(product.image),
+      'Quantity Sold': product.soldQuantity,
+      'Total Revenue': product.revenue,
+    }))
+
+    // Create worksheet
+    const ws = XLSX.utils.json_to_sheet(exportData)
+    const wb = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(wb, ws, 'Product Sales')
+
+    // Generate filename based on period
+    const fileName = `Product_Sales_Report_${period}_sorted_by_${productSortBy}_${new Date().toISOString().split('T')[0]}.xlsx`
+
+    // Download file
+    XLSX.writeFile(wb, fileName)
+  }
 
   if (loading || !isMounted) {
     return (
@@ -114,11 +147,12 @@ export default function ReportsPage() {
               <SelectItem value="month">Last 30 Days</SelectItem>
               <SelectItem value="quarter">Last 90 Days</SelectItem>
               <SelectItem value="year">Last Year</SelectItem>
+              <SelectItem value="all">All Time</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline">
+          <Button variant="outline" onClick={handleExport} disabled={topProducts.length === 0}>
             <Download className="mr-2 h-4 w-4" />
-            Export
+            Export Excel
           </Button>
         </div>
       </div>
@@ -261,16 +295,30 @@ export default function ReportsPage() {
       <div className="grid gap-4 md:grid-cols-2">
         {/* Top Products */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Package className="h-5 w-5" />
-              Top Selling Products
-            </CardTitle>
-            <CardDescription>Best performers by quantity sold</CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Package className="h-5 w-5" />
+                Top Selling Products
+              </CardTitle>
+              <CardDescription>Best performers for this period</CardDescription>
+            </div>
+            <Select 
+              value={productSortBy} 
+              onValueChange={(v) => setProductSortBy(v as 'quantity' | 'revenue')}
+            >
+              <SelectTrigger className="w-[140px] h-8 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="quantity">Sort by Units</SelectItem>
+                <SelectItem value="revenue">Sort by Revenue</SelectItem>
+              </SelectContent>
+            </Select>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {topProducts.slice(0, 5).map((product, index) => (
+            <div className="space-y-4 pr-2">
+              {sortedProducts.slice(0, 20).map((product, index) => (
                 <div key={product._id} className="flex items-center gap-4">
                   <span className="text-lg font-bold text-muted-foreground w-6">
                     #{index + 1}

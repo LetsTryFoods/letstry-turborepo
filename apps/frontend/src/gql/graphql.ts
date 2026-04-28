@@ -316,6 +316,8 @@ export type Category = {
   imageUrl?: Maybe<Scalars['String']['output']>;
   inCodeSet?: Maybe<Scalars['String']['output']>;
   isArchived: Scalars['Boolean']['output'];
+  mobile?: Maybe<Scalars['Boolean']['output']>;
+  mobileImageUrl?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
   parentId?: Maybe<Scalars['String']['output']>;
   productCount: Scalars['Float']['output'];
@@ -323,6 +325,13 @@ export type Category = {
   seo?: Maybe<CategorySeo>;
   slug: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
+};
+
+export type CategorySalesType = {
+  __typename?: 'CategorySalesType';
+  category: Scalars['String']['output'];
+  percentage: Scalars['Float']['output'];
+  revenue: Scalars['Float']['output'];
 };
 
 export type CategorySeo = {
@@ -371,9 +380,12 @@ export type Contact = {
   __typename?: 'Contact';
   _id: Scalars['ID']['output'];
   createdAt: Scalars['DateTime']['output'];
+  email?: Maybe<Scalars['String']['output']>;
   message: Scalars['String']['output'];
   name: Scalars['String']['output'];
+  orderId?: Maybe<Scalars['String']['output']>;
   phone: Scalars['String']['output'];
+  queryType?: Maybe<Scalars['String']['output']>;
   status: ContactStatus;
   updatedAt: Scalars['DateTime']['output'];
 };
@@ -421,6 +433,7 @@ export type Coupon = {
   endDate?: Maybe<Scalars['DateTime']['output']>;
   hasInfiniteValidity: Scalars['Boolean']['output'];
   isActive: Scalars['Boolean']['output'];
+  isPublic: Scalars['Boolean']['output'];
   maxDiscountAmount?: Maybe<Scalars['Float']['output']>;
   minCartValue?: Maybe<Scalars['Float']['output']>;
   name: Scalars['String']['output'];
@@ -511,6 +524,8 @@ export type CreateCategoryInput = {
   imageUrl?: InputMaybe<Scalars['String']['input']>;
   inCodeSet?: InputMaybe<Scalars['String']['input']>;
   isArchived?: InputMaybe<Scalars['Boolean']['input']>;
+  mobile?: InputMaybe<Scalars['Boolean']['input']>;
+  mobileImageUrl?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   parentId?: InputMaybe<Scalars['String']['input']>;
   seo?: InputMaybe<SeoBaseInput>;
@@ -534,6 +549,7 @@ export type CreateCouponInput = {
   endDate?: InputMaybe<Scalars['DateTime']['input']>;
   hasInfiniteValidity?: Scalars['Boolean']['input'];
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  isPublic?: Scalars['Boolean']['input'];
   maxDiscountAmount?: InputMaybe<Scalars['Float']['input']>;
   minCartValue?: InputMaybe<Scalars['Float']['input']>;
   name: Scalars['String']['input'];
@@ -736,6 +752,13 @@ export type CustomerSummary = {
   totalGuests: Scalars['Int']['output'];
   totalRegistered: Scalars['Int']['output'];
   totalRevenue: Scalars['Int']['output'];
+};
+
+export type DailySalesType = {
+  __typename?: 'DailySalesType';
+  date: Scalars['String']['output'];
+  orders: Scalars['Int']['output'];
+  revenue: Scalars['Float']['output'];
 };
 
 export type DashboardStats = {
@@ -1046,6 +1069,7 @@ export type Mutation = {
   submitContactMessage: ContactSubmissionResponse;
   submitCorporateEnquiry: CorporateEnquiryResponse;
   subscribeNewsletter: SubscribeNewsletterResponse;
+  triggerReassignmentCycle: Scalars['Boolean']['output'];
   unarchiveCategory: Category;
   unarchiveProduct: Product;
   unsubscribeNewsletter: SubscribeNewsletterResponse;
@@ -1566,6 +1590,15 @@ export type OrderPaymentType = {
   transactionId?: Maybe<Scalars['String']['output']>;
 };
 
+export type OrderReportResponse = {
+  __typename?: 'OrderReportResponse';
+  categorySales: Array<CategorySalesType>;
+  dailySales: Array<DailySalesType>;
+  summary: ReportSummaryType;
+  topCustomers: Array<TopCustomerType>;
+  topProducts: Array<TopProductType>;
+};
+
 export type OrderShippingAddressType = {
   __typename?: 'OrderShippingAddressType';
   addressLine1: Scalars['String']['output'];
@@ -1616,6 +1649,7 @@ export type OrderType = {
   deliveryCharge: Scalars['String']['output'];
   discount: Scalars['String']['output'];
   estimatedWeight?: Maybe<Scalars['Float']['output']>;
+  handlingCharge?: Maybe<Scalars['String']['output']>;
   identityId: Scalars['String']['output'];
   items: Array<OrderItemType>;
   orderId: Scalars['String']['output'];
@@ -1655,6 +1689,7 @@ export type OrderWithUserInfo = {
   deliveryCharge: Scalars['String']['output'];
   discount: Scalars['String']['output'];
   estimatedWeight?: Maybe<Scalars['Float']['output']>;
+  handlingCharge?: Maybe<Scalars['String']['output']>;
   identityId: Scalars['String']['output'];
   items: Array<OrderItemType>;
   orderId: Scalars['String']['output'];
@@ -1749,6 +1784,7 @@ export type PackingOrder = {
   assignedAt?: Maybe<Scalars['DateTime']['output']>;
   assignedTo?: Maybe<Scalars['String']['output']>;
   estimatedPackTime?: Maybe<Scalars['Float']['output']>;
+  evidence?: Maybe<PackingEvidence>;
   hasErrors: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   isExpress: Scalars['Boolean']['output'];
@@ -2232,9 +2268,12 @@ export type Query = {
   getCustomerDetails: CustomerDetails;
   getEvidenceByOrder: PackingEvidence;
   getMyAssignedOrders: Array<PackingOrder>;
+  getMyOrderHistory: Array<PackingOrder>;
   getMyOrders: PaginatedOrdersResponse;
+  getMyStats: PackerStats;
   getNewsletterSubscriptionCount: Scalars['Float']['output'];
   getOrderById: OrderType;
+  getOrderReports: OrderReportResponse;
   getPackerById: Packer;
   getPackerStats: PackerStats;
   getPaymentOrderById: PaymentOrderType;
@@ -2389,6 +2428,7 @@ export type QueryGetBoxRecommendationArgs = {
 
 export type QueryGetContactMessagesArgs = {
   limit?: Scalars['Int']['input'];
+  queryType?: InputMaybe<Scalars['String']['input']>;
   skip?: Scalars['Int']['input'];
 };
 
@@ -2415,6 +2455,11 @@ export type QueryGetNewsletterSubscriptionCountArgs = {
 
 export type QueryGetOrderByIdArgs = {
   orderId: Scalars['String']['input'];
+};
+
+
+export type QueryGetOrderReportsArgs = {
+  period?: Scalars['String']['input'];
 };
 
 
@@ -2630,6 +2675,17 @@ export type RemoveProductsFromCategoryInput = {
   productIds: Array<Scalars['ID']['input']>;
 };
 
+export type ReportSummaryType = {
+  __typename?: 'ReportSummaryType';
+  avgOrderValue: Scalars['Float']['output'];
+  customersGrowth: Scalars['Float']['output'];
+  ordersGrowth: Scalars['Float']['output'];
+  revenueGrowth: Scalars['Float']['output'];
+  totalCustomers: Scalars['Int']['output'];
+  totalOrders: Scalars['Int']['output'];
+  totalRevenue: Scalars['Float']['output'];
+};
+
 export type ReverseGeocodeInput = {
   latitude: Scalars['Float']['input'];
   longitude: Scalars['Float']['input'];
@@ -2823,9 +2879,12 @@ export type StatusStats = {
 };
 
 export type SubmitContactInput = {
+  email?: InputMaybe<Scalars['String']['input']>;
   message: Scalars['String']['input'];
   name: Scalars['String']['input'];
+  orderId?: InputMaybe<Scalars['String']['input']>;
   phone: Scalars['String']['input'];
+  queryType?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type SubmitCorporateEnquiryInput = {
@@ -2847,6 +2906,24 @@ export type SubscribeNewsletterResponse = {
   email?: Maybe<Scalars['String']['output']>;
   message: Scalars['String']['output'];
   success: Scalars['Boolean']['output'];
+};
+
+export type TopCustomerType = {
+  __typename?: 'TopCustomerType';
+  _id: Scalars['String']['output'];
+  email?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  totalOrders: Scalars['Int']['output'];
+  totalSpent: Scalars['Float']['output'];
+};
+
+export type TopProductType = {
+  __typename?: 'TopProductType';
+  _id: Scalars['String']['output'];
+  image?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  revenue: Scalars['Float']['output'];
+  soldQuantity: Scalars['Int']['output'];
 };
 
 export type TrackingAnalyticsResponse = {
@@ -2956,6 +3033,8 @@ export type UpdateCategoryInput = {
   imageUrl?: InputMaybe<Scalars['String']['input']>;
   inCodeSet?: InputMaybe<Scalars['String']['input']>;
   isArchived?: InputMaybe<Scalars['Boolean']['input']>;
+  mobile?: InputMaybe<Scalars['Boolean']['input']>;
+  mobileImageUrl?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   parentId?: InputMaybe<Scalars['String']['input']>;
   seo?: InputMaybe<SeoBaseInput>;

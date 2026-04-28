@@ -41,7 +41,7 @@ export class OrderQueryService {
       this.orderRepository.getSummaryStats(startDate, endDate),
       this.orderRepository.getSummaryStats(prevStartDate, prevEndDate),
       this.orderRepository.getDailySales(startDate, endDate),
-      this.orderRepository.getTopProducts(startDate, endDate),
+      this.orderRepository.getTopProducts(startDate, endDate, period === 'all' ? 0 : 50),
       this.orderRepository.getTopCustomers(startDate, endDate),
       this.orderRepository.getCategorySales(startDate, endDate)
     ]);
@@ -103,6 +103,11 @@ export class OrderQueryService {
         startDate.setFullYear(endDate.getFullYear() - 1);
         prevEndDate.setDate(startDate.getDate() - 1);
         prevStartDate.setFullYear(prevEndDate.getFullYear() - 1);
+        break;
+      case 'all':
+        startDate.setFullYear(2000, 0, 1);
+        prevEndDate.setFullYear(1999, 11, 31);
+        prevStartDate.setFullYear(1900, 0, 1);
         break;
       case 'month':
       default:
