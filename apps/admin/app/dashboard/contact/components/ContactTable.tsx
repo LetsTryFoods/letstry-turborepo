@@ -136,7 +136,7 @@ export default function ContactTable({ queries, onRefresh, onView, onReply }: Co
                     </TableCell>
                     <TableCell>
                       <div className="max-w-[250px]">
-                        <p className="font-medium truncate">{query.subject}</p>
+                        <p className="font-medium truncate">{query.subject || (query.queryType ? typeLabels[query.queryType] || query.queryType : "No Subject")}</p>
                         {query.orderId && (
                           <p className="text-xs text-muted-foreground">
                             Order: {query.orderId}
@@ -145,9 +145,9 @@ export default function ContactTable({ queries, onRefresh, onView, onReply }: Co
                       </div>
                     </TableCell>
                     <TableCell>
-                      {query.type && (
+                      {(query.queryType || query.type) && (
                         <Badge variant="outline">
-                          {typeLabels[query.type]}
+                          {typeLabels[query.queryType || query.type || ""] || (query.queryType || query.type)}
                         </Badge>
                       )}
                     </TableCell>

@@ -52,7 +52,7 @@ export class ContactResolver {
     @Args('limit', { type: () => Int, defaultValue: 50 }) limit: number,
     @Args('queryType', { nullable: true }) queryType?: string,
   ): Promise<PaginatedContactsResponse> {
-    const filter = queryType ? { queryType } : { queryType: { $exists: false } };
+    const filter = queryType ? { queryType } : {};
     const [data, total] = await Promise.all([
       this.contactService.findAll(skip, limit, filter),
       this.contactService.countAll(filter),

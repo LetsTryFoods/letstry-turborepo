@@ -18,6 +18,7 @@ export interface ContactQuery {
   email?: string
   subject?: string
   type?: ContactType
+  queryType?: string
   priority?: ContactPriority
   orderId?: string
   replies?: any[]
@@ -73,19 +74,35 @@ export function getContactStats(queries: ContactQuery[]) {
     if (query.status === "PENDING") stats.new++
     else if (query.status === "REVIEWED") stats.inProgress++
     else if (query.status === "RESOLVED") stats.resolved++
+
+    // Type counts
+    const type = query.queryType || query.type
+    if (type) {
+      stats.byType[type] = (stats.byType[type] || 0) + 1
+    }
   })
 
   return stats
 }
 
 // Hooks
-export function useContactQueries() {
+export function useContactQueries(page: number = 1, limit: number = 50, queryType?: string) {
+  const skip = (page - 1) * limit;
   const { data, loading, error, refetch } = useQuery<GetContactMessagesResponse>(
     GET_CONTACT_MESSAGES,
-    { variables: { skip: 0, limit: 100 }, fetchPolicy: 'network-only' }
+    { 
+      variables: { skip, limit, queryType }, 
+      fetchPolicy: 'network-only',
+      notifyOnNetworkStatusChange: true 
+    }
   );
 
-  return { queries: data?.getContactMessages?.data || [], loading, refetch }
+  return { 
+    queries: data?.getContactMessages?.data || [], 
+    total: data?.getContactMessages?.total || 0,
+    loading, 
+    refetch 
+  }
 }
 
 export function useUpdateContactStatus() {

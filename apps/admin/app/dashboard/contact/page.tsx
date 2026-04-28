@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -41,17 +41,33 @@ const types: (ContactType | "ALL")[] = ["ALL", "GENERAL", "ORDER_ISSUE", "PRODUC
 const priorities: (ContactPriority | "ALL")[] = ["ALL", "LOW", "MEDIUM", "HIGH", "URGENT"]
 
 export default function ContactPage() {
-  const { queries, loading, refetch } = useContactQueries()
+  const [page, setPage] = useState(1)
+  const [limit] = useState(50)
+  
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<ContactStatus | "ALL">("ALL")
   const [typeFilter, setTypeFilter] = useState<ContactType | "ALL">("ALL")
   const [priorityFilter, setPriorityFilter] = useState<ContactPriority | "ALL">("ALL")
+
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(1)
+  }, [statusFilter, typeFilter, priorityFilter, searchQuery])
+
+  const { queries, total, loading, refetch } = useContactQueries(
+    page, 
+    limit, 
+    typeFilter === "ALL" ? undefined : typeFilter
+  )
   
   const [selectedQuery, setSelectedQuery] = useState<ContactQuery | null>(null)
   const [showDetailsDialog, setShowDetailsDialog] = useState(false)
   const [showReplyDialog, setShowReplyDialog] = useState(false)
 
-  const stats = useMemo(() => getContactStats(queries), [queries])
+  const stats = useMemo(() => {
+    const s = getContactStats(queries)
+    return { ...s, totalServer: total }
+  }, [queries, total])
 
   const filteredQueries = useMemo(() => {
     return queries.filter(query => {
@@ -74,11 +90,6 @@ export default function ContactPage() {
         return false
       }
 
-      // Type filter
-      if (typeFilter !== "ALL" && query.type !== typeFilter) {
-        return false
-      }
-
       // Priority filter
       if (priorityFilter !== "ALL" && query.priority !== priorityFilter) {
         return false
@@ -86,7 +97,7 @@ export default function ContactPage() {
 
       return true
     }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-  }, [queries, searchQuery, statusFilter, typeFilter, priorityFilter])
+  }, [queries, searchQuery, statusFilter, priorityFilter])
 
   const handleView = (query: ContactQuery) => {
     setSelectedQuery(query)
@@ -129,7 +140,7 @@ export default function ContactPage() {
             <Inbox className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
+            <div className="text-2xl font-bold">{stats.totalServer}</div>
             <p className="text-xs text-muted-foreground">
               All time queries
             </p>
@@ -316,6 +327,37 @@ export default function ContactPage() {
             onView={handleView}
             onReply={handleReply}
           />
+
+          {/* Pagination */}
+          {total > limit && (
+            <div className="flex items-center justify-between pt-4 border-t">
+              <p className="text-sm text-muted-foreground">
+                Showing {Math.min((page - 1) * limit + 1, total)} to {Math.min(page * limit, total)} of {total} queries
+              </p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                >
+                  Previous
+                </Button>
+                <div className="flex items-center gap-1">
+                  <span className="text-sm font-medium">Page {page}</span>
+                  <span className="text-sm text-muted-foreground">of {Math.ceil(total / limit)}</span>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage(p => p + 1)}
+                  disabled={page >= Math.ceil(total / limit)}
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
