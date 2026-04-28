@@ -17,6 +17,7 @@ import {
   OrderWithUserInfo,
   BoxDimensionType,
 } from './order.graphql';
+import { OrderReportResponse } from './order-report.graphql';
 import { DualAuthGuard } from '../authentication/common/dual-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -32,6 +33,15 @@ export class OrderResolver {
     private readonly orderService: OrderService,
     private readonly packingService: PackingService,
   ) { }
+
+  @Query(() => OrderReportResponse)
+  @Roles(Role.ADMIN)
+  @UseGuards(RolesGuard)
+  async getOrderReports(
+    @Args('period', { type: () => String, defaultValue: 'month' }) period: string,
+  ): Promise<OrderReportResponse> {
+    return this.orderService.getOrderReports(period);
+  }
 
   @Query(() => PaginatedOrdersResponse)
   @Roles(Role.ADMIN, Role.USER)

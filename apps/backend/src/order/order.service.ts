@@ -13,6 +13,7 @@ import {
   OrderShippingAddressType,
   OrderCustomerType,
 } from './order.graphql';
+import { OrderReportResponse } from './order-report.graphql';
 import { PaginationMeta } from '../common/pagination';
 import { OrderRepository } from './services/order.repository';
 import { OrderQueryService } from './services/order.query-service';
@@ -49,6 +50,10 @@ export class OrderService {
     this.queryService = orderQueryService;
     this.commandService = orderCommandService;
     this.itemService = orderItemService;
+  }
+
+  async getOrderReports(period: string): Promise<OrderReportResponse> {
+    return this.queryService.getOrderReports(period);
   }
 
   async createOrder(params: {

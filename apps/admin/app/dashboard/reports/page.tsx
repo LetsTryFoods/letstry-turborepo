@@ -35,14 +35,22 @@ import { getCdnUrl } from "@/lib/utils/image-utils"
 export default function ReportsPage() {
   const [period, setPeriod] = useState<'week' | 'month' | 'quarter' | 'year'>('month')
   
-  const { data } = useReports(period)
+  const { data, loading } = useReports(period)
   const { summary, dailySales, topProducts, topCustomers, categorySales } = data
 
   const { data: trackingData } = useTrackingAnalytics()
 
   // Calculate max values for chart scaling
-  const maxRevenue = Math.max(...dailySales.map(d => d.revenue))
-  const maxOrders = Math.max(...dailySales.map(d => d.orders))
+  const maxRevenue = useMemo(() => Math.max(...dailySales.map(d => d.revenue), 1), [dailySales])
+  const maxOrders = useMemo(() => Math.max(...dailySales.map(d => d.orders), 1), [dailySales])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    )
+  }
 
   const GrowthIndicator = ({ value, label }: { value: number; label: string }) => {
     const isPositive = value >= 0

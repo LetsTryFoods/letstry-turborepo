@@ -111,6 +111,11 @@ const items = [
     icon: ShoppingBag,
   },
   {
+    title: "Reports",
+    url: "/dashboard/reports",
+    icon: BarChart3,
+  },
+  {
     title: "Shipments",
     url: "/dashboard/shipments",
     icon: Package2,

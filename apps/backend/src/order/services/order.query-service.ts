@@ -8,6 +8,10 @@ import {
   OrdersSummary,
   OrderStatusCount,
 } from '../order.graphql';
+import {
+  OrderReportResponse,
+  ReportSummaryType,
+} from '../order-report.graphql';
 import { PaginationMeta } from '../../common/pagination';
 import {
   Identity,
@@ -22,6 +26,94 @@ export class OrderQueryService {
     private orderRepository: OrderRepository,
     @InjectModel(Identity.name) private identityModel: Model<IdentityDocument>,
   ) { }
+
+  async getOrderReports(period: string): Promise<OrderReportResponse> {
+    const { startDate, endDate, prevStartDate, prevEndDate } = this.getDateRange(period);
+
+    const [
+      summary,
+      prevSummary,
+      dailySales,
+      topProducts,
+      topCustomers,
+      categorySales
+    ] = await Promise.all([
+      this.orderRepository.getSummaryStats(startDate, endDate),
+      this.orderRepository.getSummaryStats(prevStartDate, prevEndDate),
+      this.orderRepository.getDailySales(startDate, endDate),
+      this.orderRepository.getTopProducts(startDate, endDate),
+      this.orderRepository.getTopCustomers(startDate, endDate),
+      this.orderRepository.getCategorySales(startDate, endDate)
+    ]);
+
+    const totalRevenue = summary.totalRevenue || 0;
+    const totalOrders = summary.totalOrders || 0;
+    const totalCustomers = summary.totalCustomers || 0;
+    const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+
+    const prevRevenue = prevSummary.totalRevenue || 0;
+    const prevOrders = prevSummary.totalOrders || 0;
+    const prevCustomers = prevSummary.totalCustomers || 0;
+
+    const revenueGrowth = prevRevenue > 0 ? ((totalRevenue - prevRevenue) / prevRevenue) * 100 : 0;
+    const ordersGrowth = prevOrders > 0 ? ((totalOrders - prevOrders) / prevOrders) * 100 : 0;
+    const customersGrowth = prevCustomers > 0 ? ((totalCustomers - prevCustomers) / prevCustomers) * 100 : 0;
+
+    const totalCategoryRevenue = categorySales.reduce((sum, c) => sum + c.revenue, 0);
+    const categorySalesWithPercentage = categorySales.map(c => ({
+      ...c,
+      percentage: totalCategoryRevenue > 0 ? (c.revenue / totalCategoryRevenue) * 100 : 0
+    }));
+
+    return {
+      summary: {
+        totalRevenue,
+        totalOrders,
+        totalCustomers,
+        avgOrderValue,
+        revenueGrowth: Math.round(revenueGrowth * 10) / 10,
+        ordersGrowth: Math.round(ordersGrowth * 10) / 10,
+        customersGrowth: Math.round(customersGrowth * 10) / 10,
+      },
+      dailySales,
+      topProducts,
+      topCustomers,
+      categorySales: categorySalesWithPercentage
+    };
+  }
+
+  private getDateRange(period: string) {
+    const endDate = new Date();
+    const startDate = new Date();
+    const prevEndDate = new Date();
+    const prevStartDate = new Date();
+
+    switch (period) {
+      case 'week':
+        startDate.setDate(endDate.getDate() - 7);
+        prevEndDate.setDate(startDate.getDate() - 1);
+        prevStartDate.setDate(prevEndDate.getDate() - 7);
+        break;
+      case 'quarter':
+        startDate.setMonth(endDate.getMonth() - 3);
+        prevEndDate.setDate(startDate.getDate() - 1);
+        prevStartDate.setMonth(prevEndDate.getMonth() - 3);
+        break;
+      case 'year':
+        startDate.setFullYear(endDate.getFullYear() - 1);
+        prevEndDate.setDate(startDate.getDate() - 1);
+        prevStartDate.setFullYear(prevEndDate.getFullYear() - 1);
+        break;
+      case 'month':
+      default:
+        startDate.setMonth(endDate.getMonth() - 1);
+        prevEndDate.setDate(startDate.getDate() - 1);
+        prevStartDate.setMonth(prevEndDate.getMonth() - 1);
+        break;
+    }
+
+    return { startDate, endDate, prevStartDate, prevEndDate };
+  }
 
   async getOrderById(orderId: string): Promise<Order | null> {
     return this.orderRepository.findById(orderId);

@@ -210,4 +210,142 @@ export class OrderRepository {
 
     return null;
   }
+  async getTopProducts(startDate: Date, endDate: Date, limit = 10): Promise<any[]> {
+    return this.orderModel.aggregate([
+      { $match: { createdAt: { $gte: startDate, $lte: endDate }, orderStatus: { $ne: OrderStatus.SHIPMENT_FAILED } } },
+      { $unwind: "$items" },
+      {
+        $group: {
+          _id: "$items.productId",
+          name: { $first: "$items.name" },
+          image: { $first: "$items.image" },
+          soldQuantity: { $sum: "$items.quantity" },
+          revenue: { $sum: { $toDouble: "$items.totalPrice" } }
+        }
+      },
+      { $sort: { soldQuantity: -1 } },
+      { $limit: limit }
+    ]).exec();
+  }
+
+  async getDailySales(startDate: Date, endDate: Date): Promise<any[]> {
+    return this.orderModel.aggregate([
+      { $match: { createdAt: { $gte: startDate, $lte: endDate }, orderStatus: { $ne: OrderStatus.SHIPMENT_FAILED } } },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          orders: { $sum: 1 },
+          revenue: { $sum: { $toDouble: "$totalAmount" } }
+        }
+      },
+      { $sort: { _id: 1 } },
+      {
+        $project: {
+          _id: 0,
+          date: "$_id",
+          orders: 1,
+          revenue: 1
+        }
+      }
+    ]).exec();
+  }
+
+  async getCategorySales(startDate: Date, endDate: Date): Promise<any[]> {
+    // This is tricky because items don't have categoryId directly in the Order schema.
+    // We might need to join with products.
+    return this.orderModel.aggregate([
+      { $match: { createdAt: { $gte: startDate, $lte: endDate }, orderStatus: { $ne: OrderStatus.SHIPMENT_FAILED } } },
+      { $unwind: "$items" },
+      {
+        $lookup: {
+          from: "products",
+          localField: "items.productId",
+          foreignField: "_id",
+          as: "product"
+        }
+      },
+      { $unwind: "$product" },
+      {
+        $lookup: {
+          from: "categories",
+          localField: "product.categoryId",
+          foreignField: "_id",
+          as: "category"
+        }
+      },
+      { $unwind: "$category" },
+      {
+        $group: {
+          _id: "$category.name",
+          revenue: { $sum: { $toDouble: "$items.totalPrice" } }
+        }
+      },
+      { $sort: { revenue: -1 } },
+      {
+        $project: {
+          _id: 0,
+          category: "$_id",
+          revenue: 1
+        }
+      }
+    ]).exec();
+  }
+
+  async getTopCustomers(startDate: Date, endDate: Date, limit = 5): Promise<any[]> {
+    return this.orderModel.aggregate([
+      { $match: { createdAt: { $gte: startDate, $lte: endDate }, orderStatus: { $ne: OrderStatus.SHIPMENT_FAILED } } },
+      {
+        $group: {
+          _id: "$identityId",
+          totalOrders: { $sum: 1 },
+          totalSpent: { $sum: { $toDouble: "$totalAmount" } }
+        }
+      },
+      { $match: { _id: { $ne: null } } },
+      {
+        $lookup: {
+          from: "identities",
+          localField: "_id",
+          foreignField: "_id",
+          as: "identity"
+        }
+      },
+      { $unwind: "$identity" },
+      {
+        $project: {
+          _id: 1,
+          name: { $concat: ["$identity.firstName", " ", "$identity.lastName"] },
+          email: "$identity.email",
+          totalOrders: 1,
+          totalSpent: 1
+        }
+      },
+      { $sort: { totalSpent: -1 } },
+      { $limit: limit }
+    ]).exec();
+  }
+
+  async getSummaryStats(startDate: Date, endDate: Date): Promise<any> {
+    const result = await this.orderModel.aggregate([
+      { $match: { createdAt: { $gte: startDate, $lte: endDate }, orderStatus: { $ne: OrderStatus.SHIPMENT_FAILED } } },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: { $toDouble: "$totalAmount" } },
+          totalOrders: { $sum: 1 },
+          uniqueCustomers: { $addToSet: "$identityId" }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          totalRevenue: 1,
+          totalOrders: 1,
+          totalCustomers: { $size: "$uniqueCustomers" }
+        }
+      }
+    ]).exec();
+
+    return result[0] || { totalRevenue: 0, totalOrders: 0, totalCustomers: 0 };
+  }
 }
