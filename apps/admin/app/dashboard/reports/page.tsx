@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
+import dynamic from 'next/dynamic'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
@@ -24,6 +25,18 @@ import {
   Download,
   Search
 } from "lucide-react"
+
+// Dynamically import Recharts to avoid SSR issues
+const AreaChart = dynamic(() => import('recharts').then(mod => mod.AreaChart), { ssr: false })
+const Area = dynamic(() => import('recharts').then(mod => mod.Area), { ssr: false })
+const XAxis = dynamic(() => import('recharts').then(mod => mod.XAxis), { ssr: false })
+const YAxis = dynamic(() => import('recharts').then(mod => mod.YAxis), { ssr: false })
+const CartesianGrid = dynamic(() => import('recharts').then(mod => mod.CartesianGrid), { ssr: false })
+const Tooltip = dynamic(() => import('recharts').then(mod => mod.Tooltip), { ssr: false })
+const ResponsiveContainer = dynamic(() => import('recharts').then(mod => mod.ResponsiveContainer), { ssr: false })
+const BarChart = dynamic(() => import('recharts').then(mod => mod.BarChart), { ssr: false })
+const Bar = dynamic(() => import('recharts').then(mod => mod.Bar), { ssr: false })
+
 import { 
   useReports,
   formatCurrency,
@@ -32,7 +45,22 @@ import {
 import { useTrackingAnalytics } from "@/lib/reports/useTrackingAnalytics"
 import { getCdnUrl } from "@/lib/utils/image-utils"
 
+const ChartTooltip = ({ active, payload, label, isCurrency }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white p-3 border rounded-lg shadow-sm">
+        <p className="text-xs text-muted-foreground mb-1">{label}</p>
+        <p className="text-sm font-bold text-primary">
+          {isCurrency ? formatCurrency(payload[0].value) : `${payload[0].value} Orders`}
+        </p>
+      </div>
+    )
+  }
+  return null
+}
+
 export default function ReportsPage() {
+  const [isMounted, setIsMounted] = useState(false)
   const [period, setPeriod] = useState<'week' | 'month' | 'quarter' | 'year'>('month')
   
   const { data, loading } = useReports(period)
@@ -40,11 +68,11 @@ export default function ReportsPage() {
 
   const { data: trackingData } = useTrackingAnalytics()
 
-  // Calculate max values for chart scaling
-  const maxRevenue = useMemo(() => Math.max(...dailySales.map(d => d.revenue), 1), [dailySales])
-  const maxOrders = useMemo(() => Math.max(...dailySales.map(d => d.orders), 1), [dailySales])
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
-  if (loading) {
+  if (loading || !isMounted) {
     return (
       <div className="flex items-center justify-center h-[400px]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -151,29 +179,44 @@ export default function ReportsPage() {
               <BarChart3 className="h-5 w-5" />
               Revenue Trend
             </CardTitle>
-            <CardDescription>Daily revenue for the selected period</CardDescription>
+            <CardDescription>Daily revenue performance</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-[250px] flex items-end gap-1">
-              {dailySales.slice(-14).map((day, index) => {
-                const height = (day.revenue / maxRevenue) * 100
-                return (
-                  <div
-                    key={index}
-                    className="flex-1 bg-primary/80 hover:bg-primary rounded-t transition-all cursor-pointer group relative"
-                    style={{ height: `${Math.max(height, 5)}%` }}
-                    title={`${day.date}: ${formatCurrency(day.revenue)}`}
-                  >
-                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap z-10">
-                      {formatCurrency(day.revenue)}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-            <div className="flex justify-between mt-2 text-xs text-muted-foreground">
-              <span>{dailySales.slice(-14)[0]?.date.slice(5)}</span>
-              <span>{dailySales.slice(-1)[0]?.date.slice(5)}</span>
+            <div className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={dailySales}>
+                  <defs>
+                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                  <XAxis 
+                    dataKey="date" 
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 10, fill: '#888' }}
+                    tickFormatter={(value) => value.split('-').slice(1).join('/')}
+                    minTickGap={30}
+                  />
+                  <YAxis 
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 10, fill: '#888' }}
+                    tickFormatter={(value) => formatCompactNumber(value)}
+                  />
+                  <Tooltip content={<ChartTooltip isCurrency={true} />} />
+                  <Area 
+                    type="monotone" 
+                    dataKey="revenue" 
+                    stroke="#4f46e5" 
+                    strokeWidth={2}
+                    fillOpacity={1} 
+                    fill="url(#colorRevenue)" 
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
@@ -185,29 +228,30 @@ export default function ReportsPage() {
               <ShoppingBag className="h-5 w-5" />
               Orders Trend
             </CardTitle>
-            <CardDescription>Daily orders for the selected period</CardDescription>
+            <CardDescription>Daily order volume</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-[250px] flex items-end gap-1">
-              {dailySales.slice(-14).map((day, index) => {
-                const height = (day.orders / maxOrders) * 100
-                return (
-                  <div
-                    key={index}
-                    className="flex-1 bg-blue-500/80 hover:bg-blue-500 rounded-t transition-all cursor-pointer group relative"
-                    style={{ height: `${Math.max(height, 5)}%` }}
-                    title={`${day.date}: ${day.orders} orders`}
-                  >
-                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap z-10">
-                      {day.orders} orders
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-            <div className="flex justify-between mt-2 text-xs text-muted-foreground">
-              <span>{dailySales.slice(-14)[0]?.date.slice(5)}</span>
-              <span>{dailySales.slice(-1)[0]?.date.slice(5)}</span>
+            <div className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={dailySales}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                  <XAxis 
+                    dataKey="date" 
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 10, fill: '#888' }}
+                    tickFormatter={(value) => value.split('-').slice(1).join('/')}
+                    minTickGap={30}
+                  />
+                  <YAxis 
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 10, fill: '#888' }}
+                  />
+                  <Tooltip content={<ChartTooltip isCurrency={false} />} />
+                  <Bar dataKey="orders" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={20} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
@@ -278,12 +322,12 @@ export default function ReportsPage() {
                     <div className="flex items-center justify-between">
                       <span className="font-medium">{category.category}</span>
                       <span className="text-sm text-muted-foreground">
-                        {formatCurrency(category.revenue)} ({category.percentage}%)
+                        {formatCurrency(category.revenue)} ({category.percentage.toFixed(1)}%)
                       </span>
                     </div>
                     <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                       <div
-                        className={`h-full ${colors[index]} rounded-full transition-all`}
+                        className={`h-full ${colors[index % colors.length]} rounded-full transition-all`}
                         style={{ width: `${category.percentage}%` }}
                       />
                     </div>
