@@ -39,17 +39,18 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nextjs-
 
-      - name: Install dependencies (Frontend only)
-        run: pnpm install
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
+      # --- 2. BUILD BACKEND ---
       - name: Build Backend
         run: |
           rm -rf apps/backend/dist
           npx turbo run build --filter=backend --no-cache
 
-      # --- BACKEND: Deploy and start on EC2 ---
+      # --- 3. DEPLOY BACKEND FILES TO EC2 ---
       - name: Stop Backend (to allow file replacement)
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
@@ -58,7 +59,7 @@ jobs:
             pm2 stop backend || true
 
       - name: Deploy Backend to EC2
-        uses: easingthemes/ssh-deploy@main
+        uses: easingthemes/ssh-deploy@v5.0.3
         env:
           SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
           ARGS: "-rlgoDzvc -i --checksum --delete"
@@ -68,8 +69,8 @@ jobs:
           TARGET: "/home/ubuntu/letstry-turborepo/apps/backend"
           EXCLUDE: "/node_modules/, /.git/"
 
-      - name: Deploy Root Files
-        uses: easingthemes/ssh-deploy@main
+      - name: Deploy Root Config Files to EC2
+        uses: easingthemes/ssh-deploy@v5.0.3
         env:
           SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
           ARGS: "-rlgoDzvc -i"
@@ -77,10 +78,11 @@ jobs:
           REMOTE_HOST: ${{ secrets.EC2_HOST }}
           REMOTE_USER: ${{ secrets.EC2_USER }}
           TARGET: "/home/ubuntu/letstry-turborepo"
-          EXCLUDE: "/node_modules/, /.git/, /.github/, /apps/"
+          EXCLUDE: "/node_modules/, /.git/, /.github/, /apps/, /.env.production"
 
+      # --- 4. START BACKEND ON EC2 & HEALTH CHECK ---
       - name: Start Backend on EC2
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
@@ -88,29 +90,33 @@ jobs:
           script: |
             set -e
             cd /home/ubuntu/letstry-turborepo
-            
-            # Install production dependencies on the server
-            if command -v pnpm &> /dev/null; then
-              pnpm install
-            else
-              echo "pnpm not found, falling back to npm (might be slow)"
-              npm install --production
-            fi
-            
-            # Create logs directory
-            mkdir -p logs
-            chmod 755 logs
-            
-            # Create .env file
+
+            # Write backend env file
             cat > .env.production << 'EOF'
             ${{ secrets.BACKEND_ENV }}
             EOF
-            
-            # Restart the service
+
+            # Create logs directory
+            mkdir -p logs
+            chmod 755 logs
+
+            # Install only production dependencies
+            if command -v pnpm &> /dev/null; then
+              CI=true pnpm install --prod --filter=backend
+            else
+              echo "pnpm not found, falling back to npm"
+              npm install --production
+            fi
+
+            # Restart backend service
             pm2 restart backend || pm2 start ecosystem.config.js --only backend
             sleep 5
+
+            # Health check — fail the pipeline if backend is not online
+            pm2 status backend | grep -q "online" || { echo "Backend failed to start!"; exit 1; }
             pm2 save
 
+      # --- 5. BUILD FRONTEND & ADMIN ---
       - name: Create .env files for Frontend and Admin
         run: |
           echo "${{ secrets.FRONTEND_ENV }}" > apps/frontend/.env.local
@@ -121,20 +127,22 @@ jobs:
         env:
           NEXT_TURBOPACK: 0
 
+      # --- 6. PREPARE STANDALONE BUILDS ---
       - name: Prepare Standalone Build
         run: |
           # Frontend
           cp -r apps/frontend/public apps/frontend/.next/standalone/apps/frontend/public || true
           mkdir -p apps/frontend/.next/standalone/apps/frontend/.next
           cp -r apps/frontend/.next/static apps/frontend/.next/standalone/apps/frontend/.next/static
-          
+
           # Admin
           cp -r apps/admin/public apps/admin/.next/standalone/apps/admin/public || true
           mkdir -p apps/admin/.next/standalone/apps/admin/.next
           cp -r apps/admin/.next/static apps/admin/.next/standalone/apps/admin/.next/static
 
+      # --- 7. DEPLOY FRONTEND & ADMIN TO EC2 ---
       - name: Deploy Frontend and Admin to EC2
-        uses: easingthemes/ssh-deploy@main
+        uses: easingthemes/ssh-deploy@v5.0.3
         env:
           SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
           ARGS: "-rlgoDzvc -i --checksum --delete"
@@ -144,14 +152,37 @@ jobs:
           TARGET: "/home/ubuntu/letstry-turborepo/apps"
           EXCLUDE: "/node_modules/, /.git/, /backend/"
 
-      - name: Restart Frontend and Admin Services
-        uses: appleboy/ssh-action@master
+      # --- 8. RESTART FRONTEND & ADMIN SERVICES ---
+      - name: Restart Frontend and Admin on EC2
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            set -e
             cd /home/ubuntu/letstry-turborepo
+
+            # Restart frontend
             pm2 restart frontend || pm2 start ecosystem.config.js --only frontend
+
+            # Restart admin
             pm2 restart admin || pm2 start ecosystem.config.js --only admin
+
+            sleep 5
+
+            # Health checks
+            pm2 status frontend | grep -q "online" || { echo "Frontend failed to start!"; exit 1; }
+            pm2 status admin | grep -q "online" || { echo "Admin failed to start!"; exit 1; }
+
             pm2 save
+
+      # --- 9. FINAL STATUS ---
+      - name: Show PM2 Status
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            pm2 status
