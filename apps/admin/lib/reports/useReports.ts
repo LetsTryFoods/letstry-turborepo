@@ -67,8 +67,8 @@ const emptyData: ReportsData = {
 }
 
 // Hook to get reports data
-export const useReports = (period: 'week' | 'month' | 'quarter' | 'year' = 'month') => {
-  const { data, loading, error, refetch } = useQuery(GET_ORDER_REPORTS, {
+export const useReports = (period: 'week' | 'month' | 'quarter' | 'year' | 'all' = 'month') => {
+  const { data, loading, error, refetch } = useQuery<{ getOrderReports: ReportsData }>(GET_ORDER_REPORTS, {
     variables: { period },
     notifyOnNetworkStatusChange: true,
   })
