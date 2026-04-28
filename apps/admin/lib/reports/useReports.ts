@@ -1,6 +1,6 @@
 "use client"
 
-import { useQuery } from "@apollo/client"
+import { useQuery } from "@apollo/client/react"
 import { GET_ORDER_REPORTS } from "@/lib/graphql/reports"
 import { useMemo } from "react"
 
