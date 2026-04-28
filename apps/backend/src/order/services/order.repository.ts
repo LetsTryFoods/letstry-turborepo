@@ -210,8 +210,8 @@ export class OrderRepository {
 
     return null;
   }
-  async getTopProducts(startDate: Date, endDate: Date, limit = 10): Promise<any[]> {
-    return this.orderModel.aggregate([
+  async getTopProducts(startDate: Date, endDate: Date, limit = 50): Promise<any[]> {
+    const pipeline: any[] = [
       { $match: { createdAt: { $gte: startDate, $lte: endDate }, orderStatus: { $ne: OrderStatus.SHIPMENT_FAILED } } },
       { $unwind: "$items" },
       {
@@ -223,9 +223,14 @@ export class OrderRepository {
           revenue: { $sum: { $toDouble: "$items.totalPrice" } }
         }
       },
-      { $sort: { soldQuantity: -1 } },
-      { $limit: limit }
-    ]).exec();
+      { $sort: { soldQuantity: -1 } }
+    ];
+
+    if (limit > 0) {
+      pipeline.push({ $limit: limit });
+    }
+
+    return this.orderModel.aggregate(pipeline).exec();
   }
 
   async getDailySales(startDate: Date, endDate: Date): Promise<any[]> {
@@ -264,16 +269,35 @@ export class OrderRepository {
           as: "product"
         }
       },
-      { $unwind: "$product" },
+      { $unwind: { path: "$product", preserveNullAndEmptyArrays: true } },
+      {
+        $addFields: {
+          firstCategoryId: {
+            $cond: [
+              { $gt: [{ $size: { $ifNull: ["$product.categoryIds", []] } }, 0] },
+              { $arrayElemAt: ["$product.categoryIds", 0] },
+              null
+            ]
+          }
+        }
+      },
       {
         $lookup: {
           from: "categories",
-          localField: "product.categoryId",
-          foreignField: "_id",
+          let: { catId: "$firstCategoryId" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: [{ $toString: "$_id" }, "$$catId"]
+                }
+              }
+            }
+          ],
           as: "category"
         }
       },
-      { $unwind: "$category" },
+      { $unwind: { path: "$category", preserveNullAndEmptyArrays: true } },
       {
         $group: {
           _id: { $ifNull: ["$category.name", "Uncategorized"] },
