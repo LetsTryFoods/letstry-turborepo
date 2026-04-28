@@ -17,16 +17,30 @@ import HeroCarousel from '../../src/features/home/components/HeroCarousel';
 import CategoriesGrid from '../../src/features/home/components/CategoriesGrid';
 import HorizontalSection from '../../src/features/home/components/HorizontalSection';
 import EventsHero from '../../src/features/home/components/EventsHero';
+import TopBanner from '../../src/features/home/components/TopBanner';
 import { useHomeData } from '../../src/features/home/hooks/useHomeData';
 
 const EVENTS_SECTION_HEIGHT = hp('57%');
+const HEADER_HEIGHT = hp('10%'); // Estimated search bar + padding
 
 const HomeScreen = () => {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const scrollY = useRef(new Animated.Value(0)).current;
   const [refreshing, setRefreshing] = useState(false);
-  const { banners, categories, allCategories, bestsellers, bestsellerCategoryId, combos, combosCategoryId, loading, refetch } = useHomeData();
+  const { 
+    banners, 
+    categories, 
+    allCategories, 
+    bestsellers, 
+    bestsellerCategoryId, 
+    combos, 
+    combosCategoryId, 
+    loading, 
+    sduiConfig, 
+    sduiComponents,
+    refetch 
+  } = useHomeData();
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -34,45 +48,12 @@ const HomeScreen = () => {
     setRefreshing(false);
   }, [refetch]);
 
-  // Header Animation Logic (Same as legacy)
-  const headerOpacity = scrollY.interpolate({
-    inputRange: [0, EVENTS_SECTION_HEIGHT - hp('25%')],
-    outputRange: [0, 1],
-    extrapolate: 'clamp',
-  });
 
-  const headerShadowOpacity = scrollY.interpolate({
-    inputRange: [0, EVENTS_SECTION_HEIGHT - hp('21%'), EVENTS_SECTION_HEIGHT],
-    outputRange: [0, 0.3, 0.8],
-    extrapolate: 'clamp',
-  });
-
-  const renderHeader = () => (
-    <View style={[styles.stickyHeader, { paddingTop: insets.top + hp('1%') }]} pointerEvents="box-none">
-      <Animated.View 
-        style={[
-          StyleSheet.absoluteFill, 
-          { 
-            backgroundColor: '#FFFFFF', 
-            opacity: headerOpacity, 
-            shadowOpacity: headerShadowOpacity,
-            elevation: 4
-          }
-        ]} 
-      />
-      <View style={styles.searchWrapper}>
-        <SearchBar placeholder="Search for snacks, sweets..." />
-      </View>
-    </View>
+  const renderListHeader = () => (
+    <View style={{ paddingTop: insets.top }} />
   );
 
-  const data = [
-    { type: 'events' },
-    { type: 'bestsellers' },
-    { type: 'categories' },
-    { type: 'banners' },
-    { type: 'combos' },
-  ];
+  const displayData = sduiComponents;
 
   const handleBannerPress = (banner: any) => {
     if (!banner.url) return;
@@ -97,9 +78,19 @@ const HomeScreen = () => {
 
   const renderItem = ({ item }: { item: any }) => {
     switch (item.type) {
-      case 'events':
+      case 'TopBanner':
+        return (
+          <TopBanner 
+            visible={item.props?.visible} 
+            imageUrl={item.props?.imageUrl} 
+            aspectRatio={item.props?.aspectRatio}
+          />
+        );
+      case 'EventsHero':
         return (
           <EventsHero 
+            sduiConfig={sduiConfig}
+            safeAreaTop={insets.top}
             events={categories.slice(0, 8).map((c: any) => ({ 
               id: c.id, 
               name: c.name, 
@@ -111,22 +102,22 @@ const HomeScreen = () => {
             })}
           />
         );
-      case 'bestsellers':
+      case 'Bestsellers':
         return (
           <HorizontalSection 
-            title="Best Sellers" 
+            title={item.props?.title || "Best Sellers"} 
             products={bestsellers} 
             seeAllPath={bestsellerCategoryId ? `/categories?categoryId=${bestsellerCategoryId}` : '/categories'} 
           />
         );
-      case 'categories':
+      case 'Categories':
         return <CategoriesGrid categories={categories} />;
-      case 'banners':
+      case 'HeroCarousel':
         return <HeroCarousel banners={banners} loading={loading} onBannerPress={handleBannerPress} />;
-      case 'combos':
+      case 'Combos':
         return (
           <HorizontalSection 
-            title="Bestselling Combos" 
+            title={item.props?.title || "Bestselling Combos"} 
             products={combos} 
             seeAllPath={combosCategoryId ? `/categories?categoryId=${combosCategoryId}` : '/categories'} 
           />
@@ -136,7 +127,7 @@ const HomeScreen = () => {
     }
   };
 
-  if (loading && !refreshing) {
+  if (loading && !refreshing && sduiComponents.length === 0) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#0C5273" />
@@ -148,12 +139,12 @@ const HomeScreen = () => {
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
       
-      {renderHeader()}
 
       <Animated.FlatList
-        data={data}
+        data={displayData}
         renderItem={renderItem}
-        keyExtractor={(item) => item.type}
+        ListHeaderComponent={renderListHeader}
+        keyExtractor={(item, index) => `${item.type}-${index}`}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
         onScroll={Animated.event(
@@ -181,13 +172,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
   },
-  stickyHeader: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 1000,
-    paddingBottom: hp('1%'),
+  searchSection: {
+    paddingHorizontal: wp('5%'),
+    paddingVertical: hp('1%'),
   },
   searchWrapper: {
     paddingHorizontal: wp('5%'),

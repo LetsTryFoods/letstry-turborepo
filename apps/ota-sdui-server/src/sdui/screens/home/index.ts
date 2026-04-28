@@ -4,30 +4,47 @@ export const homeScreen: SDUIScreen = {
   screen: 'HomeScreen',
   components: [
     {
-      type: 'Header',
+      type: 'EventsHero',
+      props: {},
+    },
+    {
+      type: 'TopBanner',
       props: {
-        title: 'Welcome to LetsTry',
-        subtitle: 'Discover new foods today',
+        visible: true,
+        imageUrl: 'https://placehold.co/1000x100/0C5273/white?text=FREE+DELIVERY+ON+ORDERS+ABOVE+RS+499',
+        aspectRatio: 10,
       },
     },
     {
-      type: 'Banner',
+      type: 'Bestsellers',
       props: {
-        imageUrl: 'https://placehold.co/600x400/orange/white?text=Special+Offers',
-        action: 'DISCOUNT_VOUCHER',
+        title: 'Best Sellers',
       },
     },
     {
-      type: 'Grid',
+      type: 'TopBanner',
       props: {
-        columns: 2,
-        items: [
-          { id: '1', title: 'Pizza', icon: 'pizza-slice' },
-          { id: '2', title: 'Burgers', icon: 'hamburger' },
-          { id: '3', title: 'Sushi', icon: 'fish' },
-          { id: '4', title: 'Deserts', icon: 'ice-cream' },
-        ],
+        visible: true,
+        imageUrl: 'https://placehold.co/1000x100/0C5273/white?text=FREE+DELIVERY+ON+ORDERS+ABOVE+RS+499',
+        aspectRatio: 10,
+      },
+    },
+    {
+      type: 'Categories',
+      props: {},
+    },
+    {
+      type: 'HeroCarousel',
+      props: {},
+    },
+    {
+      type: 'Combos',
+      props: {
+        title: 'Bestselling Combos',
       },
     },
   ],
+  config: {
+    homeEventsHeroTopMargin: -10,
+  },
 };

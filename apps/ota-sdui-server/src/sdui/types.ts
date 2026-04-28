@@ -6,4 +6,5 @@ export interface SDUIComponent {
 export interface SDUIScreen {
   screen: string;
   components: SDUIComponent[];
+  config?: Record<string, any>;
 }

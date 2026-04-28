@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import { wp, hp, RFValue, getImageUrl } from '../../../lib/utils/ui-utils';
+import SearchBar from '../../../components/common/SearchBar';
 
 interface Event {
   id: string;
@@ -19,6 +20,8 @@ interface EventsHeroProps {
   backgroundImageUrl?: string;
   events: Event[];
   onEventSelect?: (event: Event) => void;
+  sduiConfig?: any;
+  safeAreaTop?: number;
 }
 
 const CARD_WIDTH = (wp('100%') - wp('10%')) / 4;
@@ -26,20 +29,43 @@ const CARD_WIDTH = (wp('100%') - wp('10%')) / 4;
 const EventsHero: React.FC<EventsHeroProps> = ({
   backgroundImageUrl,
   events,
-  onEventSelect
+  onEventSelect,
+  sduiConfig,
+  safeAreaTop
 }) => {
   // Use a default background if none provided
   const bgImage = backgroundImageUrl
     ? { uri: backgroundImageUrl }
     : require('../../../../assets/images/bg-image.png');
 
+  const topMargin = sduiConfig?.homeEventsHeroTopMargin ?? 0;
+  
+  const safeTop = safeAreaTop ?? 0;
+  
+  // Estimate global Y of the container assuming it's the first item
+  const containerGlobalY = safeTop + hp(topMargin);
+  
+  // Default search bar top (relative to container) is hp('1%')
+  let searchBarTop = hp('1%');
+  
+  // Ensure the search bar NEVER goes under the status bar
+  const minGlobalY = safeTop + hp('1%');
+  if (containerGlobalY + searchBarTop < minGlobalY) {
+    searchBarTop = minGlobalY - containerGlobalY;
+  }
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { marginTop: hp(topMargin) }]}>
       <Image
         source={bgImage}
         style={StyleSheet.absoluteFill}
         contentFit="cover"
       />
+      {/* Search Bar overlaid on the background */}
+      <View style={[styles.searchOverlay, { top: searchBarTop }]}>
+        <SearchBar placeholder="Search for snacks, sweets..." />
+      </View>
+
       <View style={styles.grid}>
         {events.slice(0, 8).map((event, index) => (
           <TouchableOpacity
@@ -70,10 +96,17 @@ const EventsHero: React.FC<EventsHeroProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    height: hp('65%'), // Increased height to reduce congestion
+    height: hp('65%'),
     marginBottom: hp('2%'),
     justifyContent: 'flex-end',
-    paddingBottom: hp('4%'), // More space at the bottom
+    paddingBottom: hp('4%'),
+  },
+  searchOverlay: {
+    position: 'absolute',
+    top: hp('1%'),
+    left: wp('5%'),
+    right: wp('5%'),
+    zIndex: 10,
   },
   grid: {
     flexDirection: 'row',

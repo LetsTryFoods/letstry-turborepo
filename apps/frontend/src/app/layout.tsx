@@ -6,6 +6,7 @@ import ToastProvider from "@/providers/toast-provider";
 import { AuthProvider } from "@/providers/auth-provider";
 import { RecaptchaProvider } from "@/components/recaptcha-provider";
 import { QueryProvider } from "@/providers/query-provider";
+import { NotificationBanner, HomeAlertModal } from "@/components/notification-banner";
 import { TopBanner } from "@/components/top-banner";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
@@ -68,6 +69,8 @@ export default function RootLayout({
               <Suspense fallback={null}>
                 <PageViewTracker />
               </Suspense>
+              <NotificationBanner />
+              <HomeAlertModal />
               <TopBanner />
               <Navbar />
               <SearchOverlay />

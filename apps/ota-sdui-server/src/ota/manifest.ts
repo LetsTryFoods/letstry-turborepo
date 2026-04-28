@@ -3,7 +3,7 @@ import { getExpoHeaders, setManifestHeaders } from './protocol';
 
 export const manifestHandler = async (req: FastifyRequest, reply: FastifyReply) => {
   const { platform, runtimeVersion } = getExpoHeaders(req);
-  
+
   const manifest = {
     id: '1.0.0',
     createdAt: new Date().toISOString(),

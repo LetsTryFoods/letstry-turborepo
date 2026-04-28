@@ -6,10 +6,10 @@ import {
   Modal,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
   ActivityIndicator,
   Share
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
@@ -82,7 +82,7 @@ const CartModal = () => {
       onRequestClose={closeCart}
       onDismiss={closeCart}
     >
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={['bottom']}>
         {/* Modern Header */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.iconBtn} onPress={closeCart}>

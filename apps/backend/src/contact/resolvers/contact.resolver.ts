@@ -50,10 +50,12 @@ export class ContactResolver {
   async getContactMessages(
     @Args('skip', { type: () => Int, defaultValue: 0 }) skip: number,
     @Args('limit', { type: () => Int, defaultValue: 50 }) limit: number,
+    @Args('queryType', { nullable: true }) queryType?: string,
   ): Promise<PaginatedContactsResponse> {
+    const filter = queryType ? { queryType } : { queryType: { $exists: false } };
     const [data, total] = await Promise.all([
-      this.contactService.findAll(skip, limit),
-      this.contactService.countAll(),
+      this.contactService.findAll(skip, limit, filter),
+      this.contactService.countAll(filter),
     ]);
     return { data, total };
   }
