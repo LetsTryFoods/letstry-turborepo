@@ -111,7 +111,13 @@ const nextConfig: NextConfig = {
   },
 
   async redirects() {
-    return [];
+    return [
+      {
+        source: '/category/:slug',
+        destination: '/:slug',
+        permanent: true,
+      },
+    ];
   },
 
   compress: true,

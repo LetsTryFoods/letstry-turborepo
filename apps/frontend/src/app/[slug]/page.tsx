@@ -6,8 +6,11 @@ import { Product } from '@/components/category-page/ProductCard';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getCdnUrl } from '@/lib/image-utils';
+import { getCategoryOverride } from '@/lib/seo/overrides';
 
 export const revalidate = 1800;
+
+const SITE_URL = (process.env.NEXT_PUBLIC_BASE_URL || 'https://letstryfoods.com').replace(/\/$/, '');
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -20,26 +23,38 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const category = await getCategoryBySlug(slug);
   if (category) {
     const seo = category.seo;
-    const defaultTitle = `${category.name} | Letstry`;
-    const defaultDescription = category.description || `Shop ${category.name} products at Letstry. Browse our collection of premium quality items.`;
+    const override = getCategoryOverride(slug);
+
+    const defaultTitle = `${category.name} – Buy Online | Let's Try Foods`;
+    const countHint = category.productCount
+      ? `Choose from ${category.productCount} ${category.productCount === 1 ? 'product' : 'products'}. `
+      : '';
+    const defaultDescription =
+      category.description ||
+      `Shop ${category.name} at Let's Try Foods. ${countHint}Shipped across India.`.trim();
+
+    const finalTitle = seo?.metaTitle || override?.title || defaultTitle;
+    const finalDescription = seo?.metaDescription || override?.description || defaultDescription;
+    const canonical = seo?.canonicalUrl || `${SITE_URL}/${slug}`;
 
     return {
-      title: seo?.metaTitle || defaultTitle,
-      description: seo?.metaDescription || defaultDescription,
+      title: { absolute: finalTitle },
+      description: finalDescription,
       keywords: seo?.metaKeywords || [],
       alternates: {
-        canonical: seo?.canonicalUrl || undefined,
+        canonical,
       },
       openGraph: {
-        title: seo?.ogTitle || seo?.metaTitle || defaultTitle,
-        description: seo?.ogDescription || seo?.metaDescription || defaultDescription,
+        title: seo?.ogTitle || finalTitle,
+        description: seo?.ogDescription || finalDescription,
+        url: canonical,
         images: seo?.ogImage ? [{ url: getCdnUrl(seo.ogImage) }] : category.imageUrl ? [{ url: getCdnUrl(category.imageUrl) }] : [],
         type: 'website',
       },
       twitter: {
         card: 'summary_large_image',
-        title: seo?.ogTitle || seo?.metaTitle || defaultTitle,
-        description: seo?.ogDescription || seo?.metaDescription || defaultDescription,
+        title: seo?.ogTitle || finalTitle,
+        description: seo?.ogDescription || finalDescription,
         images: seo?.ogImage ? [getCdnUrl(seo.ogImage)] : category.imageUrl ? [getCdnUrl(category.imageUrl)] : [],
       },
     };
@@ -99,12 +114,45 @@ export default async function DynamicSlugPage({ params, searchParams }: PageProp
     if (category) {
       const categoryType = type === 'special' ? 'special' : 'default';
       const products = category.products.map(mapProductData);
+      const categoryUrl = `${SITE_URL}/${slug}`;
+
+      const breadcrumbSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+          { '@type': 'ListItem', position: 2, name: category.name, item: categoryUrl },
+        ],
+      };
+
+      const itemListSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        name: category.name,
+        numberOfItems: products.length,
+        itemListElement: products.slice(0, 30).map((p, idx) => ({
+          '@type': 'ListItem',
+          position: idx + 1,
+          url: `${SITE_URL}/product/${p.slug}`,
+          name: p.name,
+        })),
+      };
 
       return (
-        <CategoryPageContainer>
-          <CategoryHeader title={category.name} productCount={category.productCount} />
-          <ProductGrid products={products} categoryType={categoryType} slug={slug} />
-        </CategoryPageContainer>
+        <>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+          />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+          />
+          <CategoryPageContainer>
+            <CategoryHeader title={category.name} productCount={category.productCount} />
+            <ProductGrid products={products} categoryType={categoryType} slug={slug} />
+          </CategoryPageContainer>
+        </>
       );
     }
   } catch (error) {

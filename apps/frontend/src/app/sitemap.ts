@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next';
 import { createServerGraphQLClient } from '@/lib/graphql/server-client-factory';
 import { GET_ALL_PRODUCTS_FOR_SITEMAP, GET_ALL_CATEGORIES_FOR_SITEMAP } from '@/lib/graphql/sitemap-queries';
+import { getActiveBlogs } from '@/lib/blog';
 
 interface Product {
   slug: string;
@@ -25,37 +26,30 @@ interface CategoriesResponse {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'https://frontend.krsna.site').replace(/\/$/, '');
+  const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'https://letstryfoods.com').replace(/\/$/, '');
+  const now = new Date();
 
   const staticRoutes: MetadataRoute.Sitemap = [
-    {
-      url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 1,
-    },
-    {
-      url: `${baseUrl}/about-us`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/contact`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.5,
-    },
+    { url: baseUrl, lastModified: now, changeFrequency: 'daily', priority: 1 },
+    { url: `${baseUrl}/about-us`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${baseUrl}/contact-us`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${baseUrl}/bulk-corporate`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${baseUrl}/combos`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${baseUrl}/blog`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${baseUrl}/shipping-policy`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
+    { url: `${baseUrl}/refund-cancellations`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
+    { url: `${baseUrl}/terms-of-service`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
   ];
 
   let productRoutes: MetadataRoute.Sitemap = [];
   let categoryRoutes: MetadataRoute.Sitemap = [];
+  let blogRoutes: MetadataRoute.Sitemap = [];
 
   const client = createServerGraphQLClient();
 
   try {
     const data = await client.request<ProductsResponse>(GET_ALL_PRODUCTS_FOR_SITEMAP);
-    
+
     if (data?.products?.items) {
       productRoutes = data.products.items.map((product) => ({
         url: `${baseUrl}/product/${product.slug}`,
@@ -70,7 +64,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     const data = await client.request<CategoriesResponse>(GET_ALL_CATEGORIES_FOR_SITEMAP);
-    
+
     if (data?.categories?.items) {
       categoryRoutes = data.categories.items.map((category) => ({
         url: `${baseUrl}/${category.slug}`,
@@ -83,5 +77,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('Failed to fetch categories for sitemap:', error);
   }
 
-  return [...staticRoutes, ...productRoutes, ...categoryRoutes];
+  try {
+    const blogs = await getActiveBlogs();
+    blogRoutes = blogs.map((blog) => ({
+      url: `${baseUrl}/blog/${blog.slug}`,
+      lastModified: blog.updatedAt ? new Date(blog.updatedAt) : now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    }));
+  } catch (error) {
+    console.error('Failed to fetch blogs for sitemap:', error);
+  }
+
+  return [...staticRoutes, ...productRoutes, ...categoryRoutes, ...blogRoutes];
 }

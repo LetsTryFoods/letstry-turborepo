@@ -12,9 +12,10 @@ import type { EmblaCarouselType } from 'embla-carousel';
 interface ProductGalleryProps {
   images: string[];
   isOutOfStock?: boolean;
+  productName?: string;
 }
 
-export const ProductGallery: React.FC<ProductGalleryProps> = ({ images, isOutOfStock = false }) => {
+export const ProductGallery: React.FC<ProductGalleryProps> = ({ images, isOutOfStock = false, productName }) => {
   const router = useRouter();
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [mainCarouselRef, mainApi] = useEmblaCarousel({ loop: false });
@@ -66,7 +67,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({ images, isOutOfS
               <div key={idx} className="flex-[0_0_100%] min-w-0 relative p-1">
                 <Image
                   src={getCdnUrl(img)}
-                  alt={`Product Image ${idx + 1}`}
+                  alt={productName ? `${productName} — image ${idx + 1}` : `Product Image ${idx + 1}`}
                   fill
                   className="object-contain"
                   priority={idx === 0}
@@ -91,7 +92,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({ images, isOutOfS
               <div className="relative w-full h-full">
                 <Image
                   src={getCdnUrl(img)}
-                  alt={`Thumbnail ${idx + 1}`}
+                  alt={productName ? `${productName} — thumbnail ${idx + 1}` : `Thumbnail ${idx + 1}`}
                   fill
                   className="object-contain"
                 />

@@ -63,6 +63,8 @@ export const GET_PRODUCT_BY_SLUG = graphql(`
       isVegetarian
       categoryIds
       ingredients
+      brand
+      currency
       seo {
         metaTitle
         metaDescription
