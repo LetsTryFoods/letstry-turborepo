@@ -217,7 +217,7 @@ export class OrderRepository {
       {
         $group: {
           _id: "$items.productId",
-          name: { $first: "$items.name" },
+          name: { $first: { $ifNull: ["$items.name", "Unknown Product"] } },
           image: { $first: "$items.image" },
           soldQuantity: { $sum: "$items.quantity" },
           revenue: { $sum: { $toDouble: "$items.totalPrice" } }
@@ -276,7 +276,7 @@ export class OrderRepository {
       { $unwind: "$category" },
       {
         $group: {
-          _id: "$category.name",
+          _id: { $ifNull: ["$category.name", "Uncategorized"] },
           revenue: { $sum: { $toDouble: "$items.totalPrice" } }
         }
       },
@@ -314,8 +314,27 @@ export class OrderRepository {
       {
         $project: {
           _id: 1,
-          name: { $concat: ["$identity.firstName", " ", "$identity.lastName"] },
-          email: "$identity.email",
+          name: {
+            $trim: {
+              input: {
+                $concat: [
+                  { $ifNull: ["$identity.firstName", ""] },
+                  " ",
+                  { $ifNull: ["$identity.lastName", ""] }
+                ]
+              }
+            }
+          },
+          email: { $ifNull: ["$identity.email", "N/A"] },
+          totalOrders: 1,
+          totalSpent: 1
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          name: { $cond: [{ $eq: ["$name", ""] }, "Customer", "$name"] },
+          email: 1,
           totalOrders: 1,
           totalSpent: 1
         }
