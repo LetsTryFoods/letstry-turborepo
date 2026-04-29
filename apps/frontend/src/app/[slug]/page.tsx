@@ -2,11 +2,14 @@ import { getCategoryBySlug } from '@/lib/category';
 import { CategoryPageContainer } from '@/components/category-page/CategoryPageContainer';
 import { CategoryHeader } from '@/components/category-page/CategoryHeader';
 import { ProductGrid } from '@/components/category-page/ProductGrid';
+import { CategoryFaqSection } from '@/components/category-page/CategoryFaqSection';
+import { CategoryAnswerBox } from '@/components/category-page/CategoryAnswerBox';
 import { Product } from '@/components/category-page/ProductCard';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getCdnUrl } from '@/lib/image-utils';
 import { getCategoryOverride } from '@/lib/seo/overrides';
+import { getCategoryFaqs } from '@/lib/seo/category-faqs';
 
 export const revalidate = 1800;
 
@@ -109,55 +112,105 @@ export default async function DynamicSlugPage({ params, searchParams }: PageProp
   const { slug } = await params;
   const { type } = await searchParams;
 
+  let category: Awaited<ReturnType<typeof getCategoryBySlug>> | null = null;
   try {
-    const category = await getCategoryBySlug(slug);
-    if (category) {
-      const categoryType = type === 'special' ? 'special' : 'default';
-      const products = category.products.map(mapProductData);
-      const categoryUrl = `${SITE_URL}/${slug}`;
-
-      const breadcrumbSchema = {
-        '@context': 'https://schema.org',
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
-          { '@type': 'ListItem', position: 2, name: category.name, item: categoryUrl },
-        ],
-      };
-
-      const itemListSchema = {
-        '@context': 'https://schema.org',
-        '@type': 'ItemList',
-        name: category.name,
-        numberOfItems: products.length,
-        itemListElement: products.slice(0, 30).map((p, idx) => ({
-          '@type': 'ListItem',
-          position: idx + 1,
-          url: `${SITE_URL}/product/${p.slug}`,
-          name: p.name,
-        })),
-      };
-
-      return (
-        <>
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
-          />
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
-          />
-          <CategoryPageContainer>
-            <CategoryHeader title={category.name} productCount={category.productCount} />
-            <ProductGrid products={products} categoryType={categoryType} slug={slug} />
-          </CategoryPageContainer>
-        </>
-      );
-    }
+    category = await getCategoryBySlug(slug);
   } catch (error) {
     console.error('Error fetching category:', error);
   }
 
-  notFound();
+  if (!category) {
+    notFound();
+  }
+
+  const categoryType = type === 'special' ? 'special' : 'default';
+  const products = category.products.map(mapProductData);
+  const categoryUrl = `${SITE_URL}/${slug}`;
+  const faqBlock = getCategoryFaqs(slug);
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+      { '@type': 'ListItem', position: 2, name: category.name, item: categoryUrl },
+    ],
+  };
+
+  const itemListSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: category.name,
+    numberOfItems: products.length,
+    itemListElement: products.slice(0, 30).map((p, idx) => ({
+      '@type': 'ListItem',
+      position: idx + 1,
+      url: `${SITE_URL}/product/${p.slug}`,
+      name: p.name,
+    })),
+  };
+
+  const faqSchema = faqBlock
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        '@id': `${categoryUrl}#faq`,
+        mainEntity: faqBlock.faqs.map((f) => ({
+          '@type': 'Question',
+          name: f.q,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: f.a,
+          },
+        })),
+      }
+    : null;
+
+  // Speakable hints the answer-box paragraph and FAQ answers — these are
+  // the parts AI / voice engines should consider quoting.
+  const speakableSchema = faqBlock
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        '@id': `${categoryUrl}#speakable`,
+        url: categoryUrl,
+        speakable: {
+          '@type': 'SpeakableSpecification',
+          cssSelector: ['[data-speakable="true"]'],
+        },
+      }
+    : null;
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+      />
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
+      {speakableSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(speakableSchema) }}
+        />
+      )}
+      <CategoryPageContainer>
+        <CategoryHeader title={category.name} productCount={category.productCount} />
+        {faqBlock && <CategoryAnswerBox intro={faqBlock.intro} />}
+        <ProductGrid products={products} categoryType={categoryType} slug={slug} />
+        {faqBlock && (
+          <CategoryFaqSection categoryName={category.name} faqs={faqBlock.faqs} />
+        )}
+      </CategoryPageContainer>
+    </>
+  );
 }

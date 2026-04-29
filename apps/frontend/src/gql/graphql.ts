@@ -3326,7 +3326,7 @@ export type GetProductBySlugQueryVariables = Exact<{
 }>;
 
 
-export type GetProductBySlugQuery = { __typename?: 'Query', productBySlug?: { __typename?: 'Product', _id: string, name: string, slug: string, description?: string | null, shelfLife: string, isVegetarian: boolean, categoryIds: Array<string>, ingredients: string, brand: string, currency: string, seo?: { __typename?: 'ProductSeo', metaTitle?: string | null, metaDescription?: string | null, metaKeywords?: Array<string> | null, canonicalUrl?: string | null, ogTitle?: string | null, ogDescription?: string | null, ogImage?: string | null } | null, variants: Array<{ __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> }>, defaultVariant?: { __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> } | null, priceRange: { __typename?: 'PriceRange', min: number, max: number }, availableVariants: Array<{ __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> }> } | null };
+export type GetProductBySlugQuery = { __typename?: 'Query', productBySlug?: { __typename?: 'Product', _id: string, name: string, slug: string, description?: string | null, shelfLife: string, isVegetarian: boolean, isGlutenFree: boolean, categoryIds: Array<string>, ingredients: string, allergens?: string | null, brand: string, gtin?: string | null, mpn?: string | null, currency: string, rating?: number | null, ratingCount: number, keywords: Array<string>, tags: Array<string>, createdAt: any, updatedAt: any, seo?: { __typename?: 'ProductSeo', metaTitle?: string | null, metaDescription?: string | null, metaKeywords?: Array<string> | null, canonicalUrl?: string | null, ogTitle?: string | null, ogDescription?: string | null, ogImage?: string | null } | null, variants: Array<{ __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> }>, defaultVariant?: { __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> } | null, priceRange: { __typename?: 'PriceRange', min: number, max: number }, availableVariants: Array<{ __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> }> } | null };
 
 export type SearchProductsQueryVariables = Exact<{
   searchTerm: Scalars['String']['input'];
@@ -4052,10 +4052,20 @@ export const GetProductBySlugDocument = new TypedDocumentString(`
     description
     shelfLife
     isVegetarian
+    isGlutenFree
     categoryIds
     ingredients
+    allergens
     brand
+    gtin
+    mpn
     currency
+    rating
+    ratingCount
+    keywords
+    tags
+    createdAt
+    updatedAt
     seo {
       metaTitle
       metaDescription
