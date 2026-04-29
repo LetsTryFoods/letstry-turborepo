@@ -69,8 +69,54 @@ export default async function BlogDetailPage({ params }: PageProps) {
     .filter((b) => b._id !== blog._id)
     .slice(0, 3);
 
+  const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'https://letstryfoods.com').replace(/\/$/, '');
+  const blogUrl = `${baseUrl}/blog/${blog.slug}`;
+  const blogImage = blog.seo?.ogImage || blog.image;
+
+  const articleSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    mainEntityOfPage: { '@type': 'WebPage', '@id': blogUrl },
+    headline: blog.title,
+    description: blog.excerpt,
+    image: blogImage ? [getCdnUrl(blogImage)] : undefined,
+    author: {
+      '@type': 'Organization',
+      name: blog.author || "Let's Try Foods",
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: "Let's Try Foods",
+      logo: {
+        '@type': 'ImageObject',
+        url: `${baseUrl}/logo.webp`,
+      },
+    },
+    datePublished: blog.date || blog.createdAt,
+    dateModified: blog.updatedAt || blog.date || blog.createdAt,
+    articleSection: blog.category || undefined,
+  };
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: baseUrl },
+      { '@type': 'ListItem', position: 2, name: 'Blog', item: `${baseUrl}/blog` },
+      { '@type': 'ListItem', position: 3, name: blog.title, item: blogUrl },
+    ],
+  };
+
   return (
     <main className="min-h-screen bg-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
       <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <nav className="mb-8">
           <Link
