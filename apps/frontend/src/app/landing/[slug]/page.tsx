@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: "Not Found | Let's Try" };
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://letstry.com';
+  const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'https://letstryfoods.com').replace(/\/$/, '');
   const pageUrl = `${baseUrl}/landing/${page.slug}`;
   const seo = page.seo;
 
