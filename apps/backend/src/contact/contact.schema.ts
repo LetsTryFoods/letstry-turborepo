@@ -23,15 +23,27 @@ export class Contact extends Document {
 
   @Prop({ required: true })
   @Field()
-  name: string;
+  name!: string;
 
   @Prop({ required: true })
   @Field()
-  phone: string;
+  phone!: string;
+
+  @Prop({ required: false })
+  @Field({ nullable: true })
+  email?: string;
+
+  @Prop({ required: false })
+  @Field({ nullable: true })
+  orderId?: string;
+
+  @Prop({ required: false })
+  @Field({ nullable: true })
+  queryType?: string;
 
   @Prop({ required: true })
   @Field()
-  message: string;
+  message!: string;
 
   @Prop({
     required: true,
@@ -39,13 +51,13 @@ export class Contact extends Document {
     default: ContactStatus.PENDING,
   })
   @Field(() => ContactStatus)
-  status: ContactStatus;
+  status!: ContactStatus;
 
   @Field()
-  createdAt: Date;
+  createdAt!: Date;
 
   @Field()
-  updatedAt: Date;
+  updatedAt!: Date;
 }
 
 export const ContactSchema = SchemaFactory.createForClass(Contact);

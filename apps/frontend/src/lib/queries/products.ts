@@ -61,10 +61,20 @@ export const GET_PRODUCT_BY_SLUG = graphql(`
       description
       shelfLife
       isVegetarian
+      isGlutenFree
       categoryIds
       ingredients
+      allergens
       brand
+      gtin
+      mpn
       currency
+      rating
+      ratingCount
+      keywords
+      tags
+      createdAt
+      updatedAt
       seo {
         metaTitle
         metaDescription

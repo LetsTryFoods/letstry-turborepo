@@ -13,6 +13,7 @@ import { blogFormSchema, BlogFormValues } from "@/lib/validations/blog.schema"
 import { ImageUpload } from "@/components/custom/image-upload"
 import { WysiwygEditor } from "@/components/custom/wysiwyg-editor"
 import { useActiveBlogCategories } from "@/lib/blog-categories/useBlogCategories"
+import { getCdnUrl, extractKeyFromUrl } from "@/lib/image-utils"
 
 interface BlogFormProps {
     onClose: () => void
@@ -24,16 +25,17 @@ interface BlogFormProps {
 export function BlogForm({ onClose, initialData, createBlog, updateBlog }: BlogFormProps) {
     const { activeCategories, activeCategoriesLoading } = useActiveBlogCategories()
 
-    const [uploadedImages, setUploadedImages] = useState<Array<{ file: File | null; alt: string; preview: string; finalUrl?: string }>>(
+    const [uploadedImages, setUploadedImages] = useState<Array<{ file: File | null; alt: string; preview: string; finalUrl?: string; key?: string }>>(
         initialData?.image ? [{
             file: null,
             alt: initialData.title || "Blog Image",
-            preview: initialData.image,
-            finalUrl: initialData.image
+            preview: getCdnUrl(initialData.image),
+            finalUrl: getCdnUrl(initialData.image),
+            key: extractKeyFromUrl(initialData.image)
         }] : []
     )
 
-    const handleImagesChange = useCallback((images: Array<{ file: File | null; alt: string; preview: string; finalUrl?: string }>) => {
+    const handleImagesChange = useCallback((images: Array<{ file: File | null; alt: string; preview: string; finalUrl?: string; key?: string }>) => {
         setUploadedImages(images)
     }, [])
 
@@ -44,7 +46,7 @@ export function BlogForm({ onClose, initialData, createBlog, updateBlog }: BlogF
             title: initialData?.title || "",
             excerpt: initialData?.excerpt || "",
             content: initialData?.content || "",
-            image: initialData?.image || "",
+            image: extractKeyFromUrl(initialData?.image) || "",
             date: initialData?.date || new Date().toISOString().split('T')[0],
             author: initialData?.author || "Let's Try Team",
             category: initialData?.category || "",
@@ -54,7 +56,46 @@ export function BlogForm({ onClose, initialData, createBlog, updateBlog }: BlogF
     })
 
     useEffect(() => {
-        const imageUrl = uploadedImages[0]?.finalUrl || ''
+        if (initialData) {
+            form.reset({
+                slug: initialData.slug || "",
+                title: initialData.title || "",
+                excerpt: initialData.excerpt || "",
+                content: initialData.content || "",
+                image: extractKeyFromUrl(initialData.image) || "",
+                date: initialData.date || new Date().toISOString().split('T')[0],
+                author: initialData.author || "Let's Try Team",
+                category: initialData.category || "",
+                isActive: initialData.isActive ?? true,
+                position: initialData.position || 0,
+            })
+
+            setUploadedImages(initialData.image ? [{
+                file: null,
+                alt: initialData.title || "Blog Image",
+                preview: getCdnUrl(initialData.image),
+                finalUrl: getCdnUrl(initialData.image),
+                key: extractKeyFromUrl(initialData.image)
+            }] : [])
+        } else {
+            form.reset({
+                slug: "",
+                title: "",
+                excerpt: "",
+                content: "",
+                image: "",
+                date: new Date().toISOString().split('T')[0],
+                author: "Let's Try Team",
+                category: "",
+                isActive: true,
+                position: 0,
+            })
+            setUploadedImages([])
+        }
+    }, [initialData, form])
+
+    useEffect(() => {
+        const imageUrl = uploadedImages[0]?.key || ''
         form.setValue('image', imageUrl, { shouldValidate: true, shouldDirty: true })
     }, [uploadedImages, form])
 
@@ -195,7 +236,7 @@ export function BlogForm({ onClose, initialData, createBlog, updateBlog }: BlogF
                                 <FormControl>
                                     <ImageUpload
                                         onImagesChange={handleImagesChange}
-                                        initialImages={initialData?.image ? [{ url: initialData.image, alt: initialData.title }] : []}
+                                        initialImages={initialData?.image ? [{ url: getCdnUrl(initialData.image), alt: initialData.title }] : []}
                                         maxFiles={1}
                                         allowedFileTypes={['image/webp', 'image/gif', 'image/jpeg', 'image/png']}
                                         disableCompression={true}

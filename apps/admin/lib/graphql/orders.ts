@@ -19,9 +19,13 @@ export const GET_ALL_ORDERS = gql`
           _id
           status
           method
+          amount
+          transactionId
         }
-        totalAmount
+        subtotal
+        deliveryCharge
         discount
+        totalAmount
         orderStatus
         createdAt
         updatedAt

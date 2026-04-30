@@ -19,6 +19,9 @@ export class Category {
   @Prop({ type: Boolean, default: false, index: true })
   favourite: boolean;
 
+  @Prop({ type: Boolean, default: false, index: true })
+  mobile: boolean;
+
   @Prop({ required: false })
   description?: string;
 
@@ -27,6 +30,9 @@ export class Category {
 
   @Prop()
   imageUrl: string;
+
+  @Prop({ required: false })
+  mobileImageUrl?: string;
 
   @Prop({ required: false })
   codeValue?: string;

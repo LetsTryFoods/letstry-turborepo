@@ -96,16 +96,21 @@ export function CategoryTable({
                         checked={category.favourite}
                         onCheckedChange={() => onFavouriteToggle(category._id, category.favourite)}
                       />
-                    ) : columnKey === 'imageUrl' ? (
-                      category.imageUrl ? (
+                    ) : columnKey === 'mobile' ? (
+                      <Switch
+                        checked={category.mobile}
+                        disabled
+                      />
+                    ) : columnKey === 'imageUrl' || columnKey === 'mobileImageUrl' ? (
+                      category[columnKey] ? (
                         <button
                           onClick={() => onImagePreview(
-                            getCdnUrl(category.imageUrl || ''),
-                            'Category Image'
+                            getCdnUrl(category[columnKey] || ''),
+                            columnKey === 'imageUrl' ? 'Category Image' : 'Mobile Category Image'
                           )}
                           className="text-blue-600 hover:text-blue-800 underline text-left max-w-[200px] truncate block"
                         >
-                          {String(category.imageUrl || '')}
+                          {String(category[columnKey] || '')}
                         </button>
                       ) : (
                         <span className="text-muted-foreground">-</span>

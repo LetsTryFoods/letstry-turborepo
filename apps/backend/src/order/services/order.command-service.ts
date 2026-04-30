@@ -25,6 +25,7 @@ export class OrderCommandService {
     subtotal?: string;
     discount?: string;
     deliveryCharge?: string;
+    handlingCharge?: string;
     currency: string;
     shippingAddressId?: Types.ObjectId;
     placerContact?: {
@@ -86,6 +87,7 @@ export class OrderCommandService {
       subtotal: params.subtotal || params.totalAmount,
       discount: params.discount || '0',
       deliveryCharge: params.deliveryCharge || '0',
+      handlingCharge: params.handlingCharge || '0',
       currency: params.currency,
       orderStatus: OrderStatus.CONFIRMED,
       shippingAddressId: params.shippingAddressId,

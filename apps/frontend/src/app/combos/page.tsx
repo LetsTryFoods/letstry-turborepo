@@ -4,6 +4,10 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Combo Deals - Best Value Healthy Snacks | Letstry',
   description: 'Save more with Letstry combo deals! Get the best value on healthy snack combinations. Premium quality snacks bundled at amazing prices with free delivery.',
+  robots: {
+    index: false,
+    follow: true,
+  },
   openGraph: {
     title: 'Combo Deals | Letstry - Save More on Healthy Snacks',
     description: 'Discover amazing combo deals on healthy snacks. Save money while enjoying premium quality snacks delivered to your doorstep.',

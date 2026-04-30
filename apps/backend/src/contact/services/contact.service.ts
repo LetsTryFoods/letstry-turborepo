@@ -17,12 +17,12 @@ export class ContactService {
     return contact.save();
   }
 
-  async findAll(skip: number = 0, limit: number = 50): Promise<Contact[]> {
-    return this.contactModel.find().sort({ createdAt: -1 }).skip(skip).limit(limit).exec();
+  async findAll(skip: number = 0, limit: number = 50, filter: Record<string, any> = {}): Promise<Contact[]> {
+    return this.contactModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).exec();
   }
 
-  async countAll(): Promise<number> {
-    return this.contactModel.countDocuments().exec();
+  async countAll(filter: Record<string, any> = {}): Promise<number> {
+    return this.contactModel.countDocuments(filter).exec();
   }
 
   async updateStatus(id: string, status: string): Promise<Contact> {

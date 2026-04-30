@@ -220,6 +220,10 @@ export class PaymentExecutorService {
         paymentOrder: paymentOrder._id,
         cartId: new Types.ObjectId(cart._id),
         totalAmount: cart.totalsSummary.grandTotal.toString(),
+        subtotal: cart.totalsSummary.subtotal.toString(),
+        discount: cart.totalsSummary.discountAmount.toString(),
+        deliveryCharge: cart.totalsSummary.shippingCost.toString(),
+        handlingCharge: (cart.totalsSummary.handlingCharge || 0).toString(),
         currency: 'INR',
         shippingAddressId: cart.shippingAddressId ? new Types.ObjectId(cart.shippingAddressId) : undefined,
         placerContact:

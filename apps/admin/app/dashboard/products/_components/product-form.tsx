@@ -24,6 +24,7 @@ import {
   ProductFormValues,
   getDefaultVariant,
 } from "@/lib/validations/product";
+import { getCdnUrl, extractKeyFromUrl } from "@/lib/image-utils";
 import {
   Select,
   SelectContent,
@@ -95,10 +96,11 @@ export function ProductForm({
         images: v.images?.map((img) => ({
           file: null,
           alt: img.alt,
-          preview: img.url || "",
-          finalUrl: img.url,
+          preview: getCdnUrl(img.url) || "",
+          finalUrl: getCdnUrl(img.url),
+          key: extractKeyFromUrl(img.url),
         })) || [{ file: null, alt: "", preview: "" }],
-        thumbnailUrl: v.thumbnailUrl || "",
+        thumbnailUrl: extractKeyFromUrl(v.thumbnailUrl) || "",
         isDefault: v.isDefault ?? false,
         isActive: v.isActive ?? true,
       })) || [getDefaultVariant()],
@@ -187,9 +189,10 @@ export function ProductForm({
             ?.filter((img) => img.preview || img.finalUrl || img.url)
             .map((img) => ({
               url:
-                img.finalUrl ||
-                img.url ||
-                img.preview ||
+                (img as any).key ||
+                extractKeyFromUrl(img.finalUrl) ||
+                extractKeyFromUrl((img as any).url) ||
+                extractKeyFromUrl(img.preview) ||
                 `uploaded-image-${Date.now()}.webp`,
               alt: img.alt || "",
             })) || [];
@@ -1153,13 +1156,15 @@ function VariantImageUpload({
       alt: string;
       preview: string;
       finalUrl?: string;
+      key?: string;
     }>
   >(
     initialImages.map((img) => ({
       file: null,
       alt: img.alt,
-      preview: img.url || "",
-      finalUrl: img.url,
+      preview: img.url ? getCdnUrl(img.url) : "",
+      finalUrl: img.url ? getCdnUrl(img.url) : "",
+      key: extractKeyFromUrl(img.url),
     })) || []
   );
 
@@ -1170,6 +1175,7 @@ function VariantImageUpload({
         alt: string;
         preview: string;
         finalUrl?: string;
+        key?: string;
       }>
     ) => {
       setImages(newImages);
@@ -1180,19 +1186,16 @@ function VariantImageUpload({
           alt: img.alt,
           preview: img.preview,
           finalUrl: img.finalUrl,
+          key: img.key,
         })),
         { shouldValidate: false, shouldDirty: true }
       );
 
-      // Set thumbnail URL to first image
-      if (
-        newImages.length > 0 &&
-        (newImages[0].finalUrl || newImages[0].preview)
-      ) {
-        form.setValue(
-          `variants.${index}.thumbnailUrl`,
-          newImages[0].finalUrl || newImages[0].preview
-        );
+      // Set thumbnail URL to first image (prefer key)
+      if (newImages.length > 0) {
+        const firstImage = newImages[0];
+        const thumbnail = firstImage.key || extractKeyFromUrl(firstImage.finalUrl) || extractKeyFromUrl(firstImage.preview) || "";
+        form.setValue(`variants.${index}.thumbnailUrl`, thumbnail);
       }
     },
     [form, index]

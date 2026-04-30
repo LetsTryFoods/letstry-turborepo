@@ -20,6 +20,7 @@ export interface Coupon {
   startDate: string
   endDate: string
   isActive: boolean
+  isPublic: boolean
   createdAt: string
   updatedAt: string
 }
@@ -35,6 +36,7 @@ export interface CreateCouponInput {
   startDate: string
   endDate: string
   isActive?: boolean
+  isPublic?: boolean
 }
 
 export const useCoupons = () => {

@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
-import { View, StyleSheet, FlatList, Dimensions, ViewToken, TouchableOpacity, Modal, SafeAreaView, Text } from 'react-native';
+import { View, StyleSheet, FlatList, Dimensions, ViewToken, TouchableOpacity, Modal, Text } from 'react-native';
 import { Image } from 'expo-image';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import { wp, hp, getImageUrl, RFValue } from '../../../lib/utils/ui-utils';

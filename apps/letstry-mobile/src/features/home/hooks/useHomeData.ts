@@ -1,12 +1,32 @@
 import { useQuery } from '@apollo/client';
+import { useState, useEffect } from 'react';
 import { 
   GET_ACTIVE_BANNERS, 
   GET_ROOT_CATEGORIES, 
   GET_CATEGORY_BY_SLUG, 
   GET_PRODUCTS_BY_CATEGORY 
 } from '../../../lib/graphql/home';
+import { SDUIService } from '../services/sdui.service';
 
 export const useHomeData = () => {
+  const [sduiConfig, setSduiConfig] = useState<any>(null);
+  const [sduiComponents, setSduiComponents] = useState<any[]>([
+    { type: 'TopBanner', props: { visible: false } },
+    { type: 'EventsHero' },
+    { type: 'Bestsellers' },
+    { type: 'Categories' },
+    { type: 'HeroCarousel' },
+    { type: 'Combos' },
+  ]);
+
+  useEffect(() => {
+    SDUIService.getScreenConfig('home').then(config => {
+      console.log('[useHomeData] Fetched SDUI Config:', JSON.stringify(config, null, 2));
+      if (config?.config) setSduiConfig(config.config);
+      if (config?.components) setSduiComponents(config.components);
+    });
+  }, []);
+
   const { data: bannerData, loading: bannersLoading, refetch: refetchBanners } = useQuery(GET_ACTIVE_BANNERS);
   const { data: catData, loading: categoriesLoading, refetch: refetchCategories } = useQuery(GET_ROOT_CATEGORIES, {
     variables: { pagination: { limit: 100, page: 1 } }
@@ -35,7 +55,12 @@ export const useHomeData = () => {
       refetchBanners(),
       refetchCategories(),
       refetchBestsellers?.(),
-      refetchCombos?.()
+      refetchCombos?.(),
+      SDUIService.getScreenConfig('home').then(config => {
+        console.log('[useHomeData] Refetched SDUI Config:', JSON.stringify(config, null, 2));
+        if (config?.config) setSduiConfig(config.config);
+        if (config?.components) setSduiComponents(config.components);
+      })
     ]);
   };
 
@@ -49,6 +74,8 @@ export const useHomeData = () => {
     combos: comboData?.productsByCategory?.items || [],
     combosCategoryId: comboCat?.categoryBySlug?.id,
     loading: bannersLoading || categoriesLoading || bestsellersLoading || combosLoading,
+    sduiConfig,
+    sduiComponents,
     refetch
   };
 };

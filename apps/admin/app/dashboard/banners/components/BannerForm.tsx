@@ -12,6 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { bannerFormSchema } from "@/lib/validations/banner.schema"
 import { z } from "zod"
 import { ImageUpload } from "@/components/custom/image-upload"
+import { getCdnUrl, extractKeyFromUrl } from "@/lib/image-utils"
 
 type BannerFormValues = z.infer<typeof bannerFormSchema>
 
@@ -31,29 +32,31 @@ export function BannerForm({ onClose, initialData, createBanner, updateBanner }:
     return date.toISOString().slice(0, 16)
   }
 
-  const [uploadedImages, setUploadedImages] = useState<Array<{ file: File | null; alt: string; preview: string; finalUrl?: string }>>(
+  const [uploadedImages, setUploadedImages] = useState<Array<{ file: File | null; alt: string; preview: string; finalUrl?: string; key?: string }>>(
     initialData?.imageUrl ? [{
       file: null,
       alt: initialData.name || "Banner Image",
-      preview: initialData.imageUrl,
-      finalUrl: initialData.imageUrl
+      preview: getCdnUrl(initialData.imageUrl),
+      finalUrl: getCdnUrl(initialData.imageUrl),
+      key: extractKeyFromUrl(initialData.imageUrl)
     }] : []
   )
 
-  const [uploadedMobileImages, setUploadedMobileImages] = useState<Array<{ file: File | null; alt: string; preview: string; finalUrl?: string }>>(
+  const [uploadedMobileImages, setUploadedMobileImages] = useState<Array<{ file: File | null; alt: string; preview: string; finalUrl?: string; key?: string }>>(
     initialData?.mobileImageUrl ? [{
       file: null,
       alt: initialData.name || "Banner Mobile Image",
-      preview: initialData.mobileImageUrl,
-      finalUrl: initialData.mobileImageUrl
+      preview: getCdnUrl(initialData.mobileImageUrl),
+      finalUrl: getCdnUrl(initialData.mobileImageUrl),
+      key: extractKeyFromUrl(initialData.mobileImageUrl)
     }] : []
   )
 
-  const handleImagesChange = useCallback((images: Array<{ file: File | null; alt: string; preview: string; finalUrl?: string }>) => {
+  const handleImagesChange = useCallback((images: Array<{ file: File | null; alt: string; preview: string; finalUrl?: string; key?: string }>) => {
     setUploadedImages(images)
   }, [])
 
-  const handleMobileImagesChange = useCallback((images: Array<{ file: File | null; alt: string; preview: string; finalUrl?: string }>) => {
+  const handleMobileImagesChange = useCallback((images: Array<{ file: File | null; alt: string; preview: string; finalUrl?: string; key?: string }>) => {
     setUploadedMobileImages(images)
   }, [])
 
@@ -64,9 +67,9 @@ export function BannerForm({ onClose, initialData, createBanner, updateBanner }:
       headline: initialData?.headline || "",
       subheadline: initialData?.subheadline || "",
       description: initialData?.description || "",
-      imageUrl: initialData?.imageUrl || "",
-      mobileImageUrl: initialData?.mobileImageUrl || "",
-      thumbnailUrl: initialData?.thumbnailUrl || "",
+      imageUrl: extractKeyFromUrl(initialData?.imageUrl) || "",
+      mobileImageUrl: extractKeyFromUrl(initialData?.mobileImageUrl) || "",
+      thumbnailUrl: extractKeyFromUrl(initialData?.thumbnailUrl) || "",
       url: initialData?.url || "",
       ctaText: initialData?.ctaText || "",
       position: initialData?.position || 0,
@@ -79,12 +82,70 @@ export function BannerForm({ onClose, initialData, createBanner, updateBanner }:
   })
 
   useEffect(() => {
-    const imageUrl = uploadedImages[0]?.finalUrl || ''
+    if (initialData) {
+      form.reset({
+        name: initialData.name || "",
+        headline: initialData.headline || "",
+        subheadline: initialData.subheadline || "",
+        description: initialData.description || "",
+        imageUrl: extractKeyFromUrl(initialData.imageUrl) || "",
+        mobileImageUrl: extractKeyFromUrl(initialData.mobileImageUrl) || "",
+        thumbnailUrl: extractKeyFromUrl(initialData.thumbnailUrl) || "",
+        url: initialData.url || "",
+        ctaText: initialData.ctaText || "",
+        position: initialData.position || 0,
+        isActive: initialData.isActive ?? true,
+        startDate: formatDateForInput(initialData.startDate),
+        endDate: formatDateForInput(initialData.endDate),
+        backgroundColor: initialData.backgroundColor || "",
+        textColor: initialData.textColor || "",
+      })
+
+      setUploadedImages(initialData.imageUrl ? [{
+        file: null,
+        alt: initialData.name || "Banner Image",
+        preview: getCdnUrl(initialData.imageUrl),
+        finalUrl: getCdnUrl(initialData.imageUrl),
+        key: extractKeyFromUrl(initialData.imageUrl)
+      }] : [])
+
+      setUploadedMobileImages(initialData.mobileImageUrl ? [{
+        file: null,
+        alt: initialData.name || "Banner Mobile Image",
+        preview: getCdnUrl(initialData.mobileImageUrl),
+        finalUrl: getCdnUrl(initialData.mobileImageUrl),
+        key: extractKeyFromUrl(initialData.mobileImageUrl)
+      }] : [])
+    } else {
+      form.reset({
+        name: "",
+        headline: "",
+        subheadline: "",
+        description: "",
+        imageUrl: "",
+        mobileImageUrl: "",
+        thumbnailUrl: "",
+        url: "",
+        ctaText: "",
+        position: 0,
+        isActive: true,
+        startDate: "",
+        endDate: "",
+        backgroundColor: "",
+        textColor: "",
+      })
+      setUploadedImages([])
+      setUploadedMobileImages([])
+    }
+  }, [initialData, form])
+
+  useEffect(() => {
+    const imageUrl = uploadedImages[0]?.key || ''
     form.setValue('imageUrl', imageUrl, { shouldValidate: true, shouldDirty: true })
   }, [uploadedImages, form])
 
   useEffect(() => {
-    const mobileImageUrl = uploadedMobileImages[0]?.finalUrl || ''
+    const mobileImageUrl = uploadedMobileImages[0]?.key || ''
     form.setValue('mobileImageUrl', mobileImageUrl, { shouldValidate: true, shouldDirty: true })
   }, [uploadedMobileImages, form])
 
@@ -164,7 +225,7 @@ export function BannerForm({ onClose, initialData, createBanner, updateBanner }:
             <FormLabel>Banner Image *</FormLabel>
             <ImageUpload
               onImagesChange={handleImagesChange}
-              initialImages={initialData?.imageUrl ? [{ url: initialData.imageUrl, alt: initialData.name }] : []}
+              initialImages={initialData?.imageUrl ? [{ url: getCdnUrl(initialData.imageUrl), alt: initialData.name }] : []}
               maxFiles={1}
               allowedFileTypes={['image/webp', 'image/gif']}
               disableCompression={true}
@@ -175,7 +236,7 @@ export function BannerForm({ onClose, initialData, createBanner, updateBanner }:
             <FormLabel>Mobile Image *</FormLabel>
             <ImageUpload
               onImagesChange={handleMobileImagesChange}
-              initialImages={initialData?.mobileImageUrl ? [{ url: initialData.mobileImageUrl, alt: initialData.name }] : []}
+              initialImages={initialData?.mobileImageUrl ? [{ url: getCdnUrl(initialData.mobileImageUrl), alt: initialData.name }] : []}
               maxFiles={1}
               allowedFileTypes={['image/webp', 'image/gif']}
               disableCompression={true}

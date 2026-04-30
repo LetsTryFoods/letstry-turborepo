@@ -63,6 +63,7 @@ export function CouponForm({ onSuccess, onCancel }: CouponFormProps) {
       hasInfiniteValidity: false,
       platform: "BOTH",
       isActive: true,
+      isPublic: true,
     },
   })
 
@@ -102,6 +103,7 @@ export function CouponForm({ onSuccess, onCancel }: CouponFormProps) {
         hasInfiniteValidity: pendingValues.hasInfiniteValidity,
         platform: pendingValues.platform,
         isActive: pendingValues.isActive,
+        isPublic: pendingValues.isPublic,
       }
 
       await createCoupon(input as any)
@@ -465,27 +467,50 @@ export function CouponForm({ onSuccess, onCancel }: CouponFormProps) {
 
         <Separator />
 
-        {/* Status */}
-        <FormField
-          control={form.control}
-          name="isActive"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5">
-                <FormLabel className="text-base">Active</FormLabel>
-                <FormDescription>
-                  Enable this coupon for use
-                </FormDescription>
-              </div>
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
+        {/* Status & Visibility */}
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="isActive"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">Active</FormLabel>
+                  <FormDescription>
+                    Enable coupon for use
+                  </FormDescription>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="isPublic"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">Publicly Visible</FormLabel>
+                  <FormDescription>
+                    List coupon in discovery
+                  </FormDescription>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        </div>
 
         {/* Actions */}
         <div className="flex justify-end gap-2 pt-4">
@@ -524,6 +549,7 @@ export function CouponForm({ onSuccess, onCancel }: CouponFormProps) {
                 <p><strong>Name:</strong> {pendingValues.name}</p>
                 <p><strong>Discount:</strong> {pendingValues.discountType === 'PERCENTAGE' ? `${pendingValues.discountValue}%` : `₹${pendingValues.discountValue}`}</p>
                 <p><strong>Status:</strong> {pendingValues.isActive ? 'Active' : 'Inactive'}</p>
+                <p><strong>Visibility:</strong> {pendingValues.isPublic ? 'Public' : 'Hidden'}</p>
               </div>
             )}
             <p className="text-amber-600 font-medium">

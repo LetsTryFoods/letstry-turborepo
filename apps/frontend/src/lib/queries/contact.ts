@@ -12,6 +12,9 @@ const SUBMIT_CONTACT_MESSAGE_MUTATION = `
 export interface SubmitContactInput {
   name: string;
   phone: string;
+  email?: string;
+  orderId?: string;
+  queryType?: string;
   message: string;
 }
 

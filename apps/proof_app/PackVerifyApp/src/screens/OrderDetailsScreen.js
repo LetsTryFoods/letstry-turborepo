@@ -1,5 +1,6 @@
 import { useMutation } from '@apollo/client';
 import { Ionicons } from '@expo/vector-icons';
+import { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -13,9 +14,13 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS } from '../constants/theme';
 import { START_PACKING } from '../graphql/queries';
+import { getCdnUrl } from '../config/api';
+import ImageZoomModal from '../components/ImageZoomModal';
 
 const OrderDetailsScreen = ({ route, navigation }) => {
   const { order, user } = route.params;
+  const [zoomModalVisible, setZoomModalVisible] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   const [startPacking, { loading }] = useMutation(START_PACKING, {
     onCompleted: () => {
@@ -38,21 +43,38 @@ const OrderDetailsScreen = ({ route, navigation }) => {
     startPacking({ variables: { packingOrderId: order.id } });
   };
 
-  const renderItem = ({ item }) => (
-    <View style={styles.itemCard}>
-      <Image
-        source={{ uri: item.imageUrl || 'https://placehold.co/60x60/e2e8f0/64748b?text=IMG' }}
-        style={styles.productImage}
-      />
-      <View style={styles.itemInfo}>
-        <Text style={styles.productName}>{item.name}</Text>
-        <Text style={styles.sku}>SKU: {item.sku}</Text>
-        <Text style={styles.ean}>EAN: {item.ean}</Text>
-        <Text style={styles.qty}>Qty: {item.quantity}</Text>
+  const renderItem = ({ item }) => {
+    const imageUrl = getCdnUrl(item.imageUrl) || 'https://placehold.co/60x60/e2e8f0/64748b?text=IMG';
+
+    return (
+      <View style={styles.itemCard}>
+        <TouchableOpacity
+          onPress={() => {
+            setSelectedImage({ url: imageUrl, name: item.name });
+            setZoomModalVisible(true);
+          }}
+          activeOpacity={0.7}
+        >
+          <View style={styles.imageWrapper}>
+            <Image
+              source={{ uri: imageUrl }}
+              style={styles.productImage}
+            />
+            <View style={styles.imageZoomOverlay}>
+              <Ionicons name="search" size={18} color={COLORS.white} />
+            </View>
+          </View>
+        </TouchableOpacity>
+        <View style={styles.itemInfo}>
+          <Text style={styles.productName}>{item.name}</Text>
+          <Text style={styles.sku}>SKU: {item.sku}</Text>
+          <Text style={styles.ean}>EAN: {item.ean}</Text>
+          <Text style={styles.qty}>Qty: {item.quantity}</Text>
+        </View>
+        {item.isFragile && <Ionicons name="wine" size={20} color={COLORS.danger} />}
       </View>
-      {item.isFragile && <Ionicons name="wine" size={20} color={COLORS.danger} />}
-    </View>
-  );
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -92,6 +114,13 @@ const OrderDetailsScreen = ({ route, navigation }) => {
           )}
         </TouchableOpacity>
       </View>
+
+      <ImageZoomModal
+        visible={zoomModalVisible}
+        imageUrl={selectedImage?.url}
+        title={selectedImage?.name}
+        onClose={() => setZoomModalVisible(false)}
+      />
     </SafeAreaView>
   );
 };
@@ -106,7 +135,20 @@ const styles = StyleSheet.create({
   instructions: { marginTop: 6, color: '#f59e0b', fontSize: 12 },
   sectionTitle: { fontSize: 18, fontWeight: 'bold', paddingHorizontal: 16, marginVertical: 12, color: COLORS.textDark },
   itemCard: { flexDirection: 'row', backgroundColor: '#fff', marginHorizontal: 16, marginBottom: 12, padding: 12, borderRadius: 14, alignItems: 'center', elevation: 2 },
+  imageWrapper: { position: 'relative' },
   productImage: { width: 60, height: 60, borderRadius: 8, backgroundColor: '#eee' },
+  imageZoomOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    opacity: 0.7,
+  },
   itemInfo: { flex: 1, marginLeft: 12 },
   productName: { fontSize: 15, fontWeight: '600', color: COLORS.textDark },
   sku: { fontSize: 12, color: COLORS.textLight, marginTop: 2 },

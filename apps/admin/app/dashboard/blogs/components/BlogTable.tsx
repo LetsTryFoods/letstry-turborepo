@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { getCdnUrl } from "@/lib/image-utils"
 import { MoreHorizontal, Pencil, Trash2, FileText } from "lucide-react"
 
 interface BlogTableProps {
@@ -55,7 +56,7 @@ export function BlogTable({
                                             />
                                         ) : columnKey === 'image' ? (
                                             <button
-                                                onClick={() => onImagePreview(blog.image, 'Blog Image')}
+                                                onClick={() => onImagePreview(getCdnUrl(blog.image), 'Blog Image')}
                                                 className="text-blue-600 hover:text-blue-800 underline text-left max-w-[200px] truncate block"
                                             >
                                                 {blog.image}

@@ -677,4 +677,8 @@ export class PackingService {
       boxDimensions: boxDimensions || null,
     };
   }
+  async getPackerHistory(packerId: string): Promise<any[]> {
+    const orders = await this.packingOrderCrud.findByPacker(packerId);
+    return orders.filter((order: any) => order.status === 'completed');
+  }
 }

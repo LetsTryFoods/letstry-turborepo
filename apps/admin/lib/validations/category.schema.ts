@@ -6,9 +6,11 @@ export const categoryFormSchema = z.object({
   description: z.string().optional(),
   parentId: z.string().optional(),
   imageUrl: z.string().optional(),
+  mobileImageUrl: z.string().optional(),
   codeValue: z.string().optional(),
   inCodeSet: z.string().optional(),
   favourite: z.boolean().optional(),
+  mobile: z.boolean().optional(),
   isArchived: z.boolean(),
 })
 

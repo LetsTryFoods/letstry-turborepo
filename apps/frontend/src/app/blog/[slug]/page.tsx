@@ -69,8 +69,86 @@ export default async function BlogDetailPage({ params }: PageProps) {
     .filter((b) => b._id !== blog._id)
     .slice(0, 3);
 
+  const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'https://letstryfoods.com').replace(/\/$/, '');
+  const blogUrl = `${baseUrl}/blog/${blog.slug}`;
+  const blogImage = blog.seo?.ogImage || blog.image;
+
+  // If the author looks like a brand / org name, emit Organization. Otherwise
+  // assume it's a Person — Person authorship is a stronger E-E-A-T signal for
+  // AI / search engines.
+  const rawAuthor = (blog.author || '').trim();
+  const looksLikeOrg =
+    !rawAuthor ||
+    /\b(team|foods?|brand|inc\.?|llc|ltd\.?|pvt|co\.?)\b/i.test(rawAuthor) ||
+    rawAuthor.toLowerCase() === "let's try" ||
+    rawAuthor.toLowerCase() === "let's try foods";
+
+  const authorSchema = looksLikeOrg
+    ? {
+        '@type': 'Organization',
+        '@id': `${baseUrl}#organization`,
+        name: rawAuthor || "Let's Try Foods",
+      }
+    : {
+        '@type': 'Person',
+        name: rawAuthor,
+        worksFor: { '@id': `${baseUrl}#organization` },
+      };
+
+  const articleSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    '@id': `${blogUrl}#article`,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': blogUrl },
+    headline: blog.title,
+    description: blog.excerpt,
+    image: blogImage ? [getCdnUrl(blogImage)] : undefined,
+    author: authorSchema,
+    publisher: { '@id': `${baseUrl}#organization` },
+    datePublished: blog.date || blog.createdAt,
+    dateModified: blog.updatedAt || blog.date || blog.createdAt,
+    articleSection: blog.category || undefined,
+    inLanguage: 'en-IN',
+    isPartOf: { '@id': `${baseUrl}#website` },
+  };
+
+  // Speakable: mark headline + intro/excerpt area as candidates for voice / AI
+  // quoting on the article page.
+  const speakableSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': `${blogUrl}#speakable`,
+    url: blogUrl,
+    speakable: {
+      '@type': 'SpeakableSpecification',
+      cssSelector: ['h1', '[data-speakable="true"]'],
+    },
+  };
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: baseUrl },
+      { '@type': 'ListItem', position: 2, name: 'Blog', item: `${baseUrl}/blog` },
+      { '@type': 'ListItem', position: 3, name: blog.title, item: blogUrl },
+    ],
+  };
+
   return (
     <main className="min-h-screen bg-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(speakableSchema) }}
+      />
       <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <nav className="mb-8">
           <Link

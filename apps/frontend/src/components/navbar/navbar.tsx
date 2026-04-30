@@ -67,7 +67,7 @@ export const Navbar = ({ initialAuth, categories = [] }: NavbarProps) => {
           ...categories
             .filter((c) => c.favourite === true)
             .map((c) => ({ href: c.href, label: c.label })),
-          { href: "/bestselling-combos", label: "Combos" },
+          { href: "/combos", label: "Combos" },
         ],
       },
 

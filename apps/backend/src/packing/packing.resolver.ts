@@ -3,6 +3,7 @@ import { UseGuards } from '@nestjs/common';
 import { PackingService } from './services/packing.service';
 import { PackerService } from './services/packer.service';
 import { QueueCleanupService } from './services/domain/queue-cleanup.service';
+import { PackingQueueService } from './services/domain/packing-queue.service';
 import { PackerAuthGuard } from './guards/packer-auth.guard';
 import { JwtAuthGuard } from '../authentication/common/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -33,6 +34,7 @@ export class PackingResolver {
     private readonly packingService: PackingService,
     private readonly packerService: PackerService,
     private readonly queueCleanupService: QueueCleanupService,
+    private readonly packingQueueService: PackingQueueService,
   ) {
     console.log('PackingResolver initialized');
   }
@@ -49,6 +51,12 @@ export class PackingResolver {
     }
     const packer = await this.packerService.getPackerById(packingOrder.assignedTo);
     return packer?.name || null;
+  }
+
+  @ResolveField(() => PackingEvidence, { nullable: true })
+  async evidence(@Parent() packingOrder: any): Promise<any> {
+    const id = packingOrder._id?.toString() || packingOrder.id;
+    return this.packingService.getEvidenceByOrder(id);
   }
 
   @Query(() => PackingOrder)
@@ -124,6 +132,13 @@ export class PackingResolver {
     return this.packingService.adminPunchShipment(input);
   }
 
+  @Query(() => [PackingOrder])
+  @UseGuards(PackerAuthGuard, RolesGuard)
+  @Roles(Role.PACKER, Role.ADMIN)
+  async getMyOrderHistory(@Context() ctx): Promise<any[]> {
+    return this.packingService.getPackerHistory(ctx.req.user.packerId);
+  }
+
   @Query(() => BoxSize)
   @UseGuards(PackerAuthGuard, RolesGuard)
   @Roles(Role.PACKER, Role.ADMIN)
@@ -144,8 +159,8 @@ export class PackingResolver {
   }
 
   @Query(() => PackingEvidence)
-  @UseGuards(RolesGuard)
-  @Roles(Role.ADMIN)
+  @UseGuards(PackerAuthGuard, RolesGuard)
+  @Roles(Role.PACKER, Role.ADMIN)
   async getEvidenceByOrder(
     @Args('packingOrderId') packingOrderId: string,
   ): Promise<any> {
@@ -157,6 +172,14 @@ export class PackingResolver {
   @Roles(Role.ADMIN)
   async cleanupOrphanedJobs(): Promise<CleanupResult> {
     return this.queueCleanupService.cleanupOrphanedJobs();
+  }
+
+  @Mutation(() => Boolean)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  async triggerReassignmentCycle(): Promise<boolean> {
+    await this.packingQueueService.processReassignment();
+    return true;
   }
 }
 

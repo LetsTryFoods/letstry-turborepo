@@ -10,10 +10,12 @@ export const GET_CATEGORIES = gql`
         description
         parentId
         imageUrl
+        mobileImageUrl
         codeValue
         inCodeSet
         productCount
         favourite
+        mobile
         isArchived
         seo {
           metaTitle
@@ -49,10 +51,12 @@ export const GET_ROOT_CATEGORIES = gql`
         description
         parentId
         imageUrl
+        mobileImageUrl
         codeValue
         inCodeSet
         productCount
         favourite
+        mobile
         isArchived
         seo {
           metaTitle
@@ -88,10 +92,12 @@ export const GET_CATEGORY_CHILDREN = gql`
         description
         parentId
         imageUrl
+        mobileImageUrl
         codeValue
         inCodeSet
         productCount
         favourite
+        mobile
         isArchived
         seo {
           metaTitle
@@ -126,10 +132,12 @@ export const GET_CATEGORY = gql`
       description
       parentId
       imageUrl
+      mobileImageUrl
       codeValue
       inCodeSet
       productCount
       favourite
+      mobile
       isArchived
       seo {
         metaTitle
@@ -155,10 +163,12 @@ export const GET_CATEGORY_BY_SLUG = gql`
       description
       parentId
       imageUrl
+      mobileImageUrl
       codeValue
       inCodeSet
       productCount
       favourite
+      mobile
       isArchived
       seo {
         metaTitle
@@ -184,10 +194,12 @@ export const CREATE_CATEGORY = gql`
       description
       parentId
       imageUrl
+      mobileImageUrl
       codeValue
       inCodeSet
       productCount
       favourite
+      mobile
       isArchived
       seo {
         metaTitle
@@ -213,10 +225,12 @@ export const UPDATE_CATEGORY = gql`
       description
       parentId
       imageUrl
+      mobileImageUrl
       codeValue
       inCodeSet
       productCount
       favourite
+      mobile
       isArchived
       seo {
         metaTitle
@@ -262,10 +276,12 @@ export const SEARCH_CATEGORIES = gql`
       description
       parentId
       imageUrl
+      mobileImageUrl
       codeValue
       inCodeSet
       productCount
       favourite
+      mobile
       isArchived
         seo {
         metaTitle

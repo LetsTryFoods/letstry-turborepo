@@ -10,6 +10,7 @@ import { OrderAssignmentService } from './order-assignment.service';
 import { ReassignmentService } from './reassignment.service';
 import { PackingLoggerService } from './packing-logger.service';
 import { UnassignedOrderProcessorService } from './unassigned-order-processor.service';
+import { PackingStatus } from '../../../common/enums/packing-status.enum';
 import Redis from 'ioredis';
 
 @Injectable()
@@ -113,6 +114,7 @@ export class PackingQueueService {
   async processReassignment(): Promise<void> {
     try {
       await this.processUnassignedOrders();
+      await this.processOrphanedPackerOrders();
 
       const staleOrders = await this.reassignmentService.findStaleOrders();
 
@@ -121,6 +123,56 @@ export class PackingQueueService {
       }
     } catch (error) {
       this.packingLogger.logError('Reassignment check failed', error, {});
+    }
+  }
+
+  /**
+   * Finds orders assigned to packers that no longer exist (deleted).
+   * Resets them to PENDING so they can be re-queued and reassigned.
+   */
+  private async processOrphanedPackerOrders(): Promise<void> {
+    try {
+      const activePackers = await this.packerCrud.findAll({ isActive: true });
+      const activePackerIds = new Set(activePackers.map((p: any) => p._id.toString()));
+
+      const assignedOrders = await this.packingOrderCrud.findAll({
+        assignedTo: { $exists: true, $ne: null },
+        status: { $in: ['assigned', 'pending'] },
+      });
+
+      let orphanCount = 0;
+      for (const order of assignedOrders) {
+        const packerId = order.assignedTo?.toString();
+        if (packerId && !activePackerIds.has(packerId)) {
+          // Packer was deleted — use $unset to properly clear assignedTo in MongoDB
+          await this.packingOrderCrud.resetForReassignment(
+            order._id.toString(),
+            PackingStatus.PENDING,
+          );
+
+          const alreadyInQueue = await this.isOrderInQueue(order.orderId);
+          if (!alreadyInQueue) {
+            await this.addToQueue(order.orderId);
+          }
+
+          orphanCount++;
+          this.packingLogger.logError(
+            `Orphaned order reset: packer ${packerId} no longer exists`,
+            new Error(),
+            { orderId: order.orderId, packingOrderId: order._id.toString() },
+          );
+        }
+      }
+
+      if (orphanCount > 0) {
+        this.packingLogger.logError(
+          `Reset ${orphanCount} orphaned orders to pending`,
+          new Error(),
+          {},
+        );
+      }
+    } catch (error) {
+      this.packingLogger.logError('Failed to process orphaned packer orders', error, {});
     }
   }
 

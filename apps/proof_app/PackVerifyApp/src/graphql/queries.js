@@ -41,6 +41,50 @@ export const GET_MY_ASSIGNED_ORDERS = gql`
   }
 `;
 
+export const GET_MY_HISTORY = gql`
+  query GetMyHistory {
+    getMyOrderHistory {
+      id
+      orderId
+      orderNumber
+      status
+      packingCompletedAt
+      isExpress
+      items {
+        name
+        quantity
+      }
+      evidence {
+        prePackImages
+      }
+    }
+  }
+`;
+
+export const GET_MY_STATS = gql`
+  query GetMyStats {
+    getMyStats {
+      packerId
+      totalOrders
+      accuracyRate
+      averagePackTime
+      ordersPackedToday
+    }
+  }
+`;
+
+export const GET_EVIDENCE_BY_ORDER = gql`
+  query GetEvidenceByOrder($packingOrderId: String!) {
+    getEvidenceByOrder(packingOrderId: $packingOrderId) {
+      id
+      prePackImages
+      actualBox {
+        code
+      }
+    }
+  }
+`;
+
 export const GET_ORDER_DETAILS = gql`
   query GetOrderDetails($packingOrderId: String!) {
     getPackingOrder(id: $packingOrderId) {

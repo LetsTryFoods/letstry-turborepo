@@ -9,3 +9,11 @@ export const getCdnUrl = (key: string | null | undefined): string => {
 
     return `${cdnDomain}/${key}`;
 };
+
+export const extractKeyFromUrl = (url: string | null | undefined): string => {
+    if (!url) return '';
+    if (!url.startsWith('http')) return url;
+
+    const parts = url.split('/');
+    return parts[parts.length - 1];
+};

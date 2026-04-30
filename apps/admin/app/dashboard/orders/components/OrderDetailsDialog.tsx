@@ -15,10 +15,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Order,
   OrderStatus,
-  PaymentStatus
+  PaymentStatus,
+  useOrderById
 } from "@/lib/orders/queries"
 import { toast } from "react-hot-toast"
 import { useShipmentLabel } from "@/lib/shipments/queries"
+import { getCdnUrl } from "@/lib/utils/image-utils"
 import { format } from "date-fns"
 import {
   Package,
@@ -52,11 +54,13 @@ const downloadFile = async (url: string, filename: string): Promise<Blob> => {
   return response.blob()
 }
 
-export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDialogProps) {
+export function OrderDetailsDialog({ order: summaryOrder, open, onOpenChange }: OrderDetailsDialogProps) {
   const { downloadLabel, loading: downloadingLabel } = useShipmentLabel()
+  const { order: fullOrder, loading: fetchingOrder } = useOrderById(summaryOrder?.orderId || "")
   const [isDownloading, setIsDownloading] = useState(false)
   const [isDownloadingAll, setIsDownloadingAll] = useState(false)
 
+  const order = fullOrder || summaryOrder
   if (!order) return null
 
   const handleDownloadLabel = async () => {
@@ -211,6 +215,11 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
           </DialogDescription>
         </DialogHeader>
 
+        {fetchingOrder && !fullOrder ? (
+          <div className="flex justify-center items-center h-48">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
         <div className="space-y-6">
           {/* Order Items */}
           <Card>
@@ -224,23 +233,27 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
               <div className="space-y-4">
                 {order.items.map((item, idx) => (
                   <div key={idx} className="flex items-center gap-4">
-                    <div className="relative h-16 w-16 rounded-md overflow-hidden border bg-muted">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="h-full w-full object-cover"
-                      />
+                    <div className="relative h-16 w-16 rounded-md overflow-hidden border bg-muted flex items-center justify-center">
+                      {item.image ? (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img
+                          src={getCdnUrl(item.image)}
+                          alt={item.name}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <Package className="h-8 w-8 text-muted-foreground opacity-50" />
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium truncate">{item.name}</p>
                       <p className="text-sm text-muted-foreground">
-                        Variant: {item.variant} • Qty: {item.quantity}
+                        {item.variant ? `Variant: ${item.variant} • ` : ''}Qty: {item.quantity}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium">₹{(Number(item.price) * Number(item.quantity)).toLocaleString()}</p>
-                      <p className="text-xs text-muted-foreground">₹{item.price} each</p>
+                      <p className="font-medium">₹{item.price ? (Number(item.price) * Number(item.quantity)).toLocaleString() : '0'}</p>
+                      <p className="text-xs text-muted-foreground">₹{item.price || '0'} each</p>
                     </div>
                   </div>
                 ))}
@@ -252,12 +265,12 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span>₹{order.subtotal.toLocaleString()}</span>
+                  <span>₹{order.subtotal ? Number(order.subtotal).toLocaleString() : '0'}</span>
                 </div>
                 {Number(order.deliveryCharge) > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Delivery Charge</span>
-                    <span>₹{order.deliveryCharge}</span>
+                    <span>₹{order.deliveryCharge ? Number(order.deliveryCharge).toLocaleString() : '0'}</span>
                   </div>
                 )}
                 {Number(order.deliveryCharge) === 0 && (
@@ -269,13 +282,13 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
                 {Number(order.discount) > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Discount</span>
-                    <span className="text-green-600">-₹{order.discount}</span>
+                    <span className="text-green-600">-₹{order.discount ? Number(order.discount).toLocaleString() : '0'}</span>
                   </div>
                 )}
                 <Separator />
                 <div className="flex justify-between font-semibold">
                   <span>Total</span>
-                  <span className="text-lg">₹{order.totalAmount.toLocaleString()}</span>
+                  <span className="text-lg">₹{order.totalAmount ? Number(order.totalAmount).toLocaleString() : '0'}</span>
                 </div>
               </div>
             </CardContent>
@@ -292,16 +305,20 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
-                  <p className="font-medium">{order.customer?.name}</p>
+                  <p className="font-medium">{order.customer?.name || 'Unknown User'}</p>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Mail className="h-4 w-4" />
-                  <span>{order.customer?.email}</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Phone className="h-4 w-4" />
-                  <span>{order.customer?.phone}</span>
-                </div>
+                {order.customer?.email && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Mail className="h-4 w-4" />
+                    <span>{order.customer.email}</span>
+                  </div>
+                )}
+                {order.customer?.phone && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Phone className="h-4 w-4" />
+                    <span>{order.customer.phone}</span>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -314,23 +331,29 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-1 text-sm">
-                <p className="font-medium">{order.shippingAddress?.fullName}</p>
-                <p className="text-muted-foreground">{order.shippingAddress?.addressLine1}</p>
-                {order.shippingAddress?.addressLine2 && (
-                  <p className="text-muted-foreground">{order.shippingAddress?.addressLine2}</p>
+                {order.shippingAddress ? (
+                  <>
+                    <p className="font-medium">{order.shippingAddress.fullName}</p>
+                    <p className="text-muted-foreground">{order.shippingAddress.addressLine1}</p>
+                    {order.shippingAddress.addressLine2 && (
+                      <p className="text-muted-foreground">{order.shippingAddress.addressLine2}</p>
+                    )}
+                    <p className="text-muted-foreground">
+                      {order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.pincode}
+                    </p>
+                    {order.shippingAddress.landmark && (
+                      <p className="text-muted-foreground text-xs">
+                        Landmark: {order.shippingAddress.landmark}
+                      </p>
+                    )}
+                    <div className="flex items-center gap-2 pt-2 text-muted-foreground">
+                      <Phone className="h-4 w-4" />
+                      <span>{order.shippingAddress.phone}</span>
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-muted-foreground italic">Address details not available</p>
                 )}
-                <p className="text-muted-foreground">
-                  {order.shippingAddress?.city}, {order.shippingAddress?.state} - {order.shippingAddress?.pincode}
-                </p>
-                {order.shippingAddress?.landmark && (
-                  <p className="text-muted-foreground text-xs">
-                    Landmark: {order.shippingAddress?.landmark}
-                  </p>
-                )}
-                <div className="flex items-center gap-2 pt-2 text-muted-foreground">
-                  <Phone className="h-4 w-4" />
-                  <span>{order.shippingAddress?.phone}</span>
-                </div>
                 {order.shippingAddress?.formattedAddress && (
                   <div className="mt-3 pt-3 border-t">
                     <p className="text-xs text-muted-foreground font-medium mb-1">Complete Address:</p>
@@ -403,7 +426,7 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
                     <span className="text-muted-foreground">Amount</span>
                     <span className="font-semibold flex items-center">
                       <IndianRupee className="h-3 w-3" />
-                      {order.payment?.amount.toLocaleString()}
+                      {order.payment?.amount ? Number(order.payment.amount).toLocaleString() : '0'}
                     </span>
                   </div>
                   {order.payment?.paidAt && (
@@ -441,6 +464,7 @@ export function OrderDetailsDialog({ order, open, onOpenChange }: OrderDetailsDi
             </CardContent>
           </Card>
         </div>
+        )}
       </DialogContent>
     </Dialog>
   )

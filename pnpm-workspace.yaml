@@ -3,6 +3,8 @@ packages:
   - "apps/backend"
   - "apps/frontend"
   - "apps/letstry-mobile"
+  - "apps/ota-sdui-server"
+  - "apps/proof_app/PackVerifyApp"
   - "packages/*"
 
 onlyBuiltDependencies:

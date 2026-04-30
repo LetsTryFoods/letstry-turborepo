@@ -15,6 +15,7 @@ const baseSchema = z.object({
   hasInfiniteValidity: z.boolean(),
   platform: z.enum(['MOBILE', 'DESKTOP', 'BOTH']),
   isActive: z.boolean(),
+  isPublic: z.boolean(),
 })
 
 export const couponFormSchema = baseSchema.refine((data) => {

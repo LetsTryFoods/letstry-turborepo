@@ -1,24 +1,45 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import {
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { COLORS } from '../constants/theme';
+import { getCdnUrl } from '../config/api';
+import ImageZoomModal from './ImageZoomModal';
 
 const PackingListItem = ({ item }) => {
-  // Logic: Complete only if scanned count matches total quantity
+  const [zoomModalVisible, setZoomModalVisible] = useState(false);
   const isCompleted = item.scannedCount >= item.qty;
   const isPartial = item.scannedCount > 0 && !isCompleted;
+  const imageUrl = getCdnUrl(item.imageUri || item.imageUrl) || 'https://placehold.co/60x60/e2e8f0/64748b?text=IMG';
 
   return (
-    <View style={[styles.card, isCompleted && styles.cardPacked, isPartial && styles.cardPartial]}>
-      
-      {/* Product Image */}
-      <View style={styles.imageContainer}>
-        <Image source={{ uri: item.imageUri }} style={styles.image} />
-        {isCompleted && (
-          <View style={styles.successOverlay}>
-            <Ionicons name="checkmark-circle" size={24} color={COLORS.white} />
+    <>
+      <View style={[styles.card, isCompleted && styles.cardPacked, isPartial && styles.cardPartial]}>
+        
+        {/* Product Image */}
+        <TouchableOpacity 
+          style={styles.imageContainer}
+          onPress={() => setZoomModalVisible(true)}
+          activeOpacity={0.7}
+        >
+          <Image 
+            source={{ uri: imageUrl }} 
+            style={styles.image} 
+          />
+          {isCompleted && (
+            <View style={styles.successOverlay}>
+              <Ionicons name="checkmark-circle" size={24} color={COLORS.white} />
+            </View>
+          )}
+          <View style={styles.zoomIcon}>
+            <Ionicons name="search" size={16} color={COLORS.white} />
           </View>
-        )}
-      </View>
+        </TouchableOpacity>
       
       {/* Details */}
       <View style={styles.details}>
@@ -54,6 +75,14 @@ const PackingListItem = ({ item }) => {
         )}
       </View>
     </View>
+
+    <ImageZoomModal
+      visible={zoomModalVisible}
+      imageUrl={imageUrl}
+      title={item.name}
+      onClose={() => setZoomModalVisible(false)}
+    />
+    </>
   );
 };
 
@@ -84,6 +113,17 @@ const styles = StyleSheet.create({
   imageContainer: { position: 'relative' },
   image: {
     width: 60, height: 60, borderRadius: 12, backgroundColor: '#f1f5f9',
+  },
+  zoomIcon: {
+    position: 'absolute',
+    bottom: 2,
+    right: 2,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   successOverlay: {
     ...StyleSheet.absoluteFillObject,

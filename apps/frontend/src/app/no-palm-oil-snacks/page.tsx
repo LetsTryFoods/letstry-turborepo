@@ -66,7 +66,7 @@ const FAQS = [
   },
   {
     q: 'What oil does Let\'s Try Foods use instead of palm oil?',
-    a: 'Let\'s Try Foods does not use palm oil in any of its snack ranges — bhujia, chips, cookies, makhana, rusk and namkeen. Products like roasted chana and roasted makhana are roasted, not fried.',
+    a: 'Let\'s Try Foods uses 100% groundnut oil across its namkeen, bhujia, chips and cookie ranges in place of palm oil. Products like roasted chana and roasted makhana use no frying oil at all.',
   },
   {
     q: 'Are all Let\'s Try snacks free of palm oil?',
@@ -104,6 +104,19 @@ const breadcrumbSchema = {
   ],
 };
 
+// Speakable schema flags the intro paragraph and FAQ answers as good
+// candidates for AI / voice answer engines to quote verbatim.
+const speakableSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  '@id': `${PAGE_URL}#speakable`,
+  url: PAGE_URL,
+  speakable: {
+    '@type': 'SpeakableSpecification',
+    cssSelector: ['[data-speakable="true"]'],
+  },
+};
+
 export default function NoPalmOilSnacksPage() {
   return (
     <>
@@ -114,6 +127,10 @@ export default function NoPalmOilSnacksPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(speakableSchema) }}
       />
       <main className="min-h-screen bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
@@ -127,12 +144,15 @@ export default function NoPalmOilSnacksPage() {
             No Palm Oil Snacks — Healthy Indian Namkeen Without Palm Oil
           </h1>
 
-          <p className="text-base sm:text-lg text-gray-700 leading-relaxed mb-4">
+          <p
+            data-speakable="true"
+            className="text-base sm:text-lg text-gray-700 leading-relaxed mb-4"
+          >
             Most mass-market Indian snacks are fried in palm oil because it&apos;s cheap
             and extends shelf life. At Let&apos;s Try Foods we don&apos;t use palm oil in any
-            of our bhujia, chips, cookies, makhana or rusk ranges. For some
-            products (like roasted chana and roasted makhana) we don&apos;t fry
-            at all — they&apos;re roasted.
+            of our bhujia, chips, cookies, makhana or rusk ranges — we use 100%
+            groundnut oil instead, and for some products (like roasted chana and
+            roasted makhana) we don&apos;t fry at all.
           </p>
 
           <p className="text-base sm:text-lg text-gray-700 leading-relaxed mb-10">
@@ -167,7 +187,12 @@ export default function NoPalmOilSnacksPage() {
               {FAQS.map((f) => (
                 <div key={f.q} className="border-b border-gray-200 pb-5">
                   <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">{f.q}</h3>
-                  <p className="text-sm sm:text-base text-gray-700 leading-relaxed">{f.a}</p>
+                  <p
+                    data-speakable="true"
+                    className="text-sm sm:text-base text-gray-700 leading-relaxed"
+                  >
+                    {f.a}
+                  </p>
                 </div>
               ))}
             </div>

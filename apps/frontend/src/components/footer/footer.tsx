@@ -1,62 +1,100 @@
-"use client";
-
 import Link from 'next/link';
 import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { useState } from 'react';
+
+const SHOP_LINKS: Array<{ href: string; label: string }> = [
+  { href: '/bhujia', label: 'Bhujia & Namkeen' },
+  { href: '/makhana', label: 'Flavoured Makhana' },
+  { href: '/cookies', label: 'Healthy Cookies' },
+  { href: '/healthy-snacks', label: 'Healthy Snacks' },
+  { href: '/fasting-special', label: 'Vrat / Fasting' },
+  { href: '/rusk', label: 'Cake Rusks' },
+  { href: '/purani-delhi', label: 'Purani Delhi' },
+];
+
+const EXPLORE_LINKS: Array<{ href: string; label: string }> = [
+  { href: '/no-palm-oil-snacks', label: 'No Palm Oil Snacks' },
+  { href: '/blog', label: 'Blog' },
+  { href: '/about-us', label: 'About Us' },
+  { href: '/bulk-corporate', label: 'Bulk & Corporate' },
+];
+
+const HELP_LINKS: Array<{ href: string; label: string }> = [
+  { href: '/contact-us', label: 'Contact Us' },
+  { href: '/track', label: 'Track Order' },
+  { href: '/shipping-policy', label: 'Shipping Policy' },
+  { href: '/refund-cancellations', label: 'Refund & Cancellations' },
+  { href: '/terms-of-service', label: 'Terms of Service' },
+];
 
 export function Footer() {
-  const [email, setEmail] = useState('');
-
-  const handleSubscribe = (e: React.FormEvent) => {
-    e.preventDefault();
-  };
-
   return (
     <footer className="bg-[#1A2332] text-white">
       <div className="container mx-auto px-6 md:px-10 lg:px-[70px] py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-          <div className="flex flex-col items-start">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-8">
+          <div className="col-span-2 md:col-span-1 flex flex-col items-start">
             <div className="mb-6">
               <Image
                 src="/logo.webp"
-                alt="Let's Try"
+                alt="Let's Try Foods"
                 width={120}
                 height={120}
                 className="w-20 h-20 object-contain"
                 priority
               />
             </div>
+            <p className="text-gray-300 text-sm leading-relaxed">
+              Healthy Indian snacks with no palm oil and no maida. Shipped across India from Delhi.
+            </p>
           </div>
 
           <div>
-            <h3 className="text-white font-bold text-lg mb-4">QUICK LINKS</h3>
-            <nav className="flex flex-col gap-3">
-              <Link href="/search" className="text-gray-300 hover:text-white transition-colors">
-                Search
-              </Link>
-              <Link href="/address" className="text-gray-300 hover:text-white transition-colors">
-                Address
-              </Link>
-              <Link href="/contact-us" className="text-gray-300 hover:text-white transition-colors">
-                Contact Us
-              </Link>
-              <Link href="/refund-cancellations" className="text-gray-300 hover:text-white transition-colors">
-                Refund & Cancellations
-              </Link>
-              <Link href="/shipping-policy" className="text-gray-300 hover:text-white transition-colors">
-                Shipping Policy
-              </Link>
-              <Link href="/terms-of-service" className="text-gray-300 hover:text-white transition-colors">
-                Terms of Service
-              </Link>
+            <h3 className="text-white font-bold text-base mb-4">SHOP</h3>
+            <nav aria-label="Shop categories" className="flex flex-col gap-3">
+              {SHOP_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-gray-300 hover:text-white transition-colors text-sm"
+                >
+                  {link.label}
+                </Link>
+              ))}
             </nav>
           </div>
 
           <div>
-            <h3 className="text-white font-bold text-lg mb-4">CONTACT US</h3>
-            <address className="not-italic text-gray-300 flex flex-col gap-2">
+            <h3 className="text-white font-bold text-base mb-4">EXPLORE</h3>
+            <nav aria-label="Explore" className="flex flex-col gap-3">
+              {EXPLORE_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-gray-300 hover:text-white transition-colors text-sm"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          <div>
+            <h3 className="text-white font-bold text-base mb-4">HELP</h3>
+            <nav aria-label="Help" className="flex flex-col gap-3">
+              {HELP_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-gray-300 hover:text-white transition-colors text-sm"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          <div>
+            <h3 className="text-white font-bold text-base mb-4">CONTACT</h3>
+            <address className="not-italic text-gray-300 flex flex-col gap-2 text-sm">
               <p className="font-semibold text-white">Earth Crust Pvt Ltd</p>
               <p>CIN: U15549DL2020PTC365385</p>
               <p>329, 1st Floor, Indra Vihar, Delhi-110009</p>
@@ -67,7 +105,7 @@ export function Footer() {
                 +91-9654-932-262
               </Link>
               <p className="mt-2">
-                For export queries mail us at{' '}
+                Export queries:{' '}
                 <Link href="mailto:export@earthcrust.co.in" className="hover:text-white transition-colors underline">
                   export@earthcrust.co.in
                 </Link>
@@ -77,26 +115,6 @@ export function Footer() {
         </div>
 
         <div className="border-t border-gray-600 pt-8 pb-6">
-          {/* <div className="mb-6">
-            <h3 className="text-white font-semibold text-base mb-4">Subscribe to our emails</h3>
-            <form onSubmit={handleSubscribe} className="flex gap-3 max-w-md">
-              <Input
-                type="email"
-                placeholder="Your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="bg-transparent border border-gray-600 text-white placeholder:text-gray-400 focus:border-white"
-                required
-              />
-              <Button
-                type="submit"
-                className="bg-white text-[#1A2332] font-semibold hover:bg-gray-100 px-8"
-              >
-                SUBSCRIBE
-              </Button>
-            </form>
-          </div> */}
-
           <div>
             <h3 className="text-white font-semibold text-base mb-3">Follow us</h3>
             <div className="flex gap-3">

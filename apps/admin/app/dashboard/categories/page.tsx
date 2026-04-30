@@ -24,6 +24,8 @@ const allColumns: ColumnDefinition[] = [
   { key: "productCount", label: "Product Count" },
   { key: "isArchived", label: "Archived" },
   { key: "favourite", label: "Favourite" },
+  { key: "mobile", label: "Mobile" },
+  { key: "mobileImageUrl", label: "Mobile Image" },
   { key: "createdAt", label: "Created At" },
   { key: "updatedAt", label: "Updated At" },
 ]
@@ -63,7 +65,7 @@ export default function CategoriesPage() {
             <DialogTrigger asChild>
               <Button onClick={actions.handleAddCategory}>Add Category</Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            <DialogContent className="sm:max-w-[1000px] w-[95vw] max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{state.editingCategory ? 'Edit Category' : 'Add New Category'}</DialogTitle>
               </DialogHeader>

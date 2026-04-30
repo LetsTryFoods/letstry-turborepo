@@ -78,6 +78,9 @@ export class Order extends Document {
   @Prop({ default: '0' })
   deliveryCharge: string;
 
+  @Prop({ default: '0' })
+  handlingCharge: string;
+
   @Prop({ type: Date })
   deliveredAt: Date;
 
