@@ -15,6 +15,7 @@ import { CartContainer } from "@/components/cart-drawer/CartContainer";
 import { SearchOverlay } from "@/components/search-overlay";
 import { GoogleTagManager, GoogleTagManagerNoscript } from "@/components/analytics/google-tag-manager";
 import { PageViewTracker } from "@/components/analytics/page-view-tracker";
+import { WebVitalsTracker } from "@/components/analytics/web-vitals";
 import { SpinWheelContainer } from "@/components/spin-wheel/SpinWheelContainer";
 import Script from 'next/script';
 
@@ -49,6 +50,24 @@ export const metadata: Metadata = {
     template: "%s | Let's Try Foods",
   },
   description: "Let's Try Foods — healthy Indian snacks with no palm oil and no maida.",
+  // Search-engine ownership verification.
+  // Pull values from env vars so they can be set per-environment without a
+  // code change. Leaving them unset is safe — Next omits the meta tag when
+  // the value is undefined.
+  verification: {
+    google: process.env.NEXT_PUBLIC_GSC_VERIFICATION || undefined,
+    other: {
+      ...(process.env.NEXT_PUBLIC_BING_VERIFICATION
+        ? { 'msvalidate.01': process.env.NEXT_PUBLIC_BING_VERIFICATION }
+        : {}),
+      ...(process.env.NEXT_PUBLIC_YANDEX_VERIFICATION
+        ? { 'yandex-verification': process.env.NEXT_PUBLIC_YANDEX_VERIFICATION }
+        : {}),
+      ...(process.env.NEXT_PUBLIC_PINTEREST_VERIFICATION
+        ? { 'p:domain_verify': process.env.NEXT_PUBLIC_PINTEREST_VERIFICATION }
+        : {}),
+    },
+  },
 };
 
 const organizationSchema = {
@@ -170,6 +189,7 @@ export default function RootLayout({
               <Suspense fallback={null}>
                 <PageViewTracker />
               </Suspense>
+              <WebVitalsTracker />
               <NotificationBanner />
               <HomeAlertModal />
               <TopBanner />
