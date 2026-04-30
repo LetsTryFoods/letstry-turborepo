@@ -22,4 +22,22 @@ export class SeoBaseInput {
 
     @Field({ nullable: true })
     ogImage?: string;
+
+    @Field({ nullable: true })
+    twitterCard?: string;
+
+    @Field({ nullable: true })
+    twitterTitle?: string;
+
+    @Field({ nullable: true })
+    twitterDescription?: string;
+
+    @Field({ nullable: true })
+    twitterImage?: string;
+
+    @Field({ nullable: true })
+    robots?: string;
+
+    @Field({ nullable: true })
+    internalNote?: string;
 }

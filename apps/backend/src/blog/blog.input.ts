@@ -24,8 +24,20 @@ export class CreateBlogInput {
     @Field()
     author: string;
 
+    @Field({ nullable: true })
+    authorId?: string;
+
     @Field()
     category: string;
+
+    @Field(() => [String], { nullable: true })
+    pillarSlugs?: string[];
+
+    @Field(() => [String], { nullable: true })
+    mentionedProductIds?: string[];
+
+    @Field(() => Number, { nullable: true })
+    readingTimeMinutes?: number;
 
     @Field(() => BlogSeoInput, { nullable: true })
     seo?: BlogSeoInput;
@@ -61,7 +73,19 @@ export class UpdateBlogInput {
     author?: string;
 
     @Field({ nullable: true })
+    authorId?: string;
+
+    @Field({ nullable: true })
     category?: string;
+
+    @Field(() => [String], { nullable: true })
+    pillarSlugs?: string[];
+
+    @Field(() => [String], { nullable: true })
+    mentionedProductIds?: string[];
+
+    @Field(() => Number, { nullable: true })
+    readingTimeMinutes?: number;
 
     @Field(() => BlogSeoInput, { nullable: true })
     seo?: BlogSeoInput;

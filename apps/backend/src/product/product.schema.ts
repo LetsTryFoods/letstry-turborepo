@@ -9,6 +9,18 @@ import {
   GraphQLISODateTime,
 } from '@nestjs/graphql';
 import { ProductSeo } from './product-seo.schema';
+import {
+  ProductNutrition,
+  ProductNutritionSchema,
+  LifestyleImage,
+  LifestyleImageSchema,
+  ProductFaqEntry,
+  ProductFaqEntrySchema,
+  ProductHighlight,
+  ProductHighlightSchema,
+  ProductCertification,
+  ProductCertificationSchema,
+} from './product-content.schema';
 
 export type ProductDocument = Product & Document;
 
@@ -191,6 +203,144 @@ export class Product {
   @Prop({ default: false })
   @Field()
   isArchived: boolean;
+
+  // -------------------------------------------------------------------------
+  // Sprint 4 — rich CMS content for SEO / AEO. All optional; storefront
+  // hides empty sections. Filling these is the content team's primary job.
+  // -------------------------------------------------------------------------
+
+  // Long-form description shown below the gallery (HTML / rich text).
+  // Aim 300-800 words per product, woven with target keywords.
+  @Prop()
+  @Field({ nullable: true })
+  longDescription?: string;
+
+  // "Why eat this" — health benefit bullet points (HTML).
+  @Prop()
+  @Field({ nullable: true })
+  healthBenefits?: string;
+
+  // "How to enjoy" — pairing & serving suggestions (HTML).
+  @Prop()
+  @Field({ nullable: true })
+  servingSuggestions?: string;
+
+  // Storage instructions ("Store in a cool, dry place. Reseal after opening.")
+  @Prop()
+  @Field({ nullable: true })
+  storageInstructions?: string;
+
+  // Origin / sourcing story (HTML).
+  @Prop()
+  @Field({ nullable: true })
+  originStory?: string;
+
+  // Manufacturing-process narrative ("roasted, not fried", "stone-ground").
+  @Prop()
+  @Field({ nullable: true })
+  manufacturingProcess?: string;
+
+  // Audience the product is designed for. Surfaces as Schema.org audience.
+  // Suggested values: kids, adults, fitness, vrat-observers, diabetics,
+  // gifting, corporate-gifting, family-snacking.
+  @Prop({ type: [String], default: [] })
+  @Field(() => [String], { nullable: true })
+  audience?: string[];
+
+  // Use cases / occasions ("Diwali gifting", "Navratri vrat", "tea-time",
+  // "post-workout"). Drives festival/seasonal landing pages.
+  @Prop({ type: [String], default: [] })
+  @Field(() => [String], { nullable: true })
+  occasions?: string[];
+
+  // Pros — Schema.org positiveNotes. 3-5 short claims, e.g. "100% groundnut
+  // oil", "No palm oil", "High-protein".
+  @Prop({ type: [ProductHighlightSchema], default: [] })
+  @Field(() => [ProductHighlight], { nullable: true })
+  pros?: ProductHighlight[];
+
+  // Cons — Schema.org negativeNotes. Honest disclosures (e.g. "Contains
+  // tree nuts" for Purani Delhi, "Contains maida" for rusk). Honest
+  // disclosure is required by the brand-claim matrix.
+  @Prop({ type: [ProductHighlightSchema], default: [] })
+  @Field(() => [ProductHighlight], { nullable: true })
+  cons?: ProductHighlight[];
+
+  // Certifications & awards (FSSAI, India Organic, FSSC 22000).
+  @Prop({ type: [ProductCertificationSchema], default: [] })
+  @Field(() => [ProductCertification], { nullable: true })
+  certifications?: ProductCertification[];
+
+  // Lifestyle / usage shots that live alongside variant packshots.
+  @Prop({ type: [LifestyleImageSchema], default: [] })
+  @Field(() => [LifestyleImage], { nullable: true })
+  lifestyleImages?: LifestyleImage[];
+
+  // Embed URL for product video (YouTube / Vimeo / hosted). Drives
+  // Schema.org VideoObject when present.
+  @Prop()
+  @Field({ nullable: true })
+  videoUrl?: string;
+
+  @Prop()
+  @Field({ nullable: true })
+  videoTitle?: string;
+
+  @Prop()
+  @Field({ nullable: true })
+  videoDescription?: string;
+
+  @Prop()
+  @Field({ nullable: true })
+  videoThumbnailUrl?: string;
+
+  // CMS-authored FAQs — supplement the data-driven FAQ generator. When set,
+  // these appear ALONGSIDE the auto-generated questions and are emitted into
+  // FAQPage schema.
+  @Prop({ type: [ProductFaqEntrySchema], default: [] })
+  @Field(() => [ProductFaqEntry], { nullable: true })
+  productFaqs?: ProductFaqEntry[];
+
+  // Pillar pages this product belongs to (slugs). Drives breadcrumbs
+  // (Home > Pillar > Category > Product) and "featured products" on
+  // pillar templates. Example: ['no-palm-oil-snacks', 'palm-oil-free-namkeen']
+  @Prop({ type: [String], default: [] })
+  @Field(() => [String], { nullable: true })
+  pillarSlugs?: string[];
+
+  // Related-product picker. When empty, storefront falls back to
+  // same-category siblings.
+  @Prop({ type: [String], default: [] })
+  @Field(() => [String], { nullable: true })
+  relatedProductIds?: string[];
+
+  // Frequently-bought-together / bundle suggestions.
+  @Prop({ type: [String], default: [] })
+  @Field(() => [String], { nullable: true })
+  bundleProductIds?: string[];
+
+  // Per-product nutrition table (Schema.org NutritionInformation).
+  @Prop({ type: ProductNutritionSchema, default: null })
+  @Field(() => ProductNutrition, { nullable: true })
+  nutrition?: ProductNutrition;
+
+  // FSSAI license number specific to this product / batch (different from
+  // the org-level license shown in the footer).
+  @Prop()
+  @Field({ nullable: true })
+  fssaiLicense?: string;
+
+  // Country of origin (ISO 3166-1 alpha-2). Defaults handled in the
+  // storefront when unset; emit explicitly for export-eligible SKUs.
+  @Prop()
+  @Field({ nullable: true })
+  countryOfOrigin?: string;
+
+  // Override per-variant delivery lead time (in days, single value or
+  // 'min-max' range). Surfaces as Offer.deliveryLeadTime in JSON-LD.
+  @Prop()
+  @Field({ nullable: true })
+  deliveryLeadTime?: string;
 
   @Field(() => ProductSeo, { nullable: true })
   seo?: ProductSeo;

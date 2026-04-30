@@ -1,6 +1,15 @@
 import { ObjectType, Field, ID } from '@nestjs/graphql';
 import { SeoBase } from '../seo-core/seo-base.schema';
 
+@ObjectType()
+export class CategoryFaqEntry {
+  @Field()
+  question: string;
+
+  @Field()
+  answer: string;
+}
+
 
 
 @ObjectType()
@@ -46,6 +55,14 @@ export class Category {
 
   @Field()
   isArchived: boolean;
+
+  // ---- Sprint 4 rich content ---------------------------------------------
+  @Field({ nullable: true }) longDescription?: string;
+  @Field({ nullable: true }) editorialIntro?: string;
+  @Field(() => [CategoryFaqEntry], { nullable: true }) categoryFaqs?: CategoryFaqEntry[];
+  @Field(() => [String], { nullable: true }) featuredProductIds?: string[];
+  @Field(() => [String], { nullable: true }) pillarSlugs?: string[];
+  @Field(() => [String], { nullable: true }) editorialHighlights?: string[];
 
   @Field(() => SeoBase, { nullable: true })
   seo?: SeoBase;

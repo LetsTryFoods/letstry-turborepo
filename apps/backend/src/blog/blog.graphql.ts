@@ -27,8 +27,20 @@ export class Blog {
     @Field()
     author: string;
 
+    @Field({ nullable: true })
+    authorId?: string;
+
     @Field()
     category: string;
+
+    @Field(() => [String], { nullable: true })
+    pillarSlugs?: string[];
+
+    @Field(() => [String], { nullable: true })
+    mentionedProductIds?: string[];
+
+    @Field(() => Number, { nullable: true })
+    readingTimeMinutes?: number;
 
     @Field(() => SeoBase, { nullable: true })
     seo?: SeoBase;
