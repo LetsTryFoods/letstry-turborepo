@@ -1,6 +1,7 @@
 import { getCategoryBySlug } from '@/lib/category';
 import { CategoryPageContainer } from '@/components/category-page/CategoryPageContainer';
 import { CategoryHeader } from '@/components/category-page/CategoryHeader';
+import { CategoryAbout, CategoryFAQ } from '@/components/category-page/CategoryContent';
 import { ProductGrid } from '@/components/category-page/ProductGrid';
 import { CategoryFaqSection } from '@/components/category-page/CategoryFaqSection';
 import { CategoryAnswerBox } from '@/components/category-page/CategoryAnswerBox';
@@ -114,7 +115,83 @@ export default async function DynamicSlugPage({ params, searchParams }: PageProp
 
   let category: Awaited<ReturnType<typeof getCategoryBySlug>> | null = null;
   try {
-    category = await getCategoryBySlug(slug);
+    const category = await getCategoryBySlug(slug);
+    if (category) {
+      const categoryType = type === 'special' ? 'special' : 'default';
+      const products = category.products.map(mapProductData);
+      const categoryUrl = `${SITE_URL}/${slug}`;
+      const override = getCategoryOverride(slug);
+
+      const breadcrumbSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+          { '@type': 'ListItem', position: 2, name: category.name, item: categoryUrl },
+        ],
+      };
+
+      const itemListSchema = {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        name: category.name,
+        numberOfItems: products.length,
+        itemListElement: products.slice(0, 30).map((p, idx) => ({
+          '@type': 'ListItem',
+          position: idx + 1,
+          url: `${SITE_URL}/product/${p.slug}`,
+          name: p.name,
+        })),
+      };
+
+      const faqSchema =
+        override?.faqs && override.faqs.length > 0
+          ? {
+              '@context': 'https://schema.org',
+              '@type': 'FAQPage',
+              mainEntity: override.faqs.map((f) => ({
+                '@type': 'Question',
+                name: f.q,
+                acceptedAnswer: {
+                  '@type': 'Answer',
+                  text: f.a,
+                },
+              })),
+            }
+          : null;
+
+      return (
+        <>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+          />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+          />
+          {faqSchema && (
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+            />
+          )}
+          <CategoryPageContainer>
+            <CategoryHeader
+              title={override?.h1 || category.name}
+              productCount={category.productCount}
+              tagline={override?.tagline}
+            />
+            <ProductGrid products={products} categoryType={categoryType} slug={slug} />
+            <CategoryAbout
+              heading={override?.aboutHeading || `About ${category.name}`}
+              paragraphs={override?.about}
+            />
+            <CategoryFAQ faqs={override?.faqs} />
+          </CategoryPageContainer>
+        </>
+      );
+    }
   } catch (error) {
     console.error('Error fetching category:', error);
   }

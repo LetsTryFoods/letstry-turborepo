@@ -5,7 +5,7 @@ const SITE_URL = (process.env.NEXT_PUBLIC_BASE_URL || 'https://letstryfoods.com'
 
 const PAGE_TITLE = "No Palm Oil Snacks – Healthy Indian Namkeen & Chips | Let's Try Foods";
 const PAGE_DESCRIPTION =
-  "Buy Indian snacks without palm oil — bhujia, chips, cookies, makhana and more. Let's Try Foods uses 100% groundnut oil instead of palm oil. Shipped across India.";
+  "Buy Indian snacks without palm oil — bhujia, chips, cookies, makhana and more. Let's Try Foods doesn't use palm oil in any of its snacks. Shipped across India.";
 const PAGE_URL = `${SITE_URL}/no-palm-oil-snacks`;
 
 export const metadata: Metadata = {
@@ -40,7 +40,7 @@ const CATEGORY_TILES = [
   {
     slug: 'cookies',
     name: 'Healthy Cookies',
-    blurb: 'Ragi, oats, jowar and millet cookies with no palm oil and no refined sugar.',
+    blurb: 'Ragi, oats, jowar and millet cookies with no palm oil and no white sugar.',
   },
   {
     slug: 'healthy-snacks',
