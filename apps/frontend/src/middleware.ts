@@ -112,14 +112,15 @@ export async function middleware(request: NextRequest) {
   });
 
   if (redirect) {
-    const url = request.nextUrl.clone();
-    
     if (redirect.toPath.startsWith('http://') || redirect.toPath.startsWith('https://')) {
       return NextResponse.redirect(redirect.toPath, redirect.statusCode || 301);
     }
-    
-    url.pathname = redirect.toPath;
-    return NextResponse.redirect(url, redirect.statusCode || 301);
+
+    // Use a fresh clone here (not the outer `url`) so any URL hygiene
+    // mutations applied above don't leak into the table-redirect target.
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = redirect.toPath;
+    return NextResponse.redirect(redirectUrl, redirect.statusCode || 301);
   }
 
   const token = request.cookies.get('auth_token')?.value;
