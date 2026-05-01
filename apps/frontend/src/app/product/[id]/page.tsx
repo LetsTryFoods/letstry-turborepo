@@ -8,8 +8,7 @@ import { ProductAccordion } from "@/components/product-page/ProductAccordion";
 import { InfoTable } from "@/components/product-page/InfoTable";
 import { CategoryProductsSections } from "@/components/product-page/CategoryProductsSections";
 import { ProductRichContent } from "@/components/product-page/ProductRichContent";
-import { ProductTrustRow } from "@/components/product-page/ProductTrustRow";
-import { PincodeDeliveryEstimator } from "@/components/product-page/PincodeDeliveryEstimator";
+import { ProductFaqSection } from "@/components/product-page/ProductFaqSection";
 import { getCdnUrl } from "@/lib/image-utils";
 import { getProductOverride } from "@/lib/seo/overrides";
 import { buildProductFaqs } from "@/lib/seo/product-faqs";
@@ -550,50 +549,20 @@ export default async function ProductDetailPage({
         />
       )}
       <ProductPageContainer variant={variant}>
-        <ProductDetails product={product} breadcrumbItems={breadcrumbItems} />
-        <div className="max-w-4xl">
-          <ProductTrustRow
-            isVegetarian={product.isVegetarian}
-            isGlutenFree={product.isGlutenFree}
-            primaryCategorySlug={primaryCategory?.slug || null}
-            occasions={(richProduct as { occasions?: string[] }).occasions || []}
-          />
-          <PincodeDeliveryEstimator deliveryLeadTime={richProduct.deliveryLeadTime} />
-        </div>
+        <ProductDetails
+          product={product}
+          breadcrumbItems={breadcrumbItems}
+          primaryCategorySlug={primaryCategory?.slug || null}
+          occasions={(richProduct as { occasions?: string[] }).occasions || []}
+          deliveryLeadTime={richProduct.deliveryLeadTime}
+        />
         <div className="mt-8">
           <ProductRichContent product={product as Parameters<typeof ProductRichContent>[0]['product']} />
         </div>
         <ProductAccordion title="Product Info">
           <InfoTable data={productInfo} />
         </ProductAccordion>
-        {productFaqs.length > 0 && (
-          <section
-            aria-labelledby="product-faq-heading"
-            className="mt-10 border-t border-gray-200 pt-8 max-w-4xl"
-          >
-            <h2
-              id="product-faq-heading"
-              className="text-2xl font-semibold text-gray-900 mb-6"
-            >
-              Frequently Asked Questions
-            </h2>
-            <div className="space-y-5">
-              {productFaqs.map((f) => (
-                <div key={f.q} className="border-b border-gray-200 pb-5 last:border-b-0">
-                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
-                    {f.q}
-                  </h3>
-                  <p
-                    data-speakable="true"
-                    className="text-sm sm:text-base text-gray-700 leading-relaxed"
-                  >
-                    {f.a}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
+        <ProductFaqSection faqs={productFaqs} />
         <CategoryProductsSections categoryIds={product.categoryIds} />
       </ProductPageContainer>
     </>
