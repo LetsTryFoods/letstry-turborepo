@@ -58,21 +58,19 @@ export async function middleware(request: NextRequest) {
   // with two URLs serving the same content (the #1 cause of "duplicate
   // without canonical" issues in Search Console).
   //
-  //   1. Force apex host (www.letstryfoods.com -> letstryfoods.com).
-  //   2. Strip a trailing slash from non-root paths (/bhujia/ -> /bhujia).
-  //   3. Lowercase the path (/Bhujia -> /bhujia).
-  //   4. Strip utm_*/gclid/fbclid/mc_* tracking params from canonical URLs
+  //   1. Strip a trailing slash from non-root paths (/bhujia/ -> /bhujia).
+  //   2. Lowercase the path (/Bhujia -> /bhujia).
+  //   3. Strip utm_*/gclid/fbclid/mc_* tracking params from canonical URLs
   //      so they don't fragment indexing. They're preserved in the dataLayer
   //      because page_location is captured at click time before the redirect.
+  //
+  // NOTE: www ↔ apex normalization is intentionally NOT done here.
+  // Vercel handles letstryfoods.com → www.letstryfoods.com at the CDN edge
+  // before requests reach Next.js. Duplicating it here would create a
+  // redirect loop (middleware strips www, Vercel adds it back, repeat).
   // ---------------------------------------------------------------------------
   const url = request.nextUrl.clone();
   let needsRedirect = false;
-
-  // Apex host
-  if (url.hostname.startsWith('www.')) {
-    url.hostname = url.hostname.replace(/^www\./, '');
-    needsRedirect = true;
-  }
 
   // Trailing slash (root '/' is intentionally exempt)
   if (url.pathname.length > 1 && url.pathname.endsWith('/')) {
