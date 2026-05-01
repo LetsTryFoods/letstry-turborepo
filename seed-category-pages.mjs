@@ -1,0 +1,181 @@
+import { MongoClient } from 'mongodb';
+
+const URI = 'mongodb://admin:password@localhost:27017/letstry_dev?authSource=admin';
+const DB   = 'letstry_dev';
+
+const pages = [
+  // ─── no-palm-oil-snacks ───────────────────────────────────────────────────
+  {
+    slug: 'no-palm-oil-snacks',
+    pageTitle: 'No Palm Oil Snacks — Healthy Indian Namkeen Without Palm Oil',
+    description:
+      'Most mass-market Indian snacks are fried in palm oil because it\'s cheap and extends shelf life. At Let\'s Try Foods we don\'t use palm oil in any of our bhujia, chips, cookies, makhana or rusk ranges — we use 100% groundnut oil instead, and for some products (like roasted chana and roasted makhana) we don\'t fry at all.\n\nShop our palm-oil-free Indian snacks below — shipped across India from Delhi.',
+    tilesHeading: 'Shop No Palm Oil Snacks by Category',
+    faqHeading: 'Frequently Asked Questions',
+    tiles: [
+      {
+        name: 'Bhujia & Namkeen',
+        blurb: 'Garlic bhujia, sev bhujia, khatta meetha — traditional Indian namkeen with no palm oil and no maida.',
+        imageUrl: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=400&q=80',
+        shopNowUrl: '/bhujia',
+        position: 0,
+      },
+      {
+        name: 'Flavoured Makhana',
+        blurb: 'Peri peri, pudina, Himalayan salt — roasted foxnuts, not fried. No palm oil.',
+        imageUrl: 'https://images.unsplash.com/photo-1585238342024-78d387f4a707?w=400&q=80',
+        shopNowUrl: '/makhana',
+        position: 1,
+      },
+      {
+        name: 'Healthy Cookies',
+        blurb: 'Ragi, oats, jowar and millet cookies with no palm oil and no white sugar.',
+        imageUrl: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=400&q=80',
+        shopNowUrl: '/cookies',
+        position: 2,
+      },
+      {
+        name: 'Healthy Snacks',
+        blurb: 'Roasted chana, sattu, millet-based namkeen — wholesome Indian snacks without palm oil.',
+        imageUrl: 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=400&q=80',
+        shopNowUrl: '/healthy-snacks',
+        position: 3,
+      },
+      {
+        name: 'Vrat / Fasting',
+        blurb: 'Sabudana, makhana, vrat chips and kuttu snacks. No palm oil, no maida, Navratri-approved.',
+        imageUrl: 'https://images.unsplash.com/photo-1606914469633-bd44f453c3f5?w=400&q=80',
+        shopNowUrl: '/fasting-special',
+        position: 4,
+      },
+      {
+        name: 'Cake Rusks',
+        blurb: 'Classic, fruit and almond-kaju cake rusks made without palm oil.',
+        imageUrl: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400&q=80',
+        shopNowUrl: '/rusk',
+        position: 5,
+      },
+    ],
+    faqs: [
+      {
+        question: 'What is palm oil and why avoid it in snacks?',
+        answer: 'Palm oil is a cheap vegetable oil widely used in mass-market Indian snacks and namkeen because it extends shelf life and cuts cost. It is high in saturated fat and has been linked to health and environmental concerns. Many Indian shoppers now actively look for palm-oil-free snacks.',
+        position: 0,
+      },
+      {
+        question: "What oil does Let's Try Foods use instead of palm oil?",
+        answer: "Let's Try Foods uses 100% groundnut oil across its namkeen, bhujia, chips and cookie ranges in place of palm oil. Products like roasted chana and roasted makhana use no frying oil at all.",
+        position: 1,
+      },
+      {
+        question: "Are all Let's Try snacks free of palm oil?",
+        answer: "Yes — the Let's Try Foods brand positions every snack as palm-oil-free, including bhujia, chips, wafers, cookies, makhana, rusk and fasting snacks. Check the ingredient label on each pack to confirm.",
+        position: 2,
+      },
+      {
+        question: "Which Let's Try snacks are also maida-free?",
+        answer: 'The bhujia, makhana, healthy-snacks, cookies and most of the fasting-special range are made without maida. The Purani Delhi range (soan papdi, khari, mathri) and some cake rusks do contain refined wheat flour — check individual products.',
+        position: 3,
+      },
+      {
+        question: "Do Let's Try Foods ship no-palm-oil snacks across India?",
+        answer: "Yes. Let's Try Foods ships across India from Delhi. You can order any palm-oil-free snack on letstryfoods.com and have it delivered to your home.",
+        position: 4,
+      },
+    ],
+    seo: {
+      metaTitle: "No Palm Oil Snacks – Healthy Indian Namkeen & Chips | Let's Try Foods",
+      metaDescription: "Buy Indian snacks without palm oil — bhujia, chips, cookies, makhana and more. Let's Try Foods doesn't use palm oil in any of its snacks. Shipped across India.",
+      canonicalUrl: 'https://letstryfoods.com/no-palm-oil-snacks',
+    },
+    isActive: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+
+  // ─── bhujia (demo for /category/bhujia) ──────────────────────────────────
+  {
+    slug: 'bhujia',
+    pageTitle: 'Bhujia & Namkeen — Traditional Indian Snacks Without Palm Oil',
+    description:
+      'Our bhujia range is made with 100% groundnut oil, no palm oil, and no maida. From classic sev bhujia to garlic bhujia and khatta meetha — every pack is bursting with authentic flavour.\n\nAll bhujia and namkeen are oven-roasted or fried in groundnut oil in small batches from our Delhi kitchen.',
+    tilesHeading: 'Explore Our Namkeen Range',
+    faqHeading: 'Bhujia & Namkeen — FAQs',
+    tiles: [
+      {
+        name: 'Sev Bhujia',
+        blurb: 'Thin, crispy sev made with chickpea flour and groundnut oil.',
+        imageUrl: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=400&q=80',
+        shopNowUrl: '/category/bhujia?type=sev',
+        position: 0,
+      },
+      {
+        name: 'Garlic Bhujia',
+        blurb: 'Bold garlic flavour, crispy texture, zero palm oil.',
+        imageUrl: 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=400&q=80',
+        shopNowUrl: '/category/bhujia?type=garlic',
+        position: 1,
+      },
+      {
+        name: 'Khatta Meetha',
+        blurb: 'The perfect tangy-sweet mix of sev, peanuts and spices.',
+        imageUrl: 'https://images.unsplash.com/photo-1606914469633-bd44f453c3f5?w=400&q=80',
+        shopNowUrl: '/category/bhujia?type=khatta-meetha',
+        position: 2,
+      },
+    ],
+    faqs: [
+      {
+        question: 'Is the bhujia fried in palm oil?',
+        answer: "No. All Let's Try bhujia and namkeen are fried in 100% groundnut oil. We never use palm oil, vanaspati or any hydrogenated fat.",
+        position: 0,
+      },
+      {
+        question: 'Does the bhujia contain maida?',
+        answer: "Our bhujia is made primarily from besan (chickpea flour) and does not contain maida (refined wheat flour). It is also free from artificial colours and preservatives.",
+        position: 1,
+      },
+      {
+        question: 'How long does the bhujia stay fresh?',
+        answer: 'Each pack has a shelf life of 3–6 months from the date of manufacture when stored in a cool, dry place. Check the best-before date printed on the pack.',
+        position: 2,
+      },
+    ],
+    seo: {
+      metaTitle: "Bhujia & Namkeen Without Palm Oil | Let's Try Foods",
+      metaDescription: "Shop traditional Indian bhujia and namkeen made with 100% groundnut oil — no palm oil, no maida. Sev bhujia, garlic bhujia, khatta meetha and more. Ships across India.",
+    },
+    isActive: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+];
+
+async function seed() {
+  const client = new MongoClient(URI);
+  try {
+    await client.connect();
+    const col = client.db(DB).collection('categorylandingpages');
+
+    for (const page of pages) {
+      const result = await col.updateOne(
+        { slug: page.slug },
+        { $set: page },
+        { upsert: true },
+      );
+      const action = result.upsertedCount ? 'inserted' : 'updated';
+      console.log(`✓ ${action}: /${page.slug}`);
+    }
+
+    console.log('\nDone! View your pages:');
+    console.log('  http://localhost:3000/no-palm-oil-snacks');
+    console.log('  http://localhost:3000/category/bhujia');
+  } finally {
+    await client.close();
+  }
+}
+
+seed().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

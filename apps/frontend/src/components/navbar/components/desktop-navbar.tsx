@@ -47,7 +47,7 @@ export const DesktopNavbar = ({
       <div className="hidden lg:flex flex-1 justify-center items-center gap-4 xl:gap-8 px-4">
         {navigationLinks.map((link) => (
           <div
-            key={link.href}
+            key={link.label}
             className="relative group flex items-center"
             onMouseEnter={() => link.hasDropdown && setHoveredMenu(link.label)}
             onMouseLeave={() => setHoveredMenu(null)}

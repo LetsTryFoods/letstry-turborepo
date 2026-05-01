@@ -50,7 +50,11 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'pub-56a649c88d67403e867a9e00f3b37d78.r2.dev',
-      }
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
     ],
   },
 
@@ -106,16 +110,6 @@ const nextConfig: NextConfig = {
             value: 'camera=(), microphone=(), geolocation=()',
           },
         ],
-      },
-    ];
-  },
-
-  async redirects() {
-    return [
-      {
-        source: '/category/:slug',
-        destination: '/:slug',
-        permanent: true,
       },
     ];
   },

@@ -60,6 +60,11 @@ const items = [
     url: "/dashboard/landing-pages",
     icon: Layers,
   },
+  {
+    title: "Category Pages",
+    url: "/dashboard/category-landing-pages",
+    icon: Layers,
+  },
   // {
   //   title: "Address",
   //   url: "/dashboard/address",

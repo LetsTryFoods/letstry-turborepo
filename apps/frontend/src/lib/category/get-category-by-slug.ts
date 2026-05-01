@@ -5,10 +5,8 @@ import type { GetCategoryBySlugQuery } from '@/gql/graphql';
 export async function getCategoryBySlug(slug: string): Promise<GetCategoryBySlugQuery['categoryBySlug']> {
   const client = createServerGraphQLClient();
 
-  const queryString = (GET_CATEGORY_BY_SLUG as unknown as { value: string }).value;
-
   const data = await client.request<GetCategoryBySlugQuery>(
-    queryString,
+    GET_CATEGORY_BY_SLUG as any,
     {
       slug,
       includeArchived: false,

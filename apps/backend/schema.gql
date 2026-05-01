@@ -402,6 +402,7 @@ type Coupon {
   hasInfiniteValidity: Boolean!
   platform: CouponPlatform!
   isActive: Boolean!
+  isPublic: Boolean!
   usageLimit: Int
   usageCount: Int!
   createdAt: DateTime!
@@ -464,7 +465,9 @@ type Category {
   description: String
   parentId: String
   favourite: Boolean
+  mobile: Boolean
   imageUrl: String
+  mobileImageUrl: String
   codeValue: String
   inCodeSet: String
   productCount: Float!
@@ -886,6 +889,7 @@ type OrderType {
   subtotal: String!
   discount: String!
   deliveryCharge: String!
+  handlingCharge: String
   currency: String!
   orderStatus: OrderStatus!
   shippingAddressId: String
@@ -923,6 +927,7 @@ type OrderWithUserInfo {
   subtotal: String!
   discount: String!
   deliveryCharge: String!
+  handlingCharge: String
   currency: String!
   orderStatus: OrderStatus!
   shippingAddressId: String
@@ -988,6 +993,41 @@ type BatchScanResult {
   totalScans: Int
 }
 
+type BoxDimensions {
+  l: Float!
+  w: Float!
+  h: Float!
+}
+
+type BoxSize {
+  id: ID!
+  code: String!
+  name: String!
+  internalDimensions: BoxDimensions!
+  maxWeight: Float!
+  cost: Float!
+  isActive: Boolean!
+}
+
+type BoxInfo {
+  code: String!
+  dimensions: BoxDimensions!
+}
+
+type PackingEvidence {
+  id: ID!
+  packingOrderId: String!
+  packerId: String!
+  prePackImages: [String!]!
+  postPackImages: [String!]!
+  recommendedBox: BoxInfo
+  actualBox: BoxInfo
+  boxMismatch: Boolean!
+  detectedBoxDimensions: BoxDimensions
+  dimensionConfidence: Float
+  uploadedAt: DateTime!
+}
+
 type ItemDimensions {
   length: Float!
   width: Float!
@@ -1024,6 +1064,7 @@ type PackingOrder {
   estimatedPackTime: Float
   specialInstructions: String
   isExpress: Boolean!
+  evidence: PackingEvidence
 }
 
 type ScanLog {
@@ -1043,41 +1084,6 @@ type ScanLog {
   flaggedBy: String
   flaggedAt: DateTime
   itemName: String
-}
-
-type BoxDimensions {
-  l: Float!
-  w: Float!
-  h: Float!
-}
-
-type BoxSize {
-  id: ID!
-  code: String!
-  name: String!
-  internalDimensions: BoxDimensions!
-  maxWeight: Float!
-  cost: Float!
-  isActive: Boolean!
-}
-
-type BoxInfo {
-  code: String!
-  dimensions: BoxDimensions!
-}
-
-type PackingEvidence {
-  id: ID!
-  packingOrderId: String!
-  packerId: String!
-  prePackImages: [String!]!
-  postPackImages: [String!]!
-  recommendedBox: BoxInfo
-  actualBox: BoxInfo
-  boxMismatch: Boolean!
-  detectedBoxDimensions: BoxDimensions
-  dimensionConfidence: Float
-  uploadedAt: DateTime!
 }
 
 type CleanupResult {
@@ -1243,6 +1249,9 @@ type Contact {
   _id: ID!
   name: String!
   phone: String!
+  email: String
+  orderId: String
+  queryType: String
   message: String!
   status: ContactStatus!
   createdAt: DateTime!
@@ -1296,6 +1305,35 @@ type LandingPage {
   seo: SeoBase
   isActive: Boolean!
   position: Int
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type CategoryTileType {
+  name: String!
+  blurb: String
+  imageUrl: String
+  shopNowUrl: String!
+  position: Int!
+}
+
+type CategoryFaqType {
+  question: String!
+  answer: String!
+  position: Int!
+}
+
+type CategoryLandingPageType {
+  _id: ID!
+  slug: String!
+  pageTitle: String!
+  description: String
+  tilesHeading: String
+  faqHeading: String
+  tiles: [CategoryTileType!]!
+  faqs: [CategoryFaqType!]!
+  seo: SeoBase
+  isActive: Boolean!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -1356,12 +1394,14 @@ type Query {
   getOrderById(orderId: String!): OrderType!
   getAssignedOrder: PackingOrder!
   getMyAssignedOrders: [PackingOrder!]!
+  getMyOrderHistory: [PackingOrder!]!
   getBoxRecommendation(packingOrderId: String!): BoxSize!
   getAllPackingOrders(packerId: String, status: String): [PackingOrder!]!
   getEvidenceByOrder(packingOrderId: String!): PackingEvidence!
   getAllPackers(isActive: Boolean): [Packer!]!
   getPackerById(packerId: String!): Packer!
   getPackerStats(packerId: String!, startDate: DateTime!, endDate: DateTime!): PackerStats!
+  getMyStats: PackerStats!
   getAllBoxSizes: [BoxSize!]!
   getActiveBoxSizes: [BoxSize!]!
   getShipmentByAwb(awbNumber: String!): ShipmentResponse
@@ -1384,11 +1424,14 @@ type Query {
   activeBlogCategories: [BlogCategory!]!
   blogCategory(id: ID!): BlogCategory
   getAllCorporateEnquiries: [CorporateEnquiry!]!
-  getContactMessages(skip: Int! = 0, limit: Int! = 50): PaginatedContactsResponse!
+  getContactMessages(skip: Int! = 0, limit: Int! = 50, queryType: String): PaginatedContactsResponse!
   landingPages: [LandingPage!]!
   activeLandingPages: [LandingPage!]!
   landingPage(id: ID!): LandingPage
   landingPageBySlug(slug: String!): LandingPage
+  categoryLandingPages: [CategoryLandingPageType!]!
+  categoryLandingPage(id: ID!): CategoryLandingPageType
+  categoryLandingPageBySlug(slug: String!): CategoryLandingPageType
 }
 
 input PaginationInput {
@@ -1560,6 +1603,7 @@ type Mutation {
   completePacking(packingOrderId: String!): PackingOrder!
   adminPunchShipment(input: AdminPunchShipmentInput!): PackingOrder!
   cleanupOrphanedJobs: CleanupResult!
+  triggerReassignmentCycle: Boolean!
   createPacker(input: CreatePackerInput!): CreatePackerResponse!
   updatePacker(packerId: String!, input: UpdatePackerInput!): Packer!
   deletePacker(packerId: String!): Boolean!
@@ -1592,6 +1636,9 @@ type Mutation {
   createLandingPage(input: CreateLandingPageInput!): LandingPage!
   updateLandingPage(id: ID!, input: UpdateLandingPageInput!): LandingPage!
   deleteLandingPage(id: ID!): LandingPage!
+  createCategoryLandingPage(input: CreateCategoryLandingPageInput!): CategoryLandingPageType!
+  updateCategoryLandingPage(id: ID!, input: UpdateCategoryLandingPageInput!): CategoryLandingPageType!
+  deleteCategoryLandingPage(id: ID!): CategoryLandingPageType!
 }
 
 input CreateProductInput {
@@ -1703,8 +1750,10 @@ input CreateCategoryInput {
   slug: String
   description: String
   favourite: Boolean
+  mobile: Boolean
   parentId: String
   imageUrl: String
+  mobileImageUrl: String
   codeValue: String
   inCodeSet: String
   isArchived: Boolean
@@ -1726,8 +1775,10 @@ input UpdateCategoryInput {
   slug: String
   description: String
   favourite: Boolean
+  mobile: Boolean
   parentId: String
   imageUrl: String
+  mobileImageUrl: String
   codeValue: String
   inCodeSet: String
   isArchived: Boolean
@@ -1898,6 +1949,7 @@ input CreateCouponInput {
   hasInfiniteValidity: Boolean! = false
   platform: CouponPlatform! = BOTH
   isActive: Boolean
+  isPublic: Boolean! = true
   usageLimit: Int
 }
 
@@ -2157,6 +2209,9 @@ input SubmitCorporateEnquiryInput {
 input SubmitContactInput {
   name: String!
   phone: String!
+  email: String
+  orderId: String
+  queryType: String
   message: String!
 }
 
@@ -2221,4 +2276,52 @@ input UpdateLandingPageInput {
   seo: LandingPageSeoInput
   isActive: Boolean
   position: Int
+}
+
+input CreateCategoryLandingPageInput {
+  slug: String!
+  pageTitle: String!
+  description: String
+  tilesHeading: String
+  faqHeading: String
+  tiles: [CategoryTileInput!]
+  faqs: [CategoryFaqInput!]
+  seo: CategoryLandingPageSeoInput
+  isActive: Boolean
+}
+
+input CategoryTileInput {
+  name: String!
+  blurb: String
+  imageUrl: String
+  shopNowUrl: String!
+  position: Int
+}
+
+input CategoryFaqInput {
+  question: String!
+  answer: String!
+  position: Int
+}
+
+input CategoryLandingPageSeoInput {
+  metaTitle: String
+  metaDescription: String
+  metaKeywords: [String!]
+  canonicalUrl: String
+  ogTitle: String
+  ogDescription: String
+  ogImage: String
+}
+
+input UpdateCategoryLandingPageInput {
+  slug: String
+  pageTitle: String
+  description: String
+  tilesHeading: String
+  faqHeading: String
+  tiles: [CategoryTileInput!]
+  faqs: [CategoryFaqInput!]
+  seo: CategoryLandingPageSeoInput
+  isActive: Boolean
 }
