@@ -1,16 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { X, PhoneCall, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export const NotificationBanner = () => {
+  const pathname = usePathname();
   const [isVisible, setIsVisible] = useState(true);
 
   const handleDismiss = () => {
     setIsVisible(false);
   };
 
+  if (!pathname.startsWith("/track")) return null;
   if (!isVisible) return null;
 
   return (

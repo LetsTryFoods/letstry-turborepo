@@ -317,6 +317,12 @@ export default async function ProductDetailPage({
     pillarSlugs?: string[];
   };
 
+  const productImageObjects = productImageEntries.map((entry) => ({
+    '@type': 'ImageObject',
+    url: entry.url,
+    caption: entry.alt,
+  }));
+
   const nutritionInformation = richProduct.nutrition
     ? Object.fromEntries(
         Object.entries({
@@ -382,12 +388,6 @@ export default async function ProductDetailPage({
       }
     : null;
 
-  const productImageObjects = productImageEntries.map((entry) => ({
-    '@type': 'ImageObject',
-    url: entry.url,
-    caption: entry.alt,
-  }));
-
   const productSchema: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -443,8 +443,13 @@ export default async function ProductDetailPage({
     offers: buildOfferSchema({
       productUrl,
       currency: product.currency || 'INR',
-      defaultVariant,
-      availableVariants: (product as { availableVariants?: typeof defaultVariant[] }).availableVariants,
+      defaultVariant: defaultVariant ? {
+        price: defaultVariant.price,
+        mrp: defaultVariant.mrp,
+        stockQuantity: defaultVariant.stockQuantity,
+        availabilityStatus: defaultVariant.availabilityStatus,
+      } : undefined,
+      availableVariants: ((product as { availableVariants?: typeof defaultVariant[] }).availableVariants?.filter(Boolean)?.map(v => v && typeof v === 'object' ? { price: v.price, sku: v.sku } : v) ?? []) as { price?: number; sku?: string }[],
       availability,
       priceValidUntil,
       deliveryLeadTime: richProduct.deliveryLeadTime,
@@ -551,7 +556,7 @@ export default async function ProductDetailPage({
             isVegetarian={product.isVegetarian}
             isGlutenFree={product.isGlutenFree}
             primaryCategorySlug={primaryCategory?.slug || null}
-            occasions={richProduct.occasions}
+            occasions={(richProduct as { occasions?: string[] }).occasions || []}
           />
           <PincodeDeliveryEstimator deliveryLeadTime={richProduct.deliveryLeadTime} />
         </div>

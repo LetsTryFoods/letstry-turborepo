@@ -10,18 +10,12 @@ export const HomeAlertModal = () => {
   const pathname = usePathname();
 
   useEffect(() => {
-    // Only trigger on home page
-    if (pathname !== "/") return;
-
-    const isDismissed = sessionStorage.getItem("home-alert-dismissed");
-    if (!isDismissed) {
-      setIsVisible(true);
-    }
+    if (!pathname.startsWith("/track")) return;
+    setIsVisible(true);
   }, [pathname]);
 
   const handleDismiss = () => {
     setIsVisible(false);
-    sessionStorage.setItem("home-alert-dismissed", "true");
   };
 
   if (!isVisible) return null;
