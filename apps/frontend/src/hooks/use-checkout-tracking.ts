@@ -13,6 +13,8 @@ export const useCheckoutTracking = () => {
       variant: item.variantName,
     })) || [];
 
+    
+
     trackBeginCheckout({
       value: cartData.myCart?.totalsSummary?.grandTotal || 0,
       items,
