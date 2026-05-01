@@ -44,13 +44,64 @@ async function fetchRedirects() {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  
+
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
     pathname.match(/\.(ico|png|jpg|jpeg|svg|gif|webp|css|js)$/)
   ) {
     return NextResponse.next();
+  }
+
+  // ---------------------------------------------------------------------------
+  // URL hygiene — runs BEFORE the redirect-table lookup so we never end up
+  // with two URLs serving the same content (the #1 cause of "duplicate
+  // without canonical" issues in Search Console).
+  //
+  //   1. Force apex host (www.letstryfoods.com -> letstryfoods.com).
+  //   2. Strip a trailing slash from non-root paths (/bhujia/ -> /bhujia).
+  //   3. Lowercase the path (/Bhujia -> /bhujia).
+  //   4. Strip utm_*/gclid/fbclid/mc_* tracking params from canonical URLs
+  //      so they don't fragment indexing. They're preserved in the dataLayer
+  //      because page_location is captured at click time before the redirect.
+  // ---------------------------------------------------------------------------
+  const url = request.nextUrl.clone();
+  let needsRedirect = false;
+
+  // Apex host
+  if (url.hostname.startsWith('www.')) {
+    url.hostname = url.hostname.replace(/^www\./, '');
+    needsRedirect = true;
+  }
+
+  // Trailing slash (root '/' is intentionally exempt)
+  if (url.pathname.length > 1 && url.pathname.endsWith('/')) {
+    url.pathname = url.pathname.replace(/\/+$/, '');
+    needsRedirect = true;
+  }
+
+  // Lowercase path
+  if (url.pathname !== url.pathname.toLowerCase()) {
+    url.pathname = url.pathname.toLowerCase();
+    needsRedirect = true;
+  }
+
+  // Strip tracking params
+  const TRACKING_PARAMS = [
+    'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
+    'utm_id', 'gclid', 'fbclid', 'mc_eid', 'mc_cid', 'msclkid', '_ga',
+  ];
+  let strippedAny = false;
+  TRACKING_PARAMS.forEach((p) => {
+    if (url.searchParams.has(p)) {
+      url.searchParams.delete(p);
+      strippedAny = true;
+    }
+  });
+  if (strippedAny) needsRedirect = true;
+
+  if (needsRedirect) {
+    return NextResponse.redirect(url, 301);
   }
 
   const redirects = await fetchRedirects();
@@ -61,14 +112,15 @@ export async function middleware(request: NextRequest) {
   });
 
   if (redirect) {
-    const url = request.nextUrl.clone();
-    
     if (redirect.toPath.startsWith('http://') || redirect.toPath.startsWith('https://')) {
       return NextResponse.redirect(redirect.toPath, redirect.statusCode || 301);
     }
-    
-    url.pathname = redirect.toPath;
-    return NextResponse.redirect(url, redirect.statusCode || 301);
+
+    // Use a fresh clone here (not the outer `url`) so any URL hygiene
+    // mutations applied above don't leak into the table-redirect target.
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = redirect.toPath;
+    return NextResponse.redirect(redirectUrl, redirect.statusCode || 301);
   }
 
   const token = request.cookies.get('auth_token')?.value;

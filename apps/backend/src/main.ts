@@ -31,6 +31,15 @@ async function bootstrap() {
     app.use(json({ limit: '20mb' }));
     app.use(cookieParser());
 
+    // Block indexing of API/admin responses. The backend serves GraphQL +
+    // admin endpoints only — none of it should ever appear in search results
+    // even if a domain leak exposes the endpoint. X-Robots-Tag is honoured
+    // by Googlebot, Bingbot and most AI crawlers regardless of route.
+    app.use((_req, res, next) => {
+      res.setHeader('X-Robots-Tag', 'noindex, nofollow, noarchive, nosnippet');
+      next();
+    });
+
     const port = configService.get('PORT') ?? 3000;
     console.log(`Starting server listen on port ${port}...`);
     await app.listen(port);
