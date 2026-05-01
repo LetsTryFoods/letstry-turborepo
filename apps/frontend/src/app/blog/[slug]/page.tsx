@@ -5,6 +5,10 @@ import { getBlogBySlug, getActiveBlogs } from '@/lib/blog';
 import type { Metadata } from 'next';
 import { getCdnUrl } from '@/lib/image-utils';
 
+// ISR: re-render blog posts every 30 minutes so CMS edits propagate
+// without a redeploy. Aligns with category and product templates.
+export const revalidate = 1800;
+
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
