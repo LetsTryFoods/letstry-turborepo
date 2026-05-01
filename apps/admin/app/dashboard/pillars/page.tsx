@@ -89,10 +89,16 @@ export default function PillarsAdminPage() {
           pillar={editing}
           onCancel={() => setEditing(null)}
           onSave={async (input) => {
+            // Strip server-managed fields. The form state IS the full Pillar
+            // (including _id / createdAt / updatedAt) but Create/UpdatePillarInput
+            // don't accept those — sending them produces a GraphQL "field not
+            // defined on input" error and the save fails silently for the
+            // content team.
+            const payload = stripServerFields(input as Pillar);
             if (editing._id) {
-              await update(editing._id, input);
+              await update(editing._id, payload);
             } else {
-              await create(input as Parameters<typeof create>[0]);
+              await create(payload as Parameters<typeof create>[0]);
             }
             setEditing(null);
             refetch();
@@ -101,6 +107,12 @@ export default function PillarsAdminPage() {
       )}
     </div>
   );
+}
+
+function stripServerFields(p: Pillar) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { _id, createdAt, updatedAt, ...rest } = p;
+  return rest;
 }
 
 function emptyPillar(): Pillar {

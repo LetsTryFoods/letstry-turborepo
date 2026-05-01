@@ -90,10 +90,14 @@ export default function AuthorsAdminPage() {
           author={editing}
           onCancel={() => setEditing(null)}
           onSave={async (input) => {
+            // Strip server-managed fields before sending — the form state is
+            // the full Author including _id/createdAt/updatedAt, but the
+            // Create/UpdateAuthorInput types don't accept those.
+            const payload = stripServerFields(input as Author);
             if (editing._id) {
-              await update(editing._id, input);
+              await update(editing._id, payload);
             } else {
-              await create(input as Parameters<typeof create>[0]);
+              await create(payload as Parameters<typeof create>[0]);
             }
             setEditing(null);
             refetch();
@@ -102,6 +106,12 @@ export default function AuthorsAdminPage() {
       )}
     </div>
   );
+}
+
+function stripServerFields(a: Author) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { _id, createdAt, updatedAt, ...rest } = a;
+  return rest;
 }
 
 function emptyAuthor(): Author {
