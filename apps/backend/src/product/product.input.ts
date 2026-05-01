@@ -1,5 +1,12 @@
 import { InputType, Field, Float, Int } from '@nestjs/graphql';
 import { ProductSeoInput } from './product-seo.input';
+import {
+  ProductNutritionInput,
+  LifestyleImageInput,
+  ProductFaqEntryInput,
+  ProductHighlightInput,
+  ProductCertificationInput,
+} from './product-content.input';
 
 @InputType()
 export class ProductImageInput {
@@ -186,6 +193,32 @@ export class CreateProductInput {
   @Field(() => [CreateProductVariantInput])
   variants: CreateProductVariantInput[];
 
+  // ---- Sprint 4 rich content fields ----------------------------------------
+  @Field({ nullable: true }) longDescription?: string;
+  @Field({ nullable: true }) healthBenefits?: string;
+  @Field({ nullable: true }) servingSuggestions?: string;
+  @Field({ nullable: true }) storageInstructions?: string;
+  @Field({ nullable: true }) originStory?: string;
+  @Field({ nullable: true }) manufacturingProcess?: string;
+  @Field(() => [String], { nullable: true }) audience?: string[];
+  @Field(() => [String], { nullable: true }) occasions?: string[];
+  @Field(() => [ProductHighlightInput], { nullable: true }) pros?: ProductHighlightInput[];
+  @Field(() => [ProductHighlightInput], { nullable: true }) cons?: ProductHighlightInput[];
+  @Field(() => [ProductCertificationInput], { nullable: true }) certifications?: ProductCertificationInput[];
+  @Field(() => [LifestyleImageInput], { nullable: true }) lifestyleImages?: LifestyleImageInput[];
+  @Field({ nullable: true }) videoUrl?: string;
+  @Field({ nullable: true }) videoTitle?: string;
+  @Field({ nullable: true }) videoDescription?: string;
+  @Field({ nullable: true }) videoThumbnailUrl?: string;
+  @Field(() => [ProductFaqEntryInput], { nullable: true }) productFaqs?: ProductFaqEntryInput[];
+  @Field(() => [String], { nullable: true }) pillarSlugs?: string[];
+  @Field(() => [String], { nullable: true }) relatedProductIds?: string[];
+  @Field(() => [String], { nullable: true }) bundleProductIds?: string[];
+  @Field(() => ProductNutritionInput, { nullable: true }) nutrition?: ProductNutritionInput;
+  @Field({ nullable: true }) fssaiLicense?: string;
+  @Field({ nullable: true }) countryOfOrigin?: string;
+  @Field({ nullable: true }) deliveryLeadTime?: string;
+
   @Field(() => ProductSeoInput, { nullable: true })
   seo?: ProductSeoInput;
 }
@@ -248,6 +281,32 @@ export class UpdateProductInput {
 
   @Field(() => [UpdateProductVariantInput], { nullable: true })
   variants?: UpdateProductVariantInput[];
+
+  // ---- Sprint 4 rich content fields (all optional on update) --------------
+  @Field({ nullable: true }) longDescription?: string;
+  @Field({ nullable: true }) healthBenefits?: string;
+  @Field({ nullable: true }) servingSuggestions?: string;
+  @Field({ nullable: true }) storageInstructions?: string;
+  @Field({ nullable: true }) originStory?: string;
+  @Field({ nullable: true }) manufacturingProcess?: string;
+  @Field(() => [String], { nullable: true }) audience?: string[];
+  @Field(() => [String], { nullable: true }) occasions?: string[];
+  @Field(() => [ProductHighlightInput], { nullable: true }) pros?: ProductHighlightInput[];
+  @Field(() => [ProductHighlightInput], { nullable: true }) cons?: ProductHighlightInput[];
+  @Field(() => [ProductCertificationInput], { nullable: true }) certifications?: ProductCertificationInput[];
+  @Field(() => [LifestyleImageInput], { nullable: true }) lifestyleImages?: LifestyleImageInput[];
+  @Field({ nullable: true }) videoUrl?: string;
+  @Field({ nullable: true }) videoTitle?: string;
+  @Field({ nullable: true }) videoDescription?: string;
+  @Field({ nullable: true }) videoThumbnailUrl?: string;
+  @Field(() => [ProductFaqEntryInput], { nullable: true }) productFaqs?: ProductFaqEntryInput[];
+  @Field(() => [String], { nullable: true }) pillarSlugs?: string[];
+  @Field(() => [String], { nullable: true }) relatedProductIds?: string[];
+  @Field(() => [String], { nullable: true }) bundleProductIds?: string[];
+  @Field(() => ProductNutritionInput, { nullable: true }) nutrition?: ProductNutritionInput;
+  @Field({ nullable: true }) fssaiLicense?: string;
+  @Field({ nullable: true }) countryOfOrigin?: string;
+  @Field({ nullable: true }) deliveryLeadTime?: string;
 
   @Field(() => ProductSeoInput, { nullable: true })
   seo?: ProductSeoInput;

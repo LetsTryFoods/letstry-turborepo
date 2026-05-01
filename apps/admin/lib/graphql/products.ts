@@ -26,7 +26,8 @@ const VARIANT_FIELDS = `
   isActive
 `;
 
-// Fragment for SEO fields
+// Fragment for SEO fields. Sprint 4 adds twitterCard / twitterTitle /
+// twitterDescription / twitterImage, robots and internalNote.
 const SEO_FIELDS = `
   _id
   productId
@@ -37,8 +38,59 @@ const SEO_FIELDS = `
   ogTitle
   ogDescription
   ogImage
+  twitterCard
+  twitterTitle
+  twitterDescription
+  twitterImage
+  robots
+  internalNote
   createdAt
   updatedAt
+`;
+
+// Sprint 4 — rich content fields. Used everywhere the admin needs to
+// read or write the new product page sections.
+const RICH_CONTENT_FIELDS = `
+  longDescription
+  healthBenefits
+  servingSuggestions
+  storageInstructions
+  originStory
+  manufacturingProcess
+  audience
+  occasions
+  pros { text }
+  cons { text }
+  certifications { name number iconUrl }
+  lifestyleImages { url alt caption }
+  videoUrl
+  videoTitle
+  videoDescription
+  videoThumbnailUrl
+  productFaqs { question answer }
+  pillarSlugs
+  relatedProductIds
+  bundleProductIds
+  nutrition {
+    servingSize
+    servingsPerPack
+    calories
+    caloriesPerServing
+    fatContent
+    saturatedFatContent
+    transFatContent
+    cholesterolContent
+    sodiumContent
+    carbohydrateContent
+    fiberContent
+    sugarContent
+    proteinContent
+    ironContent
+    calciumContent
+  }
+  fssaiLicense
+  countryOfOrigin
+  deliveryLeadTime
 `;
 
 export const GET_PRODUCTS = gql`
@@ -183,6 +235,7 @@ export const GET_PRODUCT = gql`
       availableVariants {
         ${VARIANT_FIELDS}
       }
+      ${RICH_CONTENT_FIELDS}
       seo {
         ${SEO_FIELDS}
       }
@@ -233,6 +286,7 @@ export const GET_PRODUCT_BY_SLUG = gql`
       availableVariants {
         ${VARIANT_FIELDS}
       }
+      ${RICH_CONTENT_FIELDS}
       seo {
         ${SEO_FIELDS}
       }
