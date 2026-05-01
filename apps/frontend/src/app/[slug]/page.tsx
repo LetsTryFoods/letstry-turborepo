@@ -5,6 +5,7 @@ import { ProductGrid } from '@/components/category-page/ProductGrid';
 import { CategoryFaqSection } from '@/components/category-page/CategoryFaqSection';
 import { CategoryAnswerBox } from '@/components/category-page/CategoryAnswerBox';
 import { Product } from '@/components/category-page/ProductCard';
+import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getCdnUrl } from '@/lib/image-utils';
@@ -146,6 +147,22 @@ export default async function DynamicSlugPage({ params, searchParams }: PageProp
     ],
   };
 
+  // Sprint 4 — CollectionPage wraps the category page so search engines
+  // see "this is a collection of products" rather than just an item list.
+  // Pairs with ItemList for full eligibility.
+  const collectionPageSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    '@id': `${categoryUrl}#collection`,
+    url: categoryUrl,
+    name: category.name,
+    description: category.description || `Shop ${category.name} at Let's Try Foods.`,
+    isPartOf: { '@id': `${SITE_URL}#website` },
+    breadcrumb: { '@id': `${categoryUrl}#breadcrumb` },
+    mainEntity: { '@id': `${categoryUrl}#itemlist` },
+    inLanguage: 'en-IN',
+  };
+
   const itemListSchema = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
@@ -198,6 +215,10 @@ export default async function DynamicSlugPage({ params, searchParams }: PageProp
       />
       <script
         type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionPageSchema) }}
+      />
+      <script
+        type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
       />
       {faqSchema && (
@@ -213,6 +234,12 @@ export default async function DynamicSlugPage({ params, searchParams }: PageProp
         />
       )}
       <CategoryPageContainer>
+        <Breadcrumbs
+          crumbs={[
+            { label: 'Home', href: '/' },
+            { label: category.name },
+          ]}
+        />
         <CategoryHeader title={category.name} productCount={category.productCount} />
         {faqBlock && <CategoryAnswerBox intro={faqBlock.intro} />}
         <ProductGrid products={products} categoryType={categoryType} slug={slug} />
