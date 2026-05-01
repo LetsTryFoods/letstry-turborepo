@@ -1,7 +1,6 @@
 import { getCategoryBySlug } from '@/lib/category';
 import { CategoryPageContainer } from '@/components/category-page/CategoryPageContainer';
 import { CategoryHeader } from '@/components/category-page/CategoryHeader';
-import { CategoryAbout, CategoryFAQ } from '@/components/category-page/CategoryContent';
 import { ProductGrid } from '@/components/category-page/ProductGrid';
 import { CategoryFaqSection } from '@/components/category-page/CategoryFaqSection';
 import { CategoryAnswerBox } from '@/components/category-page/CategoryAnswerBox';
@@ -113,85 +112,18 @@ export default async function DynamicSlugPage({ params, searchParams }: PageProp
   const { slug } = await params;
   const { type } = await searchParams;
 
+  // Fetch the category. Sprint-3 introduced a data-driven render path
+  // (CategoryAnswerBox + CategoryFaqSection) that replaced the legacy
+  // override-driven path; both ended up in the file at the same time
+  // and the legacy version shadowed `category` with an inner const,
+  // making the outer `let` permanently null and the rest of the
+  // function unreachable as far as TypeScript was concerned (build
+  // failed with "Property 'products' does not exist on type 'never'").
+  // Removing the duplicate path here so the data-driven render is the
+  // single source of truth.
   let category: Awaited<ReturnType<typeof getCategoryBySlug>> | null = null;
   try {
-    const category = await getCategoryBySlug(slug);
-    if (category) {
-      const categoryType = type === 'special' ? 'special' : 'default';
-      const products = category.products.map(mapProductData);
-      const categoryUrl = `${SITE_URL}/${slug}`;
-      const override = getCategoryOverride(slug);
-
-      const breadcrumbSchema = {
-        '@context': 'https://schema.org',
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
-          { '@type': 'ListItem', position: 2, name: category.name, item: categoryUrl },
-        ],
-      };
-
-      const itemListSchema = {
-        '@context': 'https://schema.org',
-        '@type': 'ItemList',
-        name: category.name,
-        numberOfItems: products.length,
-        itemListElement: products.slice(0, 30).map((p, idx) => ({
-          '@type': 'ListItem',
-          position: idx + 1,
-          url: `${SITE_URL}/product/${p.slug}`,
-          name: p.name,
-        })),
-      };
-
-      const faqSchema =
-        override?.faqs && override.faqs.length > 0
-          ? {
-              '@context': 'https://schema.org',
-              '@type': 'FAQPage',
-              mainEntity: override.faqs.map((f) => ({
-                '@type': 'Question',
-                name: f.q,
-                acceptedAnswer: {
-                  '@type': 'Answer',
-                  text: f.a,
-                },
-              })),
-            }
-          : null;
-
-      return (
-        <>
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
-          />
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
-          />
-          {faqSchema && (
-            <script
-              type="application/ld+json"
-              dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-            />
-          )}
-          <CategoryPageContainer>
-            <CategoryHeader
-              title={override?.h1 || category.name}
-              productCount={category.productCount}
-              tagline={override?.tagline}
-            />
-            <ProductGrid products={products} categoryType={categoryType} slug={slug} />
-            <CategoryAbout
-              heading={override?.aboutHeading || `About ${category.name}`}
-              paragraphs={override?.about}
-            />
-            <CategoryFAQ faqs={override?.faqs} />
-          </CategoryPageContainer>
-        </>
-      );
-    }
+    category = await getCategoryBySlug(slug);
   } catch (error) {
     console.error('Error fetching category:', error);
   }
