@@ -43,6 +43,13 @@ export const homeScreen: SDUIScreen = {
         title: 'Bestselling Combos',
       },
     },
+    {
+      type: 'HomeFooter',
+      props: {
+        mainText: "Tasty, healthy snacks crafted with care. ❤️",
+        brandText: "Let's Try",
+      },
+    },
   ],
   config: {
     homeEventsHeroTopMargin: -10,

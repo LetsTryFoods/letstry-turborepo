@@ -18,6 +18,8 @@ import CategoriesGrid from '../../src/features/home/components/CategoriesGrid';
 import HorizontalSection from '../../src/features/home/components/HorizontalSection';
 import EventsHero from '../../src/features/home/components/EventsHero';
 import TopBanner from '../../src/features/home/components/TopBanner';
+import HomeFooter from '../../src/features/home/components/HomeFooter';
+import HomeSkeleton from '../../src/features/home/components/HomeSkeleton';
 import { useHomeData } from '../../src/features/home/hooks/useHomeData';
 
 const EVENTS_SECTION_HEIGHT = hp('57%');
@@ -122,17 +124,20 @@ const HomeScreen = () => {
             seeAllPath={combosCategoryId ? `/categories?categoryId=${combosCategoryId}` : '/categories'} 
           />
         );
+      case 'HomeFooter':
+        return (
+          <HomeFooter 
+            mainText={item.props?.mainText} 
+            brandText={item.props?.brandText} 
+          />
+        );
       default:
         return null;
     }
   };
 
   if (loading && !refreshing && sduiComponents.length === 0) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0C5273" />
-      </View>
-    );
+    return <HomeSkeleton />;
   }
 
   return (
@@ -155,7 +160,6 @@ const HomeScreen = () => {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={["#0C5273"]} />
         }
-        ListFooterComponent={<View style={{ height: hp('10%') }} />}
       />
     </View>
   );
@@ -180,7 +184,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp('5%'),
   },
   scrollContent: {
-    paddingBottom: hp('5%'),
+    paddingBottom: 0,
   },
 });
 

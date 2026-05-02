@@ -17,11 +17,11 @@ config.resolver.nodeModulesPaths = [
   path.resolve(monorepoRoot, 'node_modules'),
 ];
 
-// 3. Force Metro to resolve from the monorepo root if not found locally
-config.resolver.disableHierarchicalLookup = true;
+// 3. Enable hierarchical lookup (CRITICAL for finding nested node_modules in pnpm)
+config.resolver.disableHierarchicalLookup = false;
 
-// 4. Enable package exports
-config.resolver.unstable_enablePackageExports = true;
+// 4. Enable package exports (Disabled because it breaks htmlparser2/entities resolution)
+config.resolver.unstable_enablePackageExports = false;
 
 // 5. Enable symlinks (CRITICAL for pnpm workspaces)
 config.resolver.unstable_enableSymlinks = true;
