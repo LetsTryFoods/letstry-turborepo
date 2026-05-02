@@ -10,12 +10,17 @@ export const HomeAlertModal = () => {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!pathname.startsWith("/track")) return;
-    setIsVisible(true);
+    if (pathname !== "/" && !pathname.startsWith("/track")) return;
+    
+    const isDismissed = sessionStorage.getItem("home-alert-dismissed");
+    if (!isDismissed) {
+      setIsVisible(true);
+    }
   }, [pathname]);
 
   const handleDismiss = () => {
     setIsVisible(false);
+    sessionStorage.setItem("home-alert-dismissed", "true");
   };
 
   if (!isVisible) return null;
@@ -42,7 +47,7 @@ export const HomeAlertModal = () => {
         {/* Content */}
         <div className="p-6 md:p-8 text-center">
           <p className="text-gray-600 text-base md:text-lg mb-6 leading-relaxed">
-            Orders placed from <span className="font-bold text-gray-900 border-b-2 border-yellow-400">April 10 onwards</span> are experiencing delays of approximately <span className="font-bold text-red-600">15–20 days</span> due to logistics issues. 
+            Orders placed from <span className="font-bold text-gray-900 border-b-2 border-yellow-400">April 14 onwards</span> are experiencing delays of approximately <span className="font-bold text-red-600">15–20 days</span> due to logistics issues. 
             <br/><br/>
             We sincerely apologize for the inconvenience and appreciate your patience.
           </p>
