@@ -10,6 +10,8 @@ interface HorizontalSectionProps {
   seeAllPath?: string;
   loading?: boolean;
   cardStyles?: any;
+  marginTop?: number;
+  marginBottom?: number;
 }
 
 const CARD_GAP = wp('2%');
@@ -19,14 +21,20 @@ const HorizontalSection: React.FC<HorizontalSectionProps> = ({
   products,
   seeAllPath,
   loading,
-  cardStyles
+  cardStyles,
+  marginTop,
+  marginBottom
 }) => {
   const router = useRouter();
 
   if (!loading && products.length === 0) return null;
 
   return (
-    <View style={styles.container}>
+    <View style={[
+      styles.container, 
+      marginTop !== undefined && { marginTop },
+      marginBottom !== undefined && { marginBottom }
+    ]}>
       <View style={styles.header}>
         <Text style={styles.title}>{title}</Text>
         {seeAllPath && (
@@ -60,8 +68,7 @@ const HorizontalSection: React.FC<HorizontalSectionProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: hp('1%'),
-    marginBottom: hp('3.5%'), // Increased bottom gap
+    marginVertical: hp('1%'),
   },
   header: {
     flexDirection: 'row',

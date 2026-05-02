@@ -22,6 +22,8 @@ interface EventsHeroProps {
   onEventSelect?: (event: Event) => void;
   sduiConfig?: any;
   safeAreaTop?: number;
+  marginTop?: number;
+  marginBottom?: number;
 }
 
 const CARD_WIDTH = (wp('100%') - wp('10%')) / 4;
@@ -31,14 +33,17 @@ const EventsHero: React.FC<EventsHeroProps> = ({
   events,
   onEventSelect,
   sduiConfig,
-  safeAreaTop
+  safeAreaTop,
+  marginTop,
+  marginBottom
 }) => {
   // Use a default background if none provided
   const bgImage = backgroundImageUrl
     ? { uri: backgroundImageUrl }
     : require('../../../../assets/images/bg-image.png');
 
-  const topMargin = sduiConfig?.homeEventsHeroTopMargin ?? 0;
+  const topMargin = marginTop !== undefined ? marginTop : (sduiConfig?.homeEventsHeroTopMargin ?? 0);
+  const botMargin = marginBottom !== undefined ? marginBottom : 0;
   
   const safeTop = safeAreaTop ?? 0;
   
@@ -55,7 +60,10 @@ const EventsHero: React.FC<EventsHeroProps> = ({
   }
 
   return (
-    <View style={[styles.container, { marginTop: hp(topMargin) }]}>
+    <View style={[
+      styles.container, 
+      { marginTop: hp(topMargin), marginBottom: hp(botMargin) }
+    ]}>
       <Image
         source={bgImage}
         style={StyleSheet.absoluteFill}
@@ -97,7 +105,6 @@ const EventsHero: React.FC<EventsHeroProps> = ({
 const styles = StyleSheet.create({
   container: {
     height: hp('65%'),
-    marginBottom: hp('2%'),
     justifyContent: 'flex-end',
     paddingBottom: hp('4%'),
   },

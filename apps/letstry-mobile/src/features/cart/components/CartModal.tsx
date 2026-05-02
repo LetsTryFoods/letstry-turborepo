@@ -21,7 +21,9 @@ import PriceBreakdown from './PriceBreakdown';
 import EmptyCartView from './EmptyCartView';
 import CartRecommendations from './CartRecommendations';
 import CartNotice from './CartNotice';
+import FreeDeliveryProgress from './FreeDeliveryProgress';
 import { useCartSDUI } from '../hooks/use-cart-sdui';
+import Confetti from './Confetti';
 import { RFValue, wp, hp } from '../../../lib/utils/ui-utils';
 
 const CartModal = () => {
@@ -30,6 +32,7 @@ const CartModal = () => {
   const { data, loading: cartLoading } = useCart();
   const { addToCart, updateCartItem, removeFromCart, isUpdating, isRemoving } = useCartMutations();
   const { sduiComponents, sduiConfig, loading: sduiLoading } = useCartSDUI();
+  const [showConfetti, setShowConfetti] = React.useState(false);
 
   const cart = (data as any)?.myCart;
   const items = cart?.items || [];
@@ -127,6 +130,13 @@ const CartModal = () => {
                 return null;
               })}
 
+              {/* Free Delivery Progress */}
+              <FreeDeliveryProgress 
+                subtotal={totals.subtotal || 0} 
+                threshold={totals.freeDeliveryThreshold || 499} 
+                onThresholdReached={() => setShowConfetti(true)}
+              />
+
               {/* Shipment Group */}
               <View style={styles.shipmentCard}>
                 <View style={styles.shipmentHeader}>
@@ -223,6 +233,9 @@ const CartModal = () => {
           </>
         )}
       </SafeAreaView>
+      {showConfetti && (
+        <Confetti onAnimationComplete={() => setShowConfetti(false)} />
+      )}
     </Modal>
   );
 };

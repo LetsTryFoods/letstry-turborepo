@@ -164,6 +164,7 @@ export const SET_SHIPPING_ADDRESS = gql`
         estimatedTax
         handlingCharge
         grandTotal
+        freeDeliveryThreshold
       }
     }
   }

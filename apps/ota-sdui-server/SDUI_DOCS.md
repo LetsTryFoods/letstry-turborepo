@@ -42,13 +42,17 @@ A horizontal scrolling row of product cards.
     - `borderWidth`: (number)
     - `borderRadius`: (number)
     - `backgroundColor`: (hex string)
-    - `elevation`: (number) Shadow intensity for Android.
+    - `elevation`: (number)
+- `marginTop`: (number) Gap above the section.
+- `marginBottom`: (number) Gap below the section.
 
 ### 3. Categories (Grid)
 Shows the "Shop By Categories" grid layout.
 - `title`: (string) Header text for the section.
 - `numColumns`: (number) Number of items per row (e.g., `3` or `4`).
 - `showSeeAll`: (boolean) Toggle the "See all" button.
+- `marginTop`: (number) Gap above the section.
+- `marginBottom`: (number) Gap below the section.
 
 ### 4. BannerCarousel
 A customizable sliding image carousel with parallax effects.
@@ -56,6 +60,11 @@ A customizable sliding image carousel with parallax effects.
 - `height`: (number) Height in pixels.
 - `borderRadius`: (number) Corner rounding.
 - `autoplayInterval`: (number) Time in milliseconds (e.g., `6000`).
+
+### 5. EventsHero
+The top background section with circular category icons and search bar.
+- `marginTop`: (number) Gap above the section.
+- `marginBottom`: (number) Gap below the section.
 
 ---
 

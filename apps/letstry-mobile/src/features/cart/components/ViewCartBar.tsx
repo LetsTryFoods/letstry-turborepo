@@ -19,7 +19,14 @@ const ViewCartBar = () => {
   const cart = (cartData as any)?.myCart;
   const items = cart?.items || [];
   const itemCount = items.reduce((acc: number, item: any) => acc + item.quantity, 0);
-  const grandTotal = cart?.totalsSummary?.grandTotal || 0;
+  const totals = cart?.totalsSummary || {};
+  const grandTotal = totals.grandTotal || 0;
+  const subtotal = totals.subtotal || 0;
+  const threshold = totals.freeDeliveryThreshold || 499;
+
+  // Progress logic
+  const progress = Math.min(subtotal / threshold, 1);
+  const isFree = subtotal >= threshold;
 
   // Animation logic for smooth vertical transitions
   const targetBottom = isInTabs ? hp('10.5%') : hp('15%');
@@ -49,18 +56,34 @@ const ViewCartBar = () => {
         activeOpacity={0.9}
         onPress={handleOpenCart}
       >
-        <View style={styles.left}>
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{itemCount}</Text>
+        <View style={styles.content}>
+          <View style={styles.left}>
+            <View style={styles.badge}>
+              <Text style={styles.badgeText}>{itemCount}</Text>
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={styles.title}>View Cart</Text>
+              <Text style={styles.subtitle}>₹{grandTotal.toFixed(0)}</Text>
+            </View>
           </View>
-          <View style={styles.textContainer}>
-            <Text style={styles.title}>View Cart</Text>
-            <Text style={styles.subtitle}>₹{grandTotal.toFixed(0)}</Text>
+          
+          <View style={styles.right}>
+            <Text style={styles.deliveryText}>
+              {isFree ? 'Free Delivery' : `₹${(threshold - subtotal).toFixed(0)} more for Free Delivery`}
+            </Text>
+            <Ionicons name="arrow-forward" size={18} color="#FFFFFF" style={{ marginLeft: 6 }} />
           </View>
         </View>
-        
-        <View style={styles.right}>
-          <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
+
+        {/* Dynamic Progress Line */}
+        <View style={styles.progressContainer}>
+          <View 
+            style={[
+              styles.progressLine, 
+              { width: `${progress * 100}%` },
+              isFree && { backgroundColor: '#4CAF50' }
+            ]} 
+          />
         </View>
       </TouchableOpacity>
     </Animated.View>
@@ -70,16 +93,13 @@ const ViewCartBar = () => {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    left: wp('18%'),
-    right: wp('18%'),
+    left: wp('10%'),
+    right: wp('10%'),
     zIndex: 9999,
   },
   bar: {
     backgroundColor: '#0C5273',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: hp('0.8%'),
+    paddingTop: hp('0.8%'),
     paddingHorizontal: wp('4%'),
     borderRadius: 12,
     shadowColor: '#000',
@@ -87,6 +107,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 5,
     elevation: 8,
+    overflow: 'hidden',
+  },
+  content: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingBottom: hp('1.2%'),
   },
   left: {
     flexDirection: 'row',
@@ -122,6 +149,22 @@ const styles = StyleSheet.create({
   right: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  deliveryText: {
+    color: '#FFFFFF',
+    fontSize: RFValue(9),
+    fontFamily: 'Inter_600SemiBold',
+    opacity: 0.9,
+  },
+  progressContainer: {
+    height: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    marginHorizontal: -wp('4%'),
+    marginTop: 0,
+  },
+  progressLine: {
+    height: '100%',
+    backgroundColor: '#FFFFFF',
   },
 });
 

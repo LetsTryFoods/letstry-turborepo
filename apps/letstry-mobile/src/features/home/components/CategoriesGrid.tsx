@@ -19,20 +19,27 @@ interface Category {
 interface CategoriesGridProps {
   categories: Category[];
   title?: string;
-  numColumns?: number;
   showSeeAll?: boolean;
+  marginTop?: number;
+  marginBottom?: number;
 }
 
 const CategoriesGrid: React.FC<CategoriesGridProps> = ({ 
   categories, 
   title = "Shop By Categories",
   numColumns = 3,
-  showSeeAll = true
+  showSeeAll = true,
+  marginTop,
+  marginBottom
 }) => {
   const router = useRouter();
 
   return (
-    <View style={styles.container}>
+    <View style={[
+      styles.container,
+      marginTop !== undefined && { marginTop },
+      marginBottom !== undefined && { marginBottom }
+    ]}>
       <View style={styles.header}>
         <Text style={styles.title}>{title}</Text>
         {showSeeAll && (
@@ -78,7 +85,7 @@ const CategoriesGrid: React.FC<CategoriesGridProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: hp('1.5%'),
+    marginVertical: hp('1%'),
   },
   header: {
     flexDirection: 'row',

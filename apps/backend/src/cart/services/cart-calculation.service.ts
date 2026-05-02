@@ -103,6 +103,9 @@ export class CartCalculationService {
       discountAmount,
     );
 
+    const charges = await this.chargesService.getCharges();
+    const freeDeliveryThreshold = charges?.active ? charges.freeDeliveryThreshold : 499;
+
     cart.totalsSummary = {
       subtotal,
       discountAmount,
@@ -110,6 +113,7 @@ export class CartCalculationService {
       estimatedTax,
       handlingCharge,
       grandTotal,
+      freeDeliveryThreshold,
     };
   }
 }

@@ -1,4 +1,7 @@
-const SDUI_BASE_URL = process.env.EXPO_PUBLIC_SDUI_URL || 'http://localhost:4000';
+import { Platform } from 'react-native';
+
+const LOCALHOST = Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
+const SDUI_BASE_URL = process.env.EXPO_PUBLIC_SDUI_URL || `http://${LOCALHOST}:4000`;
 
 export class SDUIService {
   static async getScreenConfig(screenId: string) {

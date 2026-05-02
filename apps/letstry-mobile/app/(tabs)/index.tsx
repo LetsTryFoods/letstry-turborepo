@@ -95,6 +95,8 @@ const HomeScreen = () => {
           <EventsHero 
             sduiConfig={sduiConfig}
             safeAreaTop={insets.top}
+            marginTop={item.props?.marginTop}
+            marginBottom={item.props?.marginBottom}
             events={categories.slice(0, 8).map((c: any) => ({ 
               id: c.id, 
               name: c.name, 
@@ -112,6 +114,8 @@ const HomeScreen = () => {
             title={item.props?.title || "Best Sellers"} 
             products={bestsellers} 
             cardStyles={item.props?.cardStyles}
+            marginTop={item.props?.marginTop}
+            marginBottom={item.props?.marginBottom}
             seeAllPath={bestsellerCategoryId ? `/categories?categoryId=${bestsellerCategoryId}` : '/categories'} 
           />
         );
@@ -122,6 +126,8 @@ const HomeScreen = () => {
             title={item.props?.title}
             numColumns={item.props?.numColumns}
             showSeeAll={item.props?.showSeeAll}
+            marginTop={item.props?.marginTop}
+            marginBottom={item.props?.marginBottom}
           />
         );
       case 'HeroCarousel':
@@ -132,6 +138,8 @@ const HomeScreen = () => {
             title={item.props?.title || "Bestselling Combos"} 
             products={combos} 
             cardStyles={item.props?.cardStyles}
+            marginTop={item.props?.marginTop}
+            marginBottom={item.props?.marginBottom}
             seeAllPath={combosCategoryId ? `/categories?categoryId=${combosCategoryId}` : '/categories'} 
           />
         );

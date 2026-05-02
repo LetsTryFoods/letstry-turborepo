@@ -23,14 +23,14 @@ export const navigationHandler = async (req: FastifyRequest, reply: FastifyReply
         screenId: "categories_screen",
         order: 2
       },
-      {
-        id: "tab_loyalty",
-        name: "loyalty",
-        label: "Loyalty",
-        icon: "star",
-        screenId: "loyalty_dashboard",
-        order: 3
-      },
+      // {
+      //   id: "tab_loyalty",
+      //   name: "loyalty",
+      //   label: "Loyalty",
+      //   icon: "star",
+      //   screenId: "loyalty_dashboard",
+      //   order: 3
+      // },
       {
         id: "tab_profile",
         name: "profile",

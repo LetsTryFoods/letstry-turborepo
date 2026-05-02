@@ -88,6 +88,9 @@ export class CartTotals {
 
   @Field(() => Float)
   grandTotal: number;
+
+  @Field(() => Float, { nullable: true })
+  freeDeliveryThreshold?: number;
 }
 
 @Schema({ timestamps: true })
