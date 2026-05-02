@@ -8,6 +8,8 @@ import { PriceBlock } from "./PriceBlock";
 import { SizeSelector } from "./SizeSelector";
 import { ActionButtons } from "./ActionButtons";
 import { ProductBreadcrumb } from "./ProductBreadcrumb";
+import { ProductTrustRow } from "./ProductTrustRow";
+import { PincodeDeliveryEstimator } from "./PincodeDeliveryEstimator";
 import { GetProductBySlugQuery } from "@/gql/graphql";
 import { useAnalytics } from "@/hooks/use-analytics";
 
@@ -19,9 +21,18 @@ interface BreadcrumbItem {
 interface ProductDetailsProps {
   product: NonNullable<GetProductBySlugQuery["productBySlug"]>;
   breadcrumbItems?: BreadcrumbItem[];
+  primaryCategorySlug?: string | null;
+  occasions?: string[] | null;
+  deliveryLeadTime?: string | null;
 }
 
-export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, breadcrumbItems }) => {
+export const ProductDetails: React.FC<ProductDetailsProps> = ({
+  product,
+  breadcrumbItems,
+  primaryCategorySlug,
+  occasions,
+  deliveryLeadTime,
+}) => {
   const [selectedVariantId, setSelectedVariantId] = useState(
     product.defaultVariant?._id || product.variants[0]?._id,
   );
@@ -90,6 +101,14 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({ product, breadcr
             isOutOfStock={isOutOfStock}
           />
         </div>
+
+        <ProductTrustRow
+          isVegetarian={product.isVegetarian}
+          isGlutenFree={product.isGlutenFree}
+          primaryCategorySlug={primaryCategorySlug}
+          occasions={occasions}
+        />
+        <PincodeDeliveryEstimator deliveryLeadTime={deliveryLeadTime} />
       </div>
     </div>
   );

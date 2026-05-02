@@ -61,10 +61,20 @@ export const GET_PRODUCT_BY_SLUG = graphql(`
       description
       shelfLife
       isVegetarian
+      isGlutenFree
       categoryIds
       ingredients
+      allergens
       brand
+      gtin
+      mpn
       currency
+      rating
+      ratingCount
+      keywords
+      tags
+      createdAt
+      updatedAt
       seo {
         metaTitle
         metaDescription
@@ -73,7 +83,52 @@ export const GET_PRODUCT_BY_SLUG = graphql(`
         ogTitle
         ogDescription
         ogImage
+        twitterCard
+        twitterTitle
+        twitterDescription
+        twitterImage
+        robots
       }
+      longDescription
+      healthBenefits
+      servingSuggestions
+      storageInstructions
+      originStory
+      manufacturingProcess
+      audience
+      occasions
+      pros { text }
+      cons { text }
+      certifications { name number iconUrl }
+      lifestyleImages { url alt caption }
+      videoUrl
+      videoTitle
+      videoDescription
+      videoThumbnailUrl
+      productFaqs { question answer }
+      pillarSlugs
+      relatedProductIds
+      bundleProductIds
+      nutrition {
+        servingSize
+        servingsPerPack
+        calories
+        caloriesPerServing
+        fatContent
+        saturatedFatContent
+        transFatContent
+        cholesterolContent
+        sodiumContent
+        carbohydrateContent
+        fiberContent
+        sugarContent
+        proteinContent
+        ironContent
+        calciumContent
+      }
+      fssaiLicense
+      countryOfOrigin
+      deliveryLeadTime
       variants {
         _id
         sku

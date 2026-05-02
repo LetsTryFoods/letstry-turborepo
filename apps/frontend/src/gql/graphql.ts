@@ -8,6 +8,7 @@ export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Mayb
 export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
 export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
 /** All built-in and custom scalars, mapped to their actual values */
+
 export type Scalars = {
   ID: { input: string; output: string; }
   String: { input: string; output: string; }
@@ -85,6 +86,37 @@ export enum AuthMethod {
   Whatsapp = 'WHATSAPP'
 }
 
+export type Author = {
+  __typename?: 'Author';
+  _id: Scalars['ID']['output'];
+  bio?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  credentials: Array<Scalars['String']['output']>;
+  expertise: Array<Scalars['String']['output']>;
+  isActive: Scalars['Boolean']['output'];
+  isFounder: Scalars['Boolean']['output'];
+  isTeamMember: Scalars['Boolean']['output'];
+  jobTitle?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  photoUrl?: Maybe<Scalars['String']['output']>;
+  position: Scalars['Int']['output'];
+  publicEmail?: Maybe<Scalars['String']['output']>;
+  slug: Scalars['String']['output'];
+  socialLinks: Array<AuthorSocialLinkType>;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type AuthorSocialLinkInput = {
+  platform: Scalars['String']['input'];
+  url: Scalars['String']['input'];
+};
+
+export type AuthorSocialLinkType = {
+  __typename?: 'AuthorSocialLinkType';
+  platform: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+};
+
 export type Banner = {
   __typename?: 'Banner';
   _id: Scalars['ID']['output'];
@@ -127,6 +159,7 @@ export type Blog = {
   __typename?: 'Blog';
   _id: Scalars['ID']['output'];
   author: Scalars['String']['output'];
+  authorId?: Maybe<Scalars['String']['output']>;
   category: Scalars['String']['output'];
   content: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
@@ -134,7 +167,10 @@ export type Blog = {
   excerpt: Scalars['String']['output'];
   image?: Maybe<Scalars['String']['output']>;
   isActive?: Maybe<Scalars['Boolean']['output']>;
+  mentionedProductIds?: Maybe<Array<Scalars['String']['output']>>;
+  pillarSlugs?: Maybe<Array<Scalars['String']['output']>>;
   position?: Maybe<Scalars['Float']['output']>;
+  readingTimeMinutes?: Maybe<Scalars['Float']['output']>;
   seo?: Maybe<SeoBase>;
   slug: Scalars['String']['output'];
   title: Scalars['String']['output'];
@@ -307,19 +343,25 @@ export type CartTotals = {
 export type Category = {
   __typename?: 'Category';
   _id: Scalars['ID']['output'];
+  categoryFaqs?: Maybe<Array<CategoryFaqEntry>>;
   children?: Maybe<Array<Category>>;
   codeValue?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   description?: Maybe<Scalars['String']['output']>;
+  editorialHighlights?: Maybe<Array<Scalars['String']['output']>>;
+  editorialIntro?: Maybe<Scalars['String']['output']>;
   favourite?: Maybe<Scalars['Boolean']['output']>;
+  featuredProductIds?: Maybe<Array<Scalars['String']['output']>>;
   id: Scalars['ID']['output'];
   imageUrl?: Maybe<Scalars['String']['output']>;
   inCodeSet?: Maybe<Scalars['String']['output']>;
   isArchived: Scalars['Boolean']['output'];
+  longDescription?: Maybe<Scalars['String']['output']>;
   mobile?: Maybe<Scalars['Boolean']['output']>;
   mobileImageUrl?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
   parentId?: Maybe<Scalars['String']['output']>;
+  pillarSlugs?: Maybe<Array<Scalars['String']['output']>>;
   productCount: Scalars['Float']['output'];
   products: Array<Product>;
   seo?: Maybe<CategorySeo>;
@@ -327,11 +369,54 @@ export type Category = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
-export type CategorySalesType = {
-  __typename?: 'CategorySalesType';
-  category: Scalars['String']['output'];
-  percentage: Scalars['Float']['output'];
-  revenue: Scalars['Float']['output'];
+export type CategoryFaqEntry = {
+  __typename?: 'CategoryFaqEntry';
+  answer: Scalars['String']['output'];
+  question: Scalars['String']['output'];
+};
+
+export type CategoryFaqEntryInput = {
+  answer: Scalars['String']['input'];
+  question: Scalars['String']['input'];
+};
+
+export type CategoryFaqInput = {
+  answer: Scalars['String']['input'];
+  position?: InputMaybe<Scalars['Int']['input']>;
+  question: Scalars['String']['input'];
+};
+
+export type CategoryFaqType = {
+  __typename?: 'CategoryFaqType';
+  answer: Scalars['String']['output'];
+  position: Scalars['Int']['output'];
+  question: Scalars['String']['output'];
+};
+
+export type CategoryLandingPageSeoInput = {
+  canonicalUrl?: InputMaybe<Scalars['String']['input']>;
+  metaDescription?: InputMaybe<Scalars['String']['input']>;
+  metaKeywords?: InputMaybe<Array<Scalars['String']['input']>>;
+  metaTitle?: InputMaybe<Scalars['String']['input']>;
+  ogDescription?: InputMaybe<Scalars['String']['input']>;
+  ogImage?: InputMaybe<Scalars['String']['input']>;
+  ogTitle?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CategoryLandingPageType = {
+  __typename?: 'CategoryLandingPageType';
+  _id: Scalars['ID']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  faqHeading?: Maybe<Scalars['String']['output']>;
+  faqs: Array<CategoryFaqType>;
+  isActive: Scalars['Boolean']['output'];
+  pageTitle: Scalars['String']['output'];
+  seo?: Maybe<SeoBase>;
+  slug: Scalars['String']['output'];
+  tiles: Array<CategoryTileType>;
+  tilesHeading?: Maybe<Scalars['String']['output']>;
+  updatedAt: Scalars['DateTime']['output'];
 };
 
 export type CategorySeo = {
@@ -340,12 +425,18 @@ export type CategorySeo = {
   canonicalUrl?: Maybe<Scalars['String']['output']>;
   categoryId: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
+  internalNote?: Maybe<Scalars['String']['output']>;
   metaDescription?: Maybe<Scalars['String']['output']>;
   metaKeywords?: Maybe<Array<Scalars['String']['output']>>;
   metaTitle?: Maybe<Scalars['String']['output']>;
   ogDescription?: Maybe<Scalars['String']['output']>;
   ogImage?: Maybe<Scalars['String']['output']>;
   ogTitle?: Maybe<Scalars['String']['output']>;
+  robots?: Maybe<Scalars['String']['output']>;
+  twitterCard?: Maybe<Scalars['String']['output']>;
+  twitterDescription?: Maybe<Scalars['String']['output']>;
+  twitterImage?: Maybe<Scalars['String']['output']>;
+  twitterTitle?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTime']['output'];
 };
 
@@ -357,6 +448,23 @@ export type CategorySeoInput = {
   ogDescription?: InputMaybe<Scalars['String']['input']>;
   ogImage?: InputMaybe<Scalars['String']['input']>;
   ogTitle?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CategoryTileInput = {
+  blurb?: InputMaybe<Scalars['String']['input']>;
+  imageUrl?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  position?: InputMaybe<Scalars['Int']['input']>;
+  shopNowUrl: Scalars['String']['input'];
+};
+
+export type CategoryTileType = {
+  __typename?: 'CategoryTileType';
+  blurb?: Maybe<Scalars['String']['output']>;
+  imageUrl?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  position: Scalars['Int']['output'];
+  shopNowUrl: Scalars['String']['output'];
 };
 
 export type Charges = {
@@ -469,6 +577,22 @@ export type CreateAddressInput = {
   streetArea?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type CreateAuthorInput = {
+  bio?: InputMaybe<Scalars['String']['input']>;
+  credentials?: InputMaybe<Array<Scalars['String']['input']>>;
+  expertise?: InputMaybe<Array<Scalars['String']['input']>>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  isFounder?: InputMaybe<Scalars['Boolean']['input']>;
+  isTeamMember?: InputMaybe<Scalars['Boolean']['input']>;
+  jobTitle?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  photoUrl?: InputMaybe<Scalars['String']['input']>;
+  position?: InputMaybe<Scalars['Int']['input']>;
+  publicEmail?: InputMaybe<Scalars['String']['input']>;
+  slug: Scalars['String']['input'];
+  socialLinks?: InputMaybe<Array<AuthorSocialLinkInput>>;
+};
+
 export type CreateBannerInput = {
   backgroundColor?: InputMaybe<Scalars['String']['input']>;
   ctaText: Scalars['String']['input'];
@@ -497,13 +621,17 @@ export type CreateBlogCategoryInput = {
 
 export type CreateBlogInput = {
   author: Scalars['String']['input'];
+  authorId?: InputMaybe<Scalars['String']['input']>;
   category: Scalars['String']['input'];
   content: Scalars['String']['input'];
   date?: InputMaybe<Scalars['String']['input']>;
   excerpt: Scalars['String']['input'];
   image?: InputMaybe<Scalars['String']['input']>;
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  mentionedProductIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  pillarSlugs?: InputMaybe<Array<Scalars['String']['input']>>;
   position?: InputMaybe<Scalars['Float']['input']>;
+  readingTimeMinutes?: InputMaybe<Scalars['Float']['input']>;
   seo?: InputMaybe<BlogSeoInput>;
   slug: Scalars['String']['input'];
   title: Scalars['String']['input'];
@@ -518,18 +646,36 @@ export type CreateBoxSizeInput = {
 };
 
 export type CreateCategoryInput = {
+  categoryFaqs?: InputMaybe<Array<CategoryFaqEntryInput>>;
   codeValue?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
+  editorialHighlights?: InputMaybe<Array<Scalars['String']['input']>>;
+  editorialIntro?: InputMaybe<Scalars['String']['input']>;
   favourite?: InputMaybe<Scalars['Boolean']['input']>;
+  featuredProductIds?: InputMaybe<Array<Scalars['String']['input']>>;
   imageUrl?: InputMaybe<Scalars['String']['input']>;
   inCodeSet?: InputMaybe<Scalars['String']['input']>;
   isArchived?: InputMaybe<Scalars['Boolean']['input']>;
+  longDescription?: InputMaybe<Scalars['String']['input']>;
   mobile?: InputMaybe<Scalars['Boolean']['input']>;
   mobileImageUrl?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   parentId?: InputMaybe<Scalars['String']['input']>;
+  pillarSlugs?: InputMaybe<Array<Scalars['String']['input']>>;
   seo?: InputMaybe<SeoBaseInput>;
   slug?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CreateCategoryLandingPageInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  faqHeading?: InputMaybe<Scalars['String']['input']>;
+  faqs?: InputMaybe<Array<CategoryFaqInput>>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  pageTitle: Scalars['String']['input'];
+  seo?: InputMaybe<CategoryLandingPageSeoInput>;
+  slug: Scalars['String']['input'];
+  tiles?: InputMaybe<Array<CategoryTileInput>>;
+  tilesHeading?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type CreateChargesInput = {
@@ -587,6 +733,21 @@ export type CreatePackerResponse = {
   packer: Packer;
 };
 
+export type CreatePillarInput = {
+  categoryTiles?: InputMaybe<Array<PillarCategoryTileInput>>;
+  faqs?: InputMaybe<Array<PillarFaqEntryInput>>;
+  featuredProductIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  heroImageUrl?: InputMaybe<Scalars['String']['input']>;
+  intro: Scalars['String']['input'];
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  position?: InputMaybe<Scalars['Int']['input']>;
+  relatedPillarSlugs?: InputMaybe<Array<Scalars['String']['input']>>;
+  sections?: InputMaybe<Array<PillarSectionInput>>;
+  seo?: InputMaybe<SeoBaseInput>;
+  slug: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+};
+
 export type CreatePolicyInput = {
   content: Scalars['String']['input'];
   seo?: InputMaybe<SeoBaseInput>;
@@ -596,25 +757,49 @@ export type CreatePolicyInput = {
 
 export type CreateProductInput = {
   allergens?: InputMaybe<Scalars['String']['input']>;
+  audience?: InputMaybe<Array<Scalars['String']['input']>>;
   brand: Scalars['String']['input'];
+  bundleProductIds?: InputMaybe<Array<Scalars['String']['input']>>;
   categoryIds: Array<Scalars['String']['input']>;
+  certifications?: InputMaybe<Array<ProductCertificationInput>>;
+  cons?: InputMaybe<Array<ProductHighlightInput>>;
+  countryOfOrigin?: InputMaybe<Scalars['String']['input']>;
   currency?: InputMaybe<Scalars['String']['input']>;
+  deliveryLeadTime?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   favourite?: InputMaybe<Scalars['Boolean']['input']>;
+  fssaiLicense?: InputMaybe<Scalars['String']['input']>;
   gtin?: InputMaybe<Scalars['String']['input']>;
+  healthBenefits?: InputMaybe<Scalars['String']['input']>;
   ingredients: Scalars['String']['input'];
   isGlutenFree?: InputMaybe<Scalars['Boolean']['input']>;
   isVegetarian?: InputMaybe<Scalars['Boolean']['input']>;
   keywords?: InputMaybe<Array<Scalars['String']['input']>>;
+  lifestyleImages?: InputMaybe<Array<LifestyleImageInput>>;
+  longDescription?: InputMaybe<Scalars['String']['input']>;
+  manufacturingProcess?: InputMaybe<Scalars['String']['input']>;
   mpn?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
+  nutrition?: InputMaybe<ProductNutritionInput>;
+  occasions?: InputMaybe<Array<Scalars['String']['input']>>;
+  originStory?: InputMaybe<Scalars['String']['input']>;
+  pillarSlugs?: InputMaybe<Array<Scalars['String']['input']>>;
+  productFaqs?: InputMaybe<Array<ProductFaqEntryInput>>;
+  pros?: InputMaybe<Array<ProductHighlightInput>>;
   rating?: InputMaybe<Scalars['Float']['input']>;
   ratingCount?: InputMaybe<Scalars['Int']['input']>;
+  relatedProductIds?: InputMaybe<Array<Scalars['String']['input']>>;
   seo?: InputMaybe<ProductSeoInput>;
+  servingSuggestions?: InputMaybe<Scalars['String']['input']>;
   shelfLife: Scalars['String']['input'];
   slug?: InputMaybe<Scalars['String']['input']>;
+  storageInstructions?: InputMaybe<Scalars['String']['input']>;
   tags?: InputMaybe<Array<Scalars['String']['input']>>;
   variants: Array<CreateProductVariantInput>;
+  videoDescription?: InputMaybe<Scalars['String']['input']>;
+  videoThumbnailUrl?: InputMaybe<Scalars['String']['input']>;
+  videoTitle?: InputMaybe<Scalars['String']['input']>;
+  videoUrl?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type CreateProductVariantInput = {
@@ -752,13 +937,6 @@ export type CustomerSummary = {
   totalGuests: Scalars['Int']['output'];
   totalRegistered: Scalars['Int']['output'];
   totalRevenue: Scalars['Int']['output'];
-};
-
-export type DailySalesType = {
-  __typename?: 'DailySalesType';
-  date: Scalars['String']['output'];
-  orders: Scalars['Int']['output'];
-  revenue: Scalars['Float']['output'];
 };
 
 export type DashboardStats = {
@@ -1005,6 +1183,19 @@ export type LandingPageSeoInput = {
   ogTitle?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type LifestyleImage = {
+  __typename?: 'LifestyleImage';
+  alt: Scalars['String']['output'];
+  caption?: Maybe<Scalars['String']['output']>;
+  url: Scalars['String']['output'];
+};
+
+export type LifestyleImageInput = {
+  alt: Scalars['String']['input'];
+  caption?: InputMaybe<Scalars['String']['input']>;
+  url: Scalars['String']['input'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   addProductVariant: Product;
@@ -1024,16 +1215,19 @@ export type Mutation = {
   completePacking: PackingOrder;
   createAddress: Address;
   createAdmin: Scalars['String']['output'];
+  createAuthor: Author;
   createBanner: Banner;
   createBlog: Blog;
   createBlogCategory: BlogCategory;
   createBoxSize: BoxSize;
   createCategory: Category;
+  createCategoryLandingPage: CategoryLandingPageType;
   createCoupon: Coupon;
   createGuest: Guest;
   createLandingPage: LandingPage;
   createOrUpdateCharges: Charges;
   createPacker: CreatePackerResponse;
+  createPillar: Pillar;
   createPolicy: Policy;
   createProduct: Product;
   createRedirect: RedirectType;
@@ -1043,6 +1237,7 @@ export type Mutation = {
   deleteBlog: Blog;
   deleteBlogCategory: BlogCategory;
   deleteBoxSize: Scalars['Boolean']['output'];
+  deleteCategoryLandingPage: CategoryLandingPageType;
   deleteCategorySeo: Scalars['Boolean']['output'];
   deleteContactMessage: Scalars['Boolean']['output'];
   deleteCoupon: Coupon;
@@ -1058,8 +1253,10 @@ export type Mutation = {
   logout: Scalars['String']['output'];
   packerLogin: PackerLoginResponse;
   processRefund: RefundResponse;
+  removeAuthor: Author;
   removeCoupon: Cart;
   removeFromCart: Cart;
+  removePillar: Pillar;
   removeProductVariant: Product;
   removeProductsFromCategory: Scalars['Boolean']['output'];
   sendOtp: Scalars['String']['output'];
@@ -1074,18 +1271,21 @@ export type Mutation = {
   unarchiveProduct: Product;
   unsubscribeNewsletter: SubscribeNewsletterResponse;
   updateAddress: Address;
+  updateAuthor: Author;
   updateBanner: Banner;
   updateBlog: Blog;
   updateBlogCategory: BlogCategory;
   updateBoxSize: BoxSize;
   updateCartItem: Cart;
   updateCategory: Category;
+  updateCategoryLandingPage: CategoryLandingPageType;
   updateCategorySeo: CategorySeo;
   updateContactStatus: Contact;
   updateGuest: Guest;
   updateLandingPage: LandingPage;
   updateOrderStatus: OrderType;
   updatePacker: Packer;
+  updatePillar: Pillar;
   updatePolicy: Policy;
   updatePolicySeo: PolicySeo;
   updateProduct: Product;
@@ -1174,6 +1374,11 @@ export type MutationCreateAdminArgs = {
 };
 
 
+export type MutationCreateAuthorArgs = {
+  input: CreateAuthorInput;
+};
+
+
 export type MutationCreateBannerArgs = {
   input: CreateBannerInput;
 };
@@ -1199,6 +1404,11 @@ export type MutationCreateCategoryArgs = {
 };
 
 
+export type MutationCreateCategoryLandingPageArgs = {
+  input: CreateCategoryLandingPageInput;
+};
+
+
 export type MutationCreateCouponArgs = {
   input: CreateCouponInput;
 };
@@ -1221,6 +1431,11 @@ export type MutationCreateOrUpdateChargesArgs = {
 
 export type MutationCreatePackerArgs = {
   input: CreatePackerInput;
+};
+
+
+export type MutationCreatePillarArgs = {
+  input: CreatePillarInput;
 };
 
 
@@ -1266,6 +1481,11 @@ export type MutationDeleteBlogCategoryArgs = {
 
 export type MutationDeleteBoxSizeArgs = {
   boxId: Scalars['String']['input'];
+};
+
+
+export type MutationDeleteCategoryLandingPageArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -1339,8 +1559,18 @@ export type MutationProcessRefundArgs = {
 };
 
 
+export type MutationRemoveAuthorArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationRemoveFromCartArgs = {
   productId: Scalars['ID']['input'];
+};
+
+
+export type MutationRemovePillarArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -1412,6 +1642,12 @@ export type MutationUpdateAddressArgs = {
 };
 
 
+export type MutationUpdateAuthorArgs = {
+  id: Scalars['ID']['input'];
+  input: UpdateAuthorInput;
+};
+
+
 export type MutationUpdateBannerArgs = {
   id: Scalars['ID']['input'];
   input: UpdateBannerInput;
@@ -1447,6 +1683,12 @@ export type MutationUpdateCategoryArgs = {
 };
 
 
+export type MutationUpdateCategoryLandingPageArgs = {
+  id: Scalars['ID']['input'];
+  input: UpdateCategoryLandingPageInput;
+};
+
+
 export type MutationUpdateCategorySeoArgs = {
   categoryId: Scalars['ID']['input'];
   input: CategorySeoInput;
@@ -1479,6 +1721,12 @@ export type MutationUpdateOrderStatusArgs = {
 export type MutationUpdatePackerArgs = {
   input: UpdatePackerInput;
   packerId: Scalars['String']['input'];
+};
+
+
+export type MutationUpdatePillarArgs = {
+  id: Scalars['ID']['input'];
+  input: UpdatePillarInput;
 };
 
 
@@ -1588,15 +1836,6 @@ export type OrderPaymentType = {
   paidAt?: Maybe<Scalars['DateTime']['output']>;
   status: PaymentStatus;
   transactionId?: Maybe<Scalars['String']['output']>;
-};
-
-export type OrderReportResponse = {
-  __typename?: 'OrderReportResponse';
-  categorySales: Array<CategorySalesType>;
-  dailySales: Array<DailySalesType>;
-  summary: ReportSummaryType;
-  topCustomers: Array<TopCustomerType>;
-  topProducts: Array<TopProductType>;
 };
 
 export type OrderShippingAddressType = {
@@ -2022,6 +2261,64 @@ export type PieceDetailInput = {
   width: Scalars['Float']['input'];
 };
 
+export type Pillar = {
+  __typename?: 'Pillar';
+  _id: Scalars['ID']['output'];
+  categoryTiles: Array<PillarCategoryTileType>;
+  createdAt: Scalars['DateTime']['output'];
+  faqs: Array<PillarFaqEntryType>;
+  featuredProductIds: Array<Scalars['String']['output']>;
+  heroImageUrl?: Maybe<Scalars['String']['output']>;
+  intro: Scalars['String']['output'];
+  isActive: Scalars['Boolean']['output'];
+  position: Scalars['Int']['output'];
+  relatedPillarSlugs: Array<Scalars['String']['output']>;
+  sections: Array<PillarSectionType>;
+  seo?: Maybe<SeoBase>;
+  slug: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type PillarCategoryTileInput = {
+  blurb: Scalars['String']['input'];
+  categorySlug: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+};
+
+export type PillarCategoryTileType = {
+  __typename?: 'PillarCategoryTileType';
+  blurb: Scalars['String']['output'];
+  categorySlug: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+};
+
+export type PillarFaqEntryInput = {
+  answer: Scalars['String']['input'];
+  question: Scalars['String']['input'];
+};
+
+export type PillarFaqEntryType = {
+  __typename?: 'PillarFaqEntryType';
+  answer: Scalars['String']['output'];
+  question: Scalars['String']['output'];
+};
+
+export type PillarSectionInput = {
+  body: Scalars['String']['input'];
+  featuredProductIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  heading: Scalars['String']['input'];
+  speakable?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type PillarSectionType = {
+  __typename?: 'PillarSectionType';
+  body: Scalars['String']['output'];
+  featuredProductIds?: Maybe<Array<Scalars['String']['output']>>;
+  heading: Scalars['String']['output'];
+  speakable?: Maybe<Scalars['Boolean']['output']>;
+};
+
 export type PlaceDetailsInput = {
   placeId: Scalars['String']['input'];
   sessionToken?: InputMaybe<Scalars['String']['input']>;
@@ -2074,6 +2371,7 @@ export type PolicySeo = {
   _id: Scalars['ID']['output'];
   canonicalUrl?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
+  internalNote?: Maybe<Scalars['String']['output']>;
   metaDescription?: Maybe<Scalars['String']['output']>;
   metaKeywords?: Maybe<Array<Scalars['String']['output']>>;
   metaTitle?: Maybe<Scalars['String']['output']>;
@@ -2081,6 +2379,11 @@ export type PolicySeo = {
   ogImage?: Maybe<Scalars['String']['output']>;
   ogTitle?: Maybe<Scalars['String']['output']>;
   policyId: Scalars['String']['output'];
+  robots?: Maybe<Scalars['String']['output']>;
+  twitterCard?: Maybe<Scalars['String']['output']>;
+  twitterDescription?: Maybe<Scalars['String']['output']>;
+  twitterImage?: Maybe<Scalars['String']['output']>;
+  twitterTitle?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTime']['output'];
 };
 
@@ -2110,33 +2413,90 @@ export type Product = {
   __typename?: 'Product';
   _id: Scalars['ID']['output'];
   allergens?: Maybe<Scalars['String']['output']>;
+  audience?: Maybe<Array<Scalars['String']['output']>>;
   availableVariants: Array<ProductVariant>;
   brand: Scalars['String']['output'];
+  bundleProductIds?: Maybe<Array<Scalars['String']['output']>>;
   categories?: Maybe<Array<Category>>;
   category?: Maybe<Category>;
   categoryIds: Array<Scalars['String']['output']>;
+  certifications?: Maybe<Array<ProductCertification>>;
+  cons?: Maybe<Array<ProductHighlight>>;
+  countryOfOrigin?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   currency: Scalars['String']['output'];
   defaultVariant?: Maybe<ProductVariant>;
+  deliveryLeadTime?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   favourite?: Maybe<Scalars['Boolean']['output']>;
+  fssaiLicense?: Maybe<Scalars['String']['output']>;
   gtin?: Maybe<Scalars['String']['output']>;
+  healthBenefits?: Maybe<Scalars['String']['output']>;
   ingredients: Scalars['String']['output'];
   isArchived: Scalars['Boolean']['output'];
   isGlutenFree: Scalars['Boolean']['output'];
   isVegetarian: Scalars['Boolean']['output'];
   keywords: Array<Scalars['String']['output']>;
+  lifestyleImages?: Maybe<Array<LifestyleImage>>;
+  longDescription?: Maybe<Scalars['String']['output']>;
+  manufacturingProcess?: Maybe<Scalars['String']['output']>;
   mpn?: Maybe<Scalars['String']['output']>;
   name: Scalars['String']['output'];
+  nutrition?: Maybe<ProductNutrition>;
+  occasions?: Maybe<Array<Scalars['String']['output']>>;
+  originStory?: Maybe<Scalars['String']['output']>;
+  pillarSlugs?: Maybe<Array<Scalars['String']['output']>>;
   priceRange: PriceRange;
+  productFaqs?: Maybe<Array<ProductFaqEntry>>;
+  pros?: Maybe<Array<ProductHighlight>>;
   rating?: Maybe<Scalars['Float']['output']>;
   ratingCount: Scalars['Int']['output'];
+  relatedProductIds?: Maybe<Array<Scalars['String']['output']>>;
   seo?: Maybe<ProductSeo>;
+  servingSuggestions?: Maybe<Scalars['String']['output']>;
   shelfLife: Scalars['String']['output'];
   slug: Scalars['String']['output'];
+  storageInstructions?: Maybe<Scalars['String']['output']>;
   tags: Array<Scalars['String']['output']>;
   updatedAt: Scalars['DateTime']['output'];
   variants: Array<ProductVariant>;
+  videoDescription?: Maybe<Scalars['String']['output']>;
+  videoThumbnailUrl?: Maybe<Scalars['String']['output']>;
+  videoTitle?: Maybe<Scalars['String']['output']>;
+  videoUrl?: Maybe<Scalars['String']['output']>;
+};
+
+export type ProductCertification = {
+  __typename?: 'ProductCertification';
+  iconUrl?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  number?: Maybe<Scalars['String']['output']>;
+};
+
+export type ProductCertificationInput = {
+  iconUrl?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  number?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ProductFaqEntry = {
+  __typename?: 'ProductFaqEntry';
+  answer: Scalars['String']['output'];
+  question: Scalars['String']['output'];
+};
+
+export type ProductFaqEntryInput = {
+  answer: Scalars['String']['input'];
+  question: Scalars['String']['input'];
+};
+
+export type ProductHighlight = {
+  __typename?: 'ProductHighlight';
+  text: Scalars['String']['output'];
+};
+
+export type ProductHighlightInput = {
+  text: Scalars['String']['input'];
 };
 
 export type ProductImage = {
@@ -2150,6 +2510,43 @@ export type ProductImageInput = {
   url: Scalars['String']['input'];
 };
 
+export type ProductNutrition = {
+  __typename?: 'ProductNutrition';
+  calciumContent?: Maybe<Scalars['String']['output']>;
+  calories?: Maybe<Scalars['String']['output']>;
+  caloriesPerServing?: Maybe<Scalars['String']['output']>;
+  carbohydrateContent?: Maybe<Scalars['String']['output']>;
+  cholesterolContent?: Maybe<Scalars['String']['output']>;
+  fatContent?: Maybe<Scalars['String']['output']>;
+  fiberContent?: Maybe<Scalars['String']['output']>;
+  ironContent?: Maybe<Scalars['String']['output']>;
+  proteinContent?: Maybe<Scalars['String']['output']>;
+  saturatedFatContent?: Maybe<Scalars['String']['output']>;
+  servingSize?: Maybe<Scalars['String']['output']>;
+  servingsPerPack?: Maybe<Scalars['String']['output']>;
+  sodiumContent?: Maybe<Scalars['String']['output']>;
+  sugarContent?: Maybe<Scalars['String']['output']>;
+  transFatContent?: Maybe<Scalars['String']['output']>;
+};
+
+export type ProductNutritionInput = {
+  calciumContent?: InputMaybe<Scalars['String']['input']>;
+  calories?: InputMaybe<Scalars['String']['input']>;
+  caloriesPerServing?: InputMaybe<Scalars['String']['input']>;
+  carbohydrateContent?: InputMaybe<Scalars['String']['input']>;
+  cholesterolContent?: InputMaybe<Scalars['String']['input']>;
+  fatContent?: InputMaybe<Scalars['String']['input']>;
+  fiberContent?: InputMaybe<Scalars['String']['input']>;
+  ironContent?: InputMaybe<Scalars['String']['input']>;
+  proteinContent?: InputMaybe<Scalars['String']['input']>;
+  saturatedFatContent?: InputMaybe<Scalars['String']['input']>;
+  servingSize?: InputMaybe<Scalars['String']['input']>;
+  servingsPerPack?: InputMaybe<Scalars['String']['input']>;
+  sodiumContent?: InputMaybe<Scalars['String']['input']>;
+  sugarContent?: InputMaybe<Scalars['String']['input']>;
+  transFatContent?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type ProductScanItem = {
   eans: Array<Scalars['String']['input']>;
   productId: Scalars['String']['input'];
@@ -2160,6 +2557,7 @@ export type ProductSeo = {
   _id: Scalars['ID']['output'];
   canonicalUrl?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
+  internalNote?: Maybe<Scalars['String']['output']>;
   metaDescription?: Maybe<Scalars['String']['output']>;
   metaKeywords?: Maybe<Array<Scalars['String']['output']>>;
   metaTitle?: Maybe<Scalars['String']['output']>;
@@ -2167,17 +2565,28 @@ export type ProductSeo = {
   ogImage?: Maybe<Scalars['String']['output']>;
   ogTitle?: Maybe<Scalars['String']['output']>;
   productId: Scalars['String']['output'];
+  robots?: Maybe<Scalars['String']['output']>;
+  twitterCard?: Maybe<Scalars['String']['output']>;
+  twitterDescription?: Maybe<Scalars['String']['output']>;
+  twitterImage?: Maybe<Scalars['String']['output']>;
+  twitterTitle?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTime']['output'];
 };
 
 export type ProductSeoInput = {
   canonicalUrl?: InputMaybe<Scalars['String']['input']>;
+  internalNote?: InputMaybe<Scalars['String']['input']>;
   metaDescription?: InputMaybe<Scalars['String']['input']>;
   metaKeywords?: InputMaybe<Array<Scalars['String']['input']>>;
   metaTitle?: InputMaybe<Scalars['String']['input']>;
   ogDescription?: InputMaybe<Scalars['String']['input']>;
   ogImage?: InputMaybe<Scalars['String']['input']>;
   ogTitle?: InputMaybe<Scalars['String']['input']>;
+  robots?: InputMaybe<Scalars['String']['input']>;
+  twitterCard?: InputMaybe<Scalars['String']['input']>;
+  twitterDescription?: InputMaybe<Scalars['String']['input']>;
+  twitterImage?: InputMaybe<Scalars['String']['input']>;
+  twitterTitle?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type ProductValidation = {
@@ -2227,13 +2636,18 @@ export enum PurposeOfInquiry {
 
 export type Query = {
   __typename?: 'Query';
+  activeAuthors: Array<Author>;
   activeBanners: Array<Banner>;
   activeBlogCategories: Array<BlogCategory>;
   activeBlogs: Array<Blog>;
   activeCoupons: Array<Coupon>;
   activeLandingPages: Array<LandingPage>;
+  activePillars: Array<Pillar>;
   address: Address;
   allActiveRedirects: Array<RedirectType>;
+  author: Author;
+  authorBySlug: Author;
+  authors: Array<Author>;
   banner?: Maybe<Banner>;
   banners: Array<Banner>;
   blog?: Maybe<Blog>;
@@ -2245,6 +2659,9 @@ export type Query = {
   category?: Maybe<Category>;
   categoryBySlug?: Maybe<Category>;
   categoryChildren: PaginatedCategories;
+  categoryLandingPage?: Maybe<CategoryLandingPageType>;
+  categoryLandingPageBySlug?: Maybe<CategoryLandingPageType>;
+  categoryLandingPages: Array<CategoryLandingPageType>;
   charges?: Maybe<Charges>;
   coupon: Coupon;
   coupons: Array<Coupon>;
@@ -2273,7 +2690,6 @@ export type Query = {
   getMyStats: PackerStats;
   getNewsletterSubscriptionCount: Scalars['Float']['output'];
   getOrderById: OrderType;
-  getOrderReports: OrderReportResponse;
   getPackerById: Packer;
   getPackerStats: PackerStats;
   getPaymentOrderById: PaymentOrderType;
@@ -2295,6 +2711,9 @@ export type Query = {
   myAddresses: Array<Address>;
   myCart?: Maybe<Cart>;
   myPayments: Array<PaymentOrderType>;
+  pillar: Pillar;
+  pillarBySlug: Pillar;
+  pillars: Array<Pillar>;
   policies: Array<Policy>;
   policiesByType: Array<Policy>;
   policy?: Maybe<Policy>;
@@ -2312,11 +2731,22 @@ export type Query = {
   searchCategories: PaginatedCategories;
   searchPlaces: Array<PlacePredictionOutput>;
   searchProducts: PaginatedProducts;
+  teamMembers: Array<Author>;
 };
 
 
 export type QueryAddressArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryAuthorArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryAuthorBySlugArgs = {
+  slug: Scalars['String']['input'];
 };
 
 
@@ -2362,6 +2792,16 @@ export type QueryCategoryChildrenArgs = {
   includeArchived?: Scalars['Boolean']['input'];
   pagination?: PaginationInput;
   parentId: Scalars['ID']['input'];
+};
+
+
+export type QueryCategoryLandingPageArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryCategoryLandingPageBySlugArgs = {
+  slug: Scalars['String']['input'];
 };
 
 
@@ -2458,11 +2898,6 @@ export type QueryGetOrderByIdArgs = {
 };
 
 
-export type QueryGetOrderReportsArgs = {
-  period?: Scalars['String']['input'];
-};
-
-
 export type QueryGetPackerByIdArgs = {
   packerId: Scalars['String']['input'];
 };
@@ -2539,6 +2974,16 @@ export type QueryLandingPageBySlugArgs = {
 
 export type QueryListShipmentsArgs = {
   filters?: InputMaybe<ShipmentFiltersInput>;
+};
+
+
+export type QueryPillarArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryPillarBySlugArgs = {
+  slug: Scalars['String']['input'];
 };
 
 
@@ -2675,17 +3120,6 @@ export type RemoveProductsFromCategoryInput = {
   productIds: Array<Scalars['ID']['input']>;
 };
 
-export type ReportSummaryType = {
-  __typename?: 'ReportSummaryType';
-  avgOrderValue: Scalars['Float']['output'];
-  customersGrowth: Scalars['Float']['output'];
-  ordersGrowth: Scalars['Float']['output'];
-  revenueGrowth: Scalars['Float']['output'];
-  totalCustomers: Scalars['Int']['output'];
-  totalOrders: Scalars['Int']['output'];
-  totalRevenue: Scalars['Float']['output'];
-};
-
 export type ReverseGeocodeInput = {
   latitude: Scalars['Float']['input'];
   longitude: Scalars['Float']['input'];
@@ -2736,22 +3170,34 @@ export type SectionPlatformLinkInput = {
 export type SeoBase = {
   __typename?: 'SeoBase';
   canonicalUrl?: Maybe<Scalars['String']['output']>;
+  internalNote?: Maybe<Scalars['String']['output']>;
   metaDescription?: Maybe<Scalars['String']['output']>;
   metaKeywords?: Maybe<Array<Scalars['String']['output']>>;
   metaTitle?: Maybe<Scalars['String']['output']>;
   ogDescription?: Maybe<Scalars['String']['output']>;
   ogImage?: Maybe<Scalars['String']['output']>;
   ogTitle?: Maybe<Scalars['String']['output']>;
+  robots?: Maybe<Scalars['String']['output']>;
+  twitterCard?: Maybe<Scalars['String']['output']>;
+  twitterDescription?: Maybe<Scalars['String']['output']>;
+  twitterImage?: Maybe<Scalars['String']['output']>;
+  twitterTitle?: Maybe<Scalars['String']['output']>;
 };
 
 export type SeoBaseInput = {
   canonicalUrl?: InputMaybe<Scalars['String']['input']>;
+  internalNote?: InputMaybe<Scalars['String']['input']>;
   metaDescription?: InputMaybe<Scalars['String']['input']>;
   metaKeywords?: InputMaybe<Array<Scalars['String']['input']>>;
   metaTitle?: InputMaybe<Scalars['String']['input']>;
   ogDescription?: InputMaybe<Scalars['String']['input']>;
   ogImage?: InputMaybe<Scalars['String']['input']>;
   ogTitle?: InputMaybe<Scalars['String']['input']>;
+  robots?: InputMaybe<Scalars['String']['input']>;
+  twitterCard?: InputMaybe<Scalars['String']['input']>;
+  twitterDescription?: InputMaybe<Scalars['String']['input']>;
+  twitterImage?: InputMaybe<Scalars['String']['input']>;
+  twitterTitle?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type SetShippingAddressInput = {
@@ -2908,24 +3354,6 @@ export type SubscribeNewsletterResponse = {
   success: Scalars['Boolean']['output'];
 };
 
-export type TopCustomerType = {
-  __typename?: 'TopCustomerType';
-  _id: Scalars['String']['output'];
-  email?: Maybe<Scalars['String']['output']>;
-  name: Scalars['String']['output'];
-  totalOrders: Scalars['Int']['output'];
-  totalSpent: Scalars['Float']['output'];
-};
-
-export type TopProductType = {
-  __typename?: 'TopProductType';
-  _id: Scalars['String']['output'];
-  image?: Maybe<Scalars['String']['output']>;
-  name: Scalars['String']['output'];
-  revenue: Scalars['Float']['output'];
-  soldQuantity: Scalars['Int']['output'];
-};
-
 export type TrackingAnalyticsResponse = {
   __typename?: 'TrackingAnalyticsResponse';
   recentSearches: Array<RecentSearch>;
@@ -2973,6 +3401,22 @@ export type UpdateAddressInput = {
   streetArea?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type UpdateAuthorInput = {
+  bio?: InputMaybe<Scalars['String']['input']>;
+  credentials?: InputMaybe<Array<Scalars['String']['input']>>;
+  expertise?: InputMaybe<Array<Scalars['String']['input']>>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  isFounder?: InputMaybe<Scalars['Boolean']['input']>;
+  isTeamMember?: InputMaybe<Scalars['Boolean']['input']>;
+  jobTitle?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  photoUrl?: InputMaybe<Scalars['String']['input']>;
+  position?: InputMaybe<Scalars['Int']['input']>;
+  publicEmail?: InputMaybe<Scalars['String']['input']>;
+  slug?: InputMaybe<Scalars['String']['input']>;
+  socialLinks?: InputMaybe<Array<AuthorSocialLinkInput>>;
+};
+
 export type UpdateBannerInput = {
   backgroundColor?: InputMaybe<Scalars['String']['input']>;
   ctaText?: InputMaybe<Scalars['String']['input']>;
@@ -3001,13 +3445,17 @@ export type UpdateBlogCategoryInput = {
 
 export type UpdateBlogInput = {
   author?: InputMaybe<Scalars['String']['input']>;
+  authorId?: InputMaybe<Scalars['String']['input']>;
   category?: InputMaybe<Scalars['String']['input']>;
   content?: InputMaybe<Scalars['String']['input']>;
   date?: InputMaybe<Scalars['String']['input']>;
   excerpt?: InputMaybe<Scalars['String']['input']>;
   image?: InputMaybe<Scalars['String']['input']>;
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  mentionedProductIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  pillarSlugs?: InputMaybe<Array<Scalars['String']['input']>>;
   position?: InputMaybe<Scalars['Float']['input']>;
+  readingTimeMinutes?: InputMaybe<Scalars['Float']['input']>;
   seo?: InputMaybe<BlogSeoInput>;
   slug?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
@@ -3027,18 +3475,36 @@ export type UpdateCartItemInput = {
 };
 
 export type UpdateCategoryInput = {
+  categoryFaqs?: InputMaybe<Array<CategoryFaqEntryInput>>;
   codeValue?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
+  editorialHighlights?: InputMaybe<Array<Scalars['String']['input']>>;
+  editorialIntro?: InputMaybe<Scalars['String']['input']>;
   favourite?: InputMaybe<Scalars['Boolean']['input']>;
+  featuredProductIds?: InputMaybe<Array<Scalars['String']['input']>>;
   imageUrl?: InputMaybe<Scalars['String']['input']>;
   inCodeSet?: InputMaybe<Scalars['String']['input']>;
   isArchived?: InputMaybe<Scalars['Boolean']['input']>;
+  longDescription?: InputMaybe<Scalars['String']['input']>;
   mobile?: InputMaybe<Scalars['Boolean']['input']>;
   mobileImageUrl?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   parentId?: InputMaybe<Scalars['String']['input']>;
+  pillarSlugs?: InputMaybe<Array<Scalars['String']['input']>>;
   seo?: InputMaybe<SeoBaseInput>;
   slug?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateCategoryLandingPageInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  faqHeading?: InputMaybe<Scalars['String']['input']>;
+  faqs?: InputMaybe<Array<CategoryFaqInput>>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  pageTitle?: InputMaybe<Scalars['String']['input']>;
+  seo?: InputMaybe<CategoryLandingPageSeoInput>;
+  slug?: InputMaybe<Scalars['String']['input']>;
+  tiles?: InputMaybe<Array<CategoryTileInput>>;
+  tilesHeading?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateGuestInput = {
@@ -3070,6 +3536,21 @@ export type UpdatePackerInput = {
   phone?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type UpdatePillarInput = {
+  categoryTiles?: InputMaybe<Array<PillarCategoryTileInput>>;
+  faqs?: InputMaybe<Array<PillarFaqEntryInput>>;
+  featuredProductIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  heroImageUrl?: InputMaybe<Scalars['String']['input']>;
+  intro?: InputMaybe<Scalars['String']['input']>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  position?: InputMaybe<Scalars['Int']['input']>;
+  relatedPillarSlugs?: InputMaybe<Array<Scalars['String']['input']>>;
+  sections?: InputMaybe<Array<PillarSectionInput>>;
+  seo?: InputMaybe<SeoBaseInput>;
+  slug?: InputMaybe<Scalars['String']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type UpdatePolicyInput = {
   content?: InputMaybe<Scalars['String']['input']>;
   seo?: InputMaybe<SeoBaseInput>;
@@ -3079,25 +3560,49 @@ export type UpdatePolicyInput = {
 
 export type UpdateProductInput = {
   allergens?: InputMaybe<Scalars['String']['input']>;
+  audience?: InputMaybe<Array<Scalars['String']['input']>>;
   brand?: InputMaybe<Scalars['String']['input']>;
+  bundleProductIds?: InputMaybe<Array<Scalars['String']['input']>>;
   categoryIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  certifications?: InputMaybe<Array<ProductCertificationInput>>;
+  cons?: InputMaybe<Array<ProductHighlightInput>>;
+  countryOfOrigin?: InputMaybe<Scalars['String']['input']>;
   currency?: InputMaybe<Scalars['String']['input']>;
+  deliveryLeadTime?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   favourite?: InputMaybe<Scalars['Boolean']['input']>;
+  fssaiLicense?: InputMaybe<Scalars['String']['input']>;
   gtin?: InputMaybe<Scalars['String']['input']>;
+  healthBenefits?: InputMaybe<Scalars['String']['input']>;
   ingredients?: InputMaybe<Scalars['String']['input']>;
   isGlutenFree?: InputMaybe<Scalars['Boolean']['input']>;
   isVegetarian?: InputMaybe<Scalars['Boolean']['input']>;
   keywords?: InputMaybe<Array<Scalars['String']['input']>>;
+  lifestyleImages?: InputMaybe<Array<LifestyleImageInput>>;
+  longDescription?: InputMaybe<Scalars['String']['input']>;
+  manufacturingProcess?: InputMaybe<Scalars['String']['input']>;
   mpn?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
+  nutrition?: InputMaybe<ProductNutritionInput>;
+  occasions?: InputMaybe<Array<Scalars['String']['input']>>;
+  originStory?: InputMaybe<Scalars['String']['input']>;
+  pillarSlugs?: InputMaybe<Array<Scalars['String']['input']>>;
+  productFaqs?: InputMaybe<Array<ProductFaqEntryInput>>;
+  pros?: InputMaybe<Array<ProductHighlightInput>>;
   rating?: InputMaybe<Scalars['Float']['input']>;
   ratingCount?: InputMaybe<Scalars['Int']['input']>;
+  relatedProductIds?: InputMaybe<Array<Scalars['String']['input']>>;
   seo?: InputMaybe<ProductSeoInput>;
+  servingSuggestions?: InputMaybe<Scalars['String']['input']>;
   shelfLife?: InputMaybe<Scalars['String']['input']>;
   slug?: InputMaybe<Scalars['String']['input']>;
+  storageInstructions?: InputMaybe<Scalars['String']['input']>;
   tags?: InputMaybe<Array<Scalars['String']['input']>>;
   variants?: InputMaybe<Array<UpdateProductVariantInput>>;
+  videoDescription?: InputMaybe<Scalars['String']['input']>;
+  videoThumbnailUrl?: InputMaybe<Scalars['String']['input']>;
+  videoTitle?: InputMaybe<Scalars['String']['input']>;
+  videoUrl?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateProductVariantInput = {
@@ -3405,7 +3910,7 @@ export type GetProductBySlugQueryVariables = Exact<{
 }>;
 
 
-export type GetProductBySlugQuery = { __typename?: 'Query', productBySlug?: { __typename?: 'Product', _id: string, name: string, slug: string, description?: string | null, shelfLife: string, isVegetarian: boolean, categoryIds: Array<string>, ingredients: string, brand: string, currency: string, seo?: { __typename?: 'ProductSeo', metaTitle?: string | null, metaDescription?: string | null, metaKeywords?: Array<string> | null, canonicalUrl?: string | null, ogTitle?: string | null, ogDescription?: string | null, ogImage?: string | null } | null, variants: Array<{ __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> }>, defaultVariant?: { __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> } | null, priceRange: { __typename?: 'PriceRange', min: number, max: number }, availableVariants: Array<{ __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> }> } | null };
+export type GetProductBySlugQuery = { __typename?: 'Query', productBySlug?: { __typename?: 'Product', _id: string, name: string, slug: string, description?: string | null, shelfLife: string, isVegetarian: boolean, isGlutenFree: boolean, categoryIds: Array<string>, ingredients: string, allergens?: string | null, brand: string, gtin?: string | null, mpn?: string | null, currency: string, rating?: number | null, ratingCount: number, keywords: Array<string>, tags: Array<string>, createdAt: any, updatedAt: any, longDescription?: string | null, healthBenefits?: string | null, servingSuggestions?: string | null, storageInstructions?: string | null, originStory?: string | null, manufacturingProcess?: string | null, audience?: Array<string> | null, occasions?: Array<string> | null, videoUrl?: string | null, videoTitle?: string | null, videoDescription?: string | null, videoThumbnailUrl?: string | null, pillarSlugs?: Array<string> | null, relatedProductIds?: Array<string> | null, bundleProductIds?: Array<string> | null, fssaiLicense?: string | null, countryOfOrigin?: string | null, deliveryLeadTime?: string | null, seo?: { __typename?: 'ProductSeo', metaTitle?: string | null, metaDescription?: string | null, metaKeywords?: Array<string> | null, canonicalUrl?: string | null, ogTitle?: string | null, ogDescription?: string | null, ogImage?: string | null, twitterCard?: string | null, twitterTitle?: string | null, twitterDescription?: string | null, twitterImage?: string | null, robots?: string | null } | null, pros?: Array<{ __typename?: 'ProductHighlight', text: string }> | null, cons?: Array<{ __typename?: 'ProductHighlight', text: string }> | null, certifications?: Array<{ __typename?: 'ProductCertification', name: string, number?: string | null, iconUrl?: string | null }> | null, lifestyleImages?: Array<{ __typename?: 'LifestyleImage', url: string, alt: string, caption?: string | null }> | null, productFaqs?: Array<{ __typename?: 'ProductFaqEntry', question: string, answer: string }> | null, nutrition?: { __typename?: 'ProductNutrition', servingSize?: string | null, servingsPerPack?: string | null, calories?: string | null, caloriesPerServing?: string | null, fatContent?: string | null, saturatedFatContent?: string | null, transFatContent?: string | null, cholesterolContent?: string | null, sodiumContent?: string | null, carbohydrateContent?: string | null, fiberContent?: string | null, sugarContent?: string | null, proteinContent?: string | null, ironContent?: string | null, calciumContent?: string | null } | null, variants: Array<{ __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> }>, defaultVariant?: { __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> } | null, priceRange: { __typename?: 'PriceRange', min: number, max: number }, availableVariants: Array<{ __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> }> } | null };
 
 export type SearchProductsQueryVariables = Exact<{
   searchTerm: Scalars['String']['input'];
@@ -4131,10 +4636,20 @@ export const GetProductBySlugDocument = new TypedDocumentString(`
     description
     shelfLife
     isVegetarian
+    isGlutenFree
     categoryIds
     ingredients
+    allergens
     brand
+    gtin
+    mpn
     currency
+    rating
+    ratingCount
+    keywords
+    tags
+    createdAt
+    updatedAt
     seo {
       metaTitle
       metaDescription
@@ -4143,7 +4658,67 @@ export const GetProductBySlugDocument = new TypedDocumentString(`
       ogTitle
       ogDescription
       ogImage
+      twitterCard
+      twitterTitle
+      twitterDescription
+      twitterImage
+      robots
     }
+    longDescription
+    healthBenefits
+    servingSuggestions
+    storageInstructions
+    originStory
+    manufacturingProcess
+    audience
+    occasions
+    pros {
+      text
+    }
+    cons {
+      text
+    }
+    certifications {
+      name
+      number
+      iconUrl
+    }
+    lifestyleImages {
+      url
+      alt
+      caption
+    }
+    videoUrl
+    videoTitle
+    videoDescription
+    videoThumbnailUrl
+    productFaqs {
+      question
+      answer
+    }
+    pillarSlugs
+    relatedProductIds
+    bundleProductIds
+    nutrition {
+      servingSize
+      servingsPerPack
+      calories
+      caloriesPerServing
+      fatContent
+      saturatedFatContent
+      transFatContent
+      cholesterolContent
+      sodiumContent
+      carbohydrateContent
+      fiberContent
+      sugarContent
+      proteinContent
+      ironContent
+      calciumContent
+    }
+    fssaiLicense
+    countryOfOrigin
+    deliveryLeadTime
     variants {
       _id
       sku

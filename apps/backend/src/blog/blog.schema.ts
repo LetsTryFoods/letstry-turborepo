@@ -29,8 +29,30 @@ export class Blog {
     @Prop({ required: true })
     author: string;
 
+    // Optional reference to an Author document for E-E-A-T (author profile,
+    // bio, photo, credentials). When set, the storefront emits Person
+    // schema linked to the Author profile page; otherwise it falls back to
+    // the legacy `author` string.
+    @Prop()
+    authorId?: string;
+
     @Prop({ required: true })
     category: string;
+
+    // Pillar pages this blog supports. Drives "back to pillar" breadcrumbs
+    // and contributes to cluster-blog lists on the pillar page template.
+    @Prop({ type: [String], default: [] })
+    pillarSlugs?: string[];
+
+    // Products explicitly mentioned in this post. Renders the
+    // "Products mentioned in this post" widget on the storefront.
+    @Prop({ type: [String], default: [] })
+    mentionedProductIds?: string[];
+
+    // Reading time in minutes (auto-computed at write time, but stored so
+    // the storefront can render without re-parsing the HTML body).
+    @Prop()
+    readingTimeMinutes?: number;
 
     @Prop({ type: SeoBaseSchema, required: false })
     seo?: SeoBase;

@@ -63,8 +63,38 @@ export interface ProductSeo {
   ogTitle?: string;
   ogDescription?: string;
   ogImage?: string;
+  // Sprint 4 SeoBase additions
+  twitterCard?: string;
+  twitterTitle?: string;
+  twitterDescription?: string;
+  twitterImage?: string;
+  robots?: string;
+  internalNote?: string;
   createdAt?: string;
   updatedAt?: string;
+}
+
+// Sprint 4 — rich content sub-types.
+export interface ProductHighlight { text: string; }
+export interface ProductCertification { name: string; number?: string; iconUrl?: string; }
+export interface LifestyleImage { url: string; alt: string; caption?: string; }
+export interface ProductFaqEntry { question: string; answer: string; }
+export interface ProductNutrition {
+  servingSize?: string;
+  servingsPerPack?: string;
+  calories?: string;
+  caloriesPerServing?: string;
+  fatContent?: string;
+  saturatedFatContent?: string;
+  transFatContent?: string;
+  cholesterolContent?: string;
+  sodiumContent?: string;
+  carbohydrateContent?: string;
+  fiberContent?: string;
+  sugarContent?: string;
+  proteinContent?: string;
+  ironContent?: string;
+  calciumContent?: string;
 }
 
 export interface Product {
@@ -89,6 +119,31 @@ export interface Product {
   tags: string[];
   isArchived: boolean;
   favourite?: boolean;
+  // Sprint 4 — rich CMS-authored content (all optional).
+  longDescription?: string;
+  healthBenefits?: string;
+  servingSuggestions?: string;
+  storageInstructions?: string;
+  originStory?: string;
+  manufacturingProcess?: string;
+  audience?: string[];
+  occasions?: string[];
+  pros?: ProductHighlight[];
+  cons?: ProductHighlight[];
+  certifications?: ProductCertification[];
+  lifestyleImages?: LifestyleImage[];
+  videoUrl?: string;
+  videoTitle?: string;
+  videoDescription?: string;
+  videoThumbnailUrl?: string;
+  productFaqs?: ProductFaqEntry[];
+  pillarSlugs?: string[];
+  relatedProductIds?: string[];
+  bundleProductIds?: string[];
+  nutrition?: ProductNutrition;
+  fssaiLicense?: string;
+  countryOfOrigin?: string;
+  deliveryLeadTime?: string;
   createdAt: string;
   updatedAt: string;
   categories?: Category[];
@@ -175,6 +230,32 @@ export interface UpdateProductInput {
   keywords?: string[];
   tags?: string[];
   variants?: VariantInput[];
+  // Sprint 4 — rich CMS-authored content.
+  longDescription?: string;
+  healthBenefits?: string;
+  servingSuggestions?: string;
+  storageInstructions?: string;
+  originStory?: string;
+  manufacturingProcess?: string;
+  audience?: string[];
+  occasions?: string[];
+  pros?: ProductHighlight[];
+  cons?: ProductHighlight[];
+  certifications?: ProductCertification[];
+  lifestyleImages?: LifestyleImage[];
+  videoUrl?: string;
+  videoTitle?: string;
+  videoDescription?: string;
+  videoThumbnailUrl?: string;
+  productFaqs?: ProductFaqEntry[];
+  pillarSlugs?: string[];
+  relatedProductIds?: string[];
+  bundleProductIds?: string[];
+  nutrition?: ProductNutrition;
+  fssaiLicense?: string;
+  countryOfOrigin?: string;
+  deliveryLeadTime?: string;
+  seo?: ProductSeoInput;
 }
 
 export const useProducts = (
@@ -208,6 +289,12 @@ export interface ProductSeoInput {
   ogTitle?: string;
   ogDescription?: string;
   ogImage?: string;
+  twitterCard?: string;
+  twitterTitle?: string;
+  twitterDescription?: string;
+  twitterImage?: string;
+  robots?: string;
+  internalNote?: string;
 }
 
 export const useUpdateProductSeo = () => {

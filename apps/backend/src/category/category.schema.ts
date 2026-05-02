@@ -46,6 +46,37 @@ export class Category {
   @Prop({ type: Boolean, default: false })
   isArchived: boolean;
 
+  // ---- Sprint 4 rich content ---------------------------------------------
+  // Long-form description (HTML) shown above the product grid.
+  @Prop({ required: false })
+  longDescription?: string;
+
+  // Editorial intro shown in the answer-box at the top of the category page.
+  // Pairs with Speakable schema. Aim 40-60 words for AEO citation rates.
+  @Prop({ required: false })
+  editorialIntro?: string;
+
+  // CMS-authored category-level FAQs. Supplements (or replaces) the
+  // hard-coded category-faqs.ts entries.
+  @Prop({
+    type: [{ question: String, answer: String }],
+    default: [],
+  })
+  categoryFaqs?: { question: string; answer: string }[];
+
+  // Featured products to pin at the top of the category grid.
+  @Prop({ type: [String], default: [] })
+  featuredProductIds?: string[];
+
+  // Pillar pages this category belongs to. Used for cross-category
+  // internal linking from the pillar templates.
+  @Prop({ type: [String], default: [] })
+  pillarSlugs?: string[];
+
+  // Editorial highlights surfaced as "Why shop this category" bullets.
+  @Prop({ type: [String], default: [] })
+  editorialHighlights?: string[];
+
   @Prop({ type: SeoBaseSchema, default: null })
   seo?: SeoBase;
 

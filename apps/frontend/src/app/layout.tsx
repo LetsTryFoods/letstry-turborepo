@@ -15,6 +15,7 @@ import { CartContainer } from "@/components/cart-drawer/CartContainer";
 import { SearchOverlay } from "@/components/search-overlay";
 import { GoogleTagManager, GoogleTagManagerNoscript } from "@/components/analytics/google-tag-manager";
 import { PageViewTracker } from "@/components/analytics/page-view-tracker";
+import { WebVitalsTracker } from "@/components/analytics/web-vitals";
 import { SpinWheelContainer } from "@/components/spin-wheel/SpinWheelContainer";
 import Script from 'next/script';
 
@@ -49,6 +50,24 @@ export const metadata: Metadata = {
     template: "%s | Let's Try Foods",
   },
   description: "Let's Try Foods — healthy Indian snacks with no palm oil and no maida.",
+  // Search-engine ownership verification.
+  // Pull values from env vars so they can be set per-environment without a
+  // code change. Leaving them unset is safe — Next omits the meta tag when
+  // the value is undefined.
+  verification: {
+    google: process.env.NEXT_PUBLIC_GSC_VERIFICATION || undefined,
+    other: {
+      ...(process.env.NEXT_PUBLIC_BING_VERIFICATION
+        ? { 'msvalidate.01': process.env.NEXT_PUBLIC_BING_VERIFICATION }
+        : {}),
+      ...(process.env.NEXT_PUBLIC_YANDEX_VERIFICATION
+        ? { 'yandex-verification': process.env.NEXT_PUBLIC_YANDEX_VERIFICATION }
+        : {}),
+      ...(process.env.NEXT_PUBLIC_PINTEREST_VERIFICATION
+        ? { 'p:domain_verify': process.env.NEXT_PUBLIC_PINTEREST_VERIFICATION }
+        : {}),
+    },
+  },
 };
 
 const organizationSchema = {
@@ -56,7 +75,7 @@ const organizationSchema = {
   '@type': 'Organization',
   '@id': `${SITE_URL}#organization`,
   name: "Let's Try Foods",
-  alternateName: "Let's Try",
+  alternateName: ["Let's Try", 'LetsTry Foods'],
   legalName: 'Earth Crust Pvt Ltd',
   url: SITE_URL,
   logo: {
@@ -65,15 +84,35 @@ const organizationSchema = {
     width: 120,
     height: 120,
   },
+  image: `${SITE_URL}/logo.webp`,
+  description:
+    "Let's Try Foods is a Delhi-based Indian healthy-snacks brand. Every product is made without palm oil; most are also made without maida. The cookies range is made without refined sugar.",
+  slogan: 'Healthy Indian snacks, no palm oil.',
+  foundingDate: '2021',
+  foundingLocation: {
+    '@type': 'Place',
+    name: 'Delhi, India',
+  },
+  knowsAbout: [
+    'palm-oil-free Indian snacks',
+    'no-maida namkeen',
+    'healthy Indian cookies',
+    'roasted makhana',
+    'traditional Indian namkeen',
+    'vrat / fasting snacks',
+  ],
+  areaServed: { '@type': 'Country', name: 'India' },
   sameAs: [
     'https://www.facebook.com/p/Lets-Try-100067844378739/',
     'https://www.instagram.com/letstry_foods/',
   ],
   identifier: 'U15549DL2020PTC365385',
+  taxID: 'U15549DL2020PTC365385',
   address: {
     '@type': 'PostalAddress',
     streetAddress: '329, 1st Floor, Indra Vihar',
     addressLocality: 'Delhi',
+    addressRegion: 'Delhi',
     postalCode: '110009',
     addressCountry: 'IN',
   },
@@ -150,6 +189,7 @@ export default function RootLayout({
               <Suspense fallback={null}>
                 <PageViewTracker />
               </Suspense>
+              <WebVitalsTracker />
               <NotificationBanner />
               <HomeAlertModal />
               <TopBanner />

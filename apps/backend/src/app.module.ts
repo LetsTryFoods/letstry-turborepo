@@ -36,6 +36,9 @@ import { CorporateEnquiryModule } from './corporate-enquiry/corporate-enquiry.mo
 import { ContactModule } from './contact/contact.module';
 import { DataExportModule } from './data-export/data-export.module';
 import { LandingPageModule } from './landing-page/landing-page.module';
+import { PillarModule } from './pillar/pillar.module';
+import { AuthorModule } from './author/author.module';
+import { CategoryLandingPageModule } from './category-landing-page/category-landing-page.module';
 
 @Module({
   imports: [
@@ -80,6 +83,9 @@ import { LandingPageModule } from './landing-page/landing-page.module';
     AuthenticationModule,
     DataExportModule,
     LandingPageModule,
+    PillarModule,
+    AuthorModule,
+    CategoryLandingPageModule,
     AppCacheModule,
   ],
   controllers: [AppController],

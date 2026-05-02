@@ -2,6 +2,8 @@ import { MetadataRoute } from 'next';
 import { createServerGraphQLClient } from '@/lib/graphql/server-client-factory';
 import { GET_ALL_PRODUCTS_FOR_SITEMAP, GET_ALL_CATEGORIES_FOR_SITEMAP } from '@/lib/graphql/sitemap-queries';
 import { getActiveBlogs } from '@/lib/blog';
+import { getActivePillars } from '@/lib/pillar';
+import { getActiveAuthors } from '@/lib/author';
 
 interface Product {
   slug: string;
@@ -35,7 +37,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/contact-us`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
     { url: `${baseUrl}/bulk-corporate`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${baseUrl}/combos`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${baseUrl}/no-palm-oil-snacks`, lastModified: now, changeFrequency: 'monthly', priority: 0.9 },
     { url: `${baseUrl}/blog`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
+    // Sprint 4 — new E-E-A-T pages
+    { url: `${baseUrl}/team`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${baseUrl}/press`, lastModified: now, changeFrequency: 'monthly', priority: 0.4 },
     { url: `${baseUrl}/shipping-policy`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
     { url: `${baseUrl}/refund-cancellations`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
     { url: `${baseUrl}/terms-of-service`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
@@ -44,6 +50,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let productRoutes: MetadataRoute.Sitemap = [];
   let categoryRoutes: MetadataRoute.Sitemap = [];
   let blogRoutes: MetadataRoute.Sitemap = [];
+  let pillarRoutes: MetadataRoute.Sitemap = [];
+  let authorRoutes: MetadataRoute.Sitemap = [];
 
   const client = createServerGraphQLClient();
 
@@ -89,5 +97,36 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('Failed to fetch blogs for sitemap:', error);
   }
 
-  return [...staticRoutes, ...productRoutes, ...categoryRoutes, ...blogRoutes];
+  try {
+    const pillars = await getActivePillars();
+    pillarRoutes = pillars.map((pillar) => ({
+      url: `${baseUrl}/p/${pillar.slug}`,
+      lastModified: now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.9,
+    }));
+  } catch (error) {
+    console.error('Failed to fetch pillars for sitemap:', error);
+  }
+
+  try {
+    const authors = await getActiveAuthors();
+    authorRoutes = authors.map((author) => ({
+      url: `${baseUrl}/author/${author.slug}`,
+      lastModified: now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.4,
+    }));
+  } catch (error) {
+    console.error('Failed to fetch authors for sitemap:', error);
+  }
+
+  return [
+    ...staticRoutes,
+    ...pillarRoutes,
+    ...categoryRoutes,
+    ...productRoutes,
+    ...blogRoutes,
+    ...authorRoutes,
+  ];
 }

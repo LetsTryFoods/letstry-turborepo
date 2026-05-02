@@ -300,6 +300,12 @@ type SeoBase {
   ogTitle: String
   ogDescription: String
   ogImage: String
+  twitterCard: String
+  twitterTitle: String
+  twitterDescription: String
+  twitterImage: String
+  robots: String
+  internalNote: String
 }
 
 type ProductSeo {
@@ -310,10 +316,55 @@ type ProductSeo {
   ogTitle: String
   ogDescription: String
   ogImage: String
+  twitterCard: String
+  twitterTitle: String
+  twitterDescription: String
+  twitterImage: String
+  robots: String
+  internalNote: String
   _id: ID!
   productId: String!
   createdAt: DateTime!
   updatedAt: DateTime!
+}
+
+type ProductNutrition {
+  servingSize: String
+  servingsPerPack: String
+  calories: String
+  caloriesPerServing: String
+  fatContent: String
+  saturatedFatContent: String
+  transFatContent: String
+  cholesterolContent: String
+  sodiumContent: String
+  carbohydrateContent: String
+  fiberContent: String
+  sugarContent: String
+  proteinContent: String
+  ironContent: String
+  calciumContent: String
+}
+
+type LifestyleImage {
+  url: String!
+  alt: String!
+  caption: String
+}
+
+type ProductFaqEntry {
+  question: String!
+  answer: String!
+}
+
+type ProductHighlight {
+  text: String!
+}
+
+type ProductCertification {
+  name: String!
+  number: String
+  iconUrl: String
 }
 
 type ProductImage {
@@ -372,6 +423,12 @@ type PolicySeo {
   ogTitle: String
   ogDescription: String
   ogImage: String
+  twitterCard: String
+  twitterTitle: String
+  twitterDescription: String
+  twitterImage: String
+  robots: String
+  internalNote: String
   _id: ID!
   policyId: String!
   createdAt: DateTime!
@@ -442,6 +499,30 @@ type Product {
   keywords: [String!]!
   tags: [String!]!
   isArchived: Boolean!
+  longDescription: String
+  healthBenefits: String
+  servingSuggestions: String
+  storageInstructions: String
+  originStory: String
+  manufacturingProcess: String
+  audience: [String!]
+  occasions: [String!]
+  pros: [ProductHighlight!]
+  cons: [ProductHighlight!]
+  certifications: [ProductCertification!]
+  lifestyleImages: [LifestyleImage!]
+  videoUrl: String
+  videoTitle: String
+  videoDescription: String
+  videoThumbnailUrl: String
+  productFaqs: [ProductFaqEntry!]
+  pillarSlugs: [String!]
+  relatedProductIds: [String!]
+  bundleProductIds: [String!]
+  nutrition: ProductNutrition
+  fssaiLicense: String
+  countryOfOrigin: String
+  deliveryLeadTime: String
   seo: ProductSeo
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -455,6 +536,11 @@ type Product {
 type PriceRange {
   min: Float!
   max: Float!
+}
+
+type CategoryFaqEntry {
+  question: String!
+  answer: String!
 }
 
 type Category {
@@ -472,6 +558,12 @@ type Category {
   inCodeSet: String
   productCount: Float!
   isArchived: Boolean!
+  longDescription: String
+  editorialIntro: String
+  categoryFaqs: [CategoryFaqEntry!]
+  featuredProductIds: [String!]
+  pillarSlugs: [String!]
+  editorialHighlights: [String!]
   seo: CategorySeo
   products: [Product!]!
   children: [Category!]
@@ -487,6 +579,12 @@ type CategorySeo {
   ogTitle: String
   ogDescription: String
   ogImage: String
+  twitterCard: String
+  twitterTitle: String
+  twitterDescription: String
+  twitterImage: String
+  robots: String
+  internalNote: String
   _id: ID!
   categoryId: String!
   createdAt: DateTime!
@@ -1244,7 +1342,11 @@ type Blog {
   image: String
   date: String
   author: String!
+  authorId: String
   category: String!
+  pillarSlugs: [String!]
+  mentionedProductIds: [String!]
+  readingTimeMinutes: Float
   seo: SeoBase
   isActive: Boolean
   position: Float
@@ -1355,6 +1457,95 @@ type LandingPage {
   updatedAt: DateTime!
 }
 
+type PillarSectionType {
+  heading: String!
+  body: String!
+  speakable: Boolean
+  featuredProductIds: [String!]
+}
+
+type PillarFaqEntryType {
+  question: String!
+  answer: String!
+}
+
+type PillarCategoryTileType {
+  categorySlug: String!
+  name: String!
+  blurb: String!
+}
+
+type Pillar {
+  _id: ID!
+  slug: String!
+  title: String!
+  intro: String!
+  heroImageUrl: String
+  categoryTiles: [PillarCategoryTileType!]!
+  featuredProductIds: [String!]!
+  sections: [PillarSectionType!]!
+  faqs: [PillarFaqEntryType!]!
+  relatedPillarSlugs: [String!]!
+  isActive: Boolean!
+  position: Int!
+  seo: SeoBase
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type AuthorSocialLinkType {
+  platform: String!
+  url: String!
+}
+
+type Author {
+  _id: ID!
+  slug: String!
+  name: String!
+  jobTitle: String
+  bio: String
+  photoUrl: String
+  publicEmail: String
+  expertise: [String!]!
+  credentials: [String!]!
+  socialLinks: [AuthorSocialLinkType!]!
+  isFounder: Boolean!
+  isTeamMember: Boolean!
+  isActive: Boolean!
+  position: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type CategoryTileType {
+  name: String!
+  blurb: String
+  imageUrl: String
+  shopNowUrl: String!
+  position: Int!
+}
+
+type CategoryFaqType {
+  question: String!
+  answer: String!
+  position: Int!
+}
+
+type CategoryLandingPageType {
+  _id: ID!
+  slug: String!
+  pageTitle: String!
+  description: String
+  tilesHeading: String
+  faqHeading: String
+  tiles: [CategoryTileType!]!
+  faqs: [CategoryFaqType!]!
+  seo: SeoBase
+  isActive: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
 input BoxDimensionsInput {
   l: Float!
   w: Float!
@@ -1447,6 +1638,18 @@ type Query {
   activeLandingPages: [LandingPage!]!
   landingPage(id: ID!): LandingPage
   landingPageBySlug(slug: String!): LandingPage
+  pillars: [Pillar!]!
+  activePillars: [Pillar!]!
+  pillar(id: ID!): Pillar!
+  pillarBySlug(slug: String!): Pillar!
+  authors: [Author!]!
+  activeAuthors: [Author!]!
+  teamMembers: [Author!]!
+  author(id: ID!): Author!
+  authorBySlug(slug: String!): Author!
+  categoryLandingPages: [CategoryLandingPageType!]!
+  categoryLandingPage(id: ID!): CategoryLandingPageType
+  categoryLandingPageBySlug(slug: String!): CategoryLandingPageType
 }
 
 input PaginationInput {
@@ -1651,6 +1854,15 @@ type Mutation {
   createLandingPage(input: CreateLandingPageInput!): LandingPage!
   updateLandingPage(id: ID!, input: UpdateLandingPageInput!): LandingPage!
   deleteLandingPage(id: ID!): LandingPage!
+  createPillar(input: CreatePillarInput!): Pillar!
+  updatePillar(id: ID!, input: UpdatePillarInput!): Pillar!
+  removePillar(id: ID!): Pillar!
+  createAuthor(input: CreateAuthorInput!): Author!
+  updateAuthor(id: ID!, input: UpdateAuthorInput!): Author!
+  removeAuthor(id: ID!): Author!
+  createCategoryLandingPage(input: CreateCategoryLandingPageInput!): CategoryLandingPageType!
+  updateCategoryLandingPage(id: ID!, input: UpdateCategoryLandingPageInput!): CategoryLandingPageType!
+  deleteCategoryLandingPage(id: ID!): CategoryLandingPageType!
 }
 
 input CreateProductInput {
@@ -1673,6 +1885,30 @@ input CreateProductInput {
   keywords: [String!]
   tags: [String!]
   variants: [CreateProductVariantInput!]!
+  longDescription: String
+  healthBenefits: String
+  servingSuggestions: String
+  storageInstructions: String
+  originStory: String
+  manufacturingProcess: String
+  audience: [String!]
+  occasions: [String!]
+  pros: [ProductHighlightInput!]
+  cons: [ProductHighlightInput!]
+  certifications: [ProductCertificationInput!]
+  lifestyleImages: [LifestyleImageInput!]
+  videoUrl: String
+  videoTitle: String
+  videoDescription: String
+  videoThumbnailUrl: String
+  productFaqs: [ProductFaqEntryInput!]
+  pillarSlugs: [String!]
+  relatedProductIds: [String!]
+  bundleProductIds: [String!]
+  nutrition: ProductNutritionInput
+  fssaiLicense: String
+  countryOfOrigin: String
+  deliveryLeadTime: String
   seo: ProductSeoInput
 }
 
@@ -1702,6 +1938,45 @@ input ProductImageInput {
   alt: String!
 }
 
+input ProductHighlightInput {
+  text: String!
+}
+
+input ProductCertificationInput {
+  name: String!
+  number: String
+  iconUrl: String
+}
+
+input LifestyleImageInput {
+  url: String!
+  alt: String!
+  caption: String
+}
+
+input ProductFaqEntryInput {
+  question: String!
+  answer: String!
+}
+
+input ProductNutritionInput {
+  servingSize: String
+  servingsPerPack: String
+  calories: String
+  caloriesPerServing: String
+  fatContent: String
+  saturatedFatContent: String
+  transFatContent: String
+  cholesterolContent: String
+  sodiumContent: String
+  carbohydrateContent: String
+  fiberContent: String
+  sugarContent: String
+  proteinContent: String
+  ironContent: String
+  calciumContent: String
+}
+
 input ProductSeoInput {
   metaTitle: String
   metaDescription: String
@@ -1710,6 +1985,12 @@ input ProductSeoInput {
   ogTitle: String
   ogDescription: String
   ogImage: String
+  twitterCard: String
+  twitterTitle: String
+  twitterDescription: String
+  twitterImage: String
+  robots: String
+  internalNote: String
 }
 
 input UpdateProductInput {
@@ -1732,6 +2013,30 @@ input UpdateProductInput {
   keywords: [String!]
   tags: [String!]
   variants: [UpdateProductVariantInput!]
+  longDescription: String
+  healthBenefits: String
+  servingSuggestions: String
+  storageInstructions: String
+  originStory: String
+  manufacturingProcess: String
+  audience: [String!]
+  occasions: [String!]
+  pros: [ProductHighlightInput!]
+  cons: [ProductHighlightInput!]
+  certifications: [ProductCertificationInput!]
+  lifestyleImages: [LifestyleImageInput!]
+  videoUrl: String
+  videoTitle: String
+  videoDescription: String
+  videoThumbnailUrl: String
+  productFaqs: [ProductFaqEntryInput!]
+  pillarSlugs: [String!]
+  relatedProductIds: [String!]
+  bundleProductIds: [String!]
+  nutrition: ProductNutritionInput
+  fssaiLicense: String
+  countryOfOrigin: String
+  deliveryLeadTime: String
   seo: ProductSeoInput
 }
 
@@ -1769,7 +2074,18 @@ input CreateCategoryInput {
   codeValue: String
   inCodeSet: String
   isArchived: Boolean
+  longDescription: String
+  editorialIntro: String
+  categoryFaqs: [CategoryFaqEntryInput!]
+  featuredProductIds: [String!]
+  pillarSlugs: [String!]
+  editorialHighlights: [String!]
   seo: SeoBaseInput
+}
+
+input CategoryFaqEntryInput {
+  question: String!
+  answer: String!
 }
 
 input SeoBaseInput {
@@ -1780,6 +2096,12 @@ input SeoBaseInput {
   ogTitle: String
   ogDescription: String
   ogImage: String
+  twitterCard: String
+  twitterTitle: String
+  twitterDescription: String
+  twitterImage: String
+  robots: String
+  internalNote: String
 }
 
 input UpdateCategoryInput {
@@ -1794,6 +2116,12 @@ input UpdateCategoryInput {
   codeValue: String
   inCodeSet: String
   isArchived: Boolean
+  longDescription: String
+  editorialIntro: String
+  categoryFaqs: [CategoryFaqEntryInput!]
+  featuredProductIds: [String!]
+  pillarSlugs: [String!]
+  editorialHighlights: [String!]
   seo: SeoBaseInput
 }
 
@@ -2163,7 +2491,11 @@ input CreateBlogInput {
   image: String
   date: String
   author: String!
+  authorId: String
   category: String!
+  pillarSlugs: [String!]
+  mentionedProductIds: [String!]
+  readingTimeMinutes: Float
   seo: BlogSeoInput
   isActive: Boolean
   position: Float
@@ -2187,7 +2519,11 @@ input UpdateBlogInput {
   image: String
   date: String
   author: String
+  authorId: String
   category: String
+  pillarSlugs: [String!]
+  mentionedProductIds: [String!]
+  readingTimeMinutes: Float
   seo: BlogSeoInput
   isActive: Boolean
   position: Float
@@ -2288,4 +2624,137 @@ input UpdateLandingPageInput {
   seo: LandingPageSeoInput
   isActive: Boolean
   position: Int
+}
+
+input CreatePillarInput {
+  slug: String!
+  title: String!
+  intro: String!
+  heroImageUrl: String
+  categoryTiles: [PillarCategoryTileInput!]
+  featuredProductIds: [String!]
+  sections: [PillarSectionInput!]
+  faqs: [PillarFaqEntryInput!]
+  relatedPillarSlugs: [String!]
+  isActive: Boolean
+  position: Int
+  seo: SeoBaseInput
+}
+
+input PillarCategoryTileInput {
+  categorySlug: String!
+  name: String!
+  blurb: String!
+}
+
+input PillarSectionInput {
+  heading: String!
+  body: String!
+  speakable: Boolean
+  featuredProductIds: [String!]
+}
+
+input PillarFaqEntryInput {
+  question: String!
+  answer: String!
+}
+
+input UpdatePillarInput {
+  slug: String
+  title: String
+  intro: String
+  heroImageUrl: String
+  categoryTiles: [PillarCategoryTileInput!]
+  featuredProductIds: [String!]
+  sections: [PillarSectionInput!]
+  faqs: [PillarFaqEntryInput!]
+  relatedPillarSlugs: [String!]
+  isActive: Boolean
+  position: Int
+  seo: SeoBaseInput
+}
+
+input CreateAuthorInput {
+  slug: String!
+  name: String!
+  jobTitle: String
+  bio: String
+  photoUrl: String
+  publicEmail: String
+  expertise: [String!]
+  credentials: [String!]
+  socialLinks: [AuthorSocialLinkInput!]
+  isFounder: Boolean
+  isTeamMember: Boolean
+  isActive: Boolean
+  position: Int
+}
+
+input AuthorSocialLinkInput {
+  platform: String!
+  url: String!
+}
+
+input UpdateAuthorInput {
+  slug: String
+  name: String
+  jobTitle: String
+  bio: String
+  photoUrl: String
+  publicEmail: String
+  expertise: [String!]
+  credentials: [String!]
+  socialLinks: [AuthorSocialLinkInput!]
+  isFounder: Boolean
+  isTeamMember: Boolean
+  isActive: Boolean
+  position: Int
+}
+
+input CreateCategoryLandingPageInput {
+  slug: String!
+  pageTitle: String!
+  description: String
+  tilesHeading: String
+  faqHeading: String
+  tiles: [CategoryTileInput!]
+  faqs: [CategoryFaqInput!]
+  seo: CategoryLandingPageSeoInput
+  isActive: Boolean
+}
+
+input CategoryTileInput {
+  name: String!
+  blurb: String
+  imageUrl: String
+  shopNowUrl: String!
+  position: Int
+}
+
+input CategoryFaqInput {
+  question: String!
+  answer: String!
+  position: Int
+}
+
+input CategoryLandingPageSeoInput {
+  metaTitle: String
+  metaDescription: String
+  metaKeywords: [String!]
+  canonicalUrl: String
+  ogTitle: String
+  ogDescription: String
+  ogImage: String
+}
+
+input UpdateCategoryLandingPageInput {
+  slug: String
+  pageTitle: String
+  description: String
+  tilesHeading: String
+  faqHeading: String
+  tiles: [CategoryTileInput!]
+  faqs: [CategoryFaqInput!]
+  seo: CategoryLandingPageSeoInput
+  isActive: Boolean
 }
