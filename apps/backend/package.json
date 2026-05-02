@@ -20,6 +20,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
+    "check-types": "tsc --noEmit",
     "seed": "node seed.js",
     "compare-products": "ts-node -r tsconfig-paths/register scripts/compare-products.ts",
     "compare-final": "ts-node -r tsconfig-paths/register scripts/compare-final.ts",
