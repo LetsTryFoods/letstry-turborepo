@@ -11,18 +11,18 @@ interface SearchHeaderProps {
   autoFocus?: boolean;
 }
 
-const SearchHeader: React.FC<SearchHeaderProps> = ({ 
-  query, 
-  setQuery, 
+const SearchHeader: React.FC<SearchHeaderProps> = ({
+  query,
+  setQuery,
   onSubmit,
-  autoFocus = true 
+  autoFocus = true
 }) => {
   const router = useRouter();
 
   return (
     <View style={styles.header}>
-      <TouchableOpacity 
-        onPress={() => router.back()} 
+      <TouchableOpacity
+        onPress={() => router.back()}
         style={styles.backButton}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       >
@@ -48,10 +48,6 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
           </TouchableOpacity>
         )}
       </View>
-      
-      <TouchableOpacity style={styles.micButton}>
-        <Ionicons name="mic-outline" size={RFValue(22)} color="#0C5273" />
-      </TouchableOpacity>
     </View>
   );
 };
@@ -89,10 +85,6 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   clearButton: {
-    padding: 4,
-  },
-  micButton: {
-    marginLeft: wp('3%'),
     padding: 4,
   },
 });
