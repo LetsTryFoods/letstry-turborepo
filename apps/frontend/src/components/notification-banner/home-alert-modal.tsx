@@ -10,7 +10,7 @@ export const HomeAlertModal = () => {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (pathname !== "/" && !pathname.startsWith("/track")) return;
+    if (!pathname.startsWith("/track")) return;
     
     const isDismissed = sessionStorage.getItem("home-alert-dismissed");
     if (!isDismissed) {
