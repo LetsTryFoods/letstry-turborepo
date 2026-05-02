@@ -21,6 +21,9 @@ import { useCartStore } from '../../src/features/cart/store/cart-store';
 import { useCart } from '../../src/features/cart/hooks/use-cart';
 import { useCartMutations } from '../../src/features/cart/hooks/use-cart-mutations';
 import * as Haptics from 'expo-haptics';
+import HorizontalSection from '../../src/features/home/components/HorizontalSection';
+import { useQuery } from '@apollo/client';
+import { GET_PRODUCTS_BY_CATEGORY } from '../../src/lib/graphql/home';
 
 export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -29,6 +32,19 @@ export default function ProductDetailScreen() {
   const isId = /^[0-9a-fA-F]{24}$/.test(productId);
 
   const { product, loading, error, selectedVariant, setSelectedVariant } = useProductDetails(productId, isId);
+
+  // Fetch Related Products from the same category
+  const primaryCategoryId = product?.categoryIds?.[0];
+  const { data: relatedData, loading: relatedLoading } = useQuery(GET_PRODUCTS_BY_CATEGORY, {
+    variables: { 
+      categoryId: primaryCategoryId, 
+      pagination: { limit: 10, page: 1 } 
+    },
+    skip: !primaryCategoryId,
+  });
+
+  const relatedProducts = (relatedData?.productsByCategory?.items || [])
+    .filter((p: any) => p._id !== product?._id);
 
   // Real Global Cart State & Mutations
   const { openCart } = useCartStore();
@@ -178,6 +194,14 @@ export default function ProductDetailScreen() {
           selectedVariant={selectedVariant}
           setSelectedVariant={setSelectedVariant}
         />
+
+        <View style={styles.relatedSection}>
+          <HorizontalSection 
+            title="Related Products" 
+            products={relatedProducts}
+            loading={relatedLoading}
+          />
+        </View>
 
         <View style={styles.bottomSpacer} />
       </Animated.ScrollView>
@@ -458,5 +482,9 @@ const styles = StyleSheet.create({
   },
   bottomSpacer: {
     height: 40,
+  },
+  relatedSection: {
+    marginTop: 10,
+    backgroundColor: '#fff',
   },
 });
