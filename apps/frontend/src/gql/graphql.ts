@@ -8,7 +8,6 @@ export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Mayb
 export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
 export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
 /** All built-in and custom scalars, mapped to their actual values */
-
 export type Scalars = {
   ID: { input: string; output: string; }
   String: { input: string; output: string; }
@@ -417,6 +416,13 @@ export type CategoryLandingPageType = {
   tiles: Array<CategoryTileType>;
   tilesHeading?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTime']['output'];
+};
+
+export type CategorySalesType = {
+  __typename?: 'CategorySalesType';
+  category: Scalars['String']['output'];
+  percentage: Scalars['Float']['output'];
+  revenue: Scalars['Float']['output'];
 };
 
 export type CategorySeo = {
@@ -937,6 +943,13 @@ export type CustomerSummary = {
   totalGuests: Scalars['Int']['output'];
   totalRegistered: Scalars['Int']['output'];
   totalRevenue: Scalars['Int']['output'];
+};
+
+export type DailySalesType = {
+  __typename?: 'DailySalesType';
+  date: Scalars['String']['output'];
+  orders: Scalars['Int']['output'];
+  revenue: Scalars['Float']['output'];
 };
 
 export type DashboardStats = {
@@ -1838,6 +1851,15 @@ export type OrderPaymentType = {
   transactionId?: Maybe<Scalars['String']['output']>;
 };
 
+export type OrderReportResponse = {
+  __typename?: 'OrderReportResponse';
+  categorySales: Array<CategorySalesType>;
+  dailySales: Array<DailySalesType>;
+  summary: ReportSummaryType;
+  topCustomers: Array<TopCustomerType>;
+  topProducts: Array<TopProductType>;
+};
+
 export type OrderShippingAddressType = {
   __typename?: 'OrderShippingAddressType';
   addressLine1: Scalars['String']['output'];
@@ -2690,6 +2712,7 @@ export type Query = {
   getMyStats: PackerStats;
   getNewsletterSubscriptionCount: Scalars['Float']['output'];
   getOrderById: OrderType;
+  getOrderReports: OrderReportResponse;
   getPackerById: Packer;
   getPackerStats: PackerStats;
   getPaymentOrderById: PaymentOrderType;
@@ -2895,6 +2918,11 @@ export type QueryGetNewsletterSubscriptionCountArgs = {
 
 export type QueryGetOrderByIdArgs = {
   orderId: Scalars['String']['input'];
+};
+
+
+export type QueryGetOrderReportsArgs = {
+  period?: Scalars['String']['input'];
 };
 
 
@@ -3118,6 +3146,17 @@ export type RefundResponse = {
 export type RemoveProductsFromCategoryInput = {
   categoryId: Scalars['ID']['input'];
   productIds: Array<Scalars['ID']['input']>;
+};
+
+export type ReportSummaryType = {
+  __typename?: 'ReportSummaryType';
+  avgOrderValue: Scalars['Float']['output'];
+  customersGrowth: Scalars['Float']['output'];
+  ordersGrowth: Scalars['Float']['output'];
+  revenueGrowth: Scalars['Float']['output'];
+  totalCustomers: Scalars['Int']['output'];
+  totalOrders: Scalars['Int']['output'];
+  totalRevenue: Scalars['Float']['output'];
 };
 
 export type ReverseGeocodeInput = {
@@ -3352,6 +3391,24 @@ export type SubscribeNewsletterResponse = {
   email?: Maybe<Scalars['String']['output']>;
   message: Scalars['String']['output'];
   success: Scalars['Boolean']['output'];
+};
+
+export type TopCustomerType = {
+  __typename?: 'TopCustomerType';
+  _id: Scalars['String']['output'];
+  email?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  totalOrders: Scalars['Int']['output'];
+  totalSpent: Scalars['Float']['output'];
+};
+
+export type TopProductType = {
+  __typename?: 'TopProductType';
+  _id: Scalars['String']['output'];
+  image?: Maybe<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  revenue: Scalars['Float']['output'];
+  soldQuantity: Scalars['Int']['output'];
 };
 
 export type TrackingAnalyticsResponse = {
@@ -3890,12 +3947,31 @@ export type InitiatePaymentMutationVariables = Exact<{
 
 export type InitiatePaymentMutation = { __typename?: 'Mutation', initiatePayment: { __typename?: 'InitiatePaymentResponse', paymentOrderId: string, redirectUrl: string } };
 
+export type GetPillarBySlugQueryVariables = Exact<{
+  slug: Scalars['String']['input'];
+}>;
+
+
+export type GetPillarBySlugQuery = { __typename?: 'Query', pillarBySlug: { __typename?: 'Pillar', _id: string, slug: string, title: string, intro: string, heroImageUrl?: string | null, featuredProductIds: Array<string>, relatedPillarSlugs: Array<string>, isActive: boolean, categoryTiles: Array<{ __typename?: 'PillarCategoryTileType', categorySlug: string, name: string, blurb: string }>, sections: Array<{ __typename?: 'PillarSectionType', heading: string, body: string, speakable?: boolean | null, featuredProductIds?: Array<string> | null }>, faqs: Array<{ __typename?: 'PillarFaqEntryType', question: string, answer: string }>, seo?: { __typename?: 'SeoBase', metaTitle?: string | null, metaDescription?: string | null, metaKeywords?: Array<string> | null, canonicalUrl?: string | null, ogTitle?: string | null, ogDescription?: string | null, ogImage?: string | null, twitterCard?: string | null, twitterTitle?: string | null, twitterDescription?: string | null, twitterImage?: string | null, robots?: string | null } | null } };
+
+export type GetActivePillarsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetActivePillarsQuery = { __typename?: 'Query', activePillars: Array<{ __typename?: 'Pillar', _id: string, slug: string, title: string, intro: string, isActive: boolean, position: number }> };
+
 export type GetPoliciesByTypeQueryVariables = Exact<{
   type: Scalars['String']['input'];
 }>;
 
 
 export type GetPoliciesByTypeQuery = { __typename?: 'Query', policiesByType: Array<{ __typename?: 'Policy', _id: string, title: string, content: string, type: string, createdAt: any, updatedAt: any, seo?: { __typename?: 'PolicySeo', metaTitle?: string | null, metaDescription?: string | null, metaKeywords?: Array<string> | null, canonicalUrl?: string | null, ogTitle?: string | null, ogDescription?: string | null, ogImage?: string | null } | null }> };
+
+export type GetProductBySlugMinimalQueryVariables = Exact<{
+  slug: Scalars['String']['input'];
+}>;
+
+
+export type GetProductBySlugMinimalQuery = { __typename?: 'Query', productBySlug?: { __typename?: 'Product', _id: string, name: string, slug: string, description?: string | null, shelfLife: string, isVegetarian: boolean, isGlutenFree: boolean, categoryIds: Array<string>, ingredients: string, allergens?: string | null, brand: string, gtin?: string | null, mpn?: string | null, currency: string, rating?: number | null, ratingCount: number, keywords: Array<string>, tags: Array<string>, createdAt: any, updatedAt: any, seo?: { __typename?: 'ProductSeo', metaTitle?: string | null, metaDescription?: string | null, metaKeywords?: Array<string> | null, canonicalUrl?: string | null, ogTitle?: string | null, ogDescription?: string | null, ogImage?: string | null } | null, variants: Array<{ __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> }>, defaultVariant?: { __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> } | null, priceRange: { __typename?: 'PriceRange', min: number, max: number }, availableVariants: Array<{ __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, weight: number, weightUnit: string, packageSize: string, stockQuantity: number, availabilityStatus: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> }> } | null };
 
 export type GetProductsByCategoryQueryVariables = Exact<{
   categoryId: Scalars['ID']['input'];
@@ -4555,6 +4631,61 @@ export const InitiatePaymentDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<InitiatePaymentMutation, InitiatePaymentMutationVariables>;
+export const GetPillarBySlugDocument = new TypedDocumentString(`
+    query GetPillarBySlug($slug: String!) {
+  pillarBySlug(slug: $slug) {
+    _id
+    slug
+    title
+    intro
+    heroImageUrl
+    categoryTiles {
+      categorySlug
+      name
+      blurb
+    }
+    featuredProductIds
+    sections {
+      heading
+      body
+      speakable
+      featuredProductIds
+    }
+    faqs {
+      question
+      answer
+    }
+    relatedPillarSlugs
+    isActive
+    seo {
+      metaTitle
+      metaDescription
+      metaKeywords
+      canonicalUrl
+      ogTitle
+      ogDescription
+      ogImage
+      twitterCard
+      twitterTitle
+      twitterDescription
+      twitterImage
+      robots
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<GetPillarBySlugQuery, GetPillarBySlugQueryVariables>;
+export const GetActivePillarsDocument = new TypedDocumentString(`
+    query GetActivePillars {
+  activePillars {
+    _id
+    slug
+    title
+    intro
+    isActive
+    position
+  }
+}
+    `) as unknown as TypedDocumentString<GetActivePillarsQuery, GetActivePillarsQueryVariables>;
 export const GetPoliciesByTypeDocument = new TypedDocumentString(`
     query GetPoliciesByType($type: String!) {
   policiesByType(type: $type) {
@@ -4576,6 +4707,102 @@ export const GetPoliciesByTypeDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<GetPoliciesByTypeQuery, GetPoliciesByTypeQueryVariables>;
+export const GetProductBySlugMinimalDocument = new TypedDocumentString(`
+    query GetProductBySlugMinimal($slug: String!) {
+  productBySlug(slug: $slug) {
+    _id
+    name
+    slug
+    description
+    shelfLife
+    isVegetarian
+    isGlutenFree
+    categoryIds
+    ingredients
+    allergens
+    brand
+    gtin
+    mpn
+    currency
+    rating
+    ratingCount
+    keywords
+    tags
+    createdAt
+    updatedAt
+    seo {
+      metaTitle
+      metaDescription
+      metaKeywords
+      canonicalUrl
+      ogTitle
+      ogDescription
+      ogImage
+    }
+    variants {
+      _id
+      sku
+      name
+      price
+      mrp
+      discountPercent
+      weight
+      weightUnit
+      packageSize
+      stockQuantity
+      availabilityStatus
+      images {
+        url
+        alt
+      }
+      isDefault
+      isActive
+    }
+    defaultVariant {
+      _id
+      sku
+      name
+      price
+      mrp
+      discountPercent
+      weight
+      weightUnit
+      packageSize
+      stockQuantity
+      availabilityStatus
+      images {
+        url
+        alt
+      }
+      isDefault
+      isActive
+    }
+    priceRange {
+      min
+      max
+    }
+    availableVariants {
+      _id
+      sku
+      name
+      price
+      mrp
+      discountPercent
+      weight
+      weightUnit
+      packageSize
+      stockQuantity
+      availabilityStatus
+      images {
+        url
+        alt
+      }
+      isDefault
+      isActive
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<GetProductBySlugMinimalQuery, GetProductBySlugMinimalQueryVariables>;
 export const GetProductsByCategoryDocument = new TypedDocumentString(`
     query GetProductsByCategory($categoryId: ID!, $pagination: PaginationInput!) {
   productsByCategory(categoryId: $categoryId, pagination: $pagination) {
