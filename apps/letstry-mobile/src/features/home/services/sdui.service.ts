@@ -13,4 +13,17 @@ export class SDUIService {
       return null;
     }
   }
+
+  static async getNavigationConfig() {
+    try {
+      const response = await fetch(`${SDUI_BASE_URL}/sdui/navigation`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch SDUI navigation config');
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('[SDUIService] Error fetching navigation config:', error);
+      return null;
+    }
+  }
 }

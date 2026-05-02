@@ -8,20 +8,25 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQuery } from '@apollo/client';
+import { useQuery as useRestQuery } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { wp, hp, RFValue } from '../../src/lib/utils/ui-utils';
 import { theme } from '../../src/styles/theme';
+import { SDUIService } from '../../src/features/home/services/sdui.service';
+import TopBanner from '../../src/features/home/components/TopBanner';
+import Spacer from '../../src/features/home/components/Spacer';
+import CartNotice from '../../src/features/cart/components/CartNotice';
 
 // Feature Components
 import CategorySidebar from '../../src/features/category/components/CategorySidebar';
 import CategoryProductGrid from '../../src/features/category/components/CategoryProductGrid';
 
 // GraphQL
-import { 
-  GET_ROOT_CATEGORIES, 
-  GET_PRODUCTS_BY_CATEGORY, 
-  GET_ALL_PRODUCTS 
+import {
+  GET_ROOT_CATEGORIES,
+  GET_PRODUCTS_BY_CATEGORY,
+  GET_ALL_PRODUCTS
 } from '../../src/lib/graphql/home';
 
 const ALL_PRODUCTS_ID = 'all';
@@ -32,6 +37,18 @@ const CategoriesScreen = () => {
   const params = useLocalSearchParams<{ categoryId?: string }>();
   const [activeCategoryId, setActiveCategoryId] = useState(params.categoryId || ALL_PRODUCTS_ID);
 
+  const { data: sduiData, isLoading: sduiLoading } = useRestQuery({
+    queryKey: ['sdui', 'categories_screen'],
+    queryFn: () => SDUIService.getScreenConfig('categories_screen'),
+  });
+
+  console.log('[Categories] sduiData components count:', sduiData?.components?.length);
+
+  const sduiComponents = sduiData?.components || [
+    { type: 'CategoriesHeader', props: { showSearch: true } },
+    { type: 'CategoriesSplitView', props: {} }
+  ];
+
   // Sync active category if params change (e.g. navigating from Home again)
   useEffect(() => {
     if (params.categoryId) {
@@ -41,23 +58,23 @@ const CategoriesScreen = () => {
   const [isFetchingMore, setIsFetchingMore] = useState(false);
 
   // Fetch all root categories for the sidebar
-  const { 
-    data: categoriesData, 
+  const {
+    data: categoriesData,
   } = useQuery(GET_ROOT_CATEGORIES, {
     variables: { pagination: { page: 1, limit: 50 } }
   });
 
   // Fetch products based on selection
   const isAll = activeCategoryId === ALL_PRODUCTS_ID;
-  const { 
-    data: productsData, 
+  const {
+    data: productsData,
     loading: productsLoading,
     refetch: refetchProducts,
     fetchMore
   } = useQuery(isAll ? GET_ALL_PRODUCTS : GET_PRODUCTS_BY_CATEGORY, {
-    variables: { 
+    variables: {
       categoryId: activeCategoryId,
-      pagination: { page: 1, limit: 20 } 
+      pagination: { page: 1, limit: 20 }
     },
     skip: !isAll && !activeCategoryId,
     notifyOnNetworkStatusChange: true,
@@ -68,8 +85,8 @@ const CategoriesScreen = () => {
   const products = productsResponse?.items || [];
   const meta = productsResponse?.meta;
 
-  const activeCategoryName = isAll 
-    ? 'All Products' 
+  const activeCategoryName = isAll
+    ? 'All Products'
     : (categories as any[]).find(c => c.id === activeCategoryId)?.name || 'Categories';
 
   const handleLoadMore = useCallback(async () => {
@@ -86,7 +103,7 @@ const CategoriesScreen = () => {
         },
         updateQuery: (prev, { fetchMoreResult }) => {
           if (!fetchMoreResult) return prev;
-          
+
           if (isAll) {
             return {
               products: {
@@ -125,43 +142,68 @@ const CategoriesScreen = () => {
     router.push('/search' as any);
   };
 
+  const renderComponent = (item: any, index: number) => {
+    switch (item.type) {
+      case 'CategoriesHeader':
+        const headerStyle = item.props?.styleConfig || {};
+        return (
+          <View key={index} style={[styles.header, { paddingTop: insets.top, backgroundColor: headerStyle.backgroundColor || '#FFFFFF', borderBottomColor: headerStyle.borderBottomColor || '#F0F0F0', borderBottomWidth: headerStyle.borderBottomWidth ?? 1 }]}>
+            <View style={styles.headerContent}>
+              <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
+                <Ionicons name="chevron-back" size={24} color={headerStyle.iconColor || "#333"} />
+              </TouchableOpacity>
+              <Text style={[styles.headerTitle, { color: headerStyle.textColor || "#333" }]}>{activeCategoryName}</Text>
+              {item.props?.showSearch && (
+                <TouchableOpacity onPress={handleSearchPress} style={styles.headerBtn}>
+                  <Ionicons name="search" size={24} color={headerStyle.iconColor || "#333"} />
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+        );
+
+      case 'CategoriesSplitView':
+        return (
+          <View key={index} style={styles.mainContent}>
+            {/* Left Sidebar */}
+            <CategorySidebar
+              categories={categories}
+              activeCategoryId={activeCategoryId}
+              onCategorySelect={handleCategorySelect}
+              styleConfig={item.props?.styleConfig}
+            />
+
+            {/* Right Product Grid */}
+            <View style={[styles.gridContainer, { backgroundColor: item.props?.styleConfig?.gridBackgroundColor || '#FFFFFF' }]}>
+              <CategoryProductGrid
+                products={products}
+                loading={productsLoading && !isFetchingMore}
+                onRefresh={refetchProducts}
+                onLoadMore={handleLoadMore}
+                isFetchingMore={isFetchingMore}
+                hasNextPage={meta?.hasNextPage}
+                styleConfig={item.props?.styleConfig}
+              />
+            </View>
+          </View>
+        );
+
+      case 'TopBanner':
+        return <TopBanner key={index} {...item.props} />;
+      case 'Spacer':
+        return <Spacer key={index} height={item.props?.height} />;
+      case 'CartNotice':
+        return <CartNotice key={index} {...item.props} />;
+
+      default:
+        return null;
+    }
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
-      
-      {/* Custom Global Header matching SS */}
-      <View style={[styles.header, { paddingTop: insets.top }]}>
-        <View style={styles.headerContent}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
-            <Ionicons name="chevron-back" size={24} color="#333" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>{activeCategoryName}</Text>
-          <TouchableOpacity onPress={handleSearchPress} style={styles.headerBtn}>
-            <Ionicons name="search" size={24} color="#333" />
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <View style={styles.mainContent}>
-        {/* Left Sidebar */}
-        <CategorySidebar 
-          categories={categories}
-          activeCategoryId={activeCategoryId}
-          onCategorySelect={handleCategorySelect}
-        />
-
-        {/* Right Product Grid */}
-        <View style={styles.gridContainer}>
-          <CategoryProductGrid 
-            products={products}
-            loading={productsLoading && !isFetchingMore}
-            onRefresh={refetchProducts}
-            onLoadMore={handleLoadMore}
-            isFetchingMore={isFetchingMore}
-            hasNextPage={meta?.hasNextPage}
-          />
-        </View>
-      </View>
+      {sduiComponents.map((item: any, index: number) => renderComponent(item, index))}
     </View>
   );
 };

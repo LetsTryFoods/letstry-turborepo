@@ -8,19 +8,33 @@ import { SUBMIT_CONTACT_MESSAGE } from '../../src/lib/graphql/support';
 import { RFValue, wp, hp } from '../../src/lib/utils/ui-utils';
 import * as Haptics from 'expo-haptics';
 
+const QUERY_TYPES = [
+  { label: 'General Inquiry', value: 'GENERAL' },
+  { label: 'Order Issue', value: 'ORDER_ISSUE' },
+  { label: 'Product Inquiry', value: 'PRODUCT_INQUIRY' },
+  { label: 'Complaint', value: 'COMPLAINT' },
+  { label: 'Feedback', value: 'FEEDBACK' },
+  { label: 'Return Request', value: 'RETURN_REQUEST' },
+];
+
 export default function ContactUsScreen() {
   const router = useRouter();
   const [form, setForm] = useState({
     name: '',
     email: '',
     phone: '',
-    subject: '',
+    orderId: '',
+    queryType: '',
     message: '',
   });
 
   const [errors, setErrors] = useState({
     email: '',
     phone: '',
+    orderId: '',
+    queryType: '',
+    name: '',
+    message: '',
   });
 
   const [submitContact, { loading }] = useMutation(SUBMIT_CONTACT_MESSAGE);
@@ -33,28 +47,58 @@ export default function ContactUsScreen() {
     return /^\d{10}$/.test(phone.replace(/\s/g, ''));
   };
 
+  const validateOrderId = (orderId: string) => {
+    // Standard format: ORD_digits_hex (matching letstryfoods.com)
+    return /^ORD_\d+_[a-f0-9]+$/i.test(orderId.trim());
+  };
+
   const handleSubmit = async () => {
-    if (!form.name || !form.email || !form.message) {
-      Alert.alert('Error', 'Please fill in all required fields (Name, Email, Message).');
-      return;
+    let hasError = false;
+    const newErrors = { email: '', phone: '', orderId: '', queryType: '', name: '', message: '' };
+
+    if (!form.name.trim()) {
+      newErrors.name = 'Full Name is required.';
+      hasError = true;
     }
 
-    let hasError = false;
-    const newErrors = { email: '', phone: '' };
+    if (!form.message.trim()) {
+      newErrors.message = 'Message is required.';
+      hasError = true;
+    }
 
-    if (!validateEmail(form.email)) {
+    if (!form.queryType) {
+      newErrors.queryType = 'Please select a query type.';
+      hasError = true;
+    }
+
+    if (!form.email) {
+      newErrors.email = 'Email Address is required.';
+      hasError = true;
+    } else if (!validateEmail(form.email)) {
       newErrors.email = 'Please enter a valid email address.';
       hasError = true;
     }
 
-    if (form.phone && !validatePhone(form.phone)) {
-      newErrors.phone = 'Please enter a valid 10-digit phone number.';
+    if (!form.phone) {
+      newErrors.phone = 'Phone Number is required.';
+      hasError = true;
+    } else if (!validatePhone(form.phone)) {
+      newErrors.phone = 'Phone number must be exactly 10 digits.';
+      hasError = true;
+    }
+
+    if (!form.orderId) {
+      newErrors.orderId = 'Order ID is required.';
+      hasError = true;
+    } else if (!validateOrderId(form.orderId)) {
+      newErrors.orderId = 'Invalid format. e.g. ORD_123456789_abc123';
       hasError = true;
     }
 
     setErrors(newErrors);
     if (hasError) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      Alert.alert('Validation Error', 'Please correct the errors in the form before submitting.');
       return;
     }
 
@@ -64,9 +108,10 @@ export default function ContactUsScreen() {
         variables: {
           input: {
             name: form.name,
-            email: form.email,
+            email: form.email || undefined,
             phone: form.phone,
-            subject: form.subject || 'LTS Mobile Inquiry',
+            orderId: form.orderId || undefined,
+            queryType: form.queryType || undefined,
             message: form.message,
           }
         }
@@ -114,11 +159,31 @@ export default function ContactUsScreen() {
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Full Name *</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, errors.name ? styles.inputError : null]}
                 placeholder="Ex. John Doe"
                 value={form.name}
-                onChangeText={(text) => setForm({ ...form, name: text })}
+                onChangeText={(text) => {
+                  setForm({ ...form, name: text });
+                  if (errors.name) setErrors({ ...errors, name: '' });
+                }}
               />
+              {errors.name ? <Text style={styles.errorLabel}>{errors.name}</Text> : null}
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Phone Number *</Text>
+              <TextInput
+                style={[styles.input, errors.phone ? styles.inputError : null]}
+                placeholder="Ex. 9876543210"
+                keyboardType="phone-pad"
+                value={form.phone}
+                maxLength={10}
+                onChangeText={(text) => {
+                  setForm({ ...form, phone: text });
+                  if (errors.phone) setErrors({ ...errors, phone: '' });
+                }}
+              />
+              {errors.phone ? <Text style={styles.errorLabel}>{errors.phone}</Text> : null}
             </View>
 
             <View style={styles.inputGroup}>
@@ -138,42 +203,60 @@ export default function ContactUsScreen() {
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Phone Number</Text>
+              <Text style={styles.label}>Order ID *</Text>
               <TextInput
-                style={[styles.input, errors.phone ? styles.inputError : null]}
-                placeholder="Ex. 9876543210"
-                keyboardType="phone-pad"
-                value={form.phone}
-                maxLength={10}
+                style={[styles.input, errors.orderId ? styles.inputError : null]}
+                placeholder="Ex. ORD_123456789_abc123"
+                value={form.orderId}
+                autoCapitalize="none"
                 onChangeText={(text) => {
-                  setForm({ ...form, phone: text });
-                  if (errors.phone) setErrors({ ...errors, phone: '' });
+                  setForm({ ...form, orderId: text });
+                  if (errors.orderId) setErrors({ ...errors, orderId: '' });
                 }}
               />
-              {errors.phone ? <Text style={styles.errorLabel}>{errors.phone}</Text> : null}
+              {errors.orderId ? <Text style={styles.errorLabel}>{errors.orderId}</Text> : null}
             </View>
 
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Subject (Optional)</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Ex. Delivery Query"
-                value={form.subject}
-                onChangeText={(text) => setForm({ ...form, subject: text })}
-              />
+              <Text style={styles.label}>Query Type *</Text>
+              <View style={styles.chipsContainer}>
+                {QUERY_TYPES.map((type) => {
+                  const isSelected = form.queryType === type.value;
+                  return (
+                    <TouchableOpacity
+                      key={type.value}
+                      style={[styles.chip, isSelected && styles.chipSelected, errors.queryType ? styles.inputError : null]}
+                      onPress={() => {
+                        Haptics.selectionAsync();
+                        setForm({ ...form, queryType: type.value });
+                        if (errors.queryType) setErrors({ ...errors, queryType: '' });
+                      }}
+                    >
+                      <Text style={[styles.chipText, isSelected && styles.chipTextSelected]}>
+                        {type.label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+              {errors.queryType ? <Text style={styles.errorLabel}>{errors.queryType}</Text> : null}
             </View>
 
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Message *</Text>
               <TextInput
-                style={[styles.input, styles.textArea]}
+                style={[styles.input, styles.textArea, errors.message ? styles.inputError : null]}
                 placeholder="Tell us more about your query..."
                 multiline
                 numberOfLines={4}
                 value={form.message}
-                onChangeText={(text) => setForm({ ...form, message: text })}
+                onChangeText={(text) => {
+                  setForm({ ...form, message: text });
+                  if (errors.message) setErrors({ ...errors, message: '' });
+                }}
                 textAlignVertical="top"
               />
+              {errors.message ? <Text style={styles.errorLabel}>{errors.message}</Text> : null}
             </View>
 
             <TouchableOpacity 
@@ -238,6 +321,32 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   textArea: { minHeight: 120, paddingTop: 14 },
+  chipsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 4,
+  },
+  chip: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    backgroundColor: '#F8F9FA',
+    borderWidth: 1,
+    borderColor: '#E9ECEF',
+  },
+  chipSelected: {
+    backgroundColor: '#0C5273',
+    borderColor: '#0C5273',
+  },
+  chipText: {
+    fontSize: RFValue(12),
+    color: '#666',
+    fontWeight: '600',
+  },
+  chipTextSelected: {
+    color: '#FFF',
+  },
   submitBtn: {
     backgroundColor: '#0C5273',
     paddingVertical: 16,

@@ -8,17 +8,34 @@ export const homeScreen: SDUIScreen = {
       props: {},
     },
     {
-      type: 'TopBanner',
+      type: 'BannerCarousel',
       props: {
-        visible: true,
-        imageUrl: 'https://placehold.co/1000x100/0C5273/white?text=FREE+DELIVERY+ON+ORDERS+ABOVE+RS+499',
-        aspectRatio: 10,
+        height: 100,
+        borderRadius: 12,
+        autoplayInterval: 6000,
+        items: [
+          {
+            id: 'banner_1',
+            imageUrl: 'https://placehold.co/1000x100/0C5273/white?text=FREE+DELIVERY+ON+ORDERS+ABOVE+RS+499',
+            action: { type: 'NAVIGATE', destination: '/categories' }
+          },
+          {
+            id: 'banner_2',
+            imageUrl: 'https://placehold.co/1000x100/805AD5/white?text=SUPER+SALE+50%25+OFF',
+            action: { type: 'NAVIGATE', destination: '/orders' }
+          }
+        ]
       },
     },
     {
       type: 'Bestsellers',
       props: {
         title: 'Best Sellers',
+        cardStyles: {
+          // borderColor: '#4CAF50',
+          borderWidth: 2,
+          borderRadius: 16,
+        }
       },
     },
     {
@@ -31,7 +48,11 @@ export const homeScreen: SDUIScreen = {
     },
     {
       type: 'Categories',
-      props: {},
+      props: {
+        title: 'Explore Categories',
+        numColumns: 4,
+        showSeeAll: true,
+      },
     },
     {
       type: 'HeroCarousel',
@@ -41,6 +62,11 @@ export const homeScreen: SDUIScreen = {
       type: 'Combos',
       props: {
         title: 'Bestselling Combos',
+        cardStyles: {
+          // borderColor: '#F44336',
+          borderWidth: 1.5,
+          borderRadius: 8,
+        }
       },
     },
     {

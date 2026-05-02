@@ -46,23 +46,25 @@ interface ProductCardProps {
   quantity?: number;
   onAddToCart?: (product: Product) => void;
   onRemoveFromCart?: (product: Product) => void;
+  cardStyles?: any;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ 
-  product, 
-  onPress, 
+const ProductCard: React.FC<ProductCardProps> = ({
+  product,
+  onPress,
   style,
   imageStyle,
   quantity: propQuantity,
   onAddToCart,
-  onRemoveFromCart
+  onRemoveFromCart,
+  cardStyles
 }) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
-  
+
   // Real Global Cart Integration
   const { data: cartData } = useCart();
   const { addToCart, updateCartItem, removeFromCart, isAdding, isUpdating, isRemoving } = useCartMutations();
-  
+
   const variant = product.defaultVariant;
   if (!variant) return null;
 
@@ -147,15 +149,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const primaryTag = product.tags?.[0];
 
   return (
-    <Pressable 
-      onPress={onPress} 
-      onPressIn={handlePressIn} 
+    <Pressable
+      onPress={onPress}
+      onPressIn={handlePressIn}
       onPressOut={handlePressOut}
     >
       <Animated.View style={[
           styles.cardContainer,
           { transform: [{ scale: scaleAnim }] },
-          style
+          style,
+          cardStyles
         ]}>
         <View style={styles.card}>
           {/* Tag */}
@@ -224,13 +227,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
 };
 
 const getTagStyle = (tag: string) => {
-    switch (tag) {
-      case "Bestseller": return { backgroundColor: "#C5CAF4" };
-      case "Trending": return { backgroundColor: "#F0BBD2" };
-      case "Fasting": return { backgroundColor: "#FBE9AE" };
-      case "New Launched": return { backgroundColor: "#B8EEB3" };
-      default: return { backgroundColor: "#EDEDED" };
-    }
+  switch (tag) {
+    case "Bestseller": return { backgroundColor: "#C5CAF4" };
+    case "Trending": return { backgroundColor: "#F0BBD2" };
+    case "Fasting": return { backgroundColor: "#FBE9AE" };
+    case "New Launched": return { backgroundColor: "#B8EEB3" };
+    default: return { backgroundColor: "#EDEDED" };
+  }
 };
 
 const styles = StyleSheet.create({

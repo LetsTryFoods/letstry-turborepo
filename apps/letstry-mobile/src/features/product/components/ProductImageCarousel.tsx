@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { View, StyleSheet, FlatList, Dimensions, ViewToken, TouchableOpacity, Modal, Text } from 'react-native';
+import { View, StyleSheet, Dimensions, TouchableOpacity, Modal, Text } from 'react-native';
+import Carousel from 'react-native-reanimated-carousel';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,18 +18,8 @@ const ProductImageCarousel: React.FC<Props> = ({ images, onShare }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isGalleryVisible, setIsGalleryVisible] = useState(false);
   const [galleryIndex, setGalleryIndex] = useState(0);
-  
+
   const insets = useSafeAreaInsets();
-
-  const onViewableItemsChanged = useRef(({ viewableItems }: { viewableItems: ViewToken[] }) => {
-    if (viewableItems.length > 0) {
-      setActiveIndex(viewableItems[0].index || 0);
-    }
-  }).current;
-
-  const viewabilityConfig = useRef({
-    itemVisiblePercentThreshold: 50,
-  }).current;
 
   const openGallery = (index: number) => {
     setGalleryIndex(index);
@@ -44,21 +35,24 @@ const ProductImageCarousel: React.FC<Props> = ({ images, onShare }) => {
   const viewerImages = images.map(img => ({
     url: getImageUrl(img.url),
     props: {
-        // Use Expo Image for caching if possible, or leave default
+      // Use Expo Image for caching if possible, or leave default
     }
   }));
 
   return (
     <View style={[styles.container, { paddingTop: insets.top + 10 }]}>
-      <FlatList
+      <Carousel
+        loop
+        width={SCREEN_WIDTH}
+        height={hp('45%')}
+        autoPlay={true}
+        autoPlayInterval={6000}
         data={images}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        keyExtractor={(item, index) => `${item.url}-${index}`}
+        scrollAnimationDuration={800}
+        onSnapToItem={(index) => setActiveIndex(index)}
         renderItem={({ item, index }) => (
-          <TouchableOpacity 
-            style={styles.imageWrapper} 
+          <TouchableOpacity
+            style={styles.imageWrapper}
             activeOpacity={0.9}
             onPress={() => openGallery(index)}
           >
@@ -66,22 +60,19 @@ const ProductImageCarousel: React.FC<Props> = ({ images, onShare }) => {
               source={{ uri: getImageUrl(item.url) }}
               style={styles.image}
               contentFit="contain"
-              transition={300}
             />
           </TouchableOpacity>
         )}
-        onViewableItemsChanged={onViewableItemsChanged}
-        viewabilityConfig={viewabilityConfig}
       />
       {images.length > 1 && (
         <View style={styles.pagination}>
           {images.map((_, index) => (
-            <View 
-              key={index} 
+            <View
+              key={index}
               style={[
-                styles.dot, 
+                styles.dot,
                 index === activeIndex ? styles.activeDot : null
-              ]} 
+              ]}
             />
           ))}
         </View>
@@ -89,8 +80,8 @@ const ProductImageCarousel: React.FC<Props> = ({ images, onShare }) => {
 
       {/* Floating Share Button */}
       {onShare && (
-        <TouchableOpacity 
-          style={styles.shareButton} 
+        <TouchableOpacity
+          style={styles.shareButton}
           onPress={onShare}
           activeOpacity={0.8}
         >
@@ -121,7 +112,7 @@ const ProductImageCarousel: React.FC<Props> = ({ images, onShare }) => {
             </SafeAreaView>
           )}
         />
-        
+
         {/* Absolute Bottom Close Button */}
         <View style={styles.closeButtonWrapper}>
           <TouchableOpacity onPress={closeGallery} style={styles.closeButton}>
@@ -135,7 +126,6 @@ const ProductImageCarousel: React.FC<Props> = ({ images, onShare }) => {
 
 const styles = StyleSheet.create({
   container: {
-    height: hp('40%'), 
     backgroundColor: '#FFFFFF',
     paddingBottom: 25,
   },
@@ -146,7 +136,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   image: {
-    width: '95%',
+    width: '100%',
     height: '100%',
   },
   pagination: {
@@ -165,7 +155,7 @@ const styles = StyleSheet.create({
   },
   activeDot: {
     opacity: 1,
-    width: 14, 
+    width: 14,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -179,7 +169,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   modalCounter: {
-    color: '#000', 
+    color: '#000',
     fontSize: RFValue(14),
     fontWeight: '700',
   },

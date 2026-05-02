@@ -4,6 +4,7 @@ import path from 'path';
 import * as dotenv from 'dotenv';
 import { manifestHandler } from './ota/manifest';
 import { screenHandler } from './sdui/screens';
+import { navigationHandler } from './sdui/navigation';
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ fastify.get('/health', async () => {
 fastify.get('/updates/manifest', manifestHandler);
 
 fastify.get('/sdui/screen/:id', screenHandler);
+fastify.get('/sdui/navigation', navigationHandler);
 
 const start = async () => {
   try {

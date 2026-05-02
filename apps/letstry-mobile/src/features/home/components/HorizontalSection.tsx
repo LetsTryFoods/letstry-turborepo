@@ -9,15 +9,17 @@ interface HorizontalSectionProps {
   products: any[];
   seeAllPath?: string;
   loading?: boolean;
+  cardStyles?: any;
 }
 
 const CARD_GAP = wp('2%');
 
-const HorizontalSection: React.FC<HorizontalSectionProps> = ({ 
-  title, 
-  products, 
+const HorizontalSection: React.FC<HorizontalSectionProps> = ({
+  title,
+  products,
   seeAllPath,
-  loading 
+  loading,
+  cardStyles
 }) => {
   const router = useRouter();
 
@@ -42,10 +44,11 @@ const HorizontalSection: React.FC<HorizontalSectionProps> = ({
         contentContainerStyle={styles.listContent}
         renderItem={({ item }) => (
           <View style={{ marginHorizontal: CARD_GAP / 2 }}>
-            <ProductCard 
-              product={item} 
+            <ProductCard
+              product={item}
               style={{ width: wp('44%'), height: hp('38%') }}
               imageStyle={{ height: hp('20%') }}
+              cardStyles={cardStyles}
               onPress={() => router.push(`/product/${item.slug}` as any)}
             />
           </View>

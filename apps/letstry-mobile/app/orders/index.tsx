@@ -56,9 +56,9 @@ export default function OrdersScreen() {
         activeOpacity={0.7}
       >
         <View style={styles.cardHeader}>
-          <View>
-            <Text style={styles.orderIdText}>Order #{item.orderId}</Text>
-            <Text style={styles.dateText}>
+          <View style={styles.recentOrderInfo}>
+            <Text style={styles.recentOrderId}>Order #{item.orderId}</Text>
+            <Text style={styles.recentOrderDate}>
               {new Date(item.createdAt).toLocaleDateString('en-IN', {
                 day: 'numeric',
                 month: 'short',
@@ -68,6 +68,8 @@ export default function OrdersScreen() {
           </View>
           {renderStatusBadge(item.orderStatus)}
         </View>
+
+        <View style={styles.divider} />
 
         <View style={styles.cardBody}>
           <View style={styles.imageContainer}>
@@ -126,7 +128,14 @@ export default function OrdersScreen() {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <Stack.Screen options={{ title: 'My Orders', headerShown: true }} />
+      <Stack.Screen options={{ headerShown: false }} />
+      
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+          <Ionicons name="chevron-back" size={24} color="#333" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>My Orders</Text>
+      </View>
       
       <FlatList
         data={orders}
@@ -144,38 +153,52 @@ export default function OrdersScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#F8F9FB' },
+  safe: { flex: 1, backgroundColor: '#FFF' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  listContent: { padding: 16, paddingBottom: 40 },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: wp('4%'),
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#EEE',
+  },
+  backBtn: { padding: 4 },
+  headerTitle: {
+    fontSize: RFValue(16),
+    fontWeight: '700',
+    color: '#333',
+    marginLeft: 12,
+  },
+  listContent: { padding: wp('5%'), paddingBottom: 40 },
   orderCard: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
     padding: 16,
     marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#E9ECEF',
   },
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
-    paddingBottom: 12,
+    alignItems: 'center',
     marginBottom: 12,
   },
-  orderIdText: {
-    fontSize: RFValue(14),
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text.primary,
-    marginBottom: 2,
+  recentOrderInfo: { gap: 4 },
+  recentOrderId: {
+    fontSize: RFValue(13),
+    fontWeight: '700',
+    color: '#333',
   },
-  dateText: {
-    fontSize: RFValue(12),
-    color: theme.colors.text.muted,
+  recentOrderDate: {
+    fontSize: RFValue(11),
+    color: '#888',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#E9ECEF',
+    marginVertical: 12,
   },
   statusBadge: {
     paddingHorizontal: 10,

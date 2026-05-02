@@ -18,25 +18,38 @@ interface Category {
 
 interface CategoriesGridProps {
   categories: Category[];
+  title?: string;
+  numColumns?: number;
+  showSeeAll?: boolean;
 }
 
-const CategoriesGrid: React.FC<CategoriesGridProps> = ({ categories }) => {
+const CategoriesGrid: React.FC<CategoriesGridProps> = ({ 
+  categories, 
+  title = "Shop By Categories",
+  numColumns = 3,
+  showSeeAll = true
+}) => {
   const router = useRouter();
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Shop By Categories</Text>
-        <TouchableOpacity onPress={() => router.push('/categories' as any)}>
-          <Text style={styles.seeAll}>See all</Text>
-        </TouchableOpacity>
+        <Text style={styles.title}>{title}</Text>
+        {showSeeAll && (
+          <TouchableOpacity onPress={() => router.push('/categories' as any)}>
+            <Text style={styles.seeAll}>See all</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       <View style={styles.grid}>
-        {categories.slice(0, 9).map((category) => (
+        {categories.slice(0, numColumns * 3).map((category) => (
           <TouchableOpacity
             key={category.id}
-            style={styles.item}
+            style={[
+              styles.item, 
+              { width: wp(String(100 / numColumns - 2)) }
+            ]}
             onPress={() => router.push({
               pathname: '/categories' as any,
               params: { categoryId: category.id }
@@ -96,7 +109,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   imageContainer: {
-    width: wp('26%'),
+    width: '85%',
     aspectRatio: 1,
     backgroundColor: 'transparent',
     justifyContent: 'center',

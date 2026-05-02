@@ -3,48 +3,46 @@ import {
   View, 
   StyleSheet, 
   TouchableOpacity, 
-  ActivityIndicator,
+  ViewToken,
 } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
-
 import { Image } from 'expo-image';
 import { wp, hp, getImageUrl } from '../../../lib/utils/ui-utils';
+import { ActionEngine, SDUIAction } from '../../../lib/sdui/ActionEngine';
 
 interface Banner {
-  _id: string;
+  id?: string;
   imageUrl: string;
-  mobileImageUrl?: string;
   url?: string;
+  action?: SDUIAction;
 }
 
-interface HeroCarouselProps {
-  banners: Banner[];
-  loading?: boolean;
-  onBannerPress?: (banner: Banner) => void;
+interface BannerCarouselProps {
+  items: Banner[];
+  height?: number;
+  borderRadius?: number;
+  autoplayInterval?: number;
 }
 
-const HeroCarousel: React.FC<HeroCarouselProps> = ({ banners, loading, onBannerPress }) => {
+const BannerCarousel: React.FC<BannerCarouselProps> = ({ 
+  items = [], 
+  height = hp('20%'),
+  borderRadius = 12,
+  autoplayInterval = 6000
+}) => {
   const [activeIndex, setActiveIndex] = useState(0);
 
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0C5273" />
-      </View>
-    );
-  }
-
-  if (banners.length === 0) return null;
+  if (!items || items.length === 0) return null;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { height }]}>
       <Carousel
         loop
         width={wp('100%')}
-        height={hp('22%')}
+        height={height}
         autoPlay={true}
-        autoPlayInterval={6000}
-        data={banners}
+        autoPlayInterval={autoplayInterval}
+        data={items}
         scrollAnimationDuration={800}
         mode="parallax"
         modeConfig={{
@@ -54,12 +52,12 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ banners, loading, onBannerP
         onSnapToItem={(index) => setActiveIndex(index)}
         renderItem={({ item }) => (
           <TouchableOpacity 
-            style={styles.bannerItem} 
+            style={[styles.bannerItem, { height, borderRadius, overflow: 'hidden' }]} 
             activeOpacity={0.9}
-            onPress={() => onBannerPress?.(item)}
+            onPress={() => item.action && ActionEngine.execute(item.action)}
           >
             <Image
-              source={{ uri: getImageUrl(item.mobileImageUrl || item.imageUrl) }}
+              source={{ uri: getImageUrl(item.imageUrl) }}
               style={styles.image}
               contentFit="cover"
             />
@@ -67,7 +65,7 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ banners, loading, onBannerP
         )}
       />
       <View style={styles.pagination}>
-        {banners.map((_, index) => (
+        {items.map((_, index) => (
           <View 
             key={index} 
             style={[
@@ -84,24 +82,13 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ banners, loading, onBannerP
 const styles = StyleSheet.create({
   container: {
     width: wp('100%'),
-    height: hp('22%'),
     alignSelf: 'center',
-    marginVertical: hp('2%'),
+    marginVertical: hp('1%'),
     overflow: 'hidden',
-  },
-  loadingContainer: {
-    width: wp('100%'),
-    height: hp('22%'),
-    alignSelf: 'center',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   bannerItem: {
     width: '100%',
-    height: '100%',
     alignSelf: 'center',
-    borderRadius: 12,
-    overflow: 'hidden',
   },
   image: {
     width: '100%',
@@ -126,4 +113,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HeroCarousel;
+export default BannerCarousel;

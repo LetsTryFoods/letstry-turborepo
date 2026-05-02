@@ -1,9 +1,17 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { homeScreen } from './home';
+import { cartScreen } from './cart';
+import { loyaltyScreen } from './loyalty';
+import { categoriesScreen } from './categories';
+import { profileScreen } from './profile';
 import { SDUIScreen } from '../types';
 
 const screenRegistry: Record<string, SDUIScreen> = {
-  home: homeScreen
+  home: homeScreen,
+  cart: cartScreen,
+  loyalty_dashboard: loyaltyScreen,
+  categories_screen: categoriesScreen,
+  profile_screen: profileScreen
 };
 
 export const screenHandler = async (req: FastifyRequest, reply: FastifyReply) => {

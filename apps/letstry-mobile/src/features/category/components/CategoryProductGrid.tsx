@@ -19,6 +19,7 @@ interface CategoryProductGridProps {
   onLoadMore?: () => void;
   isFetchingMore?: boolean;
   hasNextPage?: boolean;
+  styleConfig?: any;
 }
 
 const CategoryProductGrid: React.FC<CategoryProductGridProps> = ({
@@ -28,6 +29,7 @@ const CategoryProductGrid: React.FC<CategoryProductGridProps> = ({
   onLoadMore,
   isFetchingMore = false,
   hasNextPage = false,
+  styleConfig = {},
 }) => {
   const router = useRouter();
   const { addToCart } = useCartMutations();
@@ -79,6 +81,7 @@ const CategoryProductGrid: React.FC<CategoryProductGridProps> = ({
           <ProductCard
             product={item}
             onPress={() => handlePress(item.slug)}
+            cardStyles={styleConfig}
           />
         </View>
       )}

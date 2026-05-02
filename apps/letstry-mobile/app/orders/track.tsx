@@ -35,24 +35,35 @@ export default function TrackOrderScreen() {
   };
 
   const handleSearch = async () => {
-    const filledCount = [orderId.trim(), phone.trim(), awb.trim()].filter(Boolean).length;
+    const filledFields = [
+      { name: 'Order ID', value: orderId.trim() },
+      { name: 'Phone Number', value: phone.trim() },
+      { name: 'AWB Number', value: awb.trim() }
+    ].filter(f => f.value);
 
-    if (filledCount === 0) {
+    if (filledFields.length === 0) {
       Alert.alert('Error', 'Please enter at least one field to search.');
       return;
     }
 
-    if (filledCount > 1) {
+    if (filledFields.length > 1) {
       Alert.alert('Error', 'Please enter only one field to search.');
       return;
     }
 
-    const query = orderId.trim() || phone.trim() || awb.trim();
+    const field = filledFields[0];
+    
+    // Additional validation for phone number if it's the chosen field
+    if (field.name === 'Phone Number' && !/^\d{10}$/.test(field.value)) {
+      Alert.alert('Invalid Phone', 'Phone number must be exactly 10 digits.');
+      return;
+    }
+
     setIsSearching(true);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
     try {
-      const response = await fetch(`https://apiv3.letstryfoods.com/shipments/lookup?q=${encodeURIComponent(query)}`);
+      const response = await fetch(`https://apiv3.letstryfoods.com/shipments/lookup?q=${encodeURIComponent(field.value)}`);
       const data = await response.json();
 
       if (response.ok && data.awbNumber) {

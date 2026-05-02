@@ -1,4 +1,5 @@
 import { useQuery } from '@apollo/client';
+import { useQuery as useRestQuery } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
 import { 
   GET_ACTIVE_BANNERS, 
@@ -9,23 +10,14 @@ import {
 import { SDUIService } from '../services/sdui.service';
 
 export const useHomeData = () => {
-  const [sduiConfig, setSduiConfig] = useState<any>(null);
-  const [sduiComponents, setSduiComponents] = useState<any[]>([
-    { type: 'TopBanner', props: { visible: false } },
-    { type: 'EventsHero' },
-    { type: 'Bestsellers' },
-    { type: 'Categories' },
-    { type: 'HeroCarousel' },
-    { type: 'Combos' },
-  ]);
+  const { data: sduiData, isLoading: sduiLoading, refetch: refetchSdui } = useRestQuery({
+    queryKey: ['sdui', 'home'],
+    queryFn: () => SDUIService.getScreenConfig('home'),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
 
-  useEffect(() => {
-    SDUIService.getScreenConfig('home').then(config => {
-      console.log('[useHomeData] Fetched SDUI Config:', JSON.stringify(config, null, 2));
-      if (config?.config) setSduiConfig(config.config);
-      if (config?.components) setSduiComponents(config.components);
-    });
-  }, []);
+  const sduiConfig = sduiData?.config || null;
+  const sduiComponents = sduiData?.components || [];
 
   const { data: bannerData, loading: bannersLoading, refetch: refetchBanners } = useQuery(GET_ACTIVE_BANNERS);
   const { data: catData, loading: categoriesLoading, refetch: refetchCategories } = useQuery(GET_ROOT_CATEGORIES, {
@@ -56,11 +48,7 @@ export const useHomeData = () => {
       refetchCategories(),
       refetchBestsellers?.(),
       refetchCombos?.(),
-      SDUIService.getScreenConfig('home').then(config => {
-        console.log('[useHomeData] Refetched SDUI Config:', JSON.stringify(config, null, 2));
-        if (config?.config) setSduiConfig(config.config);
-        if (config?.components) setSduiComponents(config.components);
-      })
+      refetchSdui()
     ]);
   };
 
@@ -73,7 +61,7 @@ export const useHomeData = () => {
     bestsellerCategoryId: bestsellerCat?.categoryBySlug?.id,
     combos: comboData?.productsByCategory?.items || [],
     combosCategoryId: comboCat?.categoryBySlug?.id,
-    loading: bannersLoading || categoriesLoading || bestsellersLoading || combosLoading,
+    loading: sduiLoading || bannersLoading || categoriesLoading || bestsellersLoading || combosLoading,
     sduiConfig,
     sduiComponents,
     refetch

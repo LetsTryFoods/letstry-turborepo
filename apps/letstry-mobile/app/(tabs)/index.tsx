@@ -20,6 +20,8 @@ import EventsHero from '../../src/features/home/components/EventsHero';
 import TopBanner from '../../src/features/home/components/TopBanner';
 import HomeFooter from '../../src/features/home/components/HomeFooter';
 import HomeSkeleton from '../../src/features/home/components/HomeSkeleton';
+import Spacer from '../../src/features/home/components/Spacer';
+import BannerCarousel from '../../src/features/home/components/BannerCarousel';
 import { useHomeData } from '../../src/features/home/hooks/useHomeData';
 
 const EVENTS_SECTION_HEIGHT = hp('57%');
@@ -109,11 +111,19 @@ const HomeScreen = () => {
           <HorizontalSection 
             title={item.props?.title || "Best Sellers"} 
             products={bestsellers} 
+            cardStyles={item.props?.cardStyles}
             seeAllPath={bestsellerCategoryId ? `/categories?categoryId=${bestsellerCategoryId}` : '/categories'} 
           />
         );
       case 'Categories':
-        return <CategoriesGrid categories={categories} />;
+        return (
+          <CategoriesGrid 
+            categories={categories} 
+            title={item.props?.title}
+            numColumns={item.props?.numColumns}
+            showSeeAll={item.props?.showSeeAll}
+          />
+        );
       case 'HeroCarousel':
         return <HeroCarousel banners={banners} loading={loading} onBannerPress={handleBannerPress} />;
       case 'Combos':
@@ -121,6 +131,7 @@ const HomeScreen = () => {
           <HorizontalSection 
             title={item.props?.title || "Bestselling Combos"} 
             products={combos} 
+            cardStyles={item.props?.cardStyles}
             seeAllPath={combosCategoryId ? `/categories?categoryId=${combosCategoryId}` : '/categories'} 
           />
         );
@@ -131,12 +142,23 @@ const HomeScreen = () => {
             brandText={item.props?.brandText} 
           />
         );
+      case 'Spacer':
+        return <Spacer height={item.props?.height} />;
+      case 'BannerCarousel':
+        return (
+          <BannerCarousel 
+            items={item.props?.items} 
+            height={item.props?.height} 
+            borderRadius={item.props?.borderRadius}
+            autoplayInterval={item.props?.autoplayInterval}
+          />
+        );
       default:
         return null;
     }
   };
 
-  if (loading && !refreshing && sduiComponents.length === 0) {
+  if (loading && !refreshing) {
     return <HomeSkeleton />;
   }
 

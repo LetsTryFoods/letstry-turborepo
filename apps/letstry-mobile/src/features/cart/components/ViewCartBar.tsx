@@ -34,7 +34,8 @@ const ViewCartBar = () => {
     }).start();
   }, [targetBottom]);
 
-  if (itemCount === 0 || loading || isSearch) return null;
+  // Show the bar if we have items, even if a background refetch is happening
+  if (itemCount === 0 || isSearch) return null;
 
   const handleOpenCart = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);

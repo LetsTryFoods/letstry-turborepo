@@ -20,13 +20,16 @@ import CartItemCard from './CartItemCard';
 import PriceBreakdown from './PriceBreakdown';
 import EmptyCartView from './EmptyCartView';
 import CartRecommendations from './CartRecommendations';
+import CartNotice from './CartNotice';
+import { useCartSDUI } from '../hooks/use-cart-sdui';
 import { RFValue, wp, hp } from '../../../lib/utils/ui-utils';
 
 const CartModal = () => {
   const router = useRouter();
   const { isOpen, closeCart } = useCartStore();
-  const { data, loading } = useCart();
+  const { data, loading: cartLoading } = useCart();
   const { addToCart, updateCartItem, removeFromCart, isUpdating, isRemoving } = useCartMutations();
+  const { sduiComponents, sduiConfig, loading: sduiLoading } = useCartSDUI();
 
   const cart = (data as any)?.myCart;
   const items = cart?.items || [];
@@ -94,7 +97,7 @@ const CartModal = () => {
           </TouchableOpacity>
         </View>
 
-        {loading && !cartDataExists(cart) ? (
+        {(cartLoading || sduiLoading) && !cartDataExists(cart) ? (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#0C5273" />
             <Text style={styles.loadingText}>Fetching your cart...</Text>
@@ -115,6 +118,14 @@ const CartModal = () => {
                   <Text style={styles.savingsBannerAmount}>₹{totalSavings.toFixed(0)}</Text>
                 </View>
               )}
+
+              {/* SDUI Components */}
+              {sduiComponents.map((comp: any, index: number) => {
+                if (comp.type === 'CartNotice') {
+                  return <CartNotice key={`notice-${index}`} {...comp.props} />;
+                }
+                return null;
+              })}
 
               {/* Shipment Group */}
               <View style={styles.shipmentCard}>
@@ -182,15 +193,30 @@ const CartModal = () => {
                 </View>
 
                 <TouchableOpacity
-                  style={styles.checkoutBtn}
+                  style={[
+                    styles.checkoutBtn, 
+                    sduiConfig?.checkoutBtnStyle
+                  ]}
                   activeOpacity={0.8}
                   onPress={() => {
                     closeCart();
                     router.push('/checkout/location');
                   }}
                 >
-                  <Text style={styles.checkoutBtnText}>Proceed to Checkout</Text>
-                  <Ionicons name="chevron-forward" size={18} color="#FFF" style={{ marginLeft: 4 }} />
+                  <Text style={[
+                    styles.checkoutBtnText,
+                    sduiConfig?.checkoutBtnTextStyle
+                  ]}>
+                    {sduiConfig?.checkoutBtnLabel || "Proceed to Checkout"}
+                  </Text>
+                  {(sduiConfig?.showCheckoutArrow !== false) && (
+                    <Ionicons 
+                      name="chevron-forward" 
+                      size={18} 
+                      color={sduiConfig?.checkoutBtnTextStyle?.color || "#FFF"} 
+                      style={{ marginLeft: 4 }} 
+                    />
+                  )}
                 </TouchableOpacity>
               </View>
             </View>

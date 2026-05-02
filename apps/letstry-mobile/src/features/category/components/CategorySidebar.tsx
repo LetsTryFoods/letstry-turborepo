@@ -20,6 +20,7 @@ interface CategorySidebarProps {
   categories: Category[];
   activeCategoryId: string;
   onCategorySelect: (id: string) => void;
+  styleConfig?: any;
 }
 
 const ALL_PRODUCTS_ID = 'all';
@@ -29,6 +30,7 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
   categories,
   activeCategoryId,
   onCategorySelect,
+  styleConfig = {},
 }) => {
   const listRef = useRef<FlatList>(null);
 
@@ -61,7 +63,10 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
     return (
       <TouchableOpacity
         key={item.id}
-        style={[styles.item, isActive && styles.activeItem]}
+        style={[
+          styles.item, 
+          isActive ? [styles.activeItem, { backgroundColor: styleConfig.sidebarActiveBg || '#FFF9EB' }] : { backgroundColor: styleConfig.sidebarInactiveBg || 'transparent' }
+        ]}
         onPress={() => onCategorySelect(item.id)}
         activeOpacity={0.7}
       >
@@ -77,7 +82,11 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
           )}
         </View>
         <Text
-          style={[styles.label, isActive && styles.activeLabel]}
+          style={[
+            styles.label, 
+            { color: styleConfig.sidebarInactiveText || '#666' },
+            isActive && [styles.activeLabel, { color: styleConfig.sidebarActiveText || theme.colors.primary }]
+          ]}
           numberOfLines={2}
         >
           {item.name}
