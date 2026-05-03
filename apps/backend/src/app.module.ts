@@ -39,6 +39,7 @@ import { LandingPageModule } from './landing-page/landing-page.module';
 import { PillarModule } from './pillar/pillar.module';
 import { AuthorModule } from './author/author.module';
 import { CategoryLandingPageModule } from './category-landing-page/category-landing-page.module';
+import { PressMentionModule } from './press-mention/press-mention.module';
 
 @Module({
   imports: [
@@ -86,6 +87,7 @@ import { CategoryLandingPageModule } from './category-landing-page/category-land
     PillarModule,
     AuthorModule,
     CategoryLandingPageModule,
+    PressMentionModule,
     AppCacheModule,
   ],
   controllers: [AppController],
