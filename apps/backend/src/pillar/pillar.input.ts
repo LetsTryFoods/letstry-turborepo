@@ -25,6 +25,7 @@ export class PillarCategoryTileInput {
 @InputType()
 export class CreatePillarInput {
   @Field() slug: string;
+  @Field({ nullable: true }) customRoute?: string;
   @Field() title: string;
   @Field() intro: string;
   @Field({ nullable: true }) heroImageUrl?: string;
@@ -41,6 +42,7 @@ export class CreatePillarInput {
 @InputType()
 export class UpdatePillarInput {
   @Field({ nullable: true }) slug?: string;
+  @Field({ nullable: true }) customRoute?: string;
   @Field({ nullable: true }) title?: string;
   @Field({ nullable: true }) intro?: string;
   @Field({ nullable: true }) heroImageUrl?: string;

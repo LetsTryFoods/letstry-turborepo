@@ -3,17 +3,68 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getCategoryLandingPageBySlug } from '@/lib/category-landing-page/get-category-landing-page';
+import { getPillarByCustomRoute } from '@/lib/pillar';
+import { PillarRenderer } from '@/components/pillar/PillarRenderer';
 import { LandingFAQ } from '@/components/categoryLanding/LandingFAQ';
+import { getCdnUrl } from '@/lib/image-utils';
 
 const PAGE_SLUG = 'no-palm-oil-snacks';
+const PAGE_PATH = `/${PAGE_SLUG}`;
 const SITE_URL = (process.env.NEXT_PUBLIC_BASE_URL || 'https://letstryfoods.com').replace(/\/$/, '');
+const PAGE_URL = `${SITE_URL}${PAGE_PATH}`;
 
+/**
+ * Resolution order for /no-palm-oil-snacks:
+ *
+ *  1. Pillar with customRoute === '/no-palm-oil-snacks' → render via the
+ *     unified PillarRenderer. This is the new path content team uses.
+ *
+ *  2. CategoryLandingPage with slug 'no-palm-oil-snacks' → render via the
+ *     existing landing-page layout. This is the legacy path that pre-dates
+ *     the Pillars CMS — preserved as a safety net so a missing/inactive
+ *     Pillar never takes the page down.
+ *
+ *  3. notFound() — only if both CMS sources are empty (would only happen if
+ *     someone manually deletes both the Pillar AND the CategoryLandingPage).
+ */
 export async function generateMetadata(): Promise<Metadata> {
+  // Prefer Pillar if it exists and is active.
+  const pillar = await getPillarByCustomRoute(PAGE_PATH);
+  if (pillar && pillar.isActive) {
+    const title = pillar.seo?.metaTitle || `${pillar.title} | Let's Try Foods`;
+    const description = pillar.seo?.metaDescription || pillar.intro;
+    return {
+      title: { absolute: title },
+      description,
+      keywords: pillar.seo?.metaKeywords || [],
+      alternates: { canonical: pillar.seo?.canonicalUrl || PAGE_URL },
+      openGraph: {
+        title: pillar.seo?.ogTitle || title,
+        description: pillar.seo?.ogDescription || description,
+        url: PAGE_URL,
+        type: 'website',
+        siteName: "Let's Try Foods",
+        images: pillar.seo?.ogImage
+          ? [{ url: getCdnUrl(pillar.seo.ogImage) }]
+          : pillar.heroImageUrl
+            ? [{ url: getCdnUrl(pillar.heroImageUrl) }]
+            : [],
+      },
+      twitter: {
+        card: (pillar.seo?.twitterCard as 'summary' | 'summary_large_image') || 'summary_large_image',
+        title: pillar.seo?.twitterTitle || title,
+        description: pillar.seo?.twitterDescription || description,
+        images: pillar.seo?.twitterImage ? [getCdnUrl(pillar.seo.twitterImage)] : undefined,
+      },
+      robots: pillar.seo?.robots || undefined,
+    };
+  }
+
+  // Fall back to legacy CategoryLandingPage flow.
   const page = await getCategoryLandingPageBySlug(PAGE_SLUG);
   if (!page) return { title: "Not Found | Let's Try" };
 
   const seo = page.seo;
-  const pageUrl = `${SITE_URL}/${PAGE_SLUG}`;
   const title = seo?.metaTitle || page.pageTitle;
   const description = seo?.metaDescription || page.description || '';
 
@@ -21,11 +72,11 @@ export async function generateMetadata(): Promise<Metadata> {
     title: { absolute: title },
     description,
     keywords: seo?.metaKeywords || [],
-    alternates: { canonical: seo?.canonicalUrl || pageUrl },
+    alternates: { canonical: seo?.canonicalUrl || PAGE_URL },
     openGraph: {
       title: seo?.ogTitle || title,
       description: seo?.ogDescription || description,
-      url: pageUrl,
+      url: PAGE_URL,
       type: 'website',
       siteName: "Let's Try Foods",
       images: seo?.ogImage ? [{ url: seo.ogImage, width: 1200, height: 630, alt: title }] : [],
@@ -40,10 +91,16 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function NoPalmOilSnacksPage() {
+  // 1) Pillar takes precedence
+  const pillar = await getPillarByCustomRoute(PAGE_PATH);
+  if (pillar && pillar.isActive) {
+    return <PillarRenderer pillar={pillar} url={PAGE_URL} />;
+  }
+
+  // 2) Legacy CategoryLandingPage fallback (existing behaviour preserved)
   const page = await getCategoryLandingPageBySlug(PAGE_SLUG);
   if (!page) notFound();
 
-  const pageUrl = `${SITE_URL}/${PAGE_SLUG}`;
   const sortedTiles = [...page.tiles].sort((a, b) => a.position - b.position);
   const sortedFaqs = [...page.faqs].sort((a, b) => a.position - b.position);
 
@@ -64,15 +121,15 @@ export default async function NoPalmOilSnacksPage() {
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
-      { '@type': 'ListItem', position: 2, name: page.pageTitle, item: pageUrl },
+      { '@type': 'ListItem', position: 2, name: page.pageTitle, item: PAGE_URL },
     ],
   };
 
   const speakableSchema = {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
-    '@id': `${pageUrl}#speakable`,
-    url: pageUrl,
+    '@id': `${PAGE_URL}#speakable`,
+    url: PAGE_URL,
     speakable: {
       '@type': 'SpeakableSpecification',
       cssSelector: ['[data-speakable="true"]'],

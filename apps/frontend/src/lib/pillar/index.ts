@@ -1,5 +1,9 @@
 import { createServerGraphQLClient } from '@/lib/graphql/server-client-factory';
-import { GET_PILLAR_BY_SLUG, GET_ACTIVE_PILLARS } from '@/lib/queries/pillars';
+import {
+  GET_PILLAR_BY_SLUG,
+  GET_ACTIVE_PILLARS,
+  GET_PILLAR_BY_CUSTOM_ROUTE,
+} from '@/lib/queries/pillars';
 
 export interface PillarSection {
   heading: string;
@@ -37,6 +41,7 @@ export interface PillarSeo {
 export interface Pillar {
   _id: string;
   slug: string;
+  customRoute?: string | null;
   title: string;
   intro: string;
   heroImageUrl?: string | null;
@@ -70,5 +75,25 @@ export async function getActivePillars(): Promise<Pick<Pillar, '_id' | 'slug' | 
   } catch (e) {
     console.error('getActivePillars failed', e);
     return [];
+  }
+}
+
+/**
+ * Look up an active pillar by its customRoute (e.g. '/no-palm-oil-snacks').
+ * Used by the storefront [slug] dynamic route to resolve clean-URL pillars
+ * before falling through to category lookup. Returns null on no match or
+ * fetch error.
+ */
+export async function getPillarByCustomRoute(route: string): Promise<Pillar | null> {
+  const client = createServerGraphQLClient();
+  try {
+    const data = await client.request<{ pillarByCustomRoute: Pillar | null }>(
+      GET_PILLAR_BY_CUSTOM_ROUTE,
+      { route },
+    );
+    return data?.pillarByCustomRoute ?? null;
+  } catch (e) {
+    console.error('getPillarByCustomRoute failed', e);
+    return null;
   }
 }

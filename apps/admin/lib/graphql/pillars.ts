@@ -3,6 +3,7 @@ import { gql } from "@apollo/client";
 const PILLAR_FIELDS = `
   _id
   slug
+  customRoute
   title
   intro
   heroImageUrl

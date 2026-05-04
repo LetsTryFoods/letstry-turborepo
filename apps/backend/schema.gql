@@ -1478,6 +1478,7 @@ type PillarCategoryTileType {
 type Pillar {
   _id: ID!
   slug: String!
+  customRoute: String
   title: String!
   intro: String!
   heroImageUrl: String
@@ -1659,6 +1660,7 @@ type Query {
   activePillars: [Pillar!]!
   pillar(id: ID!): Pillar!
   pillarBySlug(slug: String!): Pillar!
+  pillarByCustomRoute(route: String!): Pillar
   authors: [Author!]!
   activeAuthors: [Author!]!
   teamMembers: [Author!]!
@@ -2652,6 +2654,7 @@ input UpdateLandingPageInput {
 
 input CreatePillarInput {
   slug: String!
+  customRoute: String
   title: String!
   intro: String!
   heroImageUrl: String
@@ -2685,6 +2688,7 @@ input PillarFaqEntryInput {
 
 input UpdatePillarInput {
   slug: String
+  customRoute: String
   title: String
   intro: String
   heroImageUrl: String

@@ -27,7 +27,8 @@
     "db:backup": "ts-node -r tsconfig-paths/register scripts/backup-db.ts",
     "db:clean": "ts-node -r tsconfig-paths/register scripts/clean-image-urls.ts",
     "db:migrate-r2": "ts-node -r tsconfig-paths/register scripts/migrate-to-r2.ts",
-    "export:products": "ts-node -r tsconfig-paths/register scripts/export-products-excel.ts"
+    "export:products": "ts-node -r tsconfig-paths/register scripts/export-products-excel.ts",
+    "seed:no-palm-oil-pillar": "ts-node -r tsconfig-paths/register scripts/seed-no-palm-oil-pillar.ts"
   },
   "dependencies": {
     "@apollo/server": "^5.2.0",

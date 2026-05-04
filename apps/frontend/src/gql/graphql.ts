@@ -741,6 +741,7 @@ export type CreatePackerResponse = {
 
 export type CreatePillarInput = {
   categoryTiles?: InputMaybe<Array<PillarCategoryTileInput>>;
+  customRoute?: InputMaybe<Scalars['String']['input']>;
   faqs?: InputMaybe<Array<PillarFaqEntryInput>>;
   featuredProductIds?: InputMaybe<Array<Scalars['String']['input']>>;
   heroImageUrl?: InputMaybe<Scalars['String']['input']>;
@@ -2321,6 +2322,7 @@ export type Pillar = {
   _id: Scalars['ID']['output'];
   categoryTiles: Array<PillarCategoryTileType>;
   createdAt: Scalars['DateTime']['output'];
+  customRoute?: Maybe<Scalars['String']['output']>;
   faqs: Array<PillarFaqEntryType>;
   featuredProductIds: Array<Scalars['String']['output']>;
   heroImageUrl?: Maybe<Scalars['String']['output']>;
@@ -2787,6 +2789,7 @@ export type Query = {
   myCart?: Maybe<Cart>;
   myPayments: Array<PaymentOrderType>;
   pillar: Pillar;
+  pillarByCustomRoute?: Maybe<Pillar>;
   pillarBySlug: Pillar;
   pillars: Array<Pillar>;
   policies: Array<Policy>;
@@ -3062,6 +3065,11 @@ export type QueryListShipmentsArgs = {
 
 export type QueryPillarArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryPillarByCustomRouteArgs = {
+  route: Scalars['String']['input'];
 };
 
 
@@ -3660,6 +3668,7 @@ export type UpdatePackerInput = {
 
 export type UpdatePillarInput = {
   categoryTiles?: InputMaybe<Array<PillarCategoryTileInput>>;
+  customRoute?: InputMaybe<Scalars['String']['input']>;
   faqs?: InputMaybe<Array<PillarFaqEntryInput>>;
   featuredProductIds?: InputMaybe<Array<Scalars['String']['input']>>;
   heroImageUrl?: InputMaybe<Scalars['String']['input']>;
@@ -4031,7 +4040,14 @@ export type GetPillarBySlugQueryVariables = Exact<{
 }>;
 
 
-export type GetPillarBySlugQuery = { __typename?: 'Query', pillarBySlug: { __typename?: 'Pillar', _id: string, slug: string, title: string, intro: string, heroImageUrl?: string | null, featuredProductIds: Array<string>, relatedPillarSlugs: Array<string>, isActive: boolean, categoryTiles: Array<{ __typename?: 'PillarCategoryTileType', categorySlug: string, name: string, blurb: string }>, sections: Array<{ __typename?: 'PillarSectionType', heading: string, body: string, speakable?: boolean | null, featuredProductIds?: Array<string> | null }>, faqs: Array<{ __typename?: 'PillarFaqEntryType', question: string, answer: string }>, seo?: { __typename?: 'SeoBase', metaTitle?: string | null, metaDescription?: string | null, metaKeywords?: Array<string> | null, canonicalUrl?: string | null, ogTitle?: string | null, ogDescription?: string | null, ogImage?: string | null, twitterCard?: string | null, twitterTitle?: string | null, twitterDescription?: string | null, twitterImage?: string | null, robots?: string | null } | null } };
+export type GetPillarBySlugQuery = { __typename?: 'Query', pillarBySlug: { __typename?: 'Pillar', _id: string, slug: string, customRoute?: string | null, title: string, intro: string, heroImageUrl?: string | null, featuredProductIds: Array<string>, relatedPillarSlugs: Array<string>, isActive: boolean, categoryTiles: Array<{ __typename?: 'PillarCategoryTileType', categorySlug: string, name: string, blurb: string }>, sections: Array<{ __typename?: 'PillarSectionType', heading: string, body: string, speakable?: boolean | null, featuredProductIds?: Array<string> | null }>, faqs: Array<{ __typename?: 'PillarFaqEntryType', question: string, answer: string }>, seo?: { __typename?: 'SeoBase', metaTitle?: string | null, metaDescription?: string | null, metaKeywords?: Array<string> | null, canonicalUrl?: string | null, ogTitle?: string | null, ogDescription?: string | null, ogImage?: string | null, twitterCard?: string | null, twitterTitle?: string | null, twitterDescription?: string | null, twitterImage?: string | null, robots?: string | null } | null } };
+
+export type GetPillarByCustomRouteQueryVariables = Exact<{
+  route: Scalars['String']['input'];
+}>;
+
+
+export type GetPillarByCustomRouteQuery = { __typename?: 'Query', pillarByCustomRoute?: { __typename?: 'Pillar', _id: string, slug: string, customRoute?: string | null, title: string, intro: string, heroImageUrl?: string | null, featuredProductIds: Array<string>, relatedPillarSlugs: Array<string>, isActive: boolean, categoryTiles: Array<{ __typename?: 'PillarCategoryTileType', categorySlug: string, name: string, blurb: string }>, sections: Array<{ __typename?: 'PillarSectionType', heading: string, body: string, speakable?: boolean | null, featuredProductIds?: Array<string> | null }>, faqs: Array<{ __typename?: 'PillarFaqEntryType', question: string, answer: string }>, seo?: { __typename?: 'SeoBase', metaTitle?: string | null, metaDescription?: string | null, metaKeywords?: Array<string> | null, canonicalUrl?: string | null, ogTitle?: string | null, ogDescription?: string | null, ogImage?: string | null, twitterCard?: string | null, twitterTitle?: string | null, twitterDescription?: string | null, twitterImage?: string | null, robots?: string | null } | null } | null };
 
 export type GetActivePillarsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -4715,6 +4731,7 @@ export const GetPillarBySlugDocument = new TypedDocumentString(`
   pillarBySlug(slug: $slug) {
     _id
     slug
+    customRoute
     title
     intro
     heroImageUrl
@@ -4753,6 +4770,50 @@ export const GetPillarBySlugDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<GetPillarBySlugQuery, GetPillarBySlugQueryVariables>;
+export const GetPillarByCustomRouteDocument = new TypedDocumentString(`
+    query GetPillarByCustomRoute($route: String!) {
+  pillarByCustomRoute(route: $route) {
+    _id
+    slug
+    customRoute
+    title
+    intro
+    heroImageUrl
+    categoryTiles {
+      categorySlug
+      name
+      blurb
+    }
+    featuredProductIds
+    sections {
+      heading
+      body
+      speakable
+      featuredProductIds
+    }
+    faqs {
+      question
+      answer
+    }
+    relatedPillarSlugs
+    isActive
+    seo {
+      metaTitle
+      metaDescription
+      metaKeywords
+      canonicalUrl
+      ogTitle
+      ogDescription
+      ogImage
+      twitterCard
+      twitterTitle
+      twitterDescription
+      twitterImage
+      robots
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<GetPillarByCustomRouteQuery, GetPillarByCustomRouteQueryVariables>;
 export const GetActivePillarsDocument = new TypedDocumentString(`
     query GetActivePillars {
   activePillars {

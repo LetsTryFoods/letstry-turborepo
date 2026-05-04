@@ -38,6 +38,19 @@ export class PillarService {
     return pillar as any as Pillar;
   }
 
+  /**
+   * Look up an active pillar by its customRoute (e.g. '/no-palm-oil-snacks').
+   * Returns null when no match — callers (the storefront [slug] route)
+   * should fall through to category lookup on null.
+   */
+  async findByCustomRoute(route: string): Promise<Pillar | null> {
+    const pillar = await this.pillarModel
+      .findOne({ customRoute: route, isActive: true })
+      .lean()
+      .exec();
+    return pillar ? ((pillar as any) as Pillar) : null;
+  }
+
   async findOne(id: string): Promise<Pillar> {
     const pillar = await this.pillarModel.findById(id).lean().exec();
     if (!pillar) throw new NotFoundException(`Pillar ${id} not found`);
