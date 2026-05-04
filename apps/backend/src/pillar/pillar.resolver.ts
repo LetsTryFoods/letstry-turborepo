@@ -27,6 +27,13 @@ export class PillarResolver {
     return this.pillarService.findBySlug(slug);
   }
 
+  // Used by the storefront /[slug] dynamic route to resolve clean-URL
+  // pillars before falling through to category lookup.
+  @Query(() => Pillar, { name: 'pillarByCustomRoute', nullable: true })
+  findByCustomRoute(@Args('route') route: string) {
+    return this.pillarService.findByCustomRoute(route);
+  }
+
   @Mutation(() => Pillar)
   createPillar(@Args('input') input: CreatePillarInput) {
     return this.pillarService.create(input);

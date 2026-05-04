@@ -46,6 +46,7 @@ export interface PillarSeoInput {
 export interface Pillar {
   _id: string;
   slug: string;
+  customRoute?: string;
   title: string;
   intro: string;
   heroImageUrl?: string;
@@ -63,6 +64,7 @@ export interface Pillar {
 
 export interface CreatePillarInput {
   slug: string;
+  customRoute?: string;
   title: string;
   intro: string;
   heroImageUrl?: string;

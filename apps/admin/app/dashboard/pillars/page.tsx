@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import { toast } from 'react-hot-toast';
 import { usePillars, useCreatePillar, useUpdatePillar, useRemovePillar, type Pillar } from '@/lib/pillars/usePillars';
+import { useCategories, type Category } from '@/lib/categories/useCategories';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -25,6 +27,13 @@ export default function PillarsAdminPage() {
   const { create } = useCreatePillar();
   const { update } = useUpdatePillar();
   const { remove } = useRemovePillar();
+  // Pulled here so the form can validate customRoute against existing
+  // category slugs before sending the mutation.
+  const { data: categoriesData } = useCategories({ page: 1, limit: 200 }, true);
+  const categorySlugs: string[] = (
+    (categoriesData as { categories?: { items?: Category[] } } | undefined)
+      ?.categories?.items || []
+  ).map((c) => c.slug);
 
   const pillars: Pillar[] = (data as { pillars?: Pillar[] } | undefined)?.pillars || [];
   const [editing, setEditing] = useState<Pillar | null>(null);
@@ -50,7 +59,7 @@ export default function PillarsAdminPage() {
               <CardTitle className="text-base">
                 {p.title}{' '}
                 <span className="text-xs text-gray-500">
-                  /p/{p.slug} · {p.isActive ? 'active' : 'draft'}
+                  {p.customRoute || `/p/${p.slug}`} · {p.isActive ? 'active' : 'draft'}
                 </span>
               </CardTitle>
               <div className="flex gap-2">
@@ -87,6 +96,7 @@ export default function PillarsAdminPage() {
       {editing && (
         <PillarForm
           pillar={editing}
+          categorySlugs={categorySlugs}
           onCancel={() => setEditing(null)}
           onSave={async (input) => {
             // Strip server-managed fields. The form state IS the full Pillar
@@ -95,13 +105,36 @@ export default function PillarsAdminPage() {
             // defined on input" error and the save fails silently for the
             // content team.
             const payload = stripServerFields(input as Pillar);
-            if (editing._id) {
-              await update(editing._id, payload);
-            } else {
-              await create(payload as Parameters<typeof create>[0]);
+
+            // Slug-collision guard: if customRoute matches an existing category
+            // (e.g. customRoute='/bhujia' would shadow the /bhujia category),
+            // refuse to save. The storefront [slug] route resolves pillars
+            // before categories, so saving this would silently break the
+            // category page.
+            if (payload.customRoute) {
+              // Strip leading slash for comparison
+              const routeSlug = payload.customRoute.replace(/^\//, '').toLowerCase();
+              if (categorySlugs.includes(routeSlug)) {
+                toast.error(
+                  `Custom URL ${payload.customRoute} conflicts with the existing /${routeSlug} category. Pick a different URL or leave the field blank to use /p/${payload.slug}.`,
+                );
+                return;
+              }
             }
-            setEditing(null);
-            refetch();
+
+            try {
+              if (editing._id) {
+                await update(editing._id, payload);
+                toast.success(`Pillar "${payload.title}" updated`);
+              } else {
+                await create(payload as Parameters<typeof create>[0]);
+                toast.success(`Pillar "${payload.title}" created`);
+              }
+              setEditing(null);
+              refetch();
+            } catch (err) {
+              toast.error(`Save failed: ${(err as Error).message}`);
+            }
           }}
         />
       )}
@@ -119,6 +152,7 @@ function emptyPillar(): Pillar {
   return {
     _id: '',
     slug: '',
+    customRoute: '',
     title: '',
     intro: '',
     heroImageUrl: '',
@@ -136,14 +170,25 @@ function emptyPillar(): Pillar {
 
 function PillarForm({
   pillar,
+  categorySlugs,
   onSave,
   onCancel,
 }: {
   pillar: Pillar;
+  categorySlugs: string[];
   onSave: (input: Partial<Pillar>) => void | Promise<void>;
   onCancel: () => void;
 }) {
   const [form, setForm] = useState<Pillar>(pillar);
+
+  // Live conflict check for the customRoute field — gives the content team
+  // an inline warning while typing, not just at save time.
+  const customRouteSlug = (form.customRoute || '').replace(/^\//, '').toLowerCase();
+  const customRouteConflict =
+    customRouteSlug && categorySlugs.includes(customRouteSlug);
+
+  // Helper to suggest a clean URL based on slug.
+  const suggestedCleanUrl = form.slug ? `/${form.slug}` : '';
 
   return (
     <Card className="border-amber-200 bg-amber-50/40">
@@ -151,8 +196,38 @@ function PillarForm({
         <CardTitle>{pillar._id ? 'Edit pillar' : 'New pillar'}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <Field label="Slug (URL path under /p/)" hint="lowercase-with-dashes, e.g. palm-oil-free-namkeen">
-          <Input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} />
+        <Field label="Slug" hint="lowercase-with-dashes, e.g. palm-oil-free-namkeen. Drives the default /p/<slug> route.">
+          <Input
+            value={form.slug}
+            onChange={(e) => {
+              const newSlug = e.target.value;
+              // If customRoute was previously the auto-suggestion of the old
+              // slug, keep it tracking the new slug. If the user typed a
+              // custom value, leave it alone.
+              const wasAutoFilled =
+                form.customRoute === `/${form.slug}` || form.customRoute === '';
+              setForm({
+                ...form,
+                slug: newSlug,
+                customRoute: wasAutoFilled && newSlug ? `/${newSlug}` : form.customRoute,
+              });
+            }}
+          />
+        </Field>
+        <Field
+          label="Custom URL (clean URL)"
+          hint={
+            customRouteConflict
+              ? `⚠️ Conflicts with existing /${customRouteSlug} category. Save will be blocked. Either rename the slug, or clear this field to fall back to /p/${form.slug}.`
+              : `Defaults to /<slug> for clean URLs (better SEO). Leave blank to publish at /p/${form.slug || '<slug>'} instead. Suggested: ${suggestedCleanUrl}`
+          }
+        >
+          <Input
+            value={form.customRoute || ''}
+            placeholder={suggestedCleanUrl ? `e.g. ${suggestedCleanUrl}` : '/your-pillar-url'}
+            onChange={(e) => setForm({ ...form, customRoute: e.target.value })}
+            className={customRouteConflict ? 'border-red-400' : ''}
+          />
         </Field>
         <Field label="Title" hint="The H1 on the live page">
           <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />

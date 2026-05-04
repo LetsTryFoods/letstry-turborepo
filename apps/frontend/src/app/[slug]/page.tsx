@@ -6,11 +6,13 @@ import { CategoryFaqSection } from '@/components/category-page/CategoryFaqSectio
 import { CategoryAnswerBox } from '@/components/category-page/CategoryAnswerBox';
 import { Product } from '@/components/category-page/ProductCard';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
+import { PillarRenderer } from '@/components/pillar/PillarRenderer';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getCdnUrl } from '@/lib/image-utils';
 import { getCategoryOverride } from '@/lib/seo/overrides';
 import { getCategoryFaqs } from '@/lib/seo/category-faqs';
+import { getPillarByCustomRoute, type Pillar } from '@/lib/pillar';
 
 export const revalidate = 1800;
 
@@ -23,6 +25,41 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
+
+  // Resolve clean-URL pillars FIRST so /no-maida-snacks etc. don't fall
+  // through to category lookup. customRoute on a pillar always wins over
+  // a category at the same slug.
+  const pillar = await getPillarByCustomRoute(`/${slug}`);
+  if (pillar && pillar.isActive) {
+    const url = `${SITE_URL}/${slug}`;
+    const title = pillar.seo?.metaTitle || `${pillar.title} | Let's Try Foods`;
+    const description = pillar.seo?.metaDescription || pillar.intro;
+    return {
+      title: { absolute: title },
+      description,
+      keywords: pillar.seo?.metaKeywords || [],
+      alternates: { canonical: pillar.seo?.canonicalUrl || url },
+      openGraph: {
+        title: pillar.seo?.ogTitle || title,
+        description: pillar.seo?.ogDescription || description,
+        url,
+        type: 'website',
+        siteName: "Let's Try Foods",
+        images: pillar.seo?.ogImage
+          ? [{ url: getCdnUrl(pillar.seo.ogImage) }]
+          : pillar.heroImageUrl
+            ? [{ url: getCdnUrl(pillar.heroImageUrl) }]
+            : [],
+      },
+      twitter: {
+        card: (pillar.seo?.twitterCard as 'summary' | 'summary_large_image') || 'summary_large_image',
+        title: pillar.seo?.twitterTitle || title,
+        description: pillar.seo?.twitterDescription || description,
+        images: pillar.seo?.twitterImage ? [getCdnUrl(pillar.seo.twitterImage)] : undefined,
+      },
+      robots: pillar.seo?.robots || undefined,
+    };
+  }
 
   const category = await getCategoryBySlug(slug);
   if (category) {
@@ -112,6 +149,25 @@ function mapProductData(apiProduct: any): Product {
 export default async function DynamicSlugPage({ params, searchParams }: PageProps) {
   const { slug } = await params;
   const { type } = await searchParams;
+
+  // Resolution order:
+  //   1) Pillar with customRoute === `/<slug>` (clean-URL pillars)
+  //   2) Category at slug `<slug>`
+  //   3) notFound
+  //
+  // Pillars take precedence to keep clean URLs cohesive — a pillar named
+  // `no-maida-snacks` with customRoute `/no-maida-snacks` resolves here.
+  // Admin-side validation prevents accidental shadowing of category slugs.
+  let pillar: Pillar | null = null;
+  try {
+    pillar = await getPillarByCustomRoute(`/${slug}`);
+  } catch (error) {
+    console.error('Error fetching pillar by customRoute:', error);
+  }
+
+  if (pillar && pillar.isActive) {
+    return <PillarRenderer pillar={pillar} url={`${SITE_URL}/${slug}`} />;
+  }
 
   // Fetch the category. Sprint-3 introduced a data-driven render path
   // (CategoryAnswerBox + CategoryFaqSection) that replaced the legacy

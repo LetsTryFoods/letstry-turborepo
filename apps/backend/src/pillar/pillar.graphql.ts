@@ -26,6 +26,7 @@ export class PillarCategoryTileType {
 export class Pillar {
   @Field(() => ID) _id: string;
   @Field() slug: string;
+  @Field({ nullable: true }) customRoute?: string;
   @Field() title: string;
   @Field() intro: string;
   @Field({ nullable: true }) heroImageUrl?: string;
