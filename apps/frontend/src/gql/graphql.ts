@@ -333,6 +333,7 @@ export type CartTotals = {
   __typename?: 'CartTotals';
   discountAmount: Scalars['Float']['output'];
   estimatedTax: Scalars['Float']['output'];
+  freeDeliveryThreshold?: Maybe<Scalars['Float']['output']>;
   grandTotal: Scalars['Float']['output'];
   handlingCharge: Scalars['Float']['output'];
   shippingCost: Scalars['Float']['output'];
