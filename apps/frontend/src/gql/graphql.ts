@@ -761,6 +761,20 @@ export type CreatePolicyInput = {
   type: Scalars['String']['input'];
 };
 
+export type CreatePressMentionInput = {
+  category?: InputMaybe<Scalars['String']['input']>;
+  coverImageUrl?: InputMaybe<Scalars['String']['input']>;
+  excerpt?: InputMaybe<Scalars['String']['input']>;
+  headline: Scalars['String']['input'];
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  position?: InputMaybe<Scalars['Int']['input']>;
+  publication: Scalars['String']['input'];
+  publicationLogoUrl?: InputMaybe<Scalars['String']['input']>;
+  publishedAt: Scalars['DateTime']['input'];
+  slug: Scalars['String']['input'];
+  url: Scalars['String']['input'];
+};
+
 export type CreateProductInput = {
   allergens?: InputMaybe<Scalars['String']['input']>;
   audience?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -1242,6 +1256,7 @@ export type Mutation = {
   createPacker: CreatePackerResponse;
   createPillar: Pillar;
   createPolicy: Policy;
+  createPressMention: PressMention;
   createProduct: Product;
   createRedirect: RedirectType;
   createShipment: CreateShipmentResponse;
@@ -1270,6 +1285,7 @@ export type Mutation = {
   removeCoupon: Cart;
   removeFromCart: Cart;
   removePillar: Pillar;
+  removePressMention: PressMention;
   removeProductVariant: Product;
   removeProductsFromCategory: Scalars['Boolean']['output'];
   sendOtp: Scalars['String']['output'];
@@ -1301,6 +1317,7 @@ export type Mutation = {
   updatePillar: Pillar;
   updatePolicy: Policy;
   updatePolicySeo: PolicySeo;
+  updatePressMention: PressMention;
   updateProduct: Product;
   updateProductStock: Product;
   updateProductVariant: Product;
@@ -1457,6 +1474,11 @@ export type MutationCreatePolicyArgs = {
 };
 
 
+export type MutationCreatePressMentionArgs = {
+  input: CreatePressMentionInput;
+};
+
+
 export type MutationCreateProductArgs = {
   input: CreateProductInput;
 };
@@ -1583,6 +1605,11 @@ export type MutationRemoveFromCartArgs = {
 
 
 export type MutationRemovePillarArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationRemovePressMentionArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -1752,6 +1779,12 @@ export type MutationUpdatePolicyArgs = {
 export type MutationUpdatePolicySeoArgs = {
   input: PolicySeoInput;
   policyId: Scalars['ID']['input'];
+};
+
+
+export type MutationUpdatePressMentionArgs = {
+  id: Scalars['ID']['input'];
+  input: UpdatePressMentionInput;
 };
 
 
@@ -2419,6 +2452,24 @@ export type PolicySeoInput = {
   ogTitle?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type PressMention = {
+  __typename?: 'PressMention';
+  _id: Scalars['ID']['output'];
+  category?: Maybe<Scalars['String']['output']>;
+  coverImageUrl?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  excerpt?: Maybe<Scalars['String']['output']>;
+  headline: Scalars['String']['output'];
+  isActive: Scalars['Boolean']['output'];
+  position: Scalars['Int']['output'];
+  publication: Scalars['String']['output'];
+  publicationLogoUrl?: Maybe<Scalars['String']['output']>;
+  publishedAt: Scalars['DateTime']['output'];
+  slug: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  url: Scalars['String']['output'];
+};
+
 export type PriceRange = {
   __typename?: 'PriceRange';
   max: Scalars['Float']['output'];
@@ -2665,6 +2716,7 @@ export type Query = {
   activeCoupons: Array<Coupon>;
   activeLandingPages: Array<LandingPage>;
   activePillars: Array<Pillar>;
+  activePressMentions: Array<PressMention>;
   address: Address;
   allActiveRedirects: Array<RedirectType>;
   author: Author;
@@ -2740,6 +2792,9 @@ export type Query = {
   policies: Array<Policy>;
   policiesByType: Array<Policy>;
   policy?: Maybe<Policy>;
+  pressMention: PressMention;
+  pressMentionBySlug: PressMention;
+  pressMentions: Array<PressMention>;
   product?: Maybe<Product>;
   productBySlug?: Maybe<Product>;
   productVariant?: Maybe<ProductVariant>;
@@ -3022,6 +3077,16 @@ export type QueryPoliciesByTypeArgs = {
 
 export type QueryPolicyArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryPressMentionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryPressMentionBySlugArgs = {
+  slug: Scalars['String']['input'];
 };
 
 
@@ -3613,6 +3678,20 @@ export type UpdatePolicyInput = {
   seo?: InputMaybe<SeoBaseInput>;
   title?: InputMaybe<Scalars['String']['input']>;
   type?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdatePressMentionInput = {
+  category?: InputMaybe<Scalars['String']['input']>;
+  coverImageUrl?: InputMaybe<Scalars['String']['input']>;
+  excerpt?: InputMaybe<Scalars['String']['input']>;
+  headline?: InputMaybe<Scalars['String']['input']>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  position?: InputMaybe<Scalars['Int']['input']>;
+  publication?: InputMaybe<Scalars['String']['input']>;
+  publicationLogoUrl?: InputMaybe<Scalars['String']['input']>;
+  publishedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  slug?: InputMaybe<Scalars['String']['input']>;
+  url?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateProductInput = {

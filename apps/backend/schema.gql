@@ -1546,6 +1546,23 @@ type CategoryLandingPageType {
   updatedAt: DateTime!
 }
 
+type PressMention {
+  _id: ID!
+  slug: String!
+  publication: String!
+  publicationLogoUrl: String
+  headline: String!
+  url: String!
+  excerpt: String
+  coverImageUrl: String
+  publishedAt: DateTime!
+  category: String
+  isActive: Boolean!
+  position: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
 input BoxDimensionsInput {
   l: Float!
   w: Float!
@@ -1650,6 +1667,10 @@ type Query {
   categoryLandingPages: [CategoryLandingPageType!]!
   categoryLandingPage(id: ID!): CategoryLandingPageType
   categoryLandingPageBySlug(slug: String!): CategoryLandingPageType
+  pressMentions: [PressMention!]!
+  activePressMentions: [PressMention!]!
+  pressMention(id: ID!): PressMention!
+  pressMentionBySlug(slug: String!): PressMention!
 }
 
 input PaginationInput {
@@ -1863,6 +1884,9 @@ type Mutation {
   createCategoryLandingPage(input: CreateCategoryLandingPageInput!): CategoryLandingPageType!
   updateCategoryLandingPage(id: ID!, input: UpdateCategoryLandingPageInput!): CategoryLandingPageType!
   deleteCategoryLandingPage(id: ID!): CategoryLandingPageType!
+  createPressMention(input: CreatePressMentionInput!): PressMention!
+  updatePressMention(id: ID!, input: UpdatePressMentionInput!): PressMention!
+  removePressMention(id: ID!): PressMention!
 }
 
 input CreateProductInput {
@@ -2707,6 +2731,34 @@ input UpdateAuthorInput {
   socialLinks: [AuthorSocialLinkInput!]
   isFounder: Boolean
   isTeamMember: Boolean
+  isActive: Boolean
+  position: Int
+}
+
+input CreatePressMentionInput {
+  slug: String!
+  publication: String!
+  publicationLogoUrl: String
+  headline: String!
+  url: String!
+  excerpt: String
+  coverImageUrl: String
+  publishedAt: DateTime!
+  category: String
+  isActive: Boolean
+  position: Int
+}
+
+input UpdatePressMentionInput {
+  slug: String
+  publication: String
+  publicationLogoUrl: String
+  headline: String
+  url: String
+  excerpt: String
+  coverImageUrl: String
+  publishedAt: DateTime
+  category: String
   isActive: Boolean
   position: Int
 }
