@@ -1,17 +1,195 @@
 /**
- * Onboarding doc shown to the content team. Linked from the SEO checklist
- * panel and from the sidebar. Designed to be readable by a non-technical
- * content writer hired by the SEO owner.
+ * Onboarding doc + content-backlog dashboard for the content team.
+ *
+ * Top of the page = "Content Backlog" — live counts of authors, pillars,
+ * press mentions etc. so the team can see what's missing at a glance with
+ * one-click links to fix each gap.
+ *
+ * Below = the brand-matrix and field-by-field reference (unchanged) so the
+ * team has the rules within reach while populating.
  */
+'use client';
+
+import Link from 'next/link';
+import { useAuthors } from '@/lib/authors/useAuthors';
+import { usePillars } from '@/lib/pillars/usePillars';
+import { usePressMentions } from '@/lib/press-mentions/usePressMentions';
+
+interface BacklogRow {
+  label: string;
+  count: number | null;
+  target?: string;
+  hint: string;
+  fixHref: string;
+  fixLabel: string;
+  status: 'ok' | 'warn' | 'fail' | 'unknown';
+}
+
+function rowStatus(count: number | null, target = 1): BacklogRow['status'] {
+  if (count === null) return 'unknown';
+  if (count === 0) return 'fail';
+  if (count < target) return 'warn';
+  return 'ok';
+}
+
+function StatusBadge({ status }: { status: BacklogRow['status'] }) {
+  const styles: Record<BacklogRow['status'], string> = {
+    ok: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+    warn: 'bg-amber-100 text-amber-700 border-amber-200',
+    fail: 'bg-red-100 text-red-700 border-red-200',
+    unknown: 'bg-gray-100 text-gray-600 border-gray-200',
+  };
+  const label: Record<BacklogRow['status'], string> = {
+    ok: 'OK',
+    warn: 'Below target',
+    fail: 'Empty',
+    unknown: '—',
+  };
+  return (
+    <span
+      className={`inline-flex items-center text-xs font-medium px-2 py-0.5 rounded border ${styles[status]}`}
+    >
+      {label[status]}
+    </span>
+  );
+}
+
+function ContentBacklog() {
+  const { data: authorsData, loading: authorsLoading } = useAuthors();
+  const { data: pillarsData, loading: pillarsLoading } = usePillars();
+  const { data: pressData, loading: pressLoading } = usePressMentions();
+
+  const authorsCount = authorsLoading
+    ? null
+    : ((authorsData as { authors?: unknown[] } | undefined)?.authors?.length ?? 0);
+  const pillarsCount = pillarsLoading
+    ? null
+    : ((pillarsData as { pillars?: unknown[] } | undefined)?.pillars?.length ?? 0);
+  const pressCount = pressLoading
+    ? null
+    : ((pressData as { pressMentions?: unknown[] } | undefined)?.pressMentions?.length ?? 0);
+
+  const rows: BacklogRow[] = [
+    {
+      label: 'Authors',
+      count: authorsCount,
+      target: 'at least 1 (founder)',
+      hint:
+        'Drives /team, /author/<slug>, blog bylines and Person schema. Start with a founder bio + photo.',
+      fixHref: '/dashboard/authors',
+      fixLabel: 'Manage authors',
+      status: rowStatus(authorsCount, 1),
+    },
+    {
+      label: 'Pillars',
+      count: pillarsCount,
+      target: '3–6 keyword clusters',
+      hint:
+        'Each pillar is a /p/<slug> SEO hub page. Plan: no-palm-oil-snacks, palm-oil-free-namkeen, no-maida-snacks, no-refined-sugar-cookies, healthy-vrat-snacks, healthy-snacks-for-kids.',
+      fixHref: '/dashboard/pillars',
+      fixLabel: 'Manage pillars',
+      status: rowStatus(pillarsCount, 3),
+    },
+    {
+      label: 'Press mentions',
+      count: pressCount,
+      target: 'as many as you have',
+      hint:
+        'Drives the /press page and NewsArticle schema. Add every legitimate piece of media coverage — even small blogs count for E-E-A-T.',
+      fixHref: '/dashboard/press-mentions',
+      fixLabel: 'Manage press mentions',
+      status: rowStatus(pressCount, 1),
+    },
+    {
+      label: 'Reviews',
+      count: null,
+      hint:
+        '⚠️ Reviews admin is currently using dummy data — backend module needs to be built before approve/reject does anything real. Tracked as Sprint 6.',
+      fixHref: '/dashboard/reviews',
+      fixLabel: 'View admin (read-only)',
+      status: 'unknown',
+    },
+    {
+      label: 'Product SEO',
+      count: null,
+      hint:
+        'Per-product meta title / description / OG / canonical / keywords. Each top-traffic product should have all SEO fields filled.',
+      fixHref: '/dashboard/sco-product',
+      fixLabel: 'Manage Product SEO',
+      status: 'unknown',
+    },
+    {
+      label: 'Category SEO',
+      count: null,
+      hint:
+        'Per-category meta title / description / OG. Each category page should have all SEO fields filled.',
+      fixHref: '/dashboard/sco-category',
+      fixLabel: 'Manage Category SEO',
+      status: 'unknown',
+    },
+    {
+      label: 'Category Pages (CMS-driven enrichment)',
+      count: null,
+      hint:
+        'Long-form intro, FAQs and tiles that enrich /bhujia, /cookies, etc. Different from Category SEO — this is on-page content, not metadata.',
+      fixHref: '/dashboard/category-landing-pages',
+      fixLabel: 'Manage Category Pages',
+      status: 'unknown',
+    },
+  ];
+
+  return (
+    <div className="not-prose mb-10 border border-gray-200 rounded-lg overflow-hidden">
+      <div className="bg-gray-50 px-5 py-3 border-b border-gray-200">
+        <h2 className="text-base font-semibold text-gray-900 m-0">
+          Content backlog
+        </h2>
+        <p className="text-xs text-gray-600 mt-0.5">
+          Live status of the SEO / AEO content the storefront is waiting for.
+          Click any row to start filling it in.
+        </p>
+      </div>
+      <ul className="divide-y divide-gray-200">
+        {rows.map((row) => (
+          <li
+            key={row.label}
+            className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 px-5 py-3 hover:bg-gray-50"
+          >
+            <div className="flex items-center gap-3 sm:flex-1">
+              <StatusBadge status={row.status} />
+              <span className="font-medium text-sm text-gray-900">{row.label}</span>
+              <span className="text-xs text-gray-500 tabular-nums">
+                {row.count === null ? '—' : `${row.count}`}
+                {row.target && row.count !== null && (
+                  <span className="text-gray-400"> / {row.target}</span>
+                )}
+              </span>
+            </div>
+            <p className="text-xs text-gray-600 sm:flex-1">{row.hint}</p>
+            <Link
+              href={row.fixHref}
+              className="text-xs font-medium text-[#0C5273] hover:underline whitespace-nowrap"
+            >
+              {row.fixLabel} →
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 export default function OnboardingPage() {
   return (
-    <div className="p-6 max-w-3xl mx-auto prose prose-sm">
+    <div className="p-6 max-w-4xl mx-auto prose prose-sm">
       <h1>Content team onboarding — Let&apos;s Try Foods SEO</h1>
       <p>
-        Welcome. This guide explains how the storefront uses every field
-        in the admin so you can publish SEO-clean pages with confidence.
+        Welcome. The dashboard below shows what content the storefront is
+        waiting for. The reference section that follows explains how each
+        field on the storefront uses what you publish.
       </p>
+
+      <ContentBacklog />
 
       <h2>Brand-claim matrix (read this first — non-negotiable)</h2>
       <ul>
@@ -172,18 +350,27 @@ export default function OnboardingPage() {
       </ul>
       <p>
         Pillars launch by simply creating a new entry in the{' '}
-        <a href="/dashboard/pillars">Pillars admin</a> — no developer
+        <Link href="/dashboard/pillars">Pillars admin</Link> — no developer
         needed. Set <em>active</em> to true when ready to publish.
       </p>
 
       <h2>Authors / team</h2>
       <p>
-        Populate the <a href="/dashboard/authors">Authors admin</a> with
+        Populate the <Link href="/dashboard/authors">Authors admin</Link> with
         real Person profiles for the founder and any blog authors. Each
         profile drives <code>/team</code>, <code>/author/&lt;slug&gt;</code>{' '}
         and Person schema linked from blog posts. Named-author authority
         is one of the strongest E-E-A-T signals for food / health
         content.
+      </p>
+
+      <h2>Press mentions</h2>
+      <p>
+        The <Link href="/dashboard/press-mentions">Press Mentions admin</Link>{' '}
+        powers the <code>/press</code> page and emits NewsArticle JSON-LD for
+        every entry. Add every legitimate piece of media coverage — even small
+        blogs help E-E-A-T. Each entry needs a publication name, headline, URL,
+        published date, and ideally a short excerpt.
       </p>
 
       <h2>What NOT to do</h2>
