@@ -2740,34 +2740,6 @@ input UpdateAuthorInput {
   position: Int
 }
 
-input CreatePressMentionInput {
-  slug: String!
-  publication: String!
-  publicationLogoUrl: String
-  headline: String!
-  url: String!
-  excerpt: String
-  coverImageUrl: String
-  publishedAt: DateTime!
-  category: String
-  isActive: Boolean
-  position: Int
-}
-
-input UpdatePressMentionInput {
-  slug: String
-  publication: String
-  publicationLogoUrl: String
-  headline: String
-  url: String
-  excerpt: String
-  coverImageUrl: String
-  publishedAt: DateTime
-  category: String
-  isActive: Boolean
-  position: Int
-}
-
 input CreateCategoryLandingPageInput {
   slug: String!
   pageTitle: String!
@@ -2814,4 +2786,32 @@ input UpdateCategoryLandingPageInput {
   faqs: [CategoryFaqInput!]
   seo: CategoryLandingPageSeoInput
   isActive: Boolean
+}
+
+input CreatePressMentionInput {
+  slug: String!
+  publication: String!
+  publicationLogoUrl: String
+  headline: String!
+  url: String!
+  excerpt: String
+  coverImageUrl: String
+  publishedAt: DateTime!
+  category: String
+  isActive: Boolean
+  position: Int
+}
+
+input UpdatePressMentionInput {
+  slug: String
+  publication: String
+  publicationLogoUrl: String
+  headline: String
+  url: String
+  excerpt: String
+  coverImageUrl: String
+  publishedAt: DateTime
+  category: String
+  isActive: Boolean
+  position: Int
 }

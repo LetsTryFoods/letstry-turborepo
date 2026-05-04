@@ -27,11 +27,11 @@ export class OrderRepository {
   }
 
   async findById(orderId: string): Promise<Order | null> {
-    return this.orderModel.findOne({ orderId }).exec();
+    return this.orderModel.findOne({ orderId }).populate('shippingAddressId').exec();
   }
 
   async findByInternalId(id: string): Promise<Order | null> {
-    return this.orderModel.findById(id).exec();
+    return this.orderModel.findById(id).populate('shippingAddressId').exec();
   }
 
   async findByPaymentOrderId(paymentOrderId: string): Promise<Order | null> {
@@ -234,7 +234,8 @@ export class OrderRepository {
 
       if (orders && orders.length > 0) {
         writeTrackingLog(`findByPhone found order: ${orders[0].orderId}`);
-        return this.orderModel.hydrate(orders[0]);
+        // Return a fresh lookup with population for consistent structure
+        return this.findById(orders[0].orderId);
       }
 
       writeTrackingLog(`findByPhone found NOTHING for phone: ${phone}`);
