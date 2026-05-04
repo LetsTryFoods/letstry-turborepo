@@ -150,18 +150,12 @@ function ContactFormContent() {
               </div>
               <div>
                 <label htmlFor="orderId" className="block text-sm font-medium text-gray-700 mb-1">
-                  Order ID
+                  Order ID <span className="text-gray-400 font-normal">(optional)</span>
                 </label>
                 <input
                   id="orderId"
                   type="text"
-                  {...register('orderId', { 
-                    required: 'Order ID is required',
-                    pattern: {
-                      value: /^ORD_\d+_[a-f0-9]+$/i,
-                      message: 'Order ID must follow the format: ORD_123456789_abc123'
-                    }
-                  })}
+                  {...register('orderId')}
                   className="block w-full px-4 py-3 border border-gray-300 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm transition-colors"
                   placeholder="e.g. ORD-12345"
                 />

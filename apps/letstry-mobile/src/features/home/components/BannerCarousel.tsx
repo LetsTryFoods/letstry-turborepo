@@ -1,14 +1,19 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { 
-  View, 
-  StyleSheet, 
-  TouchableOpacity, 
-  ViewToken,
+import React, { useState, useRef } from 'react';
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+  Dimensions,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
 } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import { Image } from 'expo-image';
-import { wp, hp, getImageUrl } from '../../../lib/utils/ui-utils';
+import { hp, getImageUrl } from '../../../lib/utils/ui-utils';
 import { ActionEngine, SDUIAction } from '../../../lib/sdui/ActionEngine';
+
+const SCREEN_WIDTH = Dimensions.get('window').width;
 
 interface Banner {
   id?: string;
@@ -22,23 +27,93 @@ interface BannerCarouselProps {
   height?: number;
   borderRadius?: number;
   autoplayInterval?: number;
+  fullWidth?: boolean;
 }
 
-const BannerCarousel: React.FC<BannerCarouselProps> = ({ 
-  items = [], 
+// Full-width version: uses a native FlatList with pagingEnabled for true edge-to-edge
+const FullWidthBannerCarousel: React.FC<{ items: Banner[]; height: number }> = ({ items, height }) => {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const flatListRef = useRef<FlatList>(null);
+  const autoplayRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  React.useEffect(() => {
+    if (items.length <= 1) return;
+    autoplayRef.current = setInterval(() => {
+      setActiveIndex((prev) => {
+        const next = (prev + 1) % items.length;
+        flatListRef.current?.scrollToIndex({ index: next, animated: true });
+        return next;
+      });
+    }, 4000);
+    return () => { if (autoplayRef.current) clearInterval(autoplayRef.current); };
+  }, [items.length]);
+
+  const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const index = Math.round(e.nativeEvent.contentOffset.x / SCREEN_WIDTH);
+    setActiveIndex(index);
+  };
+
+  return (
+    <View style={{ width: SCREEN_WIDTH, height, overflow: 'hidden' }}>
+      <FlatList
+        ref={flatListRef}
+        data={items}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
+        keyExtractor={(_, i) => String(i)}
+        getItemLayout={(_, index) => ({ length: SCREEN_WIDTH, offset: SCREEN_WIDTH * index, index })}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={{ width: SCREEN_WIDTH, height }}
+            activeOpacity={0.9}
+            onPress={() => item.action && ActionEngine.execute(item.action)}
+          >
+            <Image
+              source={{ uri: getImageUrl(item.imageUrl) }}
+              style={{ width: SCREEN_WIDTH, height }}
+              contentFit="cover"
+            />
+          </TouchableOpacity>
+        )}
+      />
+      {items.length > 1 && (
+        <View style={styles.pagination}>
+          {items.map((_, index) => (
+            <View
+              key={index}
+              style={[styles.dot, activeIndex === index && styles.activeDot]}
+            />
+          ))}
+        </View>
+      )}
+    </View>
+  );
+};
+
+const BannerCarousel: React.FC<BannerCarouselProps> = ({
+  items = [],
   height = hp('20%'),
   borderRadius = 12,
-  autoplayInterval = 6000
+  autoplayInterval = 6000,
+  fullWidth = false
 }) => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   if (!items || items.length === 0) return null;
 
+  // For full-width mode, use a simple FlatList that guarantees edge-to-edge rendering
+  if (fullWidth) {
+    return <FullWidthBannerCarousel items={items} height={height} />;
+  }
+
   return (
-    <View style={[styles.container, { height }]}>
+    <View style={{ width: SCREEN_WIDTH, height, overflow: 'hidden', marginVertical: hp('1%') }}>
       <Carousel
         loop
-        width={wp('100%')}
+        width={SCREEN_WIDTH}
         height={height}
         autoPlay={true}
         autoPlayInterval={autoplayInterval}
@@ -51,14 +126,14 @@ const BannerCarousel: React.FC<BannerCarouselProps> = ({
         }}
         onSnapToItem={(index) => setActiveIndex(index)}
         renderItem={({ item }) => (
-          <TouchableOpacity 
-            style={[styles.bannerItem, { height, borderRadius, overflow: 'hidden' }]} 
+          <TouchableOpacity
+            style={{ width: '100%', height, borderRadius, overflow: 'hidden' }}
             activeOpacity={0.9}
             onPress={() => item.action && ActionEngine.execute(item.action)}
           >
             <Image
               source={{ uri: getImageUrl(item.imageUrl) }}
-              style={styles.image}
+              style={{ width: '100%', height: '100%' }}
               contentFit="cover"
             />
           </TouchableOpacity>
@@ -66,12 +141,9 @@ const BannerCarousel: React.FC<BannerCarouselProps> = ({
       />
       <View style={styles.pagination}>
         {items.map((_, index) => (
-          <View 
-            key={index} 
-            style={[
-              styles.dot, 
-              activeIndex === index && styles.activeDot
-            ]} 
+          <View
+            key={index}
+            style={[styles.dot, activeIndex === index && styles.activeDot]}
           />
         ))}
       </View>
@@ -80,20 +152,6 @@ const BannerCarousel: React.FC<BannerCarouselProps> = ({
 };
 
 const styles = StyleSheet.create({
-  container: {
-    width: wp('100%'),
-    alignSelf: 'center',
-    marginVertical: hp('1%'),
-    overflow: 'hidden',
-  },
-  bannerItem: {
-    width: '100%',
-    alignSelf: 'center',
-  },
-  image: {
-    width: '100%',
-    height: '100%',
-  },
   pagination: {
     flexDirection: 'row',
     position: 'absolute',

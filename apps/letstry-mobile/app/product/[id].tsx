@@ -23,7 +23,13 @@ import { useCartMutations } from '../../src/features/cart/hooks/use-cart-mutatio
 import * as Haptics from 'expo-haptics';
 import HorizontalSection from '../../src/features/home/components/HorizontalSection';
 import { useQuery } from '@apollo/client';
+import { useQuery as useRestQuery } from '@tanstack/react-query';
 import { GET_PRODUCTS_BY_CATEGORY } from '../../src/lib/graphql/home';
+import { SDUIService } from '../../src/features/home/services/sdui.service';
+import BannerCarousel from '../../src/features/home/components/BannerCarousel';
+import EventsHero from '../../src/features/home/components/EventsHero';
+import Spacer from '../../src/features/home/components/Spacer';
+import FullWidthBanner from '../../src/features/home/components/FullWidthBanner';
 
 export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -52,6 +58,17 @@ export default function ProductDetailScreen() {
   const { addToCart, updateCartItem, isAdding, isUpdating } = useCartMutations();
 
   const scrollY = useRef(new Animated.Value(0)).current;
+
+  const { data: sduiData } = useRestQuery({
+    queryKey: ['sdui', 'product_detail_screen'],
+    queryFn: () => SDUIService.getScreenConfig('product_detail_screen'),
+  });
+
+  const sduiComponents = sduiData?.components || [
+    { type: 'ProductGallery', props: {} },
+    { type: 'ProductInfo', props: {} },
+    { type: 'RelatedProducts', props: {} }
+  ];
 
   if (loading) {
     return (
@@ -136,6 +153,48 @@ export default function ProductDetailScreen() {
     extrapolate: 'clamp',
   });
 
+  const renderComponent = (item: any, index: number) => {
+    switch (item.type) {
+      case 'ProductGallery':
+        return (
+          <ProductImageCarousel 
+            key={index}
+            images={selectedVariant.images} 
+            onShare={handleShare}
+          />
+        );
+      case 'ProductInfo':
+        return (
+          <ProductDetailsContent
+            key={index}
+            product={product}
+            selectedVariant={selectedVariant}
+            setSelectedVariant={setSelectedVariant}
+          />
+        );
+      case 'BannerCarousel':
+        return <BannerCarousel key={index} {...item.props} />;
+      case 'FullWidthBanner':
+        return <FullWidthBanner key={index} {...item.props} />;
+      case 'EventsHero':
+        return <EventsHero key={index} {...item.props} />;
+      case 'Spacer':
+        return <Spacer key={index} height={item.props?.height} />;
+      case 'RelatedProducts':
+        return (
+          <View key={index} style={styles.relatedSection}>
+            <HorizontalSection 
+              title={item.props?.title || "Related Products"} 
+              products={relatedProducts}
+              loading={relatedLoading}
+            />
+          </View>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
@@ -184,24 +243,7 @@ export default function ProductDetailScreen() {
         )}
         scrollEventThrottle={16}
       >
-        <ProductImageCarousel 
-          images={selectedVariant.images} 
-          onShare={handleShare}
-        />
-
-        <ProductDetailsContent
-          product={product}
-          selectedVariant={selectedVariant}
-          setSelectedVariant={setSelectedVariant}
-        />
-
-        <View style={styles.relatedSection}>
-          <HorizontalSection 
-            title="Related Products" 
-            products={relatedProducts}
-            loading={relatedLoading}
-          />
-        </View>
+        {sduiComponents.map((item: any, index: number) => renderComponent(item, index))}
 
         <View style={styles.bottomSpacer} />
       </Animated.ScrollView>
@@ -298,7 +340,8 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   scrollContent: {
-    paddingBottom: hp('22%'), // Increased to clear both bottom bar AND global floating cart bar
+    paddingBottom: hp('22%'),
+    width: '100%',
   },
   centerContainer: {
     flex: 1,

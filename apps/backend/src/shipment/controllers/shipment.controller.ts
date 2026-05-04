@@ -77,7 +77,7 @@ export class ShipmentController {
         // Simple heuristics to determine search type
         if (/^\d{10}$/.test(query)) {
             searchType = 'phone';
-        } else if (/^ORD-/.test(query)) {
+        } else if (/^ORD-/.test(query) || /^ORD_/.test(query)) {
             searchType = 'orderId';
         } else if (/^\d+$/.test(query) && query.length > 5) {
             searchType = 'awb';
@@ -90,11 +90,45 @@ export class ShipmentController {
             userId: undefined, // Could be extracted from JWT if authenticated
         };
 
-        const awbNumber = await this.shipmentService.findAwbByLookup(query, analyticsData);
-        if (!awbNumber) {
-            throw new NotFoundException('No shipment found for the provided query');
+        const result = await this.shipmentService.findAwbByLookup(query, analyticsData);
+
+        if (!result.awbNumber && !result.orderId) {
+            throw new NotFoundException('No order found for the provided details.');
         }
-        return { awbNumber };
+
+        return {
+            awbNumber: result.awbNumber,
+            orderId: result.orderId,
+            hasAwb: !!result.awbNumber,
+            order: result.order ? {
+                orderId: result.order.orderId,
+                orderStatus: result.order.orderStatus,
+                totalAmount: result.order.totalAmount,
+                currency: result.order.currency,
+                items: (result.order.items ?? []).map((item: any) => ({
+                    name: item.name,
+                    quantity: item.quantity,
+                    price: item.price,
+                    totalPrice: item.totalPrice,
+                    variant: item.variant ?? null,
+                    image: item.image ?? null,
+                })),
+                recipientContact: {
+                    phone: (() => {
+                        const phone = result.order.recipientContact?.phone && result.order.recipientContact.phone !== 'N/A'
+                            ? result.order.recipientContact.phone
+                            : result.order.shippingAddressId?.recipientPhone;
+                        if (!phone || phone === 'N/A') return 'N/A';
+                        const clean = phone.replace(/\D/g, '');
+                        if (clean.length < 10) return phone;
+                        return clean.slice(0, 2) + 'XXXXXX' + clean.slice(-2);
+                    })(),
+                    email: result.order.recipientContact?.email ?? null,
+                },
+                createdAt: result.order.createdAt,
+                shippingAddressId: result.order.shippingAddressId ?? null,
+            } : null,
+        };
     }
 
     @Admin()

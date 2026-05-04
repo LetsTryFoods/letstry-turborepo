@@ -20,6 +20,7 @@ interface CategoryProductGridProps {
   isFetchingMore?: boolean;
   hasNextPage?: boolean;
   styleConfig?: any;
+  ListHeaderComponent?: React.ReactNode;
 }
 
 const CategoryProductGrid: React.FC<CategoryProductGridProps> = ({
@@ -30,6 +31,7 @@ const CategoryProductGrid: React.FC<CategoryProductGridProps> = ({
   isFetchingMore = false,
   hasNextPage = false,
   styleConfig = {},
+  ListHeaderComponent,
 }) => {
   const router = useRouter();
   const { addToCart } = useCartMutations();
@@ -76,6 +78,7 @@ const CategoryProductGrid: React.FC<CategoryProductGridProps> = ({
       numColumns={2}
       columnWrapperStyle={styles.columnWrapper}
       showsVerticalScrollIndicator={false}
+      ListHeaderComponent={ListHeaderComponent}
       renderItem={({ item }) => (
         <View style={styles.cardWrapper}>
           <ProductCard

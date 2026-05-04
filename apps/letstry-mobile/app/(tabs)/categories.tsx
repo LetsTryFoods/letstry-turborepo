@@ -21,6 +21,9 @@ import CartNotice from '../../src/features/cart/components/CartNotice';
 // Feature Components
 import CategorySidebar from '../../src/features/category/components/CategorySidebar';
 import CategoryProductGrid from '../../src/features/category/components/CategoryProductGrid';
+import BannerCarousel from '../../src/features/home/components/BannerCarousel';
+import EventsHero from '../../src/features/home/components/EventsHero';
+import HorizontalSection from '../../src/features/home/components/HorizontalSection';
 
 // GraphQL
 import {
@@ -142,7 +145,10 @@ const CategoriesScreen = () => {
     router.push('/search' as any);
   };
 
-  const renderComponent = (item: any, index: number) => {
+  const stickyComponents = sduiComponents.filter((c: any) => c.props?.isSticky !== false);
+  const scrollableComponents = sduiComponents.filter((c: any) => c.props?.isSticky === false);
+
+  const renderComponent = (item: any, index: number, isInsideGrid = false) => {
     switch (item.type) {
       case 'CategoriesHeader':
         const headerStyle = item.props?.styleConfig || {};
@@ -183,6 +189,13 @@ const CategoriesScreen = () => {
                 isFetchingMore={isFetchingMore}
                 hasNextPage={meta?.hasNextPage}
                 styleConfig={item.props?.styleConfig}
+                ListHeaderComponent={
+                  scrollableComponents.length > 0 ? (
+                    <View>
+                      {scrollableComponents.map((comp: any, idx: number) => renderComponent(comp, idx, true))}
+                    </View>
+                  ) : null
+                }
               />
             </View>
           </View>
@@ -190,6 +203,12 @@ const CategoriesScreen = () => {
 
       case 'TopBanner':
         return <TopBanner key={index} {...item.props} />;
+      case 'BannerCarousel':
+        return <BannerCarousel key={index} {...item.props} />;
+      case 'EventsHero':
+        return <EventsHero key={index} {...item.props} />;
+      case 'HorizontalSection':
+        return <HorizontalSection key={index} {...item.props} />;
       case 'Spacer':
         return <Spacer key={index} height={item.props?.height} />;
       case 'CartNotice':
@@ -203,7 +222,7 @@ const CategoriesScreen = () => {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
-      {sduiComponents.map((item: any, index: number) => renderComponent(item, index))}
+      {stickyComponents.map((item: any, index: number) => renderComponent(item, index))}
     </View>
   );
 };

@@ -2,6 +2,20 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Order, OrderStatus } from '../order.schema';
+import * as fs from 'fs';
+import * as path from 'path';
+
+function writeTrackingLog(msg: string) {
+  const logMsg = `[${new Date().toISOString()}] ${msg}\n`;
+  try {
+    const logPath = path.join(process.cwd(), 'logs', 'order-lookup-debug.log');
+    if (!fs.existsSync(path.dirname(logPath))) {
+      fs.mkdirSync(path.dirname(logPath), { recursive: true });
+    }
+    fs.appendFileSync(logPath, logMsg);
+    console.log(`[TRACKING_DEBUG] ${msg}`);
+  } catch (e) { }
+}
 
 @Injectable()
 export class OrderRepository {
@@ -180,35 +194,55 @@ export class OrderRepository {
     const searchPhone = cleanPhone.length >= 10 ? cleanPhone.slice(-10) : cleanPhone;
     const regex = new RegExp(searchPhone, 'i');
 
-    const orders = await this.orderModel
-      .aggregate([
-        {
-          $lookup: {
-            from: 'identities',
-            localField: 'identityId',
-            foreignField: '_id',
-            as: 'identity',
-          },
-        },
-        {
-          $match: {
-            $or: [
-              { 'placerContact.phone': regex },
-              { 'recipientContact.phone': regex },
-              { 'identity.phoneNumber': regex },
-            ],
-          },
-        },
-        { $sort: { createdAt: -1 } },
-        { $limit: 1 },
-      ])
-      .exec();
+    writeTrackingLog(`findByPhone START - input: ${phone}, searchPhone: ${searchPhone}, regex: ${regex}`);
 
-    if (orders && orders.length > 0) {
-      return this.orderModel.hydrate(orders[0]);
+    try {
+      const orders = await this.orderModel
+        .aggregate([
+          {
+            $lookup: {
+              from: 'identities',
+              localField: 'identityId',
+              foreignField: '_id',
+              as: 'identity',
+            },
+          },
+          {
+            $lookup: {
+              from: 'addresses',
+              localField: 'shippingAddressId',
+              foreignField: '_id',
+              as: 'address',
+            },
+          },
+          {
+            $match: {
+              $or: [
+                { 'placerContact.phone': regex },
+                { 'recipientContact.phone': regex },
+                { 'identity.phoneNumber': regex },
+                { 'address.recipientPhone': regex },
+              ],
+            },
+          },
+          { $sort: { createdAt: -1 } },
+          { $limit: 1 },
+        ])
+        .exec();
+
+      writeTrackingLog(`findByPhone query complete - returned ${orders?.length || 0} results`);
+
+      if (orders && orders.length > 0) {
+        writeTrackingLog(`findByPhone found order: ${orders[0].orderId}`);
+        return this.orderModel.hydrate(orders[0]);
+      }
+
+      writeTrackingLog(`findByPhone found NOTHING for phone: ${phone}`);
+      return null;
+    } catch (error: any) {
+      writeTrackingLog(`findByPhone ERROR: ${error.message}`);
+      return null;
     }
-
-    return null;
   }
   async getTopProducts(startDate: Date, endDate: Date, limit = 50): Promise<any[]> {
     const pipeline: any[] = [

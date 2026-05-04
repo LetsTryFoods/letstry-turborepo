@@ -68,7 +68,8 @@ const HorizontalSection: React.FC<HorizontalSectionProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: hp('1%'),
+    marginTop: hp('1%'),
+    marginBottom: hp('2%'),
   },
   header: {
     flexDirection: 'row',
@@ -89,6 +90,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: wp('4%') - CARD_GAP / 2,
+    paddingBottom: hp('1.5%'),
   },
 });
 

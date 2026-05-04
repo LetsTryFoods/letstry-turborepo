@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { PackageSearch, Loader2, Search, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useMutation } from '@tanstack/react-query';
-import { fetchTrackingAwb } from '@/lib/queries/tracking';
+import { fetchTrackingLookup, TrackingLookupResult } from '@/lib/queries/tracking';
 
 export default function TrackSearchPage() {
   const router = useRouter();
@@ -15,9 +15,14 @@ export default function TrackSearchPage() {
   const [validationError, setValidationError] = useState('');
 
   const { mutate, isPending, error } = useMutation({
-    mutationFn: (q: string) => fetchTrackingAwb(q),
-    onSuccess: (awbNumber: string) => {
-      router.push(`/track/${awbNumber}`);
+    mutationFn: (q: string) => fetchTrackingLookup(q),
+    onSuccess: (result: TrackingLookupResult) => {
+      if (result.hasAwb && result.awbNumber) {
+        router.push(`/track/${result.awbNumber}`);
+      } else if (result.orderId) {
+        // Order found but no AWB yet — redirect to order details page
+        router.push(`/track/order/${result.orderId}`);
+      }
     },
   });
 

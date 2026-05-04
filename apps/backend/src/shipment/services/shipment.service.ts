@@ -11,6 +11,20 @@ import { DtdcBookingPayload } from '../interfaces/dtdc-payload.interface';
 import { ConfigService } from '@nestjs/config';
 import { ShipmentLoggerService } from './shipment-logger.service';
 import { OrderRepository } from '../../order/services/order.repository';
+import * as fs from 'fs';
+import * as path from 'path';
+
+function writeTrackingLog(msg: string) {
+  const logMsg = `[${new Date().toISOString()}] ${msg}\n`;
+  try {
+    const logPath = path.join(process.cwd(), 'logs', 'order-lookup-debug.log');
+    if (!fs.existsSync(path.dirname(logPath))) {
+      fs.mkdirSync(path.dirname(logPath), { recursive: true });
+    }
+    fs.appendFileSync(logPath, logMsg);
+    console.log(`[TRACKING_DEBUG] ${msg}`);
+  } catch (e) {}
+}
 
 @Injectable()
 export class ShipmentService {
@@ -318,34 +332,53 @@ export class ShipmentService {
     userAgent: string;
     ipAddress: string;
     userId?: string;
-  }): Promise<string | null> {
+  }): Promise<{ awbNumber: string | null; orderId: string | null; order: any | null }> {
+    writeTrackingLog(`Start search for query: ${query}, analytics: ${JSON.stringify(analyticsData)}`);
     let foundResult = false;
     let awbNumber: string | null = null;
+    let foundOrder: any | null = null;
 
+    writeTrackingLog(`Checking byAwb...`);
     const byAwb = await this.shipmentModel.findOne({ dtdcAwbNumber: query }).exec();
     if (byAwb) {
+      writeTrackingLog(`Found byAwb: ${byAwb.dtdcAwbNumber}`);
       foundResult = true;
       awbNumber = byAwb.dtdcAwbNumber;
-    }
-
-    if (!awbNumber) {
-      const byOrderId = await this.orderRepository.findById(query);
-      if (byOrderId) {
-        const shipments = await this.findByOrderId(byOrderId._id.toString());
-        if (shipments.length > 0) {
-          foundResult = true;
-          awbNumber = shipments[0].dtdcAwbNumber;
-        }
+      if (byAwb.orderId) {
+        foundOrder = await this.orderRepository.findByInternalId(byAwb.orderId.toString());
       }
     }
 
     if (!awbNumber) {
-      const byPhone = await this.orderRepository.findByPhone(query);
-      if (byPhone) {
-        const shipments = await this.findByOrderId(byPhone._id.toString());
-        if (shipments.length > 0) {
+      writeTrackingLog(`Checking byOrderId...`);
+      const byOrderId = await this.orderRepository.findById(query);
+      if (byOrderId) {
+        writeTrackingLog(`Found byOrderId: ${byOrderId.orderId}`);
+        foundOrder = byOrderId;
+        const shipments = await this.findByOrderId(byOrderId._id.toString());
+        if (shipments.length > 0 && shipments[0].dtdcAwbNumber) {
           foundResult = true;
           awbNumber = shipments[0].dtdcAwbNumber;
+        } else {
+          // Order found but no AWB yet
+          foundResult = true;
+        }
+      }
+    }
+
+    if (!foundOrder) {
+      writeTrackingLog(`Checking byPhone...`);
+      const byPhone = await this.orderRepository.findByPhone(query);
+      if (byPhone) {
+        writeTrackingLog(`Found byPhone: ${byPhone.orderId}`);
+        foundOrder = byPhone;
+        const shipments = await this.findByOrderId(byPhone._id.toString());
+        if (shipments.length > 0 && shipments[0].dtdcAwbNumber) {
+          foundResult = true;
+          awbNumber = shipments[0].dtdcAwbNumber;
+        } else {
+          // Order found but no AWB yet
+          foundResult = true;
         }
       }
     }
@@ -363,7 +396,7 @@ export class ShipmentService {
         if (analyticsData.userId) {
           analyticsCreate.userId = analyticsData.userId;
         }
-        if (foundResult) {
+        if (awbNumber) {
           analyticsCreate.awbNumber = awbNumber;
         }
         await this.analyticsModel.create(analyticsCreate);
@@ -372,7 +405,11 @@ export class ShipmentService {
       }
     }
 
-    return awbNumber;
+    return {
+      awbNumber,
+      orderId: foundOrder ? (foundOrder.orderId ?? null) : null,
+      order: foundOrder ? (foundOrder.toObject ? foundOrder.toObject() : foundOrder) : null,
+    };
   }
 
   async getTrackingAnalytics(filters: {

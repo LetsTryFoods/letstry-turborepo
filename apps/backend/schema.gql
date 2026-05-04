@@ -27,6 +27,7 @@ type CartTotals {
   estimatedTax: Float!
   handlingCharge: Float!
   grandTotal: Float!
+  freeDeliveryThreshold: Float
 }
 
 type Cart {

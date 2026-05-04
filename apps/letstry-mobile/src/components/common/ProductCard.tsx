@@ -252,6 +252,7 @@ const styles = StyleSheet.create({
   },
   card: {
     padding: wp("2.5%"),
+    paddingBottom: hp("1.2%"),
     flex: 1,
     flexDirection: "column",
     justifyContent: "space-between",

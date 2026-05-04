@@ -78,8 +78,8 @@ export async function middleware(request: NextRequest) {
     needsRedirect = true;
   }
 
-  // Lowercase path
-  if (url.pathname !== url.pathname.toLowerCase()) {
+  // Lowercase path (exempting /track/ routes since order IDs and AWBs are case-sensitive)
+  if (url.pathname !== url.pathname.toLowerCase() && !url.pathname.toLowerCase().startsWith('/track/')) {
     url.pathname = url.pathname.toLowerCase();
     needsRedirect = true;
   }
