@@ -53,6 +53,23 @@ export class Pillar {
   @Prop({ required: true, unique: true })
   slug: string;
 
+  /**
+   * Optional override for the storefront URL where this pillar is served.
+   *
+   * Defaults to `/p/<slug>` when null/empty. Set to a clean URL like
+   * `/no-palm-oil-snacks` or `/no-maida-snacks` to publish at a top-level
+   * path instead.
+   *
+   * Storefront resolution order:
+   *  1. /<segment> dynamic route checks Pillar.customRoute === '/<segment>'
+   *  2. Falls through to Category lookup if no match
+   *
+   * Admin-side validation (in pillars admin page) blocks saving a customRoute
+   * that collides with an existing category slug to prevent shadowing.
+   */
+  @Prop({ required: false })
+  customRoute?: string;
+
   @Prop({ required: true })
   title: string;
 

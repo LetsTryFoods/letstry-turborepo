@@ -1479,6 +1479,7 @@ type PillarCategoryTileType {
 type Pillar {
   _id: ID!
   slug: String!
+  customRoute: String
   title: String!
   intro: String!
   heroImageUrl: String
@@ -1543,6 +1544,23 @@ type CategoryLandingPageType {
   faqs: [CategoryFaqType!]!
   seo: SeoBase
   isActive: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type PressMention {
+  _id: ID!
+  slug: String!
+  publication: String!
+  publicationLogoUrl: String
+  headline: String!
+  url: String!
+  excerpt: String
+  coverImageUrl: String
+  publishedAt: DateTime!
+  category: String
+  isActive: Boolean!
+  position: Int!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -1643,6 +1661,7 @@ type Query {
   activePillars: [Pillar!]!
   pillar(id: ID!): Pillar!
   pillarBySlug(slug: String!): Pillar!
+  pillarByCustomRoute(route: String!): Pillar
   authors: [Author!]!
   activeAuthors: [Author!]!
   teamMembers: [Author!]!
@@ -1651,6 +1670,10 @@ type Query {
   categoryLandingPages: [CategoryLandingPageType!]!
   categoryLandingPage(id: ID!): CategoryLandingPageType
   categoryLandingPageBySlug(slug: String!): CategoryLandingPageType
+  pressMentions: [PressMention!]!
+  activePressMentions: [PressMention!]!
+  pressMention(id: ID!): PressMention!
+  pressMentionBySlug(slug: String!): PressMention!
 }
 
 input PaginationInput {
@@ -1864,6 +1887,9 @@ type Mutation {
   createCategoryLandingPage(input: CreateCategoryLandingPageInput!): CategoryLandingPageType!
   updateCategoryLandingPage(id: ID!, input: UpdateCategoryLandingPageInput!): CategoryLandingPageType!
   deleteCategoryLandingPage(id: ID!): CategoryLandingPageType!
+  createPressMention(input: CreatePressMentionInput!): PressMention!
+  updatePressMention(id: ID!, input: UpdatePressMentionInput!): PressMention!
+  removePressMention(id: ID!): PressMention!
 }
 
 input CreateProductInput {
@@ -2629,6 +2655,7 @@ input UpdateLandingPageInput {
 
 input CreatePillarInput {
   slug: String!
+  customRoute: String
   title: String!
   intro: String!
   heroImageUrl: String
@@ -2662,6 +2689,7 @@ input PillarFaqEntryInput {
 
 input UpdatePillarInput {
   slug: String
+  customRoute: String
   title: String
   intro: String
   heroImageUrl: String
@@ -2708,6 +2736,34 @@ input UpdateAuthorInput {
   socialLinks: [AuthorSocialLinkInput!]
   isFounder: Boolean
   isTeamMember: Boolean
+  isActive: Boolean
+  position: Int
+}
+
+input CreatePressMentionInput {
+  slug: String!
+  publication: String!
+  publicationLogoUrl: String
+  headline: String!
+  url: String!
+  excerpt: String
+  coverImageUrl: String
+  publishedAt: DateTime!
+  category: String
+  isActive: Boolean
+  position: Int
+}
+
+input UpdatePressMentionInput {
+  slug: String
+  publication: String
+  publicationLogoUrl: String
+  headline: String
+  url: String
+  excerpt: String
+  coverImageUrl: String
+  publishedAt: DateTime
+  category: String
   isActive: Boolean
   position: Int
 }

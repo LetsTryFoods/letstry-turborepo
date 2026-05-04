@@ -741,6 +741,7 @@ export type CreatePackerResponse = {
 
 export type CreatePillarInput = {
   categoryTiles?: InputMaybe<Array<PillarCategoryTileInput>>;
+  customRoute?: InputMaybe<Scalars['String']['input']>;
   faqs?: InputMaybe<Array<PillarFaqEntryInput>>;
   featuredProductIds?: InputMaybe<Array<Scalars['String']['input']>>;
   heroImageUrl?: InputMaybe<Scalars['String']['input']>;
@@ -759,6 +760,20 @@ export type CreatePolicyInput = {
   seo?: InputMaybe<SeoBaseInput>;
   title: Scalars['String']['input'];
   type: Scalars['String']['input'];
+};
+
+export type CreatePressMentionInput = {
+  category?: InputMaybe<Scalars['String']['input']>;
+  coverImageUrl?: InputMaybe<Scalars['String']['input']>;
+  excerpt?: InputMaybe<Scalars['String']['input']>;
+  headline: Scalars['String']['input'];
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  position?: InputMaybe<Scalars['Int']['input']>;
+  publication: Scalars['String']['input'];
+  publicationLogoUrl?: InputMaybe<Scalars['String']['input']>;
+  publishedAt: Scalars['DateTime']['input'];
+  slug: Scalars['String']['input'];
+  url: Scalars['String']['input'];
 };
 
 export type CreateProductInput = {
@@ -1242,6 +1257,7 @@ export type Mutation = {
   createPacker: CreatePackerResponse;
   createPillar: Pillar;
   createPolicy: Policy;
+  createPressMention: PressMention;
   createProduct: Product;
   createRedirect: RedirectType;
   createShipment: CreateShipmentResponse;
@@ -1270,6 +1286,7 @@ export type Mutation = {
   removeCoupon: Cart;
   removeFromCart: Cart;
   removePillar: Pillar;
+  removePressMention: PressMention;
   removeProductVariant: Product;
   removeProductsFromCategory: Scalars['Boolean']['output'];
   sendOtp: Scalars['String']['output'];
@@ -1301,6 +1318,7 @@ export type Mutation = {
   updatePillar: Pillar;
   updatePolicy: Policy;
   updatePolicySeo: PolicySeo;
+  updatePressMention: PressMention;
   updateProduct: Product;
   updateProductStock: Product;
   updateProductVariant: Product;
@@ -1457,6 +1475,11 @@ export type MutationCreatePolicyArgs = {
 };
 
 
+export type MutationCreatePressMentionArgs = {
+  input: CreatePressMentionInput;
+};
+
+
 export type MutationCreateProductArgs = {
   input: CreateProductInput;
 };
@@ -1583,6 +1606,11 @@ export type MutationRemoveFromCartArgs = {
 
 
 export type MutationRemovePillarArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationRemovePressMentionArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -1752,6 +1780,12 @@ export type MutationUpdatePolicyArgs = {
 export type MutationUpdatePolicySeoArgs = {
   input: PolicySeoInput;
   policyId: Scalars['ID']['input'];
+};
+
+
+export type MutationUpdatePressMentionArgs = {
+  id: Scalars['ID']['input'];
+  input: UpdatePressMentionInput;
 };
 
 
@@ -2288,6 +2322,7 @@ export type Pillar = {
   _id: Scalars['ID']['output'];
   categoryTiles: Array<PillarCategoryTileType>;
   createdAt: Scalars['DateTime']['output'];
+  customRoute?: Maybe<Scalars['String']['output']>;
   faqs: Array<PillarFaqEntryType>;
   featuredProductIds: Array<Scalars['String']['output']>;
   heroImageUrl?: Maybe<Scalars['String']['output']>;
@@ -2417,6 +2452,24 @@ export type PolicySeoInput = {
   ogDescription?: InputMaybe<Scalars['String']['input']>;
   ogImage?: InputMaybe<Scalars['String']['input']>;
   ogTitle?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type PressMention = {
+  __typename?: 'PressMention';
+  _id: Scalars['ID']['output'];
+  category?: Maybe<Scalars['String']['output']>;
+  coverImageUrl?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  excerpt?: Maybe<Scalars['String']['output']>;
+  headline: Scalars['String']['output'];
+  isActive: Scalars['Boolean']['output'];
+  position: Scalars['Int']['output'];
+  publication: Scalars['String']['output'];
+  publicationLogoUrl?: Maybe<Scalars['String']['output']>;
+  publishedAt: Scalars['DateTime']['output'];
+  slug: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  url: Scalars['String']['output'];
 };
 
 export type PriceRange = {
@@ -2665,6 +2718,7 @@ export type Query = {
   activeCoupons: Array<Coupon>;
   activeLandingPages: Array<LandingPage>;
   activePillars: Array<Pillar>;
+  activePressMentions: Array<PressMention>;
   address: Address;
   allActiveRedirects: Array<RedirectType>;
   author: Author;
@@ -2735,11 +2789,15 @@ export type Query = {
   myCart?: Maybe<Cart>;
   myPayments: Array<PaymentOrderType>;
   pillar: Pillar;
+  pillarByCustomRoute?: Maybe<Pillar>;
   pillarBySlug: Pillar;
   pillars: Array<Pillar>;
   policies: Array<Policy>;
   policiesByType: Array<Policy>;
   policy?: Maybe<Policy>;
+  pressMention: PressMention;
+  pressMentionBySlug: PressMention;
+  pressMentions: Array<PressMention>;
   product?: Maybe<Product>;
   productBySlug?: Maybe<Product>;
   productVariant?: Maybe<ProductVariant>;
@@ -3010,6 +3068,11 @@ export type QueryPillarArgs = {
 };
 
 
+export type QueryPillarByCustomRouteArgs = {
+  route: Scalars['String']['input'];
+};
+
+
 export type QueryPillarBySlugArgs = {
   slug: Scalars['String']['input'];
 };
@@ -3022,6 +3085,16 @@ export type QueryPoliciesByTypeArgs = {
 
 export type QueryPolicyArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryPressMentionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryPressMentionBySlugArgs = {
+  slug: Scalars['String']['input'];
 };
 
 
@@ -3595,6 +3668,7 @@ export type UpdatePackerInput = {
 
 export type UpdatePillarInput = {
   categoryTiles?: InputMaybe<Array<PillarCategoryTileInput>>;
+  customRoute?: InputMaybe<Scalars['String']['input']>;
   faqs?: InputMaybe<Array<PillarFaqEntryInput>>;
   featuredProductIds?: InputMaybe<Array<Scalars['String']['input']>>;
   heroImageUrl?: InputMaybe<Scalars['String']['input']>;
@@ -3613,6 +3687,20 @@ export type UpdatePolicyInput = {
   seo?: InputMaybe<SeoBaseInput>;
   title?: InputMaybe<Scalars['String']['input']>;
   type?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdatePressMentionInput = {
+  category?: InputMaybe<Scalars['String']['input']>;
+  coverImageUrl?: InputMaybe<Scalars['String']['input']>;
+  excerpt?: InputMaybe<Scalars['String']['input']>;
+  headline?: InputMaybe<Scalars['String']['input']>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  position?: InputMaybe<Scalars['Int']['input']>;
+  publication?: InputMaybe<Scalars['String']['input']>;
+  publicationLogoUrl?: InputMaybe<Scalars['String']['input']>;
+  publishedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  slug?: InputMaybe<Scalars['String']['input']>;
+  url?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateProductInput = {
@@ -3952,7 +4040,14 @@ export type GetPillarBySlugQueryVariables = Exact<{
 }>;
 
 
-export type GetPillarBySlugQuery = { __typename?: 'Query', pillarBySlug: { __typename?: 'Pillar', _id: string, slug: string, title: string, intro: string, heroImageUrl?: string | null, featuredProductIds: Array<string>, relatedPillarSlugs: Array<string>, isActive: boolean, categoryTiles: Array<{ __typename?: 'PillarCategoryTileType', categorySlug: string, name: string, blurb: string }>, sections: Array<{ __typename?: 'PillarSectionType', heading: string, body: string, speakable?: boolean | null, featuredProductIds?: Array<string> | null }>, faqs: Array<{ __typename?: 'PillarFaqEntryType', question: string, answer: string }>, seo?: { __typename?: 'SeoBase', metaTitle?: string | null, metaDescription?: string | null, metaKeywords?: Array<string> | null, canonicalUrl?: string | null, ogTitle?: string | null, ogDescription?: string | null, ogImage?: string | null, twitterCard?: string | null, twitterTitle?: string | null, twitterDescription?: string | null, twitterImage?: string | null, robots?: string | null } | null } };
+export type GetPillarBySlugQuery = { __typename?: 'Query', pillarBySlug: { __typename?: 'Pillar', _id: string, slug: string, customRoute?: string | null, title: string, intro: string, heroImageUrl?: string | null, featuredProductIds: Array<string>, relatedPillarSlugs: Array<string>, isActive: boolean, categoryTiles: Array<{ __typename?: 'PillarCategoryTileType', categorySlug: string, name: string, blurb: string }>, sections: Array<{ __typename?: 'PillarSectionType', heading: string, body: string, speakable?: boolean | null, featuredProductIds?: Array<string> | null }>, faqs: Array<{ __typename?: 'PillarFaqEntryType', question: string, answer: string }>, seo?: { __typename?: 'SeoBase', metaTitle?: string | null, metaDescription?: string | null, metaKeywords?: Array<string> | null, canonicalUrl?: string | null, ogTitle?: string | null, ogDescription?: string | null, ogImage?: string | null, twitterCard?: string | null, twitterTitle?: string | null, twitterDescription?: string | null, twitterImage?: string | null, robots?: string | null } | null } };
+
+export type GetPillarByCustomRouteQueryVariables = Exact<{
+  route: Scalars['String']['input'];
+}>;
+
+
+export type GetPillarByCustomRouteQuery = { __typename?: 'Query', pillarByCustomRoute?: { __typename?: 'Pillar', _id: string, slug: string, customRoute?: string | null, title: string, intro: string, heroImageUrl?: string | null, featuredProductIds: Array<string>, relatedPillarSlugs: Array<string>, isActive: boolean, categoryTiles: Array<{ __typename?: 'PillarCategoryTileType', categorySlug: string, name: string, blurb: string }>, sections: Array<{ __typename?: 'PillarSectionType', heading: string, body: string, speakable?: boolean | null, featuredProductIds?: Array<string> | null }>, faqs: Array<{ __typename?: 'PillarFaqEntryType', question: string, answer: string }>, seo?: { __typename?: 'SeoBase', metaTitle?: string | null, metaDescription?: string | null, metaKeywords?: Array<string> | null, canonicalUrl?: string | null, ogTitle?: string | null, ogDescription?: string | null, ogImage?: string | null, twitterCard?: string | null, twitterTitle?: string | null, twitterDescription?: string | null, twitterImage?: string | null, robots?: string | null } | null } | null };
 
 export type GetActivePillarsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -4636,6 +4731,7 @@ export const GetPillarBySlugDocument = new TypedDocumentString(`
   pillarBySlug(slug: $slug) {
     _id
     slug
+    customRoute
     title
     intro
     heroImageUrl
@@ -4674,6 +4770,50 @@ export const GetPillarBySlugDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<GetPillarBySlugQuery, GetPillarBySlugQueryVariables>;
+export const GetPillarByCustomRouteDocument = new TypedDocumentString(`
+    query GetPillarByCustomRoute($route: String!) {
+  pillarByCustomRoute(route: $route) {
+    _id
+    slug
+    customRoute
+    title
+    intro
+    heroImageUrl
+    categoryTiles {
+      categorySlug
+      name
+      blurb
+    }
+    featuredProductIds
+    sections {
+      heading
+      body
+      speakable
+      featuredProductIds
+    }
+    faqs {
+      question
+      answer
+    }
+    relatedPillarSlugs
+    isActive
+    seo {
+      metaTitle
+      metaDescription
+      metaKeywords
+      canonicalUrl
+      ogTitle
+      ogDescription
+      ogImage
+      twitterCard
+      twitterTitle
+      twitterDescription
+      twitterImage
+      robots
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<GetPillarByCustomRouteQuery, GetPillarByCustomRouteQueryVariables>;
 export const GetActivePillarsDocument = new TypedDocumentString(`
     query GetActivePillars {
   activePillars {
