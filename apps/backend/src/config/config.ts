@@ -140,13 +140,13 @@ export default () => ({
       commodityId: process.env.DTDC_COMMODITY_ID || '10',
     },
     origin: {
-      name: process.env.WAREHOUSE_NAME || 'Earth Crust Private Limited P',
-      addressLine1: process.env.WAREHOUSE_ADDRESS_LINE1 || 'Plot No 19, near Sector 18, Phase-4, Phase IV',
+      name: process.env.WAREHOUSE_NAME || 'SEWA TOWER',
+      addressLine1: process.env.WAREHOUSE_ADDRESS_LINE1 || 'Sewa Tower Plot No 19, near Sector 18, Phase-4, Phase IV',
       addressLine2: process.env.WAREHOUSE_ADDRESS_LINE2 || 'Maruti Udyog, Sector 18, Shahpur',
       city: process.env.WAREHOUSE_CITY || 'Gurugram',
       state: process.env.WAREHOUSE_STATE || 'Haryana',
       pincode: process.env.WAREHOUSE_PINCODE || '122015',
-      phone: process.env.WAREHOUSE_PHONE || '9916124895',
+      phone: process.env.WAREHOUSE_PHONE || '8840330283',
     },
   },
 });
