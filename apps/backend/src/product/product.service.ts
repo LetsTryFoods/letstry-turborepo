@@ -211,4 +211,9 @@ export class ProductService {
   findSeoByProductId(productId: string): Promise<ProductSeo | null> {
     return this.productSeoService.findByProductId(productId);
   }
+
+  /** Exact indexed lookup — SKU or GTIN. No scan. */
+  findBySkuOrGtin(identifier: string): Promise<Product | null> {
+    return this.queryService.findBySkuOrGtin(identifier);
+  }
 }

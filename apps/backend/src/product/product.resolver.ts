@@ -24,12 +24,15 @@ import { CategoryService } from '../category/category.service';
 import { PaginatedProducts, PaginationInput } from '../common/pagination';
 import { Role } from '../common/enums/role.enum';
 import { Roles } from '../common/decorators/roles.decorator';
+import { InventoryService } from './services/inventory.service';
+import { InventoryLog, InventoryAction } from './inventory-log.schema';
 
 @Resolver(() => Product)
 export class ProductResolver {
   constructor(
     private readonly productService: ProductService,
     private readonly categoryLoader: CategoryLoader,
+    private readonly inventoryService: InventoryService,
   ) { }
 
   @Query(() => PaginatedProducts, { name: 'products' })
@@ -289,5 +292,62 @@ export class ProductResolver {
   @Public()
   async getSeo(@Parent() product: Product): Promise<ProductSeo | null> {
     return this.productService.findSeoByProductId(product._id);
+  }
+
+  @Mutation(() => InventoryLog, { name: 'adjustInventory' })
+  @Roles(Role.ADMIN, Role.PACKER)
+  async adjustInventory(
+    @Args('identifier') identifier: string,
+    @Args('incrementBy', { type: () => Int }) incrementBy: number,
+    @Args('reason', { type: () => String, nullable: true }) reason: string,
+    @Args('referenceId', { type: () => String, nullable: true }) referenceId: string,
+    @Args('performedBy', { type: () => String, nullable: true }) performedBy: string,
+  ): Promise<any> {
+    const action = incrementBy > 0 ? InventoryAction.INWARD : InventoryAction.MANUAL_ADJUSTMENT;
+    const result = await this.inventoryService.adjustStockByIdentifier(
+      identifier,
+      incrementBy,
+      action,
+      { notes: reason, referenceId, performedBy }
+    );
+    const logs = await this.inventoryService.getLogsBySku(result.sku);
+    return logs[0];
+  }
+
+  /** Sets stock TO an absolute value (used by Proof App manual inward). */
+  @Mutation(() => InventoryLog, { name: 'setInventory' })
+  @Roles(Role.ADMIN, Role.PACKER)
+  async setInventory(
+    @Args('identifier') identifier: string,
+    @Args('newStockLevel', { type: () => Int }) newStockLevel: number,
+    @Args('performedBy', { type: () => String, nullable: true }) performedBy: string,
+  ): Promise<any> {
+    const result = await this.inventoryService.setStockLevel(
+      identifier,
+      newStockLevel,
+      { performedBy, notes: 'Manual stock set via Proof App' },
+    );
+    const logs = await this.inventoryService.getLogsBySku(result.sku);
+    return logs[0];
+  }
+
+  @Query(() => [InventoryLog], { name: 'inventoryLogs' })
+  @Roles(Role.ADMIN)
+  async getInventoryLogs(
+    @Args('sku') sku: string,
+  ): Promise<InventoryLog[]> {
+    return this.inventoryService.getLogsBySku(sku);
+  }
+
+  /**
+   * Exact indexed lookup by variant SKU or variant GTIN.
+   * Returns null when not found. Accessible by Packers.
+   */
+  @Query(() => Product, { name: 'findProductByIdentifier', nullable: true })
+  @Roles(Role.ADMIN, Role.PACKER)
+  async findProductByIdentifier(
+    @Args('identifier') identifier: string,
+  ): Promise<Product | null> {
+    return this.productService.findBySkuOrGtin(identifier);
   }
 }

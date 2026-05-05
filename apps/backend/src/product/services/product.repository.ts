@@ -86,4 +86,17 @@ export class ProductRepository {
   async findBySlugs(slugs: string[]): Promise<Product[]> {
     return this.productModel.find({ slug: { $in: slugs } }).exec();
   }
+
+  /**
+   * Exact match lookup by variant SKU or variant GTIN.
+   * Uses the indexed fields for O(1) lookup — no regex, no full scan.
+   */
+  async findBySkuOrGtin(identifier: string): Promise<Product | null> {
+    return this.productModel.findOne({
+      $or: [
+        { 'variants.sku': identifier },
+        { 'variants.gtin': identifier },
+      ],
+    }).exec();
+  }
 }

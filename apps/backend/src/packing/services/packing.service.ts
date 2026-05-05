@@ -28,6 +28,8 @@ import {
   PackingStatus,
 } from '../entities/packing-order.entity';
 import { PackingEvidence } from '../entities/packing-evidence.entity';
+import { InventoryService } from '../../product/services/inventory.service';
+import { InventoryAction } from '../../product/inventory-log.schema';
 
 @Injectable()
 export class PackingService {
@@ -52,6 +54,7 @@ export class PackingService {
     private readonly addressModel: Model<Address>,
     @InjectModel(PackingEvidence.name)
     private readonly packingEvidenceModel: Model<PackingEvidence>,
+    private readonly inventoryService: InventoryService,
   ) { }
 
   async createPackingOrder(order: Order): Promise<void> {
@@ -306,9 +309,31 @@ export class PackingService {
     );
 
     this.scanLogger.logCompletePackingStep('SHIPMENT_INITIATION', {
-      packingOrderId,
       orderId: packingOrder.orderId,
     });
+    
+    // Subtract stock for each item packed
+    try {
+      for (const item of packingOrder.items) {
+        await this.inventoryService.adjustStockByIdentifier(
+          item.sku,
+          -item.quantity,
+          InventoryAction.ORDER_PACKED,
+          {
+            referenceId: packingOrder.orderId,
+            performedBy: packerId,
+            notes: `Auto-subtracted during packing of order ${packingOrder.orderId}`
+          }
+        );
+      }
+      this.scanLogger.logCompletePackingStep('STOCK_SUBTRACTED', {
+        packingOrderId,
+        orderId: packingOrder.orderId,
+      });
+    } catch (stockError) {
+      this.scanLogger.logScanError('completePacking', packingOrderId, new Error(`Stock subtraction failed: ${stockError.message}`));
+      // We don't throw here to avoid blocking the shipment process, but we log the error
+    }
 
     try {
       await this.initiateShipmentCreation(packingOrder.orderId, packingOrderId);

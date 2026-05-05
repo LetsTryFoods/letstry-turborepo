@@ -5,8 +5,9 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { COLORS } from '../constants/theme';
 import CameraScreen from '../screens/CameraScreen';
 import DashboardScreen from '../screens/DashboardScreen';
-import LoginScreen from '../screens/LoginScreen'; // <--- YE ADD KIYA
+import LoginScreen from '../screens/LoginScreen';
 import OrderDetailsScreen from '../screens/OrderDetailsScreen';
+import InventoryScreen from '../screens/InventoryScreen';
 
 const Stack = createStackNavigator();
 
@@ -48,6 +49,11 @@ const MainStackNavigator = () => {
             headerStyle: { backgroundColor: COLORS.black },
             headerTintColor: COLORS.white,
         }}
+      />
+      <Stack.Screen 
+        name="Inventory" 
+        component={InventoryScreen} 
+        options={{ title: 'Inventory Management' }}
       />
     </Stack.Navigator>
   );

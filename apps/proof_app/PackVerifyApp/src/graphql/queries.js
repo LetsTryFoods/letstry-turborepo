@@ -181,3 +181,19 @@ export const COMPLETE_PACKING = gql`
     }
   }
 `;
+export const SEARCH_PRODUCTS = gql`
+  query SearchProducts($searchTerm: String!) {
+    searchProducts(searchTerm: $searchTerm, pagination: { page: 1, limit: 20 }) {
+      items {
+        _id
+        name
+        variants {
+          _id
+          sku
+          stockQuantity
+          thumbnailUrl
+        }
+      }
+    }
+  }
+`;

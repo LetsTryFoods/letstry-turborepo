@@ -43,6 +43,10 @@ export class ProductVariant {
   @Field()
   sku: string;
 
+  @Prop({ nullable: true })
+  @Field({ nullable: true })
+  gtin?: string;
+
   @Prop({ required: true })
   @Field()
   name: string;
@@ -372,6 +376,7 @@ ProductSchema.set('toJSON', {
 
 ProductSchema.index({ categoryIds: 1 });
 ProductSchema.index({ 'variants.sku': 1 });
+ProductSchema.index({ 'variants.gtin': 1 });
 ProductSchema.index({ 'variants._id': 1 });
 ProductSchema.index({ keywords: 1 });
 ProductSchema.index({ 'variants.availabilityStatus': 1 });

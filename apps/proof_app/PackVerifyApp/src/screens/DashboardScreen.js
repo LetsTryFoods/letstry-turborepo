@@ -160,9 +160,14 @@ const DashboardScreen = ({ navigation, route }) => {
             <Text style={styles.welcomeText}>Good Day,</Text>
             <Text style={styles.userName}>{user.name}</Text>
           </View>
-          <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.profileBtn}>
-            <Ionicons name="person-circle-outline" size={32} color="white" />
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', gap: 12 }}>
+            <TouchableOpacity onPress={() => navigation.navigate('Inventory', { user })} style={styles.profileBtn}>
+              <Ionicons name="cube-outline" size={30} color="white" />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.profileBtn}>
+              <Ionicons name="person-circle-outline" size={32} color="white" />
+            </TouchableOpacity>
+          </View>
         </View>
         {renderStats()}
       </LinearGradient>

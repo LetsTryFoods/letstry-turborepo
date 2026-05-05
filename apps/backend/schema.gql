@@ -376,6 +376,7 @@ type ProductImage {
 type ProductVariant {
   _id: ID!
   sku: String!
+  gtin: String
   name: String!
   price: Float!
   mrp: Float!
@@ -570,6 +571,27 @@ type Category {
   children: [Category!]
   createdAt: DateTime!
   updatedAt: DateTime!
+}
+
+type InventoryLog {
+  _id: ID!
+  sku: String!
+  productId: ID!
+  changeAmount: Int!
+  previousStock: Int!
+  newStock: Int!
+  actionType: InventoryAction!
+  referenceId: String
+  performedBy: String
+  notes: String
+  createdAt: DateTime!
+}
+
+enum InventoryAction {
+  INWARD
+  ORDER_PACKED
+  MANUAL_ADJUSTMENT
+  RETURN
 }
 
 type CategorySeo {
@@ -1580,6 +1602,8 @@ type Query {
   productsByCategory(categoryId: ID!, pagination: PaginationInput! = {page: 1, limit: 10}): PaginatedProducts!
   searchProducts(searchTerm: String!, pagination: PaginationInput! = {page: 1, limit: 10}, nameOnly: Boolean! = false): PaginatedProducts!
   productVariant(productId: ID!, variantId: ID!): ProductVariant
+  inventoryLogs(sku: String!): [InventoryLog!]!
+  findProductByIdentifier(identifier: String!): Product
   categories(pagination: PaginationInput! = {page: 1, limit: 10}, includeArchived: Boolean! = false): PaginatedCategories!
   rootCategories(pagination: PaginationInput! = {page: 1, limit: 10}, includeArchived: Boolean! = false): PaginatedCategories!
   categoryChildren(parentId: ID!, pagination: PaginationInput! = {page: 1, limit: 10}, includeArchived: Boolean! = false): PaginatedCategories!
@@ -1798,6 +1822,8 @@ type Mutation {
   removeProductVariant(productId: ID!, variantId: ID!): Product!
   setDefaultProductVariant(productId: ID!, variantId: ID!): Product!
   updateProductVariantStock(productId: ID!, variantId: ID!, quantity: Int!): Product!
+  adjustInventory(identifier: String!, incrementBy: Int!, reason: String, referenceId: String, performedBy: String): InventoryLog!
+  setInventory(identifier: String!, newStockLevel: Int!, performedBy: String): InventoryLog!
   createCategory(input: CreateCategoryInput!): Category!
   updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
   archiveCategory(id: ID!): Category!

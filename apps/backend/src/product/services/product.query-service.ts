@@ -152,4 +152,9 @@ export class ProductQueryService {
   async findBySlugs(slugs: string[]): Promise<Product[]> {
     return this.repository.findBySlugs(slugs);
   }
+
+  /** Exact indexed lookup — SKU or GTIN. No scan. */
+  async findBySkuOrGtin(identifier: string): Promise<Product | null> {
+    return this.repository.findBySkuOrGtin(identifier);
+  }
 }
