@@ -60,9 +60,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
       : product.defaultVariant?.images?.map((img) => img.url) || [];
   const displayImages = images.length > 0 ? images : ["/placeholder-image.svg"];
 
-  const isOutOfStock =
-    selectedVariant?.stockQuantity === 0 ||
-    selectedVariant?.availabilityStatus !== "in_stock";
+  const isOutOfStock = false; // Keep button enabled regardless of stock
 
 
   return (

@@ -12,7 +12,7 @@ export class InventoryService {
   constructor(
     @InjectModel(Product.name) private productModel: Model<ProductDocument>,
     @InjectModel(InventoryLog.name) private logModel: Model<InventoryLogDocument>,
-  ) {}
+  ) { }
 
   /**
    * Main orchestrator — INCREMENTAL (used by packing only).

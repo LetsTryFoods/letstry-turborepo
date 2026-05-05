@@ -27,7 +27,7 @@ export const SizeSelector: React.FC<SizeSelectorProps> = ({ variants, selectedVa
         {variants.map((variant) => {
           const isSelected = variant._id === selectedVariantId;
           const label = variant.packageSize || `${variant.weight}${variant.weightUnit}`;
-          const isOutOfStock = variant.availabilityStatus !== 'in_stock' || (variant.stockQuantity !== undefined && variant.stockQuantity <= 0);
+          const isOutOfStock = false; // Keep options enabled regardless of stock
 
           return (
             <button
