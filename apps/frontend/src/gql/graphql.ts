@@ -1147,6 +1147,28 @@ export type InitiatePaymentResponse = {
   redirectUrl: Scalars['String']['output'];
 };
 
+export enum InventoryAction {
+  Inward = 'INWARD',
+  ManualAdjustment = 'MANUAL_ADJUSTMENT',
+  OrderPacked = 'ORDER_PACKED',
+  Return = 'RETURN'
+}
+
+export type InventoryLog = {
+  __typename?: 'InventoryLog';
+  _id: Scalars['ID']['output'];
+  actionType: InventoryAction;
+  changeAmount: Scalars['Int']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  newStock: Scalars['Int']['output'];
+  notes?: Maybe<Scalars['String']['output']>;
+  performedBy?: Maybe<Scalars['String']['output']>;
+  previousStock: Scalars['Int']['output'];
+  productId: Scalars['ID']['output'];
+  referenceId?: Maybe<Scalars['String']['output']>;
+  sku: Scalars['String']['output'];
+};
+
 export type ItemDimensions = {
   __typename?: 'ItemDimensions';
   height: Scalars['Float']['output'];
@@ -1230,6 +1252,7 @@ export type Mutation = {
   addProductVariant: Product;
   addProductsToCategory: Scalars['Boolean']['output'];
   addToCart: Cart;
+  adjustInventory: InventoryLog;
   adminLogin: Scalars['String']['output'];
   adminLogout: Scalars['String']['output'];
   adminPunchShipment: PackingOrder;
@@ -1292,6 +1315,7 @@ export type Mutation = {
   removeProductsFromCategory: Scalars['Boolean']['output'];
   sendOtp: Scalars['String']['output'];
   setDefaultProductVariant: Product;
+  setInventory: InventoryLog;
   setShippingAddress: Cart;
   startPacking: PackingOrder;
   submitContactMessage: ContactSubmissionResponse;
@@ -1346,6 +1370,15 @@ export type MutationAddProductsToCategoryArgs = {
 
 export type MutationAddToCartArgs = {
   input: AddToCartInput;
+};
+
+
+export type MutationAdjustInventoryArgs = {
+  identifier: Scalars['String']['input'];
+  incrementBy: Scalars['Int']['input'];
+  performedBy?: InputMaybe<Scalars['String']['input']>;
+  reason?: InputMaybe<Scalars['String']['input']>;
+  referenceId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -1635,6 +1668,13 @@ export type MutationSendOtpArgs = {
 export type MutationSetDefaultProductVariantArgs = {
   productId: Scalars['ID']['input'];
   variantId: Scalars['ID']['input'];
+};
+
+
+export type MutationSetInventoryArgs = {
+  identifier: Scalars['String']['input'];
+  newStockLevel: Scalars['Int']['input'];
+  performedBy?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -2683,6 +2723,7 @@ export type ProductVariant = {
   breadth: Scalars['Float']['output'];
   discountPercent: Scalars['Float']['output'];
   discountSource: Scalars['String']['output'];
+  gtin?: Maybe<Scalars['String']['output']>;
   height: Scalars['Float']['output'];
   images: Array<ProductImage>;
   isActive: Scalars['Boolean']['output'];
@@ -2743,6 +2784,7 @@ export type Query = {
   coupon: Coupon;
   coupons: Array<Coupon>;
   dashboardStats: DashboardStats;
+  findProductByIdentifier?: Maybe<Product>;
   geocodeAddress: GoogleMapsAddressOutput;
   getActiveBoxSizes: Array<BoxSize>;
   getAdminPaymentDetail: PaymentDetailType;
@@ -2781,6 +2823,7 @@ export type Query = {
   guest?: Maybe<Guest>;
   guestByGuestId?: Maybe<Guest>;
   hello: Scalars['String']['output'];
+  inventoryLogs: Array<InventoryLog>;
   landingPage?: Maybe<LandingPage>;
   landingPageBySlug?: Maybe<LandingPage>;
   landingPages: Array<LandingPage>;
@@ -2889,6 +2932,11 @@ export type QueryCategoryLandingPageBySlugArgs = {
 
 export type QueryCouponArgs = {
   code: Scalars['String']['input'];
+};
+
+
+export type QueryFindProductByIdentifierArgs = {
+  identifier: Scalars['String']['input'];
 };
 
 
@@ -3046,6 +3094,11 @@ export type QueryGuestArgs = {
 
 export type QueryGuestByGuestIdArgs = {
   guestId: Scalars['String']['input'];
+};
+
+
+export type QueryInventoryLogsArgs = {
+  sku: Scalars['String']['input'];
 };
 
 
