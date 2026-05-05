@@ -324,9 +324,9 @@ export class DtdcApiService {
       const logMessage = `DTDC API call | URL: ${data.url || 'N/A'} | Request: ${requestStr}`;
 
       if (!data.success) {
-        this.shipmentLogger.logApiError(logMessage, 'POST', data.error || 'Unknown Error', data.duration);
+        this.shipmentLogger.logApiError(logMessage, 'POST', data.error || 'Unknown Error', data.duration, 'DTDC');
       } else {
-        this.shipmentLogger.logApiCall(logMessage, 'POST', data.statusCode || 200, data.duration);
+        this.shipmentLogger.logApiCall(logMessage, 'POST', data.statusCode || 200, data.duration, 'DTDC');
       }
 
       await this.apiLogModel.create({

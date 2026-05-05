@@ -172,9 +172,18 @@ export const UPLOAD_EVIDENCE = gql`
   }
 `;
 
+export const GET_DELIVERY_RECOMMENDATION = gql`
+  query GetDeliveryRecommendation($orderId: String!) {
+    getDeliveryRecommendation(orderId: $orderId) {
+      recommendedProvider
+      reason
+    }
+  }
+`;
+
 export const COMPLETE_PACKING = gql`
-  mutation CompletePacking($packingOrderId: String!) {
-    completePacking(packingOrderId: $packingOrderId) {
+  mutation CompletePacking($packingOrderId: String!, $provider: String, $serviceType: String) {
+    completePacking(packingOrderId: $packingOrderId, provider: $provider, serviceType: $serviceType) {
       id
       status
       packingCompletedAt

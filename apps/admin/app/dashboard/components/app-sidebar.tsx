@@ -46,6 +46,7 @@ import {
   UserCheck,
   UserCircle,
   Users,
+  Building2,
   type LucideIcon,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -154,6 +155,7 @@ const navGroups: NavGroup[] = [
     label: "Settings",
     items: [
       { title: "Footer Detail", url: "/dashboard/footer-detail", icon: PanelBottom },
+      { title: "Pickup Locations", url: "/dashboard/pickup-locations", icon: Building2 },
       { title: "App Settings", url: "/dashboard/settings", icon: Settings },
       { title: "Profile", url: "/dashboard/profile", icon: UserCircle },
     ],

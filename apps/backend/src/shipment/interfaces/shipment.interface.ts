@@ -11,6 +11,8 @@ export interface ShipmentFilters {
 }
 
 export interface CreateShipmentData {
+  provider?: string;
+  pickupLocationName?: string;
   orderId?: string;
   orderNumber?: string;
   serviceType: string;

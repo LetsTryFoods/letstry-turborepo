@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   Table,
   TableBody,
@@ -20,8 +20,25 @@ import {
 } from "@/components/ui/tooltip"
 import { Order, OrderStatus, PaymentStatus, useAdminPunchShipment } from "@/lib/orders/queries"
 import { useShipmentLabel } from "@/lib/shipments/queries"
+import { usePickupLocations } from "@/lib/shipments/pickup-location-queries"
 import { format } from "date-fns"
 import { toast } from "react-hot-toast"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,16 +60,17 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_GRAPHQL_URL?.replace('/graphql', ''
 export function OrderTable({ orders, onViewDetails, onUpdateStatus }: OrderTableProps) {
   const { punchShipment, loading: punching } = useAdminPunchShipment()
   const { downloadLabel, loading: downloadingLabel } = useShipmentLabel()
+  const { pickupLocations, loading: locationsLoading } = usePickupLocations()
   const [downloadingAll, setDownloadingAll] = useState<string | null>(null)
 
-  const handlePunchShipment = async (order: Order, serviceType: string) => {
+  const handlePunchShipment = async (order: Order, serviceType: string, provider?: string, pickupLocationName?: string) => {
     try {
-      const result = await punchShipment({ orderId: order._id, serviceType })
+      const result = await punchShipment({ orderId: order._id, serviceType, provider, pickupLocationName })
       if (result) {
-        toast.success(`Successfully punched to DTDC!`)
+        toast.success(`Successfully punched to ${provider || 'DTDC'}!`)
       }
     } catch (error: any) {
-      toast.error(error.message || "Failed to punch to DTDC")
+      toast.error(error.message || `Failed to punch to ${provider || 'DTDC'}`)
     }
   }
 
@@ -132,6 +150,22 @@ export function OrderTable({ orders, onViewDetails, onUpdateStatus }: OrderTable
       'SHIPMENT_FAILED': [],
     }
     return statusFlow[currentStatus]?.includes(newStatus) || false
+  }
+
+  const isDelhiNCR = (address?: any) => {
+    if (!address) return false
+    const pincode = (address.pincode || address.postalCode || '').toString().trim()
+    
+    // Delhi NCR Pincode Prefixes:
+    // 11: Delhi
+    // 121, 122: Faridabad, Gurgaon
+    // 201: Noida, Ghaziabad
+    const ncrPrefixes = ['11', '121', '122', '201']
+    return ncrPrefixes.some(prefix => pincode.startsWith(prefix))
+  }
+
+  const getRecommendation = (order: Order) => {
+    return isDelhiNCR(order.shippingAddress) ? 'SHIPROCKET' : 'DTDC'
   }
 
   if (orders.length === 0) {
@@ -274,30 +308,44 @@ export function OrderTable({ orders, onViewDetails, onUpdateStatus }: OrderTable
                     </Tooltip>
                   </TooltipProvider>
 
-                  {order.orderStatus !== 'DELIVERED' && (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
-                          disabled={punching}
-                        >
-                          <Zap className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Punch to DTDC</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => handlePunchShipment(order, 'B2C SMART EXPRESS')}>
-                          B2C Smart Express
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handlePunchShipment(order, 'B2C PRIORITY')}>
-                          B2C Priority
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  )}
+                    {order.orderStatus !== 'DELIVERED' && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                            disabled={punching}
+                          >
+                            <Zap className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel className="flex items-center gap-2">
+                            Punch to DTDC
+                            {getRecommendation(order) === 'DTDC' && (
+                              <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100 border-none px-1.5 py-0 text-[10px]">RECOMMENDED</Badge>
+                            )}
+                          </DropdownMenuLabel>
+                          <DropdownMenuItem onClick={() => handlePunchShipment(order, 'B2C SMART EXPRESS')}>
+                            B2C Smart Express
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handlePunchShipment(order, 'B2C PRIORITY')}>
+                            B2C Priority
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuLabel className="flex items-center gap-2">
+                            Punch to Shiprocket
+                            {getRecommendation(order) === 'SHIPROCKET' && (
+                              <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100 border-none px-1.5 py-0 text-[10px]">RECOMMENDED</Badge>
+                            )}
+                          </DropdownMenuLabel>
+                          <DropdownMenuItem onClick={() => handlePunchShipment(order, 'Express', 'SHIPROCKET')}>
+                            Shiprocket Express (Auto)
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
 
                   {order.orderStatus !== 'DELIVERED' && (
                     <DropdownMenu>

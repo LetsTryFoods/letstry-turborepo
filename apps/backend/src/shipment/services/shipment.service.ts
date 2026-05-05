@@ -11,6 +11,7 @@ import { DtdcBookingPayload } from '../interfaces/dtdc-payload.interface';
 import { ConfigService } from '@nestjs/config';
 import { ShipmentLoggerService } from './shipment-logger.service';
 import { OrderRepository } from '../../order/services/order.repository';
+import { DeliveryPartnerFactory } from '../core/factories/delivery-partner.factory';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -39,94 +40,40 @@ export class ShipmentService {
     private readonly configService: ConfigService,
     private readonly shipmentLogger: ShipmentLoggerService,
     private readonly orderRepository: OrderRepository,
+    private readonly deliveryPartnerFactory: DeliveryPartnerFactory,
   ) { }
 
   async createShipment(data: CreateShipmentData): Promise<{ shipment: Shipment; awbNumber: string; labelUrl: string }> {
-    const serviceable = await this.dtdcApiService.checkPincode(
-      data.originDetails.pincode,
-      data.destinationDetails.pincode,
-    );
+    const providerStr = (data as any).provider || 'DTDC';
+    const provider = providerStr === 'Shiprocket' ? 'SHIPROCKET' : providerStr;
+    const adapter = this.deliveryPartnerFactory.getAdapter(provider as 'DTDC' | 'SHIPROCKET');
 
-    if (!serviceable) {
-      throw new BadRequestException('Destination pincode not serviceable');
+    if (provider === 'DTDC') {
+      const serviceable = await this.dtdcApiService.checkPincode(
+        data.originDetails.pincode,
+        data.destinationDetails.pincode,
+      );
+
+      if (!serviceable) {
+        throw new BadRequestException('Destination pincode not serviceable by DTDC');
+      }
     }
 
-    const bookingPayload: DtdcBookingPayload = {
-      consignments: [
-        {
-          customer_code: this.configService.get<string>('dtdc.customerCode') || '',
-          service_type_id: data.serviceType,
-          load_type: data.loadType,
-          consignment_type: 'Forward',
-          dimension_unit: this.configService.get<string>('dtdc.defaults.dimensionUnit') || 'cm',
-          length: data.dimensions.length.toString(),
-          width: data.dimensions.width.toString(),
-          height: data.dimensions.height.toString(),
-          weight_unit: this.configService.get<string>('dtdc.defaults.weightUnit') || 'kg',
-          weight: data.weight.toString(),
-          declared_value: data.declaredValue.toString(),
-          num_pieces: (data.numPieces || 1).toString(),
-          origin_details: {
-            name: data.originDetails.name,
-            phone: data.originDetails.phone,
-            alternate_phone: data.originDetails.alternatePhone,
-            address_line_1: data.originDetails.addressLine1,
-            address_line_2: data.originDetails.addressLine2,
-            pincode: data.originDetails.pincode,
-            city: data.originDetails.city,
-            state: data.originDetails.state,
-            latitude: data.originDetails.latitude,
-            longitude: data.originDetails.longitude,
-          },
-          destination_details: {
-            name: data.destinationDetails.name,
-            phone: data.destinationDetails.phone,
-            alternate_phone: data.destinationDetails.alternatePhone,
-            address_line_1: data.destinationDetails.addressLine1,
-            address_line_2: data.destinationDetails.addressLine2,
-            pincode: data.destinationDetails.pincode,
-            city: data.destinationDetails.city,
-            state: data.destinationDetails.state,
-            latitude: data.destinationDetails.latitude,
-            longitude: data.destinationDetails.longitude,
-          },
-          customer_reference_number: data.orderNumber || data.orderId || `REF-${Date.now()}`,
-          cod_collection_mode: data.codCollectionMode || '',
-          cod_amount: data.codAmount?.toString() || '',
-          commodity_id: data.commodityId,
-          is_risk_surcharge_applicable: data.isRiskSurchargeApplicable || false,
-          description: data.description,
-          invoice_number: data.invoiceNumber,
-          invoice_date: data.invoiceDate ? data.invoiceDate.toISOString().split('T')[0] : undefined,
-          eway_bill: data.ewayBill,
-          pieces_detail: data.piecesDetail?.map((piece) => ({
-            description: piece.description,
-            declared_value: piece.declaredValue.toString(),
-            weight: piece.weight.toString(),
-            height: piece.height.toString(),
-            length: piece.length.toString(),
-            width: piece.width.toString(),
-          })),
-        },
-      ],
-    };
+    const bookingResult = await adapter.bookShipment(data);
+    const awbNumber = bookingResult.awbNumber;
 
-    const bookingResponse = await this.dtdcApiService.bookShipment(bookingPayload);
-
-    if (bookingResponse.status !== 'OK' || !bookingResponse.data?.[0]?.success) {
-      const errorMsg = bookingResponse.data?.[0]?.message || bookingResponse.data?.[0]?.remarks || 'Booking failed';
-      throw new BadRequestException(errorMsg);
-    }
-
-    const awbNumber = bookingResponse.data[0].reference_number;
     const trackingDisabledAfter = new Date();
     const trackingValidityDays = this.configService.get<number>('dtdc.defaults.trackingValidityDays') || 90;
     trackingDisabledAfter.setDate(trackingDisabledAfter.getDate() + trackingValidityDays);
 
     const shipment = await this.shipmentModel.create({
       orderId: data.orderId ? new Types.ObjectId(data.orderId) : undefined,
-      dtdcAwbNumber: awbNumber,
-      dtdcReferenceNumber: bookingPayload.consignments[0].customer_reference_number,
+      provider,
+      pickupLocationName: (data as any).pickupLocationName,
+      awbNumber: bookingResult.awbNumber,
+      dtdcAwbNumber: bookingResult.awbNumber,
+      dtdcReferenceNumber: bookingResult.providerOrderId || data.orderNumber || data.orderId || `REF-${Date.now()}`,
+      providerOrderId: bookingResult.providerOrderId,
       customerCode: this.configService.get<string>('dtdc.customerCode'),
       serviceType: data.serviceType,
       loadType: data.loadType,
@@ -149,38 +96,36 @@ export class ShipmentService {
       trackingDisabledAfter,
       currentStatusCode: 'BKD',
       currentStatusDescription: 'Booked',
+      labelUrl: bookingResult.labelUrl,
     });
 
-    let labelUrl = '';
-    try {
-      labelUrl = await this.dtdcApiService.getLabel(awbNumber, shipment._id.toString());
-      shipment.labelUrl = labelUrl;
-      await shipment.save();
-      this.shipmentLogger.logLabelFetched(awbNumber, shipment._id.toString());
-    } catch (error: any) {
-      this.shipmentLogger.logLabelFetchFailed(awbNumber, error.message);
-    }
+    this.shipmentLogger.logShipmentBooked(awbNumber, data.orderId || '', shipment._id.toString(), provider);
 
-    this.shipmentLogger.logShipmentBooked(awbNumber, data.orderId || '', shipment._id.toString());
-
-    return { shipment, awbNumber, labelUrl };
+    return { shipment, awbNumber, labelUrl: bookingResult.labelUrl };
   }
 
   async findByAwbNumber(awbNumber: string): Promise<Shipment | null> {
-    return this.shipmentModel.findOne({ dtdcAwbNumber: awbNumber }).exec();
+    return this.shipmentModel.findOne({
+      $or: [
+        { awbNumber: awbNumber },
+        { dtdcAwbNumber: awbNumber }
+      ]
+    }).exec();
   }
 
   async findById(id: string): Promise<Shipment | null> {
     return this.shipmentModel.findById(id).exec();
   }
 
-  async findActiveShipmentsForTracking(): Promise<Shipment[]> {
-    return this.shipmentModel.find({
+  async findActiveShipmentsForTracking(provider?: string): Promise<Shipment[]> {
+    const query: any = {
       isDelivered: false,
       isCancelled: false,
       isRto: false,
       dtdcAwbNumber: { $ne: null },
-    }).exec();
+    };
+    if (provider) query.provider = provider;
+    return this.shipmentModel.find(query).exec();
   }
 
   async findByOrderId(orderId: string): Promise<Shipment[]> {
@@ -259,7 +204,6 @@ export class ShipmentService {
 
   async cancelShipment(awbNumber: string): Promise<Shipment> {
     const shipment = await this.findByAwbNumber(awbNumber);
-
     if (!shipment) {
       throw new NotFoundException(`Shipment with AWB ${awbNumber} not found`);
     }
@@ -268,13 +212,14 @@ export class ShipmentService {
       throw new BadRequestException('Cannot cancel delivered shipment');
     }
 
-    await this.dtdcApiService.cancelShipment([awbNumber], shipment._id.toString());
+    const provider = shipment.provider || 'DTDC';
+    const adapter = this.deliveryPartnerFactory.getAdapter(provider as 'DTDC' | 'SHIPROCKET');
+    await adapter.cancelShipment(awbNumber, shipment.providerOrderId);
 
     shipment.isCancelled = true;
     shipment.cancelledAt = new Date();
     shipment.currentStatusCode = 'CAN';
     shipment.currentStatusDescription = 'Cancelled';
-
     await shipment.save();
 
     return shipment;

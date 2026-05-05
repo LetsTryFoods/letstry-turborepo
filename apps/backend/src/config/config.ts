@@ -1,4 +1,11 @@
 export default () => ({
+  shiprocket: {
+    email: process.env.SHIPROCKET_EMAIL,
+    password: process.env.SHIPROCKET_PASSWORD,
+    apiUrl: 'https://apiv2.shiprocket.in/v1/external',
+    webhookSecret: process.env.SHIPROCKET_WEBHOOK_SECRET,
+    defaultPickupLocation: process.env.SHIPROCKET_DEFAULT_PICKUP_LOCATION,
+  },
   database: {
     uri: process.env.DATABASE_URL,
     name: process.env.DATABASE_NAME || 'letstry_dev',

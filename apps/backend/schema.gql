@@ -1258,6 +1258,11 @@ type CleanupResult {
   checked: Int!
 }
 
+type DeliveryRecommendation {
+  recommendedProvider: String!
+  reason: String!
+}
+
 type Packer {
   id: ID!
   employeeId: String!
@@ -1319,6 +1324,20 @@ type TrackingAnalyticsResponse {
   successRate: Float!
   searchTypeBreakdown: [SearchTypeBreakdown!]!
   recentSearches: [RecentSearch!]!
+}
+
+type PickupLocationType {
+  _id: ID!
+  name: String!
+  phone: String
+  addressLine1: String
+  addressLine2: String
+  city: String
+  state: String
+  pincode: String
+  country: String
+  isDefault: Boolean
+  provider: String
 }
 
 type NewsletterSubscription {
@@ -1646,6 +1665,7 @@ type Query {
   getOrderById(orderId: String!): OrderType!
   getAssignedOrder: PackingOrder!
   getMyAssignedOrders: [PackingOrder!]!
+  getDeliveryRecommendation(orderId: String!): DeliveryRecommendation!
   getMyOrderHistory: [PackingOrder!]!
   getBoxRecommendation(packingOrderId: String!): BoxSize!
   getAllPackingOrders(packerId: String, status: String): [PackingOrder!]!
@@ -1662,6 +1682,7 @@ type Query {
   getShipmentWithTracking(awbNumber: String!): ShipmentWithTrackingResponse!
   getShipmentLabel(awbNumber: String!): String
   getTrackingAnalytics(startDate: String, endDate: String, limit: Int): TrackingAnalyticsResponse!
+  getPickupLocations: [PickupLocationType!]!
   getAllNewsletterSubscriptions(isActive: Boolean): [NewsletterSubscription!]!
   getNewsletterSubscriptionCount(isActive: Boolean): Float!
   redirects(page: Int! = 1, limit: Int! = 20, search: String): PaginatedRedirects!
@@ -1868,7 +1889,7 @@ type Mutation {
   startPacking(packingOrderId: String!): PackingOrder!
   batchScanItems(input: BatchScanInput!): BatchScanResult!
   uploadEvidence(input: UploadEvidenceInput!): PackingOrder!
-  completePacking(packingOrderId: String!): PackingOrder!
+  completePacking(packingOrderId: String!, provider: String, serviceType: String): PackingOrder!
   adminPunchShipment(input: AdminPunchShipmentInput!): PackingOrder!
   cleanupOrphanedJobs: CleanupResult!
   triggerReassignmentCycle: Boolean!
@@ -1882,6 +1903,8 @@ type Mutation {
   deleteBoxSize(boxId: String!): Boolean!
   createShipment(input: CreateShipmentInput!): CreateShipmentResponse!
   cancelShipment(input: CancelShipmentInput!): ShipmentResponse!
+  createPickupLocation(input: CreatePickupLocationInput!): PickupLocationType!
+  removePickupLocation(id: String!): Boolean!
   subscribeNewsletter(input: SubscribeNewsletterInput!): SubscribeNewsletterResponse!
   unsubscribeNewsletter(email: String!): SubscribeNewsletterResponse!
   createRedirect(input: CreateRedirectInput!): RedirectType!
@@ -2403,6 +2426,8 @@ input UploadEvidenceInput {
 input AdminPunchShipmentInput {
   orderId: ID!
   serviceType: String
+  provider: String
+  pickupLocationName: String
 }
 
 input CreatePackerInput {
@@ -2511,6 +2536,19 @@ input PieceDetailInput {
 
 input CancelShipmentInput {
   awbNumber: String!
+}
+
+input CreatePickupLocationInput {
+  name: String!
+  phone: String
+  addressLine1: String
+  addressLine2: String
+  city: String
+  state: String
+  pincode: String
+  country: String
+  isDefault: Boolean
+  provider: String
 }
 
 input SubscribeNewsletterInput {

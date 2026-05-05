@@ -12,4 +12,14 @@ export class AdminPunchShipmentInput {
     @IsOptional()
     @IsString()
     serviceType?: string;
+
+    @Field({ nullable: true })
+    @IsOptional()
+    @IsString()
+    provider?: string;
+
+    @Field({ nullable: true })
+    @IsOptional()
+    @IsString()
+    pickupLocationName?: string;
 }

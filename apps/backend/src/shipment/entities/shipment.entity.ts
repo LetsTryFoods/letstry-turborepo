@@ -33,6 +33,18 @@ export class Shipment extends Document {
   @Prop({ type: Types.ObjectId, ref: 'Order', default: null })
   orderId: Types.ObjectId;
 
+  @Prop({ default: 'DTDC', enum: ['DTDC', 'SHIPROCKET'], index: true })
+  provider: string;
+
+  @Prop({ default: null, index: true })
+  awbNumber: string;
+
+  @Prop({ default: null })
+  providerOrderId: string;
+
+  @Prop({ default: null })
+  pickupLocationName: string;
+
   @Prop({ required: true, unique: true, index: true })
   dtdcAwbNumber: string;
 
@@ -178,10 +190,8 @@ export class Shipment extends Document {
 
 export const ShipmentSchema = SchemaFactory.createForClass(Shipment);
 
-ShipmentSchema.index({ dtdcAwbNumber: 1 }, { unique: true });
+ShipmentSchema.index({ provider: 1, isDelivered: 1 });
 ShipmentSchema.index({ orderId: 1 });
-ShipmentSchema.index({ customerCode: 1 });
-ShipmentSchema.index({ currentStatusCode: 1 });
 ShipmentSchema.index({ bookedOn: 1 });
 ShipmentSchema.index({ isDelivered: 1, deliveredAt: 1 });
 ShipmentSchema.index({ webhookLastReceivedAt: 1, isDelivered: 1 });

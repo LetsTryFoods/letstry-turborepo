@@ -28,6 +28,15 @@ class CleanupResult {
   checked: number;
 }
 
+@ObjectType()
+class DeliveryRecommendation {
+  @Field()
+  recommendedProvider: string;
+
+  @Field()
+  reason: string;
+}
+
 @Resolver(() => PackingOrder)
 export class PackingResolver {
   constructor(
@@ -118,9 +127,20 @@ export class PackingResolver {
   @Roles(Role.PACKER)
   async completePacking(
     @Args('packingOrderId') packingOrderId: string,
+    @Args('provider', { nullable: true }) provider: string,
+    @Args('serviceType', { nullable: true }) serviceType: string,
     @Context() ctx,
   ): Promise<any> {
-    return this.packingService.completePacking(packingOrderId, ctx.req.user.packerId);
+    return this.packingService.completePacking(packingOrderId, ctx.req.user.packerId, provider, serviceType);
+  }
+
+  @Query(() => DeliveryRecommendation)
+  @UseGuards(PackerAuthGuard, RolesGuard)
+  @Roles(Role.PACKER, Role.ADMIN)
+  async getDeliveryRecommendation(
+    @Args('orderId') orderId: string,
+  ): Promise<any> {
+    return this.packingService.getDeliveryRecommendation(orderId);
   }
 
   @Mutation(() => PackingOrder)
