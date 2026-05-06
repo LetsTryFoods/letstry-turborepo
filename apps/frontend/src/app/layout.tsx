@@ -13,7 +13,7 @@ import { Footer } from "@/components/footer";
 import { GuestSessionManager } from "@/components/guest/GuestSessionManager";
 import { CartContainer } from "@/components/cart-drawer/CartContainer";
 import { SearchOverlay } from "@/components/search-overlay";
-import { GoogleTagManager, GoogleTagManagerNoscript } from "@/components/analytics/google-tag-manager";
+import { GoogleTagManager, GoogleAnalytics } from '@next/third-parties/google';
 import { PageViewTracker } from "@/components/analytics/page-view-tracker";
 import { WebVitalsTracker } from "@/components/analytics/web-vitals";
 import { SpinWheelContainer } from "@/components/spin-wheel/SpinWheelContainer";
@@ -163,6 +163,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const gtmId = process.env.NEXT_PUBLIC_GTM_ID;
+  const gaId = process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID;
 
   return (
     <html lang="en">
@@ -178,11 +179,12 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
         {gtmId && <GoogleTagManager gtmId={gtmId} />}
+        {gaId && <GoogleAnalytics gaId={gaId} />}
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${agbalumo.variable} antialiased`}
       >
-        {gtmId && <GoogleTagManagerNoscript gtmId={gtmId} />}
+        {/* GoogleTagManager from @next/third-parties handles Noscript automatically if needed or doesn't require separate component like before */}
         <QueryProvider>
           <RecaptchaProvider>
             <AuthProvider>

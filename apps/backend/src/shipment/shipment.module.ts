@@ -1,3 +1,15 @@
+
+import { PickupLocation, PickupLocationSchema } from './entities/pickup-location.entity';
+import { DeliveryPartnerFactory } from './core/factories/delivery-partner.factory';
+import { DtdcAdapter } from './adapters/dtdc/dtdc.adapter';
+import { ShiprocketAdapter } from './adapters/shiprocket/shiprocket.adapter';
+import { ShiprocketApiService } from './providers/shiprocket/shiprocket-api.service';
+import { ShiprocketAuthService } from './providers/shiprocket/shiprocket-auth.service';
+import { ShiprocketMapper } from './adapters/shiprocket/shiprocket.mapper';
+import { ShiprocketWebhookController } from './controllers/shiprocket-webhook.controller';
+import { ShiprocketWebhookAuthGuard } from './guards/shiprocket-webhook-auth.guard';
+import { AppCacheModule } from '../cache/app-cache.module';
+
 import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { OrderModule } from '../order/order.module';
@@ -30,6 +42,9 @@ import { TrackingCronService } from './services/tracking-cron.service';
 import { TrackingProcessor } from './processors/tracking.processor';
 import { TrackingLoggerService } from './services/tracking-logger.service';
 
+import { PickupLocationService } from './services/pickup-location.service';
+import { PickupLocationResolver } from './resolvers/pickup-location.resolver';
+
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -38,6 +53,7 @@ import { TrackingLoggerService } from './services/tracking-logger.service';
       { name: DtdcWebhookLog.name, schema: DtdcWebhookLogSchema },
       { name: DtdcApiLog.name, schema: DtdcApiLogSchema },
       { name: OrderTrackingAnalytics.name, schema: OrderTrackingAnalyticsSchema },
+      { name: PickupLocation.name, schema: PickupLocationSchema },
     ]),
     BullModule.registerQueue({
       name: 'shipment-webhook',
@@ -55,15 +71,25 @@ import { TrackingLoggerService } from './services/tracking-logger.service';
     }),
     ConfigModule,
     forwardRef(() => OrderModule),
+    AppCacheModule,
   ],
-  controllers: [DtdcWebhookController, ShipmentController],
+  controllers: [DtdcWebhookController, ShipmentController, ShiprocketWebhookController],
   providers: [
+    DeliveryPartnerFactory,
+    DtdcAdapter,
+    ShiprocketAdapter,
+    ShiprocketApiService,
+    ShiprocketAuthService,
+    ShiprocketMapper,
+    ShiprocketWebhookAuthGuard,
     ShipmentService,
     DtdcApiService,
     TrackingService,
     ShipmentStatusMapperService,
     DtdcWebhookService,
     ShipmentResolver,
+    PickupLocationService,
+    PickupLocationResolver,
     ShipmentSubscriptionResolver,
     ShipmentWebhookProcessor,
     DtdcWebhookAuthGuard,
@@ -72,6 +98,6 @@ import { TrackingLoggerService } from './services/tracking-logger.service';
     TrackingProcessor,
     TrackingLoggerService,
   ],
-  exports: [ShipmentService, DtdcApiService, TrackingService, ShipmentLoggerService],
+  exports: [ShipmentService, DtdcApiService, TrackingService, ShipmentLoggerService, PickupLocationService],
 })
 export class ShipmentModule { }

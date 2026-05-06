@@ -252,7 +252,7 @@ export class PackingService {
     return this.packingOrderCrud.findById(packingOrderId);
   }
 
-  async completePacking(packingOrderId: string, packerId: string): Promise<any> {
+  async completePacking(packingOrderId: string, packerId: string, provider?: string, serviceType?: string): Promise<any> {
     this.scanLogger.logCompletePackingRequest(packingOrderId);
 
     const packingOrder = await this.packingOrderCrud.findById(packingOrderId);
@@ -336,7 +336,7 @@ export class PackingService {
     }
 
     try {
-      await this.initiateShipmentCreation(packingOrder.orderId, packingOrderId);
+      await this.initiateShipmentCreation(packingOrder.orderId, packingOrderId, serviceType, provider);
     } catch (shipmentError) {
       this.scanLogger.logCompletePackingStep('SHIPMENT_SKIPPED', {
         packingOrderId,
@@ -355,9 +355,9 @@ export class PackingService {
   }
 
   async adminPunchShipment(input: AdminPunchShipmentInput): Promise<any> {
-    const { orderId, serviceType } = input;
+    const { orderId, serviceType, provider, pickupLocationName } = input;
 
-    this.packingLogger.logInfo('Admin punch shipment initiated', { orderId });
+    this.packingLogger.logInfo('Admin punch shipment initiated', { orderId, provider, pickupLocationName });
 
     let packingOrder = await this.packingOrderCrud.findOne({ orderId });
 
@@ -400,7 +400,7 @@ export class PackingService {
       OrderStatus.PACKED,
     );
 
-    await this.initiateShipmentCreation(packingOrder.orderId, packingOrderId, serviceType);
+    await this.initiateShipmentCreation(packingOrder.orderId, packingOrderId, serviceType, provider, pickupLocationName);
 
     return this.packingOrderCrud.findById(packingOrderId);
   }
@@ -422,7 +422,7 @@ export class PackingService {
       : 0;
   }
 
-  private async initiateShipmentCreation(orderId: string, packingOrderId: string, serviceType?: string): Promise<any> {
+  private async initiateShipmentCreation(orderId: string, packingOrderId: string, serviceType?: string, provider?: string, pickupLocationName?: string): Promise<any> {
     try {
       const order = await this.orderRepository.findByInternalId(orderId);
 
@@ -511,7 +511,7 @@ export class PackingService {
 
       totalWeight = Math.max(totalWeight, 0.5);
 
-      const shipmentPayload = this.buildShipmentPayload(orderId, order, boxDimensions, shippingAddress, totalWeight, serviceType);
+      const shipmentPayload = this.buildShipmentPayload(orderId, order, boxDimensions, shippingAddress, totalWeight, serviceType, provider, pickupLocationName);
       const shipmentResult = await this.shipmentService.createShipment(shipmentPayload);
 
       const phoneNumber = this.resolvePhone(order, shippingAddress);
@@ -548,9 +548,11 @@ export class PackingService {
     }
   }
 
-  private buildShipmentPayload(orderId: string, order: any, boxDimensions: any, shippingAddress: any, weight: number, serviceType?: string) {
+  private buildShipmentPayload(orderId: string, order: any, boxDimensions: any, shippingAddress: any, weight: number, serviceType?: string, provider?: string, pickupLocationName?: string) {
     return {
       orderId,
+      provider,
+      pickupLocationName,
       orderNumber: order.orderId,
       serviceType: serviceType || this.configService.get('dtdc.defaults.serviceType') || 'GROUND EXPRESS',
       loadType: this.configService.get('dtdc.defaults.loadType') || 'NON-DOCUMENT',
@@ -705,5 +707,32 @@ export class PackingService {
   async getPackerHistory(packerId: string): Promise<any[]> {
     const orders = await this.packingOrderCrud.findByPacker(packerId);
     return orders.filter((order: any) => order.status === 'completed');
+  }
+
+  isDelhiNCR(address: any): boolean {
+    if (!address) return false;
+    const pincode = (address.postalCode || address.pincode || '').toString().trim();
+    
+    // Delhi NCR Pincode Prefixes:
+    // 11: Delhi
+    // 121, 122: Faridabad, Gurgaon
+    // 201: Noida, Ghaziabad
+    const ncrPrefixes = ['11', '121', '122', '201'];
+    return ncrPrefixes.some(prefix => pincode.startsWith(prefix));
+  }
+
+  async getDeliveryRecommendation(orderId: string): Promise<{ recommendedProvider: string; reason: string }> {
+    const order = await this.orderRepository.findByInternalId(orderId);
+    if (!order) return { recommendedProvider: 'DTDC', reason: 'Order not found' };
+    
+    const address = order.shippingAddressId 
+      ? await this.addressModel.findById(order.shippingAddressId).exec() 
+      : null;
+      
+    if (this.isDelhiNCR(address)) {
+      return { recommendedProvider: 'SHIPROCKET', reason: 'Local NCR region - Shiprocket is faster' };
+    }
+    
+    return { recommendedProvider: 'DTDC', reason: 'Outside NCR region - DTDC has better reach' };
   }
 }

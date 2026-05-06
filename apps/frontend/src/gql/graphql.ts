@@ -77,6 +77,8 @@ export type AdminOrdersResponse = {
 
 export type AdminPunchShipmentInput = {
   orderId: Scalars['ID']['input'];
+  pickupLocationName?: InputMaybe<Scalars['String']['input']>;
+  provider?: InputMaybe<Scalars['String']['input']>;
   serviceType?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -740,6 +742,19 @@ export type CreatePackerResponse = {
   packer: Packer;
 };
 
+export type CreatePickupLocationInput = {
+  addressLine1?: InputMaybe<Scalars['String']['input']>;
+  addressLine2?: InputMaybe<Scalars['String']['input']>;
+  city?: InputMaybe<Scalars['String']['input']>;
+  country?: InputMaybe<Scalars['String']['input']>;
+  isDefault?: InputMaybe<Scalars['Boolean']['input']>;
+  name: Scalars['String']['input'];
+  phone?: InputMaybe<Scalars['String']['input']>;
+  pincode?: InputMaybe<Scalars['String']['input']>;
+  provider?: InputMaybe<Scalars['String']['input']>;
+  state?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type CreatePillarInput = {
   categoryTiles?: InputMaybe<Array<PillarCategoryTileInput>>;
   customRoute?: InputMaybe<Scalars['String']['input']>;
@@ -978,6 +993,12 @@ export type DashboardStats = {
   totalCategories: Scalars['Float']['output'];
   totalProducts: Scalars['Float']['output'];
   totalUsers: Scalars['Float']['output'];
+};
+
+export type DeliveryRecommendation = {
+  __typename?: 'DeliveryRecommendation';
+  reason: Scalars['String']['output'];
+  recommendedProvider: Scalars['String']['output'];
 };
 
 export type DimensionInput = {
@@ -1279,6 +1300,7 @@ export type Mutation = {
   createLandingPage: LandingPage;
   createOrUpdateCharges: Charges;
   createPacker: CreatePackerResponse;
+  createPickupLocation: PickupLocationType;
   createPillar: Pillar;
   createPolicy: Policy;
   createPressMention: PressMention;
@@ -1309,6 +1331,7 @@ export type Mutation = {
   removeAuthor: Author;
   removeCoupon: Cart;
   removeFromCart: Cart;
+  removePickupLocation: Scalars['Boolean']['output'];
   removePillar: Pillar;
   removePressMention: PressMention;
   removeProductVariant: Product;
@@ -1425,6 +1448,8 @@ export type MutationCancelShipmentArgs = {
 
 export type MutationCompletePackingArgs = {
   packingOrderId: Scalars['String']['input'];
+  provider?: InputMaybe<Scalars['String']['input']>;
+  serviceType?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -1496,6 +1521,11 @@ export type MutationCreateOrUpdateChargesArgs = {
 
 export type MutationCreatePackerArgs = {
   input: CreatePackerInput;
+};
+
+
+export type MutationCreatePickupLocationArgs = {
+  input: CreatePickupLocationInput;
 };
 
 
@@ -1636,6 +1666,11 @@ export type MutationRemoveAuthorArgs = {
 
 export type MutationRemoveFromCartArgs = {
   productId: Scalars['ID']['input'];
+};
+
+
+export type MutationRemovePickupLocationArgs = {
+  id: Scalars['String']['input'];
 };
 
 
@@ -2349,6 +2384,21 @@ export type PaymentsSummaryType = {
   totalRefunded: Scalars['String']['output'];
 };
 
+export type PickupLocationType = {
+  __typename?: 'PickupLocationType';
+  _id: Scalars['ID']['output'];
+  addressLine1?: Maybe<Scalars['String']['output']>;
+  addressLine2?: Maybe<Scalars['String']['output']>;
+  city?: Maybe<Scalars['String']['output']>;
+  country?: Maybe<Scalars['String']['output']>;
+  isDefault?: Maybe<Scalars['Boolean']['output']>;
+  name: Scalars['String']['output'];
+  phone?: Maybe<Scalars['String']['output']>;
+  pincode?: Maybe<Scalars['String']['output']>;
+  provider?: Maybe<Scalars['String']['output']>;
+  state?: Maybe<Scalars['String']['output']>;
+};
+
 export type PieceDetailInput = {
   declaredValue: Scalars['Float']['input'];
   description: Scalars['String']['input'];
@@ -2802,6 +2852,7 @@ export type Query = {
   getBoxRecommendation: BoxSize;
   getContactMessages: PaginatedContactsResponse;
   getCustomerDetails: CustomerDetails;
+  getDeliveryRecommendation: DeliveryRecommendation;
   getEvidenceByOrder: PackingEvidence;
   getMyAssignedOrders: Array<PackingOrder>;
   getMyOrderHistory: Array<PackingOrder>;
@@ -2814,6 +2865,7 @@ export type Query = {
   getPackerStats: PackerStats;
   getPaymentOrderById: PaymentOrderType;
   getPaymentStatus: PaymentStatusResponse;
+  getPickupLocations: Array<PickupLocationType>;
   getPlaceDetails: PlaceDetailsOutput;
   getShipmentByAwb?: Maybe<ShipmentResponse>;
   getShipmentById?: Maybe<ShipmentResponse>;
@@ -3005,6 +3057,11 @@ export type QueryGetContactMessagesArgs = {
 
 export type QueryGetCustomerDetailsArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetDeliveryRecommendationArgs = {
+  orderId: Scalars['String']['input'];
 };
 
 

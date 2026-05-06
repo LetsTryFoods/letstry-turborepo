@@ -11,10 +11,11 @@ import {
   TouchableOpacity,
   Vibration,
   View,
+  Modal,
 } from 'react-native';
 
-import { useMutation } from '@apollo/client';
-import { BATCH_SCAN_ITEMS, COMPLETE_PACKING, UPLOAD_EVIDENCE } from '../graphql/queries';
+import { useMutation, useLazyQuery } from '@apollo/client';
+import { BATCH_SCAN_ITEMS, COMPLETE_PACKING, UPLOAD_EVIDENCE, GET_DELIVERY_RECOMMENDATION } from '../graphql/queries';
 import { COLORS } from '../constants/theme';
 
 const CameraScreen = ({ navigation, route }) => {
@@ -35,6 +36,10 @@ const CameraScreen = ({ navigation, route }) => {
   const [batchScanMutation] = useMutation(BATCH_SCAN_ITEMS);
   const [uploadEvidenceMutation] = useMutation(UPLOAD_EVIDENCE);
   const [completePackingMutation] = useMutation(COMPLETE_PACKING);
+  const [getRecommendation, { data: recommendationData }] = useLazyQuery(GET_DELIVERY_RECOMMENDATION);
+
+  const [showPartnerModal, setShowPartnerModal] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState('DTDC');
 
   useEffect(() => {
     if (!permission?.granted) requestPermission();
@@ -44,6 +49,7 @@ const CameraScreen = ({ navigation, route }) => {
     const done = items.every(i => i.scannedQty >= i.quantity);
     if (done && items.length > 0 && !allScanned) {
       setAllScanned(true);
+      getRecommendation({ variables: { orderId: order.orderId } });
       Alert.alert('✅ All Items Scanned!', 'Now take a photo of the packed box.');
     }
   }, [items]);
@@ -133,6 +139,11 @@ const CameraScreen = ({ navigation, route }) => {
       Alert.alert('Missing Photo', 'Please take a photo of the packed box.');
       return;
     }
+    setShowPartnerModal(true);
+  };
+
+  const finalizeCompletion = async () => {
+    setShowPartnerModal(false);
     setIsSubmitting(true);
     try {
       const base64 = await FileSystem.readAsStringAsync(boxPhotoUri, { encoding: 'base64' });
@@ -149,7 +160,11 @@ const CameraScreen = ({ navigation, route }) => {
       });
 
       await completePackingMutation({
-        variables: { packingOrderId: order.id },
+        variables: { 
+          packingOrderId: order.id,
+          provider: selectedProvider,
+          serviceType: selectedProvider === 'DTDC' ? 'GROUND EXPRESS' : 'Standard'
+        },
       });
 
       Alert.alert('🎉 Order Complete!', `Order #${order.orderNumber} packed by ${user.name}`, [
@@ -219,6 +234,63 @@ const CameraScreen = ({ navigation, route }) => {
             </View>
           </CameraView>
         )}
+
+        <Modal
+          visible={showPartnerModal}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowPartnerModal(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Select Delivery Partner</Text>
+              
+              {recommendationData?.getDeliveryRecommendation && (
+                <View style={styles.recommendationBox}>
+                  <View style={styles.recommendationHeader}>
+                    <Ionicons name="star" size={16} color="#f59e0b" />
+                    <Text style={styles.recommendationText}>RECOMMENDED</Text>
+                  </View>
+                  <Text style={styles.recommendedProvider}>
+                    {recommendationData.getDeliveryRecommendation.recommendedProvider}
+                  </Text>
+                  <Text style={styles.recommendationReason}>
+                    {recommendationData.getDeliveryRecommendation.reason}
+                  </Text>
+                </View>
+              )}
+
+              <View style={styles.partnerOptions}>
+                <TouchableOpacity 
+                  style={[styles.partnerOption, selectedProvider === 'DTDC' && styles.partnerSelected]}
+                  onPress={() => setSelectedProvider('DTDC')}
+                >
+                  <Ionicons name="bus" size={24} color={selectedProvider === 'DTDC' ? COLORS.primary : '#64748b'} />
+                  <Text style={[styles.partnerName, selectedProvider === 'DTDC' && styles.partnerNameSelected]}>DTDC</Text>
+                  {selectedProvider === 'DTDC' && <Ionicons name="checkmark-circle" size={20} color={COLORS.primary} />}
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                  style={[styles.partnerOption, selectedProvider === 'SHIPROCKET' && styles.partnerSelected]}
+                  onPress={() => setSelectedProvider('SHIPROCKET')}
+                >
+                  <Ionicons name="rocket" size={24} color={selectedProvider === 'SHIPROCKET' ? COLORS.primary : '#64748b'} />
+                  <Text style={[styles.partnerName, selectedProvider === 'SHIPROCKET' && styles.partnerNameSelected]}>SHIPROCKET</Text>
+                  {selectedProvider === 'SHIPROCKET' && <Ionicons name="checkmark-circle" size={20} color={COLORS.primary} />}
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.modalActions}>
+                <TouchableOpacity style={styles.modalCancel} onPress={() => setShowPartnerModal(false)}>
+                  <Text style={styles.modalCancelText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.modalConfirm} onPress={finalizeCompletion}>
+                  <Text style={styles.modalConfirmText}>Confirm & Finish</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </View>
     );
   }
@@ -313,6 +385,25 @@ const styles = StyleSheet.create({
   retakeBtnText: { fontWeight: '600', color: COLORS.textDark },
   submitBtn: { flex: 2, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#22c55e', borderRadius: 12, height: 52, gap: 8 },
   submitBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+
+  modalContainer: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center', padding: 20 },
+  modalContent: { backgroundColor: '#fff', borderRadius: 20, padding: 24, width: '100%', maxWidth: 400 },
+  modalTitle: { fontSize: 20, fontWeight: 'bold', color: COLORS.textDark, marginBottom: 20, textAlign: 'center' },
+  recommendationBox: { backgroundColor: '#fffbeb', borderRadius: 12, padding: 16, marginBottom: 20, borderWidth: 1, borderColor: '#fef3c7' },
+  recommendationHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 4, gap: 4 },
+  recommendationText: { fontSize: 11, fontWeight: 'bold', color: '#b45309', letterSpacing: 0.5 },
+  recommendedProvider: { fontSize: 18, fontWeight: 'bold', color: '#92400e', marginBottom: 4 },
+  recommendationReason: { fontSize: 12, color: '#b45309' },
+  partnerOptions: { gap: 12, marginBottom: 24 },
+  partnerOption: { flexDirection: 'row', alignItems: 'center', padding: 16, borderRadius: 12, borderWidth: 1, borderColor: '#e2e8f0', gap: 12 },
+  partnerSelected: { borderColor: COLORS.primary, backgroundColor: '#f0f9ff' },
+  partnerName: { flex: 1, fontSize: 16, fontWeight: '600', color: '#64748b' },
+  partnerNameSelected: { color: COLORS.textDark },
+  modalActions: { flexDirection: 'row', gap: 12 },
+  modalCancel: { flex: 1, paddingVertical: 14, alignItems: 'center', justifyContent: 'center' },
+  modalCancelText: { color: '#64748b', fontWeight: '600' },
+  modalConfirm: { flex: 2, backgroundColor: COLORS.primary, paddingVertical: 14, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  modalConfirmText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
 });
 
 export default CameraScreen;

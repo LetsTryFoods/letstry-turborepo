@@ -4,8 +4,8 @@ import {
   ConfirmationResult,
   signOut as firebaseSignOut,
 } from 'firebase/auth';
-import { auth, analytics } from './config';
-import { logEvent, setUserId as setAnalyticsUserId } from 'firebase/analytics';
+import { auth } from './config';
+import { trackEvent, trackUser } from '../analytics/data-layer';
 import { rateLimiter } from '../auth/rate-limiter';
 import { retryWithBackoff } from '../utils/retry';
 import type { AuthUser, BackendLoginResponse, AuthErrorCode } from '@/types/auth.types';
@@ -59,38 +59,34 @@ class AuthService {
       }
 
       const rateCheck = rateLimiter.check(phoneNumber, 3, 300000);
-      
+
       if (!rateCheck.allowed) {
         throw new Error(`Too many attempts. Please try again in ${rateCheck.retryAfter} seconds`);
       }
 
       const appVerifier = this.recaptchaVerifier || this.initializeRecaptcha(containerId);
       const formattedNumber = `+91${phoneNumber}`;
-      
+
       const confirmationResult = await retryWithBackoff(
         () => signInWithPhoneNumber(auth, formattedNumber, appVerifier),
         { maxRetries: 2, baseDelay: 1000 }
       );
-      
-      if (analytics) {
-        logEvent(analytics, 'otp_sent', { 
-          phone: formattedNumber,
-          remaining_attempts: rateCheck.remaining 
-        });
-      }
+
+      trackEvent('otp_sent', {
+        phone: formattedNumber,
+        remaining_attempts: rateCheck.remaining
+      });
 
       return confirmationResult;
     } catch (error: any) {
       console.error('Send OTP error:', error);
       this.clearRecaptcha();
-      
-      if (analytics) {
-        logEvent(analytics, 'otp_failed', { 
-          error_code: error.code,
-          error_message: error.message 
-        });
-      }
-      
+
+      trackEvent('otp_failed', {
+        error_code: error.code,
+        error_message: error.message
+      });
+
       throw this.handleAuthError(error);
     }
   }
@@ -108,12 +104,10 @@ class AuthService {
 
       const idToken = await result.user.getIdToken();
 
-      if (analytics) {
-        logEvent(analytics, 'otp_verified', { 
-          method: 'phone',
-          platform: 'web' 
-        });
-      }
+      trackEvent('otp_verified', {
+        method: 'phone',
+        platform: 'web'
+      });
 
       return {
         idToken,
@@ -124,13 +118,11 @@ class AuthService {
       };
     } catch (error: any) {
       console.error('Verify OTP error:', error);
-      
-      if (analytics) {
-        logEvent(analytics, 'otp_verification_failed', { 
-          error_code: error.code 
-        });
-      }
-      
+
+      trackEvent('otp_verification_failed', {
+        error_code: error.code
+      });
+
       throw this.handleAuthError(error);
     }
   }
@@ -158,12 +150,12 @@ class AuthService {
       );
 
       const data = await response.json();
-      
-      if (analytics && data.uid) {
-        setAnalyticsUserId(analytics, data.uid);
-        logEvent(analytics, 'login', { 
+
+      if (data.uid) {
+        trackUser(data.uid);
+        trackEvent('login', {
           method: 'phone',
-          platform: 'web' 
+          platform: 'web'
         });
       }
 
@@ -178,10 +170,8 @@ class AuthService {
     try {
       await firebaseSignOut(auth);
       this.clearRecaptcha();
-      
-      if (analytics) {
-        logEvent(analytics, 'logout', { platform: 'web' });
-      }
+
+      trackEvent('logout', { platform: 'web' });
     } catch (error) {
       console.error('Sign out error:', error);
       throw error;

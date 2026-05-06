@@ -38,6 +38,7 @@ import {
   Trash2,
   UserCheck,
   Users,
+  Building2,
   type LucideIcon,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -163,6 +164,7 @@ const navGroups: NavGroup[] = [
     label: "Settings",
     items: [
       { title: "Footer Detail", url: "/dashboard/footer-detail", icon: PanelBottom },
+      { title: "Pickup Locations", url: "/dashboard/pickup-locations", icon: Building2 },
       // App Settings (/dashboard/settings) and Profile (/dashboard/profile)
       // are hidden — both pages are local-state mocks. Password change
       // calls console.log only; no backend wired. Re-add when backend
