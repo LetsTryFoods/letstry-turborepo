@@ -1,6 +1,5 @@
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
-import { getAnalytics, Analytics } from 'firebase/analytics';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -26,17 +25,12 @@ const validateFirebaseConfig = () => {
 
 let app: FirebaseApp;
 let auth: Auth;
-let analytics: Analytics | null = null;
 
 if (typeof window !== 'undefined') {
   if (validateFirebaseConfig()) {
     app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
     auth = getAuth(app);
-    
-    if (process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID) {
-      analytics = getAnalytics(app);
-    }
   }
 }
 
-export { app, auth, analytics };
+export { app, auth };
