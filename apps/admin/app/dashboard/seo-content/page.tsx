@@ -16,6 +16,7 @@ import { DeleteSeoDialog } from "./components/DeleteSeoDialog";
 import { Pagination } from "@/app/dashboard/components/pagination";
 import { SeoContentFormData } from "@/lib/validations/seo.schema";
 import { SeoPageLayout } from "@/components/seo/SeoPageLayout";
+import { ComingSoonBanner } from "@/components/ComingSoonBanner";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -48,6 +49,7 @@ export default function SeoContentPage() {
       loading={state.loading}
       onRefresh={() => actions.handlePageChange(state.currentPage)}
     >
+      <ComingSoonBanner feature="Generic SEO Content backend" />
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto flex-1">
           <div className="relative flex-1">

@@ -32,6 +32,7 @@ import {
 } from "@/lib/notifications/useNotifications"
 import NotificationTable from "./components/NotificationTable"
 import SendNotificationDialog from "./components/SendNotificationDialog"
+import { ComingSoonBanner } from "@/components/ComingSoonBanner"
 
 export default function NotificationsPage() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -67,6 +68,7 @@ export default function NotificationsPage() {
 
   return (
     <div className="space-y-6 mx-6 auto mb-12">
+      <ComingSoonBanner feature="Notifications backend" />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

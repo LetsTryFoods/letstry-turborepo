@@ -27,6 +27,7 @@ import {
   getReviewStats 
 } from "@/lib/reviews/useReviews"
 import ReviewTable from "./components/ReviewTable"
+import { ComingSoonBanner } from "@/components/ComingSoonBanner"
 
 export default function ReviewsPage() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -84,6 +85,7 @@ export default function ReviewsPage() {
 
   return (
     <div className="space-y-6 mx-6 auto mb-12">
+      <ComingSoonBanner feature="Reviews backend" />
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Reviews & Ratings</h1>
