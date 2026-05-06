@@ -192,7 +192,7 @@ export class DtdcApiService {
     const startTime = Date.now();
 
     const payload = {
-      orgPincode: '131029',
+      orgPincode: originPincode,
       desPincode: destinationPincode,
     };
 
@@ -324,9 +324,9 @@ export class DtdcApiService {
       const logMessage = `DTDC API call | URL: ${data.url || 'N/A'} | Request: ${requestStr}`;
 
       if (!data.success) {
-        this.shipmentLogger.logApiError(logMessage, 'POST', data.error || 'Unknown Error', data.duration, 'DTDC');
+        this.shipmentLogger.logApiError(logMessage, 'POST', data.error || 'Unknown Error', data.duration, 'DTDC', data.response);
       } else {
-        this.shipmentLogger.logApiCall(logMessage, 'POST', data.statusCode || 200, data.duration, 'DTDC');
+        this.shipmentLogger.logApiCall(logMessage, 'POST', data.statusCode || 200, data.duration, 'DTDC', data.response);
       }
 
       await this.apiLogModel.create({

@@ -155,23 +155,25 @@ export class ShipmentLoggerService {
     });
   }
 
-  logApiCall(endpoint: string, method: string, statusCode: number, duration: number, provider?: string) {
+  logApiCall(endpoint: string, method: string, statusCode: number, duration: number, provider?: string, response?: any) {
     this.getLogger(provider).info(`${provider || 'API'} call`, {
       event: 'API_CALL',
       endpoint,
       method,
       statusCode,
       durationMs: duration,
+      response: response,
     });
   }
 
-  logApiError(endpoint: string, method: string, error: string, duration: number, provider?: string) {
+  logApiError(endpoint: string, method: string, error: string, duration: number, provider?: string, response?: any) {
     this.getLogger(provider).error(`${provider || 'API'} call failed`, {
       event: 'API_ERROR',
       endpoint,
       method,
       error,
       durationMs: duration,
+      response: response,
     });
   }
 
