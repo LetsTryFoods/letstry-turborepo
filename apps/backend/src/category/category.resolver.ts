@@ -211,8 +211,12 @@ export class CategoryResolver {
     );
   }
 
+  // Public so storefront can fetch products via Category in a single query
+  // (e.g. GET_CATEGORY_BY_SLUG / GET_CATEGORY_WITH_PRODUCTS for category PLPs).
+  // Previously @Roles(Role.ADMIN) — would 403 any storefront query that
+  // selected `products` on a Category.
   @ResolveField(() => [Product], { name: 'products' })
-  @Roles(Role.ADMIN)
+  @Public()
   async getProducts(@Parent() category: Category): Promise<Product[]> {
     return this.productService.findByCategoryId(category._id);
   }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { toast } from 'react-hot-toast';
 import {
   usePressMentions,
   useCreatePressMention,
@@ -110,13 +111,19 @@ export default function PressMentionsAdminPage() {
           onCancel={() => setEditing(null)}
           onSave={async (input) => {
             const payload = stripServerFields(input as PressMention);
-            if (editing._id) {
-              await update(editing._id, payload);
-            } else {
-              await create(payload as Parameters<typeof create>[0]);
+            try {
+              if (editing._id) {
+                await update(editing._id, payload);
+                toast.success(`Mention "${payload.headline}" updated`);
+              } else {
+                await create(payload as Parameters<typeof create>[0]);
+                toast.success(`Mention "${payload.headline}" created`);
+              }
+              setEditing(null);
+              refetch();
+            } catch (err) {
+              toast.error(`Save failed: ${(err as Error).message}`);
             }
-            setEditing(null);
-            refetch();
           }}
         />
       )}

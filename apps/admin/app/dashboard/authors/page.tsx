@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { toast } from 'react-hot-toast';
 import { useAuthors, useCreateAuthor, useUpdateAuthor, useRemoveAuthor, type Author } from '@/lib/authors/useAuthors';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -94,13 +95,19 @@ export default function AuthorsAdminPage() {
             // the full Author including _id/createdAt/updatedAt, but the
             // Create/UpdateAuthorInput types don't accept those.
             const payload = stripServerFields(input as Author);
-            if (editing._id) {
-              await update(editing._id, payload);
-            } else {
-              await create(payload as Parameters<typeof create>[0]);
+            try {
+              if (editing._id) {
+                await update(editing._id, payload);
+                toast.success(`Author "${payload.name}" updated`);
+              } else {
+                await create(payload as Parameters<typeof create>[0]);
+                toast.success(`Author "${payload.name}" created`);
+              }
+              setEditing(null);
+              refetch();
+            } catch (err) {
+              toast.error(`Save failed: ${(err as Error).message}`);
             }
-            setEditing(null);
-            refetch();
           }}
         />
       )}
@@ -141,6 +148,16 @@ function AuthorForm({
   onCancel: () => void;
 }) {
   const [form, setForm] = useState<Author>(author);
+  // Track the raw JSON text the user is typing in the socialLinks textarea
+  // separately from the parsed value on `form.socialLinks`. This is so that:
+  //  (a) typing an intermediate state like `[{` doesn't lose the user's
+  //      input (previously the silent catch swallowed updates entirely);
+  //  (b) we can show a clear inline error and block save when the JSON is
+  //      invalid, instead of silently saving the LAST valid value.
+  const [socialLinksText, setSocialLinksText] = useState(() =>
+    JSON.stringify(author.socialLinks || [], null, 2),
+  );
+  const [socialLinksError, setSocialLinksError] = useState<string | null>(null);
 
   return (
     <Card className="border-amber-200 bg-amber-50/40">
@@ -187,15 +204,30 @@ function AuthorForm({
         </Field>
         <Field
           label="Social links (JSON)"
-          hint='Array of {"platform","url"}. Drives Schema.org sameAs (Knowledge Graph signal).'
+          hint={
+            socialLinksError
+              ? `⚠️ ${socialLinksError} — fix the JSON or save will be blocked.`
+              : 'Array of {"platform","url"}. Drives Schema.org sameAs (Knowledge Graph signal).'
+          }
         >
           <Textarea
             rows={4}
-            value={JSON.stringify(form.socialLinks, null, 2)}
+            value={socialLinksText}
+            className={socialLinksError ? 'border-red-400' : ''}
             onChange={(e) => {
+              const next = e.target.value;
+              setSocialLinksText(next);
               try {
-                setForm({ ...form, socialLinks: JSON.parse(e.target.value || '[]') });
-              } catch {}
+                const parsed = JSON.parse(next || '[]');
+                if (!Array.isArray(parsed)) {
+                  setSocialLinksError('Must be a JSON array of {platform, url} objects');
+                  return;
+                }
+                setSocialLinksError(null);
+                setForm({ ...form, socialLinks: parsed });
+              } catch (err) {
+                setSocialLinksError(`Invalid JSON: ${(err as Error).message}`);
+              }
             }}
           />
         </Field>
@@ -227,7 +259,15 @@ function AuthorForm({
         </div>
 
         <div className="flex gap-2 pt-2">
-          <Button onClick={() => onSave(form)}>Save</Button>
+          <Button
+            onClick={() => {
+              if (socialLinksError) return; // safety net; button is disabled
+              onSave(form);
+            }}
+            disabled={!!socialLinksError}
+          >
+            Save
+          </Button>
           <Button variant="outline" onClick={onCancel}>
             Cancel
           </Button>
