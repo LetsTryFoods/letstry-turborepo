@@ -55,8 +55,20 @@ export interface PickupLocation {
   provider?: string;
 }
 
+export interface GetPickupLocationsData {
+  getPickupLocations: PickupLocation[];
+}
+
+export interface CreatePickupLocationData {
+  createPickupLocation: PickupLocation;
+}
+
+export interface RemovePickupLocationData {
+  removePickupLocation: boolean;
+}
+
 export function usePickupLocations() {
-  const { data, loading, error, refetch } = useQuery(GET_PICKUP_LOCATIONS, {
+  const { data, loading, error, refetch } = useQuery<GetPickupLocationsData>(GET_PICKUP_LOCATIONS, {
     fetchPolicy: 'network-only',
   });
 
@@ -69,7 +81,7 @@ export function usePickupLocations() {
 }
 
 export function useCreatePickupLocation() {
-  const [createPickupLocation, { loading, error }] = useMutation(CREATE_PICKUP_LOCATION, {
+  const [createPickupLocation, { loading, error }] = useMutation<CreatePickupLocationData>(CREATE_PICKUP_LOCATION, {
     refetchQueries: [{ query: GET_PICKUP_LOCATIONS }],
   });
 
@@ -83,7 +95,7 @@ export function useCreatePickupLocation() {
 }
 
 export function useRemovePickupLocation() {
-  const [removePickupLocation, { loading, error }] = useMutation(REMOVE_PICKUP_LOCATION, {
+  const [removePickupLocation, { loading, error }] = useMutation<RemovePickupLocationData>(REMOVE_PICKUP_LOCATION, {
     refetchQueries: [{ query: GET_PICKUP_LOCATIONS }],
   });
 
