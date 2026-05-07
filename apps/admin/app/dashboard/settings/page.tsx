@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { toast } from 'react-hot-toast'
 import { Save, Shield, Bell, Moon, Sun, Globe } from 'lucide-react'
+import { ComingSoonBanner } from '@/components/ComingSoonBanner'
 
 interface PasswordFormData {
   currentPassword: string
@@ -67,6 +68,7 @@ export default function SettingsPage() {
 
   return (
     <div className="container max-w-4xl py-6 space-y-6 mx-auto">
+      <ComingSoonBanner feature="App Settings backend" />
       <div>
         <h1 className="text-3xl font-bold">Settings</h1>
         <p className="text-muted-foreground">Manage your account settings and preferences</p>

@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
 import { toast } from 'react-hot-toast'
 import { Camera, Save, User as UserIcon } from 'lucide-react'
+import { ComingSoonBanner } from '@/components/ComingSoonBanner'
 
 interface ProfileFormData {
   fullName: string
@@ -56,6 +57,7 @@ export default function ProfilePage() {
 
   return (
     <div className="container max-w-4xl py-6 space-y-6 mx-auto">
+      <ComingSoonBanner feature="Profile backend" />
       <div>
         <h1 className="text-3xl font-bold">Profile</h1>
         <p className="text-muted-foreground">Manage your account profile and personal information</p>
