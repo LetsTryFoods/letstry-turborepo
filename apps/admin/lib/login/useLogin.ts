@@ -1,6 +1,6 @@
 import { useMutation } from '@apollo/client/react'
-import { ADMIN_LOGIN } from '@/lib/graphql/auth'
-import { setAuthToken } from '@/lib/auth/token-service'
+import { ADMIN_LOGIN } from '../graphql/auth'
+import { setAuthToken } from '../auth/token-service'
 
 export interface LoginData {
   email: string
