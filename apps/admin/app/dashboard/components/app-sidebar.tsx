@@ -14,13 +14,16 @@ import {
 import {
   ArrowRightLeft,
   BarChart3,
+  Bell,
   BookOpen,
   Bookmark,
   Briefcase,
+  Building2,
   CreditCard,
   DollarSign,
   FileText,
   FolderTree,
+  HelpCircle,
   Image,
   Layers,
   LayoutDashboard,
@@ -33,12 +36,16 @@ import {
   PackageCheck,
   PanelBottom,
   PenTool,
+  RefreshCcw,
+  Search,
+  Settings,
   ShoppingBag,
+  Star,
   Tag,
   Trash2,
   UserCheck,
+  UserCircle,
   Users,
-  Building2,
   type LucideIcon,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -61,6 +68,13 @@ interface NavItem {
   title: string
   url: string
   icon: LucideIcon
+  /**
+   * When true, the entry is rendered greyed-out with a "Coming soon" badge
+   * to signal that the underlying backend / wiring is still being built.
+   * The page itself remains reachable so the content team can preview the
+   * UI, but in-page banners warn that edits won't persist.
+   */
+  comingSoon?: boolean
 }
 
 interface NavGroup {
@@ -69,8 +83,12 @@ interface NavGroup {
 }
 
 // Sidebar reorganized into logical groups so the content team can find
-// what they need without scrolling through 25 flat items. Order within
-// each group is alphabetical-ish but with the most-used items first.
+// what they need without scrolling through 25 flat items.
+//
+// `comingSoon: true` flags pages whose backend isn't wired up yet — the
+// entry stays visible (so the team knows the feature is planned and can
+// preview the UI) but is greyed out with a badge, and the page itself
+// renders a banner warning that edits won't persist.
 const navGroups: NavGroup[] = [
   {
     label: "Overview",
@@ -98,24 +116,14 @@ const navGroups: NavGroup[] = [
       { title: "Pillars", url: "/dashboard/pillars", icon: BookOpen },
       { title: "Authors", url: "/dashboard/authors", icon: PenTool },
       { title: "Press Mentions", url: "/dashboard/press-mentions", icon: Newspaper },
-      // FAQ admin page is hidden — its hook (apps/admin/lib/faq/useFAQ.ts) is
-      // entirely dummy data with no backend. Re-add when the FAQ resolver
-      // ships.
+      { title: "FAQ", url: "/dashboard/faq", icon: HelpCircle, comingSoon: true },
     ],
   },
   {
     label: "SEO",
     items: [
-      // SEO Content (/dashboard/seo-content) is hidden — admin calls
-      // seoContents/createSeoContent etc. but no backend resolvers exist.
-      // Every load returns 400. Re-add when SeoContent module ships.
-      //
-      // Product SEO (/dashboard/sco-product) is hidden — admin hook
-      // (apps/admin/lib/product-seo/useProductSeo.ts) is entirely mocked
-      // (`return { data: { ... } }` on every save, no real mutate call).
-      // Per-product SEO IS editable via the standard /dashboard/products
-      // edit screen, which writes through updateProduct → ProductSeo
-      // collection correctly.
+      { title: "SEO Content", url: "/dashboard/seo-content", icon: RefreshCcw, comingSoon: true },
+      { title: "Product SEO", url: "/dashboard/sco-product", icon: Search },
       { title: "Category SEO", url: "/dashboard/sco-category", icon: FolderTree },
       { title: "Policy SEO", url: "/dashboard/sco-policy", icon: FileText },
       { title: "URL Redirects", url: "/dashboard/redirects", icon: ArrowRightLeft },
@@ -135,11 +143,7 @@ const navGroups: NavGroup[] = [
     label: "People",
     items: [
       { title: "Customers", url: "/dashboard/customers", icon: Users },
-      // Reviews admin (/dashboard/reviews) is hidden — useReviews.ts is
-      // entirely dummy data with a literal "TODO: Replace with actual
-      // GraphQL queries when backend is ready" comment. No Review module
-      // exists in the backend. Re-add when the Reviews backend ships
-      // (Sprint 7+).
+      { title: "Reviews", url: "/dashboard/reviews", icon: Star, comingSoon: true },
     ],
   },
   {
@@ -154,10 +158,7 @@ const navGroups: NavGroup[] = [
     items: [
       { title: "Packers", url: "/dashboard/packers", icon: UserCheck },
       { title: "Packing Orders", url: "/dashboard/packing-orders", icon: PackageCheck },
-      // Notifications admin (/dashboard/notifications) is hidden —
-      // useNotifications.ts is entirely dummy data, no Notification module
-      // in the backend. Send-notification dialog is mock. Re-add when the
-      // backend module ships.
+      { title: "Notifications", url: "/dashboard/notifications", icon: Bell, comingSoon: true },
     ],
   },
   {
@@ -165,10 +166,8 @@ const navGroups: NavGroup[] = [
     items: [
       { title: "Footer Detail", url: "/dashboard/footer-detail", icon: PanelBottom },
       { title: "Pickup Locations", url: "/dashboard/pickup-locations", icon: Building2 },
-      // App Settings (/dashboard/settings) and Profile (/dashboard/profile)
-      // are hidden — both pages are local-state mocks. Password change
-      // calls console.log only; no backend wired. Re-add when backend
-      // ships.
+      { title: "App Settings", url: "/dashboard/settings", icon: Settings, comingSoon: true },
+      { title: "Profile", url: "/dashboard/profile", icon: UserCircle, comingSoon: true },
     ],
   },
 ]
@@ -214,10 +213,24 @@ export function AppSidebar() {
               <SidebarMenu>
                 {group.items.map((item) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
-                      <a href={item.url}>
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
+                    <SidebarMenuButton
+                      asChild
+                      className={
+                        item.comingSoon
+                          ? "opacity-60 hover:opacity-80"
+                          : undefined
+                      }
+                    >
+                      <a href={item.url} className="flex items-center justify-between gap-2">
+                        <span className="flex items-center gap-2">
+                          <item.icon className="h-4 w-4" />
+                          <span>{item.title}</span>
+                        </span>
+                        {item.comingSoon && (
+                          <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 border border-amber-200 whitespace-nowrap">
+                            Soon
+                          </span>
+                        )}
                       </a>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

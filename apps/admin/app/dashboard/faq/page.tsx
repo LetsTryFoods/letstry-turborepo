@@ -22,6 +22,7 @@ import {
 import { useFAQs, getFAQStats, FAQ, FAQCategory, FAQStatus, categoryLabels } from "@/lib/faq/useFAQ"
 import FAQTable from "./components/FAQTable"
 import FAQFormDialog from "./components/FAQFormDialog"
+import { ComingSoonBanner } from "@/components/ComingSoonBanner"
 
 const categories: (FAQCategory | "ALL")[] = ["ALL", "GENERAL", "ORDERS", "SHIPPING", "RETURNS", "PRODUCTS", "PAYMENT"]
 const statuses: (FAQStatus | "ALL")[] = ["ALL", "ACTIVE", "INACTIVE"]
@@ -89,6 +90,7 @@ export default function FAQPage() {
 
   return (
     <div className="flex-1 space-y-6 p-6 ">
+      <ComingSoonBanner feature="FAQ admin" />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
