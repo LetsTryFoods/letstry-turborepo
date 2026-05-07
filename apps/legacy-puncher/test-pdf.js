@@ -1,0 +1,13 @@
+const PDFDocument = require('pdfkit');
+const fs = require('fs');
+const path = require('path');
+
+try {
+  const doc = new PDFDocument();
+  doc.pipe(fs.createWriteStream('test.pdf'));
+  doc.text('Hello World');
+  doc.end();
+  console.log('PDF generated successfully');
+} catch (err) {
+  console.error('PDF generation failed:', err);
+}

@@ -5,6 +5,7 @@ packages:
   - "apps/letstry-mobile"
   - "apps/ota-sdui-server"
   - "apps/proof_app/PackVerifyApp"
+  - "apps/legacy-puncher"
   - "packages/*"
 
 onlyBuiltDependencies:
