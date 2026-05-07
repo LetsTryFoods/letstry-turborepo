@@ -1,13 +1,84 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import { CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { useGraphQLQuery } from '@/lib/graphql/use-graphql-query';
+import { GET_ORDER_BY_ID } from '@/lib/queries/orders';
+import { useAnalytics } from '@/hooks/use-analytics';
+
+type OrderItem = {
+  variantId: string;
+  quantity: number;
+  price: number;
+  totalPrice: number;
+  name: string;
+  sku?: string;
+  variant?: string;
+};
+
+type OrderPayload = {
+  getOrderById: {
+    _id: string;
+    orderId: string;
+    orderStatus: string;
+    totalAmount: number;
+    subtotal: number;
+    discount: number;
+    deliveryCharge: number;
+    currency: string;
+    items: OrderItem[];
+    payment?: {
+      method?: string;
+      transactionId?: string;
+    };
+  } | null;
+};
 
 function OrderSuccess() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get('orderId');
+  const { trackPurchase } = useAnalytics();
+
+  const { data } = useGraphQLQuery<OrderPayload>(
+    ['order', orderId],
+    GET_ORDER_BY_ID,
+    orderId ? { orderId } : undefined,
+    {
+      enabled: Boolean(orderId),
+      retry: 1,
+      staleTime: Infinity,
+    },
+  );
+
+  const order = data?.getOrderById;
+
+  useEffect(() => {
+    if (!order || !order.orderId) return;
+
+    const guardKey = `ga4_purchase_fired:${order.orderId}`;
+    if (typeof window === 'undefined') return;
+    if (sessionStorage.getItem(guardKey)) return;
+
+    const value = Number(order.totalAmount) || 0;
+    if (value < 1) return;
+
+    trackPurchase({
+      transactionId: order.orderId,
+      value,
+      shipping: Number(order.deliveryCharge) || 0,
+      items: order.items.map((item) => ({
+        id: item.variantId || item.sku || order.orderId,
+        name: item.name,
+        price: Number(item.price) || 0,
+        quantity: Number(item.quantity) || 1,
+        variant: item.variant,
+      })),
+    });
+
+    sessionStorage.setItem(guardKey, '1');
+  }, [order, trackPurchase]);
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
