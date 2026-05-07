@@ -9,19 +9,34 @@ export const revalidate = 1800;
 
 const SITE_URL = (process.env.NEXT_PUBLIC_BASE_URL || 'https://letstryfoods.com').replace(/\/$/, '');
 
-export const metadata: Metadata = {
-  title: { absolute: "Meet the team | Let's Try Foods" },
-  description:
-    "Meet the people behind Let's Try Foods — the founders and team building India's healthy snacks brand without palm oil.",
-  alternates: { canonical: `${SITE_URL}/team` },
-  openGraph: {
-    title: "Meet the team | Let's Try Foods",
-    description: "The people behind Let's Try Foods.",
-    url: `${SITE_URL}/team`,
-    type: 'website',
-    siteName: "Let's Try Foods",
-  },
-};
+/**
+ * Metadata is generated per-request so we can add `robots: noindex` when
+ * the page has no team members in CMS yet. Indexable empty placeholders
+ * hurt site quality signals — Google's "helpful content" classifier
+ * penalises thin / under-construction pages, especially in food/health
+ * verticals where E-E-A-T weighs heavily. Once at least one Author is
+ * marked `isTeamMember: true` in admin the page becomes indexable
+ * automatically.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const members = await getTeamMembers();
+  const hasContent = members.length > 0;
+
+  return {
+    title: { absolute: "Meet the team | Let's Try Foods" },
+    description:
+      "Meet the people behind Let's Try Foods — the founders and team building India's healthy snacks brand without palm oil.",
+    alternates: { canonical: `${SITE_URL}/team` },
+    openGraph: {
+      title: "Meet the team | Let's Try Foods",
+      description: "The people behind Let's Try Foods.",
+      url: `${SITE_URL}/team`,
+      type: 'website',
+      siteName: "Let's Try Foods",
+    },
+    robots: hasContent ? undefined : { index: false, follow: true },
+  };
+}
 
 export default async function TeamPage() {
   const members = await getTeamMembers();

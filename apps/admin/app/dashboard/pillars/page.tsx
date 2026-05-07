@@ -161,7 +161,12 @@ function emptyPillar(): Pillar {
     sections: [],
     faqs: [],
     relatedPillarSlugs: [],
-    isActive: false,
+    // Default to true: every other CMS form (authors, press-mentions, banners,
+    // landing pages, etc.) defaults isActive to true. Defaulting false here
+    // led to silent-unpublish bugs — content team would create a pillar,
+    // forget to tick the checkbox, and the page would 404 on the storefront
+    // because activePillars / customRoute lookups filter on isActive=true.
+    isActive: true,
     position: 0,
     createdAt: '',
     updatedAt: '',

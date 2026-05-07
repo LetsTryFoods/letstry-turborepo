@@ -130,6 +130,16 @@ PillarSchema.set('toJSON', {
   },
 });
 
-PillarSchema.index({ slug: 1 });
+// Note: `slug` already has a unique index from `@Prop({ unique: true })`
+// above, so we don't redeclare it here.
+
 PillarSchema.index({ isActive: 1 });
 PillarSchema.index({ position: 1 });
+
+// Unique sparse index on customRoute. Sparse so multiple pillars with no
+// customRoute (i.e. defaulting to /p/<slug>) don't collide on null. Backs
+// up the admin-side validation in /dashboard/pillars; without this, two
+// pillars could be created at the same custom URL (e.g. via a script that
+// bypasses the form) and the storefront `pillarByCustomRoute` lookup would
+// return whichever Mongo finds first.
+PillarSchema.index({ customRoute: 1 }, { unique: true, sparse: true });

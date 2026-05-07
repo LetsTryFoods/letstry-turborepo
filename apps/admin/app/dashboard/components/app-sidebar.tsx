@@ -14,16 +14,13 @@ import {
 import {
   ArrowRightLeft,
   BarChart3,
-  Bell,
   BookOpen,
   Bookmark,
   Briefcase,
-  CheckSquare,
   CreditCard,
   DollarSign,
   FileText,
   FolderTree,
-  HelpCircle,
   Image,
   Layers,
   LayoutDashboard,
@@ -36,15 +33,10 @@ import {
   PackageCheck,
   PanelBottom,
   PenTool,
-  RefreshCcw,
-  Search,
-  Settings,
   ShoppingBag,
-  Star,
   Tag,
   Trash2,
   UserCheck,
-  UserCircle,
   Users,
   Building2,
   type LucideIcon,
@@ -106,14 +98,24 @@ const navGroups: NavGroup[] = [
       { title: "Pillars", url: "/dashboard/pillars", icon: BookOpen },
       { title: "Authors", url: "/dashboard/authors", icon: PenTool },
       { title: "Press Mentions", url: "/dashboard/press-mentions", icon: Newspaper },
-      { title: "FAQ", url: "/dashboard/faq", icon: HelpCircle },
+      // FAQ admin page is hidden — its hook (apps/admin/lib/faq/useFAQ.ts) is
+      // entirely dummy data with no backend. Re-add when the FAQ resolver
+      // ships.
     ],
   },
   {
     label: "SEO",
     items: [
-      { title: "SEO Content", url: "/dashboard/seo-content", icon: RefreshCcw },
-      { title: "Product SEO", url: "/dashboard/sco-product", icon: Search },
+      // SEO Content (/dashboard/seo-content) is hidden — admin calls
+      // seoContents/createSeoContent etc. but no backend resolvers exist.
+      // Every load returns 400. Re-add when SeoContent module ships.
+      //
+      // Product SEO (/dashboard/sco-product) is hidden — admin hook
+      // (apps/admin/lib/product-seo/useProductSeo.ts) is entirely mocked
+      // (`return { data: { ... } }` on every save, no real mutate call).
+      // Per-product SEO IS editable via the standard /dashboard/products
+      // edit screen, which writes through updateProduct → ProductSeo
+      // collection correctly.
       { title: "Category SEO", url: "/dashboard/sco-category", icon: FolderTree },
       { title: "Policy SEO", url: "/dashboard/sco-policy", icon: FileText },
       { title: "URL Redirects", url: "/dashboard/redirects", icon: ArrowRightLeft },
@@ -133,7 +135,11 @@ const navGroups: NavGroup[] = [
     label: "People",
     items: [
       { title: "Customers", url: "/dashboard/customers", icon: Users },
-      { title: "Reviews", url: "/dashboard/reviews", icon: Star },
+      // Reviews admin (/dashboard/reviews) is hidden — useReviews.ts is
+      // entirely dummy data with a literal "TODO: Replace with actual
+      // GraphQL queries when backend is ready" comment. No Review module
+      // exists in the backend. Re-add when the Reviews backend ships
+      // (Sprint 7+).
     ],
   },
   {
@@ -148,7 +154,10 @@ const navGroups: NavGroup[] = [
     items: [
       { title: "Packers", url: "/dashboard/packers", icon: UserCheck },
       { title: "Packing Orders", url: "/dashboard/packing-orders", icon: PackageCheck },
-      { title: "Notifications", url: "/dashboard/notifications", icon: Bell },
+      // Notifications admin (/dashboard/notifications) is hidden —
+      // useNotifications.ts is entirely dummy data, no Notification module
+      // in the backend. Send-notification dialog is mock. Re-add when the
+      // backend module ships.
     ],
   },
   {
@@ -156,8 +165,10 @@ const navGroups: NavGroup[] = [
     items: [
       { title: "Footer Detail", url: "/dashboard/footer-detail", icon: PanelBottom },
       { title: "Pickup Locations", url: "/dashboard/pickup-locations", icon: Building2 },
-      { title: "App Settings", url: "/dashboard/settings", icon: Settings },
-      { title: "Profile", url: "/dashboard/profile", icon: UserCircle },
+      // App Settings (/dashboard/settings) and Profile (/dashboard/profile)
+      // are hidden — both pages are local-state mocks. Password change
+      // calls console.log only; no backend wired. Re-add when backend
+      // ships.
     ],
   },
 ]
