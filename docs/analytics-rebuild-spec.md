@@ -1,10 +1,40 @@
 # Analytics Rebuild — Implementation Spec
 
-> **Branch:** `seo/analytics-rebuild-plan`
+> **Branch:** `seo/baseline-rebuild-may-2026` (originally `seo/analytics-rebuild-plan`)
 > **Author:** SEO + Claude (Opus 4.7)
-> **Date:** 2026-05-04
+> **Date:** 2026-05-04 (original) · 2026-05-08 (updated post-baseline-rebuild)
 > **Status:** Draft for tech-lead review
 > **Audience:** Tech lead (technical sections), SEO owner (overview + verification sections)
+> **Companion doc:** `docs/seo-baseline-2026-05.md` — rebuilt baseline that motivates the priority shift below
+
+---
+
+## 0. Update — May 2026 priority shift
+
+After rebuilding the baseline from the correct GA4 property (see companion doc), several priorities have shifted and two new phases have been added. Original phase content (Sections 5–10) is unchanged; this section summarises what's different.
+
+### Phase priority — revised
+
+| Phase | Original priority | Updated priority | Reason for change |
+|---|---|---|---|
+| 1 — Purchase event (client) | High | **Critical** | Confirmed zero `purchase` data ever; key event configured but starved |
+| 2 — List/discovery events | High | **High** | Needed to measure category-page work and `/about-us` CTR optimisation |
+| 3 — Checkout step events | Medium | Medium | The 1,565 → 259 cart drop (83% abandonment) needs visibility |
+| 4 — Search + promo | Medium | Low (but cheap) | Site search is 0.5% of traffic; tracking confirms whether to invest in it |
+| 5 — Auth identity + first-party | High | **Critical** | `form_start` (1,358) vs `form_submit` (3) is meaningless — login completion is a 100% blind spot |
+| 6 — Server-side purchase | Medium | High | India ad-blocker / tab-close rates make client-only unreliable |
+
+### New phases added
+
+- **Phase 0 (config-only, ~1 day, no code):** internal traffic filter, GA4 default date-range, GSC URL Removal request for `/search?*`, verify `purchase` is marked primary key event, `GA_HOME_VIEW` legacy event cleanup, document the misleading property name. See Section 4.5.
+- **Phase 7 (separate from analytics, SEO hygiene):** verify and re-fix `/category/X → /X` 301 redirects, handle `%20`-encoded variants, resolve `/about` vs `/about-us` and the `lets-try` vs `let-s-try` typo duplicates. See Section 10.5.
+
+### Open questions resolved by the baseline rebuild
+
+- **Q:** Was the Q1 "95% branded traffic" figure real? **A:** Yes. Top 25 queries on this property are 100% branded, accounting for 85% of all clicks. Long-tail brand variants take it to ~95%+.
+- **Q:** Is `/search` noindex shipped? **A:** Yes — confirmed at `apps/frontend/src/app/search/layout.tsx:5–8`. The 155 lingering sessions are Google-deindex-lag. Submit URL Removal in GSC.
+- **Q:** Why is `/address` the #3 landing page? **A:** It's a regulatory FSSAI manufacturing-units page customers look up via batch codes printed on packaging. Post-purchase traffic, not a bug. Don't touch.
+- **Q:** Is `form_start: 1,358 / form_submit: 3` a UX disaster? **A:** No — tracking artifact. GA4's auto-`form_submit` doesn't fire on JS forms with `preventDefault`. We have zero real login data. Phase 5 fixes this.
 
 ---
 
@@ -148,6 +178,36 @@ Phase 6 adds a Measurement Protocol call from the backend's order-creation handl
 
 - **Web property (`G-9EQ61GXMN3`)** — receives every event in the matrix above. Sole canonical source for website analysis.
 - **Firebase-auto property (`lets-try-app-22e0a`)** — receives nothing from web after Phase 5. Reserved for future mobile-app analytics integration.
+
+---
+
+## 4.5 Phase 0 — GA4 / GTM config cleanup (no code)
+
+### 4.5.1 Goal
+
+Cheap, high-value config hygiene that does not need a code deploy. Should ship before Phase 1 begins so that Phase 1 verification happens against a clean property.
+
+### 4.5.2 Tasks (all done in GA4 / GTM / GSC UIs)
+
+| # | Task | Where | Owner | Effort |
+|---|---|---|---|---|
+| 1 | Add internal traffic filter (team IPs / dev devices) | GA4 → Admin → Data Streams → Web → Configure tag settings → Define internal traffic | Tech lead | 10 min |
+| 2 | Set GA4 default date range to "Last 90 days" | GA4 → top-right date picker → set as default | SEO owner | 1 min |
+| 3 | Submit GSC URL Removal request for `/search?*` | Search Console → Indexing → Removals → New request → URLs containing `/search?` | SEO owner | 5 min |
+| 4 | Verify `purchase` is starred as a key event | GA4 → Admin → Events → Key events tab | SEO owner | 1 min |
+| 5 | Disable / delete the `GA_HOME_VIEW` legacy event in GTM (5 users / 42 events — looks like dev-test pollution) | GTM → find tag firing `GA_HOME_VIEW` → pause or delete | Tech lead | 5 min |
+| 6 | Star the `next-demo-property` property as default in GA4 | GA4 → property switcher → star icon | SEO owner | 1 min |
+| 7 | Investigate which form `form_start` is firing on most often (likely OTP modal) and document for Phase 5 | GA4 → Events → `form_start` → check `form_id` parameter | SEO owner | 5 min |
+
+### 4.5.3 Verification
+
+- Internal traffic filter: GA4 → DebugView while connected from a known internal IP — events should be marked `internal traffic`.
+- URL Removal: GSC shows the request as "Pending" or "Approved" within 24 hours.
+- `GA_HOME_VIEW` count stops growing after the GTM change (verify 7 days after).
+
+### 4.5.4 Why before Phase 1
+
+Phase 1 verification involves placing a test order and watching for the `purchase` event in DebugView. If internal traffic isn't filtered, the test order's events will pollute aggregate reports. If `GA_HOME_VIEW` is still polluting, top-events tables remain misleading. Cheap to fix first.
 
 ---
 
@@ -594,6 +654,56 @@ Make purchase tracking immune to ad-blockers, browser tab closures, and any othe
 | `transaction_id` mismatch between client and server (e.g. one uses MongoDB `_id`, other uses `orderId`) | Both must use the same human-readable `orderId` field; document in spec; integration test |
 | Missing `client_id` from frontend leads to attribution split | Backend falls back to a hashed user_id-derived client_id; consistent per user |
 | API secret leaked in logs or error messages | Environment variable; explicit redaction in error handlers; .env in gitignore |
+
+---
+
+## 10.5 Phase 7 — Duplicate URL cleanup (SEO hygiene, not analytics)
+
+### 10.5.1 Goal
+
+Resolve the duplicate-URL pollution still active in Google's index. Each duplicate splits ranking authority between two URLs that point to the same content. The Sprint 1a redirect work was supposed to handle this; the May 2026 baseline rebuild surfaced that it didn't fully land.
+
+This phase is **SEO hygiene, not analytics.** It can ship independently of Phases 1–6 and does not block them. Listed here for tracking continuity.
+
+### 10.5.2 Duplicates active as of 2026-05-08 (90-day data)
+
+| Clean URL (clicks) | Duplicate still indexed (clicks) | Likely root cause |
+|---|---|---|
+| `/healthy-snacks` (349) | `/category/Healthy%20Snacks` (85) | Sprint 1a redirect doesn't match `%20`-encoded variant |
+| `/bhujia` (234) | `/category/Bhujia` (55) | Same as above |
+| `/cookies` (195) | `/category/Cookies` (48) | Same as above |
+| — | `/category/Purani%20Delhi` (48) | No clean URL exists; needs redirect target chosen |
+| `/about-us` (514) | `/about` (132) | Two separate routes serving similar content |
+| `/product/lets-try-purani-delhi-papdi` (46) | `/product/let-s-try-purani-delhi-papdi` (45) | Typo duplicate slug — likely two product records |
+
+### 10.5.3 Investigation tasks (before any code change)
+
+1. **Verify the redirect status code** for `/category/Healthy Snacks` and the `%20`-encoded variant. Run `curl -I "https://letstryfoods.com/category/Healthy%20Snacks"` and confirm whether the response is `301`, `302`, or `200`. A 302 doesn't pass authority; 200 means the redirect isn't firing at all.
+2. **Locate the redirect logic.** Likely in `apps/frontend/middleware.ts` or `next.config.js`.
+3. **Check if `/about` is a separate Next.js route** or a redirect target. If separate, decide on canonical and redirect the other.
+4. **Investigate the `lets-try-purani-delhi-papdi` vs `let-s-try-purani-delhi-papdi` duplicate.** Likely two product records in the CMS with similar slugs. Confirm with a Mongo `db.products.find({ slug: /purani-delhi-papdi/ })`.
+
+### 10.5.4 Code changes (after investigation)
+
+Pending the investigation above. Most likely:
+
+- Fix or add 301 redirects in `next.config.js` `redirects()` covering both raw and `%20`-encoded `/category/X` patterns.
+- Pick canonical for `/about` vs `/about-us` (likely keep `/about-us`, redirect `/about`).
+- Merge or hard-delete the typo-slug duplicate product record; redirect the dead slug.
+
+### 10.5.5 Verification
+
+- After deploy, every duplicate URL listed above should `curl -I` to a `301` pointing at the canonical.
+- 4–8 weeks after deploy, GSC's Pages report should show the duplicates dropping out of "Crawled — currently not indexed" or "Duplicate" categories.
+- Aggregate clicks for the canonical should rise approximately equal to the duplicate's prior click volume (not always, but directionally).
+
+### 10.5.6 Risks
+
+| Risk | Mitigation |
+|---|---|
+| 301 to a non-existent canonical (e.g. for `/category/Purani%20Delhi`) returns 404 chain | Pick a canonical first (probably `/purani-delhi`); confirm it exists before adding redirect |
+| Merging typo product records destroys order history references | Don't delete; soft-redirect at the slug level only, keep both DB records |
+| Redirect rule too greedy (e.g. catches `/category` itself or unrelated paths) | Use exact-match patterns, not wildcards; manually test each pattern |
 
 ---
 
