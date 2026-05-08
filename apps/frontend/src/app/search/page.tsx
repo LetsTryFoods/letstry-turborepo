@@ -5,7 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { ChevronLeft, Search } from 'lucide-react';
 import { useSearchProducts } from '@/lib/search/use-search';
 import { ProductCard, type Product } from '@/components/category-page/ProductCard';
-import { useDebounce } from '@/hooks/use-debounce';
+import { useDebounce } from 'use-debounce';
+import { useAnalytics } from '@/hooks/use-analytics';
 
 const POPULAR_SEARCHES = ['Bhujia', 'Murukku'];
 
@@ -54,7 +55,7 @@ function SearchContent() {
   const initialSearchTerm = searchParams.get('q') || '';
   const [searchInput, setSearchInput] = useState(initialSearchTerm);
   const [isScrolled, setIsScrolled] = useState(false);
-  const debouncedSearchTerm = useDebounce(searchInput, 500);
+  const [debouncedSearchTerm] = useDebounce(searchInput, 500);
   const loaderRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -65,17 +66,25 @@ function SearchContent() {
     fetchNextPage,
   } = useSearchProducts(debouncedSearchTerm);
 
+  const { trackEvent } = useAnalytics();
+
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Tracks whether the last URL change was triggered by typing (not back/forward navigation)
+  const selfUpdateRef = useRef(false);
+
+  // Sync input from URL only on external navigation (back/forward button)
   useEffect(() => {
-    const urlSearchTerm = searchParams.get('q') || '';
-    if (urlSearchTerm !== searchInput) {
-      setSearchInput(urlSearchTerm);
+    if (selfUpdateRef.current) {
+      selfUpdateRef.current = false;
+      return;
     }
+    const urlSearchTerm = searchParams.get('q') || '';
+    setSearchInput(urlSearchTerm);
   }, [searchParams]);
 
   useEffect(() => {
@@ -83,11 +92,13 @@ function SearchContent() {
     const currentParams = new URLSearchParams(window.location.search);
     if (debouncedSearchTerm) {
       currentParams.set('q', debouncedSearchTerm);
+      trackEvent('search', { search_term: debouncedSearchTerm });
     } else {
       currentParams.delete('q');
     }
+    selfUpdateRef.current = true;
     router.replace(`${window.location.pathname}?${currentParams.toString()}`, { scroll: false });
-  }, [debouncedSearchTerm, router]);
+  }, [debouncedSearchTerm, router, trackEvent, searchParams]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -111,6 +122,18 @@ function SearchContent() {
   ) ?? [];
   const meta = data?.pages[data.pages.length - 1]?.searchProducts?.meta;
   const hasSearched = debouncedSearchTerm.trim().length > 0;
+
+  // Fire view_search_results once results have loaded so GA4 can report
+  // result counts alongside the search term (helps identify zero-result queries).
+  const totalResultCount = meta?.totalCount ?? 0;
+  useEffect(() => {
+    if (!hasSearched || isLoading) return;
+    trackEvent('view_search_results', {
+      search_term: debouncedSearchTerm,
+      number_of_results: totalResultCount,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearchTerm, isLoading, totalResultCount]);
 
   return (
     <div className="min-h-screen bg-white">

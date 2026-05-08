@@ -180,6 +180,11 @@ export default function RootLayout({
         />
         {gtmId && <GoogleTagManager gtmId={gtmId} />}
         {gaId && <GoogleAnalytics gaId={gaId} />}
+        {gaId && (
+          <Script id="ga4-disable-auto-pageview" strategy="afterInteractive">
+            {`window.gtag && window.gtag('config', '${gaId}', { send_page_view: false });`}
+          </Script>
+        )}
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${agbalumo.variable} antialiased`}

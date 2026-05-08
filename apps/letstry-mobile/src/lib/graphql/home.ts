@@ -25,6 +25,7 @@ export const GET_ROOT_CATEGORIES = gql`
         name
         slug
         imageUrl
+        mobileImageUrl
         favourite
       }
     }

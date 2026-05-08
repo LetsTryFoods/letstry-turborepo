@@ -1,6 +1,7 @@
 declare global {
   interface Window {
     dataLayer?: any[];
+    gtag?: (...args: any[]) => void;
   }
 }
 
@@ -22,13 +23,28 @@ type DataLayerEvent = {
  * or `page_title`, the spread below preserves them.
  */
 export const pushToDataLayer = (data: DataLayerEvent) => {
-  if (typeof window === 'undefined' || !window.dataLayer) return;
+  if (typeof window === 'undefined') return;
 
-  window.dataLayer.push({
+  const { event, ...rest } = data;
+  const payload = {
     page_location: window.location.href,
     page_title: document.title,
-    ...data,
-  });
+    ...rest,
+  };
+
+  // Send directly to GA4 using the native window.gtag function
+  if (typeof window.gtag === 'function') {
+    window.gtag('event', event, payload);
+  } else if (window.dataLayer) {
+    // Fallback if gtag is not ready yet: push the arguments object that gtag expects
+    window.dataLayer.push(function() { return arguments; }('event', event, payload));
+    
+    // Also push the GTM object format
+    window.dataLayer.push({
+      event,
+      ...payload,
+    });
+  }
 };
 
 export const trackPageView = (url: string) => {
