@@ -14,6 +14,7 @@ interface Category {
   id: string;
   name: string;
   imageUrl?: string;
+  mobileImageUrl?: string;
 }
 
 interface CategorySidebarProps {
@@ -71,9 +72,9 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
         activeOpacity={0.7}
       >
         <View style={[styles.iconContainer, isActive && styles.activeIconContainer]}>
-          {item.imageUrl ? (
+          {item.imageUrl || item.mobileImageUrl ? (
             <Image
-              source={{ uri: getImageUrl(item.imageUrl) }}
+              source={{ uri: getImageUrl(item.mobileImageUrl || item.imageUrl) }}
               style={styles.icon}
               resizeMode="contain"
             />

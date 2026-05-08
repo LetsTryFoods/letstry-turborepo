@@ -13,6 +13,7 @@ interface Category {
   id: string;
   name: string;
   imageUrl: string;
+  mobileImageUrl?: string;
   slug: string;
 }
 
@@ -64,7 +65,7 @@ const CategoriesGrid: React.FC<CategoriesGridProps> = ({
           >
             <View style={styles.imageContainer}>
               <Image 
-                source={{ uri: getImageUrl(category.imageUrl) }} 
+                source={{ uri: getImageUrl(category.mobileImageUrl || category.imageUrl) }} 
                 style={styles.image} 
                 contentFit="contain" 
               />
