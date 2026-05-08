@@ -18,11 +18,19 @@ type DataLayerEvent = {
  * across page_view, view_item, add_to_cart, begin_checkout, purchase,
  * view_item_list and select_item events.
  *
+ * Before any event carrying an `ecommerce` payload, `{ ecommerce: null }` is
+ * pushed first to clear GTM's items variable. Without this, GTM merges the
+ * previous event's items into the next event (Google's documented gotcha).
+ *
  * Caller-provided values win — if `data` already includes `page_location`
  * or `page_title`, the spread below preserves them.
  */
 export const pushToDataLayer = (data: DataLayerEvent) => {
   if (typeof window === 'undefined' || !window.dataLayer) return;
+
+  if ('ecommerce' in data) {
+    window.dataLayer.push({ ecommerce: null });
+  }
 
   window.dataLayer.push({
     page_location: window.location.href,

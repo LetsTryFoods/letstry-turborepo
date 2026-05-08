@@ -6,6 +6,7 @@ import { ChevronLeft, Search } from 'lucide-react';
 import { useSearchProducts } from '@/lib/search/use-search';
 import { ProductCard, type Product } from '@/components/category-page/ProductCard';
 import { useDebounce } from '@/hooks/use-debounce';
+import { useAnalytics } from '@/hooks/use-analytics';
 
 const POPULAR_SEARCHES = ['Bhujia', 'Murukku'];
 
@@ -56,6 +57,8 @@ function SearchContent() {
   const [isScrolled, setIsScrolled] = useState(false);
   const debouncedSearchTerm = useDebounce(searchInput, 500);
   const loaderRef = useRef<HTMLDivElement>(null);
+  const { trackSearch } = useAnalytics();
+  const lastTrackedSearchRef = useRef('');
 
   const {
     data,
@@ -88,6 +91,13 @@ function SearchContent() {
     }
     router.replace(`${window.location.pathname}?${currentParams.toString()}`, { scroll: false });
   }, [debouncedSearchTerm, router]);
+
+  useEffect(() => {
+    const term = debouncedSearchTerm.trim();
+    if (!term || term === lastTrackedSearchRef.current) return;
+    lastTrackedSearchRef.current = term;
+    trackSearch(term);
+  }, [debouncedSearchTerm, trackSearch]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -182,8 +192,14 @@ function SearchContent() {
               </p>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8 lg:gap-10">
-              {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
+              {products.map((product, index) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  listId="search_results"
+                  listName="Search Results"
+                  position={index}
+                />
               ))}
             </div>
             <div ref={loaderRef} className="py-6 flex justify-center">

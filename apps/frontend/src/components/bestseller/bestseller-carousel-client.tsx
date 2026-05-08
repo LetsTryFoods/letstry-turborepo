@@ -2,14 +2,20 @@
 
 import { useEffect, useRef } from "react";
 import { BestsellerCard } from "./bestseller-card";
+import { useAnalytics } from "@/hooks/use-analytics";
 
 interface BestsellerCarouselClientProps {
   initialProducts: any[];
 }
 
+const BESTSELLER_LIST_NAME = 'Homepage Bestsellers';
+const BESTSELLER_VIL_GUARD = 'vil_fired:home_bestsellers';
+
 export function BestsellerCarouselClient({ initialProducts }: BestsellerCarouselClientProps) {
   const bestsellerRef = useRef<HTMLElement>(null);
   const hasShownConfetti = useRef(false);
+  const { trackViewItemList } = useAnalytics();
+  const hasFiredViewListRef = useRef(false);
 
   useEffect(() => {
     sessionStorage.removeItem("bestsellerConfettiFired");
@@ -19,6 +25,40 @@ export function BestsellerCarouselClient({ initialProducts }: BestsellerCarousel
     const hasFired = sessionStorage.getItem("bestsellerConfettiFired");
     hasShownConfetti.current = hasFired === "true";
   }, []);
+
+  useEffect(() => {
+    const el = bestsellerRef.current;
+    if (!el || initialProducts.length === 0 || hasFiredViewListRef.current) return;
+
+    if (sessionStorage.getItem(BESTSELLER_VIL_GUARD)) {
+      hasFiredViewListRef.current = true;
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0].isIntersecting || hasFiredViewListRef.current) return;
+        hasFiredViewListRef.current = true;
+        sessionStorage.setItem(BESTSELLER_VIL_GUARD, '1');
+
+        trackViewItemList(
+          initialProducts
+            .filter((p) => p?.defaultVariant)
+            .map((p, index) => ({
+              id: p._id,
+              name: p.name,
+              price: p.defaultVariant?.price || 0,
+              position: index,
+            })),
+          BESTSELLER_LIST_NAME,
+        );
+        observer.disconnect();
+      },
+      { threshold: 0.2 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [initialProducts, trackViewItemList]);
 
   useEffect(() => {
     const el = bestsellerRef.current;
@@ -162,12 +202,12 @@ export function BestsellerCarouselClient({ initialProducts }: BestsellerCarousel
               style={{ border: "10px solid rgba(201,168,76,0.5)" }}
             >
               <div className="flex gap-3 sm:gap-4 md:gap-6 lg:gap-8 pb-2" style={{ width: "max-content" }}>
-                {initialProducts.map((product: any) => (
+                {initialProducts.map((product: any, index: number) => (
                   <div
                     key={product._id}
                     className="w-[160px] sm:w-[200px] lg:w-[240px] flex-shrink-0"
                   >
-                    <BestsellerCard product={product} />
+                    <BestsellerCard product={product} position={index} />
                   </div>
                 ))}
               </div>
