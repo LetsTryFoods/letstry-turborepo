@@ -22,7 +22,7 @@ export const WeightSelector: React.FC<WeightSelectorProps> = ({
 
   return (
     <div className="w-full flex flex-col items-start gap-1 mt-2 sm:mt-3">
-      <label className="text-xl font-bold text-black">Weight</label>
+      <label className="text-sm font-bold text-black">Weight</label>
       <div className="relative w-full">
         {weights.length > 1 ? (
           <>

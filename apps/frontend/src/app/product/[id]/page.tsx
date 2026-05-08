@@ -551,15 +551,7 @@ export default async function ProductDetailPage({
       )}
       <ProductPageContainer variant={variant}>
         <ProductDetails product={product} breadcrumbItems={breadcrumbItems} />
-        <div className="max-w-4xl">
-          <ProductTrustRow
-            isVegetarian={product.isVegetarian}
-            isGlutenFree={product.isGlutenFree}
-            primaryCategorySlug={primaryCategory?.slug || null}
-            occasions={(richProduct as { occasions?: string[] }).occasions || []}
-          />
-          <PincodeDeliveryEstimator deliveryLeadTime={richProduct.deliveryLeadTime} />
-        </div>
+    
         <div className="mt-8">
           <ProductRichContent product={product as Parameters<typeof ProductRichContent>[0]['product']} />
         </div>
