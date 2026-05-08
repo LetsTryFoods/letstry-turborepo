@@ -16,6 +16,8 @@ const EXPLORE_LINKS: Array<{ href: string; label: string }> = [
   { href: '/blog', label: 'Blog' },
   { href: '/about-us', label: 'About Us' },
   { href: '/bulk-corporate', label: 'Bulk & Corporate' },
+
+
   
 ];
 
@@ -41,6 +43,7 @@ export function Footer() {
                 height={120}
                 className="w-20 h-20 object-contain"
                 priority
+                
               />
             </div>
             <p className="text-gray-300 text-sm leading-relaxed">
