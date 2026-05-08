@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 
 const LOCALHOST = Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
-const SDUI_BASE_URL = process.env.EXPO_PUBLIC_SDUI_URL || `http://${LOCALHOST}:4000`;
+const SDUI_BASE_URL = process.env.EXPO_PUBLIC_SDUI_URL || (__DEV__ ? `http://${LOCALHOST}:4000` : 'https://ota.letstryfoods.com');
 
 export class SDUIService {
   static async getScreenConfig(screenId: string) {
