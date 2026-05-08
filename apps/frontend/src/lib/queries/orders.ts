@@ -65,6 +65,37 @@ export const GET_MY_ORDERS = gql`
   }
 `;
 
+export const GET_ORDER_BY_ID = gql`
+  query GetOrderById($orderId: String!) {
+    getOrderById(orderId: $orderId) {
+      _id
+      orderId
+      orderStatus
+      totalAmount
+      subtotal
+      discount
+      deliveryCharge
+      currency
+      createdAt
+      items {
+        variantId
+        quantity
+        price
+        totalPrice
+        name
+        sku
+        variant
+      }
+      payment {
+        status
+        method
+        transactionId
+        amount
+      }
+    }
+  }
+`;
+
 export const CANCEL_ORDER = gql`
   mutation CancelOrder($input: CancelOrderInput!) {
     cancelOrder(input: $input) {

@@ -5,6 +5,8 @@ import { useMutation } from '@tanstack/react-query';
 import { graphqlClient } from '@/lib/graphql/client-factory';
 import { INITIATE_PAYMENT } from '@/lib/queries/payment';
 import { getOrCreateIdempotencyKey, clearIdempotencyKey } from '@/lib/utils/idempotency';
+import { useCart } from '@/lib/cart/use-cart';
+import { useAnalytics } from '@/hooks/use-analytics';
 
 interface ExpressCheckoutProps {
     cartId: string;
@@ -20,6 +22,8 @@ export const ExpressCheckout: React.FC<ExpressCheckoutProps> = ({
     cartId,
     amount,
 }) => {
+    const { data: cartData } = useCart();
+    const { trackAddPaymentInfo } = useAnalytics();
     const { mutate: initiatePayment, isPending, error } = useMutation({
         mutationFn: async () => {
             const idempotencyKey = getOrCreateIdempotencyKey();
@@ -52,6 +56,20 @@ export const ExpressCheckout: React.FC<ExpressCheckoutProps> = ({
     }, [amount]);
 
     const handlePayment = () => {
+        const cartItems = (cartData as any)?.myCart?.items || [];
+        if (cartItems.length > 0) {
+            trackAddPaymentInfo({
+                value: Number(amount) || 0,
+                paymentType: 'gateway_redirect',
+                items: cartItems.map((item: any) => ({
+                    id: item.productId,
+                    name: item.name,
+                    price: item.unitPrice,
+                    quantity: item.quantity,
+                    variant: item.packageSize || item.attributes?.size || item.attributes?.weight,
+                })),
+            });
+        }
         initiatePayment();
     };
 
