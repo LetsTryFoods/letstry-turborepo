@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { getCategoryLandingPageBySlug } from '@/lib/category-landing-page/get-category-landing-page';
 import { getPillarByCustomRoute } from '@/lib/pillar';
 import { PillarRenderer } from '@/components/pillar/PillarRenderer';
-import { LandingFAQ } from '@/components/categoryLanding/LandingFAQ';
+import { ProductDetailFAQ } from '@/components/product-page/ProductDetailFAQ';
 import { getCdnUrl } from '@/lib/image-utils';
 
 const PAGE_SLUG = 'no-palm-oil-snacks';
@@ -238,19 +238,12 @@ export default async function NoPalmOilSnacksPage() {
           )}
 
           {sortedFaqs.length > 0 && (
-            <section aria-labelledby="faq-heading" className="mb-8">
-              <h2
-                id="faq-heading"
-                className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-4"
-              >
-                {page.faqHeading || 'Frequently Asked Questions'}
-              </h2>
-              <LandingFAQ
-                heading=""
-                faqs={sortedFaqs.map((f) => ({ question: f.question, answer: f.answer }))}
-                sectionId="faq"
+            <div className="mb-8">
+              <ProductDetailFAQ
+                heading={page.faqHeading || 'Frequently Asked Questions'}
+                faqs={sortedFaqs.map((f) => ({ q: f.question, a: f.answer }))}
               />
-            </section>
+            </div>
           )}
 
         </div>

@@ -12,7 +12,7 @@ const SHOP_LINKS: Array<{ href: string; label: string }> = [
 ];
 
 const EXPLORE_LINKS: Array<{ href: string; label: string }> = [
-  { href: '/no-palm-oil-snacks', label: 'No Palm Oil Snacks' },
+  // { href: '/category/no-palm-oil-snacks', label: 'No Palm Oil Snacks?' },
   { href: '/blog', label: 'Blog' },
   { href: '/about-us', label: 'About Us' },
   { href: '/bulk-corporate', label: 'Bulk & Corporate' },

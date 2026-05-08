@@ -3,7 +3,7 @@ import { getCdnUrl } from '@/lib/image-utils';
 import { LandingBanner } from './LandingBanner';
 import { LandingContent } from './LandingContent';
 import { LandingCTA } from './LandingCTA';
-import { LandingFAQ } from './LandingFAQ';
+import { ProductDetailFAQ } from '@/components/product-page/ProductDetailFAQ';
 import { LandingProducts } from './LandingProducts';
 import { LandingTableOfContents } from './LandingTableOfContents';
 
@@ -87,10 +87,9 @@ export function SectionRenderer({ section, products = [], tocSections = [] }: Se
           }, [])
         : [];
       return (
-        <LandingFAQ
+        <ProductDetailFAQ
           heading={section.title}
-          faqs={faqs}
-          sectionId={`faq-${section.position}`}
+          faqs={faqs.map((f) => ({ q: f.question, a: f.answer }))}
         />
       );
     }

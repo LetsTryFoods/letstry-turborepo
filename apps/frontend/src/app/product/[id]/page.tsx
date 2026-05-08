@@ -13,6 +13,7 @@ import { PincodeDeliveryEstimator } from "@/components/product-page/PincodeDeliv
 import { getCdnUrl } from "@/lib/image-utils";
 import { getProductOverride } from "@/lib/seo/overrides";
 import { buildProductFaqs } from "@/lib/seo/product-faqs";
+import { ProductDetailFAQ } from "@/components/product-page/ProductDetailFAQ";
 
 export const revalidate = 1800;
 
@@ -558,34 +559,7 @@ export default async function ProductDetailPage({
         <ProductAccordion title="Product Info">
           <InfoTable data={productInfo} />
         </ProductAccordion>
-        {productFaqs.length > 0 && (
-          <section
-            aria-labelledby="product-faq-heading"
-            className="mt-10 border-t border-gray-200 pt-8 max-w-4xl"
-          >
-            <h2
-              id="product-faq-heading"
-              className="text-2xl font-semibold text-gray-900 mb-6"
-            >
-              Frequently Asked Questions
-            </h2>
-            <div className="space-y-5">
-              {productFaqs.map((f) => (
-                <div key={f.q} className="border-b border-gray-200 pb-5 last:border-b-0">
-                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
-                    {f.q}
-                  </h3>
-                  <p
-                    data-speakable="true"
-                    className="text-sm sm:text-base text-gray-700 leading-relaxed"
-                  >
-                    {f.a}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
+        <ProductDetailFAQ faqs={productFaqs} />
         <CategoryProductsSections categoryIds={product.categoryIds} />
       </ProductPageContainer>
     </>

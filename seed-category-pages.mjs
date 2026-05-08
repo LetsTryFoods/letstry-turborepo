@@ -2,57 +2,58 @@ import { MongoClient } from 'mongodb';
 
 const URI = 'mongodb://admin:password@localhost:27017/letstry_dev?authSource=admin';
 const DB   = 'letstry_dev';
+const CDN  = 'https://pub-56a649c88d67403e867a9e00f3b37d78.r2.dev';
 
 const pages = [
   // ─── no-palm-oil-snacks ───────────────────────────────────────────────────
   {
     slug: 'no-palm-oil-snacks',
-    pageTitle: 'No Palm Oil Snacks — Healthy Indian Namkeen Without Palm Oil',
+    pageTitle: "No Palm Oil Snacks — Buy Healthy Indian Snacks Online | Let's Try Foods",
     description:
-      'Most mass-market Indian snacks are fried in palm oil because it\'s cheap and extends shelf life. At Let\'s Try Foods we don\'t use palm oil in any of our bhujia, chips, cookies, makhana or rusk ranges — we use 100% groundnut oil instead, and for some products (like roasted chana and roasted makhana) we don\'t fry at all.\n\nShop our palm-oil-free Indian snacks below — shipped across India from Delhi.',
+      "Most mass-market Indian snacks are fried in palm oil because it's cheap and extends shelf life. At Let's Try Foods we don't use palm oil in any of our namkeen, chips, cookies, makhana or south Indian snack ranges — we use 100% groundnut oil instead, and for products like roasted chana and roasted makhana we don't fry at all.\n\nShop our palm-oil-free Indian snacks below — shipped across India from Delhi.",
     tilesHeading: 'Shop No Palm Oil Snacks by Category',
     faqHeading: 'Frequently Asked Questions',
     tiles: [
       {
-        name: 'Bhujia & Namkeen',
-        blurb: 'Garlic bhujia, sev bhujia, khatta meetha — traditional Indian namkeen with no palm oil and no maida.',
-        imageUrl: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=400&q=80',
-        shopNowUrl: '/bhujia',
+        name: 'Namkeens',
+        blurb: 'Nimbu chatkara, teekha gathiya, khatta meetha — traditional Indian namkeen with no palm oil.',
+        imageUrl: `${CDN}/44f70fa5794dd60f105a5e5d18679690.webp`,
+        shopNowUrl: '/category/namkeens',
         position: 0,
       },
       {
         name: 'Flavoured Makhana',
-        blurb: 'Peri peri, pudina, Himalayan salt — roasted foxnuts, not fried. No palm oil.',
-        imageUrl: 'https://images.unsplash.com/photo-1585238342024-78d387f4a707?w=400&q=80',
-        shopNowUrl: '/makhana',
+        blurb: 'Lime & chilli, black salt, hot & spicy — roasted foxnuts, not fried. No palm oil.',
+        imageUrl: `${CDN}/d1e0f1f1a709356e7ea4548a33ec0b07.webp`,
+        shopNowUrl: '/category/makhana',
         position: 1,
       },
       {
-        name: 'Healthy Cookies',
-        blurb: 'Ragi, oats, jowar and millet cookies with no palm oil and no white sugar.',
-        imageUrl: 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=400&q=80',
-        shopNowUrl: '/cookies',
+        name: 'Chips & Wafers',
+        blurb: 'Flying chilli, desi masala, cream & onion — crunchy chips with no palm oil.',
+        imageUrl: `${CDN}/93c0dc542cea4ff3b9510825b988aa49.webp`,
+        shopNowUrl: '/category/wafers',
         position: 2,
       },
       {
-        name: 'Healthy Snacks',
-        blurb: 'Roasted chana, sattu, millet-based namkeen — wholesome Indian snacks without palm oil.',
-        imageUrl: 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=400&q=80',
-        shopNowUrl: '/healthy-snacks',
+        name: 'No Maida Cookies',
+        blurb: 'Atta jeera, oats & seeds, oats coconut — cookies with no palm oil and no white sugar.',
+        imageUrl: `${CDN}/6573bdc013f1f0194047e47f5f17fd9a.webp`,
+        shopNowUrl: '/category/no-maida-range',
         position: 3,
       },
       {
-        name: 'Vrat / Fasting',
-        blurb: 'Sabudana, makhana, vrat chips and kuttu snacks. No palm oil, no maida, Navratri-approved.',
-        imageUrl: 'https://images.unsplash.com/photo-1606914469633-bd44f453c3f5?w=400&q=80',
-        shopNowUrl: '/fasting-special',
+        name: 'South Range',
+        blurb: 'Butter murukku, garlic ribbon murukku, pepper sticks — authentic South Indian snacks, no palm oil.',
+        imageUrl: `${CDN}/7d56833f91dbb95cc69f809726f149ff.webp`,
+        shopNowUrl: '/category/southrange',
         position: 4,
       },
       {
-        name: 'Cake Rusks',
-        blurb: 'Classic, fruit and almond-kaju cake rusks made without palm oil.',
-        imageUrl: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400&q=80',
-        shopNowUrl: '/rusk',
+        name: 'Roasted Snacks',
+        blurb: 'Roasted cashews, peanuts and seeds — wholesome snacks with zero frying oil.',
+        imageUrl: `${CDN}/308d15ce1e0eab18fd708400aa8dbde3.webp`,
+        shopNowUrl: '/category/roasted',
         position: 5,
       },
     ],
@@ -64,17 +65,17 @@ const pages = [
       },
       {
         question: "What oil does Let's Try Foods use instead of palm oil?",
-        answer: "Let's Try Foods uses 100% groundnut oil across its namkeen, bhujia, chips and cookie ranges in place of palm oil. Products like roasted chana and roasted makhana use no frying oil at all.",
+        answer: "Let's Try Foods uses 100% groundnut oil across its namkeen, chips, cookies and south Indian snack ranges in place of palm oil. Products like roasted chana and roasted makhana use no frying oil at all.",
         position: 1,
       },
       {
         question: "Are all Let's Try snacks free of palm oil?",
-        answer: "Yes — the Let's Try Foods brand positions every snack as palm-oil-free, including bhujia, chips, wafers, cookies, makhana, rusk and fasting snacks. Check the ingredient label on each pack to confirm.",
+        answer: "Yes — the Let's Try Foods brand positions every snack as palm-oil-free, including namkeen, chips, wafers, cookies, makhana and south Indian snacks. Check the ingredient label on each pack to confirm.",
         position: 2,
       },
       {
         question: "Which Let's Try snacks are also maida-free?",
-        answer: 'The bhujia, makhana, healthy-snacks, cookies and most of the fasting-special range are made without maida. The Purani Delhi range (soan papdi, khari, mathri) and some cake rusks do contain refined wheat flour — check individual products.',
+        answer: "The makhana, no-maida cookies, roasted snacks and most of the namkeen range are made without maida. The south range (murukku, mathri) may contain rice flour — check individual products.",
         position: 3,
       },
       {
@@ -85,8 +86,8 @@ const pages = [
     ],
     seo: {
       metaTitle: "No Palm Oil Snacks – Healthy Indian Namkeen & Chips | Let's Try Foods",
-      metaDescription: "Buy Indian snacks without palm oil — bhujia, chips, cookies, makhana and more. Let's Try Foods doesn't use palm oil in any of its snacks. Shipped across India.",
-      canonicalUrl: 'https://letstryfoods.com/no-palm-oil-snacks',
+      metaDescription: "Buy Indian snacks without palm oil — namkeen, chips, cookies, makhana and more. Let's Try Foods uses 100% groundnut oil. Shipped across India.",
+      canonicalUrl: 'https://letstryfoods.com/category/no-palm-oil-snacks',
     },
     isActive: true,
     createdAt: new Date(),
