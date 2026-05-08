@@ -1,6 +1,6 @@
 declare global {
   interface Window {
-    dataLayer?: any[];
+    dataLayer?: Object[];
     gtag?: (...args: any[]) => void;
   }
 }
@@ -37,7 +37,7 @@ export const pushToDataLayer = (data: DataLayerEvent) => {
     window.gtag('event', event, payload);
   } else if (window.dataLayer) {
     // Fallback if gtag is not ready yet: push the arguments object that gtag expects
-    window.dataLayer.push(function() { return arguments; }('event', event, payload));
+    window.dataLayer.push((function(..._args: any[]) { return arguments; })('event', event, payload));
     
     // Also push the GTM object format
     window.dataLayer.push({
