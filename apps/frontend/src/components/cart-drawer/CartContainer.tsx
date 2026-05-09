@@ -248,10 +248,31 @@ export const CartContainer = () => {
 
   const [showPaymentModal, setShowPaymentModal] = useState(false);
 
-  const handlePayNow = () => {
+  const handlePayNow = async () => {
     if (!cartData || !(cartData as any)?.myCart?._id) {
       console.error('Cart not found');
       return;
+    }
+
+    if (selectedAddress?.postalCode) {
+      try {
+        const { graphqlClient } = await import('@/lib/graphql/client-factory');
+        const { CHECK_PINCODE_SERVICEABILITY } = await import('@/lib/queries/pincode');
+        
+        const result: any = await graphqlClient.request(CHECK_PINCODE_SERVICEABILITY, { pincode: selectedAddress.postalCode });
+        if (!result?.checkPincodeServiceability?.isDeliverable) {
+          import('react-hot-toast').then(({ default: toast }) => {
+            toast.error('Sorry, we currently do not deliver to your selected PIN code.');
+          });
+          return;
+        }
+      } catch (err) {
+        console.error('Failed to check pincode serviceability:', err);
+        import('react-hot-toast').then(({ default: toast }) => {
+          toast.error('Failed to verify delivery location. Please try again.');
+        });
+        return;
+      }
     }
 
     trackBeginCheckout({

@@ -42,3 +42,4 @@ apps/backend/prod.env
 # Product Images (from CSV import)
 product-images/
 apps/backend/scripts/import-log-*.txt
+*.aab

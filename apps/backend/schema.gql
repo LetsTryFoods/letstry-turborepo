@@ -1606,6 +1606,13 @@ type PressMention {
   updatedAt: DateTime!
 }
 
+type PincodeServiceabilityResult {
+  isDeliverable: Boolean!
+  estimatedDays: Int
+  city: String
+  state: String
+}
+
 input BoxDimensionsInput {
   l: Float!
   w: Float!
@@ -1719,6 +1726,7 @@ type Query {
   activePressMentions: [PressMention!]!
   pressMention(id: ID!): PressMention!
   pressMentionBySlug(slug: String!): PressMention!
+  checkPincodeServiceability(pincode: String!): PincodeServiceabilityResult!
 }
 
 input PaginationInput {
@@ -1939,6 +1947,7 @@ type Mutation {
   createPressMention(input: CreatePressMentionInput!): PressMention!
   updatePressMention(id: ID!, input: UpdatePressMentionInput!): PressMention!
   removePressMention(id: ID!): PressMention!
+  bulkUpsertPincodes(pincodes: [PincodeInput!]!): Float!
 }
 
 input CreateProductInput {
@@ -2878,4 +2887,13 @@ input UpdatePressMentionInput {
   category: String
   isActive: Boolean
   position: Int
+}
+
+input PincodeInput {
+  pincode: String!
+  product: String!
+  city: String!
+  state: String!
+  zone: String!
+  tat: Int!
 }
