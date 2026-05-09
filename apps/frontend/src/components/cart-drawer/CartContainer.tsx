@@ -16,6 +16,9 @@ import { AddressFormData } from './AddressDetailsModal';
 import { LoginModal } from '@/components/auth/login-modal';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { pushToDataLayer } from '@/lib/analytics/data-layer';
+import { graphqlClient } from '@/lib/graphql/client-factory';
+import { CHECK_PINCODE_SERVICEABILITY } from '@/lib/queries/pincode';
+import toast from 'react-hot-toast';
 
 export const CartContainer = () => {
   const { isOpen, closeCart } = useCartStore();
@@ -299,21 +302,14 @@ export const CartContainer = () => {
 
     if (selectedAddress?.postalCode) {
       try {
-        const { graphqlClient } = await import('@/lib/graphql/client-factory');
-        const { CHECK_PINCODE_SERVICEABILITY } = await import('@/lib/queries/pincode');
-        
         const result: any = await graphqlClient.request(CHECK_PINCODE_SERVICEABILITY, { pincode: selectedAddress.postalCode });
         if (!result?.checkPincodeServiceability?.isDeliverable) {
-          import('react-hot-toast').then(({ default: toast }) => {
-            toast.error('Sorry, we currently do not deliver to your selected PIN code.');
-          });
+          toast.error('Sorry, we currently do not deliver to your selected PIN code.');
           return;
         }
       } catch (err) {
         console.error('Failed to check pincode serviceability:', err);
-        import('react-hot-toast').then(({ default: toast }) => {
-          toast.error('Failed to verify delivery location. Please try again.');
-        });
+        toast.error('Failed to verify delivery location. Please try again.');
         return;
       }
     }
