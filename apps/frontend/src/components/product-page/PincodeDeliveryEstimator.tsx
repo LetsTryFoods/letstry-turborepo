@@ -13,11 +13,14 @@
  */
 
 import { useState } from 'react';
+import { graphqlClient } from '@/lib/graphql/client-factory';
+import { CHECK_PINCODE_SERVICEABILITY } from '@/lib/queries/pincode';
 
 export function PincodeDeliveryEstimator({ deliveryLeadTime }: { deliveryLeadTime?: string | null }) {
   const [pin, setPin] = useState('');
   const [estimate, setEstimate] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isChecking, setIsChecking] = useState(false);
 
   const handleCheck = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,10 +31,8 @@ export function PincodeDeliveryEstimator({ deliveryLeadTime }: { deliveryLeadTim
       return;
     }
 
+    setIsChecking(true);
     try {
-      const { graphqlClient } = await import('@/lib/graphql/client-factory');
-      const { CHECK_PINCODE_SERVICEABILITY } = await import('@/lib/queries/pincode');
-      
       const result: any = await graphqlClient.request(CHECK_PINCODE_SERVICEABILITY, { pincode: pin });
       const data = result?.checkPincodeServiceability;
       
@@ -56,6 +57,8 @@ export function PincodeDeliveryEstimator({ deliveryLeadTime }: { deliveryLeadTim
     } catch (err) {
       console.error('Failed to check pincode:', err);
       setError('Failed to check PIN code serviceability. Please try again later.');
+    } finally {
+      setIsChecking(false);
     }
   };
 
@@ -77,9 +80,10 @@ export function PincodeDeliveryEstimator({ deliveryLeadTime }: { deliveryLeadTim
         />
         <button
           type="submit"
-          className="px-4 py-2 rounded-md bg-[#0C5273] text-white text-sm font-medium hover:bg-[#0C5273]/90"
+          disabled={isChecking}
+          className="px-4 py-2 rounded-md bg-[#0C5273] text-white text-sm font-medium hover:bg-[#0C5273]/90 disabled:opacity-50"
         >
-          Check
+          {isChecking ? 'Checking...' : 'Check'}
         </button>
       </form>
       {estimate && (
