@@ -13,6 +13,7 @@ export const NotificationBanner = () => {
     setIsVisible(false);
   };
 
+  return null;
   if (!pathname.startsWith("/track")) return null;
   if (!isVisible) return null;
 

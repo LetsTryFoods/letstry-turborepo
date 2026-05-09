@@ -128,6 +128,27 @@ export default function OrderTrackPage() {
           ← Back to home
         </Link>
 
+        {/* ── Prominent "packing soon" notice ── */}
+        <div
+          className="rounded-2xl p-6 md:p-8 text-center shadow-md border-2"
+          style={{ background: 'linear-gradient(135deg, #001f3f 0%, #0c5273 100%)', borderColor: '#0c5273' }}
+        >
+          <div className="flex justify-center mb-4">
+            <div className="h-20 w-20 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(255,255,255,0.12)' }}>
+              <Package className="h-10 w-10 text-yellow-400" />
+            </div>
+          </div>
+          <p
+            className="font-extrabold text-white leading-tight mb-3"
+            style={{ fontSize: '1.45rem', lineHeight: '1.35' }}
+          >
+            🚚 You'll get tracking details as soon as your order gets packed!
+          </p>
+          <p className="text-blue-200 text-sm mt-2">
+            Your order is confirmed and being prepared. We'll update you with a tracking number once it's on its way.
+          </p>
+        </div>
+
         {/* ── Order Status Card ── */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <div className="flex items-center gap-4 mb-4">
