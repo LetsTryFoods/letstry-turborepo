@@ -90,7 +90,7 @@ export default function PincodesPage() {
   const [parsedData, setParsedData] = useState<PincodeInput[]>([]);
   const [duplicatePincodes, setDuplicatePincodes] = useState<{pincode: string, product: string, rows: number[]}[]>([]);
 
-  const [bulkUpsert, { loading }] = useMutation(BULK_UPSERT_PINCODES);
+  const [bulkUpsert, { loading }] = useMutation<{ bulkUpsertPincodes: number }>(BULK_UPSERT_PINCODES);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
