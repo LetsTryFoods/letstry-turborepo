@@ -4161,6 +4161,13 @@ export type GetMyOrdersQueryVariables = Exact<{
 
 export type GetMyOrdersQuery = { __typename?: 'Query', getMyOrders: { __typename?: 'PaginatedOrdersResponse', orders: Array<{ __typename?: 'OrderType', _id: string, orderId: string, orderStatus: OrderStatus, totalAmount: string, subtotal: string, discount: string, deliveryCharge: string, currency: string, trackingNumber?: string | null, createdAt: any, deliveredAt?: any | null, cancelledAt?: any | null, cancellationReason?: string | null, items: Array<{ __typename?: 'OrderItemType', variantId?: string | null, quantity: number, price?: string | null, totalPrice?: string | null, name?: string | null, sku?: string | null, variant?: string | null, image?: string | null }>, payment?: { __typename?: 'OrderPaymentType', _id: string, status: PaymentStatus, method?: string | null, transactionId?: string | null, amount: string, paidAt?: any | null } | null, shippingAddress?: { __typename?: 'OrderShippingAddressType', fullName: string, phone: string, addressType?: string | null, addressLine1: string, addressLine2?: string | null, floor?: string | null, city: string, state: string, pincode: string, landmark?: string | null, formattedAddress?: string | null } | null, customer?: { __typename?: 'OrderCustomerType', _id: string, name: string, email?: string | null, phone?: string | null } | null }>, meta: { __typename?: 'PaginationMeta', totalCount: number, page: number, limit: number, totalPages: number } } };
 
+export type GetOrderByIdQueryVariables = Exact<{
+  orderId: Scalars['String']['input'];
+}>;
+
+
+export type GetOrderByIdQuery = { __typename?: 'Query', getOrderById: { __typename?: 'OrderType', _id: string, orderId: string, orderStatus: OrderStatus, totalAmount: string, subtotal: string, discount: string, deliveryCharge: string, currency: string, createdAt: any, items: Array<{ __typename?: 'OrderItemType', variantId?: string | null, quantity: number, price?: string | null, totalPrice?: string | null, name?: string | null, sku?: string | null, variant?: string | null }>, payment?: { __typename?: 'OrderPaymentType', status: PaymentStatus, method?: string | null, transactionId?: string | null, amount: string } | null } };
+
 export type CancelOrderMutationVariables = Exact<{
   input: CancelOrderInput;
 }>;
@@ -4854,6 +4861,36 @@ export const GetMyOrdersDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<GetMyOrdersQuery, GetMyOrdersQueryVariables>;
+export const GetOrderByIdDocument = new TypedDocumentString(`
+    query GetOrderById($orderId: String!) {
+  getOrderById(orderId: $orderId) {
+    _id
+    orderId
+    orderStatus
+    totalAmount
+    subtotal
+    discount
+    deliveryCharge
+    currency
+    createdAt
+    items {
+      variantId
+      quantity
+      price
+      totalPrice
+      name
+      sku
+      variant
+    }
+    payment {
+      status
+      method
+      transactionId
+      amount
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<GetOrderByIdQuery, GetOrderByIdQueryVariables>;
 export const CancelOrderDocument = new TypedDocumentString(`
     mutation CancelOrder($input: CancelOrderInput!) {
   cancelOrder(input: $input) {

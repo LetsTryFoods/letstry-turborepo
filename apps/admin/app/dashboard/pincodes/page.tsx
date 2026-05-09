@@ -88,7 +88,7 @@ export default function PincodesPage() {
   const [file, setFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [parsedData, setParsedData] = useState<PincodeInput[]>([]);
-  const [duplicatePincodes, setDuplicatePincodes] = useState<{pincode: string, product: string, rows: number[]}[]>([]);
+  const [duplicatePincodes, setDuplicatePincodes] = useState<{ pincode: string, product: string, rows: number[] }[]>([]);
 
   const [bulkUpsert, { loading }] = useMutation<{ bulkUpsertPincodes: number }>(BULK_UPSERT_PINCODES);
 
@@ -114,7 +114,7 @@ export default function PincodesPage() {
         const mappedData: PincodeInput[] = [];
         const uniqueKeys = new Map<string, number>();
         const duplicatesMap = new Map<string, number[]>();
-        
+
         jsonData.forEach((row, index) => {
           const pincodeStr = row['DESTINATION PINCODE']?.toString();
           const product = row['PRODUCT']?.toString()?.trim() || '';
@@ -122,7 +122,7 @@ export default function PincodesPage() {
 
           const trimmedPincode = pincodeStr.trim();
           const key = `${trimmedPincode}-${product}`;
-          
+
           if (uniqueKeys.has(key)) {
             // Track duplicate
             if (!duplicatesMap.has(key)) {
@@ -189,7 +189,7 @@ export default function PincodesPage() {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Pincode Serviceability Manager</h1>
-      
+
       <PincodeChecker />
 
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
@@ -230,7 +230,7 @@ export default function PincodesPage() {
                 {loading ? 'Uploading...' : 'Upload to Database'}
               </button>
             </div>
-            
+
             {duplicatePincodes.length > 0 && (
               <div className="mt-8 border border-yellow-200 bg-yellow-50 rounded-lg p-4">
                 <h3 className="text-sm font-bold text-yellow-800 mb-2">Duplicate Pincodes Found ({duplicatePincodes.length})</h3>
