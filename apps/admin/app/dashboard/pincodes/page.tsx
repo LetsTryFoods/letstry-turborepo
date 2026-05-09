@@ -175,7 +175,7 @@ export default function PincodesPage() {
       const { data } = await bulkUpsert({
         variables: { pincodes: parsedData },
       });
-      toast.success(`Successfully uploaded ${data.bulkUpsertPincodes} entries.`);
+      toast.success(`Successfully uploaded ${data?.bulkUpsertPincodes || 0} entries.`);
       setFile(null);
       setParsedData([]);
       const fileInput = document.getElementById('pincode-upload') as HTMLInputElement;
