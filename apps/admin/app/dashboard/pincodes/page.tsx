@@ -18,7 +18,7 @@ interface PincodeInput {
 
 function PincodeChecker() {
   const [pincode, setPincode] = useState('');
-  const [checkServiceability, { data, loading, error }] = useLazyQuery(CHECK_PINCODE_SERVICEABILITY);
+  const [checkServiceability, { data, loading }] = useLazyQuery<{ checkPincodeServiceability: any }>(CHECK_PINCODE_SERVICEABILITY);
 
   const handleCheck = (e: React.FormEvent) => {
     e.preventDefault();

@@ -1281,6 +1281,7 @@ export type Mutation = {
   archiveCategory: Category;
   archiveProduct: Product;
   batchScanItems: BatchScanResult;
+  bulkUpsertPincodes: Scalars['Float']['output'];
   cancelOrder: OrderType;
   cancelShipment: ShipmentResponse;
   cleanupOrphanedJobs: CleanupResult;
@@ -1433,6 +1434,11 @@ export type MutationArchiveProductArgs = {
 
 export type MutationBatchScanItemsArgs = {
   input: BatchScanInput;
+};
+
+
+export type MutationBulkUpsertPincodesArgs = {
+  pincodes: Array<PincodeInput>;
 };
 
 
@@ -2467,6 +2473,23 @@ export type PillarSectionType = {
   speakable?: Maybe<Scalars['Boolean']['output']>;
 };
 
+export type PincodeInput = {
+  city: Scalars['String']['input'];
+  pincode: Scalars['String']['input'];
+  product: Scalars['String']['input'];
+  state: Scalars['String']['input'];
+  tat: Scalars['Int']['input'];
+  zone: Scalars['String']['input'];
+};
+
+export type PincodeServiceabilityResult = {
+  __typename?: 'PincodeServiceabilityResult';
+  city?: Maybe<Scalars['String']['output']>;
+  estimatedDays?: Maybe<Scalars['Int']['output']>;
+  isDeliverable: Scalars['Boolean']['output'];
+  state?: Maybe<Scalars['String']['output']>;
+};
+
 export type PlaceDetailsInput = {
   placeId: Scalars['String']['input'];
   sessionToken?: InputMaybe<Scalars['String']['input']>;
@@ -2831,6 +2854,7 @@ export type Query = {
   categoryLandingPageBySlug?: Maybe<CategoryLandingPageType>;
   categoryLandingPages: Array<CategoryLandingPageType>;
   charges?: Maybe<Charges>;
+  checkPincodeServiceability: PincodeServiceabilityResult;
   coupon: Coupon;
   coupons: Array<Coupon>;
   dashboardStats: DashboardStats;
@@ -2979,6 +3003,11 @@ export type QueryCategoryLandingPageArgs = {
 
 export type QueryCategoryLandingPageBySlugArgs = {
   slug: Scalars['String']['input'];
+};
+
+
+export type QueryCheckPincodeServiceabilityArgs = {
+  pincode: Scalars['String']['input'];
 };
 
 
@@ -4165,6 +4194,13 @@ export type GetActivePillarsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GetActivePillarsQuery = { __typename?: 'Query', activePillars: Array<{ __typename?: 'Pillar', _id: string, slug: string, title: string, intro: string, isActive: boolean, position: number }> };
 
+export type CheckPincodeServiceabilityQueryVariables = Exact<{
+  pincode: Scalars['String']['input'];
+}>;
+
+
+export type CheckPincodeServiceabilityQuery = { __typename?: 'Query', checkPincodeServiceability: { __typename?: 'PincodeServiceabilityResult', isDeliverable: boolean, estimatedDays?: number | null, city?: string | null, state?: string | null } };
+
 export type GetPoliciesByTypeQueryVariables = Exact<{
   type: Scalars['String']['input'];
 }>;
@@ -4937,6 +4973,16 @@ export const GetActivePillarsDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<GetActivePillarsQuery, GetActivePillarsQueryVariables>;
+export const CheckPincodeServiceabilityDocument = new TypedDocumentString(`
+    query CheckPincodeServiceability($pincode: String!) {
+  checkPincodeServiceability(pincode: $pincode) {
+    isDeliverable
+    estimatedDays
+    city
+    state
+  }
+}
+    `) as unknown as TypedDocumentString<CheckPincodeServiceabilityQuery, CheckPincodeServiceabilityQueryVariables>;
 export const GetPoliciesByTypeDocument = new TypedDocumentString(`
     query GetPoliciesByType($type: String!) {
   policiesByType(type: $type) {
