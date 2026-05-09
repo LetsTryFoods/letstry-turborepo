@@ -90,9 +90,17 @@ export const CartContainer = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
+  const shippingAddressId = (cartData as any)?.myCart?.shippingAddressId;
+  useEffect(() => {
+    if (shippingAddressId && addresses.length > 0) {
+      const addr = addresses.find((a: any) => a._id === shippingAddressId);
+      if (addr) setSelectedAddress(addr);
+    }
+  }, [shippingAddressId, addresses]);
+
   const handleUpdateQuantity = async (productId: string, quantity: number) => {
     setUpdatingItems(prev => new Set(prev).add(productId));
-    
+
     try {
       const item = items.find((i: any) => i.id === productId);
       const oldQuantity = item?.quantity || 0;
@@ -261,7 +269,7 @@ export const CartContainer = () => {
 
       const result = await AddressService.createAddress(addressInput);
       const newAddressId = (result as any)?.createAddress?._id;
-      
+
       await queryClient.invalidateQueries({ queryKey: ['addresses'] });
 
       if (newAddressId) {
@@ -307,9 +315,10 @@ export const CartContainer = () => {
           toast.error('Sorry, we currently do not deliver to your selected PIN code.');
           return;
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error('Failed to check pincode serviceability:', err);
-        toast.error('Failed to verify delivery location. Please try again.');
+        const errorMsg = err?.response?.errors?.[0]?.message || 'Failed to verify delivery location. Please try again.';
+        toast.error(errorMsg);
         return;
       }
     }
