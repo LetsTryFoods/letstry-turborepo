@@ -23,7 +23,6 @@ export const HomeAlertModal = () => {
     sessionStorage.setItem("home-alert-dismissed", "true");
   };
 
-  return null;
   if (!isVisible) return null;
 
   return (
