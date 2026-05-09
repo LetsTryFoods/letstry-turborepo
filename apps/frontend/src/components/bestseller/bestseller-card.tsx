@@ -33,16 +33,29 @@ type BestsellerProduct = {
 
 type BestsellerCardProps = {
   product: BestsellerProduct;
+  position?: number;
 };
 
-export const BestsellerCard = ({ product }: BestsellerCardProps) => {
+const BESTSELLER_LIST_NAME = 'Homepage Bestsellers';
+
+export const BestsellerCard = ({ product, position }: BestsellerCardProps) => {
   const variant = product.defaultVariant;
   if (!variant) return null;
 
   const hasDiscount = variant.discountPercent > 0;
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
-  const { trackAddToCart } = useAnalytics();
+  const { trackAddToCart, trackSelectItem } = useAnalytics();
+
+  const handleSelectItem = () => {
+    trackSelectItem({
+      id: product._id,
+      name: product.name,
+      price: variant.price,
+      listName: BESTSELLER_LIST_NAME,
+      position,
+    });
+  };
   const { data: cartData } = useCart();
   const triggerSpark = useClickSpark();
 
@@ -116,7 +129,7 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
     >
       {hasDiscount && <DiscountBadge discountPercent={variant.discountPercent} />}
 
-      <Link href={`/product/${product.slug}`}>
+      <Link href={`/product/${product.slug}`} onClick={handleSelectItem}>
         <div className="relative w-full h-[90px] sm:h-[110px] md:h-[100px] lg:h-40 mb-2 lg:mb-[10px]">
           <Image
             src={getCdnUrl(variant.thumbnailUrl)}

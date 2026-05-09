@@ -12,10 +12,13 @@ const SHOP_LINKS: Array<{ href: string; label: string }> = [
 ];
 
 const EXPLORE_LINKS: Array<{ href: string; label: string }> = [
-  { href: '/no-palm-oil-snacks', label: 'No Palm Oil Snacks' },
+  // { href: '/category/no-palm-oil-snacks', label: 'No Palm Oil Snacks?' },
   { href: '/blog', label: 'Blog' },
   { href: '/about-us', label: 'About Us' },
   { href: '/bulk-corporate', label: 'Bulk & Corporate' },
+
+
+  
 ];
 
 const HELP_LINKS: Array<{ href: string; label: string }> = [
@@ -40,6 +43,7 @@ export function Footer() {
                 height={120}
                 className="w-20 h-20 object-contain"
                 priority
+                
               />
             </div>
             <p className="text-gray-300 text-sm leading-relaxed">

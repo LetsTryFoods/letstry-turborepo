@@ -7,7 +7,7 @@ import { getCategoryLandingPageBySlug } from '@/lib/category-landing-page/get-ca
 import { CategoryPageContainer } from '@/components/category-page/CategoryPageContainer';
 import { CategoryHeader } from '@/components/category-page/CategoryHeader';
 import { ProductGrid } from '@/components/category-page/ProductGrid';
-import { LandingFAQ } from '@/components/categoryLanding/LandingFAQ';
+import { ProductDetailFAQ } from '@/components/product-page/ProductDetailFAQ';
 import type { Product } from '@/components/category-page/ProductCard';
 import { getCdnUrl } from '@/lib/image-utils';
 
@@ -299,19 +299,12 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
 
           {/* FAQ */}
           {sortedFaqs.length > 0 && (
-            <section aria-labelledby="faq-heading" className="mb-10">
-              <h2
-                id="faq-heading"
-                className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-4"
-              >
-                {landingPage.faqHeading || 'Frequently Asked Questions'}
-              </h2>
-              <LandingFAQ
-                heading=""
-                faqs={sortedFaqs.map((f) => ({ question: f.question, answer: f.answer }))}
-                sectionId="faq"
+            <div className="mb-10">
+              <ProductDetailFAQ
+                heading={landingPage.faqHeading || 'Frequently Asked Questions'}
+                faqs={sortedFaqs.map((f) => ({ q: f.question, a: f.answer }))}
               />
-            </section>
+            </div>
           )}
 
         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCartStore } from '@/stores/cart-store';
 import { useAuthStore } from '@/stores/auth-store';
@@ -24,7 +24,15 @@ export const CartContainer = () => {
   const { data: couponsData, isLoading: couponsLoading } = useCoupons();
   const { data: addressesData } = useAddresses();
   const queryClient = useQueryClient();
-  const { trackRemoveFromCart, trackBeginCheckout, trackAddToCart } = useAnalytics();
+  const {
+    trackRemoveFromCart,
+    trackBeginCheckout,
+    trackAddToCart,
+    trackViewCart,
+    trackAddShippingInfo,
+    trackAddPaymentInfo,
+  } = useAnalytics();
+  const wasOpenRef = useRef(false);
 
   const [showPriceDetails, setShowPriceDetails] = useState(false);
   const [showCoupons, setShowCoupons] = useState(false);
@@ -43,6 +51,7 @@ export const CartContainer = () => {
     size: item.packageSize || item.attributes?.size || item.attributes?.weight || '',
     price: item.unitPrice,
     quantity: item.quantity,
+    variant: item.packageSize || item.attributes?.size || item.attributes?.weight || '',
     isUpdating: updatingItems.has(item.productId),
   })) || [];
 
@@ -60,6 +69,23 @@ export const CartContainer = () => {
     handlingCharge: (cartData as any)?.myCart?.totalsSummary?.handlingCharge || 0,
     grandTotal: totalPrice,
   };
+
+  useEffect(() => {
+    if (isOpen && !wasOpenRef.current && items.length > 0) {
+      trackViewCart({
+        value: totalPrice,
+        items: items.map((item: any) => ({
+          id: item.id,
+          name: item.title,
+          price: item.price,
+          quantity: item.quantity,
+          variant: item.variant,
+        })),
+      });
+    }
+    wasOpenRef.current = isOpen;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
   const handleUpdateQuantity = async (productId: string, quantity: number) => {
     setUpdatingItems(prev => new Set(prev).add(productId));
@@ -166,15 +192,31 @@ export const CartContainer = () => {
     }
   };
 
+  const fireAddShippingInfo = (address: any) => {
+    if (items.length === 0) return;
+    trackAddShippingInfo({
+      value: totalPrice,
+      shippingTier: address?.city || address?.addressType || 'default',
+      items: items.map((item: any) => ({
+        id: item.id,
+        name: item.title,
+        price: item.price,
+        quantity: item.quantity,
+        variant: item.variant,
+      })),
+    });
+  };
+
   const handleSelectAddress = async (addressId: string) => {
     const address = addresses.find((addr: any) => addr._id === addressId);
     if (address) {
       try {
         await CartService.setShippingAddress(addressId);
         await queryClient.invalidateQueries({ queryKey: ['cart'] });
-        
+
         setSelectedAddress(address);
         setShowAddressModal(false);
+        fireAddShippingInfo(address);
       } catch (error) {
         console.error('Failed to set shipping address:', error);
       }
@@ -222,11 +264,12 @@ export const CartContainer = () => {
       if (newAddressId) {
         await CartService.setShippingAddress(newAddressId);
         await queryClient.invalidateQueries({ queryKey: ['cart'] });
-        
+
         const updatedAddresses = await queryClient.fetchQuery({ queryKey: ['addresses'] });
         const newAddress = (updatedAddresses as any)?.myAddresses?.find((addr: any) => addr._id === newAddressId);
         if (newAddress) {
           setSelectedAddress(newAddress);
+          fireAddShippingInfo(newAddress);
         }
       }
 

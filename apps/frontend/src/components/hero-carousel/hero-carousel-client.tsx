@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Navigation } from 'swiper/modules';
 import 'swiper/css';
@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import type { Swiper as SwiperType } from 'swiper';
 import { getCdnUrl } from "@/lib/image-utils";
+import { useAnalytics } from "@/hooks/use-analytics";
 
 const DESKTOP_BANNER_WIDTH = 1800;
 const DESKTOP_BANNER_HEIGHT = 500;
@@ -34,10 +35,48 @@ export const HeroCarouselClient = ({ banners }: HeroCarouselClientProps) => {
   const router = useRouter();
   const [mobileActiveIndex, setMobileActiveIndex] = useState(0);
   const [desktopActiveIndex, setDesktopActiveIndex] = useState(0);
+  const { trackViewPromotion, trackSelectPromotion } = useAnalytics();
+  const viewedPromosRef = useRef<Set<string>>(new Set());
 
-  const handleBannerClick = (url: string) => {
-    if (url) {
-      router.push(url);
+  const fireViewPromotion = (banner: Banner | undefined, slot: string) => {
+    if (!banner) return;
+    const key = `${banner._id}:${slot}`;
+    if (viewedPromosRef.current.has(key)) return;
+    viewedPromosRef.current.add(key);
+    trackViewPromotion({
+      promotionId: banner._id,
+      promotionName: banner.name || banner.headline || banner._id,
+      creativeName: banner.headline,
+      creativeSlot: slot,
+    });
+  };
+
+  useEffect(() => {
+    if (!banners || banners.length === 0) return;
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
+    fireViewPromotion(banners[0], isMobile ? 'home_hero_mobile' : 'home_hero_desktop');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [banners]);
+
+  useEffect(() => {
+    fireViewPromotion(banners?.[mobileActiveIndex], 'home_hero_mobile');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mobileActiveIndex]);
+
+  useEffect(() => {
+    fireViewPromotion(banners?.[desktopActiveIndex], 'home_hero_desktop');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [desktopActiveIndex]);
+
+  const handleBannerClick = (banner: Banner, slot: string) => {
+    trackSelectPromotion({
+      promotionId: banner._id,
+      promotionName: banner.name || banner.headline || banner._id,
+      creativeName: banner.headline,
+      creativeSlot: slot,
+    });
+    if (banner.url) {
+      router.push(banner.url);
     }
   };
 
@@ -66,7 +105,7 @@ export const HeroCarouselClient = ({ banners }: HeroCarouselClientProps) => {
               <SwiperSlide key={banner._id} className="!h-full">
                 <div
                   className="relative w-full h-full cursor-pointer"
-                  onClick={() => handleBannerClick(banner.url)}
+                  onClick={() => handleBannerClick(banner, 'home_hero_mobile')}
                 >
                   <Image
                     src={getCdnUrl(banner.mobileImageUrl)}
@@ -119,7 +158,7 @@ export const HeroCarouselClient = ({ banners }: HeroCarouselClientProps) => {
               <SwiperSlide key={banner._id} className="!h-full">
                 <div
                   className="relative w-full h-full cursor-pointer"
-                  onClick={() => handleBannerClick(banner.url)}
+                  onClick={() => handleBannerClick(banner, 'home_hero_desktop')}
                 >
                   <Image
                     src={getCdnUrl(banner.imageUrl)}
