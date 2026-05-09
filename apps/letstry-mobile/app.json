@@ -20,7 +20,10 @@
     },
     "android": {
       "package": "com.letstryapp",
-      "versionCode": 100,
+      "versionCode": 200,
+      "permissions": [
+        "com.google.android.gms.permission.AD_ID"
+      ],
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyA44Ri5mmnDX-wE8folHq69LjEy1u8NLF0"
