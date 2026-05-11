@@ -26,6 +26,7 @@ export const GET_MY_CART = gql`
         estimatedTax
         handlingCharge
         grandTotal
+        freeDeliveryThreshold
       }
       createdAt
       updatedAt
@@ -52,6 +53,7 @@ export const ADD_TO_CART = gql`
         estimatedTax
         handlingCharge
         grandTotal
+        freeDeliveryThreshold
       }
     }
   }
@@ -73,6 +75,7 @@ export const UPDATE_CART_ITEM = gql`
         estimatedTax
         handlingCharge
         grandTotal
+        freeDeliveryThreshold
       }
     }
   }
@@ -94,6 +97,7 @@ export const REMOVE_FROM_CART = gql`
         estimatedTax
         handlingCharge
         grandTotal
+        freeDeliveryThreshold
       }
     }
   }
@@ -113,6 +117,7 @@ export const CLEAR_CART = gql`
         estimatedTax
         handlingCharge
         grandTotal
+        freeDeliveryThreshold
       }
     }
   }
@@ -130,6 +135,7 @@ export const APPLY_COUPON = gql`
         estimatedTax
         handlingCharge
         grandTotal
+        freeDeliveryThreshold
       }
     }
   }
@@ -147,6 +153,7 @@ export const REMOVE_COUPON = gql`
         estimatedTax
         handlingCharge
         grandTotal
+        freeDeliveryThreshold
       }
     }
   }

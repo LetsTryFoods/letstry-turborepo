@@ -25,13 +25,14 @@ const FreeDeliveryProgress: React.FC<FreeDeliveryProgressProps> = ({
   threshold,
   onThresholdReached 
 }) => {
-  const [wasFree, setWasFree] = useState(subtotal >= threshold);
+  const isFree = threshold === 0 || subtotal >= threshold;
+  const progress = threshold === 0 ? 1 : Math.min(subtotal / threshold, 1);
+  const remaining = threshold === 0 ? 0 : Math.max(threshold - subtotal, 0);
+
+  const [wasFree, setWasFree] = useState(isFree);
   const scale = useSharedValue(1);
-  const progressValue = useSharedValue(subtotal / threshold);
-  
-  const isFree = subtotal >= threshold;
-  const progress = Math.min(subtotal / threshold, 1);
-  const remaining = Math.max(threshold - subtotal, 0);
+  const progressValue = useSharedValue(progress);
+
 
   useEffect(() => {
     progressValue.value = withSpring(progress);
@@ -65,7 +66,7 @@ const FreeDeliveryProgress: React.FC<FreeDeliveryProgressProps> = ({
     };
   });
 
-  if (!threshold) return null;
+  if (threshold === undefined || threshold === null) return null;
 
   return (
     <Animated.View style={[styles.container, animatedContainerStyle]}>
@@ -94,10 +95,8 @@ const FreeDeliveryProgress: React.FC<FreeDeliveryProgressProps> = ({
         <Animated.View style={[styles.progressBarFill, animatedProgressStyle]} />
       </View>
       
-      {isFree && (
-        <Text style={styles.successSubtext}>You've saved ₹40 on delivery charges!</Text>
-      )}
     </Animated.View>
+
   );
 };
 

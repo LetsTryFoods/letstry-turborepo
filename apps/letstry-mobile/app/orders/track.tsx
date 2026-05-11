@@ -4,7 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@apollo/client';
-import { GET_MY_ORDERS } from '../../src/lib/graphql/order';
+import { GET_MY_ORDERS, GET_GUEST_ORDERS } from '../../src/lib/graphql/order';
+import { useAuthStore } from '../../src/store/auth-store';
 import { theme } from '../../src/styles/theme';
 import { RFValue, wp, hp } from '../../src/lib/utils/ui-utils';
 import dayjs from 'dayjs';
@@ -17,14 +18,22 @@ export default function TrackOrderScreen() {
   const [awb, setAwb] = useState('');
   const [isSearching, setIsSearching] = useState(false);
 
-  const { data: myOrdersData, loading: myOrdersLoading } = useQuery(GET_MY_ORDERS, {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const query = isAuthenticated ? GET_MY_ORDERS : GET_GUEST_ORDERS;
+
+  const { data: myOrdersData, loading: myOrdersLoading } = useQuery(query, {
     variables: { input: { page: 1, limit: 5 } },
     fetchPolicy: 'cache-and-network',
   });
 
-  const recentOrders = myOrdersData?.getMyOrders?.orders || [];
+  const recentOrders = (
+    isAuthenticated
+      ? myOrdersData?.getMyOrders?.orders
+      : myOrdersData?.getGuestOrders?.orders
+  ) || [];
 
   const getStatusColor = (status: string) => {
+    if (!status) return '#666';
     switch (status.toLowerCase()) {
       case 'cancelled': return '#E53935';
       case 'delivered': return '#43A047';
@@ -84,19 +93,15 @@ export default function TrackOrderScreen() {
       key={item._id} 
       style={styles.recentOrderCard}
       onPress={() => {
-        if (item.shipment?.trackingNumber) {
-          router.push(`/orders/${item.shipment.trackingNumber}`);
-        } else {
-          Alert.alert('Status', `Order is currently: ${item.status}`);
-        }
+        router.push({ pathname: '/orders/[orderId]', params: { orderId: item.orderId } });
       }}
     >
       <View style={styles.recentOrderInfo}>
         <Text style={styles.recentOrderId}>Order #{item.orderId}</Text>
         <Text style={styles.recentOrderDate}>{dayjs(item.createdAt).format('DD MMM')}</Text>
       </View>
-      <View style={[styles.statusTag, { backgroundColor: getStatusColor(item.status) + '20' }]}>
-        <Text style={[styles.statusTagText, { color: getStatusColor(item.status) }]}>{item.status}</Text>
+      <View style={[styles.statusTag, { backgroundColor: getStatusColor(item.orderStatus) + '20' }]}>
+        <Text style={[styles.statusTagText, { color: getStatusColor(item.orderStatus) }]}>{item.orderStatus?.replace(/_/g, ' ')}</Text>
       </View>
     </TouchableOpacity>
   );

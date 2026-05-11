@@ -15,7 +15,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@apollo/client';
 import { theme } from '../../src/styles/theme';
 import { RFValue, wp } from '../../src/lib/utils/ui-utils';
-import { GET_MY_ORDERS } from '../../src/lib/graphql/order';
+import { GET_MY_ORDERS, GET_GUEST_ORDERS } from '../../src/lib/graphql/order';
+import { useAuthStore } from '../../src/store/auth-store';
 
 const ORDER_STATUS_COLORS: Record<string, string> = {
   CONFIRMED: '#2B6CB0', // Blue
@@ -29,12 +30,22 @@ const ORDER_STATUS_COLORS: Record<string, string> = {
 
 export default function OrdersScreen() {
   const router = useRouter();
-  const { data, loading, error, refetch } = useQuery(GET_MY_ORDERS, {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+
+  // Logged-in users → getMyOrders (JWT-authenticated)
+  // Guest users     → getGuestOrders (x-session-id + x-mobile-key)
+  const query = isAuthenticated ? GET_MY_ORDERS : GET_GUEST_ORDERS;
+
+  const { data, loading, error, refetch } = useQuery(query, {
     variables: { input: { page: 1, limit: 20 } },
     fetchPolicy: 'network-only',
   });
 
-  const orders = data?.getMyOrders?.orders || [];
+  const orders = (
+    isAuthenticated
+      ? data?.getMyOrders?.orders
+      : data?.getGuestOrders?.orders
+  ) || [];
 
   const renderStatusBadge = (status: string) => {
     const color = ORDER_STATUS_COLORS[status] || theme.colors.text.muted;
@@ -52,7 +63,7 @@ export default function OrdersScreen() {
     return (
       <TouchableOpacity 
         style={styles.orderCard}
-        onPress={() => router.push({ pathname: '/orders/track', params: { orderId: item.orderId } })}
+        onPress={() => router.push({ pathname: '/orders/[orderId]', params: { orderId: item.orderId } })}
         activeOpacity={0.7}
       >
         <View style={styles.cardHeader}>

@@ -5,17 +5,35 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
+import { useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useQuery } from '@apollo/client';
 import { theme } from '../../src/styles/theme';
 import { RFValue, wp } from '../../src/lib/utils/ui-utils';
 import * as Haptics from 'expo-haptics';
+import { GET_MY_ORDERS, GET_GUEST_ORDERS } from '../../src/lib/graphql/order';
+import { useAuthStore } from '../../src/store/auth-store';
 
 export default function OrderSuccessScreen() {
   const router = useRouter();
-  const { orderId } = useLocalSearchParams();
+
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const query = isAuthenticated ? GET_MY_ORDERS : GET_GUEST_ORDERS;
+
+  // Fetch the latest order to display the real Order ID (not the payment reference)
+  const { data, loading } = useQuery(query, {
+    variables: { input: { page: 1, limit: 1 } },
+    fetchPolicy: 'network-only',
+  });
+
+  const latestOrder = (
+    isAuthenticated
+      ? data?.getMyOrders?.orders?.[0]
+      : data?.getGuestOrders?.orders?.[0]
+  );
 
   React.useEffect(() => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -26,7 +44,7 @@ export default function OrderSuccessScreen() {
       <Stack.Screen options={{ headerShown: false }} />
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
-          {/* Success Animation / Icon */}
+          {/* Success Icon */}
           <View style={styles.iconCircle}>
             <View style={styles.innerCircle}>
               <Ionicons name="checkmark" size={60} color="#fff" />
@@ -42,7 +60,13 @@ export default function OrderSuccessScreen() {
           <View style={styles.orderCard}>
             <View style={styles.orderRow}>
               <Text style={styles.orderLabel}>Order ID</Text>
-              <Text style={styles.orderValue}>#{orderId || 'PENDING'}</Text>
+              {loading ? (
+                <ActivityIndicator size="small" color={theme.colors.primary} />
+              ) : (
+                <Text style={styles.orderValue}>
+                  #{latestOrder?.orderId || 'PENDING'}
+                </Text>
+              )}
             </View>
             <View style={styles.orderRow}>
               <Text style={styles.orderLabel}>Payment Status</Text>
@@ -52,29 +76,22 @@ export default function OrderSuccessScreen() {
             </View>
           </View>
 
-          {/* Tips Section */}
-          <View style={styles.tipCard}>
-            <Ionicons name="notifications-outline" size={24} color={theme.colors.primary} />
-            <Text style={styles.tipText}>
-              We'll send you updates when your order status changes!
-            </Text>
-          </View>
-
           {/* Actions */}
           <View style={styles.actionContainer}>
-            <TouchableOpacity 
+            {latestOrder && (
+              <TouchableOpacity
+                style={styles.secondaryButton}
+                onPress={() => router.push({ pathname: '/orders/[orderId]', params: { orderId: latestOrder.orderId } })}
+              >
+                <Ionicons name="receipt-outline" size={18} color={theme.colors.primary} />
+                <Text style={styles.secondaryButtonText}>View Order Details</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity
               style={styles.primaryButton}
-              onPress={() => router.replace('/orders')}
-            >
-              <Text style={styles.primaryButtonText}>View Order Details</Text>
-              <Ionicons name="arrow-forward" size={18} color="#fff" />
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={styles.secondaryButton}
               onPress={() => router.replace('/(tabs)')}
             >
-              <Text style={styles.secondaryButtonText}>Continue Shopping</Text>
+              <Text style={styles.primaryButtonText}>Continue Shopping</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -91,21 +108,21 @@ const styles = StyleSheet.create({
     alignItems: 'center', 
     justifyContent: 'center', 
     padding: 24,
-    paddingTop: 60 
+    paddingTop: 40,
   },
   iconCircle: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: '#E6FFFA',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 32,
-  },
-  innerCircle: {
     width: 90,
     height: 90,
     borderRadius: 45,
+    backgroundColor: '#E6FFFA',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  innerCircle: {
+    width: 68,
+    height: 68,
+    borderRadius: 34,
     backgroundColor: '#38A169',
     alignItems: 'center',
     justifyContent: 'center',
@@ -116,42 +133,42 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   title: {
-    fontSize: RFValue(24),
+    fontSize: RFValue(20),
     fontWeight: theme.fontWeight.bold,
     color: theme.colors.text.primary,
     textAlign: 'center',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   subtitle: {
-    fontSize: RFValue(14),
+    fontSize: RFValue(13),
     color: theme.colors.text.muted,
     textAlign: 'center',
     paddingHorizontal: 16,
-    lineHeight: 22,
-    marginBottom: 40,
+    lineHeight: 20,
+    marginBottom: 24,
   },
   orderCard: {
     width: '100%',
     backgroundColor: '#F8FAFC',
-    borderRadius: 20,
-    padding: 20,
+    borderRadius: 14,
+    padding: 14,
     borderWidth: 1,
     borderColor: '#E2E8F0',
-    marginBottom: 24,
+    marginBottom: 20,
   },
   orderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 10,
+    paddingVertical: 7,
   },
   orderLabel: {
-    fontSize: RFValue(14),
+    fontSize: RFValue(12),
     color: theme.colors.text.muted,
     fontWeight: theme.fontWeight.medium,
   },
   orderValue: {
-    fontSize: RFValue(14),
+    fontSize: RFValue(12),
     color: theme.colors.text.primary,
     fontWeight: theme.fontWeight.bold,
   },
@@ -170,17 +187,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F0F9FF',
-    padding: 16,
-    borderRadius: 16,
+    padding: 12,
+    borderRadius: 12,
     width: '100%',
-    marginBottom: 40,
+    marginBottom: 24,
   },
   tipText: {
     flex: 1,
     fontSize: RFValue(12),
     color: '#075985',
-    marginLeft: 12,
-    lineHeight: 18,
+    marginLeft: 10,
+    lineHeight: 17,
   },
   actionContainer: {
     width: '100%',
@@ -206,16 +223,19 @@ const styles = StyleSheet.create({
     fontWeight: theme.fontWeight.bold,
   },
   secondaryButton: {
-    height: 56,
+    height: 52,
     borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: theme.colors.primary,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1.5,
-    borderColor: '#E2E8F0',
+    gap: 8,
+    backgroundColor: '#FFF',
   },
   secondaryButtonText: {
-    fontSize: RFValue(16),
-    color: theme.colors.text.primary,
+    fontSize: RFValue(15),
+    color: theme.colors.primary,
     fontWeight: theme.fontWeight.bold,
   },
 });

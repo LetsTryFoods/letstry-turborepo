@@ -132,8 +132,8 @@ const CartModal = () => {
 
               {/* Free Delivery Progress */}
               <FreeDeliveryProgress 
-                subtotal={totals.subtotal || 0} 
-                threshold={totals.freeDeliveryThreshold || 499} 
+                subtotal={totals.subtotal ?? 0} 
+                threshold={totals.freeDeliveryThreshold ?? 499} 
                 onThresholdReached={() => setShowConfetti(true)}
               />
 

@@ -1668,6 +1668,9 @@ type Query {
   getAdminPaymentsByOrder(orderId: String!): [PaymentListItemType!]!
   getOrderReports(period: String! = "month"): OrderReportResponse!
   getMyOrders(input: GetMyOrdersInput!): PaginatedOrdersResponse!
+  getGuestOrders(input: GetMyOrdersInput!): PaginatedOrdersResponse!
+  getGuestOrderById(orderId: String!): OrderType!
+  getGuestShipmentWithTracking(awbNumber: String!): ShipmentWithTrackingResponse!
   getAllOrders(input: GetAllOrdersInput!): AdminOrdersResponse!
   getOrderById(orderId: String!): OrderType!
   getAssignedOrder: PackingOrder!

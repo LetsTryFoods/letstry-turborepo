@@ -29,7 +29,6 @@ export const profileScreen: SDUIScreen = {
             id: 'my_orders',
             label: 'My Orders',
             icon: 'receipt-outline',
-            requiresAuth: true,
             action: {
               type: 'NAVIGATE',
               destination: '/orders'

@@ -7,6 +7,10 @@ import AuthLogger from './utils/auth-logger';
 const GRAPHQL_URL =
   process.env.EXPO_PUBLIC_GRAPHQL_URL || 'https://apiv3.letstryfoods.com/graphql';
 
+// Secret that identifies requests from the official mobile app.
+// Stored in EXPO_PUBLIC_MOBILE_KEY env var — baked into the bundle at build time.
+const MOBILE_KEY = process.env.EXPO_PUBLIC_MOBILE_KEY || '';
+
 const httpLink = createHttpLink({ uri: GRAPHQL_URL });
 
 const authLink = setContext(async (operation, { headers }) => {
@@ -22,6 +26,7 @@ const authLink = setContext(async (operation, { headers }) => {
         ...(headers || {}),
         authorization: finalAuthHeader,
         'x-session-id': sessionId || '',
+        'x-mobile-key': MOBILE_KEY,
       },
     };
   } catch (error) {
@@ -77,7 +82,15 @@ const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) 
               },
             });
             
-            // 7. Retry the request automatically
+            // 7. Prevent infinite loops by not retrying operations that explicitly require a JWT
+            const REQUIRES_JWT = ['GetMyOrders', 'GetOrderById', 'GetShipmentWithTracking'];
+            if (REQUIRES_JWT.includes(operation.operationName)) {
+              AuthLogger.info(`Not retrying ${operation.operationName} as it requires authentication.`);
+              observer.error(graphQLErrors);
+              return;
+            }
+
+            // 8. Retry the request automatically (for dual-auth queries like GetCart)
             const subscriber = {
               next: observer.next.bind(observer),
               error: observer.error.bind(observer),
