@@ -25,13 +25,17 @@ import { Role } from '../common/enums/role.enum';
 import { OptionalUser } from '../common/decorators/optional-user.decorator';
 import { PackingService } from '../packing/services/packing.service';
 import { ShipmentService } from '../shipment/services/shipment.service';
-import { ShipmentResponse } from '../shipment/dto/shipment-response.dto';
+import { ShipmentResponse, ShipmentWithTrackingResponse } from '../shipment/dto/shipment-response.dto';
+import { MobileAppGuard } from '../common/guards/mobile-app.guard';
+
+import { Public } from '../common/decorators/public.decorator';
 
 @Resolver(() => OrderType)
 export class OrderResolver {
   constructor(
     private readonly orderService: OrderService,
     private readonly packingService: PackingService,
+    private readonly shipmentService: ShipmentService,
   ) { }
 
   @Query(() => OrderReportResponse)
@@ -74,6 +78,107 @@ export class OrderResolver {
     return {
       ...result,
       orders: result.orders.map((o) => (o.toObject ? o.toObject() : o)),
+    };
+  }
+
+  /**
+   * Guest-only order query — mobile app exclusive.
+   * Protected by MobileAppGuard (x-mobile-key header).
+   * No JWT required: uses the guest session identity resolved by DualAuthGuard.
+   */
+  @Query(() => PaginatedOrdersResponse)
+  @Public()
+  @UseGuards(DualAuthGuard, MobileAppGuard)
+  async getGuestOrders(
+    @Args('input') input: GetMyOrdersInput,
+    @OptionalUser() user: any,
+  ): Promise<any> {
+    // Must have a guest identity resolved via x-session-id
+    if (!user?._id) {
+      throw new Error('Guest session not found. Please restart the app.');
+    }
+
+    if (!user.isGuest && user.role !== Role.GUEST) {
+      throw new Error('This endpoint is for guest users only.');
+    }
+
+    const result = await this.orderService.getOrdersByIdentity({
+      identityId: user._id,
+      mergedGuestIds: [],
+      page: input.page,
+      limit: input.limit,
+      status: input.status,
+    });
+
+    return {
+      ...result,
+      orders: result.orders.map((o) => (o.toObject ? o.toObject() : o)),
+    };
+  }
+
+  /**
+   * Guest-only order by ID query — mobile app exclusive.
+   */
+  @Query(() => OrderType)
+  @Public()
+  @UseGuards(DualAuthGuard, MobileAppGuard)
+  async getGuestOrderById(
+    @Args('orderId') orderId: string,
+    @OptionalUser() user: any,
+  ): Promise<any> {
+    if (!user?._id) {
+      throw new Error('Guest session not found. Please restart the app.');
+    }
+
+    if (!user.isGuest && user.role !== Role.GUEST) {
+      throw new Error('This endpoint is for guest users only.');
+    }
+
+    const order = await this.orderService.getOrderById(orderId);
+    
+    // Add ownership check
+    if (order.identityId?.toString() !== user._id.toString() && !user.mergedGuestIds?.includes(order.identityId?.toString())) {
+      throw new Error('Unauthorized to access this order.');
+    }
+
+    return order.toObject ? order.toObject() : order;
+  }
+
+  /**
+   * Guest-only shipment tracking query — mobile app exclusive.
+   */
+  @Query(() => ShipmentWithTrackingResponse)
+  @Public()
+  @UseGuards(DualAuthGuard, MobileAppGuard)
+  async getGuestShipmentWithTracking(
+    @Args('awbNumber') awbNumber: string,
+    @OptionalUser() user: any,
+  ): Promise<ShipmentWithTrackingResponse> {
+    if (!user?._id) {
+      throw new Error('Guest session not found. Please restart the app.');
+    }
+
+    if (!user.isGuest && user.role !== Role.GUEST) {
+      throw new Error('This endpoint is for guest users only.');
+    }
+
+    const result = await this.shipmentService.getShipmentWithTracking(awbNumber);
+    
+    // Check if the shipment belongs to an order owned by this guest
+    const order = await this.orderService.getOrderById(result.shipment.orderId.toString());
+    if (order.identityId?.toString() !== user._id.toString() && !user.mergedGuestIds?.includes(order.identityId?.toString())) {
+      throw new Error('Unauthorized to access this tracking info.');
+    }
+
+    return {
+      ...(result.shipment.toObject() as any),
+      id: result.shipment._id.toString(),
+      orderId: result.shipment.orderId?.toString(),
+      trackingLink: `https://letstryfoods.com/track/${result.shipment.awbNumber || result.shipment.dtdcAwbNumber}`,
+      trackingHistory: result.tracking.map((t) => ({
+        ...(t.toObject() as any),
+        id: t._id.toString(),
+      })),
     };
   }
 

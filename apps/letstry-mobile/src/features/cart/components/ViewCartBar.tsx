@@ -22,7 +22,7 @@ const ViewCartBar = () => {
   const totals = cart?.totalsSummary || {};
   const grandTotal = totals.grandTotal || 0;
   const subtotal = totals.subtotal || 0;
-  const threshold = totals.freeDeliveryThreshold || 499;
+  const threshold = totals.freeDeliveryThreshold ?? 499;
 
   // Progress logic
   const progress = Math.min(subtotal / threshold, 1);

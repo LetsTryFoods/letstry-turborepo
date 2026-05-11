@@ -10,11 +10,16 @@ import ViewCartBar from '../src/features/cart/components/ViewCartBar';
 import { startNetworkLogging } from 'react-native-network-logger';
 import { GuestService } from '../src/features/auth/services/guest.service';
 import { useAuthStore } from '../src/store/auth-store';
+import * as SplashScreen from 'expo-splash-screen';
+
+// Prevent splash screen from hiding automatically
+SplashScreen.preventAutoHideAsync().catch(() => {
+  /* ignore */
+});
 
 // Initialize network logger
 startNetworkLogging({
-  maxRequests: 50,
-  ignoredHosts: ['localhost', '127.0.0.1'],
+  maxRequests: 100,
 });
 
 // Temporary instance for anything tanstack-related
@@ -28,12 +33,16 @@ export default function RootLayout() {
     const init = async () => {
       await GuestService.ensureGuestSession();
       setInitialized(true);
+      // Hide splash screen after initialization
+      await SplashScreen.hideAsync().catch(() => {
+        /* ignore */
+      });
     };
     init().catch(console.error);
   }, []);
 
   if (!isInitialized) {
-    return null; // Or a splash screen
+    return null;
   }
 
   const isHomeRoute = segments[0] === '(tabs)' && (segments.length === 1 || (segments[1] as string) === 'index');

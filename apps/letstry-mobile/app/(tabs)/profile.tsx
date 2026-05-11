@@ -14,7 +14,7 @@ const FALLBACK_COMPONENTS = [
     props: {
       title: 'Account',
       links: [
-        { id: 'my_orders', label: 'My Orders', icon: 'receipt-outline', requiresAuth: true, action: { type: 'NAVIGATE', destination: '/orders' } },
+        { id: 'my_orders', label: 'My Orders', icon: 'receipt-outline', action: { type: 'NAVIGATE', destination: '/orders' } },
         { id: 'my_addresses', label: 'My Addresses', icon: 'location-outline', requiresAuth: true, action: { type: 'NAVIGATE', destination: '/checkout/location' } },
       ]
     }
@@ -39,7 +39,8 @@ export default function ProfileScreen() {
     staleTime: 1000 * 60 * 5,
   });
 
-  const components = sduiData?.components || FALLBACK_COMPONENTS;
+  const components = [...(sduiData?.components || FALLBACK_COMPONENTS)];
+
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
