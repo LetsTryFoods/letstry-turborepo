@@ -1281,6 +1281,7 @@ export type Mutation = {
   archiveCategory: Category;
   archiveProduct: Product;
   batchScanItems: BatchScanResult;
+  bulkUpsertPincodes: Scalars['Float']['output'];
   cancelOrder: OrderType;
   cancelShipment: ShipmentResponse;
   cleanupOrphanedJobs: CleanupResult;
@@ -1433,6 +1434,11 @@ export type MutationArchiveProductArgs = {
 
 export type MutationBatchScanItemsArgs = {
   input: BatchScanInput;
+};
+
+
+export type MutationBulkUpsertPincodesArgs = {
+  pincodes: Array<PincodeInput>;
 };
 
 
@@ -2467,6 +2473,23 @@ export type PillarSectionType = {
   speakable?: Maybe<Scalars['Boolean']['output']>;
 };
 
+export type PincodeInput = {
+  city: Scalars['String']['input'];
+  pincode: Scalars['String']['input'];
+  product: Scalars['String']['input'];
+  state: Scalars['String']['input'];
+  tat: Scalars['Int']['input'];
+  zone: Scalars['String']['input'];
+};
+
+export type PincodeServiceabilityResult = {
+  __typename?: 'PincodeServiceabilityResult';
+  city?: Maybe<Scalars['String']['output']>;
+  estimatedDays?: Maybe<Scalars['Int']['output']>;
+  isDeliverable: Scalars['Boolean']['output'];
+  state?: Maybe<Scalars['String']['output']>;
+};
+
 export type PlaceDetailsInput = {
   placeId: Scalars['String']['input'];
   sessionToken?: InputMaybe<Scalars['String']['input']>;
@@ -2831,6 +2854,7 @@ export type Query = {
   categoryLandingPageBySlug?: Maybe<CategoryLandingPageType>;
   categoryLandingPages: Array<CategoryLandingPageType>;
   charges?: Maybe<Charges>;
+  checkPincodeServiceability: PincodeServiceabilityResult;
   coupon: Coupon;
   coupons: Array<Coupon>;
   dashboardStats: DashboardStats;
@@ -2979,6 +3003,11 @@ export type QueryCategoryLandingPageArgs = {
 
 export type QueryCategoryLandingPageBySlugArgs = {
   slug: Scalars['String']['input'];
+};
+
+
+export type QueryCheckPincodeServiceabilityArgs = {
+  pincode: Scalars['String']['input'];
 };
 
 
@@ -4132,6 +4161,13 @@ export type GetMyOrdersQueryVariables = Exact<{
 
 export type GetMyOrdersQuery = { __typename?: 'Query', getMyOrders: { __typename?: 'PaginatedOrdersResponse', orders: Array<{ __typename?: 'OrderType', _id: string, orderId: string, orderStatus: OrderStatus, totalAmount: string, subtotal: string, discount: string, deliveryCharge: string, currency: string, trackingNumber?: string | null, createdAt: any, deliveredAt?: any | null, cancelledAt?: any | null, cancellationReason?: string | null, items: Array<{ __typename?: 'OrderItemType', variantId?: string | null, quantity: number, price?: string | null, totalPrice?: string | null, name?: string | null, sku?: string | null, variant?: string | null, image?: string | null }>, payment?: { __typename?: 'OrderPaymentType', _id: string, status: PaymentStatus, method?: string | null, transactionId?: string | null, amount: string, paidAt?: any | null } | null, shippingAddress?: { __typename?: 'OrderShippingAddressType', fullName: string, phone: string, addressType?: string | null, addressLine1: string, addressLine2?: string | null, floor?: string | null, city: string, state: string, pincode: string, landmark?: string | null, formattedAddress?: string | null } | null, customer?: { __typename?: 'OrderCustomerType', _id: string, name: string, email?: string | null, phone?: string | null } | null }>, meta: { __typename?: 'PaginationMeta', totalCount: number, page: number, limit: number, totalPages: number } } };
 
+export type GetOrderByIdQueryVariables = Exact<{
+  orderId: Scalars['String']['input'];
+}>;
+
+
+export type GetOrderByIdQuery = { __typename?: 'Query', getOrderById: { __typename?: 'OrderType', _id: string, orderId: string, orderStatus: OrderStatus, totalAmount: string, subtotal: string, discount: string, deliveryCharge: string, currency: string, createdAt: any, items: Array<{ __typename?: 'OrderItemType', variantId?: string | null, quantity: number, price?: string | null, totalPrice?: string | null, name?: string | null, sku?: string | null, variant?: string | null }>, payment?: { __typename?: 'OrderPaymentType', status: PaymentStatus, method?: string | null, transactionId?: string | null, amount: string } | null } };
+
 export type CancelOrderMutationVariables = Exact<{
   input: CancelOrderInput;
 }>;
@@ -4164,6 +4200,13 @@ export type GetActivePillarsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type GetActivePillarsQuery = { __typename?: 'Query', activePillars: Array<{ __typename?: 'Pillar', _id: string, slug: string, title: string, intro: string, isActive: boolean, position: number }> };
+
+export type CheckPincodeServiceabilityQueryVariables = Exact<{
+  pincode: Scalars['String']['input'];
+}>;
+
+
+export type CheckPincodeServiceabilityQuery = { __typename?: 'Query', checkPincodeServiceability: { __typename?: 'PincodeServiceabilityResult', isDeliverable: boolean, estimatedDays?: number | null, city?: string | null, state?: string | null } };
 
 export type GetPoliciesByTypeQueryVariables = Exact<{
   type: Scalars['String']['input'];
@@ -4818,6 +4861,36 @@ export const GetMyOrdersDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<GetMyOrdersQuery, GetMyOrdersQueryVariables>;
+export const GetOrderByIdDocument = new TypedDocumentString(`
+    query GetOrderById($orderId: String!) {
+  getOrderById(orderId: $orderId) {
+    _id
+    orderId
+    orderStatus
+    totalAmount
+    subtotal
+    discount
+    deliveryCharge
+    currency
+    createdAt
+    items {
+      variantId
+      quantity
+      price
+      totalPrice
+      name
+      sku
+      variant
+    }
+    payment {
+      status
+      method
+      transactionId
+      amount
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<GetOrderByIdQuery, GetOrderByIdQueryVariables>;
 export const CancelOrderDocument = new TypedDocumentString(`
     mutation CancelOrder($input: CancelOrderInput!) {
   cancelOrder(input: $input) {
@@ -4937,6 +5010,16 @@ export const GetActivePillarsDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<GetActivePillarsQuery, GetActivePillarsQueryVariables>;
+export const CheckPincodeServiceabilityDocument = new TypedDocumentString(`
+    query CheckPincodeServiceability($pincode: String!) {
+  checkPincodeServiceability(pincode: $pincode) {
+    isDeliverable
+    estimatedDays
+    city
+    state
+  }
+}
+    `) as unknown as TypedDocumentString<CheckPincodeServiceabilityQuery, CheckPincodeServiceabilityQueryVariables>;
 export const GetPoliciesByTypeDocument = new TypedDocumentString(`
     query GetPoliciesByType($type: String!) {
   policiesByType(type: $type) {

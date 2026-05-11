@@ -159,6 +159,7 @@ const navGroups: NavGroup[] = [
       { title: "Packers", url: "/dashboard/packers", icon: UserCheck },
       { title: "Packing Orders", url: "/dashboard/packing-orders", icon: PackageCheck },
       { title: "Notifications", url: "/dashboard/notifications", icon: Bell, comingSoon: true },
+      { title: "Pincodes", url: "/dashboard/pincodes", icon: ListChecks },
     ],
   },
   {

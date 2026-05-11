@@ -40,6 +40,7 @@ import { PillarModule } from './pillar/pillar.module';
 import { AuthorModule } from './author/author.module';
 import { CategoryLandingPageModule } from './category-landing-page/category-landing-page.module';
 import { PressMentionModule } from './press-mention/press-mention.module';
+import { PincodeModule } from './pincode/pincode.module';
 
 @Module({
   imports: [
@@ -89,6 +90,7 @@ import { PressMentionModule } from './press-mention/press-mention.module';
     CategoryLandingPageModule,
     PressMentionModule,
     AppCacheModule,
+    PincodeModule,
   ],
   controllers: [AppController],
   providers: [

@@ -16,6 +16,9 @@ import { AddressFormData } from './AddressDetailsModal';
 import { LoginModal } from '@/components/auth/login-modal';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { pushToDataLayer } from '@/lib/analytics/data-layer';
+import { graphqlClient } from '@/lib/graphql/client-factory';
+import { CHECK_PINCODE_SERVICEABILITY } from '@/lib/queries/pincode';
+import toast from 'react-hot-toast';
 
 export const CartContainer = () => {
   const { isOpen, closeCart } = useCartStore();
@@ -87,9 +90,17 @@ export const CartContainer = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
+  const shippingAddressId = (cartData as any)?.myCart?.shippingAddressId;
+  useEffect(() => {
+    if (shippingAddressId && addresses.length > 0) {
+      const addr = addresses.find((a: any) => a._id === shippingAddressId);
+      if (addr) setSelectedAddress(addr);
+    }
+  }, [shippingAddressId, addresses]);
+
   const handleUpdateQuantity = async (productId: string, quantity: number) => {
     setUpdatingItems(prev => new Set(prev).add(productId));
-    
+
     try {
       const item = items.find((i: any) => i.id === productId);
       const oldQuantity = item?.quantity || 0;
@@ -258,7 +269,7 @@ export const CartContainer = () => {
 
       const result = await AddressService.createAddress(addressInput);
       const newAddressId = (result as any)?.createAddress?._id;
-      
+
       await queryClient.invalidateQueries({ queryKey: ['addresses'] });
 
       if (newAddressId) {
@@ -291,10 +302,25 @@ export const CartContainer = () => {
 
   const [showPaymentModal, setShowPaymentModal] = useState(false);
 
-  const handlePayNow = () => {
+  const handlePayNow = async () => {
     if (!cartData || !(cartData as any)?.myCart?._id) {
       console.error('Cart not found');
       return;
+    }
+
+    if (selectedAddress?.postalCode) {
+      try {
+        const result: any = await graphqlClient.request(CHECK_PINCODE_SERVICEABILITY, { pincode: selectedAddress.postalCode });
+        if (!result?.checkPincodeServiceability?.isDeliverable) {
+          toast.error('Sorry, we currently do not deliver to your selected PIN code.');
+          return;
+        }
+      } catch (err: any) {
+        console.error('Failed to check pincode serviceability:', err);
+        const errorMsg = err?.response?.errors?.[0]?.message || 'Failed to verify delivery location. Please try again.';
+        toast.error(errorMsg);
+        return;
+      }
     }
 
     trackBeginCheckout({

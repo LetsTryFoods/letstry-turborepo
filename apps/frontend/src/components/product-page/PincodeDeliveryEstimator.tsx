@@ -13,13 +13,16 @@
  */
 
 import { useState } from 'react';
+import { graphqlClient } from '@/lib/graphql/client-factory';
+import { CHECK_PINCODE_SERVICEABILITY } from '@/lib/queries/pincode';
 
 export function PincodeDeliveryEstimator({ deliveryLeadTime }: { deliveryLeadTime?: string | null }) {
   const [pin, setPin] = useState('');
   const [estimate, setEstimate] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isChecking, setIsChecking] = useState(false);
 
-  const handleCheck = (e: React.FormEvent) => {
+  const handleCheck = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setEstimate(null);
@@ -28,15 +31,35 @@ export function PincodeDeliveryEstimator({ deliveryLeadTime }: { deliveryLeadTim
       return;
     }
 
-    const today = new Date();
-    const minDays = parseLeadTime(deliveryLeadTime, 'min');
-    const maxDays = parseLeadTime(deliveryLeadTime, 'max');
-    const min = new Date(today);
-    min.setDate(today.getDate() + minDays);
-    const max = new Date(today);
-    max.setDate(today.getDate() + maxDays);
-    const fmt = (d: Date) => d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
-    setEstimate(`Estimated delivery: ${fmt(min)} – ${fmt(max)}`);
+    setIsChecking(true);
+    try {
+      const result: any = await graphqlClient.request(CHECK_PINCODE_SERVICEABILITY, { pincode: pin });
+      const data = result?.checkPincodeServiceability;
+      
+      if (!data?.isDeliverable) {
+        setError('Sorry, we currently do not deliver to this PIN code.');
+        return;
+      }
+
+      const today = new Date();
+      // Add 2-3 days buffer as requested
+      const bufferDays = 2;
+      const minDays = (data.estimatedDays || 3) + bufferDays;
+      const maxDays = (data.estimatedDays || 5) + bufferDays + 1;
+      
+      const min = new Date(today);
+      min.setDate(today.getDate() + minDays);
+      const max = new Date(today);
+      max.setDate(today.getDate() + maxDays);
+      
+      const fmt = (d: Date) => d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+      setEstimate(`Estimated delivery: ${fmt(min)} – ${fmt(max)}`);
+    } catch (err) {
+      console.error('Failed to check pincode:', err);
+      setError('Failed to check PIN code serviceability. Please try again later.');
+    } finally {
+      setIsChecking(false);
+    }
   };
 
   return (
@@ -57,9 +80,10 @@ export function PincodeDeliveryEstimator({ deliveryLeadTime }: { deliveryLeadTim
         />
         <button
           type="submit"
-          className="px-4 py-2 rounded-md bg-[#0C5273] text-white text-sm font-medium hover:bg-[#0C5273]/90"
+          disabled={isChecking}
+          className="px-4 py-2 rounded-md bg-[#0C5273] text-white text-sm font-medium hover:bg-[#0C5273]/90 disabled:opacity-50"
         >
-          Check
+          {isChecking ? 'Checking...' : 'Check'}
         </button>
       </form>
       {estimate && (
