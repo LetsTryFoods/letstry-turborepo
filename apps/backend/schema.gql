@@ -1105,6 +1105,13 @@ type AdminOrdersResponse {
   summary: OrdersSummary!
 }
 
+type ShippingInsightsType {
+  avgWeight: Float!
+  mostUsedBox: String
+  maxDeliveryDays: Int!
+  avgDeliveryDays: Float!
+}
+
 type DailySalesType {
   date: String!
   orders: Int!
@@ -1678,6 +1685,7 @@ type Query {
   getAdminPaymentsByIdentity(identityId: String!): [PaymentListItemType!]!
   getAdminPaymentsByOrder(orderId: String!): [PaymentListItemType!]!
   getOrderReports(period: String! = "month"): OrderReportResponse!
+  getShippingInsights: ShippingInsightsType!
   getMyOrders(input: GetMyOrdersInput!): PaginatedOrdersResponse!
   getGuestOrders(input: GetMyOrdersInput!): PaginatedOrdersResponse!
   getGuestOrderById(orderId: String!): OrderType!

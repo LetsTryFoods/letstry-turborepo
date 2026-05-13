@@ -1,6 +1,25 @@
 import { Field, ObjectType, Int, Float } from '@nestjs/graphql';
 
 @ObjectType()
+export class ShippingInsightsType {
+  /** Average shipment weight in kg across all packed orders */
+  @Field(() => Float)
+  avgWeight: number;
+
+  /** Box code most frequently used when packing (actualBox, falls back to recommendedBox) */
+  @Field({ nullable: true })
+  mostUsedBox?: string;
+
+  /** Maximum number of days from packing completed to delivered */
+  @Field(() => Int)
+  maxDeliveryDays: number;
+
+  /** Average number of days from packing completed to delivered */
+  @Field(() => Float)
+  avgDeliveryDays: number;
+}
+
+@ObjectType()
 export class DailySalesType {
   @Field()
   date: string;

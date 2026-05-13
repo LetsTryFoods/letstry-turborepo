@@ -56,6 +56,15 @@ export class OrderService {
     return this.queryService.getOrderReports(period);
   }
 
+  async getShippingInsights(): Promise<{
+    avgWeight: number;
+    mostUsedBox?: string;
+    maxDeliveryDays: number;
+    avgDeliveryDays: number;
+  }> {
+    return this.queryService.getShippingInsights();
+  }
+
   async createOrder(params: {
     identityId: Types.ObjectId;
     paymentOrderId: string;

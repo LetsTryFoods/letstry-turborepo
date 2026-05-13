@@ -426,4 +426,134 @@ export class OrderRepository {
 
     return result[0] || { totalRevenue: 0, totalOrders: 0, totalCustomers: 0 };
   }
+
+  /**
+   * All-time shipping logistics insights:
+   *  - avgWeight: average total shipment weight per order (kg), computed from packingorders items
+   *  - mostUsedBox: most frequent actualBox code across packingevidences
+   *  - maxDeliveryDays / avgDeliveryDays: days from packingCompletedAt → order.deliveredAt
+   */
+  async getShippingInsights(): Promise<{
+    avgWeight: number;
+    mostUsedBox?: string;
+    maxDeliveryDays: number;
+    avgDeliveryDays: number;
+  }> {
+    const [weightResult, boxResult, deliveryResult] = await Promise.all([
+      // 1. Average weight: sum item weight*quantity per packing order, then average
+      this.orderModel.aggregate([
+        {
+          $lookup: {
+            from: 'packingorders',
+            localField: 'orderId',
+            foreignField: 'orderNumber',
+            as: 'packingOrder',
+          },
+        },
+        { $unwind: { path: '$packingOrder', preserveNullAndEmptyArrays: false } },
+        { $unwind: '$packingOrder.items' },
+        {
+          $group: {
+            _id: '$packingOrder._id',
+            orderWeight: {
+              $sum: {
+                $multiply: [
+                  { $ifNull: ['$packingOrder.items.dimensions.weight', 0] },
+                  { $ifNull: ['$packingOrder.items.quantity', 1] },
+                ],
+              },
+            },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            avgWeight: { $avg: '$orderWeight' },
+          },
+        },
+      ]).exec(),
+
+      // 2. Most used box: group actualBox.code from packingevidences
+      this.orderModel.aggregate([
+        {
+          $lookup: {
+            from: 'packingorders',
+            localField: 'orderId',
+            foreignField: 'orderNumber',
+            as: 'packingOrder',
+          },
+        },
+        { $unwind: { path: '$packingOrder', preserveNullAndEmptyArrays: false } },
+        {
+          $lookup: {
+            from: 'packingevidences',
+            localField: 'packingOrder._id',
+            foreignField: 'packingOrderId',
+            as: 'evidence',
+          },
+        },
+        { $unwind: { path: '$evidence', preserveNullAndEmptyArrays: false } },
+        {
+          $addFields: {
+            usedBox: {
+              $ifNull: ['$evidence.actualBox.code', '$evidence.recommendedBox.code'],
+            },
+          },
+        },
+        { $match: { usedBox: { $ne: null } } },
+        {
+          $group: {
+            _id: '$usedBox',
+            count: { $sum: 1 },
+          },
+        },
+        { $sort: { count: -1 } },
+        { $limit: 1 },
+      ]).exec(),
+
+      // 3. Delivery time: days from shipments.bookedOn to shipments.deliveredAt
+      this.orderModel.aggregate([
+        {
+          $lookup: {
+            from: 'shipments',
+            localField: '_id',
+            foreignField: 'orderId',
+            as: 'shipment',
+          },
+        },
+        { $unwind: { path: '$shipment', preserveNullAndEmptyArrays: false } },
+        {
+          $match: {
+            'shipment.isDelivered': true,
+            'shipment.deliveredAt': { $exists: true, $ne: null },
+            'shipment.bookedOn': { $exists: true, $ne: null },
+          },
+        },
+        {
+          $addFields: {
+            deliveryDays: {
+              $divide: [
+                { $subtract: ['$shipment.deliveredAt', '$shipment.bookedOn'] },
+                1000 * 60 * 60 * 24, // ms → days
+              ],
+            },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            maxDeliveryDays: { $max: '$deliveryDays' },
+            avgDeliveryDays: { $avg: '$deliveryDays' },
+          },
+        },
+      ]).exec(),
+    ]);
+
+    return {
+      avgWeight: (weightResult[0]?.avgWeight ?? 0) / 1000,
+      mostUsedBox: boxResult[0]?._id ?? undefined,
+      maxDeliveryDays: Math.ceil(deliveryResult[0]?.maxDeliveryDays ?? 0),
+      avgDeliveryDays: Math.round((deliveryResult[0]?.avgDeliveryDays ?? 0) * 10) / 10,
+    };
+  }
 }

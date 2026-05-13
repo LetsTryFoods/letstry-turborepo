@@ -104,3 +104,37 @@ export const formatCompactNumber = (num: number) => {
   }
   return num.toString()
 }
+
+export interface ShippingInsightsData {
+  avgWeight: number
+  mostUsedBox: string | null
+  maxDeliveryDays: number
+  avgDeliveryDays: number
+}
+
+// Hook to get shipping insights data
+export const useShippingInsights = () => {
+  const { GET_SHIPPING_INSIGHTS } = require('@/lib/graphql/reports')
+  const { data, loading, error, refetch } = useQuery<{ getShippingInsights: ShippingInsightsData }>(GET_SHIPPING_INSIGHTS, {
+    notifyOnNetworkStatusChange: true,
+  })
+
+  const insightsData = useMemo(() => {
+    if (!data?.getShippingInsights) {
+      return {
+        avgWeight: 0,
+        mostUsedBox: null,
+        maxDeliveryDays: 0,
+        avgDeliveryDays: 0,
+      }
+    }
+    return data.getShippingInsights as ShippingInsightsData
+  }, [data])
+
+  return {
+    data: insightsData,
+    loading,
+    error,
+    refetch,
+  }
+}

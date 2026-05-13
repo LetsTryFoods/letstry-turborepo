@@ -606,6 +606,39 @@ export class PackingService {
     return this.boxRecommendation.selectOptimalBox(order.items);
   }
 
+  async getBoxByCode(code: string): Promise<any> {
+    return this.boxRecommendation.getBoxByCode(code);
+  }
+
+  async getMostUsedRecommendedBox(): Promise<string | undefined> {
+    const recentOrders = await this.packingOrderCrud.findRecent(200);
+    if (!recentOrders || recentOrders.length === 0) return undefined;
+
+    const boxCounts: Record<string, number> = {};
+    for (const order of recentOrders) {
+      if (!order.items || order.items.length === 0) continue;
+      try {
+        const recommendedBox = await this.boxRecommendation.selectOptimalBox(order.items);
+        if (recommendedBox?.code) {
+          boxCounts[recommendedBox.code] = (boxCounts[recommendedBox.code] || 0) + 1;
+        }
+      } catch {
+        // ignore if optimal box cannot be calculated
+      }
+    }
+
+    let mostUsed: string | undefined = undefined;
+    let max = 0;
+    for (const [code, count] of Object.entries(boxCounts)) {
+      if (count > max) {
+        max = count;
+        mostUsed = code;
+      }
+    }
+
+    return mostUsed;
+  }
+
   async getAllPackingOrders(filters: { packerId?: string; status?: string }): Promise<any[]> {
     const dbFilters: any = {};
 

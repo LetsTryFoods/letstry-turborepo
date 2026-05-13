@@ -311,4 +311,13 @@ export class OrderQueryService {
       hasPreviousPage: page > 1,
     };
   }
+
+  async getShippingInsights(): Promise<{
+    avgWeight: number;
+    mostUsedBox?: string;
+    maxDeliveryDays: number;
+    avgDeliveryDays: number;
+  }> {
+    return this.orderRepository.getShippingInsights();
+  }
 }

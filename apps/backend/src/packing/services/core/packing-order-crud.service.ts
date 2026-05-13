@@ -31,6 +31,10 @@ export class PackingOrderCrudService {
     return this.packingOrderModel.find(cleanFilter).exec();
   }
 
+  async findRecent(limit: number = 100): Promise<PackingOrder[]> {
+    return this.packingOrderModel.find({}).sort({ createdAt: -1 }).limit(limit).exec();
+  }
+
   async findByPacker(packerId: string): Promise<PackingOrder[]> {
     return this.packingOrderModel.find({ assignedTo: packerId }).exec();
   }

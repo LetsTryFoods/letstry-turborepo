@@ -39,3 +39,14 @@ export const GET_ORDER_REPORTS = gql`
     }
   }
 `;
+
+export const GET_SHIPPING_INSIGHTS = gql`
+  query GetShippingInsights {
+    getShippingInsights {
+      avgWeight
+      mostUsedBox
+      maxDeliveryDays
+      avgDeliveryDays
+    }
+  }
+`;

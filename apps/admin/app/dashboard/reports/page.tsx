@@ -11,10 +11,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { 
-  IndianRupee, 
-  ShoppingBag, 
-  Users, 
+import {
+  IndianRupee,
+  ShoppingBag,
+  Users,
   TrendingUp,
   TrendingDown,
   ArrowUpRight,
@@ -23,7 +23,9 @@ import {
   BarChart3,
   PieChart,
   Download,
-  Search
+  Search,
+  Scale,
+  Clock
 } from "lucide-react"
 
 // Dynamically import Recharts to avoid SSR issues
@@ -37,8 +39,9 @@ const ResponsiveContainer = dynamic(() => import('recharts').then(mod => mod.Res
 const BarChart = dynamic(() => import('recharts').then(mod => mod.BarChart), { ssr: false })
 const Bar = dynamic(() => import('recharts').then(mod => mod.Bar), { ssr: false })
 
-import { 
+import {
   useReports,
+  useShippingInsights,
   formatCurrency,
   formatCompactNumber
 } from "@/lib/reports/useReports"
@@ -65,11 +68,12 @@ export default function ReportsPage() {
   const [isMounted, setIsMounted] = useState(false)
   const [period, setPeriod] = useState<'week' | 'month' | 'quarter' | 'year' | 'all'>('month')
   const [productSortBy, setProductSortBy] = useState<'quantity' | 'revenue'>('quantity')
-  
+
   const { data, loading } = useReports(period)
   const { summary, dailySales, topProducts, topCustomers, categorySales } = data
 
   const { data: trackingData } = useTrackingAnalytics()
+  const { data: shippingData, loading: shippingLoading } = useShippingInsights()
 
   useEffect(() => {
     setIsMounted(true)
@@ -105,7 +109,7 @@ export default function ReportsPage() {
     XLSX.writeFile(wb, fileName)
   }
 
-  if (loading || !isMounted) {
+  if (loading || shippingLoading || !isMounted) {
     return (
       <div className="flex items-center justify-center h-[400px]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -204,8 +208,47 @@ export default function ReportsPage() {
         </Card>
       </div>
 
+      {/* Shipping Analytics (All Time) */}
+      <h2 className="text-xl font-bold tracking-tight mt-8 mb-4">Shipping Insights (All Time)</h2>
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Average Shipment Weight</CardTitle>
+            <Scale className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{shippingData?.avgWeight ? `${shippingData.avgWeight.toFixed(2)} kg` : 'N/A'}</div>
+            <p className="text-xs text-muted-foreground">Across all packed orders</p>
+          </CardContent>
+        </Card>
+        {/* 
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Most Used Box</CardTitle>
+            <Package className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{shippingData?.mostUsedBox || 'N/A'}</div>
+            <p className="text-xs text-muted-foreground">Most frequent packing box</p>
+          </CardContent>
+        </Card> */}
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Delivery Time</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{shippingData?.avgDeliveryDays ? `${shippingData.avgDeliveryDays} days avg` : 'N/A'}</div>
+            <p className="text-xs text-muted-foreground">
+              {shippingData?.maxDeliveryDays ? `Max ${shippingData.maxDeliveryDays} days` : 'From packed to delivered'}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Charts Row */}
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2 mt-8">
         {/* Revenue Chart */}
         <Card>
           <CardHeader>
@@ -221,33 +264,33 @@ export default function ReportsPage() {
                 <AreaChart data={dailySales}>
                   <defs>
                     <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                  <XAxis 
-                    dataKey="date" 
+                  <XAxis
+                    dataKey="date"
                     axisLine={false}
                     tickLine={false}
                     tick={{ fontSize: 10, fill: '#888' }}
                     tickFormatter={(value) => value.split('-').slice(1).join('/')}
                     minTickGap={30}
                   />
-                  <YAxis 
+                  <YAxis
                     axisLine={false}
                     tickLine={false}
                     tick={{ fontSize: 10, fill: '#888' }}
                     tickFormatter={(value) => formatCompactNumber(value)}
                   />
                   <Tooltip content={<ChartTooltip isCurrency={true} />} />
-                  <Area 
-                    type="monotone" 
-                    dataKey="revenue" 
-                    stroke="#4f46e5" 
+                  <Area
+                    type="monotone"
+                    dataKey="revenue"
+                    stroke="#4f46e5"
                     strokeWidth={2}
-                    fillOpacity={1} 
-                    fill="url(#colorRevenue)" 
+                    fillOpacity={1}
+                    fill="url(#colorRevenue)"
                   />
                 </AreaChart>
               </ResponsiveContainer>
@@ -269,15 +312,15 @@ export default function ReportsPage() {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={dailySales}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                  <XAxis 
-                    dataKey="date" 
+                  <XAxis
+                    dataKey="date"
                     axisLine={false}
                     tickLine={false}
                     tick={{ fontSize: 10, fill: '#888' }}
                     tickFormatter={(value) => value.split('-').slice(1).join('/')}
                     minTickGap={30}
                   />
-                  <YAxis 
+                  <YAxis
                     axisLine={false}
                     tickLine={false}
                     tick={{ fontSize: 10, fill: '#888' }}
@@ -303,8 +346,8 @@ export default function ReportsPage() {
               </CardTitle>
               <CardDescription>Best performers for this period</CardDescription>
             </div>
-            <Select 
-              value={productSortBy} 
+            <Select
+              value={productSortBy}
               onValueChange={(v) => setProductSortBy(v as 'quantity' | 'revenue')}
             >
               <SelectTrigger className="w-[140px] h-8 text-xs">
@@ -494,7 +537,7 @@ export default function ReportsPage() {
                   <div className={`w-3 h-3 rounded-full ${search.foundResult ? 'bg-green-500' : 'bg-red-500'}`} />
                   <div>
                     <p className="font-medium">
-                      {search.searchType === 'phone' ? 'Phone' : search.searchType === 'orderId' ? 'Order ID' : 'AWB'}: 
+                      {search.searchType === 'phone' ? 'Phone' : search.searchType === 'orderId' ? 'Order ID' : 'AWB'}:
                       <span className="text-muted-foreground">{search.searchQuery}</span>
                     </p>
                     <p className="text-xs text-muted-foreground">

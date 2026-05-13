@@ -49,4 +49,9 @@ export class BoxRecommendationService {
     );
     return box.maxWeight >= totalWeight;
   }
+
+  async getBoxByCode(code: string): Promise<any> {
+    const boxes = await this.boxSizeCrud.findActive();
+    return boxes.find(b => b.code === code) || null;
+  }
 }

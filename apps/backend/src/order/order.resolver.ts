@@ -17,7 +17,7 @@ import {
   OrderWithUserInfo,
   BoxDimensionType,
 } from './order.graphql';
-import { OrderReportResponse } from './order-report.graphql';
+import { OrderReportResponse, ShippingInsightsType } from './order-report.graphql';
 import { DualAuthGuard } from '../authentication/common/dual-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -45,6 +45,29 @@ export class OrderResolver {
     @Args('period', { type: () => String, defaultValue: 'month' }) period: string,
   ): Promise<OrderReportResponse> {
     return this.orderService.getOrderReports(period);
+  }
+
+  @Query(() => ShippingInsightsType)
+  @Roles(Role.ADMIN)
+  @UseGuards(RolesGuard)
+  async getShippingInsights(): Promise<ShippingInsightsType> {
+    const insights = await this.orderService.getShippingInsights();
+
+    // The user requested to compute the most used box based on admin panel recommendations
+    // If it's not present from packingevidences, or we just want to enforce the recommended one
+    if (!insights.mostUsedBox) {
+      insights.mostUsedBox = await this.packingService.getMostUsedRecommendedBox() ?? undefined;
+    }
+
+    if (insights.mostUsedBox && !insights.mostUsedBox.includes('(')) {
+      const boxDetails = await this.packingService.getBoxByCode(insights.mostUsedBox);
+      if (boxDetails?.internalDimensions) {
+        const dims = boxDetails.internalDimensions;
+        insights.mostUsedBox = `${insights.mostUsedBox} (${dims.l}x${dims.w}x${dims.h} cm)`;
+      }
+    }
+
+    return insights;
   }
 
   @Query(() => PaginatedOrdersResponse)
@@ -135,7 +158,7 @@ export class OrderResolver {
     }
 
     const order = await this.orderService.getOrderById(orderId);
-    
+
     // Add ownership check
     if (order.identityId?.toString() !== user._id.toString() && !user.mergedGuestIds?.includes(order.identityId?.toString())) {
       throw new Error('Unauthorized to access this order.');
@@ -163,7 +186,7 @@ export class OrderResolver {
     }
 
     const result = await this.shipmentService.getShipmentWithTracking(awbNumber);
-    
+
     // Check if the shipment belongs to an order owned by this guest
     const order = await this.orderService.getOrderById(result.shipment.orderId.toString());
     if (order.identityId?.toString() !== user._id.toString() && !user.mergedGuestIds?.includes(order.identityId?.toString())) {

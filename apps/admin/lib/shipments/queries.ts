@@ -9,7 +9,6 @@ import {
   SYNC_ACTIVE_SHIPMENTS,
 } from '../graphql/shipments'
 import {
-  Shipment,
   ShipmentFilters,
   ShipmentListData,
   ShipmentByIdData,
