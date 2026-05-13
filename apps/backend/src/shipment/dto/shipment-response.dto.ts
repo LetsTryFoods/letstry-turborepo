@@ -1,5 +1,6 @@
 import { ObjectType, Field, ID, Float, Int } from '@nestjs/graphql';
 import { GraphQLJSON } from 'graphql-type-json';
+import { PaginationMeta } from '../../common/pagination';
 
 @ObjectType()
 export class ShipmentResponse {
@@ -197,6 +198,27 @@ export class CreateShipmentResponse {
 }
 
 @ObjectType()
+export class ShipmentSummaryResponse {
+  @Field(() => Int)
+  totalShipments: number;
+
+  @Field(() => Int)
+  inTransit: number;
+
+  @Field(() => Int)
+  deliveredToday: number;
+
+  @Field(() => Int)
+  pending: number;
+
+  @Field(() => Int)
+  rtoCount: number;
+
+  @Field(() => Int)
+  cancelled: number;
+}
+
+@ObjectType()
 export class ShipmentListResponse {
   @Field()
   success: boolean;
@@ -206,4 +228,10 @@ export class ShipmentListResponse {
 
   @Field(() => Int)
   total: number;
+
+  @Field(() => PaginationMeta)
+  meta: PaginationMeta;
+
+  @Field(() => ShipmentSummaryResponse)
+  summary: ShipmentSummaryResponse;
 }

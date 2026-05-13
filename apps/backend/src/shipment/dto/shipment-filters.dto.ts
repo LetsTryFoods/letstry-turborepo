@@ -1,9 +1,10 @@
 import { InputType, Field } from '@nestjs/graphql';
 import { IsString, IsOptional, IsBoolean, IsEnum } from 'class-validator';
 import { ShipmentStatusCode } from '../entities/shipment.entity';
+import { PaginationInput } from '../../common/pagination';
 
 @InputType()
-export class ShipmentFiltersInput {
+export class ShipmentFiltersInput extends PaginationInput {
   @Field({ nullable: true })
   @IsOptional()
   @IsString()

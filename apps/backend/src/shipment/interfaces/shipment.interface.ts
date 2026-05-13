@@ -8,6 +8,8 @@ export interface ShipmentFilters {
   bookedTo?: Date;
   awbNumber?: string;
   referenceNumber?: string;
+  page?: number;
+  limit?: number;
 }
 
 export interface CreateShipmentData {

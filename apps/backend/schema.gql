@@ -935,10 +935,21 @@ type CreateShipmentResponse {
   trackingLink: String
 }
 
+type ShipmentSummaryResponse {
+  totalShipments: Int!
+  inTransit: Int!
+  deliveredToday: Int!
+  pending: Int!
+  rtoCount: Int!
+  cancelled: Int!
+}
+
 type ShipmentListResponse {
   success: Boolean!
   shipments: [ShipmentResponse!]!
   total: Int!
+  meta: PaginationMeta!
+  summary: ShipmentSummaryResponse!
 }
 
 type OrderPaymentType {
@@ -1831,6 +1842,8 @@ input GetAllOrdersInput {
 }
 
 input ShipmentFiltersInput {
+  page: Int! = 1
+  limit: Int! = 10
   orderId: String
   customerCode: String
   statusCode: String
@@ -1914,6 +1927,7 @@ type Mutation {
   deleteBoxSize(boxId: String!): Boolean!
   createShipment(input: CreateShipmentInput!): CreateShipmentResponse!
   cancelShipment(input: CancelShipmentInput!): ShipmentResponse!
+  syncActiveShipments: Boolean!
   createPickupLocation(input: CreatePickupLocationInput!): PickupLocationType!
   removePickupLocation(id: String!): Boolean!
   subscribeNewsletter(input: SubscribeNewsletterInput!): SubscribeNewsletterResponse!

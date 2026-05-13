@@ -6,6 +6,7 @@ import {
   GET_SHIPMENT_WITH_TRACKING,
   CANCEL_SHIPMENT,
   GET_SHIPMENT_LABEL,
+  SYNC_ACTIVE_SHIPMENTS,
 } from '../graphql/shipments'
 import {
   Shipment,
@@ -18,11 +19,17 @@ import {
   CancelShipmentInput,
 } from './types'
 
-export const useAllShipments = (filters?: ShipmentFilters) => {
+export const useAllShipments = (filters: ShipmentFilters = {}) => {
   const { data, loading, error, refetch } = useQuery<ShipmentListData>(
     GET_ALL_SHIPMENTS,
     {
-      variables: { filters },
+      variables: {
+        filters: {
+          page: filters.page || 1,
+          limit: filters.limit || 10,
+          ...filters,
+        },
+      },
       fetchPolicy: 'cache-and-network',
     }
   )
@@ -30,6 +37,8 @@ export const useAllShipments = (filters?: ShipmentFilters) => {
   return {
     shipments: data?.listShipments?.shipments || [],
     total: data?.listShipments?.total || 0,
+    meta: data?.listShipments?.meta,
+    summary: data?.listShipments?.summary,
     loading,
     error,
     refetch,
@@ -154,4 +163,20 @@ export const useShipmentLabel = () => {
   }
 
   return { downloadLabel, loading, error }
+}
+
+export const useSyncActiveShipments = () => {
+  const [syncShipments, { loading, error }] = useMutation<{ syncActiveShipments: boolean }>(SYNC_ACTIVE_SHIPMENTS)
+
+  const sync = async (): Promise<boolean> => {
+    try {
+      const response = await syncShipments()
+      return !!response?.data?.syncActiveShipments
+    } catch (e) {
+      console.error('Sync failed', e)
+      return false
+    }
+  }
+
+  return { sync, loading, error }
 }

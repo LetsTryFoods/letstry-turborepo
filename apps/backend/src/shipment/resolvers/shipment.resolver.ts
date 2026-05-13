@@ -3,6 +3,7 @@ import { UseGuards } from '@nestjs/common';
 import { ShipmentService } from '../services/shipment.service';
 import { TrackingService } from '../services/tracking.service';
 import { DtdcApiService } from '../services/dtdc-api.service';
+import { TrackingCronService } from '../services/tracking-cron.service';
 import { JwtAuthGuard } from '../../authentication/common/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -27,6 +28,7 @@ export class ShipmentResolver {
     private readonly shipmentService: ShipmentService,
     private readonly trackingService: TrackingService,
     private readonly dtdcApiService: DtdcApiService,
+    private readonly trackingCronService: TrackingCronService,
   ) { }
 
   @Mutation(() => CreateShipmentResponse)
@@ -131,7 +133,7 @@ export class ShipmentResolver {
 
   @Query(() => ShipmentListResponse)
   async listShipments(@Args('filters', { nullable: true }) filters?: ShipmentFiltersInput): Promise<ShipmentListResponse> {
-    const shipments = await this.shipmentService.listShipments({
+    const result = await this.shipmentService.listShipments({
       orderId: filters?.orderId,
       customerCode: filters?.customerCode,
       statusCode: filters?.statusCode,
@@ -141,17 +143,21 @@ export class ShipmentResolver {
       referenceNumber: filters?.referenceNumber,
       bookedFrom: filters?.bookedFrom ? new Date(filters.bookedFrom) : undefined,
       bookedTo: filters?.bookedTo ? new Date(filters.bookedTo) : undefined,
+      page: filters?.page,
+      limit: filters?.limit,
     });
 
     return {
       success: true,
-      shipments: shipments.map((s) => ({
+      shipments: result.shipments.map((s) => ({
         ...(s.toObject() as any),
         id: s._id.toString(),
         orderId: s.orderId?.toString(),
         trackingLink: `https://letstryfoods.com/track/${s.awbNumber || s.dtdcAwbNumber}`,
       })),
-      total: shipments.length,
+      total: result.total,
+      meta: result.meta,
+      summary: result.summary,
     };
   }
 
@@ -220,5 +226,11 @@ export class ShipmentResolver {
       endDate: endDate ? new Date(endDate) : undefined,
       limit: limit || 100,
     });
+  }
+
+  @Mutation(() => Boolean)
+  async syncActiveShipments(): Promise<boolean> {
+    await this.trackingCronService.triggerTrackingSync();
+    return true;
   }
 }

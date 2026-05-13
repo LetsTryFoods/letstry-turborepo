@@ -46,6 +46,22 @@ export const GET_ALL_SHIPMENTS = gql`
         trackingLink
       }
       total
+      meta {
+        totalCount
+        page
+        limit
+        totalPages
+        hasNextPage
+        hasPreviousPage
+      }
+      summary {
+        totalShipments
+        inTransit
+        deliveredToday
+        pending
+        rtoCount
+        cancelled
+      }
     }
   }
 `
@@ -222,3 +238,10 @@ export const GET_SHIPMENT_LABEL = gql`
     getShipmentLabel(awbNumber: $awbNumber)
   }
 `
+
+export const SYNC_ACTIVE_SHIPMENTS = gql`
+  mutation SyncActiveShipments {
+    syncActiveShipments
+  }
+`
+

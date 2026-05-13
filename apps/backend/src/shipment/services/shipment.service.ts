@@ -14,6 +14,7 @@ import { OrderRepository } from '../../order/services/order.repository';
 import { DeliveryPartnerFactory } from '../core/factories/delivery-partner.factory';
 import * as fs from 'fs';
 import * as path from 'path';
+import { PaginationMeta } from '../../common/pagination';
 
 function writeTrackingLog(msg: string) {
   const logMsg = `[${new Date().toISOString()}] ${msg}\n`;
@@ -132,16 +133,21 @@ export class ShipmentService {
     return this.shipmentModel.find({ orderId: new Types.ObjectId(orderId) }).exec();
   }
 
-  async listShipments(filters: ShipmentFilters): Promise<Shipment[]> {
-    const query: any = {};
-
-    if (filters.orderId) {
-      query.orderId = new Types.ObjectId(filters.orderId);
-    }
-
-    if (filters.customerCode) {
-      query.customerCode = filters.customerCode;
-    }
+  async listShipments(filters: ShipmentFilters): Promise<{
+    shipments: Shipment[];
+    total: number;
+    meta: PaginationMeta;
+    summary: {
+      totalShipments: number;
+      inTransit: number;
+      deliveredToday: number;
+      pending: number;
+      rtoCount: number;
+      cancelled: number;
+    };
+  }> {
+    const baseFilter = this.buildBaseFilter(filters);
+    const query: any = { ...baseFilter };
 
     if (filters.statusCode) {
       query.currentStatusCode = filters.statusCode;
@@ -155,25 +161,22 @@ export class ShipmentService {
       query.isCancelled = filters.isCancelled;
     }
 
-    if (filters.awbNumber) {
-      query.dtdcAwbNumber = filters.awbNumber;
-    }
+    const page = filters.page || 1;
+    const limit = filters.limit || 10;
+    const skip = (page - 1) * limit;
 
-    if (filters.referenceNumber) {
-      query.dtdcReferenceNumber = filters.referenceNumber;
-    }
+    const [shipments, total, summary] = await Promise.all([
+      this.shipmentModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).exec(),
+      this.shipmentModel.countDocuments(query).exec(),
+      this.getShipmentsSummary(baseFilter),
+    ]);
 
-    if (filters.bookedFrom || filters.bookedTo) {
-      query.bookedOn = {};
-      if (filters.bookedFrom) {
-        query.bookedOn.$gte = filters.bookedFrom;
-      }
-      if (filters.bookedTo) {
-        query.bookedOn.$lte = filters.bookedTo;
-      }
-    }
-
-    return this.shipmentModel.find(query).sort({ createdAt: -1 }).exec();
+    return {
+      shipments,
+      total,
+      meta: this.buildPaginationMeta(total, page, limit),
+      summary,
+    };
   }
 
   async updateStatus(awbNumber: string, statusCode: string, statusDescription: string, location?: string): Promise<Shipment> {
@@ -398,6 +401,109 @@ export class ShipmentService {
         userAgent: item.userAgent,
         ipAddress: item.ipAddress,
       })),
+    };
+  }
+
+  private buildPaginationMeta(
+    total: number,
+    page: number,
+    limit: number,
+  ): PaginationMeta {
+    const totalPages = Math.ceil(total / limit);
+    return {
+      totalCount: total,
+      page,
+      limit,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPreviousPage: page > 1,
+    };
+  }
+
+  private buildBaseFilter(filters: ShipmentFilters): any {
+    const query: any = {};
+
+    if (filters.orderId) {
+      query.orderId = new Types.ObjectId(filters.orderId);
+    }
+
+    if (filters.customerCode) {
+      query.customerCode = filters.customerCode;
+    }
+
+    if (filters.awbNumber) {
+      query.dtdcAwbNumber = filters.awbNumber;
+    }
+
+    if (filters.referenceNumber) {
+      query.dtdcReferenceNumber = filters.referenceNumber;
+    }
+
+    if (filters.bookedFrom || filters.bookedTo) {
+      query.bookedOn = {};
+      if (filters.bookedFrom) {
+        query.bookedOn.$gte = filters.bookedFrom;
+      }
+      if (filters.bookedTo) {
+        query.bookedOn.$lte = filters.bookedTo;
+      }
+    }
+
+    return query;
+  }
+
+  private async getShipmentsSummary(baseFilter: any): Promise<{
+    totalShipments: number;
+    inTransit: number;
+    deliveredToday: number;
+    pending: number;
+    rtoCount: number;
+    cancelled: number;
+  }> {
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+    const endOfToday = new Date();
+    endOfToday.setHours(23, 59, 59, 999);
+
+    const [
+      totalShipments,
+      inTransit,
+      deliveredToday,
+      pending,
+      rtoCount,
+      cancelled,
+    ] = await Promise.all([
+      this.shipmentModel.countDocuments(baseFilter).exec(),
+      this.shipmentModel.countDocuments({
+        ...baseFilter,
+        currentStatusCode: { $in: ['ITM', 'OFD'] },
+      }).exec(),
+      this.shipmentModel.countDocuments({
+        ...baseFilter,
+        isDelivered: true,
+        deliveredAt: { $gte: startOfToday, $lte: endOfToday },
+      }).exec(),
+      this.shipmentModel.countDocuments({
+        ...baseFilter,
+        currentStatusCode: { $in: ['BKD', 'PUP'] },
+      }).exec(),
+      this.shipmentModel.countDocuments({
+        ...baseFilter,
+        isRto: true,
+      }).exec(),
+      this.shipmentModel.countDocuments({
+        ...baseFilter,
+        isCancelled: true,
+      }).exec(),
+    ]);
+
+    return {
+      totalShipments,
+      inTransit,
+      deliveredToday,
+      pending,
+      rtoCount,
+      cancelled,
     };
   }
 }

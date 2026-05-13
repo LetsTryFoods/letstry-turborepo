@@ -1,12 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   useAllShipments,
   useCancelShipment,
+  useSyncActiveShipments,
 } from "@/lib/shipments/queries"
 import { Shipment, ShipmentStatusCode } from "@/lib/shipments/types"
 import { getShipmentStats } from "@/lib/shipments/utils"
@@ -14,6 +15,7 @@ import { ShipmentTable } from "./components/ShipmentTable"
 import { ShipmentFilters } from "./components/ShipmentFilters"
 import { ShipmentDetailsDialog } from "./components/ShipmentDetailsDialog"
 import { CancelShipmentDialog } from "./components/CancelShipmentDialog"
+import { Pagination } from "@/components/ui/pagination"
 import {
   RefreshCw,
   Package,
@@ -34,15 +36,43 @@ export default function ShipmentsPage() {
   const [cancelShipment, setCancelShipment] = useState<Shipment | null>(null)
   const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false)
 
-  const { shipments, loading, error, refetch } = useAllShipments({
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(10)
+
+  // Reset page to 1 on filter changes
+  useEffect(() => {
+    setPage(1)
+  }, [statusFilter, searchTerm, dateRange])
+
+  const { shipments, meta, summary, loading, error, refetch } = useAllShipments({
     statusCode: statusFilter !== "ALL" ? statusFilter : undefined,
     bookedFrom: dateRange.from,
     bookedTo: dateRange.to,
+    page,
+    limit,
   })
 
   const { cancelShipment: performCancel } = useCancelShipment()
+  const { sync, loading: syncing } = useSyncActiveShipments()
 
-  const stats = getShipmentStats(shipments)
+  const handleSyncStatus = async () => {
+    const success = await sync()
+    if (success) {
+      toast.success("Tracking sync triggered successfully in background")
+      setTimeout(() => refetch(), 1500)
+    } else {
+      toast.error("Failed to trigger tracking sync")
+    }
+  }
+
+  const stats = summary || {
+    totalShipments: 0,
+    inTransit: 0,
+    deliveredToday: 0,
+    pending: 0,
+    rtoCount: 0,
+    cancelled: 0,
+  }
 
   const filteredShipments = shipments.filter((shipment) => {
     if (!searchTerm) return true
@@ -80,6 +110,7 @@ export default function ShipmentsPage() {
     setStatusFilter("ALL")
     setSearchTerm("")
     setDateRange({})
+    setPage(1)
   }
 
   if (loading) {
@@ -131,10 +162,21 @@ export default function ShipmentsPage() {
             Track and manage all shipments
           </p>
         </div>
-        <Button onClick={() => refetch()} variant="outline" size="sm">
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Refresh
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={handleSyncStatus}
+            disabled={syncing}
+            variant="default"
+            size="sm"
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? "animate-spin" : ""}`} />
+            {syncing ? "Syncing..." : "Sync Status"}
+          </Button>
+          <Button onClick={() => refetch()} variant="outline" size="sm">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
@@ -222,11 +264,40 @@ export default function ShipmentsPage() {
         </CardContent>
       </Card>
 
-      <ShipmentTable
-        shipments={filteredShipments}
-        onViewDetails={handleViewDetails}
-        onCancelShipment={handleCancelShipment}
-      />
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span>Shipments List ({meta?.totalCount || 0})</span>
+            {searchTerm && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSearchTerm("")}
+              >
+                Clear search
+              </Button>
+            )}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <ShipmentTable
+            shipments={filteredShipments}
+            onViewDetails={handleViewDetails}
+            onCancelShipment={handleCancelShipment}
+          />
+          <div className="flex items-center justify-between pt-4 border-t">
+            <p className="text-sm text-muted-foreground">
+              Showing page <span className="font-medium">{page}</span> of{" "}
+              <span className="font-medium">{meta?.totalPages || 1}</span>
+            </p>
+            <Pagination
+              currentPage={page}
+              totalPages={meta?.totalPages || 1}
+              onPageChange={setPage}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
       {selectedShipment && (
         <ShipmentDetailsDialog

@@ -118,6 +118,15 @@ export interface ShipmentWithTracking extends Shipment {
   trackingHistory: TrackingHistory[]
 }
 
+export interface PaginationMeta {
+  totalCount: number
+  page: number
+  limit: number
+  totalPages: number
+  hasNextPage: boolean
+  hasPreviousPage: boolean
+}
+
 export interface ShipmentFilters {
   orderId?: string
   customerCode?: string
@@ -128,6 +137,8 @@ export interface ShipmentFilters {
   referenceNumber?: string
   bookedFrom?: Date | string
   bookedTo?: Date | string
+  page?: number
+  limit?: number
 }
 
 export interface ShipmentSummary {
@@ -144,6 +155,8 @@ export interface ShipmentListData {
     success: boolean
     shipments: Shipment[]
     total: number
+    meta: PaginationMeta
+    summary: ShipmentSummary
   }
 }
 
