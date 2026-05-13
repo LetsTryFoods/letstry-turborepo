@@ -93,6 +93,11 @@ export class DtdcClient {
         throw new Error('DTDC credentials missing');
       }
 
+      const warehouseAddress = process.env.WAREHOUSE_ADDRESS_LINE1 || '';
+      if (warehouseAddress.length < 3) {
+        throw new Error('WAREHOUSE_ADDRESS_LINE1 env var is missing or too short (min 3 chars)');
+      }
+
       const payload = {
         consignments: [
           {
