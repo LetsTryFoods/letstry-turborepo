@@ -26,7 +26,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
-  const { trackAddToCart } = useAnalytics();
+  const { trackAddToCart, trackRemoveFromCart } = useAnalytics();
   const cartQuery = useCart();
 
   // Use defaultVariant or fallback to product.id
@@ -71,6 +71,13 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
     setIsLoading(true);
     try {
       await CartService.updateCartItem(variantId, quantityInCart + 1);
+      trackAddToCart({
+        id: variantId,
+        name: product.name,
+        price: variant.price,
+        quantity: 1,
+        variant: variant.weight,
+      });
       queryClient.invalidateQueries({ queryKey: ["cart"] });
     } catch (error) {
       toast.error("Failed to update cart");
@@ -88,6 +95,13 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
       } else {
         await CartService.removeFromCart(variantId);
       }
+      trackRemoveFromCart({
+        id: variantId,
+        name: product.name,
+        price: variant.price,
+        quantity: 1,
+        variant: variant.weight,
+      });
       queryClient.invalidateQueries({ queryKey: ["cart"] });
     } catch (error) {
       toast.error("Failed to update cart");

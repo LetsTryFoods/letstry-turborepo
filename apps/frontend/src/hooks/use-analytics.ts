@@ -315,14 +315,10 @@ export const useAnalytics = () => {
     pushToDataLayer({
       event: 'view_promotion',
       ecommerce: {
-        items: [
-          {
-            promotion_id: promo.promotionId,
-            promotion_name: promo.promotionName,
-            creative_name: promo.creativeName,
-            creative_slot: promo.creativeSlot,
-          },
-        ],
+        promotion_id: promo.promotionId,
+        promotion_name: promo.promotionName,
+        creative_name: promo.creativeName,
+        creative_slot: promo.creativeSlot,
       },
     });
   }, []);
@@ -336,14 +332,10 @@ export const useAnalytics = () => {
     pushToDataLayer({
       event: 'select_promotion',
       ecommerce: {
-        items: [
-          {
-            promotion_id: promo.promotionId,
-            promotion_name: promo.promotionName,
-            creative_name: promo.creativeName,
-            creative_slot: promo.creativeSlot,
-          },
-        ],
+        promotion_id: promo.promotionId,
+        promotion_name: promo.promotionName,
+        creative_name: promo.creativeName,
+        creative_slot: promo.creativeSlot,
       },
     });
   }, []);

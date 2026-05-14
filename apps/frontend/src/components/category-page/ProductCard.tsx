@@ -45,7 +45,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, categoryType 
   const [selectedVariantId, setSelectedVariantId] = useState(product.variants[0]?.id || product.id);
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
-  const { trackAddToCart, trackSelectItem } = useAnalytics();
+  const { trackAddToCart, trackSelectItem, trackRemoveFromCart } = useAnalytics();
 
   const handleSelectItem = () => {
     trackSelectItem({
@@ -109,6 +109,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, categoryType 
     setIsLoading(true);
     try {
       await CartService.updateCartItem(selectedVariantId, quantityInCart + 1);
+      trackAddToCart({
+        id: selectedVariantId,
+        name: product.name,
+        price: selectedVariant.price,
+        quantity: 1,
+        variant: selectedVariant.weight,
+      });
       queryClient.invalidateQueries({ queryKey: ['cart'] });
     } catch (error) {
       toast.error('Failed to update cart');
@@ -127,6 +134,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, categoryType 
       } else {
         await CartService.removeFromCart(selectedVariantId);
       }
+      trackRemoveFromCart({
+        id: selectedVariantId,
+        name: product.name,
+        price: selectedVariant.price,
+        quantity: 1,
+        variant: selectedVariant.weight,
+      });
       queryClient.invalidateQueries({ queryKey: ['cart'] });
     } catch (error) {
       toast.error('Failed to update cart');

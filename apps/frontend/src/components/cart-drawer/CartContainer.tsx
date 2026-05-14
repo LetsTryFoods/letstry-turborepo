@@ -164,6 +164,7 @@ export const CartContainer = () => {
           name: item.title,
           price: item.price,
           quantity: item.quantity,
+          variant: item.variant,
         });
       }
     } catch (error) {

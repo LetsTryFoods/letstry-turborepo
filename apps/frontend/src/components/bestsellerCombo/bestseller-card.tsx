@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { CartService } from '@/lib/cart/cart-service';
 import { useCart } from '@/lib/cart/use-cart';
+import { useAnalytics } from '@/hooks/use-analytics';
 import { DiscountBadge } from '@/components/ui/discount-badge';
 import { getCdnUrl } from '@/lib/image-utils';
 
@@ -42,6 +43,7 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
   const { data: cartData } = useCart();
+  const { trackAddToCart, trackRemoveFromCart } = useAnalytics();
 
   const cart = cartData?.myCart;
   const cartItem = cart?.items?.find((item: any) => item.productId === product._id);
@@ -58,6 +60,13 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
     setIsLoading(true);
     try {
       await CartService.addToCart(product._id, 1);
+      trackAddToCart({
+        id: product._id,
+        name: product.name,
+        price: variant.price,
+        quantity: 1,
+        variant: variant.packageSize,
+      });
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       toast.success(`${product.name} added to cart`);
     } catch (error) {
@@ -73,6 +82,13 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
     setIsLoading(true);
     try {
       await CartService.updateCartItem(product._id, quantityInCart + 1);
+      trackAddToCart({
+        id: product._id,
+        name: product.name,
+        price: variant.price,
+        quantity: 1,
+        variant: variant.packageSize,
+      });
       queryClient.invalidateQueries({ queryKey: ['cart'] });
     } catch (error) {
       toast.error('Failed to update cart');
@@ -91,6 +107,13 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
       } else {
         await CartService.removeFromCart(product._id);
       }
+      trackRemoveFromCart({
+        id: product._id,
+        name: product.name,
+        price: variant.price,
+        quantity: 1,
+        variant: variant.packageSize,
+      });
       queryClient.invalidateQueries({ queryKey: ['cart'] });
     } catch (error) {
       toast.error('Failed to update cart');
