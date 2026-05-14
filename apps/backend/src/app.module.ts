@@ -41,6 +41,7 @@ import { AuthorModule } from './author/author.module';
 import { CategoryLandingPageModule } from './category-landing-page/category-landing-page.module';
 import { PressMentionModule } from './press-mention/press-mention.module';
 import { PincodeModule } from './pincode/pincode.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
   imports: [
@@ -91,6 +92,7 @@ import { PincodeModule } from './pincode/pincode.module';
     PressMentionModule,
     AppCacheModule,
     PincodeModule,
+    AnalyticsModule,
   ],
   controllers: [AppController],
   providers: [

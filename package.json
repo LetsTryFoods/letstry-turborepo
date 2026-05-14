@@ -13,7 +13,8 @@
     "mobile:android": "pnpm --filter letstry-mobile android",
     "mobile:ios": "pnpm --filter letstry-mobile ios",
     "mobile:ngrok": "pnpm --filter letstry-mobile dev:ngrok",
-    "puncher:dev": "pnpm --filter legacy-puncher dev"
+    "puncher:dev": "pnpm --filter legacy-puncher dev",
+    "qrcode:dev": "pnpm --filter qrcode dev"
   },
   "devDependencies": {
     "@next/swc-darwin-arm64": "^16.2.4",

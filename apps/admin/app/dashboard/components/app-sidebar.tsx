@@ -94,6 +94,7 @@ const navGroups: NavGroup[] = [
     label: "Overview",
     items: [
       { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+      { title: "QR Analytics", url: "/dashboard/analytics", icon: BarChart3 },
       { title: "SEO Onboarding", url: "/dashboard/seo-content/onboarding", icon: ListChecks },
       { title: "Reports", url: "/dashboard/reports", icon: BarChart3 },
     ],
