@@ -9,6 +9,7 @@ import { graphqlClient } from '@/lib/graphql/client-factory';
 import { LOGOUT_MUTATION } from '@/lib/queries/auth';
 import type { AuthUser } from '@/types/auth.types';
 import { OtpProvider } from '@/types/whatsapp.types';
+import { trackEvent } from '@/lib/analytics/data-layer';
 
 interface AuthStore {
   user: AuthUser | null;
@@ -156,7 +157,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     try {
       set({ error: null, isLoading: true });
 
-      const { idToken, user: firebaseUser } = await authService.verifyOTP(confirmationResult, otp);
+      const { idToken, user: firebaseUser, isNewUser } = await authService.verifyOTP(confirmationResult, otp);
 
       const userData = {
         phoneNumber: firebaseUser.phoneNumber || "",
@@ -168,6 +169,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       if (!result.success || !result.token) {
         throw new Error(result.error || "Authentication failed");
       }
+
+      trackEvent(isNewUser ? 'sign_up' : 'login', { method: 'phone', platform: 'web' });
 
       set({
         user: {
@@ -202,6 +205,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       if (!result.success || !result.token) {
         throw new Error(result.error || "Authentication failed");
       }
+
+      trackEvent('login', { method: 'whatsapp', platform: 'web' });
 
       set({
         user: {

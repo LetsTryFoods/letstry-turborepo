@@ -3,6 +3,7 @@ import {
   signInWithPhoneNumber,
   ConfirmationResult,
   signOut as firebaseSignOut,
+  getAdditionalUserInfo,
 } from 'firebase/auth';
 import { auth } from './config';
 import { trackEvent, trackUser } from '../analytics/data-layer';
@@ -91,7 +92,7 @@ class AuthService {
     }
   }
 
-  async verifyOTP(confirmationResult: ConfirmationResult, otp: string): Promise<{ idToken: string; user: any }> {
+  async verifyOTP(confirmationResult: ConfirmationResult, otp: string): Promise<{ idToken: string; user: any; isNewUser: boolean }> {
     try {
       if (!otp || otp.length !== 6) {
         throw new Error('Invalid OTP format');
@@ -103,6 +104,7 @@ class AuthService {
       );
 
       const idToken = await result.user.getIdToken();
+      const isNewUser = getAdditionalUserInfo(result)?.isNewUser ?? false;
 
       trackEvent('otp_verified', {
         method: 'phone',
@@ -115,6 +117,7 @@ class AuthService {
           uid: result.user.uid,
           phoneNumber: result.user.phoneNumber,
         },
+        isNewUser,
       };
     } catch (error: any) {
       console.error('Verify OTP error:', error);

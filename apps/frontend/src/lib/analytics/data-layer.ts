@@ -29,24 +29,28 @@ type DataLayerEvent = {
 export const pushToDataLayer = (data: DataLayerEvent) => {
   if (typeof window === 'undefined') return;
 
-  const { event, ...rest } = data;
-  const payload = {
+  const { event, ecommerce, ...rest } = data;
+  const baseParams = {
     page_location: window.location.href,
     page_title: document.title,
     ...rest,
   };
 
-  // Send directly to GA4 using the native window.gtag function
   if (typeof window.gtag === 'function') {
-    window.gtag('event', event, payload);
+    // gtag expects ecommerce fields (items, currency, value) flat at the top level,
+    // not nested inside an `ecommerce` key — that nesting is GTM dataLayer format only.
+    const gtagPayload = ecommerce ? { ...baseParams, ...ecommerce } : baseParams;
+    window.gtag('event', event, gtagPayload);
   } else if (window.dataLayer) {
-    // Fallback if gtag is not ready yet: push the arguments object that gtag expects
-    window.dataLayer.push((function (..._args: any[]) { return arguments; })('event', event, payload));
-
-    // Also push the GTM object format
+    // GTM dataLayer format: clear previous ecommerce data first to prevent item merging,
+    // then push the event with the ecommerce object nested.
+    if (ecommerce) {
+      window.dataLayer.push({ ecommerce: null });
+    }
     window.dataLayer.push({
       event,
-      ...payload,
+      ...baseParams,
+      ...(ecommerce ? { ecommerce } : {}),
     });
   }
 };
