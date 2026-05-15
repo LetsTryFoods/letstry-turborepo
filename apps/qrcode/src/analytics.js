@@ -10,17 +10,17 @@ const UAParser = require('ua-parser-js');
 function getDeviceInfo(userAgentStr) {
   const parser = new UAParser(userAgentStr);
   const result = parser.getResult();
-  
+
   let deviceType = 'pc';
   if (result.device && result.device.type === 'mobile') {
     deviceType = 'mobile';
   } else if (result.device && result.device.type === 'tablet') {
     deviceType = 'tablet';
   }
-  
+
   // os.name provides the OS family e.g. 'Android', 'iOS', 'Windows', 'Mac OS'
   const osFamily = (result.os && result.os.name) ? result.os.name : 'Unknown';
-  
+
   return {
     deviceType,
     osFamily

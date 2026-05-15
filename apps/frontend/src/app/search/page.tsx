@@ -7,6 +7,8 @@ import { useSearchProducts } from '@/lib/search/use-search';
 import { ProductCard, type Product } from '@/components/category-page/ProductCard';
 import { useDebounce } from 'use-debounce';
 import { useAnalytics } from '@/hooks/use-analytics';
+import { useSearchStore } from '@/stores/search-store';
+import { plog } from '@/lib/debug-logger';
 
 const POPULAR_SEARCHES = ['Bhujia', 'Murukku'];
 
@@ -52,13 +54,57 @@ function mapProductData(apiProduct: any): Product {
 function SearchContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialSearchTerm = searchParams.get('q') || '';
-  const [searchInput, setSearchInput] = useState(initialSearchTerm);
+  const { searchTerm, setSearchTerm } = useSearchStore();
   const [isScrolled, setIsScrolled] = useState(false);
-  const [debouncedSearchTerm] = useDebounce(searchInput, 500);
+  const [debouncedSearchTerm] = useDebounce(searchTerm, 400);
   const loaderRef = useRef<HTMLDivElement>(null);
-  const { trackSearch } = useAnalytics();
-  const lastTrackedSearchRef = useRef('');
+  const { trackEvent } = useAnalytics();
+
+  // hasTyped: becomes true only after the user physically types (or after URL→store
+  // seeding is complete). Prevents store→URL from clearing a pre-existing ?q= on mount.
+  const hasTyped = useRef(false);
+
+  plog('[SearchContent] RENDER - searchTerm (store):', JSON.stringify(searchTerm), '| debouncedSearchTerm:', JSON.stringify(debouncedSearchTerm), '| searchParams q:', searchParams.get('q'), '| hasTyped:', hasTyped.current);
+
+  // On mount: initialise the store from the URL ?q= param.
+  // This handles direct navigation, page refresh, and back/forward nav.
+  useEffect(() => {
+    const q = searchParams.get('q') || '';
+    plog('[SearchContent] URL→store effect. q:', JSON.stringify(q), '| store searchTerm:', JSON.stringify(searchTerm));
+    // Only update the store if the URL has a different value.
+    // Using window.location.search instead of searchParams to avoid stale closure.
+    const currentStoreMatchesUrl = searchTerm === q;
+    if (!currentStoreMatchesUrl) {
+      setSearchTerm(q);
+    }
+    // Once we've seeded the store from the URL, allow store→URL syncs.
+    hasTyped.current = true;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  // One-way: store → URL. Update the URL whenever the debounced term changes.
+  // This is the ONLY place that writes to the URL.
+  useEffect(() => {
+    plog('[SearchContent] EFFECT (store→URL) - debouncedSearchTerm:', JSON.stringify(debouncedSearchTerm), '| hasTyped:', hasTyped.current);
+    // Don't push URL until we've seeded the store from the URL first.
+    // This prevents clearing a pre-existing ?q= param on mount.
+    if (!hasTyped.current) {
+      plog('[SearchContent] EFFECT - hasTyped=false, bailing to protect URL on mount.');
+      return;
+    }
+    const currentQ = new URLSearchParams(window.location.search).get('q') || '';
+    if (debouncedSearchTerm === currentQ) {
+      plog('[SearchContent] EFFECT - already matches URL. No router.replace needed.');
+      return;
+    }
+    const url = debouncedSearchTerm ? `/search?q=${encodeURIComponent(debouncedSearchTerm)}` : '/search';
+    plog('[SearchContent] EFFECT - replacing URL to:', url);
+    router.replace(url, { scroll: false });
+    if (debouncedSearchTerm) {
+      trackEvent('search', { search_term: debouncedSearchTerm });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearchTerm]);
 
   const {
     data,
@@ -68,39 +114,11 @@ function SearchContent() {
     fetchNextPage,
   } = useSearchProducts(debouncedSearchTerm);
 
-  const { trackEvent } = useAnalytics();
-
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  // Tracks whether the last URL change was triggered by typing (not back/forward navigation)
-  const selfUpdateRef = useRef(false);
-
-  // Sync input from URL only on external navigation (back/forward button)
-  useEffect(() => {
-    if (selfUpdateRef.current) {
-      selfUpdateRef.current = false;
-      return;
-    }
-    const urlSearchTerm = searchParams.get('q') || '';
-    setSearchInput(urlSearchTerm);
-  }, [searchParams]);
-
-  useEffect(() => {
-    if (debouncedSearchTerm === searchParams.get('q')) return;
-    const currentParams = new URLSearchParams(window.location.search);
-    if (debouncedSearchTerm) {
-      currentParams.set('q', debouncedSearchTerm);
-      trackEvent('search', { search_term: debouncedSearchTerm });
-    } else {
-      currentParams.delete('q');
-    }
-    selfUpdateRef.current = true;
-    router.replace(`${window.location.pathname}?${currentParams.toString()}`, { scroll: false });
-  }, [debouncedSearchTerm, router, trackEvent, searchParams]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -116,8 +134,8 @@ function SearchContent() {
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const handlePopularSearch = useCallback((term: string) => {
-    setSearchInput(term);
-  }, []);
+    setSearchTerm(term);
+  }, [setSearchTerm]);
 
   const products = data?.pages.flatMap(
     (page) => page?.searchProducts?.items?.map(mapProductData) ?? []
@@ -125,8 +143,6 @@ function SearchContent() {
   const meta = data?.pages[data.pages.length - 1]?.searchProducts?.meta;
   const hasSearched = debouncedSearchTerm.trim().length > 0;
 
-  // Fire view_search_results once results have loaded so GA4 can report
-  // result counts alongside the search term (helps identify zero-result queries).
   const totalResultCount = meta?.totalCount ?? 0;
   useEffect(() => {
     if (!hasSearched || isLoading) return;
@@ -136,6 +152,7 @@ function SearchContent() {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearchTerm, isLoading, totalResultCount]);
+
 
   return (
     <div className="min-h-screen bg-white">
@@ -150,8 +167,12 @@ function SearchContent() {
             <input
               type="text"
               placeholder="Bhujia"
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
+              value={searchTerm}
+              onChange={(e) => {
+                plog('[SearchContent] Mobile input onChange - new value:', JSON.stringify(e.target.value));
+                hasTyped.current = true;
+                setSearchTerm(e.target.value);
+              }}
               className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#0c5273] focus:ring-1 focus:ring-[#0c5273]"
               autoFocus
             />

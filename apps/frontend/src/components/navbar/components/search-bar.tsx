@@ -1,10 +1,12 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { useSearchStore } from '@/stores/search-store';
+import { plog } from '@/lib/debug-logger';
 
 interface SearchBarProps {
   className?: string;
@@ -18,31 +20,38 @@ function SearchBarContent({
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-  const [searchValue, setSearchValue] = useState('');
+  const { searchTerm, setSearchTerm } = useSearchStore();
 
+  plog('[SearchBar] RENDER - searchTerm:', JSON.stringify(searchTerm), '| pathname:', pathname, '| searchParams q:', searchParams.get('q'));
+
+  // When back/forward navigation changes the URL ?q=, sync it into the store.
+  // Guard: only update if the URL value differs from the current store value
+  // to avoid clobbering what the user is actively typing.
   useEffect(() => {
     if (pathname === '/search') {
       const q = searchParams.get('q') || '';
-      setSearchValue(q);
+      plog('[SearchBar] EFFECT - URL searchParams changed. q:', JSON.stringify(q), '| store searchTerm:', JSON.stringify(searchTerm));
+      if (q !== searchTerm) {
+        plog('[SearchBar] EFFECT - values differ → syncing q into store.');
+        setSearchTerm(q);
+      } else {
+        plog('[SearchBar] EFFECT - values match → no-op.');
+      }
     }
-  }, [pathname, searchParams]);
+  }, [pathname, searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchValue(value);
-
-    if (pathname === '/search') {
-      const params = new URLSearchParams();
-      if (value) {
-        params.set('q', value);
-      }
-      router.replace(`/search?${params.toString()}`);
-    }
+    plog('[SearchBar] INPUT CHANGE - new value:', JSON.stringify(e.target.value));
+    setSearchTerm(e.target.value);
   };
 
   const handleFocus = () => {
+    plog('[SearchBar] INPUT FOCUS - pathname:', pathname);
     if (pathname !== '/search') {
-      router.push('/search');
+      plog('[SearchBar] INPUT FOCUS - navigating to /search');
+      // Carry current term in URL so SearchContent initialises correctly
+      const q = searchTerm.trim();
+      router.push(q ? `/search?q=${encodeURIComponent(q)}` : '/search');
     }
   };
 
@@ -57,7 +66,7 @@ function SearchBarContent({
       <Input
         type="text"
         placeholder={placeholder}
-        value={searchValue}
+        value={searchTerm}
         onChange={handleInputChange}
         onFocus={handleFocus}
         className="border-0 bg-transparent p-0 text-sm focus-visible:ring-0 focus-visible:ring-offset-0"
