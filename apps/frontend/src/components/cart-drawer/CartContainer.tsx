@@ -33,7 +33,6 @@ export const CartContainer = () => {
     trackAddToCart,
     trackViewCart,
     trackAddShippingInfo,
-    trackAddPaymentInfo,
   } = useAnalytics();
   const wasOpenRef = useRef(false);
 
@@ -114,6 +113,7 @@ export const CartContainer = () => {
             name: item.title,
             price: item.price,
             quantity: oldQuantity,
+            variant: item.variant,
           });
         }
       } else {
@@ -126,6 +126,7 @@ export const CartContainer = () => {
               name: item.title,
               price: item.price,
               quantity: oldQuantity - quantity,
+              variant: item.variant,
             });
           } else if (quantity > oldQuantity) {
             trackAddToCart({
@@ -133,6 +134,7 @@ export const CartContainer = () => {
               name: item.title,
               price: item.price,
               quantity: quantity - oldQuantity,
+              variant: item.variant,
             });
           }
         }
@@ -162,6 +164,7 @@ export const CartContainer = () => {
           name: item.title,
           price: item.price,
           quantity: item.quantity,
+          variant: item.variant,
         });
       }
     } catch (error) {

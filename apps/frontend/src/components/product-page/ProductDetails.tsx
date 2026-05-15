@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import { ProductGallery } from "./ProductGallery";
 import { ProductTitle } from "./ProductTitle";
-import { CategoryLink } from "./CategoryLink";
 import { PriceBlock } from "./PriceBlock";
 import { SizeSelector } from "./SizeSelector";
 import { ActionButtons } from "./ActionButtons";
@@ -50,9 +49,10 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
       id: selectedVariant?._id || product._id,
       name: product.name,
       price: selectedVariant?.price || 0,
+      category: primaryCategorySlug || undefined,
       variant: selectedVariant?.name,
     });
-  }, [selectedVariantId, product, selectedVariant, trackViewItem]);
+  }, [selectedVariantId, product, selectedVariant, primaryCategorySlug, trackViewItem]);
 
   const images =
     selectedVariant?.images && selectedVariant.images.length > 0

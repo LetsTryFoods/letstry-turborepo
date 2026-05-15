@@ -8,6 +8,7 @@ import Link from "next/link";
 import { getCdnUrl } from "@/lib/image-utils";
 import { CartService } from "@/lib/cart/cart-service";
 import { useCart } from "@/lib/cart/use-cart";
+import { useAnalytics } from "@/hooks/use-analytics";
 
 interface Product {
   _id: string;
@@ -34,6 +35,7 @@ export const CategoryProductCard: React.FC<CategoryProductCardProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
   const cartQuery = useCart();
+  const { trackAddToCart, trackRemoveFromCart } = useAnalytics();
 
   const variant = product.defaultVariant;
   if (!variant) return null;
@@ -50,6 +52,13 @@ export const CategoryProductCard: React.FC<CategoryProductCardProps> = ({
     setIsLoading(true);
     try {
       await CartService.addToCart(product._id, 1);
+      trackAddToCart({
+        id: product._id,
+        name: product.name,
+        price: variant.price,
+        quantity: 1,
+        variant: variant.packageSize,
+      });
       queryClient.invalidateQueries({ queryKey: ["cart"] });
       toast.success("Added to cart");
     } catch (error) {
@@ -65,6 +74,13 @@ export const CategoryProductCard: React.FC<CategoryProductCardProps> = ({
     setIsLoading(true);
     try {
       await CartService.updateCartItem(product._id, quantityInCart + 1);
+      trackAddToCart({
+        id: product._id,
+        name: product.name,
+        price: variant.price,
+        quantity: 1,
+        variant: variant.packageSize,
+      });
       queryClient.invalidateQueries({ queryKey: ["cart"] });
     } catch (error) {
       toast.error("Failed to update cart");
@@ -83,6 +99,13 @@ export const CategoryProductCard: React.FC<CategoryProductCardProps> = ({
       } else {
         await CartService.removeFromCart(product._id);
       }
+      trackRemoveFromCart({
+        id: product._id,
+        name: product.name,
+        price: variant.price,
+        quantity: 1,
+        variant: variant.packageSize,
+      });
       queryClient.invalidateQueries({ queryKey: ["cart"] });
     } catch (error) {
       toast.error("Failed to update cart");
