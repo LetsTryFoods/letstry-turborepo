@@ -34,5 +34,13 @@ module.exports = {
         PORT: 4000,
       },
     },
+    {
+      name: "qrcode",
+      script: "./apps/qrcode/src/index.js",
+      env: {
+        NODE_ENV: "production",
+        PORT: 8000,
+      },
+    },
   ],
 };

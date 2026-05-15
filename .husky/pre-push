@@ -1,1 +1,1 @@
-pnpm turbo run build --filter=frontend --filter=backend --filter=admin
+pnpm turbo run build --filter=frontend --filter=backend --filter=admin --filter=qrcode 

@@ -6,6 +6,7 @@ packages:
   - "apps/ota-sdui-server"
   - "apps/proof_app/PackVerifyApp"
   - "apps/legacy-puncher"
+  - "apps/qrcode"
   - "packages/*"
 
 onlyBuiltDependencies:

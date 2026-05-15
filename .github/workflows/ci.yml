@@ -152,8 +152,8 @@ jobs:
           TARGET: "/home/ubuntu/letstry-turborepo/apps"
           EXCLUDE: "/node_modules/, /.git/, /backend/"
 
-      # --- 8. RESTART FRONTEND, ADMIN, & OTA SERVICES ---
-      - name: Restart Frontend, Admin, and OTA on EC2
+      # --- 8. RESTART FRONTEND, ADMIN, OTA, & QR SERVICES ---
+      - name: Restart Frontend, Admin, OTA, and QRCode on EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -163,9 +163,20 @@ jobs:
             set -e
             cd /home/ubuntu/letstry-turborepo
 
-            # Install OTA server dependencies
+            # Provision production .env for qrcode service using backend's connection string dynamically
+            if [ -f .env.production ]; then
+              MONGO_STR=$(grep -E '^(DATABASE_URL|MONGODB_CONNECTION_STRING)=' .env.production | head -n 1 | cut -d '=' -f2- | tr -d '"' | tr -d "'")
+              if [ -n "$MONGO_STR" ]; then
+                mkdir -p apps/qrcode
+                echo "PORT=8000" > apps/qrcode/.env
+                echo "MONGO_URI=$MONGO_STR" >> apps/qrcode/.env
+                echo "DB_NAME=letstry_dev" >> apps/qrcode/.env
+              fi
+            fi
+
+            # Install OTA server & QRCode service dependencies
             if command -v pnpm &> /dev/null; then
-              CI=true pnpm install --prod --no-frozen-lockfile --filter=ota-sdui-server
+              CI=true pnpm install --prod --no-frozen-lockfile --filter=ota-sdui-server --filter=qrcode
             else
               echo "pnpm not found, falling back to npm"
               npm install --production
@@ -180,12 +191,16 @@ jobs:
             # Restart or start OTA SDUI Server
             pm2 restart ota-sdui-server || pm2 start ecosystem.config.js --only ota-sdui-server
 
+            # Restart or start QRCode redirection service
+            pm2 restart qrcode || pm2 start ecosystem.config.js --only qrcode
+
             sleep 5
 
             # Health checks
             pm2 status frontend | grep -q "online" || { echo "Frontend failed to start!"; exit 1; }
             pm2 status admin | grep -q "online" || { echo "Admin failed to start!"; exit 1; }
             pm2 status ota-sdui-server | grep -q "online" || { echo "OTA SDUI Server failed to start!"; exit 1; }
+            pm2 status qrcode | grep -q "online" || { echo "QRCode service failed to start!"; exit 1; }
 
             pm2 save
 

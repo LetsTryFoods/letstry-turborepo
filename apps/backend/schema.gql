@@ -1631,6 +1631,33 @@ type PincodeServiceabilityResult {
   state: String
 }
 
+type OSSplit {
+  android: Float!
+  ios: Float!
+  windows: Float!
+  macOS: Float!
+  other: Float!
+}
+
+type QRScanItem {
+  fingerprint: String!
+  device: String!
+  os: String!
+  userAgent: String!
+  ipAddress: String!
+  location: String!
+  timesScanned: Float!
+  dateTime: [String!]!
+}
+
+type QRAnalyticsSummary {
+  totalScans: Float!
+  uniqueScans: Float!
+  totalOSSplit: OSSplit!
+  uniqueOSSplit: OSSplit!
+  recentScans: [QRScanItem!]!
+}
+
 input BoxDimensionsInput {
   l: Float!
   w: Float!
@@ -1749,6 +1776,7 @@ type Query {
   pressMention(id: ID!): PressMention!
   pressMentionBySlug(slug: String!): PressMention!
   checkPincodeServiceability(pincode: String!): PincodeServiceabilityResult!
+  qrAnalytics: QRAnalyticsSummary!
 }
 
 input PaginationInput {
