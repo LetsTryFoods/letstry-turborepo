@@ -92,30 +92,19 @@ function SearchContent() {
       plog('[SearchContent] EFFECT - hasTyped=false, bailing to protect URL on mount.');
       return;
     }
-    
-    // IMPORTANT FIX: If the debounced term hasn't caught up to the store's term yet,
-    // a debounce is in progress (or we just initialised from URL).
-    // Don't push stale intermediate states to the URL.
-    if (debouncedSearchTerm !== searchTerm) {
-      plog('[SearchContent] EFFECT - debounced term lags behind searchTerm. Bailing.');
-      return;
-    }
-
     const currentQ = new URLSearchParams(window.location.search).get('q') || '';
     if (debouncedSearchTerm === currentQ) {
       plog('[SearchContent] EFFECT - already matches URL. No router.replace needed.');
       return;
     }
-    
     const url = debouncedSearchTerm ? `/search?q=${encodeURIComponent(debouncedSearchTerm)}` : '/search';
     plog('[SearchContent] EFFECT - replacing URL to:', url);
     router.replace(url, { scroll: false });
-    
     if (debouncedSearchTerm) {
       trackEvent('search', { search_term: debouncedSearchTerm });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedSearchTerm, searchTerm]);
+  }, [debouncedSearchTerm]);
 
   const {
     data,

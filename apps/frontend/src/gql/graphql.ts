@@ -68,6 +68,14 @@ export type AddressInput = {
   state: Scalars['String']['input'];
 };
 
+export type Admin = {
+  __typename?: 'Admin';
+  _id: Scalars['ID']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  email: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
 export type AdminOrdersResponse = {
   __typename?: 'AdminOrdersResponse';
   meta: PaginationMeta;
@@ -2866,6 +2874,7 @@ export type Query = {
   activePillars: Array<Pillar>;
   activePressMentions: Array<PressMention>;
   address: Address;
+  admins: Array<Admin>;
   allActiveRedirects: Array<RedirectType>;
   author: Author;
   authorBySlug: Author;

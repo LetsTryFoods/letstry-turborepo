@@ -68,6 +68,7 @@
     "@types/react-dom": "^19",
     "@types/xlsx": "0.0.35",
     "babel-plugin-react-compiler": "1.0.0",
+    "baseline-browser-mapping": "^2.10.29",
     "husky": "^9.1.7",
     "shadcn": "^3.5.0",
     "tailwindcss": "^4",

@@ -110,20 +110,8 @@ describe('Address (e2e)', () => {
     });
 
     it('should update an address', async () => {
-      const address = await connection.collection('addresses').insertOne({
-        userId: connection
-          .collection('users')
-          .findOne({})
-          .then((u) => u._id), // This is async, need to fix
-        // Better to use the userId we got in beforeAll, but need to cast it to ObjectId if schema uses ObjectId
-        // However, the schema defines userId as string in Prop ref, but usually it's ObjectId in DB.
-        // Let's rely on the create mutation to set it up correctly first or insert carefully.
-        // Actually, let's just use the create mutation helper or insert directly with correct ID.
-        userId: (
-          await connection
-            .collection('users')
-            .findOne({ phoneNumber: '+919876543210' })
-        )._id,
+      const address = await connection.collection("addresses").insertOne({
+        userId,
         name: 'Old Name',
         streetAddress: 'Old Address',
         addressLocality: 'City',
@@ -199,12 +187,8 @@ describe('Address (e2e)', () => {
 
   describe('Address Queries', () => {
     it('should get my addresses', async () => {
-      await connection.collection('addresses').insertOne({
-        userId: (
-          await connection
-            .collection('users')
-            .findOne({ phoneNumber: '+919876543210' })
-        )._id,
+      await connection.collection("addresses").insertOne({
+        userId,
         name: 'My Address',
         streetAddress: 'Address',
         addressLocality: 'City',

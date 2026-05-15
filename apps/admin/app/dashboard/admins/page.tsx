@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { UserPlus, Mail, Calendar, Loader2 } from "lucide-react"
-import { useAdmins } from "@/lib/admin/queries"
+import { useAdmins, Admin } from "@/lib/admin/queries"
 import CreateAdminDialog from "./components/CreateAdminDialog"
 
 export default function AdminsPage() {
@@ -81,7 +81,7 @@ export default function AdminsPage() {
                       </TableCell>
                     </TableRow>
                   ) : (
-                    admins.map((admin: any) => (
+                    admins.map((admin: Admin) => (
                       <TableRow key={admin._id}>
                         <TableCell>
                           <div className="flex items-center gap-2">

@@ -18,8 +18,19 @@ export const CREATE_ADMIN = gql`
   }
 `;
 
+export interface Admin {
+  _id: string;
+  email: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GetAdminsData {
+  admins: Admin[];
+}
+
 export function useAdmins() {
-  return useQuery(GET_ADMINS);
+  return useQuery<GetAdminsData>(GET_ADMINS);
 }
 
 export function useCreateAdmin() {
