@@ -36,14 +36,10 @@ export const pushToDataLayer = (data: DataLayerEvent) => {
     ...rest,
   };
 
-  if (typeof window.gtag === 'function') {
-    // gtag expects ecommerce fields (items, currency, value) flat at the top level,
-    // not nested inside an `ecommerce` key — that nesting is GTM dataLayer format only.
-    const gtagPayload = ecommerce ? { ...baseParams, ...ecommerce } : baseParams;
-    window.gtag('event', event, gtagPayload);
-  } else if (window.dataLayer) {
-    // GTM dataLayer format: clear previous ecommerce data first to prevent item merging,
-    // then push the event with the ecommerce object nested.
+  if (window.dataLayer) {
+    // GTM is present — push through dataLayer so GTM tags fire with their full
+    // configuration (ecommerce settings, triggers, additional parameters).
+    // Clear previous ecommerce object first to prevent GTM merging items across events.
     if (ecommerce) {
       window.dataLayer.push({ ecommerce: null });
     }
@@ -52,6 +48,10 @@ export const pushToDataLayer = (data: DataLayerEvent) => {
       ...baseParams,
       ...(ecommerce ? { ecommerce } : {}),
     });
+  } else if (typeof window.gtag === 'function') {
+    // No GTM — send directly via gtag. Ecommerce fields must be flat (not nested).
+    const gtagPayload = ecommerce ? { ...baseParams, ...ecommerce } : baseParams;
+    window.gtag('event', event, gtagPayload);
   }
 };
 

@@ -178,7 +178,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
         {gtmId && <GoogleTagManager gtmId={gtmId} />}
-        {gaId && <GoogleAnalytics gaId={gaId} />}
+        {!gtmId && gaId && <GoogleAnalytics gaId={gaId} />}
         {gaId && (
           <Script id="ga4-disable-auto-pageview" strategy="afterInteractive">
             {`window.gtag && window.gtag('config', '${gaId}', { send_page_view: false });`}
