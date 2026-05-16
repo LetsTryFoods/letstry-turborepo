@@ -1,8 +1,9 @@
-import { Resolver, Mutation, Args, Context } from '@nestjs/graphql';
+import { Resolver, Mutation, Args, Context, Query } from '@nestjs/graphql';
 import { AdminAuthService } from '../authentication/admin/admin-auth.service';
 import { AdminService } from './admin.service';
 import { UnauthorizedException } from '@nestjs/common';
 import { Public } from '../common/decorators/public.decorator';
+import { Admin } from './admin.schema';
 
 @Resolver()
 export class AdminResolver {
@@ -10,6 +11,12 @@ export class AdminResolver {
     private authService: AdminAuthService,
     private adminService: AdminService,
   ) {}
+
+  @Query(() => [Admin])
+  @Public()
+  async admins(): Promise<Admin[]> {
+    return this.adminService.findAll();
+  }
 
   @Mutation(() => String)
   @Public()

@@ -144,6 +144,7 @@ const navGroups: NavGroup[] = [
     label: "People",
     items: [
       { title: "Customers", url: "/dashboard/customers", icon: Users },
+      { title: "Admin Users", url: "/dashboard/admins", icon: UserCheck },
       { title: "Reviews", url: "/dashboard/reviews", icon: Star, comingSoon: true },
     ],
   },

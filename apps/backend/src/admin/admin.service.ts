@@ -26,6 +26,10 @@ export class AdminService {
     return this.adminModel.findOne({ email }).exec();
   }
 
+  async findAll(): Promise<Admin[]> {
+    return this.adminModel.find().exec();
+  }
+
   async validatePassword(
     password: string,
     hashedPassword: string,

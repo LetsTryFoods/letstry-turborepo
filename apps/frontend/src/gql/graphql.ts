@@ -68,6 +68,14 @@ export type AddressInput = {
   state: Scalars['String']['input'];
 };
 
+export type Admin = {
+  __typename?: 'Admin';
+  _id: Scalars['ID']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  email: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
 export type AdminOrdersResponse = {
   __typename?: 'AdminOrdersResponse';
   meta: PaginationMeta;
@@ -1345,6 +1353,7 @@ export type Mutation = {
   submitContactMessage: ContactSubmissionResponse;
   submitCorporateEnquiry: CorporateEnquiryResponse;
   subscribeNewsletter: SubscribeNewsletterResponse;
+  syncActiveShipments: Scalars['Boolean']['output'];
   triggerReassignmentCycle: Scalars['Boolean']['output'];
   unarchiveCategory: Category;
   unarchiveProduct: Product;
@@ -1934,6 +1943,15 @@ export type NewsletterSubscription = {
   isActive: Scalars['Boolean']['output'];
   source?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTime']['output'];
+};
+
+export type OsSplit = {
+  __typename?: 'OSSplit';
+  android: Scalars['Float']['output'];
+  ios: Scalars['Float']['output'];
+  macOS: Scalars['Float']['output'];
+  other: Scalars['Float']['output'];
+  windows: Scalars['Float']['output'];
 };
 
 export type OrderCustomerType = {
@@ -2824,6 +2842,27 @@ export enum PurposeOfInquiry {
   WholesaleRetail = 'WholesaleRetail'
 }
 
+export type QrAnalyticsSummary = {
+  __typename?: 'QRAnalyticsSummary';
+  recentScans: Array<QrScanItem>;
+  totalOSSplit: OsSplit;
+  totalScans: Scalars['Float']['output'];
+  uniqueOSSplit: OsSplit;
+  uniqueScans: Scalars['Float']['output'];
+};
+
+export type QrScanItem = {
+  __typename?: 'QRScanItem';
+  dateTime: Array<Scalars['String']['output']>;
+  device: Scalars['String']['output'];
+  fingerprint: Scalars['String']['output'];
+  ipAddress: Scalars['String']['output'];
+  location: Scalars['String']['output'];
+  os: Scalars['String']['output'];
+  timesScanned: Scalars['Float']['output'];
+  userAgent: Scalars['String']['output'];
+};
+
 export type Query = {
   __typename?: 'Query';
   activeAuthors: Array<Author>;
@@ -2835,6 +2874,7 @@ export type Query = {
   activePillars: Array<Pillar>;
   activePressMentions: Array<PressMention>;
   address: Address;
+  admins: Array<Admin>;
   allActiveRedirects: Array<RedirectType>;
   author: Author;
   authorBySlug: Author;
@@ -2878,6 +2918,9 @@ export type Query = {
   getCustomerDetails: CustomerDetails;
   getDeliveryRecommendation: DeliveryRecommendation;
   getEvidenceByOrder: PackingEvidence;
+  getGuestOrderById: OrderType;
+  getGuestOrders: PaginatedOrdersResponse;
+  getGuestShipmentWithTracking: ShipmentWithTrackingResponse;
   getMyAssignedOrders: Array<PackingOrder>;
   getMyOrderHistory: Array<PackingOrder>;
   getMyOrders: PaginatedOrdersResponse;
@@ -2895,6 +2938,7 @@ export type Query = {
   getShipmentById?: Maybe<ShipmentResponse>;
   getShipmentLabel?: Maybe<Scalars['String']['output']>;
   getShipmentWithTracking: ShipmentWithTrackingResponse;
+  getShippingInsights: ShippingInsightsType;
   getTrackingAnalytics: TrackingAnalyticsResponse;
   guest?: Maybe<Guest>;
   guestByGuestId?: Maybe<Guest>;
@@ -2924,6 +2968,7 @@ export type Query = {
   products: PaginatedProducts;
   productsByCategory: PaginatedProducts;
   productsBySlugList: Array<Product>;
+  qrAnalytics: QrAnalyticsSummary;
   redirect: RedirectType;
   redirectByPath?: Maybe<RedirectType>;
   redirects: PaginatedRedirects;
@@ -3096,6 +3141,21 @@ export type QueryGetDeliveryRecommendationArgs = {
 
 export type QueryGetEvidenceByOrderArgs = {
   packingOrderId: Scalars['String']['input'];
+};
+
+
+export type QueryGetGuestOrderByIdArgs = {
+  orderId: Scalars['String']['input'];
+};
+
+
+export type QueryGetGuestOrdersArgs = {
+  input: GetMyOrdersInput;
+};
+
+
+export type QueryGetGuestShipmentWithTrackingArgs = {
+  awbNumber: Scalars['String']['input'];
 };
 
 
@@ -3463,15 +3523,19 @@ export type ShipmentFiltersInput = {
   customerCode?: InputMaybe<Scalars['String']['input']>;
   isCancelled?: InputMaybe<Scalars['Boolean']['input']>;
   isDelivered?: InputMaybe<Scalars['Boolean']['input']>;
+  limit?: Scalars['Int']['input'];
   orderId?: InputMaybe<Scalars['String']['input']>;
+  page?: Scalars['Int']['input'];
   referenceNumber?: InputMaybe<Scalars['String']['input']>;
   statusCode?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type ShipmentListResponse = {
   __typename?: 'ShipmentListResponse';
+  meta: PaginationMeta;
   shipments: Array<ShipmentResponse>;
   success: Scalars['Boolean']['output'];
+  summary: ShipmentSummaryResponse;
   total: Scalars['Int']['output'];
 };
 
@@ -3518,6 +3582,16 @@ export type ShipmentResponse = {
   weight: Scalars['Float']['output'];
 };
 
+export type ShipmentSummaryResponse = {
+  __typename?: 'ShipmentSummaryResponse';
+  cancelled: Scalars['Int']['output'];
+  deliveredToday: Scalars['Int']['output'];
+  inTransit: Scalars['Int']['output'];
+  pending: Scalars['Int']['output'];
+  rtoCount: Scalars['Int']['output'];
+  totalShipments: Scalars['Int']['output'];
+};
+
 export type ShipmentWithTrackingResponse = {
   __typename?: 'ShipmentWithTrackingResponse';
   bookedOn: Scalars['DateTime']['output'];
@@ -3560,6 +3634,14 @@ export type ShipmentWithTrackingResponse = {
   updatedAt: Scalars['DateTime']['output'];
   webhookLastReceivedAt?: Maybe<Scalars['DateTime']['output']>;
   weight: Scalars['Float']['output'];
+};
+
+export type ShippingInsightsType = {
+  __typename?: 'ShippingInsightsType';
+  avgDeliveryDays: Scalars['Float']['output'];
+  avgWeight: Scalars['Float']['output'];
+  maxDeliveryDays: Scalars['Int']['output'];
+  mostUsedBox?: Maybe<Scalars['String']['output']>;
 };
 
 export enum SortOrder {

@@ -206,6 +206,9 @@ importers:
       babel-plugin-react-compiler:
         specifier: 1.0.0
         version: 1.0.0
+      baseline-browser-mapping:
+        specifier: ^2.10.29
+        version: 2.10.29
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -6930,6 +6933,11 @@ packages:
 
   baseline-browser-mapping@2.10.23:
     resolution: {integrity: sha512-xwVXGqevyKPsiuQdLj+dZMVjidjJV508TBqexND5HrF89cGdCYCJFB3qhcxRHSeMctdCfbR1jrxBajhDy7o29g==}
+    engines: {node: '>=6.0.0'}
+    hasBin: true
+
+  baseline-browser-mapping@2.10.29:
+    resolution: {integrity: sha512-Asa2krT+XTPZINCS+2QcyS8WTkObE77RwkydwF7h6DmnKqbvlalz93m/dnphUyCa6SWSP51VgtEUf2FN+gelFQ==}
     engines: {node: '>=6.0.0'}
     hasBin: true
 
@@ -21439,6 +21447,8 @@ snapshots:
 
   baseline-browser-mapping@2.10.23: {}
 
+  baseline-browser-mapping@2.10.29: {}
+
   bcp-47-match@2.0.3: {}
 
   bcrypt@6.0.0:
@@ -21556,7 +21566,7 @@ snapshots:
 
   browserslist@4.28.2:
     dependencies:
-      baseline-browser-mapping: 2.10.23
+      baseline-browser-mapping: 2.10.29
       caniuse-lite: 1.0.30001791
       electron-to-chromium: 1.5.344
       node-releases: 2.0.38
