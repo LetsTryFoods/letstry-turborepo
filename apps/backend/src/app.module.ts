@@ -42,6 +42,7 @@ import { CategoryLandingPageModule } from './category-landing-page/category-land
 import { PressMentionModule } from './press-mention/press-mention.module';
 import { PincodeModule } from './pincode/pincode.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { SkuMasterModule } from './sku-master/sku-master.module';
 
 @Module({
   imports: [
@@ -93,6 +94,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
     AppCacheModule,
     PincodeModule,
     AnalyticsModule,
+    SkuMasterModule,
   ],
   controllers: [AppController],
   providers: [

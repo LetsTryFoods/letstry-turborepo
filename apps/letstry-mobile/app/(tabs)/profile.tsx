@@ -26,7 +26,7 @@ const FALLBACK_COMPONENTS = [
       links: [
         { id: 'track_order', label: 'Track Order', icon: 'bus-outline', action: { type: 'NAVIGATE', destination: '/orders/track' } },
         { id: 'contact_queries', label: 'Contact Queries', icon: 'help-circle-outline', action: { type: 'NAVIGATE', destination: '/support/contact' } },
-        { id: 'network_logs', label: 'Network Logs', icon: 'pulse-outline', action: { type: 'NAVIGATE', destination: '/network-logs' } },
+        // { id: 'network_logs', label: 'Network Logs', icon: 'pulse-outline', action: { type: 'NAVIGATE', destination: '/network-logs' } },
       ]
     }
   },
@@ -43,29 +43,29 @@ export default function ProfileScreen() {
   const components = [...(sduiData?.components || FALLBACK_COMPONENTS)];
 
   // Ensure Network Logs is always available for debugging
-  const hasNetworkLogs = components.some(c =>
-    c.type === 'LinkSection' &&
-    c.props?.links?.some((l: any) => l.id === 'network_logs')
-  );
+  // const hasNetworkLogs = components.some(c =>
+  //   c.type === 'LinkSection' &&
+  //   c.props?.links?.some((l: any) => l.id === 'network_logs')
+  // );
 
-  if (!hasNetworkLogs) {
-    const debugSection = {
-      type: 'LinkSection',
-      props: {
-        title: 'Debug',
-        links: [
-          { id: 'network_logs', label: 'Network Logs', icon: 'pulse-outline', action: { type: 'NAVIGATE', destination: '/network-logs' } },
-        ]
-      }
-    };
+  // if (!hasNetworkLogs) {
+  //   const debugSection = {
+  //     type: 'LinkSection',
+  //     props: {
+  //       title: 'Debug',
+  //       links: [
+  //         { id: 'network_logs', label: 'Network Logs', icon: 'pulse-outline', action: { type: 'NAVIGATE', destination: '/network-logs' } },
+  //       ]
+  //     }
+  //   };
 
-    const logoutIndex = components.findIndex(c => c.type === 'LogoutButton');
-    if (logoutIndex !== -1) {
-      components.splice(logoutIndex, 0, debugSection);
-    } else {
-      components.push(debugSection);
-    }
-  }
+  //   const logoutIndex = components.findIndex(c => c.type === 'LogoutButton');
+  //   if (logoutIndex !== -1) {
+  //     components.splice(logoutIndex, 0, debugSection);
+  //   } else {
+  //     components.push(debugSection);
+  //   }
+  // }
 
 
   return (
