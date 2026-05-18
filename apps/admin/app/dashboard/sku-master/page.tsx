@@ -125,7 +125,7 @@ function DriveLink({ url }: { url?: string }) {
 // ---------------------------------------------------------------------------
 export default function SkuMasterPage() {
   const { data, loading, error, refetch } = useSkuMasters()
-  const [bulkUpsert, { loading: uploading }] = useMutation(BULK_UPSERT_SKU_MASTERS, {
+  const [bulkUpsert, { loading: uploading }] = useMutation<{ bulkUpsertSkuMasters: number }>(BULK_UPSERT_SKU_MASTERS, {
     refetchQueries: [{ query: GET_SKU_MASTERS }],
   })
 

@@ -2,7 +2,7 @@
   "expo": {
     "name": "letstry-mobile",
     "slug": "letstry-mobile",
-    "version": "3.0.8",
+    "version": "3.0.9",
     "orientation": "portrait",
     "scheme": "letstry-mobile",
     "userInterfaceStyle": "automatic",
@@ -20,7 +20,7 @@
     },
     "android": {
       "package": "com.letstryapp",
-      "versionCode": 208,
+      "versionCode": 209,
       "permissions": [
         "com.google.android.gms.permission.AD_ID"
       ],
