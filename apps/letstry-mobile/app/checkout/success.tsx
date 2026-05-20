@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter, Stack } from 'expo-router';
+import { useRouter, Stack, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@apollo/client';
 import { theme } from '../../src/styles/theme';
@@ -19,14 +19,15 @@ import { useAuthStore } from '../../src/store/auth-store';
 
 export default function OrderSuccessScreen() {
   const router = useRouter();
-
+  const { orderId: passedOrderId } = useLocalSearchParams<{ orderId: string }>();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const query = isAuthenticated ? GET_MY_ORDERS : GET_GUEST_ORDERS;
 
   // Fetch the latest order to display the real Order ID (not the payment reference)
-  const { data, loading } = useQuery(query, {
+  const { data, loading, refetch } = useQuery(query, {
     variables: { input: { page: 1, limit: 1 } },
     fetchPolicy: 'network-only',
+    notifyOnNetworkStatusChange: true,
   });
 
   const latestOrder = (
@@ -34,6 +35,27 @@ export default function OrderSuccessScreen() {
       ? data?.getMyOrders?.orders?.[0]
       : data?.getGuestOrders?.orders?.[0]
   );
+
+  // If we have a passedOrderId (the paymentOrderId), we should verify that the latest order matches it.
+  // If it doesn't match, it means the backend hasn't created the order yet from the payment webhook.
+  const isTargetOrderFound = (
+    !passedOrderId ||
+    latestOrder?.paymentOrderId === passedOrderId ||
+    latestOrder?.orderId === passedOrderId
+  );
+
+  // Poll for the order if it's not found yet
+  React.useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (!isTargetOrderFound && !loading) {
+      interval = setInterval(() => {
+        refetch();
+      }, 3000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isTargetOrderFound, loading, refetch]);
 
   React.useEffect(() => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -60,13 +82,13 @@ export default function OrderSuccessScreen() {
           <View style={styles.orderCard}>
             <View style={styles.orderRow}>
               <Text style={styles.orderLabel}>Order ID</Text>
-              {loading ? (
-                <ActivityIndicator size="small" color={theme.colors.primary} />
-              ) : (
-                <Text style={styles.orderValue}>
-                  #{latestOrder?.orderId || 'PENDING'}
-                </Text>
-              )}
+              <Text style={styles.orderValue}>
+                {(!isTargetOrderFound || loading) ? (
+                  <ActivityIndicator size="small" color={theme.colors.primary} />
+                ) : (
+                  `#${latestOrder?.orderId || 'PENDING'}`
+                )}
+              </Text>
             </View>
             <View style={styles.orderRow}>
               <Text style={styles.orderLabel}>Payment Status</Text>
@@ -103,10 +125,10 @@ export default function OrderSuccessScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#fff' },
   scrollContent: { flexGrow: 1 },
-  container: { 
-    flex: 1, 
-    alignItems: 'center', 
-    justifyContent: 'center', 
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
     padding: 24,
     paddingTop: 40,
   },

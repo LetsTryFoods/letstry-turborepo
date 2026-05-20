@@ -32,18 +32,18 @@ const HomeScreen = () => {
   const insets = useSafeAreaInsets();
   const scrollY = useRef(new Animated.Value(0)).current;
   const [refreshing, setRefreshing] = useState(false);
-  const { 
-    banners, 
-    categories, 
-    allCategories, 
-    bestsellers, 
-    bestsellerCategoryId, 
-    combos, 
-    combosCategoryId, 
-    loading, 
-    sduiConfig, 
+  const {
+    banners,
+    categories,
+    allCategories,
+    bestsellers,
+    bestsellerCategoryId,
+    combos,
+    combosCategoryId,
+    loading,
+    sduiConfig,
     sduiComponents,
-    refetch 
+    refetch
   } = useHomeData();
 
   const onRefresh = useCallback(async () => {
@@ -61,11 +61,11 @@ const HomeScreen = () => {
 
   const handleBannerPress = (banner: any) => {
     if (!banner.url) return;
-    
+
     // Extract slug from URL (e.g., https://www.letstryfoods.com/fasting-special -> fasting-special)
     const urlParts = banner.url.split('/').filter(Boolean);
     const slug = urlParts[urlParts.length - 1];
-    
+
     // Fallback/Safety: Don't navigate if it's just the home URL or no slug
     if (!slug || slug === 'letstryfoods.com' || slug === 'www.letstryfoods.com') {
       return;
@@ -84,24 +84,24 @@ const HomeScreen = () => {
     switch (item.type) {
       case 'TopBanner':
         return (
-          <TopBanner 
-            visible={item.props?.visible} 
-            imageUrl={item.props?.imageUrl} 
+          <TopBanner
+            visible={item.props?.visible}
+            imageUrl={item.props?.imageUrl}
             aspectRatio={item.props?.aspectRatio}
           />
         );
       case 'EventsHero':
         return (
-          <EventsHero 
+          <EventsHero
             sduiConfig={sduiConfig}
             safeAreaTop={insets.top}
             marginTop={item.props?.marginTop}
             marginBottom={item.props?.marginBottom}
-            events={categories.slice(0, 8).map((c: any) => ({ 
-              id: c.id, 
-              name: c.name, 
-              imageUrl: c.imageUrl 
-            }))} 
+            events={categories.slice(0, 8).map((c: any) => ({
+              id: c.id,
+              name: c.name,
+              imageUrl: c.mobileImageUrl || c.imageUrl
+            }))}
             onEventSelect={(event) => router.push({
               pathname: '/categories' as any,
               params: { categoryId: event.id }
@@ -110,19 +110,19 @@ const HomeScreen = () => {
         );
       case 'Bestsellers':
         return (
-          <HorizontalSection 
-            title={item.props?.title || "Best Sellers"} 
-            products={bestsellers} 
+          <HorizontalSection
+            title={item.props?.title || "Best Sellers"}
+            products={bestsellers}
             cardStyles={item.props?.cardStyles}
             marginTop={item.props?.marginTop}
             marginBottom={item.props?.marginBottom}
-            seeAllPath={bestsellerCategoryId ? `/categories?categoryId=${bestsellerCategoryId}` : '/categories'} 
+            seeAllPath={bestsellerCategoryId ? `/categories?categoryId=${bestsellerCategoryId}` : '/categories'}
           />
         );
       case 'Categories':
         return (
-          <CategoriesGrid 
-            categories={categories} 
+          <CategoriesGrid
+            categories={categories}
             title={item.props?.title}
             numColumns={item.props?.numColumns}
             showSeeAll={item.props?.showSeeAll}
@@ -134,29 +134,29 @@ const HomeScreen = () => {
         return <HeroCarousel banners={banners} loading={loading} onBannerPress={handleBannerPress} />;
       case 'Combos':
         return (
-          <HorizontalSection 
-            title={item.props?.title || "Bestselling Combos"} 
-            products={combos} 
+          <HorizontalSection
+            title={item.props?.title || "Bestselling Combos"}
+            products={combos}
             cardStyles={item.props?.cardStyles}
             marginTop={item.props?.marginTop}
             marginBottom={item.props?.marginBottom}
-            seeAllPath={combosCategoryId ? `/categories?categoryId=${combosCategoryId}` : '/categories'} 
+            seeAllPath={combosCategoryId ? `/categories?categoryId=${combosCategoryId}` : '/categories'}
           />
         );
       case 'HomeFooter':
         return (
-          <HomeFooter 
-            mainText={item.props?.mainText} 
-            brandText={item.props?.brandText} 
+          <HomeFooter
+            mainText={item.props?.mainText}
+            brandText={item.props?.brandText}
           />
         );
       case 'Spacer':
         return <Spacer height={item.props?.height} />;
       case 'BannerCarousel':
         return (
-          <BannerCarousel 
-            items={item.props?.items} 
-            height={item.props?.height} 
+          <BannerCarousel
+            items={item.props?.items}
+            height={item.props?.height}
             borderRadius={item.props?.borderRadius}
             autoplayInterval={item.props?.autoplayInterval}
           />
@@ -173,7 +173,7 @@ const HomeScreen = () => {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
-      
+
 
       <Animated.FlatList
         data={displayData}

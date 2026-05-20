@@ -6,6 +6,7 @@ export const GET_MY_ORDERS = gql`
       orders {
         _id
         orderId
+        paymentOrderId
         totalAmount
         deliveryCharge
         orderStatus
@@ -35,6 +36,7 @@ export const GET_GUEST_ORDERS = gql`
       orders {
         _id
         orderId
+        paymentOrderId
         totalAmount
         deliveryCharge
         orderStatus

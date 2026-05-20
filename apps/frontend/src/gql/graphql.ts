@@ -1290,6 +1290,7 @@ export type Mutation = {
   archiveProduct: Product;
   batchScanItems: BatchScanResult;
   bulkUpsertPincodes: Scalars['Float']['output'];
+  bulkUpsertSkuMasters: Scalars['Int']['output'];
   cancelOrder: OrderType;
   cancelShipment: ShipmentResponse;
   cleanupOrphanedJobs: CleanupResult;
@@ -1448,6 +1449,11 @@ export type MutationBatchScanItemsArgs = {
 
 export type MutationBulkUpsertPincodesArgs = {
   pincodes: Array<PincodeInput>;
+};
+
+
+export type MutationBulkUpsertSkuMastersArgs = {
+  rows: Array<SkuMasterRowInput>;
 };
 
 
@@ -2977,6 +2983,9 @@ export type Query = {
   searchCategories: PaginatedCategories;
   searchPlaces: Array<PlacePredictionOutput>;
   searchProducts: PaginatedProducts;
+  skuMasterById?: Maybe<SkuMaster>;
+  skuMasterByMasterSku?: Maybe<SkuMaster>;
+  skuMasters: Array<SkuMaster>;
   teamMembers: Array<Author>;
 };
 
@@ -3378,6 +3387,16 @@ export type QuerySearchProductsArgs = {
   searchTerm: Scalars['String']['input'];
 };
 
+
+export type QuerySkuMasterByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QuerySkuMasterByMasterSkuArgs = {
+  masterSku: Scalars['Int']['input'];
+};
+
 export type RecentSearch = {
   __typename?: 'RecentSearch';
   createdAt: Scalars['String']['output'];
@@ -3642,6 +3661,40 @@ export type ShippingInsightsType = {
   avgWeight: Scalars['Float']['output'];
   maxDeliveryDays: Scalars['Int']['output'];
   mostUsedBox?: Maybe<Scalars['String']['output']>;
+};
+
+export type SkuMaster = {
+  __typename?: 'SkuMaster';
+  _id: Scalars['ID']['output'];
+  caseSize?: Maybe<Scalars['Int']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  jobStructure?: Maybe<Scalars['String']['output']>;
+  masterSku: Scalars['Int']['output'];
+  mrp?: Maybe<Scalars['Float']['output']>;
+  npiLinksRaw?: Maybe<Scalars['String']['output']>;
+  npiLinksUpdated?: Maybe<Scalars['String']['output']>;
+  printFilesRaw?: Maybe<Scalars['String']['output']>;
+  printFilesUpdated?: Maybe<Scalars['String']['output']>;
+  skuName: Scalars['String']['output'];
+  uom?: Maybe<Scalars['String']['output']>;
+  updatedAt: Scalars['DateTime']['output'];
+  vendorContactDetails?: Maybe<Scalars['String']['output']>;
+  vendorName?: Maybe<Scalars['String']['output']>;
+};
+
+export type SkuMasterRowInput = {
+  caseSize?: InputMaybe<Scalars['Int']['input']>;
+  jobStructure?: InputMaybe<Scalars['String']['input']>;
+  masterSku: Scalars['Int']['input'];
+  mrp?: InputMaybe<Scalars['Float']['input']>;
+  npiLinksRaw?: InputMaybe<Scalars['String']['input']>;
+  npiLinksUpdated?: InputMaybe<Scalars['String']['input']>;
+  printFilesRaw?: InputMaybe<Scalars['String']['input']>;
+  printFilesUpdated?: InputMaybe<Scalars['String']['input']>;
+  skuName: Scalars['String']['input'];
+  uom?: InputMaybe<Scalars['String']['input']>;
+  vendorContactDetails?: InputMaybe<Scalars['String']['input']>;
+  vendorName?: InputMaybe<Scalars['String']['input']>;
 };
 
 export enum SortOrder {

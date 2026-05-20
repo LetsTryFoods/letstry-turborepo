@@ -1665,6 +1665,24 @@ type QRAnalyticsSummary {
   recentScans: [QRScanItem!]!
 }
 
+type SkuMaster {
+  _id: ID!
+  masterSku: Int!
+  skuName: String!
+  vendorName: String
+  vendorContactDetails: String
+  jobStructure: String
+  uom: String
+  caseSize: Int
+  mrp: Float
+  npiLinksRaw: String
+  npiLinksUpdated: String
+  printFilesRaw: String
+  printFilesUpdated: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
 input BoxDimensionsInput {
   l: Float!
   w: Float!
@@ -1785,6 +1803,9 @@ type Query {
   pressMentionBySlug(slug: String!): PressMention!
   checkPincodeServiceability(pincode: String!): PincodeServiceabilityResult!
   qrAnalytics: QRAnalyticsSummary!
+  skuMasters: [SkuMaster!]!
+  skuMasterById(id: ID!): SkuMaster
+  skuMasterByMasterSku(masterSku: Int!): SkuMaster
 }
 
 input PaginationInput {
@@ -2009,6 +2030,7 @@ type Mutation {
   updatePressMention(id: ID!, input: UpdatePressMentionInput!): PressMention!
   removePressMention(id: ID!): PressMention!
   bulkUpsertPincodes(pincodes: [PincodeInput!]!): Float!
+  bulkUpsertSkuMasters(rows: [SkuMasterRowInput!]!): Int!
 }
 
 input CreateProductInput {
@@ -2957,4 +2979,19 @@ input PincodeInput {
   state: String!
   zone: String!
   tat: Int!
+}
+
+input SkuMasterRowInput {
+  masterSku: Int!
+  skuName: String!
+  vendorName: String
+  vendorContactDetails: String
+  jobStructure: String
+  uom: String
+  caseSize: Int
+  mrp: Float
+  npiLinksRaw: String
+  npiLinksUpdated: String
+  printFilesRaw: String
+  printFilesUpdated: String
 }
