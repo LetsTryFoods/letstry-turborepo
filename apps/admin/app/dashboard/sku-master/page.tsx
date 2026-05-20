@@ -139,7 +139,7 @@ export default function SkuMasterPage() {
 
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
-  
+
   const [selectedColumns, setSelectedColumns] = useState<string[]>(
     ALL_COLUMNS.map((c) => c.key)
   )
@@ -345,8 +345,8 @@ export default function SkuMasterPage() {
           {/* Drop zone */}
           <div
             className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-colors ${dragOver
-                ? "border-primary bg-primary/5"
-                : "border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/40"
+              ? "border-primary bg-primary/5"
+              : "border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/40"
               }`}
             onClick={() => fileInputRef.current?.click()}
             onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
