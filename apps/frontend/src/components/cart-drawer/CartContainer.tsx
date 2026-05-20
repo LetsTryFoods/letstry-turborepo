@@ -273,18 +273,32 @@ export const CartContainer = () => {
       const result = await AddressService.createAddress(addressInput);
       const newAddressId = (result as any)?.createAddress?._id;
 
-      await queryClient.invalidateQueries({ queryKey: ['addresses'] });
-
       if (newAddressId) {
+        // Set the shipping address on the cart immediately
         await CartService.setShippingAddress(newAddressId);
-        await queryClient.invalidateQueries({ queryKey: ['cart'] });
 
-        const updatedAddresses = await queryClient.fetchQuery({ queryKey: ['addresses'] });
-        const newAddress = (updatedAddresses as any)?.myAddresses?.find((addr: any) => addr._id === newAddressId);
-        if (newAddress) {
-          setSelectedAddress(newAddress);
-          fireAddShippingInfo(newAddress);
-        }
+        // Build the address object right from what we already know — no cache race conditions.
+        const immediateAddress = {
+          _id: newAddressId,
+          addressType: addressInput.addressType,
+          recipientName: addressInput.recipientName,
+          recipientPhone: addressInput.recipientPhone,
+          buildingName: addressInput.buildingName,
+          floor: addressInput.floor,
+          streetArea: addressInput.streetArea,
+          landmark: addressInput.landmark,
+          formattedAddress: addressInput.formattedAddress,
+          postalCode: addressInput.postalCode,
+          city: addressInput.addressLocality,
+        };
+
+        // Auto-select the new address immediately — no extra click needed.
+        setSelectedAddress(immediateAddress);
+        fireAddShippingInfo(immediateAddress);
+
+        // Refresh the cache in the background so the address list stays up to date.
+        queryClient.invalidateQueries({ queryKey: ['addresses'] });
+        queryClient.invalidateQueries({ queryKey: ['cart'] });
       }
 
       setSelectedPlaceData(null);

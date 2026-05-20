@@ -148,8 +148,8 @@ export default function LocationSelectionScreen() {
   };
 
   const handleSelectSavedAddress = (addressId: string) => {
-    // Navigate to summary with the selected addressId
-    router.push({
+    // Replace so the list screen is removed from the back-stack after selecting
+    router.replace({
       pathname: '/checkout/summary',
       params: { addressId },
     });

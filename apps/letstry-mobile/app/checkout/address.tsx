@@ -39,6 +39,7 @@ export default function AddressDetailsScreen() {
 
   const [createAddress, { loading: creatingAddress }] = useMutation(CREATE_ADDRESS, {
     refetchQueries: [{ query: GET_MY_ADDRESSES }],
+    awaitRefetchQueries: true,
   });
 
   const {
@@ -87,7 +88,9 @@ export default function AddressDetailsScreen() {
       const addressId = addressResult.data.createAddress._id;
 
       // 2. Navigate to summary (payment will be initiated there)
-      router.push({
+      // Use replace so the address form is removed from the back-stack;
+      // the user should not be able to go back to the form after saving.
+      router.replace({
         pathname: '/checkout/summary',
         params: { addressId },
       });
