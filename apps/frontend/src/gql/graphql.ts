@@ -877,6 +877,12 @@ export type CreateRedirectInput = {
   toPath: Scalars['String']['input'];
 };
 
+export type CreateSampleInvoiceInput = {
+  invoiceNumber: Scalars['String']['input'];
+  items: Array<SampleInvoiceItemInput>;
+  recipient?: InputMaybe<SampleInvoiceRecipientInput>;
+};
+
 export type CreateShipmentInput = {
   codAmount?: InputMaybe<Scalars['Float']['input']>;
   codCollectionMode?: InputMaybe<Scalars['String']['input']>;
@@ -1316,6 +1322,7 @@ export type Mutation = {
   createPressMention: PressMention;
   createProduct: Product;
   createRedirect: RedirectType;
+  createSampleInvoice: SampleInvoice;
   createShipment: CreateShipmentResponse;
   deleteAddress: Address;
   deleteBanner: Banner;
@@ -1572,6 +1579,11 @@ export type MutationCreateProductArgs = {
 
 export type MutationCreateRedirectArgs = {
   input: CreateRedirectInput;
+};
+
+
+export type MutationCreateSampleInvoiceArgs = {
+  input: CreateSampleInvoiceInput;
 };
 
 
@@ -2980,6 +2992,8 @@ export type Query = {
   redirects: PaginatedRedirects;
   reverseGeocode: GoogleMapsAddressOutput;
   rootCategories: PaginatedCategories;
+  sampleInvoiceById?: Maybe<SampleInvoice>;
+  sampleInvoices: Array<SampleInvoice>;
   searchCategories: PaginatedCategories;
   searchPlaces: Array<PlacePredictionOutput>;
   searchProducts: PaginatedProducts;
@@ -3369,6 +3383,11 @@ export type QueryRootCategoriesArgs = {
 };
 
 
+export type QuerySampleInvoiceByIdArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QuerySearchCategoriesArgs = {
   includeArchived?: Scalars['Boolean']['input'];
   pagination?: PaginationInput;
@@ -3454,6 +3473,52 @@ export type ReportSummaryType = {
 export type ReverseGeocodeInput = {
   latitude: Scalars['Float']['input'];
   longitude: Scalars['Float']['input'];
+};
+
+export type SampleInvoice = {
+  __typename?: 'SampleInvoice';
+  _id: Scalars['ID']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  invoiceNumber: Scalars['String']['output'];
+  items: Array<SampleInvoiceItem>;
+  recipient?: Maybe<SampleInvoiceRecipient>;
+  totalMrpValue: Scalars['Float']['output'];
+  totalPcs: Scalars['Int']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type SampleInvoiceItem = {
+  __typename?: 'SampleInvoiceItem';
+  mrp?: Maybe<Scalars['Float']['output']>;
+  quantity: Scalars['Int']['output'];
+  sku: Scalars['String']['output'];
+  skuName: Scalars['String']['output'];
+  uom?: Maybe<Scalars['String']['output']>;
+};
+
+export type SampleInvoiceItemInput = {
+  mrp?: InputMaybe<Scalars['Float']['input']>;
+  quantity: Scalars['Int']['input'];
+  sku: Scalars['String']['input'];
+  skuName: Scalars['String']['input'];
+  uom?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type SampleInvoiceRecipient = {
+  __typename?: 'SampleInvoiceRecipient';
+  address?: Maybe<Scalars['String']['output']>;
+  company?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  notes?: Maybe<Scalars['String']['output']>;
+  phone?: Maybe<Scalars['String']['output']>;
+};
+
+export type SampleInvoiceRecipientInput = {
+  address?: InputMaybe<Scalars['String']['input']>;
+  company?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  phone?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type ScanLog = {
@@ -3675,6 +3740,7 @@ export type SkuMaster = {
   npiLinksUpdated?: Maybe<Scalars['String']['output']>;
   printFilesRaw?: Maybe<Scalars['String']['output']>;
   printFilesUpdated?: Maybe<Scalars['String']['output']>;
+  sellingPrice?: Maybe<Scalars['Float']['output']>;
   skuName: Scalars['String']['output'];
   uom?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTime']['output'];
@@ -3691,6 +3757,7 @@ export type SkuMasterRowInput = {
   npiLinksUpdated?: InputMaybe<Scalars['String']['input']>;
   printFilesRaw?: InputMaybe<Scalars['String']['input']>;
   printFilesUpdated?: InputMaybe<Scalars['String']['input']>;
+  sellingPrice?: InputMaybe<Scalars['Float']['input']>;
   skuName: Scalars['String']['input'];
   uom?: InputMaybe<Scalars['String']['input']>;
   vendorContactDetails?: InputMaybe<Scalars['String']['input']>;
