@@ -43,6 +43,7 @@ import { PressMentionModule } from './press-mention/press-mention.module';
 import { PincodeModule } from './pincode/pincode.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { SkuMasterModule } from './sku-master/sku-master.module';
+import { SampleInvoiceModule } from './sample-invoice/sample-invoice.module';
 
 @Module({
   imports: [
@@ -95,6 +96,7 @@ import { SkuMasterModule } from './sku-master/sku-master.module';
     PincodeModule,
     AnalyticsModule,
     SkuMasterModule,
+    SampleInvoiceModule,
   ],
   controllers: [AppController],
   providers: [

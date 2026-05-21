@@ -69,6 +69,14 @@ export class SkuMaster {
   mrp?: number;
 
   /**
+   * Selling price in INR — actual price charged to customer (e.g. MRP minus discount).
+   * Can be set manually or derived from product variants.
+   */
+  @Prop({ required: false, type: Number })
+  @Field(() => Float, { nullable: true })
+  sellingPrice?: number;
+
+  /**
    * NPI (New Product Introduction) drive folder — RAW original link
    * (column: "NPI Links RAW").
    */

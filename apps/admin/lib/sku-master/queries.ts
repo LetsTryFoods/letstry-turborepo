@@ -13,6 +13,7 @@ export const GET_SKU_MASTERS = gql`
       uom
       caseSize
       mrp
+      sellingPrice
       npiLinksRaw
       npiLinksUpdated
       printFilesRaw
@@ -35,6 +36,7 @@ export const GET_SKU_MASTER_BY_ID = gql`
       uom
       caseSize
       mrp
+      sellingPrice
       npiLinksRaw
       npiLinksUpdated
       printFilesRaw
@@ -55,6 +57,7 @@ export interface SkuMasterRecord {
   uom?: string;
   caseSize?: number;
   mrp?: number;
+  sellingPrice?: number;
   npiLinksRaw?: string;
   npiLinksUpdated?: string;
   printFilesRaw?: string;
