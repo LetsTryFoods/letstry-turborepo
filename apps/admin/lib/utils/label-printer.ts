@@ -9,7 +9,7 @@ export function printShippingLabel(order: Order): void {
   // Extract details
   const fullName = order.shippingAddress?.fullName || order.customer?.name || 'Valued Customer'
   const phone = order.shippingAddress?.phone || order.customer?.phone || 'N/A'
-  
+
   // Format Address
   const addressLine1 = order.shippingAddress?.addressLine1 || ''
   const addressLine2 = order.shippingAddress?.addressLine2 || ''
@@ -22,17 +22,12 @@ export function printShippingLabel(order: Order): void {
   if (addressLine1) addressLines.push(addressLine1)
   if (addressLine2) addressLines.push(addressLine2)
   if (landmark) addressLines.push(`Landmark: ${landmark}`)
-  
+
   const cityStateZip = [city, state].filter(Boolean).join(', ') + (pincode ? ` - ${pincode}` : '')
   if (cityStateZip) addressLines.push(cityStateZip)
-  
+
   const fullAddress = addressLines.join('\n') || 'No Address Provided'
   const orderId = order.orderId || order._id
-  
-  // Format Amount
-  const rawAmount = parseFloat(order.totalAmount || '0')
-  const amountStr = rawAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-
   // 1. Initialize jsPDF targeting A4 paper (210mm x 297mm) in portrait mode
   const doc = new jsPDF({
     orientation: 'portrait',
@@ -54,7 +49,7 @@ export function printShippingLabel(order: Order): void {
   // 3. Draw black header banner
   doc.setFillColor(0, 0, 0)
   doc.rect(x, y, width, 18, 'F')
-  
+
   doc.setTextColor(255, 255, 255)
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(16)
@@ -67,7 +62,7 @@ export function printShippingLabel(order: Order): void {
   doc.setFontSize(11)
   doc.setFont('helvetica', 'normal')
   doc.text('NAME:', x + 15, y + 36)
-  
+
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(18)
   doc.text(fullName.toUpperCase(), x + 15, y + 44)
@@ -76,7 +71,7 @@ export function printShippingLabel(order: Order): void {
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(11)
   doc.text('PHONE NUMBER:', x + 15, y + 60)
-  
+
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(18)
   doc.text(phone, x + 15, y + 68)
@@ -85,10 +80,10 @@ export function printShippingLabel(order: Order): void {
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(11)
   doc.text('DELIVERY ADDRESS:', x + 15, y + 84)
-  
+
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(14)
-  
+
   // Use splitTextToSize to wrap text safely within label bounds
   const wrappedAddress = doc.splitTextToSize(fullAddress, width - 30)
   doc.text(wrappedAddress, x + 15, y + 92)
@@ -103,19 +98,10 @@ export function printShippingLabel(order: Order): void {
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(10)
   doc.text('ORDER ID', x + 15, y + height - 20)
-  
+
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(14)
   doc.text(`#${orderId}`, x + 15, y + height - 13)
-
-  // 9. Draw Footer Info - Amount
-  doc.setFont('helvetica', 'normal')
-  doc.setFontSize(10)
-  doc.text('COLLECTIBLE AMOUNT', x + width - 15, y + height - 20, { align: 'right' })
-  
-  doc.setFont('helvetica', 'bold')
-  doc.setFontSize(18)
-  doc.text(`Rs. ${amountStr}`, x + width - 15, y + height - 13, { align: 'right' })
 
   // 10. Direct download the PDF file
   doc.save(`label-${orderId}.pdf`)
