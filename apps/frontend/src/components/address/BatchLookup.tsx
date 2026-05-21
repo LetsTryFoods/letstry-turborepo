@@ -70,7 +70,7 @@ export default function BatchLookup({ units }: { units: Unit[] }) {
         setTimeout(() => inputsRef[0].current?.focus(), 50);
     }
 
-    const isReady = chars[0].trim() !== "";
+    const isReady = chars.every((c) => c.trim() !== "");
 
     return (
         <div className="w-full">
@@ -191,11 +191,12 @@ export default function BatchLookup({ units }: { units: Unit[] }) {
                     type="button"
                     onClick={submit}
                     disabled={!isReady}
-                    className="w-full sm:w-auto px-8 py-3 rounded-full font-semibold text-sm tracking-wide transition-all"
+                    className="w-full sm:w-auto px-8 py-3 rounded-full font-semibold text-sm tracking-wide transition-all duration-200"
                     style={{
-                        background: isReady ? "#0C5273" : "#D1E9F2",
-                        color: isReady ? "white" : "#0C5273",
+                        background: isReady ? "#0C5273" : "#e5e7eb",
+                        color: isReady ? "white" : "#9ca3af",
                         cursor: isReady ? "pointer" : "not-allowed",
+                        opacity: isReady ? 1 : 0.7,
                     }}
                 >
                     VERIFY AND PROCESS

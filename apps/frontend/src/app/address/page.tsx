@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import BatchLookup from "@/components/address/BatchLookup";
+import { ProductRangeBanner } from "@/components/address/ProductRangeBanner";
 
 export const metadata: Metadata = {
     title: "Manufacturing Unit Addresses | Let's Try",
@@ -64,9 +65,12 @@ export default function AddressPage() {
 
             <div className="px-[15px] md:px-[30px] lg:px-[45px] py-8">
                 <div className="max-w-xl mx-auto">
+                       <ProductRangeBanner />
                     <BatchLookup units={manufacturingUnits} />
                 </div>
             </div>
+
+         
         </main>
     );
 }
