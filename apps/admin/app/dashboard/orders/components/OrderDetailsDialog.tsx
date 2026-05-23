@@ -37,8 +37,10 @@ import {
   Mail,
   IndianRupee,
   FileDown,
-  Download
+  Download,
+  FileImage
 } from "lucide-react"
+import { printShippingLabel } from "@/lib/utils/label-printer"
 
 interface OrderDetailsDialogProps {
   order: Order | null
@@ -207,6 +209,15 @@ export function OrderDetailsDialog({ order: summaryOrder, open, onOpenChange }: 
               >
                 <FileDown className="h-4 w-4 mr-2" />
                 Download Invoice
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+                onClick={() => printShippingLabel(order)}
+              >
+                <FileImage className="h-4 w-4 mr-2" />
+                Download Custom Label
               </Button>
             </div>
           </DialogTitle>

@@ -47,6 +47,7 @@ import {
   UserCircle,
   Users,
   Sheet,
+  Receipt,
   type LucideIcon,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -164,6 +165,7 @@ const navGroups: NavGroup[] = [
       { title: "Packing Orders", url: "/dashboard/packing-orders", icon: PackageCheck },
       { title: "Notifications", url: "/dashboard/notifications", icon: Bell, comingSoon: true },
       { title: "Pincodes", url: "/dashboard/pincodes", icon: ListChecks },
+      { title: "Sample Invoice", url: "/dashboard/sample-invoice", icon: Receipt },
     ],
   },
   {

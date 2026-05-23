@@ -32,6 +32,16 @@ export const GET_ALL_ORDERS = gql`
         shipment {
           dtdcAwbNumber
         }
+        shippingAddress {
+          fullName
+          phone
+          addressLine1
+          addressLine2
+          city
+          state
+          pincode
+          landmark
+        }
       }
       meta {
         totalCount

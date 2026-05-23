@@ -1675,10 +1675,38 @@ type SkuMaster {
   uom: String
   caseSize: Int
   mrp: Float
+  sellingPrice: Float
   npiLinksRaw: String
   npiLinksUpdated: String
   printFilesRaw: String
   printFilesUpdated: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type SampleInvoiceItem {
+  sku: String!
+  skuName: String!
+  uom: String
+  mrp: Float
+  quantity: Int!
+}
+
+type SampleInvoiceRecipient {
+  name: String
+  company: String
+  address: String
+  phone: String
+  notes: String
+}
+
+type SampleInvoice {
+  _id: ID!
+  invoiceNumber: String!
+  recipient: SampleInvoiceRecipient
+  items: [SampleInvoiceItem!]!
+  totalPcs: Int!
+  totalMrpValue: Float!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -1806,6 +1834,8 @@ type Query {
   skuMasters: [SkuMaster!]!
   skuMasterById(id: ID!): SkuMaster
   skuMasterByMasterSku(masterSku: Int!): SkuMaster
+  sampleInvoices: [SampleInvoice!]!
+  sampleInvoiceById(id: ID!): SampleInvoice
 }
 
 input PaginationInput {
@@ -2031,6 +2061,7 @@ type Mutation {
   removePressMention(id: ID!): PressMention!
   bulkUpsertPincodes(pincodes: [PincodeInput!]!): Float!
   bulkUpsertSkuMasters(rows: [SkuMasterRowInput!]!): Int!
+  createSampleInvoice(input: CreateSampleInvoiceInput!): SampleInvoice!
 }
 
 input CreateProductInput {
@@ -2990,8 +3021,31 @@ input SkuMasterRowInput {
   uom: String
   caseSize: Int
   mrp: Float
+  sellingPrice: Float
   npiLinksRaw: String
   npiLinksUpdated: String
   printFilesRaw: String
   printFilesUpdated: String
+}
+
+input CreateSampleInvoiceInput {
+  invoiceNumber: String!
+  recipient: SampleInvoiceRecipientInput
+  items: [SampleInvoiceItemInput!]!
+}
+
+input SampleInvoiceRecipientInput {
+  name: String
+  company: String
+  address: String
+  phone: String
+  notes: String
+}
+
+input SampleInvoiceItemInput {
+  sku: String!
+  skuName: String!
+  uom: String
+  mrp: Float
+  quantity: Int!
 }
