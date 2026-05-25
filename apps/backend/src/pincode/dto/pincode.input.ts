@@ -22,6 +22,24 @@ export class PincodeInput {
 }
 
 @ObjectType()
+export class ServiceDetail {
+  @Field()
+  isDeliverable: boolean;
+
+  @Field(() => Int, { nullable: true })
+  estimatedDays?: number;
+
+  @Field({ nullable: true })
+  city?: string;
+
+  @Field({ nullable: true })
+  state?: string;
+
+  @Field({ nullable: true })
+  zone?: string;
+}
+
+@ObjectType()
 export class PincodeServiceabilityResult {
   @Field()
   isDeliverable: boolean;
@@ -34,4 +52,10 @@ export class PincodeServiceabilityResult {
 
   @Field({ nullable: true })
   state?: string;
+
+  @Field(() => ServiceDetail, { nullable: true })
+  smartExpress?: ServiceDetail;
+
+  @Field(() => ServiceDetail, { nullable: true })
+  priority?: ServiceDetail;
 }

@@ -30,6 +30,7 @@ function PincodeChecker() {
   };
 
   const result = data?.checkPincodeServiceability;
+  const isAnyDeliverable = result?.smartExpress?.isDeliverable || result?.priority?.isDeliverable;
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-8">
@@ -37,7 +38,7 @@ function PincodeChecker() {
         <Search className="w-5 h-5 text-[#0C5273]" />
         Quick Pincode Checker
       </h2>
-      <form onSubmit={handleCheck} className="flex gap-2 max-w-md">
+      <form onSubmit={handleCheck} className="flex gap-2 max-w-md mb-6">
         <input
           type="text"
           value={pincode}
@@ -55,27 +56,118 @@ function PincodeChecker() {
       </form>
 
       {result && (
-        <div className={`mt-6 p-4 rounded-lg border ${result.isDeliverable ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
-          <div className="flex items-start gap-3">
-            {result.isDeliverable ? (
-              <CheckCircle className="w-6 h-6 text-emerald-600 mt-0.5" />
-            ) : (
-              <XCircle className="w-6 h-6 text-red-600 mt-0.5" />
-            )}
+        <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+          {/* Location Header */}
+          <div className="bg-gray-50 border border-gray-150 p-4 rounded-lg flex flex-wrap gap-x-8 gap-y-2 text-sm text-gray-700">
             <div>
-              <p className={`font-bold ${result.isDeliverable ? 'text-emerald-800' : 'text-red-800'}`}>
-                {result.isDeliverable ? 'Serviceable' : 'Not Serviceable'}
-              </p>
-              {result.isDeliverable && (
-                <div className="mt-2 grid grid-cols-2 gap-x-8 gap-y-1 text-sm text-emerald-700">
-                  <p><span className="font-semibold text-emerald-800">City:</span> {result.city}</p>
-                  <p><span className="font-semibold text-emerald-800">State:</span> {result.state}</p>
-                  <p><span className="font-semibold text-emerald-800">Est. Delivery:</span> {result.estimatedDays} days</p>
+              <span className="font-semibold text-gray-900">Pincode:</span> {pincode}
+            </div>
+            {isAnyDeliverable && (
+              <>
+                <div>
+                  <span className="font-semibold text-gray-900">City:</span>{' '}
+                  {result.smartExpress?.city || result.priority?.city || result.city}
                 </div>
-              )}
-              {!result.isDeliverable && (
-                <p className="text-sm text-red-700 mt-1">This pincode is not in your deliverable list.</p>
-              )}
+                <div>
+                  <span className="font-semibold text-gray-900">State:</span>{' '}
+                  {result.smartExpress?.state || result.priority?.state || result.state}
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Service Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Smart Express Card */}
+            <div
+              className={`p-5 rounded-xl border flex flex-col justify-between transition-all hover:shadow-md ${result.smartExpress?.isDeliverable
+                ? 'bg-emerald-50/55 border-emerald-200'
+                : 'bg-red-50/55 border-red-200'
+                }`}
+            >
+              <div>
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <h3 className="font-extrabold text-gray-900 text-base">B2C SMART EXPRESS</h3>
+                    <p className="text-xs text-gray-500">Standard Delivery Service</p>
+                  </div>
+                  {result.smartExpress?.isDeliverable ? (
+                    <span className="bg-emerald-100 text-emerald-800 text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1">
+                      <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
+                      Serviceable
+                    </span>
+                  ) : (
+                    <span className="bg-red-100 text-red-800 text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1">
+                      <XCircle className="w-3.5 h-3.5 text-red-600" />
+                      Not Serviceable
+                    </span>
+                  )}
+                </div>
+
+                {result.smartExpress?.isDeliverable && (
+                  <div className="space-y-2 mt-4 text-sm text-gray-700">
+                    <div className="flex justify-between border-b border-emerald-100 pb-1.5">
+                      <span className="text-gray-500 font-medium">Estimated Delivery:</span>
+                      <span className="font-bold text-emerald-800">{result.smartExpress.estimatedDays} days</span>
+                    </div>
+                    <div className="flex justify-between border-b border-emerald-100 pb-1.5">
+                      <span className="text-gray-500 font-medium">Zone:</span>
+                      <span className="font-bold text-emerald-800">{result.smartExpress.zone || 'N/A'}</span>
+                    </div>
+                  </div>
+                )}
+                {!result.smartExpress?.isDeliverable && (
+                  <p className="text-xs text-red-700 mt-4 italic">
+                    Smart Express delivery is not serviceable for this pincode.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Priority Card */}
+            <div
+              className={`p-5 rounded-xl border flex flex-col justify-between transition-all hover:shadow-md ${result.priority?.isDeliverable
+                ? 'bg-emerald-50/55 border-emerald-200'
+                : 'bg-red-50/55 border-red-200'
+                }`}
+            >
+              <div>
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <h3 className="font-extrabold text-gray-900 text-base">B2C PRIORITY</h3>
+                    <p className="text-xs text-gray-500">Expedited Priority Service</p>
+                  </div>
+                  {result.priority?.isDeliverable ? (
+                    <span className="bg-emerald-100 text-emerald-800 text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1">
+                      <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
+                      Serviceable
+                    </span>
+                  ) : (
+                    <span className="bg-red-100 text-red-800 text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1">
+                      <XCircle className="w-3.5 h-3.5 text-red-600" />
+                      Not Serviceable
+                    </span>
+                  )}
+                </div>
+
+                {result.priority?.isDeliverable && (
+                  <div className="space-y-2 mt-4 text-sm text-gray-700">
+                    <div className="flex justify-between border-b border-emerald-100 pb-1.5">
+                      <span className="text-gray-500 font-medium">Estimated Delivery:</span>
+                      <span className="font-bold text-emerald-800">{result.priority.estimatedDays} days</span>
+                    </div>
+                    <div className="flex justify-between border-b border-emerald-100 pb-1.5">
+                      <span className="text-gray-500 font-medium">Zone:</span>
+                      <span className="font-bold text-emerald-800">{result.priority.zone || 'N/A'}</span>
+                    </div>
+                  </div>
+                )}
+                {!result.priority?.isDeliverable && (
+                  <p className="text-xs text-red-700 mt-4 italic">
+                    Priority delivery is not serviceable for this pincode.
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </div>

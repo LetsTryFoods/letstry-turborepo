@@ -1631,11 +1631,21 @@ type PressMention {
   updatedAt: DateTime!
 }
 
+type ServiceDetail {
+  isDeliverable: Boolean!
+  estimatedDays: Int
+  city: String
+  state: String
+  zone: String
+}
+
 type PincodeServiceabilityResult {
   isDeliverable: Boolean!
   estimatedDays: Int
   city: String
   state: String
+  smartExpress: ServiceDetail
+  priority: ServiceDetail
 }
 
 type OSSplit {

@@ -2523,6 +2523,8 @@ export type PincodeServiceabilityResult = {
   city?: Maybe<Scalars['String']['output']>;
   estimatedDays?: Maybe<Scalars['Int']['output']>;
   isDeliverable: Scalars['Boolean']['output'];
+  priority?: Maybe<ServiceDetail>;
+  smartExpress?: Maybe<ServiceDetail>;
   state?: Maybe<Scalars['String']['output']>;
 };
 
@@ -3594,6 +3596,15 @@ export type SeoBaseInput = {
   twitterDescription?: InputMaybe<Scalars['String']['input']>;
   twitterImage?: InputMaybe<Scalars['String']['input']>;
   twitterTitle?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type ServiceDetail = {
+  __typename?: 'ServiceDetail';
+  city?: Maybe<Scalars['String']['output']>;
+  estimatedDays?: Maybe<Scalars['Int']['output']>;
+  isDeliverable: Scalars['Boolean']['output'];
+  state?: Maybe<Scalars['String']['output']>;
+  zone?: Maybe<Scalars['String']['output']>;
 };
 
 export type SetShippingAddressInput = {

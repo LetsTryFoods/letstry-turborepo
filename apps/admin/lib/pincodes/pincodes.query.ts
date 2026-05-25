@@ -13,6 +13,20 @@ export const CHECK_PINCODE_SERVICEABILITY = gql`
       estimatedDays
       city
       state
+      smartExpress {
+        isDeliverable
+        estimatedDays
+        city
+        state
+        zone
+      }
+      priority {
+        isDeliverable
+        estimatedDays
+        city
+        state
+        zone
+      }
     }
   }
 `;

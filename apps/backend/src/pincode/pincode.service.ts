@@ -18,14 +18,62 @@ export class PincodeService {
       };
     }
 
-    // Return the one with the best (lowest) TAT
-    const bestRecord = records.reduce((prev, curr) => (prev.tat < curr.tat ? prev : curr));
+    const getNormalizedProduct = (productStr: string): 'SMART_EXPRESS' | 'PRIORITY' | null => {
+      if (!productStr) return null;
+      const upper = productStr.toUpperCase().replace(/[^A-Z0-9]/g, '_');
+      if (
+        upper.includes('SMART_EXPRESS') ||
+        upper.includes('SMARTEXPRESS') ||
+        (upper.includes('SMART') && upper.includes('EXPRESS'))
+      ) {
+        return 'SMART_EXPRESS';
+      }
+      if (upper.includes('PRIORITY')) {
+        return 'PRIORITY';
+      }
+      return null;
+    };
+
+    const smartExpressRecord = records.find(
+      (r) => getNormalizedProduct(r.product) === 'SMART_EXPRESS',
+    );
+    const priorityRecord = records.find(
+      (r) => getNormalizedProduct(r.product) === 'PRIORITY',
+    );
+
+    const smartExpress = smartExpressRecord
+      ? {
+          isDeliverable: true,
+          estimatedDays: smartExpressRecord.tat,
+          city: smartExpressRecord.city,
+          state: smartExpressRecord.state,
+          zone: smartExpressRecord.zone,
+        }
+      : {
+          isDeliverable: false,
+        };
+
+    const priority = priorityRecord
+      ? {
+          isDeliverable: true,
+          estimatedDays: priorityRecord.tat,
+          city: priorityRecord.city,
+          state: priorityRecord.state,
+          zone: priorityRecord.zone,
+        }
+      : {
+          isDeliverable: false,
+        };
+
+    const fallbackRecord = smartExpressRecord || priorityRecord || records[0];
 
     return {
-      isDeliverable: true,
-      estimatedDays: bestRecord.tat,
-      city: bestRecord.city,
-      state: bestRecord.state,
+      isDeliverable: smartExpress.isDeliverable,
+      estimatedDays: smartExpress.estimatedDays,
+      city: smartExpress.city || fallbackRecord.city,
+      state: smartExpress.state || fallbackRecord.state,
+      smartExpress,
+      priority,
     };
   }
 
