@@ -1,3 +1,5 @@
+import { getBackendApiUrl } from '@/lib/utils/api';
+
 export interface TrackingLookupResult {
   awbNumber: string | null;
   orderId: string | null;
@@ -31,7 +33,7 @@ export interface TrackingLookupResult {
 }
 
 export const fetchTrackingLookup = async (query: string): Promise<TrackingLookupResult> => {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+  const baseUrl = getBackendApiUrl();
   const response = await fetch(`${baseUrl}/shipments/lookup?q=${encodeURIComponent(query.trim())}`);
 
   if (!response.ok) {

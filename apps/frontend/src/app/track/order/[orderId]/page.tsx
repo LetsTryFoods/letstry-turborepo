@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import { getBackendApiUrl } from '@/lib/utils/api';
 import { ShoppingBag, Loader2, XCircle, Package, Clock, User, MapPin } from 'lucide-react';
 import Link from 'next/link';
 
@@ -75,7 +76,7 @@ export default function OrderTrackPage() {
 
   useEffect(() => {
     if (!orderId) return;
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const baseUrl = getBackendApiUrl();
     // Re-lookup by orderId to get fresh order data
     fetch(`${baseUrl}/shipments/lookup?q=${encodeURIComponent(orderId)}`)
       .then((res) => {

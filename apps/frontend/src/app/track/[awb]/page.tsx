@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import { getBackendApiUrl } from '@/lib/utils/api';
 import { CheckCircle, Truck, XCircle, Package, MapPin, Clock, Loader2, ShoppingBag, User } from 'lucide-react';
 import Link from 'next/link';
 
@@ -94,7 +95,7 @@ export default function TrackPage() {
 
   useEffect(() => {
     if (!awb) return;
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const baseUrl = getBackendApiUrl();
     fetch(`${baseUrl}/shipments/track/${awb}`)
       .then((res) => {
         if (!res.ok) throw new Error('not found');

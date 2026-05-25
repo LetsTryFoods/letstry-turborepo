@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { getBackendApiUrl } from '@/lib/utils/api';
 
 interface PaymentStatusEvent {
   paymentOrderId: string;
@@ -24,7 +25,7 @@ export const usePaymentSse = ({
   useEffect(() => {
     if (!paymentOrderId) return;
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const apiUrl = getBackendApiUrl();
     const sseUrl = `${apiUrl}/payment/status/${paymentOrderId}/stream`;
 
     const eventSource = new EventSource(sseUrl);
