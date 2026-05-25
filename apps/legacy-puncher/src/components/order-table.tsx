@@ -13,13 +13,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { LegacyOrder } from "@/lib/logistics/types";
 import { toast } from "sonner";
-import { 
-  Truck, 
-  FileText, 
-  Download, 
-  Loader2, 
+import {
+  Truck,
+  FileText,
+  Download,
+  Loader2,
   ExternalLink,
-  PackageCheck
+  PackageCheck,
+  Tag
 } from "lucide-react";
 
 interface OrderTableProps {
@@ -32,6 +33,7 @@ interface OrderState {
   labelUrl?: string;
   isPunching?: boolean;
   isGeneratingInvoice?: boolean;
+  isGeneratingLabel?: boolean;
 }
 
 export function OrderTable({ orders }: OrderTableProps) {
@@ -104,6 +106,36 @@ export function OrderTable({ orders }: OrderTableProps) {
     }
   };
 
+  const handleGenerateLabel = async (order: LegacyOrder) => {
+    updateOrderState(order.orderId, { isGeneratingLabel: true });
+
+    try {
+      const response = await fetch("/api/label", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(order),
+      });
+
+      if (!response.ok) throw new Error("Failed to generate label");
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `label-${order.orderId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      updateOrderState(order.orderId, { isGeneratingLabel: false });
+      toast.success(`Label generated for ${order.orderId}`);
+    } catch (error: any) {
+      updateOrderState(order.orderId, { isGeneratingLabel: false });
+      toast.error(`Label generation failed: ${error.message}`);
+    }
+  };
+
   const handleDownloadLabel = (labelUrl: string, awb: string) => {
     if (!labelUrl) return;
     
@@ -168,7 +200,7 @@ export function OrderTable({ orders }: OrderTableProps) {
                   )}
                 </TableCell>
                 <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
+                  <div className="flex justify-end gap-2 flex-wrap">
                     {!isPunched ? (
                       <>
                         <Button
@@ -201,10 +233,20 @@ export function OrderTable({ orders }: OrderTableProps) {
                           onClick={() => handleDownloadLabel(state.labelUrl!, state.awb!)}
                         >
                           <Download className="mr-1 h-3 w-3" />
-                          Label
+                          Ship Label
                         </Button>
                       )
                     )}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8"
+                      onClick={() => handleGenerateLabel(order)}
+                      disabled={state.isGeneratingLabel}
+                    >
+                      {state.isGeneratingLabel ? <Loader2 className="h-3 w-3 animate-spin" /> : <Tag className="mr-1 h-3 w-3" />}
+                      Delivery Label
+                    </Button>
                     <Button
                       size="sm"
                       variant="outline"
