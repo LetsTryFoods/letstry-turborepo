@@ -106,7 +106,17 @@ export class PaymentService {
         if (address) {
           buyerName = (address as any).recipientName || buyerName;
           buyerPhone = (address as any).recipientPhone || buyerPhone;
-          buyerAddress = [(address as any).buildingName, (address as any).streetArea, (address as any).landmark].filter(Boolean).join(', ');
+
+          // Only use buildingName (and optionally streetArea) for buyerAddress.
+          // landmark is intentionally excluded — it often stores the full formatted
+          // address string (city, state, pincode) which duplicates the dedicated
+          // buyerCity/State/Pincode fields and makes buyerAddress too long for Zaakpay.
+          const parts = [
+            (address as any).buildingName,
+            (address as any).streetArea,
+          ].filter(Boolean);
+          buyerAddress = parts.join(' ');
+
           buyerCity = (address as any).addressLocality || '';
           buyerState = (address as any).addressRegion || '';
           buyerCountry = (address as any).addressCountry || '';

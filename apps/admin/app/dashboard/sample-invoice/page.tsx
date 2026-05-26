@@ -29,10 +29,13 @@ import {
   Save,
   CheckCircle2,
   History,
+  FileImage,
+  Pencil,
 } from "lucide-react"
 import { format } from "date-fns"
 import { toast } from "react-hot-toast"
-import { useCreateSampleInvoice, useSampleInvoices } from "@/lib/sample-invoice/queries"
+import { useCreateSampleInvoice, useSampleInvoices, useUpdateSampleInvoice } from "@/lib/sample-invoice/queries"
+import { printSampleInvoiceLabel } from "@/lib/utils/label-printer"
 
 // ---------------------------------------------------------------------------
 // Types
@@ -68,14 +71,30 @@ function generateInvoiceNumber() {
 // ---------------------------------------------------------------------------
 const PRINT_STYLES = `
   @media print {
+    html, body {
+      height: auto !important;
+      overflow: visible !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    /* Ensure containers do not limit height or hide overflow during printing */
+    div, main, section {
+      overflow: visible !important;
+      height: auto !important;
+    }
     body * { visibility: hidden !important; }
     #invoice-printable, #invoice-printable * { visibility: visible !important; }
     #invoice-printable {
-      position: fixed !important;
+      position: absolute !important;
       top: 0; left: 0;
-      width: 100%;
-      padding: 32px;
-      background: white;
+      width: 100% !important;
+      height: auto !important;
+      padding: 24px !important;
+      margin: 0 !important;
+      background: white !important;
+      border: none !important;
+      box-shadow: none !important;
+      overflow: visible !important;
       z-index: 9999;
     }
     .no-print { display: none !important; }
@@ -87,7 +106,7 @@ const PRINT_STYLES = `
 // ---------------------------------------------------------------------------
 export default function SampleInvoicePage() {
   const { data, loading } = useSampleInvoiceProducts()
-  
+
   // Flatten products and variants for searchable records
   const records = useMemo(() => {
     const productsList = (data as any)?.products?.items ?? []
@@ -111,13 +130,15 @@ export default function SampleInvoicePage() {
 
   // Mutation + saved invoices list
   const [createInvoice, { loading: saving }] = useCreateSampleInvoice()
+  const [updateInvoice, { loading: updating }] = useUpdateSampleInvoice()
   const { data: savedData } = useSampleInvoices()
   const savedInvoices: any[] = (savedData as any)?.sampleInvoices ?? []
 
   const [savedId, setSavedId] = useState<string | null>(null)
+  const [editingId, setEditingId] = useState<string | null>(null)
 
   // Invoice meta
-  const [invoiceNumber] = useState(generateInvoiceNumber)
+  const [invoiceNumber, setInvoiceNumber] = useState(generateInvoiceNumber)
   const invoiceDate = format(new Date(), "dd MMM yyyy")
 
   // Recipient
@@ -199,37 +220,96 @@ export default function SampleInvoicePage() {
     window.print()
   }
 
+  const handleCancelEdit = () => {
+    setEditingId(null)
+    setSavedId(null)
+    setLineItems([])
+    setRecipient({
+      name: "",
+      company: "",
+      address: "",
+      phone: "",
+      notes: "",
+    })
+    setInvoiceNumber(generateInvoiceNumber())
+  }
+
+  const handleLoadInvoice = (inv: any) => {
+    setEditingId(inv._id)
+    setInvoiceNumber(inv.invoiceNumber)
+    setRecipient({
+      name: inv.recipient?.name || "",
+      company: inv.recipient?.company || "",
+      address: inv.recipient?.address || "",
+      phone: inv.recipient?.phone || "",
+      notes: inv.recipient?.notes || "",
+    })
+
+    const mapped = inv.items.map((item: any) => {
+      const match = records.find((r) => r.sku === item.sku)
+      return {
+        skuId: match?._id || item.sku,
+        sku: item.sku,
+        skuName: item.skuName,
+        uom: item.uom || "Pcs",
+        price: item.mrp || 0,
+        quantity: item.quantity,
+      }
+    })
+    setLineItems(mapped)
+  }
+
+  const handlePrintSavedInvoice = (inv: any) => {
+    handleLoadInvoice(inv)
+    setTimeout(() => {
+      window.print()
+    }, 150)
+  }
+
   // Save to DB
   const handleSave = async () => {
     if (lineItems.length === 0) {
       toast.error("Add at least one item before saving.")
       return
     }
+    const inputPayload = {
+      invoiceNumber,
+      recipient: {
+        name: recipient.name || undefined,
+        company: recipient.company || undefined,
+        address: recipient.address || undefined,
+        phone: recipient.phone || undefined,
+        notes: recipient.notes || undefined,
+      },
+      items: lineItems.map((l) => ({
+        sku: l.sku,
+        skuName: l.skuName,
+        uom: l.uom,
+        mrp: l.price,
+        quantity: l.quantity,
+      })),
+    }
+
     try {
-      const result = await createInvoice({
-        variables: {
-          input: {
-            invoiceNumber,
-            recipient: {
-              name: recipient.name || undefined,
-              company: recipient.company || undefined,
-              address: recipient.address || undefined,
-              phone: recipient.phone || undefined,
-              notes: recipient.notes || undefined,
-            },
-            items: lineItems.map((l) => ({
-              sku: l.sku,
-              skuName: l.skuName,
-              uom: l.uom,
-              mrp: l.price,
-              quantity: l.quantity,
-            })),
+      if (editingId) {
+        await updateInvoice({
+          variables: {
+            id: editingId,
+            input: inputPayload,
           },
-        },
-      })
-      const id = (result.data as any)?.createSampleInvoice?._id
-      setSavedId(id ?? null)
-      toast.success(`Invoice ${invoiceNumber} saved successfully!`)
+        })
+        toast.success(`Invoice ${invoiceNumber} updated successfully!`)
+        handleCancelEdit()
+      } else {
+        const result = await createInvoice({
+          variables: {
+            input: inputPayload,
+          },
+        })
+        const id = (result.data as any)?.createSampleInvoice?._id
+        setSavedId(id ?? null)
+        toast.success(`Invoice ${invoiceNumber} saved successfully!`)
+      }
     } catch (err: any) {
       toast.error("Save failed: " + (err?.message ?? "Unknown error"))
     }
@@ -240,30 +320,48 @@ export default function SampleInvoicePage() {
       {/* ── Page header ── */}
       <div className="flex items-center justify-between no-print">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight font-sans text-gray-800">Dispatch Invoice</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-bold tracking-tight font-sans text-gray-800">
+              {editingId ? "Edit Dispatch Invoice" : "Dispatch Invoice"}
+            </h1>
+            {editingId && (
+              <Badge variant="outline" className="border-indigo-500 text-indigo-700 bg-indigo-50 font-mono">
+                Editing: {invoiceNumber}
+              </Badge>
+            )}
+          </div>
           <p className="text-muted-foreground mt-1">
             Generate and record dynamic dispatch invoices using your live product variant catalog.
           </p>
         </div>
         <div className="flex items-center gap-2">
-          {savedId && (
+          {savedId && !editingId && (
             <span className="flex items-center gap-1.5 text-sm text-green-700 font-medium animate-pulse">
               <CheckCircle2 className="h-4 w-4 text-green-600" />
               Saved to Database
             </span>
           )}
+          {editingId && (
+            <Button
+              variant="ghost"
+              onClick={handleCancelEdit}
+              className="gap-2 text-gray-600"
+            >
+              Cancel Edit
+            </Button>
+          )}
           <Button
             variant="outline"
             onClick={handleSave}
-            disabled={lineItems.length === 0 || saving}
+            disabled={lineItems.length === 0 || saving || updating}
             className="gap-2"
           >
-            {saving ? (
+            {saving || updating ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <Save className="h-4 w-4" />
             )}
-            {saving ? "Saving..." : "Save Invoice"}
+            {editingId ? (updating ? "Updating..." : "Update Invoice") : (saving ? "Saving..." : "Save Invoice")}
           </Button>
           <Button
             onClick={handlePrint}
@@ -272,6 +370,23 @@ export default function SampleInvoicePage() {
           >
             <Printer className="h-4 w-4" />
             Print / Download PDF
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => printSampleInvoiceLabel({
+              invoiceNumber,
+              recipient: {
+                name: recipient.name,
+                company: recipient.company,
+                address: recipient.address,
+                phone: recipient.phone
+              }
+            })}
+            disabled={lineItems.length === 0}
+            className="gap-2 text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+          >
+            <FileImage className="h-4 w-4" />
+            Download Custom Label
           </Button>
         </div>
       </div>
@@ -684,6 +799,7 @@ export default function SampleInvoicePage() {
                     <TableHead className="text-center">Total Pcs</TableHead>
                     <TableHead className="text-right">Total Value</TableHead>
                     <TableHead className="text-right">Date</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -705,6 +821,40 @@ export default function SampleInvoicePage() {
                       <TableCell className="text-right text-sm font-medium">₹{inv.totalMrpValue.toFixed(2)}</TableCell>
                       <TableCell className="text-right text-xs text-muted-foreground">
                         {format(new Date(inv.createdAt), "dd MMM yyyy, hh:mm a")}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 h-8 w-8"
+                            onClick={() => {
+                              handleLoadInvoice(inv)
+                              window.scrollTo({ top: 0, behavior: 'smooth' })
+                            }}
+                            title="Edit Invoice"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-green-600 hover:text-green-700 hover:bg-green-50 h-8 w-8"
+                            onClick={() => handlePrintSavedInvoice(inv)}
+                            title="Print / Download PDF"
+                          >
+                            <Printer className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 h-8 w-8"
+                            onClick={() => printSampleInvoiceLabel(inv)}
+                            title="Download Custom Label"
+                          >
+                            <FileImage className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}

@@ -51,6 +51,66 @@ export class ZaakpayPaymentService {
         }
     }
 
+    /**
+     * Sanitizes buyerAddress for Zaakpay (official spec: max 100, alphanumeric).
+     * - Strips everything except letters, digits, and spaces.
+     * - Non-ASCII chars (em-dash, curly quotes) are removed to prevent checksum
+     *   mismatch (error 180) caused by byte-level differences on Zaakpay's side.
+     * - Truncated to maxLength (default 100 per Zaakpay docs).
+     * Database values are never modified — runs only at the Zaakpay boundary.
+     */
+    private sanitizeAddressField(value?: string, maxLength = 100): string {
+        if (!value) return '';
+        return value
+            // eslint-disable-next-line no-control-regex
+            .replace(/[^\x00-\x7F]/g, ' ')    // replace non-ASCII with space
+            .replace(/[^a-zA-Z0-9 ]/g, ' ')   // keep only alphanumeric + space (per Zaakpay spec)
+            .replace(/\s{2,}/g, ' ')           // collapse multiple spaces
+            .trim()
+            .substring(0, maxLength);
+    }
+
+    /**
+     * Sanitizes buyerCity for Zaakpay (official spec: max 30, alphabet only, min 3).
+     * Strips numbers and any non-alpha characters since the spec says "alphabet" only.
+     */
+    private sanitizeCityField(value?: string): string {
+        if (!value) return '';
+        const cleaned = value
+            // eslint-disable-next-line no-control-regex
+            .replace(/[^\x00-\x7F]/g, ' ')    // replace non-ASCII
+            .replace(/[^a-zA-Z ]/g, ' ')      // alphabet + space only
+            .replace(/\s{2,}/g, ' ')
+            .trim()
+            .substring(0, 30);               // max 30 per Zaakpay spec
+        // Zaakpay requires min length 3 for city — return empty if too short
+        return cleaned.length >= 3 ? cleaned : '';
+    }
+
+    /**
+     * Sanitizes buyerFirstName / buyerLastName for Zaakpay
+     * (official spec: max 30, alphanumeric, no special characters or dashes).
+     */
+    private sanitizeNameField(value?: string, maxLength = 30): string {
+        if (!value) return '';
+        return value
+            // eslint-disable-next-line no-control-regex
+            .replace(/[^\x00-\x7F]/g, ' ')    // replace non-ASCII
+            .replace(/[^a-zA-Z0-9 ]/g, ' ')   // alphanumeric + space only
+            .replace(/\s{2,}/g, ' ')
+            .trim()
+            .substring(0, maxLength);
+    }
+
+    /**
+     * Sanitizes buyerPhoneNumber for Zaakpay
+     * (official spec: numeric only, no dashes, no spaces).
+     */
+    private sanitizePhoneField(value?: string): string {
+        if (!value) return '';
+        return value.replace(/[^0-9]/g, ''); // digits only
+    }
+
     private buildQueryParams(params: {
         orderId: string;
         amount: string;
@@ -69,20 +129,20 @@ export class ZaakpayPaymentService {
 
         const allParams: Record<string, string> = {
             amount: amountInPaisa,
-            buyerAddress: params.buyerAddress || '',
-            buyerCity: params.buyerCity || '',
-            buyerCountry: params.buyerCountry || '',
-            buyerEmail: params.buyerEmail,
-            buyerFirstName: params.buyerName,
-            buyerPhoneNumber: params.buyerPhone,
-            buyerPincode: params.buyerPincode || '',
-            buyerState: params.buyerState || '',
-            currency: 'INR',
+            buyerAddress:      this.sanitizeAddressField(params.buyerAddress, 100), // spec: max 100, alphanumeric
+            buyerCity:         this.sanitizeCityField(params.buyerCity),            // spec: max 30, alphabet only, min 3
+            buyerCountry:      this.sanitizeAddressField(params.buyerCountry, 50),
+            buyerEmail:        params.buyerEmail,
+            buyerFirstName:    this.sanitizeNameField(params.buyerName, 30),        // spec: max 30, alphanumeric
+            buyerPhoneNumber:  this.sanitizePhoneField(params.buyerPhone),          // spec: numeric only
+            buyerPincode:      params.buyerPincode || '',
+            buyerState:        this.sanitizeAddressField(params.buyerState, 50),
+            currency:          'INR',
             merchantIdentifier: this.merchantId,
-            orderId: params.orderId,
+            orderId:           params.orderId,
             productDescription: params.productDescription,
-            returnUrl: params.returnUrl,
-            txnType: '1',
+            returnUrl:         params.returnUrl,
+            txnType:           '1',
         };
 
         return Object.fromEntries(

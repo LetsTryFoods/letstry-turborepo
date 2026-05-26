@@ -68,6 +68,24 @@ export function useCreateSampleInvoice() {
   });
 }
 
+export const UPDATE_SAMPLE_INVOICE = gql`
+  mutation UpdateSampleInvoice($id: ID!, $input: CreateSampleInvoiceInput!) {
+    updateSampleInvoice(id: $id, input: $input) {
+      _id
+      invoiceNumber
+      totalPcs
+      totalMrpValue
+      createdAt
+    }
+  }
+`;
+
+export function useUpdateSampleInvoice() {
+  return useMutation(UPDATE_SAMPLE_INVOICE, {
+    refetchQueries: [{ query: GET_SAMPLE_INVOICES }],
+  });
+}
+
 export function useSampleInvoices() {
   return useQuery(GET_SAMPLE_INVOICES);
 }
@@ -75,3 +93,4 @@ export function useSampleInvoices() {
 export function useSampleInvoiceProducts() {
   return useQuery(GET_SAMPLE_INVOICE_PRODUCTS);
 }
+

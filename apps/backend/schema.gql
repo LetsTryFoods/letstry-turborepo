@@ -2072,6 +2072,7 @@ type Mutation {
   bulkUpsertPincodes(pincodes: [PincodeInput!]!): Float!
   bulkUpsertSkuMasters(rows: [SkuMasterRowInput!]!): Int!
   createSampleInvoice(input: CreateSampleInvoiceInput!): SampleInvoice!
+  updateSampleInvoice(id: ID!, input: CreateSampleInvoiceInput!): SampleInvoice
 }
 
 input CreateProductInput {

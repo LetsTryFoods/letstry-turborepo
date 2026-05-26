@@ -92,4 +92,17 @@ export class SampleInvoiceResolver {
   ): Promise<SampleInvoice | null> {
     return this.service.findById(id);
   }
+
+  /**
+   * Update an existing sample invoice in the database.
+   */
+  @Roles(Role.ADMIN)
+  @Mutation(() => SampleInvoice, { name: 'updateSampleInvoice', nullable: true })
+  async updateSampleInvoice(
+    @Args('id', { type: () => ID }) id: string,
+    @Args('input') input: CreateSampleInvoiceInput,
+  ): Promise<SampleInvoice | null> {
+    return this.service.update(id, input);
+  }
 }
+

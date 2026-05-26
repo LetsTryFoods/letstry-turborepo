@@ -37,4 +37,24 @@ export class SampleInvoiceService {
   async findById(id: string): Promise<SampleInvoice | null> {
     return this.invoiceModel.findById(id).exec();
   }
+
+  /** Update an existing invoice by id. */
+  async update(id: string, input: CreateSampleInvoiceInput): Promise<SampleInvoice | null> {
+    const totalPcs = input.items.reduce((acc, i) => acc + i.quantity, 0);
+    const totalMrpValue = input.items.reduce(
+      (acc, i) => acc + (i.mrp ?? 0) * i.quantity,
+      0,
+    );
+
+    return this.invoiceModel.findByIdAndUpdate(
+      id,
+      {
+        ...input,
+        totalPcs,
+        totalMrpValue,
+      },
+      { new: true },
+    ).exec();
+  }
 }
+
