@@ -36,14 +36,16 @@ export class OrderQueryService {
       dailySales,
       topProducts,
       topCustomers,
-      categorySales
+      categorySales,
+      platformStats
     ] = await Promise.all([
       this.orderRepository.getSummaryStats(startDate, endDate),
       this.orderRepository.getSummaryStats(prevStartDate, prevEndDate),
       this.orderRepository.getDailySales(startDate, endDate),
       this.orderRepository.getTopProducts(startDate, endDate, period === 'all' ? 0 : 50),
       this.orderRepository.getTopCustomers(startDate, endDate),
-      this.orderRepository.getCategorySales(startDate, endDate)
+      this.orderRepository.getCategorySales(startDate, endDate),
+      this.orderRepository.getPlatformOrderStats(startDate, endDate),
     ]);
 
     const totalRevenue = summary.totalRevenue || 0;
@@ -78,7 +80,8 @@ export class OrderQueryService {
       dailySales,
       topProducts,
       topCustomers,
-      categorySales: categorySalesWithPercentage
+      categorySales: categorySalesWithPercentage,
+      platformStats,
     };
   }
 
@@ -259,17 +262,24 @@ export class OrderQueryService {
       firstName: identity.firstName,
       lastName: identity.lastName,
       status: identity.status,
+      deviceInfo: identity.deviceInfo,
     };
   }
 
   private async getOrdersSummary(filter: any = {}): Promise<OrdersSummary> {
-    const [totalOrders, statusCounts, totalRevenue] = await Promise.all([
+    const [totalOrders, statusCounts, totalRevenue, platformStats] = await Promise.all([
       this.orderRepository.countTotal(filter),
       this.getStatusCounts(filter),
       this.calculateTotalRevenue(filter),
+      this.orderRepository.getPlatformStatsForFilter(filter),
     ]);
 
-    return { totalOrders, statusCounts, totalRevenue };
+    return { 
+      totalOrders, 
+      statusCounts, 
+      totalRevenue,
+      ...platformStats
+    };
   }
 
   private async calculateTotalRevenue(filter: any = {}): Promise<string> {

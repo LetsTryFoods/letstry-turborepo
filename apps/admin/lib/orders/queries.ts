@@ -71,6 +71,16 @@ export interface Customer {
   phone?: string;
 }
 
+export interface OrderUserInfo {
+  identityId: string;
+  phoneNumber?: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  status: string;
+  deviceInfo?: any;
+}
+
 export interface OrderItem {
   variantId: string;
   name: string;
@@ -111,6 +121,7 @@ export interface Order {
   _id: string;
   orderId: string;
   customer?: Customer;
+  userInfo?: OrderUserInfo;
   items: OrderItem[];
   shippingAddress?: ShippingAddress;
   payment?: Payment;
@@ -146,6 +157,10 @@ export interface OrdersSummary {
     delivered: number;
     shipmentFailed: number;
   };
+  appOrdersCount: number;
+  webOrdersCount: number;
+  appRevenue: number;
+  webRevenue: number;
 }
 
 export interface GetAllOrdersInput {
@@ -262,6 +277,10 @@ export const getOrderStats = (summary?: OrdersSummary) => {
       delivered: 0,
       shipmentFailed: 0,
       totalRevenue: 0,
+      appOrdersCount: 0,
+      webOrdersCount: 0,
+      appRevenue: 0,
+      webRevenue: 0,
     };
   }
 
@@ -274,5 +293,9 @@ export const getOrderStats = (summary?: OrdersSummary) => {
     delivered: summary.statusCounts.delivered,
     shipmentFailed: summary.statusCounts.shipmentFailed,
     totalRevenue: parseFloat(summary.totalRevenue || "0"),
+    appOrdersCount: summary.appOrdersCount || 0,
+    webOrdersCount: summary.webOrdersCount || 0,
+    appRevenue: summary.appRevenue || 0,
+    webRevenue: summary.webRevenue || 0,
   };
 };

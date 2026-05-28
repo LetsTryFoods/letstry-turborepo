@@ -11,6 +11,15 @@ export const GET_ALL_ORDERS = gql`
           name
           phone
         }
+        userInfo {
+          identityId
+          phoneNumber
+          email
+          firstName
+          lastName
+          status
+          deviceInfo
+        }
         items {
           name
           quantity
@@ -54,6 +63,10 @@ export const GET_ALL_ORDERS = gql`
       summary {
         totalOrders
         totalRevenue
+        appOrdersCount
+        webOrdersCount
+        appRevenue
+        webRevenue
         statusCounts {
           confirmed
           packed

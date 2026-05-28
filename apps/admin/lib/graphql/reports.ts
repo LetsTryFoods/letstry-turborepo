@@ -36,6 +36,10 @@ export const GET_ORDER_REPORTS = gql`
         revenue
         percentage
       }
+      platformStats {
+        website
+        app
+      }
     }
   }
 `;

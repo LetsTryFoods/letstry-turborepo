@@ -50,3 +50,31 @@ export const parseDeviceInfo = (deviceInfo: any): string => {
 
   return "Unknown";
 };
+
+/**
+ * Check if the order came from the Mobile App based on deviceInfo
+ * @param deviceInfo - Raw device info from backend
+ * @returns boolean
+ */
+export const isAppOrder = (deviceInfo: any): boolean => {
+  if (!deviceInfo) return false;
+  const ua = typeof deviceInfo === "string" ? deviceInfo.toLowerCase() : "";
+  
+  // Native App sends short os format like "ios 17.2" or "android 14"
+  // which does NOT contain browser strings like "mozilla", "chrome", "safari", "webkit"
+  const isWebBrowser =
+    ua.includes("mozilla") ||
+    ua.includes("webkit") ||
+    ua.includes("safari") ||
+    ua.includes("chrome") ||
+    ua.includes("firefox") ||
+    ua.includes("edge");
+  
+  const hasAppPlatform =
+    ua.includes("ios") ||
+    ua.includes("android") ||
+    ua.includes("iphone") ||
+    ua.includes("ipad");
+  
+  return hasAppPlatform && !isWebBrowser;
+};

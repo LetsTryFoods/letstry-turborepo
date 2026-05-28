@@ -43,3 +43,4 @@ apps/backend/prod.env
 product-images/
 apps/backend/scripts/import-log-*.txt
 *.aab
+.deploy.env

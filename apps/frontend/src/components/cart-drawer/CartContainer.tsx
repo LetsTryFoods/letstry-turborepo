@@ -261,7 +261,8 @@ export const CartContainer = () => {
         landmark: details.landmark,
         addressLocality: placeDetails?.locality || '',
         addressRegion: placeDetails?.region || '',
-        postalCode: details.postalCode || placeDetails?.postalCode || '',
+        postalCode: (details.postalCode || placeDetails?.postalCode || '').trim(),
+        googlePostalCode: (placeDetails?.postalCode || '').trim(),   // Google-detected pincode kept separately
         addressCountry: placeDetails?.country || 'India',
         isDefault: false,
         latitude: placeDetails?.latitude || 0,
@@ -289,6 +290,7 @@ export const CartContainer = () => {
           landmark: addressInput.landmark,
           formattedAddress: addressInput.formattedAddress,
           postalCode: addressInput.postalCode,
+          googlePostalCode: addressInput.googlePostalCode,
           city: addressInput.addressLocality,
         };
 
@@ -325,10 +327,28 @@ export const CartContainer = () => {
       return;
     }
 
-    if (selectedAddress?.postalCode) {
+    // Collect both pincodes — user-typed (postalCode) and Google-detected (googlePostalCode).
+    // Deduplicate and filter blanks so we don't make the same call twice.
+    const pincodesToCheck = [
+      ...new Set(
+        [selectedAddress?.postalCode, selectedAddress?.googlePostalCode]
+          .map((p) => (p || '').trim())
+          .filter((p) => /^\d{6}$/.test(p))
+      ),
+    ];
+
+    if (pincodesToCheck.length > 0) {
       try {
-        const result: any = await graphqlClient.request(CHECK_PINCODE_SERVICEABILITY, { pincode: selectedAddress.postalCode });
-        if (!result?.checkPincodeServiceability?.isDeliverable) {
+        // Check each pincode against B2C Smart Express — allow if ANY ONE is deliverable.
+        let isAnyDeliverable = false;
+        for (const pincode of pincodesToCheck) {
+          const result: any = await graphqlClient.request(CHECK_PINCODE_SERVICEABILITY, { pincode });
+          if (result?.checkPincodeServiceability?.isDeliverable) {
+            isAnyDeliverable = true;
+            break;
+          }
+        }
+        if (!isAnyDeliverable) {
           toast.error('Sorry, we currently do not deliver to your selected PIN code.');
           return;
         }

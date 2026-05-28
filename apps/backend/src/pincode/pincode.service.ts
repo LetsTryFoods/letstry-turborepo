@@ -8,10 +8,11 @@ import { PincodeInput, PincodeServiceabilityResult } from './dto/pincode.input';
 export class PincodeService {
   constructor(
     @InjectModel(Pincode.name) private pincodeModel: Model<PincodeDocument>,
-  ) {}
+  ) { }
 
   async checkServiceability(pincode: string): Promise<PincodeServiceabilityResult> {
-    const records = await this.pincodeModel.find({ pincode }).exec();
+    const normalizedPincode = pincode.trim();
+    const records = await this.pincodeModel.find({ pincode: normalizedPincode }).exec();
     if (records.length === 0) {
       return {
         isDeliverable: false,
@@ -43,27 +44,27 @@ export class PincodeService {
 
     const smartExpress = smartExpressRecord
       ? {
-          isDeliverable: true,
-          estimatedDays: smartExpressRecord.tat,
-          city: smartExpressRecord.city,
-          state: smartExpressRecord.state,
-          zone: smartExpressRecord.zone,
-        }
+        isDeliverable: true,
+        estimatedDays: smartExpressRecord.tat,
+        city: smartExpressRecord.city,
+        state: smartExpressRecord.state,
+        zone: smartExpressRecord.zone,
+      }
       : {
-          isDeliverable: false,
-        };
+        isDeliverable: false,
+      };
 
     const priority = priorityRecord
       ? {
-          isDeliverable: true,
-          estimatedDays: priorityRecord.tat,
-          city: priorityRecord.city,
-          state: priorityRecord.state,
-          zone: priorityRecord.zone,
-        }
+        isDeliverable: true,
+        estimatedDays: priorityRecord.tat,
+        city: priorityRecord.city,
+        state: priorityRecord.state,
+        zone: priorityRecord.zone,
+      }
       : {
-          isDeliverable: false,
-        };
+        isDeliverable: false,
+      };
 
     const fallbackRecord = smartExpressRecord || priorityRecord || records[0];
 

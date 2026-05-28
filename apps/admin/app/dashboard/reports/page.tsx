@@ -25,7 +25,9 @@ import {
   Download,
   Search,
   Scale,
-  Clock
+  Clock,
+  Smartphone,
+  Globe
 } from "lucide-react"
 
 // Dynamically import Recharts to avoid SSR issues
@@ -334,8 +336,8 @@ export default function ReportsPage() {
         </Card>
       </div>
 
-      {/* Products & Categories Row */}
-      <div className="grid gap-4 md:grid-cols-2">
+      {/* Products Row */}
+      <div className="grid gap-4 md:grid-cols-1">
         {/* Top Products */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
@@ -388,7 +390,10 @@ export default function ReportsPage() {
             </div>
           </CardContent>
         </Card>
+      </div>
 
+      {/* Platform & Category Breakdown Row */}
+      <div className="grid gap-4 md:grid-cols-2 mt-8">
         {/* Category Sales */}
         <Card>
           <CardHeader>
@@ -426,6 +431,68 @@ export default function ReportsPage() {
                 )
               })}
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Order Source Breakdown */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Globe className="h-5 w-5 text-indigo-600" />
+              Order Source Breakdown
+            </CardTitle>
+            <CardDescription>Orders placed via Website vs Mobile App</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col justify-center min-h-[220px]">
+            {(() => {
+              const websiteCount = data.platformStats?.website || 0;
+              const appCount = data.platformStats?.app || 0;
+              const total = websiteCount + appCount || 1;
+              const webPct = (websiteCount / total) * 100;
+              const appPct = (appCount / total) * 100;
+
+              return (
+                <div className="space-y-6">
+                  {/* Website Stats */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold flex items-center gap-2 text-sm">
+                        <Globe className="h-4 w-4 text-teal-600" />
+                        Website Orders
+                      </span>
+                      <span className="text-sm font-bold text-muted-foreground">
+                        {websiteCount} orders ({webPct.toFixed(1)}%)
+                      </span>
+                    </div>
+                    <div className="h-3.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-teal-400 to-teal-500 rounded-full transition-all duration-500"
+                        style={{ width: `${webPct}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* App Stats */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold flex items-center gap-2 text-sm">
+                        <Smartphone className="h-4 w-4 text-indigo-600" />
+                        Mobile App Orders
+                      </span>
+                      <span className="text-sm font-bold text-muted-foreground">
+                        {appCount} orders ({appPct.toFixed(1)}%)
+                      </span>
+                    </div>
+                    <div className="h-3.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-indigo-400 to-indigo-500 rounded-full transition-all duration-500"
+                        style={{ width: `${appPct}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
           </CardContent>
         </Card>
       </div>

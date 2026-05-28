@@ -11,7 +11,8 @@ import {
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Eye, Package, Truck, CheckCircle, XCircle, RefreshCcw, Clock, Loader2, FileDown, Zap, Download, FileImage } from "lucide-react"
+import { Eye, Package, Truck, CheckCircle, XCircle, RefreshCcw, Clock, Loader2, FileDown, Zap, Download, FileImage, Smartphone, Globe } from "lucide-react"
+import { isAppOrder } from "@/app/dashboard/customers/utils/customerUtils"
 import {
   Tooltip,
   TooltipContent,
@@ -180,47 +181,69 @@ export function OrderTable({ orders, onViewDetails, onUpdateStatus }: OrderTable
   }
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border overflow-x-auto">
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead>Order #</TableHead>
-            <TableHead>Customer</TableHead>
-            <TableHead>Items</TableHead>
-            <TableHead className="text-right">Total</TableHead>
-            <TableHead>Payment</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+          <TableRow className="hover:bg-transparent">
+            <TableHead className="text-[11px] font-bold uppercase tracking-wider py-2 px-2.5 h-auto">Order #</TableHead>
+            <TableHead className="text-[11px] font-bold uppercase tracking-wider py-2 px-2.5 h-auto">Customer</TableHead>
+            <TableHead className="text-[11px] font-bold uppercase tracking-wider py-2 px-2.5 h-auto">Source</TableHead>
+            <TableHead className="text-[11px] font-bold uppercase tracking-wider py-2 px-2.5 h-auto">Items</TableHead>
+            <TableHead className="text-[11px] font-bold uppercase tracking-wider py-2 px-2.5 h-auto text-right">Total</TableHead>
+            <TableHead className="text-[11px] font-bold uppercase tracking-wider py-2 px-2.5 h-auto">Payment</TableHead>
+            <TableHead className="text-[11px] font-bold uppercase tracking-wider py-2 px-2.5 h-auto">Status</TableHead>
+            <TableHead className="text-[11px] font-bold uppercase tracking-wider py-2 px-2.5 h-auto">Date</TableHead>
+            <TableHead className="text-[11px] font-bold uppercase tracking-wider py-2 px-2.5 h-auto text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {orders.map((order) => (
-            <TableRow key={order._id}>
-              <TableCell>
-                <span className="font-mono text-sm font-medium">
+            <TableRow key={order._id} className="hover:bg-muted/40 h-auto">
+              <TableCell className="py-2 px-2.5 h-auto">
+                <span 
+                  className="font-mono text-[11px] font-bold text-foreground hover:text-indigo-600 hover:underline cursor-pointer active:text-indigo-800 transition-colors select-all" 
+                  onClick={() => {
+                    navigator.clipboard.writeText(order.orderId);
+                    toast.success("Order ID copied!");
+                  }}
+                  title="Click to copy Order ID"
+                >
                   {order.orderId}
                 </span>
               </TableCell>
-              <TableCell>
+              <TableCell className="py-2 px-2.5 h-auto">
                 {order.customer ? (
-                  <div>
-                    <p className="font-medium">{order.customer.name}</p>
-                    <p className="text-xs text-muted-foreground">{order.customer.phone}</p>
+                  <div className="text-[11px] leading-tight">
+                    <p className="font-semibold text-foreground">{order.customer.name}</p>
+                    <p className="text-[10px] text-muted-foreground">{order.customer.phone}</p>
                   </div>
                 ) : (
-                  <p className="text-xs text-muted-foreground">No customer info</p>
+                  <p className="text-[10px] text-muted-foreground">No customer info</p>
                 )}
               </TableCell>
-              <TableCell>
+              <TableCell className="py-2 px-2.5 h-auto">
+                {(() => {
+                  const isApp = order.userInfo?.deviceInfo ? isAppOrder(order.userInfo.deviceInfo) : false;
+                  return isApp ? (
+                    <Badge variant="outline" className="border-indigo-500 text-indigo-600 bg-indigo-50/50 text-[10px] px-1.5 py-0 h-5 font-semibold shrink-0">
+                      <Smartphone className="h-3 w-3 mr-0.5" /> App
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="border-teal-500 text-teal-600 bg-teal-50/50 text-[10px] px-1.5 py-0 h-5 font-semibold shrink-0">
+                      <Globe className="h-3 w-3 mr-0.5" /> Web
+                    </Badge>
+                  );
+                })()}
+              </TableCell>
+              <TableCell className="py-2 px-2.5 h-auto">
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <div className="cursor-help">
-                        <p className="text-sm">{order.items.length} item{order.items.length > 1 ? 's' : ''}</p>
-                        <p className="text-xs text-muted-foreground truncate max-w-[150px]">
+                      <div className="cursor-help text-[11px] leading-tight">
+                        <p className="font-semibold text-foreground">{order.items.length} item{order.items.length > 1 ? 's' : ''}</p>
+                        <p className="text-[10px] text-muted-foreground truncate max-w-[120px]">
                           {order.items[0]?.name}
-                          {order.items.length > 1 && ` +${order.items.length - 1} more`}
+                          {order.items.length > 1 && ` +${order.items.length - 1}`}
                         </p>
                       </div>
                     </TooltipTrigger>
@@ -236,171 +259,148 @@ export function OrderTable({ orders, onViewDetails, onUpdateStatus }: OrderTable
                   </Tooltip>
                 </TooltipProvider>
               </TableCell>
-              <TableCell className="text-right">
-                <p className="font-semibold">₹{parseFloat(order.totalAmount || '0').toLocaleString()}</p>
+              <TableCell className="py-2 px-2.5 h-auto text-right">
+                <p className="font-bold text-[11px]">₹{parseFloat(order.totalAmount || '0').toLocaleString()}</p>
                 {parseFloat(order.discount || '0') > 0 && (
-                  <p className="text-xs text-green-600">-₹{parseFloat(order.discount).toLocaleString()}</p>
+                  <p className="text-[10px] text-green-600 font-medium">-₹{parseFloat(order.discount).toLocaleString()}</p>
                 )}
               </TableCell>
-              <TableCell>
+              <TableCell className="py-2 px-2.5 h-auto">
                 {order.payment ? (
-                  <div className="space-y-1">
-                    {getPaymentStatusBadge(order.payment.status)}
-                    <p className="text-xs text-muted-foreground">{order.payment.method || 'N/A'}</p>
+                  <div className="space-y-0.5 text-[11px] leading-tight">
+                    <span className="inline-block scale-90 origin-left">
+                      {getPaymentStatusBadge(order.payment.status)}
+                    </span>
+                    <p className="text-[10px] text-muted-foreground font-semibold">{order.payment.method || 'N/A'}</p>
                   </div>
                 ) : (
-                  <Badge variant="outline">No payment info</Badge>
+                  <Badge variant="outline" className="text-[10px] px-1 py-0 h-4">No payment</Badge>
                 )}
               </TableCell>
-              <TableCell>
-                {getOrderStatusBadge(order.orderStatus)}
+              <TableCell className="py-2 px-2.5 h-auto">
+                <span className="inline-block scale-90 origin-left">
+                  {getOrderStatusBadge(order.orderStatus)}
+                </span>
               </TableCell>
-              <TableCell>
-                <p className="text-sm">{format(new Date(order.createdAt), 'dd MMM yyyy')}</p>
-                <p className="text-xs text-muted-foreground">{format(new Date(order.createdAt), 'hh:mm a')}</p>
+              <TableCell className="py-2 px-2.5 h-auto">
+                <p className="text-[11px] font-semibold text-foreground">{format(new Date(order.createdAt), 'dd MMM yyyy')}</p>
+                <p className="text-[10px] text-muted-foreground">{format(new Date(order.createdAt), 'hh:mm a')}</p>
               </TableCell>
-              <TableCell className="text-right">
-                <div className="flex items-center justify-end gap-2">
+              <TableCell className="py-2 px-2.5 h-auto text-right">
+                <div className="flex items-center justify-end gap-1.5">
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button
                           variant="ghost"
                           size="icon"
+                          className="h-7 w-7"
                           onClick={() => onViewDetails(order)}
                         >
-                          <Eye className="h-4 w-4" />
+                          <Eye className="h-3.5 w-3.5" />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>View Details</TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
 
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                          onClick={() => handleDownloadAll(order)}
-                          disabled={downloadingAll === order._id || downloadingLabel}
-                        >
-                          <Download className="h-4 w-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Download All (Label & Invoice)</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                          onClick={() => window.open(`${API_BASE_URL}/orders/${order._id}/invoice`, '_blank')}
-                        >
-                          <FileDown className="h-4 w-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Download Invoice</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
-                          onClick={() => printShippingLabel(order)}
-                        >
-                          <FileImage className="h-4 w-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>Download Custom Label</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-
-                    {order.orderStatus !== 'DELIVERED' && (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
-                            disabled={punching}
-                          >
-                            <Zap className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel className="flex items-center gap-2">
-                            Punch to DTDC
-                            {getRecommendation(order) === 'DTDC' && (
-                              <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100 border-none px-1.5 py-0 text-[10px]">RECOMMENDED</Badge>
-                            )}
-                          </DropdownMenuLabel>
-                          <DropdownMenuItem onClick={() => handlePunchShipment(order, 'B2C SMART EXPRESS')}>
-                            B2C Smart Express
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handlePunchShipment(order, 'B2C PRIORITY')}>
-                            B2C Priority
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuLabel className="flex items-center gap-2">
-                            Punch to Shiprocket
-                            {getRecommendation(order) === 'SHIPROCKET' && (
-                              <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100 border-none px-1.5 py-0 text-[10px]">RECOMMENDED</Badge>
-                            )}
-                          </DropdownMenuLabel>
-                          <DropdownMenuItem onClick={() => handlePunchShipment(order, 'Express', 'SHIPROCKET')}>
-                            Shiprocket Express (Auto)
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    )}
-
                   {order.orderStatus !== 'DELIVERED' && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="h-4 w-4" />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                          disabled={punching}
+                        >
+                          <Zap className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Update Status</DropdownMenuLabel>
+                        <DropdownMenuLabel className="flex items-center gap-2">
+                          Punch to DTDC
+                          {getRecommendation(order) === 'DTDC' && (
+                            <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100 border-none px-1.5 py-0 text-[10px]">RECOMMENDED</Badge>
+                          )}
+                        </DropdownMenuLabel>
+                        <DropdownMenuItem onClick={() => handlePunchShipment(order, 'B2C SMART EXPRESS')}>
+                          B2C Smart Express
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handlePunchShipment(order, 'B2C PRIORITY')}>
+                          B2C Priority
+                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        {canUpdateTo(order.orderStatus, 'PACKED') && (
-                          <DropdownMenuItem onClick={() => onUpdateStatus(order.orderId, 'PACKED')}>
-                            <Package className="h-4 w-4 mr-2 text-orange-600" />
-                            Mark as Packed
-                          </DropdownMenuItem>
-                        )}
-                        {canUpdateTo(order.orderStatus, 'SHIPPED') && (
-                          <DropdownMenuItem onClick={() => onUpdateStatus(order.orderId, 'SHIPPED')}>
-                            <Truck className="h-4 w-4 mr-2 text-purple-600" />
-                            Mark as Shipped
-                          </DropdownMenuItem>
-                        )}
-                        {canUpdateTo(order.orderStatus, 'IN_TRANSIT') && (
-                          <DropdownMenuItem onClick={() => onUpdateStatus(order.orderId, 'IN_TRANSIT')}>
-                            <Loader2 className="h-4 w-4 mr-2 text-indigo-600" />
-                            Mark as In Transit
-                          </DropdownMenuItem>
-                        )}
-                        {canUpdateTo(order.orderStatus, 'DELIVERED') && (
-                          <DropdownMenuItem onClick={() => onUpdateStatus(order.orderId, 'DELIVERED')}>
-                            <CheckCircle className="h-4 w-4 mr-2 text-green-600" />
-                            Mark as Delivered
-                          </DropdownMenuItem>
-                        )}
+                        <DropdownMenuLabel className="flex items-center gap-2">
+                          Punch to Shiprocket
+                          {getRecommendation(order) === 'SHIPROCKET' && (
+                            <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100 border-none px-1.5 py-0 text-[10px]">RECOMMENDED</Badge>
+                          )}
+                        </DropdownMenuLabel>
+                        <DropdownMenuItem onClick={() => handlePunchShipment(order, 'Express', 'SHIPROCKET')}>
+                          Shiprocket Express (Auto)
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   )}
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      {order.orderStatus !== 'DELIVERED' && (
+                        <>
+                          <DropdownMenuLabel>Update Status</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          {canUpdateTo(order.orderStatus, 'PACKED') && (
+                            <DropdownMenuItem onClick={() => onUpdateStatus(order.orderId, 'PACKED')}>
+                              <Package className="h-4 w-4 mr-2 text-orange-600" />
+                              Mark as Packed
+                            </DropdownMenuItem>
+                          )}
+                          {canUpdateTo(order.orderStatus, 'SHIPPED') && (
+                            <DropdownMenuItem onClick={() => onUpdateStatus(order.orderId, 'SHIPPED')}>
+                              <Truck className="h-4 w-4 mr-2 text-purple-600" />
+                              Mark as Shipped
+                            </DropdownMenuItem>
+                          )}
+                          {canUpdateTo(order.orderStatus, 'IN_TRANSIT') && (
+                            <DropdownMenuItem onClick={() => onUpdateStatus(order.orderId, 'IN_TRANSIT')}>
+                              <Loader2 className="h-4 w-4 mr-2 text-indigo-600" />
+                              Mark as In Transit
+                            </DropdownMenuItem>
+                          )}
+                          {canUpdateTo(order.orderStatus, 'DELIVERED') && (
+                            <DropdownMenuItem onClick={() => onUpdateStatus(order.orderId, 'DELIVERED')}>
+                              <CheckCircle className="h-4 w-4 mr-2 text-green-600" />
+                              Mark as Delivered
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuSeparator />
+                        </>
+                      )}
+                      
+                      <DropdownMenuLabel>Documents</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem 
+                        onClick={() => handleDownloadAll(order)}
+                        disabled={downloadingAll === order._id || downloadingLabel}
+                      >
+                        <Download className="h-4 w-4 mr-2 text-green-600" />
+                        Download Label & Invoice
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => window.open(`${API_BASE_URL}/orders/${order._id}/invoice`, '_blank')}>
+                        <FileDown className="h-4 w-4 mr-2 text-blue-600" />
+                        Download Invoice
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => printShippingLabel(order)}>
+                        <FileImage className="h-4 w-4 mr-2 text-indigo-600" />
+                        Download Custom Label
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </TableCell>
             </TableRow>

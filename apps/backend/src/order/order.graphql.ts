@@ -4,7 +4,9 @@ import {
   InputType,
   registerEnumType,
   Int,
+  Float,
 } from '@nestjs/graphql';
+import GraphQLJSON from 'graphql-type-json';
 import { OrderStatus } from './order.schema';
 import { PaginationMeta } from '../common/pagination';
 import { PaymentStatus } from '../payment/entities/payment.schema';
@@ -141,6 +143,9 @@ export class OrderUserInfo {
 
   @Field()
   status: string;
+
+  @Field(() => GraphQLJSON, { nullable: true })
+  deviceInfo?: any;
 }
 
 @ObjectType()
@@ -275,6 +280,18 @@ export class OrdersSummary {
 
   @Field(() => OrderStatusCount)
   statusCounts: OrderStatusCount;
+
+  @Field(() => Int, { defaultValue: 0 })
+  appOrdersCount: number;
+
+  @Field(() => Int, { defaultValue: 0 })
+  webOrdersCount: number;
+
+  @Field(() => Float, { defaultValue: 0 })
+  appRevenue: number;
+
+  @Field(() => Float, { defaultValue: 0 })
+  webRevenue: number;
 }
 
 @ObjectType()

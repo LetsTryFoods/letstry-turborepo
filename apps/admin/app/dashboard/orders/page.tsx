@@ -31,7 +31,9 @@ import {
   CheckCircle,
   XCircle,
   IndianRupee,
-  ShoppingBag
+  ShoppingBag,
+  Globe,
+  Smartphone
 } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 
@@ -138,7 +140,14 @@ export default function OrdersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.total}</div>
-            <p className="text-xs text-muted-foreground">All time orders</p>
+            <div className="flex items-center justify-between mt-2 pt-2 border-t text-[11px] text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <Globe className="h-3.5 w-3.5 text-teal-600 shrink-0" /> Web: <span className="font-bold text-foreground">{stats.webOrdersCount}</span>
+              </span>
+              <span className="flex items-center gap-1">
+                <Smartphone className="h-3.5 w-3.5 text-indigo-600 shrink-0" /> App: <span className="font-bold text-foreground">{stats.appOrdersCount}</span>
+              </span>
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -148,7 +157,14 @@ export default function OrdersPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">₹{stats.totalRevenue.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">Across all orders</p>
+            <div className="flex items-center justify-between mt-2 pt-2 border-t text-[11px] text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <Globe className="h-3.5 w-3.5 text-teal-600 shrink-0" /> Web: <span className="font-bold text-foreground">₹{stats.webRevenue.toLocaleString()}</span>
+              </span>
+              <span className="flex items-center gap-1">
+                <Smartphone className="h-3.5 w-3.5 text-indigo-600 shrink-0" /> App: <span className="font-bold text-foreground">₹{stats.appRevenue.toLocaleString()}</span>
+              </span>
+            </div>
           </CardContent>
         </Card>
         <Card>

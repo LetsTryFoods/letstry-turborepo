@@ -556,4 +556,129 @@ export class OrderRepository {
       avgDeliveryDays: Math.round((deliveryResult[0]?.avgDeliveryDays ?? 0) * 10) / 10,
     };
   }
+
+  async getPlatformOrderStats(startDate: Date, endDate: Date): Promise<{ website: number; app: number }> {
+    const orders = await this.orderModel.aggregate([
+      { $match: { createdAt: { $gte: startDate, $lte: endDate }, orderStatus: { $ne: OrderStatus.SHIPMENT_FAILED } } },
+      {
+        $lookup: {
+          from: 'identities',
+          localField: 'identityId',
+          foreignField: '_id',
+          as: 'identity',
+        },
+      },
+      { $unwind: { path: '$identity', preserveNullAndEmptyArrays: true } },
+      {
+        $project: {
+          _id: 1,
+          deviceInfo: '$identity.deviceInfo',
+        },
+      },
+    ]).exec();
+
+    let website = 0;
+    let app = 0;
+
+    for (const order of orders) {
+      const deviceInfo = order.deviceInfo;
+      if (!deviceInfo) {
+        website++;
+        continue;
+      }
+      const ua = typeof deviceInfo === 'string' ? deviceInfo.toLowerCase() : '';
+      const isWebBrowser =
+        ua.includes('mozilla') ||
+        ua.includes('webkit') ||
+        ua.includes('safari') ||
+        ua.includes('chrome') ||
+        ua.includes('firefox') ||
+        ua.includes('edge');
+      const hasAppPlatform =
+        ua.includes('ios') ||
+        ua.includes('android') ||
+        ua.includes('iphone') ||
+        ua.includes('ipad');
+
+      if (hasAppPlatform && !isWebBrowser) {
+        app++;
+      } else {
+        website++;
+      }
+    }
+
+    return { website, app };
+  }
+
+  async getPlatformStatsForFilter(filter: any): Promise<{
+    appOrdersCount: number;
+    webOrdersCount: number;
+    appRevenue: number;
+    webRevenue: number;
+  }> {
+    const orders = await this.orderModel.aggregate([
+      { $match: filter },
+      {
+        $lookup: {
+          from: 'identities',
+          localField: 'identityId',
+          foreignField: '_id',
+          as: 'identity',
+        },
+      },
+      { $unwind: { path: '$identity', preserveNullAndEmptyArrays: true } },
+      {
+        $project: {
+          totalAmount: 1,
+          deviceInfo: '$identity.deviceInfo',
+        },
+      },
+    ]).exec();
+
+    let appOrdersCount = 0;
+    let webOrdersCount = 0;
+    let appRevenue = 0;
+    let webRevenue = 0;
+
+    for (const order of orders) {
+      const amount = parseFloat(order.totalAmount || '0');
+      const deviceInfo = order.deviceInfo;
+      let isApp = false;
+
+      if (deviceInfo) {
+        const ua = typeof deviceInfo === 'string' ? deviceInfo.toLowerCase() : '';
+        const isWebBrowser =
+          ua.includes('mozilla') ||
+          ua.includes('webkit') ||
+          ua.includes('safari') ||
+          ua.includes('chrome') ||
+          ua.includes('firefox') ||
+          ua.includes('edge');
+        const hasAppPlatform =
+          ua.includes('ios') ||
+          ua.includes('android') ||
+          ua.includes('iphone') ||
+          ua.includes('ipad');
+
+        if (hasAppPlatform && !isWebBrowser) {
+          isApp = true;
+        }
+      }
+
+      if (isApp) {
+        appOrdersCount++;
+        appRevenue += amount;
+      } else {
+        webOrdersCount++;
+        webRevenue += amount;
+      }
+    }
+
+    return {
+      appOrdersCount,
+      webOrdersCount,
+      appRevenue: Math.round(appRevenue * 100) / 100,
+      webRevenue: Math.round(webRevenue * 100) / 100,
+    };
+  }
 }

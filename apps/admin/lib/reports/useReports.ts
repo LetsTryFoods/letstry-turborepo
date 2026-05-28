@@ -42,12 +42,18 @@ export interface ReportSummary {
   customersGrowth: number
 }
 
+export interface PlatformOrderStats {
+  website: number
+  app: number
+}
+
 export interface ReportsData {
   summary: ReportSummary
   dailySales: DailySales[]
   topProducts: TopProduct[]
   topCustomers: TopCustomer[]
   categorySales: CategorySales[]
+  platformStats?: PlatformOrderStats
 }
 
 const emptyData: ReportsData = {
@@ -64,6 +70,10 @@ const emptyData: ReportsData = {
   topProducts: [],
   topCustomers: [],
   categorySales: [],
+  platformStats: {
+    website: 0,
+    app: 0,
+  },
 }
 
 // Hook to get reports data

@@ -104,6 +104,15 @@ export class ReportSummaryType {
 }
 
 @ObjectType()
+export class PlatformOrderStatsType {
+  @Field(() => Int)
+  website: number;
+
+  @Field(() => Int)
+  app: number;
+}
+
+@ObjectType()
 export class OrderReportResponse {
   @Field(() => ReportSummaryType)
   summary: ReportSummaryType;
@@ -119,4 +128,7 @@ export class OrderReportResponse {
 
   @Field(() => [CategorySalesType])
   categorySales: CategorySalesType[];
+
+  @Field(() => PlatformOrderStatsType, { nullable: true })
+  platformStats?: PlatformOrderStatsType;
 }

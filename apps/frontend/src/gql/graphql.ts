@@ -1390,6 +1390,7 @@ export type Mutation = {
   updateProductVariant: Product;
   updateProductVariantStock: Product;
   updateRedirect: RedirectType;
+  updateSampleInvoice?: Maybe<SampleInvoice>;
   updateUser: User;
   updateUserActivity: Scalars['Boolean']['output'];
   uploadEvidence: PackingOrder;
@@ -1927,6 +1928,12 @@ export type MutationUpdateProductVariantStockArgs = {
 export type MutationUpdateRedirectArgs = {
   id: Scalars['String']['input'];
   input: UpdateRedirectInput;
+};
+
+
+export type MutationUpdateSampleInvoiceArgs = {
+  id: Scalars['ID']['input'];
+  input: CreateSampleInvoiceInput;
 };
 
 
