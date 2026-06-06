@@ -35,6 +35,7 @@ import {
 import ContactTable from "./components/ContactTable"
 import ContactDetailsDialog from "./components/ContactDetailsDialog"
 import ContactReplyDialog from "./components/ContactReplyDialog"
+import ContactExcelDownloadDialog from "./components/ContactExcelDownloadDialog"
 
 const statuses: (ContactStatus | "ALL")[] = ["ALL", "PENDING", "REVIEWED", "RESOLVED"]
 const types: (ContactType | "ALL")[] = ["ALL", "GENERAL", "ORDER_ISSUE", "PRODUCT_INQUIRY", "COMPLAINT", "FEEDBACK", "RETURN_REQUEST"]
@@ -125,11 +126,14 @@ export default function ContactPage() {
   return (
     <div className="flex-1 space-y-6 p-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Contact Queries</h1>
-        <p className="text-muted-foreground">
-          Manage customer inquiries, complaints, and feedback
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Contact Queries</h1>
+          <p className="text-muted-foreground">
+            Manage customer inquiries, complaints, and feedback
+          </p>
+        </div>
+        <ContactExcelDownloadDialog />
       </div>
 
       {/* Stats Cards */}

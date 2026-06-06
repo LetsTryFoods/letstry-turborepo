@@ -21,6 +21,10 @@ export class ContactService {
     return this.contactModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).exec();
   }
 
+  async findAllForExport(filter: Record<string, any> = {}): Promise<Contact[]> {
+    return this.contactModel.find(filter).sort({ createdAt: -1 }).exec();
+  }
+
   async countAll(filter: Record<string, any> = {}): Promise<number> {
     return this.contactModel.countDocuments(filter).exec();
   }

@@ -111,6 +111,44 @@ export class UserService {
     return { customers: paginatedCustomers, meta, summary };
   }
 
+  async getCustomersForExport(input: GetCustomersInput): Promise<any[]> {
+    const filter = this.customerQueryService.buildCustomerFilter(input);
+    const customers = await this.customerQueryService.fetchAllCustomers(filter);
+    let enrichedCustomers =
+      await this.customerEnrichmentService.enrichCustomersWithOrderData(
+        customers,
+      );
+
+    enrichedCustomers = this.customerQueryService.applySpendingFilter(
+      enrichedCustomers,
+      input,
+    );
+    enrichedCustomers = this.customerEnrichmentService.applyCartStatusFilter(
+      enrichedCustomers,
+      input.cartStatus,
+    );
+    enrichedCustomers = this.customerQueryService.applySorting(
+      enrichedCustomers,
+      input,
+    );
+
+    return enrichedCustomers.map((customer: any) => ({
+      ...customer,
+      fullName:
+        `${customer.firstName || ''} ${customer.lastName || ''}`.trim() ||
+        'Guest User',
+      signupSourceText: customer.signupSource
+        ? JSON.stringify(customer.signupSource)
+        : '',
+      deviceInfoText: customer.deviceInfo
+        ? JSON.stringify(customer.deviceInfo)
+        : '',
+      mergedGuestIdsText: Array.isArray(customer.mergedGuestIds)
+        ? customer.mergedGuestIds.join(', ')
+        : '',
+    }));
+  }
+
   async getCustomerDetails(id: string): Promise<CustomerDetails> {
     return this.customerDetailsService.getCustomerDetails(id);
   }
