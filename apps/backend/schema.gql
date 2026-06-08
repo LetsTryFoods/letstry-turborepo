@@ -1744,6 +1744,7 @@ type SampleInvoice {
   totalMrpValue: Float!
   createdAt: DateTime!
   updatedAt: DateTime!
+  isComplimentary: Boolean!
 }
 
 input BoxDimensionsInput {
@@ -3074,6 +3075,7 @@ input CreateSampleInvoiceInput {
   invoiceNumber: String!
   recipient: SampleInvoiceRecipientInput
   items: [SampleInvoiceItemInput!]!
+  isComplimentary: Boolean
 }
 
 input SampleInvoiceRecipientInput {
