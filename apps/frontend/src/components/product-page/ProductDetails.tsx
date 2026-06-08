@@ -56,11 +56,19 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
 
   const images =
     selectedVariant?.images && selectedVariant.images.length > 0
-      ? selectedVariant.images.map((img) => img.url)
-      : product.defaultVariant?.images?.map((img) => img.url) || [];
-  const displayImages = images.length > 0 ? images : ["/placeholder-image.svg"];
+      ? selectedVariant.images.map((img) => ({ url: img.url, alt: img.alt || product.name }))
+      : product.defaultVariant?.images?.map((img) => ({ url: img.url, alt: img.alt || product.name })) || [];
+
+  const displayImages =
+    images.length > 0
+      ? images
+      : [{ url: "/placeholder-image.svg", alt: product.name }];
 
   const isOutOfStock = false; // Keep button enabled regardless of stock
+
+
+  console.log("Rendering ProductDetails with product:", product);
+  
 
 
   return (
@@ -68,7 +76,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
 
 
       <div>
-        <ProductGallery images={displayImages} isOutOfStock={isOutOfStock} productName={product.name} />
+        <ProductGallery images={displayImages} isOutOfStock={isOutOfStock} />
       </div>
 
       <div>

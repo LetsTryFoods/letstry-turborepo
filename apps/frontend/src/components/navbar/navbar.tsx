@@ -67,7 +67,7 @@ export const Navbar = ({ initialAuth, categories = [] }: NavbarProps) => {
           ...categories
             .filter((c) => c.favourite === true)
             .map((c) => ({ href: c.href, label: c.label })),
-         
+
         ],
       },
 
@@ -75,7 +75,7 @@ export const Navbar = ({ initialAuth, categories = [] }: NavbarProps) => {
       // { href: "/landing", label: "Landing" },
       { href: "/about-us", label: "About us" },
       // { href: "/contact-us", label: "Contact Us" },
-      
+
       ...(!isAuthenticated ? [{ href: "#", label: "Login", isLogin: true }] : []),
     ],
     [categories, isAuthenticated],

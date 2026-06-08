@@ -10,12 +10,14 @@ import useEmblaCarousel from 'embla-carousel-react';
 import type { EmblaCarouselType } from 'embla-carousel';
 
 interface ProductGalleryProps {
-  images: string[];
-  isOutOfStock?: boolean;
-  productName?: string;
+  images: {
+    url: string;
+    alt?: string;
+  }[];  isOutOfStock?: boolean;
+
 }
 
-export const ProductGallery: React.FC<ProductGalleryProps> = ({ images, isOutOfStock = false, productName }) => {
+export const ProductGallery: React.FC<ProductGalleryProps> = ({ images, isOutOfStock = false }) => {
   const router = useRouter();
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [mainCarouselRef, mainApi] = useEmblaCarousel({ loop: false });
@@ -51,6 +53,8 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({ images, isOutOfS
     };
   }, [mainApi, onSelect]);
 
+
+
   return (
     <div className={cn("flex flex-col gap-4", isOutOfStock && "grayscale opacity-80")}>
       <div className="relative w-full aspect-square bg-[#fdfbf7] rounded-3xl overflow-hidden flex items-center justify-center border border-gray-100">
@@ -66,8 +70,8 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({ images, isOutOfS
             {images.map((img, idx) => (
               <div key={idx} className="flex-[0_0_100%] min-w-0 relative p-1">
                 <Image
-                  src={getCdnUrl(img)}
-                  alt={productName ? `${productName} — image ${idx + 1}` : `Product Image ${idx + 1}`}
+                  src={getCdnUrl(img.url)}
+                  alt={img.alt ? `${img.alt}` : `Product Image ${idx + 1}`}
                   fill
                   className="object-contain"
                   priority={idx === 0}
@@ -91,8 +95,8 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({ images, isOutOfS
             >
               <div className="relative w-full h-full">
                 <Image
-                  src={getCdnUrl(img)}
-                  alt={productName ? `${productName} — thumbnail ${idx + 1}` : `Thumbnail ${idx + 1}`}
+                  src={getCdnUrl(img.url)}
+                  alt={img.alt ? `${img.alt}` : `Thumbnail ${idx + 1}`}
                   fill
                   className="object-contain"
                 />
