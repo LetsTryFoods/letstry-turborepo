@@ -10,9 +10,11 @@ import useEmblaCarousel from "embla-carousel-react";
 import type { EmblaCarouselType } from "embla-carousel";
 
 interface ProductGalleryProps {
-  images: string[];
-  isOutOfStock?: boolean;
-  productName?: string;
+  images: {
+    url: string;
+    alt?: string;
+  }[]; isOutOfStock?: boolean;
+
 }
 
 export const ProductGallery: React.FC<ProductGalleryProps> = ({
@@ -54,6 +56,8 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
       mainApi.off("reInit", onSelect);
     };
   }, [mainApi, onSelect]);
+
+
 
   return (
     <div

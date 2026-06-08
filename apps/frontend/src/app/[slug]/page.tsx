@@ -261,33 +261,33 @@ export default async function DynamicSlugPage({
 
   const faqSchema = faqBlock
     ? {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        "@id": `${categoryUrl}#faq`,
-        mainEntity: faqBlock.faqs.map((f) => ({
-          "@type": "Question",
-          name: f.q,
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: f.a,
-          },
-        })),
-      }
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "@id": `${categoryUrl}#faq`,
+      mainEntity: faqBlock.faqs.map((f) => ({
+        "@type": "Question",
+        name: f.q,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: f.a,
+        },
+      })),
+    }
     : null;
 
   // Speakable hints the answer-box paragraph and FAQ answers — these are
   // the parts AI / voice engines should consider quoting.
   const speakableSchema = faqBlock
     ? {
-        "@context": "https://schema.org",
-        "@type": "WebPage",
-        "@id": `${categoryUrl}#speakable`,
-        url: categoryUrl,
-        speakable: {
-          "@type": "SpeakableSpecification",
-          cssSelector: ['[data-speakable="true"]'],
-        },
-      }
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "@id": `${categoryUrl}#speakable`,
+      url: categoryUrl,
+      speakable: {
+        "@type": "SpeakableSpecification",
+        cssSelector: ['[data-speakable="true"]'],
+      },
+    }
     : null;
 
   return (

@@ -1,8 +1,12 @@
-"use client";
+"use client"
 import React, { useRef, useState } from "react";
 import Image from "next/image";
 
 interface Unit {
+  batchCode: string;
+  companyName: string;
+  address: string;
+  fssaiLicense?: string;
   batchCode: string;
   companyName: string;
   address: string;
@@ -19,6 +23,15 @@ export default function BatchLookup({ units }: { units: Unit[] }) {
     useRef<HTMLInputElement | null>(null),
   ];
 
+  function handleChange(index: number, value: string) {
+    const v = value.slice(0, 1);
+    const next = [...chars];
+    next[index] = v.toUpperCase();
+    setChars(next);
+    if (v && index < 2) {
+      inputsRef[index + 1].current?.focus();
+    }
+  }
   function handleChange(index: number, value: string) {
     const v = value.slice(0, 1);
     const next = [...chars];

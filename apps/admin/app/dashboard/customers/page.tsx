@@ -19,6 +19,7 @@ import {
 import { useCustomers } from "@/lib/customers/useCustomers";
 import CustomerTable from "./components/CustomerTable";
 import CustomerFilters from "./components/CustomerFilters";
+import CustomerExcelDownloadDialog from "./components/CustomerExcelDownloadDialog";
 import StatCard from "./components/StatCard";
 import { formatCurrency } from "./utils/customerUtils";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
@@ -89,11 +90,14 @@ export default function CustomersPage() {
 
   return (
     <div className="space-y-6 mx-6 auto mb-12">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Customers</h1>
-        <p className="text-muted-foreground">
-          Manage your customer accounts and view their details
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Customers</h1>
+          <p className="text-muted-foreground">
+            Manage your customer accounts and view their details
+          </p>
+        </div>
+        <CustomerExcelDownloadDialog />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
