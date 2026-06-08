@@ -1,5 +1,10 @@
-import React from 'react';
-import { UseFormRegister, FieldValues, Path, RegisterOptions } from 'react-hook-form';
+import React from "react";
+import {
+  UseFormRegister,
+  FieldValues,
+  Path,
+  RegisterOptions,
+} from "react-hook-form";
 
 interface PhoneInputProps<T extends FieldValues> {
   label: string;
@@ -18,7 +23,7 @@ export const PhoneInput = <T extends FieldValues>({
   required = false,
   placeholder,
   validation,
-  countryCode = '+91',
+  countryCode = "+91",
 }: PhoneInputProps<T>) => {
   return (
     <div>

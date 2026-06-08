@@ -1,4 +1,11 @@
-import { Resolver, Query, Mutation, Args, ResolveField, Parent } from '@nestjs/graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  ResolveField,
+  Parent,
+} from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { OrderService } from './order.service';
 import {
@@ -17,7 +24,11 @@ import {
   OrderWithUserInfo,
   BoxDimensionType,
 } from './order.graphql';
-import { OrderReportResponse, ShippingInsightsType } from './order-report.graphql';
+import {
+  OrderReportResponse,
+  ShippingInsightsType,
+  StateSalesType,
+} from './order-report.graphql';
 import { DualAuthGuard } from '../authentication/common/dual-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -25,7 +36,10 @@ import { Role } from '../common/enums/role.enum';
 import { OptionalUser } from '../common/decorators/optional-user.decorator';
 import { PackingService } from '../packing/services/packing.service';
 import { ShipmentService } from '../shipment/services/shipment.service';
-import { ShipmentResponse, ShipmentWithTrackingResponse } from '../shipment/dto/shipment-response.dto';
+import {
+  ShipmentResponse,
+  ShipmentWithTrackingResponse,
+} from '../shipment/dto/shipment-response.dto';
 import { MobileAppGuard } from '../common/guards/mobile-app.guard';
 
 import { Public } from '../common/decorators/public.decorator';
@@ -36,13 +50,14 @@ export class OrderResolver {
     private readonly orderService: OrderService,
     private readonly packingService: PackingService,
     private readonly shipmentService: ShipmentService,
-  ) { }
+  ) {}
 
   @Query(() => OrderReportResponse)
   @Roles(Role.ADMIN)
   @UseGuards(RolesGuard)
   async getOrderReports(
-    @Args('period', { type: () => String, defaultValue: 'month' }) period: string,
+    @Args('period', { type: () => String, defaultValue: 'month' })
+    period: string,
   ): Promise<OrderReportResponse> {
     return this.orderService.getOrderReports(period);
   }
@@ -56,11 +71,14 @@ export class OrderResolver {
     // The user requested to compute the most used box based on admin panel recommendations
     // If it's not present from packingevidences, or we just want to enforce the recommended one
     if (!insights.mostUsedBox) {
-      insights.mostUsedBox = await this.packingService.getMostUsedRecommendedBox() ?? undefined;
+      insights.mostUsedBox =
+        (await this.packingService.getMostUsedRecommendedBox()) ?? undefined;
     }
 
     if (insights.mostUsedBox && !insights.mostUsedBox.includes('(')) {
-      const boxDetails = await this.packingService.getBoxByCode(insights.mostUsedBox);
+      const boxDetails = await this.packingService.getBoxByCode(
+        insights.mostUsedBox,
+      );
       if (boxDetails?.internalDimensions) {
         const dims = boxDetails.internalDimensions;
         insights.mostUsedBox = `${insights.mostUsedBox} (${dims.l}x${dims.w}x${dims.h} cm)`;
@@ -68,6 +86,16 @@ export class OrderResolver {
     }
 
     return insights;
+  }
+
+  @Query(() => [StateSalesType])
+  @Roles(Role.ADMIN)
+  @UseGuards(RolesGuard)
+  async getSalesByState(
+    @Args('period', { type: () => String, defaultValue: 'month' })
+    period: string,
+  ): Promise<StateSalesType[]> {
+    return this.orderService.getSalesByState(period);
   }
 
   @Query(() => PaginatedOrdersResponse)
@@ -160,7 +188,10 @@ export class OrderResolver {
     const order = await this.orderService.getOrderById(orderId);
 
     // Add ownership check
-    if (order.identityId?.toString() !== user._id.toString() && !user.mergedGuestIds?.includes(order.identityId?.toString())) {
+    if (
+      order.identityId?.toString() !== user._id.toString() &&
+      !user.mergedGuestIds?.includes(order.identityId?.toString())
+    ) {
       throw new Error('Unauthorized to access this order.');
     }
 
@@ -185,11 +216,17 @@ export class OrderResolver {
       throw new Error('This endpoint is for guest users only.');
     }
 
-    const result = await this.shipmentService.getShipmentWithTracking(awbNumber);
+    const result =
+      await this.shipmentService.getShipmentWithTracking(awbNumber);
 
     // Check if the shipment belongs to an order owned by this guest
-    const order = await this.orderService.getOrderById(result.shipment.orderId.toString());
-    if (order.identityId?.toString() !== user._id.toString() && !user.mergedGuestIds?.includes(order.identityId?.toString())) {
+    const order = await this.orderService.getOrderById(
+      result.shipment.orderId.toString(),
+    );
+    if (
+      order.identityId?.toString() !== user._id.toString() &&
+      !user.mergedGuestIds?.includes(order.identityId?.toString())
+    ) {
       throw new Error('Unauthorized to access this tracking info.');
     }
 
@@ -297,20 +334,46 @@ export class OrderResolver {
 
   @ResolveField('estimatedWeight', () => Number, { nullable: true })
   async estimatedWeight(@Parent() order: any): Promise<number | null> {
-    const details = await this.packingService.getPackingDetailsByOrderId(order.orderId);
+    const details = await this.packingService.getPackingDetailsByOrderId(
+      order.orderId,
+    );
     if (details) {
-      return (await this.packingService.calculateShipmentWeight(order, details.packingOrder, details.evidence))?.weight || null;
+      return (
+        (
+          await this.packingService.calculateShipmentWeight(
+            order,
+            details.packingOrder,
+            details.evidence,
+          )
+        )?.weight || null
+      );
     }
-    return (await this.packingService.calculateWeightAndBoxFromOrder(order))?.weight || null;
+    return (
+      (await this.packingService.calculateWeightAndBoxFromOrder(order))
+        ?.weight || null
+    );
   }
 
   @ResolveField('boxDimensions', () => BoxDimensionType, { nullable: true })
   async boxDimensions(@Parent() order: any): Promise<BoxDimensionType | null> {
-    const details = await this.packingService.getPackingDetailsByOrderId(order.orderId);
+    const details = await this.packingService.getPackingDetailsByOrderId(
+      order.orderId,
+    );
     if (details) {
-      return (await this.packingService.calculateShipmentWeight(order, details.packingOrder, details.evidence))?.boxDimensions || null;
+      return (
+        (
+          await this.packingService.calculateShipmentWeight(
+            order,
+            details.packingOrder,
+            details.evidence,
+          )
+        )?.boxDimensions || null
+      );
     }
-    return (await this.packingService.calculateWeightAndBoxFromOrder(order))?.boxDimensions || null;
+    return (
+      (await this.packingService.calculateWeightAndBoxFromOrder(order))
+        ?.boxDimensions || null
+    );
   }
 }
 
@@ -320,7 +383,7 @@ export class OrderWithUserInfoResolver {
     private readonly orderService: OrderService,
     private readonly packingService: PackingService,
     private readonly shipmentService: ShipmentService,
-  ) { }
+  ) {}
 
   @ResolveField(() => OrderPaymentType, { nullable: true })
   async payment(@Parent() order: any): Promise<OrderPaymentType | null> {
@@ -346,25 +409,55 @@ export class OrderWithUserInfoResolver {
 
   @ResolveField('estimatedWeight', () => Number, { nullable: true })
   async estimatedWeight(@Parent() order: any): Promise<number | null> {
-    const details = await this.packingService.getPackingDetailsByOrderId(order.orderId);
+    const details = await this.packingService.getPackingDetailsByOrderId(
+      order.orderId,
+    );
     if (details) {
-      return (await this.packingService.calculateShipmentWeight(order, details.packingOrder, details.evidence))?.weight || null;
+      return (
+        (
+          await this.packingService.calculateShipmentWeight(
+            order,
+            details.packingOrder,
+            details.evidence,
+          )
+        )?.weight || null
+      );
     }
-    return (await this.packingService.calculateWeightAndBoxFromOrder(order))?.weight || null;
+    return (
+      (await this.packingService.calculateWeightAndBoxFromOrder(order))
+        ?.weight || null
+    );
   }
 
   @ResolveField('boxDimensions', () => BoxDimensionType, { nullable: true })
   async boxDimensions(@Parent() order: any): Promise<BoxDimensionType | null> {
-    const details = await this.packingService.getPackingDetailsByOrderId(order.orderId);
+    const details = await this.packingService.getPackingDetailsByOrderId(
+      order.orderId,
+    );
     if (details) {
-      return (await this.packingService.calculateShipmentWeight(order, details.packingOrder, details.evidence))?.boxDimensions || null;
+      return (
+        (
+          await this.packingService.calculateShipmentWeight(
+            order,
+            details.packingOrder,
+            details.evidence,
+          )
+        )?.boxDimensions || null
+      );
     }
-    return (await this.packingService.calculateWeightAndBoxFromOrder(order))?.boxDimensions || null;
+    return (
+      (await this.packingService.calculateWeightAndBoxFromOrder(order))
+        ?.boxDimensions || null
+    );
   }
 
   @ResolveField(() => ShipmentResponse, { nullable: true })
   async shipment(@Parent() order: any): Promise<ShipmentResponse | null> {
-    const shipments = await this.shipmentService.findByOrderId(order._id.toString());
-    return shipments.length > 0 ? (shipments[0] as any as ShipmentResponse) : null;
+    const shipments = await this.shipmentService.findByOrderId(
+      order._id.toString(),
+    );
+    return shipments.length > 0
+      ? (shipments[0] as any as ShipmentResponse)
+      : null;
   }
 }

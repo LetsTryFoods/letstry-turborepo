@@ -18,7 +18,7 @@ export class CustomerDetailsService {
     @InjectModel(Order.name) private orderModel: Model<Order>,
     @InjectModel(Cart.name) private cartModel: Model<Cart>,
     @InjectModel(Address.name) private addressModel: Model<Address>,
-  ) { }
+  ) {}
 
   async getCustomerDetails(id: string): Promise<CustomerDetails> {
     const customer = await this.findCustomerById(id);

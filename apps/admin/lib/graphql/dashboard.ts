@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 export const GET_DASHBOARD_STATS = gql`
   query GetDashboardStats {
@@ -12,4 +12,4 @@ export const GET_DASHBOARD_STATS = gql`
       totalAdmins
     }
   }
-`
+`;

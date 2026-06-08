@@ -1,1 +1,1 @@
-export { getHomeCategories } from './get-home-categories';
+export { getHomeCategories } from "./get-home-categories";

@@ -23,10 +23,12 @@ export function JsonImporter({ onImport }: JsonImporterProps) {
 
       const parsed = JSON.parse(jsonText);
       const orders = Array.isArray(parsed) ? parsed : [parsed];
-      
+
       // Basic validation
       if (orders.length === 0 || !orders[0].orderId) {
-        throw new Error("Invalid order format. Each order must have an orderId.");
+        throw new Error(
+          "Invalid order format. Each order must have an orderId.",
+        );
       }
 
       onImport(orders);
@@ -51,7 +53,9 @@ export function JsonImporter({ onImport }: JsonImporterProps) {
     <div className="space-y-4">
       <div className="flex items-center gap-4">
         <div className="flex-1">
-          <label className="mb-2 block text-sm font-medium text-slate-700">Paste JSON here or upload a file</label>
+          <label className="mb-2 block text-sm font-medium text-slate-700">
+            Paste JSON here or upload a file
+          </label>
           <Textarea
             placeholder='[{"orderId": "ORD...", ...}]'
             className="h-40 font-mono text-xs"
@@ -69,7 +73,12 @@ export function JsonImporter({ onImport }: JsonImporterProps) {
             accept=".json"
             onChange={handleFileChange}
           />
-          <Button variant="outline" size="sm" asChild={false} onClick={() => document.getElementById('file-upload')?.click()}>
+          <Button
+            variant="outline"
+            size="sm"
+            asChild={false}
+            onClick={() => document.getElementById("file-upload")?.click()}
+          >
             <Upload className="mr-2 h-4 w-4" />
             Upload File
           </Button>

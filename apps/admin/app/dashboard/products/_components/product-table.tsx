@@ -46,7 +46,7 @@ interface ProductTableProps {
   onAction: (
     id: string,
     action: "archive" | "unarchive" | "delete",
-    isArchived?: boolean
+    isArchived?: boolean,
   ) => void;
   onImagePreview: (url: string, title: string) => void;
   meta: {
@@ -157,7 +157,7 @@ export function ProductTable({
                                   onClick={() =>
                                     onImagePreview(
                                       getCdnUrl(String(thumbnailUrl)),
-                                      "Product Thumbnail"
+                                      "Product Thumbnail",
                                     )
                                   }
                                   className="text-blue-600 hover:text-blue-800 underline text-left max-w-[200px] truncate block"
@@ -176,18 +176,18 @@ export function ProductTable({
                                 <span>
                                   {formatCurrency(
                                     product.priceRange.min,
-                                    product.currency
+                                    product.currency,
                                   )}{" "}
                                   -{" "}
                                   {formatCurrency(
                                     product.priceRange.max,
-                                    product.currency
+                                    product.currency,
                                   )}
                                 </span>
                               ) : defaultVariant ? (
                                 formatCurrency(
                                   defaultVariant.price,
-                                  product.currency
+                                  product.currency,
                                 )
                               ) : (
                                 "-"
@@ -204,7 +204,7 @@ export function ProductTable({
                             ) : (
                               <div className="max-w-[200px] truncate">
                                 {String(
-                                  product[columnKey as keyof Product] || "-"
+                                  product[columnKey as keyof Product] || "-",
                                 )}
                               </div>
                             )}

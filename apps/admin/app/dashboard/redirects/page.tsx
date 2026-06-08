@@ -1,26 +1,35 @@
-'use client'
+"use client";
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { ColumnSelector, ColumnDefinition } from '@/app/dashboard/components/column-selector'
-import { useRedirectPage } from '@/hooks/useRedirectPage'
-import { RedirectForm } from './components/RedirectForm'
-import { RedirectTable } from './components/RedirectTable'
-import { DeleteRedirectDialog } from './components/DeleteRedirectDialog'
-import { Search } from 'lucide-react'
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  ColumnSelector,
+  ColumnDefinition,
+} from "@/app/dashboard/components/column-selector";
+import { useRedirectPage } from "@/hooks/useRedirectPage";
+import { RedirectForm } from "./components/RedirectForm";
+import { RedirectTable } from "./components/RedirectTable";
+import { DeleteRedirectDialog } from "./components/DeleteRedirectDialog";
+import { Search } from "lucide-react";
 
 const allColumns: ColumnDefinition[] = [
-  { key: '_id', label: 'ID' },
-  { key: 'fromPath', label: 'From Path' },
-  { key: 'toPath', label: 'To Path' },
-  { key: 'statusCode', label: 'Status Code' },
-  { key: 'isActive', label: 'Active' },
-  { key: 'description', label: 'Description' },
-  { key: 'source', label: 'Source' },
-  { key: 'createdAt', label: 'Created At' },
-  { key: 'updatedAt', label: 'Updated At' },
-]
+  { key: "_id", label: "ID" },
+  { key: "fromPath", label: "From Path" },
+  { key: "toPath", label: "To Path" },
+  { key: "statusCode", label: "Status Code" },
+  { key: "isActive", label: "Active" },
+  { key: "description", label: "Description" },
+  { key: "source", label: "Source" },
+  { key: "createdAt", label: "Created At" },
+  { key: "updatedAt", label: "Updated At" },
+];
 
 export default function RedirectsPage() {
   const {
@@ -48,9 +57,9 @@ export default function RedirectsPage() {
     handleToggleActive,
     handleSearch,
     setPage,
-  } = useRedirectPage()
+  } = useRedirectPage();
 
-  const totalPages = Math.ceil(total / limit)
+  const totalPages = Math.ceil(total / limit);
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -64,7 +73,7 @@ export default function RedirectsPage() {
             <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>
-                  {editingRedirect ? 'Edit Redirect' : 'Add New Redirect'}
+                  {editingRedirect ? "Edit Redirect" : "Add New Redirect"}
                 </DialogTitle>
               </DialogHeader>
               <RedirectForm
@@ -102,7 +111,9 @@ export default function RedirectsPage() {
           </div>
         ) : error ? (
           <div className="flex items-center justify-center h-32">
-            <p className="text-destructive">Error loading redirects: {error.message}</p>
+            <p className="text-destructive">
+              Error loading redirects: {error.message}
+            </p>
           </div>
         ) : (
           <>
@@ -118,7 +129,8 @@ export default function RedirectsPage() {
             {totalPages > 1 && (
               <div className="flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">
-                  Showing {((page - 1) * limit) + 1} to {Math.min(page * limit, total)} of {total} redirects
+                  Showing {(page - 1) * limit + 1} to{" "}
+                  {Math.min(page * limit, total)} of {total} redirects
                 </p>
                 <div className="flex items-center space-x-2">
                   <Button
@@ -153,5 +165,5 @@ export default function RedirectsPage() {
         onConfirm={handleDeleteConfirm}
       />
     </div>
-  )
+  );
 }

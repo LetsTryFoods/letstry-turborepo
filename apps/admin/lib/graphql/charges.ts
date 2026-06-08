@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 export const GET_CHARGES = gql`
   query GetCharges {
@@ -12,7 +12,7 @@ export const GET_CHARGES = gql`
       deliveryRestBelowThreshold
     }
   }
-`
+`;
 
 export const CREATE_OR_UPDATE_CHARGES = gql`
   mutation CreateOrUpdateCharges($input: CreateChargesInput!) {
@@ -26,4 +26,4 @@ export const CREATE_OR_UPDATE_CHARGES = gql`
       deliveryRestBelowThreshold
     }
   }
-`
+`;

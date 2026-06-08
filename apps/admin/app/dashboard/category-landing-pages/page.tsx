@@ -1,15 +1,15 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { toast } from 'react-hot-toast'
-import { Plus } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { useState } from "react";
+import { toast } from "react-hot-toast";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,7 +19,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+} from "@/components/ui/alert-dialog";
 import {
   useCategoryLandingPages,
   useCreateCategoryLandingPage,
@@ -27,55 +27,58 @@ import {
   useUpdateCategoryLandingPageActive,
   useDeleteCategoryLandingPage,
   CategoryLandingPage,
-} from '@/lib/category-landing-pages/useCategoryLandingPages'
-import { CategoryLandingPageForm } from './components/CategoryLandingPageForm'
-import { CategoryLandingPageTable } from './components/CategoryLandingPageTable'
+} from "@/lib/category-landing-pages/useCategoryLandingPages";
+import { CategoryLandingPageForm } from "./components/CategoryLandingPageForm";
+import { CategoryLandingPageTable } from "./components/CategoryLandingPageTable";
 
 export default function CategoryLandingPagesPage() {
-  const { data, loading } = useCategoryLandingPages()
-  const { mutate: createPage } = useCreateCategoryLandingPage()
-  const { mutate: updatePage } = useUpdateCategoryLandingPage()
-  const { mutate: toggleActive } = useUpdateCategoryLandingPageActive()
-  const { mutate: deletePage } = useDeleteCategoryLandingPage()
+  const { data, loading } = useCategoryLandingPages();
+  const { mutate: createPage } = useCreateCategoryLandingPage();
+  const { mutate: updatePage } = useUpdateCategoryLandingPage();
+  const { mutate: toggleActive } = useUpdateCategoryLandingPageActive();
+  const { mutate: deletePage } = useDeleteCategoryLandingPage();
 
-  const pages: CategoryLandingPage[] = (data as any)?.categoryLandingPages ?? []
+  const pages: CategoryLandingPage[] =
+    (data as any)?.categoryLandingPages ?? [];
 
-  const [formOpen, setFormOpen] = useState(false)
-  const [editingPage, setEditingPage] = useState<CategoryLandingPage | null>(null)
-  const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingPage, setEditingPage] = useState<CategoryLandingPage | null>(
+    null,
+  );
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const handleCreate = () => {
-    setEditingPage(null)
-    setFormOpen(true)
-  }
+    setEditingPage(null);
+    setFormOpen(true);
+  };
 
   const handleEdit = (page: CategoryLandingPage) => {
-    setEditingPage(page)
-    setFormOpen(true)
-  }
+    setEditingPage(page);
+    setFormOpen(true);
+  };
 
   const handleToggleActive = async (id: string) => {
-    const page = pages.find((p) => p._id === id)
-    if (!page) return
+    const page = pages.find((p) => p._id === id);
+    if (!page) return;
     try {
-      await toggleActive({ variables: { id, isActive: !page.isActive } })
-      toast.success(`Page ${page.isActive ? 'deactivated' : 'activated'}`)
+      await toggleActive({ variables: { id, isActive: !page.isActive } });
+      toast.success(`Page ${page.isActive ? "deactivated" : "activated"}`);
     } catch {
-      toast.error('Failed to update status')
+      toast.error("Failed to update status");
     }
-  }
+  };
 
   const handleDeleteConfirm = async () => {
-    if (!deleteId) return
+    if (!deleteId) return;
     try {
-      await deletePage({ variables: { id: deleteId } })
-      toast.success('Page deleted')
+      await deletePage({ variables: { id: deleteId } });
+      toast.success("Page deleted");
     } catch {
-      toast.error('Failed to delete page')
+      toast.error("Failed to delete page");
     } finally {
-      setDeleteId(null)
+      setDeleteId(null);
     }
-  }
+  };
 
   return (
     <div className="space-y-6 p-6">
@@ -83,10 +86,13 @@ export default function CategoryLandingPagesPage() {
         <div>
           <h1 className="text-2xl font-bold">Category Landing Pages</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Manage category pages at{' '}
-          <code className="text-xs bg-muted px-1 py-0.5 rounded">/category/[slug]</code>.
-          Set the slug to match a category slug — the page will show the category&apos;s products
-          automatically plus your custom tiles and FAQs.
+            Manage category pages at{" "}
+            <code className="text-xs bg-muted px-1 py-0.5 rounded">
+              /category/[slug]
+            </code>
+            . Set the slug to match a category slug — the page will show the
+            category&apos;s products automatically plus your custom tiles and
+            FAQs.
           </p>
         </div>
         <Button onClick={handleCreate}>
@@ -96,7 +102,9 @@ export default function CategoryLandingPagesPage() {
       </div>
 
       {loading ? (
-        <div className="text-center py-12 text-muted-foreground">Loading...</div>
+        <div className="text-center py-12 text-muted-foreground">
+          Loading...
+        </div>
       ) : (
         <CategoryLandingPageTable
           pages={pages}
@@ -111,7 +119,9 @@ export default function CategoryLandingPagesPage() {
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editingPage ? 'Edit Category Landing Page' : 'New Category Landing Page'}
+              {editingPage
+                ? "Edit Category Landing Page"
+                : "New Category Landing Page"}
             </DialogTitle>
           </DialogHeader>
           <CategoryLandingPageForm
@@ -124,12 +134,16 @@ export default function CategoryLandingPagesPage() {
       </Dialog>
 
       {/* Delete Confirmation */}
-      <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
+      <AlertDialog
+        open={!!deleteId}
+        onOpenChange={(open) => !open && setDeleteId(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete this page?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. The page will be permanently removed.
+              This action cannot be undone. The page will be permanently
+              removed.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -144,5 +158,5 @@ export default function CategoryLandingPagesPage() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  )
+  );
 }

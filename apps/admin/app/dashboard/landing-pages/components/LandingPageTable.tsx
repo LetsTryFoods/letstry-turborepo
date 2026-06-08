@@ -1,20 +1,34 @@
-'use client'
+"use client";
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { MoreHorizontal, Pencil, Trash2, Search } from 'lucide-react'
-import { ColumnDefinition } from '@/app/dashboard/components/column-selector'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MoreHorizontal, Pencil, Trash2, Search } from "lucide-react";
+import { ColumnDefinition } from "@/app/dashboard/components/column-selector";
 
 interface LandingPageTableProps {
-  landingPages: any[]
-  selectedColumns: string[]
-  allColumns: ColumnDefinition[]
-  onToggleActive: (id: string) => void
-  onEdit: (id: string) => void
-  onDelete: (id: string) => void
-  onSeoClick: (id: string) => void
+  landingPages: any[];
+  selectedColumns: string[];
+  allColumns: ColumnDefinition[];
+  onToggleActive: (id: string) => void;
+  onEdit: (id: string) => void;
+  onDelete: (id: string) => void;
+  onSeoClick: (id: string) => void;
 }
 
 export function LandingPageTable({
@@ -32,8 +46,8 @@ export function LandingPageTable({
         <TableHeader>
           <TableRow>
             {selectedColumns.map((columnKey) => {
-              const column = allColumns.find((c) => c.key === columnKey)
-              return <TableHead key={columnKey}>{column?.label}</TableHead>
+              const column = allColumns.find((c) => c.key === columnKey);
+              return <TableHead key={columnKey}>{column?.label}</TableHead>;
             })}
             <TableHead className="w-[100px]">Actions</TableHead>
           </TableRow>
@@ -41,7 +55,10 @@ export function LandingPageTable({
         <TableBody>
           {landingPages.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={selectedColumns.length + 1} className="text-center text-muted-foreground">
+              <TableCell
+                colSpan={selectedColumns.length + 1}
+                className="text-center text-muted-foreground"
+              >
                 No landing pages found.
               </TableCell>
             </TableRow>
@@ -50,10 +67,13 @@ export function LandingPageTable({
               <TableRow key={page._id}>
                 {selectedColumns.map((columnKey) => (
                   <TableCell key={columnKey}>
-                    {columnKey === 'isActive' ? (
-                      <Switch checked={page.isActive} onCheckedChange={() => onToggleActive(page._id)} />
+                    {columnKey === "isActive" ? (
+                      <Switch
+                        checked={page.isActive}
+                        onCheckedChange={() => onToggleActive(page._id)}
+                      />
                     ) : (
-                      String(page[columnKey as keyof typeof page] ?? '')
+                      String(page[columnKey as keyof typeof page] ?? "")
                     )}
                   </TableCell>
                 ))}
@@ -76,7 +96,10 @@ export function LandingPageTable({
                         SEO
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => onDelete(page._id)} className="text-destructive">
+                      <DropdownMenuItem
+                        onClick={() => onDelete(page._id)}
+                        className="text-destructive"
+                      >
                         <Trash2 className="mr-2 h-4 w-4" />
                         Delete
                       </DropdownMenuItem>
@@ -89,5 +112,5 @@ export function LandingPageTable({
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }

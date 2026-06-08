@@ -1,12 +1,12 @@
-import { View, StyleSheet, Alert } from 'react-native';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'expo-router';
-import { loginSchema, type LoginFormValues } from '../schemas/auth.schema';
-import { useLogin } from '../hooks/useLogin';
-import { Input } from '../../../components/ui/Input';
-import { Button } from '../../../components/ui/Button';
-import { theme } from '../../../styles/theme';
+import { View, StyleSheet, Alert } from "react-native";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "expo-router";
+import { loginSchema, type LoginFormValues } from "../schemas/auth.schema";
+import { useLogin } from "../hooks/useLogin";
+import { Input } from "../../../components/ui/Input";
+import { Button } from "../../../components/ui/Button";
+import { theme } from "../../../styles/theme";
 
 export const LoginForm = () => {
   const router = useRouter();
@@ -18,13 +18,13 @@ export const LoginForm = () => {
     formState: { errors },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: '', password: '' },
+    defaultValues: { email: "", password: "" },
   });
 
   const onSubmit = (data: LoginFormValues) => {
     login(data, {
-      onSuccess: () => router.replace('/(tabs)'),
-      onError: (error: any) => Alert.alert('Login Failed', error.message),
+      onSuccess: () => router.replace("/(tabs)"),
+      onError: (error: any) => Alert.alert("Login Failed", error.message),
     });
   };
 

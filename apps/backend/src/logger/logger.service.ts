@@ -71,9 +71,11 @@ export class WinstonLoggerService implements LoggerService {
           level: 'info',
           format: winston.format.combine(
             winston.format((info) => {
-              const isWhatsAppContext = info.context === 'WhatsAppNotificationProcessor' ||
+              const isWhatsAppContext =
+                info.context === 'WhatsAppNotificationProcessor' ||
                 info.context === 'WhatsAppService';
-              const hasWhatsAppInMessage = typeof info.message === 'string' &&
+              const hasWhatsAppInMessage =
+                typeof info.message === 'string' &&
                 info.message.toLowerCase().includes('whatsapp');
               return isWhatsAppContext || hasWhatsAppInMessage ? info : false;
             })(),

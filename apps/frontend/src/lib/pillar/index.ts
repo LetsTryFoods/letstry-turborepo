@@ -1,9 +1,9 @@
-import { createServerGraphQLClient } from '@/lib/graphql/server-client-factory';
+import { createServerGraphQLClient } from "@/lib/graphql/server-client-factory";
 import {
   GET_PILLAR_BY_SLUG,
   GET_ACTIVE_PILLARS,
   GET_PILLAR_BY_CUSTOM_ROUTE,
-} from '@/lib/queries/pillars';
+} from "@/lib/queries/pillars";
 
 export interface PillarSection {
   heading: string;
@@ -57,23 +57,31 @@ export interface Pillar {
 export async function getPillarBySlug(slug: string): Promise<Pillar | null> {
   const client = createServerGraphQLClient();
   try {
-    const data = await client.request<{ pillarBySlug: Pillar }>(GET_PILLAR_BY_SLUG, { slug });
+    const data = await client.request<{ pillarBySlug: Pillar }>(
+      GET_PILLAR_BY_SLUG,
+      { slug },
+    );
     return data?.pillarBySlug ?? null;
   } catch (e) {
-    console.error('getPillarBySlug failed', e);
+    console.error("getPillarBySlug failed", e);
     return null;
   }
 }
 
-export async function getActivePillars(): Promise<Pick<Pillar, '_id' | 'slug' | 'title' | 'intro' | 'isActive'>[]> {
+export async function getActivePillars(): Promise<
+  Pick<Pillar, "_id" | "slug" | "title" | "intro" | "isActive">[]
+> {
   const client = createServerGraphQLClient();
   try {
     const data = await client.request<{
-      activePillars: Pick<Pillar, '_id' | 'slug' | 'title' | 'intro' | 'isActive'>[];
+      activePillars: Pick<
+        Pillar,
+        "_id" | "slug" | "title" | "intro" | "isActive"
+      >[];
     }>(GET_ACTIVE_PILLARS);
     return data?.activePillars ?? [];
   } catch (e) {
-    console.error('getActivePillars failed', e);
+    console.error("getActivePillars failed", e);
     return [];
   }
 }
@@ -84,7 +92,9 @@ export async function getActivePillars(): Promise<Pick<Pillar, '_id' | 'slug' | 
  * before falling through to category lookup. Returns null on no match or
  * fetch error.
  */
-export async function getPillarByCustomRoute(route: string): Promise<Pillar | null> {
+export async function getPillarByCustomRoute(
+  route: string,
+): Promise<Pillar | null> {
   const client = createServerGraphQLClient();
   try {
     const data = await client.request<{ pillarByCustomRoute: Pillar | null }>(
@@ -93,7 +103,7 @@ export async function getPillarByCustomRoute(route: string): Promise<Pillar | nu
     );
     return data?.pillarByCustomRoute ?? null;
   } catch (e) {
-    console.error('getPillarByCustomRoute failed', e);
+    console.error("getPillarByCustomRoute failed", e);
     return null;
   }
 }

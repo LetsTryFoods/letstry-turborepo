@@ -1,8 +1,8 @@
-import { getActiveLandingPages } from '@/lib/landing-page';
-import type { Metadata } from 'next';
-import Link from 'next/link';
-import Image from 'next/image';
-import { getCdnUrl } from '@/lib/image-utils';
+import { getActiveLandingPages } from "@/lib/landing-page";
+import type { Metadata } from "next";
+import Link from "next/link";
+import Image from "next/image";
+import { getCdnUrl } from "@/lib/image-utils";
 
 export const metadata: Metadata = {
   title: "Landing Pages | Let's Try",
@@ -20,7 +20,9 @@ export default async function LandingListPage() {
         </h1>
 
         {pages.length === 0 ? (
-          <p className="text-gray-500 text-center py-20">No landing pages available.</p>
+          <p className="text-gray-500 text-center py-20">
+            No landing pages available.
+          </p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {pages.map((page) => (
@@ -47,7 +49,9 @@ export default async function LandingListPage() {
                     {page.title}
                   </h2>
                   {page.description && (
-                    <p className="mt-2 text-sm text-gray-600 line-clamp-2">{page.description}</p>
+                    <p className="mt-2 text-sm text-gray-600 line-clamp-2">
+                      {page.description}
+                    </p>
                   )}
                 </div>
               </Link>

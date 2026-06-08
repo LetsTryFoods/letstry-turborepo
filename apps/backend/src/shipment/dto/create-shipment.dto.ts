@@ -1,4 +1,13 @@
-import { IsString, IsOptional, IsNumber, IsObject, IsArray, ValidateNested, IsEnum, Min } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsNumber,
+  IsObject,
+  IsArray,
+  ValidateNested,
+  IsEnum,
+  Min,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { InputType, Field, Float, Int } from '@nestjs/graphql';
 import { ServiceType, LoadType } from '../entities/shipment.entity';

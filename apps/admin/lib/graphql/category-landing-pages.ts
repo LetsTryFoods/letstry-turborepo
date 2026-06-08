@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 const TILE_FIELDS = `
   name
@@ -6,13 +6,13 @@ const TILE_FIELDS = `
   imageUrl
   shopNowUrl
   position
-`
+`;
 
 const FAQ_FIELDS = `
   question
   answer
   position
-`
+`;
 
 const SEO_FIELDS = `
   metaTitle
@@ -22,7 +22,7 @@ const SEO_FIELDS = `
   ogTitle
   ogDescription
   ogImage
-`
+`;
 
 const CATEGORY_LANDING_PAGE_FIELDS = `
   _id
@@ -43,7 +43,7 @@ const CATEGORY_LANDING_PAGE_FIELDS = `
   isActive
   createdAt
   updatedAt
-`
+`;
 
 export const GET_CATEGORY_LANDING_PAGES = gql`
   query GetCategoryLandingPages {
@@ -51,7 +51,7 @@ export const GET_CATEGORY_LANDING_PAGES = gql`
       ${CATEGORY_LANDING_PAGE_FIELDS}
     }
   }
-`
+`;
 
 export const GET_CATEGORY_LANDING_PAGE = gql`
   query GetCategoryLandingPage($id: ID!) {
@@ -59,7 +59,7 @@ export const GET_CATEGORY_LANDING_PAGE = gql`
       ${CATEGORY_LANDING_PAGE_FIELDS}
     }
   }
-`
+`;
 
 export const CREATE_CATEGORY_LANDING_PAGE = gql`
   mutation CreateCategoryLandingPage($input: CreateCategoryLandingPageInput!) {
@@ -67,7 +67,7 @@ export const CREATE_CATEGORY_LANDING_PAGE = gql`
       ${CATEGORY_LANDING_PAGE_FIELDS}
     }
   }
-`
+`;
 
 export const UPDATE_CATEGORY_LANDING_PAGE = gql`
   mutation UpdateCategoryLandingPage($id: ID!, $input: UpdateCategoryLandingPageInput!) {
@@ -75,7 +75,7 @@ export const UPDATE_CATEGORY_LANDING_PAGE = gql`
       ${CATEGORY_LANDING_PAGE_FIELDS}
     }
   }
-`
+`;
 
 export const UPDATE_CATEGORY_LANDING_PAGE_ACTIVE = gql`
   mutation UpdateCategoryLandingPageActive($id: ID!, $isActive: Boolean!) {
@@ -84,7 +84,7 @@ export const UPDATE_CATEGORY_LANDING_PAGE_ACTIVE = gql`
       isActive
     }
   }
-`
+`;
 
 export const DELETE_CATEGORY_LANDING_PAGE = gql`
   mutation DeleteCategoryLandingPage($id: ID!) {
@@ -93,4 +93,4 @@ export const DELETE_CATEGORY_LANDING_PAGE = gql`
       pageTitle
     }
   }
-`
+`;

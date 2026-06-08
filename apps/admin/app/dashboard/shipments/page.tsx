@@ -1,21 +1,21 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   useAllShipments,
   useCancelShipment,
   useSyncActiveShipments,
-} from "@/lib/shipments/queries"
-import { Shipment, ShipmentStatusCode } from "@/lib/shipments/types"
-import { getShipmentStats } from "@/lib/shipments/utils"
-import { ShipmentTable } from "./components/ShipmentTable"
-import { ShipmentFilters } from "./components/ShipmentFilters"
-import { ShipmentDetailsDialog } from "./components/ShipmentDetailsDialog"
-import { CancelShipmentDialog } from "./components/CancelShipmentDialog"
-import { Pagination } from "@/components/ui/pagination"
+} from "@/lib/shipments/queries";
+import { Shipment, ShipmentStatusCode } from "@/lib/shipments/types";
+import { getShipmentStats } from "@/lib/shipments/utils";
+import { ShipmentTable } from "./components/ShipmentTable";
+import { ShipmentFilters } from "./components/ShipmentFilters";
+import { ShipmentDetailsDialog } from "./components/ShipmentDetailsDialog";
+import { CancelShipmentDialog } from "./components/CancelShipmentDialog";
+import { Pagination } from "@/components/ui/pagination";
 import {
   RefreshCw,
   Package,
@@ -24,46 +24,50 @@ import {
   Clock,
   RotateCcw,
   XCircle,
-} from "lucide-react"
-import { toast } from "react-hot-toast"
+} from "lucide-react";
+import { toast } from "react-hot-toast";
 
 export default function ShipmentsPage() {
-  const [statusFilter, setStatusFilter] = useState<string>("ALL")
-  const [searchTerm, setSearchTerm] = useState("")
-  const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({})
-  const [selectedShipment, setSelectedShipment] = useState<Shipment | null>(null)
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false)
-  const [cancelShipment, setCancelShipment] = useState<Shipment | null>(null)
-  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false)
+  const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({});
+  const [selectedShipment, setSelectedShipment] = useState<Shipment | null>(
+    null,
+  );
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [cancelShipment, setCancelShipment] = useState<Shipment | null>(null);
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
 
-  const [page, setPage] = useState(1)
-  const [limit, setLimit] = useState(10)
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
 
   // Reset page to 1 on filter changes
   useEffect(() => {
-    setPage(1)
-  }, [statusFilter, searchTerm, dateRange])
+    setPage(1);
+  }, [statusFilter, searchTerm, dateRange]);
 
-  const { shipments, meta, summary, loading, error, refetch } = useAllShipments({
-    statusCode: statusFilter !== "ALL" ? statusFilter : undefined,
-    bookedFrom: dateRange.from,
-    bookedTo: dateRange.to,
-    page,
-    limit,
-  })
+  const { shipments, meta, summary, loading, error, refetch } = useAllShipments(
+    {
+      statusCode: statusFilter !== "ALL" ? statusFilter : undefined,
+      bookedFrom: dateRange.from,
+      bookedTo: dateRange.to,
+      page,
+      limit,
+    },
+  );
 
-  const { cancelShipment: performCancel } = useCancelShipment()
-  const { sync, loading: syncing } = useSyncActiveShipments()
+  const { cancelShipment: performCancel } = useCancelShipment();
+  const { sync, loading: syncing } = useSyncActiveShipments();
 
   const handleSyncStatus = async () => {
-    const success = await sync()
+    const success = await sync();
     if (success) {
-      toast.success("Tracking sync triggered successfully in background")
-      setTimeout(() => refetch(), 1500)
+      toast.success("Tracking sync triggered successfully in background");
+      setTimeout(() => refetch(), 1500);
     } else {
-      toast.error("Failed to trigger tracking sync")
+      toast.error("Failed to trigger tracking sync");
     }
-  }
+  };
 
   const stats = summary || {
     totalShipments: 0,
@@ -72,46 +76,46 @@ export default function ShipmentsPage() {
     pending: 0,
     rtoCount: 0,
     cancelled: 0,
-  }
+  };
 
   const filteredShipments = shipments.filter((shipment) => {
-    if (!searchTerm) return true
-    const term = searchTerm.toLowerCase()
+    if (!searchTerm) return true;
+    const term = searchTerm.toLowerCase();
     return (
       shipment.dtdcAwbNumber.toLowerCase().includes(term) ||
       shipment.orderId?.toLowerCase().includes(term) ||
       shipment.customerCode.toLowerCase().includes(term)
-    )
-  })
+    );
+  });
 
   const handleViewDetails = (shipment: Shipment) => {
-    setSelectedShipment(shipment)
-    setIsDetailsOpen(true)
-  }
+    setSelectedShipment(shipment);
+    setIsDetailsOpen(true);
+  };
 
   const handleCancelShipment = (shipment: Shipment) => {
-    setCancelShipment(shipment)
-    setIsCancelDialogOpen(true)
-  }
+    setCancelShipment(shipment);
+    setIsCancelDialogOpen(true);
+  };
 
   const handleConfirmCancel = async () => {
-    if (!cancelShipment) return
+    if (!cancelShipment) return;
 
     try {
-      await performCancel({ awbNumber: cancelShipment.dtdcAwbNumber })
-      toast.success("Shipment cancelled successfully")
-      refetch()
+      await performCancel({ awbNumber: cancelShipment.dtdcAwbNumber });
+      toast.success("Shipment cancelled successfully");
+      refetch();
     } catch (error) {
-      toast.error("Failed to cancel shipment")
+      toast.error("Failed to cancel shipment");
     }
-  }
+  };
 
   const handleClearFilters = () => {
-    setStatusFilter("ALL")
-    setSearchTerm("")
-    setDateRange({})
-    setPage(1)
-  }
+    setStatusFilter("ALL");
+    setSearchTerm("");
+    setDateRange({});
+    setPage(1);
+  };
 
   if (loading) {
     return (
@@ -133,7 +137,7 @@ export default function ShipmentsPage() {
         </div>
         <Skeleton className="h-96" />
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -142,15 +146,20 @@ export default function ShipmentsPage() {
         <Card className="border-destructive">
           <CardContent className="pt-6">
             <p className="text-destructive">
-              Error loading shipments: {(error as Error)?.message || "Unknown error"}
+              Error loading shipments:{" "}
+              {(error as Error)?.message || "Unknown error"}
             </p>
-            <Button onClick={() => refetch()} variant="outline" className="mt-4">
+            <Button
+              onClick={() => refetch()}
+              variant="outline"
+              className="mt-4"
+            >
               Try Again
             </Button>
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -169,7 +178,9 @@ export default function ShipmentsPage() {
             variant="default"
             size="sm"
           >
-            <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? "animate-spin" : ""}`} />
+            <RefreshCw
+              className={`h-4 w-4 mr-2 ${syncing ? "animate-spin" : ""}`}
+            />
             {syncing ? "Syncing..." : "Sync Status"}
           </Button>
           <Button onClick={() => refetch()} variant="outline" size="sm">
@@ -197,18 +208,24 @@ export default function ShipmentsPage() {
             <Truck className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{stats.inTransit}</div>
+            <div className="text-2xl font-bold text-blue-600">
+              {stats.inTransit}
+            </div>
             <p className="text-xs text-muted-foreground">On the way</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Delivered Today</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Delivered Today
+            </CardTitle>
             <CheckCircle className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.deliveredToday}</div>
+            <div className="text-2xl font-bold text-green-600">
+              {stats.deliveredToday}
+            </div>
             <p className="text-xs text-muted-foreground">Completed</p>
           </CardContent>
         </Card>
@@ -219,7 +236,9 @@ export default function ShipmentsPage() {
             <Clock className="h-4 w-4 text-yellow-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{stats.pending}</div>
+            <div className="text-2xl font-bold text-yellow-600">
+              {stats.pending}
+            </div>
             <p className="text-xs text-muted-foreground">Awaiting</p>
           </CardContent>
         </Card>
@@ -230,7 +249,9 @@ export default function ShipmentsPage() {
             <RotateCcw className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{stats.rtoCount}</div>
+            <div className="text-2xl font-bold text-orange-600">
+              {stats.rtoCount}
+            </div>
             <p className="text-xs text-muted-foreground">Returning</p>
           </CardContent>
         </Card>
@@ -241,7 +262,9 @@ export default function ShipmentsPage() {
             <XCircle className="h-4 w-4 text-gray-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-600">{stats.cancelled}</div>
+            <div className="text-2xl font-bold text-gray-600">
+              {stats.cancelled}
+            </div>
             <p className="text-xs text-muted-foreground">Terminated</p>
           </CardContent>
         </Card>
@@ -316,5 +339,5 @@ export default function ShipmentsPage() {
         />
       )}
     </div>
-  )
+  );
 }

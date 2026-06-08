@@ -20,8 +20,13 @@ export const NotificationBanner = () => {
     <div className="w-full bg-[#001f3f] text-yellow-400 px-4 py-4 md:py-5 relative z-40 border-b border-yellow-500/20 shadow-md">
       <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-center md:justify-between gap-4 pr-8 md:pr-12">
         <div className="text-base md:text-lg font-medium flex-1 text-center md:text-left text-yellow-50 leading-relaxed max-w-4xl">
-          <strong className="text-yellow-400 text-lg uppercase tracking-wider mr-2">Notice:</strong>
-          Orders placed from April 14 onwards are experiencing delays of approximately <span className="font-bold text-yellow-400">15–20 days</span> due to logistics issues. We sincerely apologize for the inconvenience.
+          <strong className="text-yellow-400 text-lg uppercase tracking-wider mr-2">
+            Notice:
+          </strong>
+          Orders placed from April 14 onwards are experiencing delays of
+          approximately{" "}
+          <span className="font-bold text-yellow-400">15–20 days</span> due to
+          logistics issues. We sincerely apologize for the inconvenience.
         </div>
 
         <div className="flex flex-wrap items-center justify-center gap-3 text-sm font-semibold shrink-0">

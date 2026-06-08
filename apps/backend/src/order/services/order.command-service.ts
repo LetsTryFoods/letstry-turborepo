@@ -14,7 +14,7 @@ export class OrderCommandService {
     private paymentLogger: PaymentLoggerService,
     @Inject(forwardRef(() => PackingService))
     private packingService: PackingService,
-  ) { }
+  ) {}
 
   async createOrder(params: {
     identityId: Types.ObjectId;

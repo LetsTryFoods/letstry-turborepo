@@ -23,6 +23,8 @@ export class OrderAssignmentService {
   }
 
   async updateAssignmentStatus(orderId: string, status: string): Promise<void> {
-    await this.packingOrderCrud.update(orderId, { status: status as PackingStatus });
+    await this.packingOrderCrud.update(orderId, {
+      status: status as PackingStatus,
+    });
   }
 }

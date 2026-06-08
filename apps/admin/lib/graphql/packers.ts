@@ -35,8 +35,16 @@ export const GET_PACKER_BY_ID = gql`
 `;
 
 export const GET_PACKER_STATS = gql`
-  query GetPackerStats($packerId: String!, $startDate: DateTime, $endDate: DateTime) {
-    getPackerStats(packerId: $packerId, startDate: $startDate, endDate: $endDate) {
+  query GetPackerStats(
+    $packerId: String!
+    $startDate: DateTime
+    $endDate: DateTime
+  ) {
+    getPackerStats(
+      packerId: $packerId
+      startDate: $startDate
+      endDate: $endDate
+    ) {
       packerId
       totalOrders
       accuracyRate

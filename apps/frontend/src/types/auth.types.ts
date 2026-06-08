@@ -1,4 +1,4 @@
-import type { User as FirebaseUser } from 'firebase/auth';
+import type { User as FirebaseUser } from "firebase/auth";
 
 export interface AuthUser {
   uid: string;
@@ -38,12 +38,12 @@ export interface OtpState {
 }
 
 export enum AuthErrorCode {
-  INVALID_PHONE = 'INVALID_PHONE',
-  INVALID_OTP = 'INVALID_OTP',
-  NETWORK_ERROR = 'NETWORK_ERROR',
-  SESSION_EXPIRED = 'SESSION_EXPIRED',
-  RECAPTCHA_ERROR = 'RECAPTCHA_ERROR',
-  BACKEND_ERROR = 'BACKEND_ERROR',
+  INVALID_PHONE = "INVALID_PHONE",
+  INVALID_OTP = "INVALID_OTP",
+  NETWORK_ERROR = "NETWORK_ERROR",
+  SESSION_EXPIRED = "SESSION_EXPIRED",
+  RECAPTCHA_ERROR = "RECAPTCHA_ERROR",
+  BACKEND_ERROR = "BACKEND_ERROR",
 }
 
 export interface AuthError {

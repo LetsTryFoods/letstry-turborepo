@@ -1,4 +1,12 @@
-import { Resolver, Query, Mutation, Args, ID, Int, Float } from '@nestjs/graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  ID,
+  Int,
+  Float,
+} from '@nestjs/graphql';
 import { InputType, Field } from '@nestjs/graphql';
 import { SampleInvoice } from './sample-invoice.schema';
 import { SampleInvoiceService } from './sample-invoice.service';
@@ -53,6 +61,9 @@ export class CreateSampleInvoiceInput {
 
   @Field(() => [SampleInvoiceItemInput])
   items: SampleInvoiceItemInput[];
+
+  @Field({ nullable: true })
+  isComplimentary?: boolean;
 }
 
 // ── Resolver ──────────────────────────────────────────────────────────────────
@@ -97,7 +108,10 @@ export class SampleInvoiceResolver {
    * Update an existing sample invoice in the database.
    */
   @Roles(Role.ADMIN)
-  @Mutation(() => SampleInvoice, { name: 'updateSampleInvoice', nullable: true })
+  @Mutation(() => SampleInvoice, {
+    name: 'updateSampleInvoice',
+    nullable: true,
+  })
   async updateSampleInvoice(
     @Args('id', { type: () => ID }) id: string,
     @Args('input') input: CreateSampleInvoiceInput,
@@ -105,4 +119,3 @@ export class SampleInvoiceResolver {
     return this.service.update(id, input);
   }
 }
-

@@ -88,7 +88,6 @@ export const DesktopNavbar = ({
                 </div>
               </div>
             )}
-
           </div>
         ))}
       </div>

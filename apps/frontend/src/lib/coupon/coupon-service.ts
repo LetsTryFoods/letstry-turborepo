@@ -1,5 +1,5 @@
-import { graphqlClient } from '@/lib/graphql/client-factory';
-import { APPLY_COUPON, REMOVE_COUPON } from '@/lib/queries/coupon';
+import { graphqlClient } from "@/lib/graphql/client-factory";
+import { APPLY_COUPON, REMOVE_COUPON } from "@/lib/queries/coupon";
 
 export const CouponService = {
   applyCoupon: async (code: string) => {

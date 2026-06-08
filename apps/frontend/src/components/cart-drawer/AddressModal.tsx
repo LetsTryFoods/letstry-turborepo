@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, MapPin, Loader2 } from 'lucide-react';
-import { useSearchPlaces } from '@/lib/address/use-search-places';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X, MapPin, Loader2 } from "lucide-react";
+import { useSearchPlaces } from "@/lib/address/use-search-places";
 
 interface Address {
   _id: string;
@@ -24,7 +24,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
   onSelectAddress,
   onSelectPlace,
 }) => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const { data: searchResults, isLoading } = useSearchPlaces(searchQuery);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,7 +33,7 @@ export const AddressModal: React.FC<AddressModalProps> = ({
 
   const handlePlaceSelect = (placeId: string, description: string) => {
     onSelectPlace(placeId, description);
-    setSearchQuery('');
+    setSearchQuery("");
     onClose();
   };
 
@@ -95,12 +95,16 @@ export const AddressModal: React.FC<AddressModalProps> = ({
             <div className="flex-1 overflow-y-auto px-4 pb-4">
               {showSearchResults && places.length > 0 && (
                 <div className="mb-4">
-                  <h3 className="text-lg font-bold text-[#0F4A6A] mb-3">Search Results</h3>
+                  <h3 className="text-lg font-bold text-[#0F4A6A] mb-3">
+                    Search Results
+                  </h3>
                   <div className="space-y-2">
                     {places.map((place: any) => (
                       <button
                         key={place.placeId}
-                        onClick={() => handlePlaceSelect(place.placeId, place.description)}
+                        onClick={() =>
+                          handlePlaceSelect(place.placeId, place.description)
+                        }
                         className="w-full text-left p-4 border border-gray-200 rounded-lg hover:border-[#0F4A6A] hover:bg-[#0F4A6A]/5 transition-all group flex items-start gap-3"
                       >
                         <MapPin className="w-5 h-5 text-gray-400 group-hover:text-[#0F4A6A] mt-0.5 flex-shrink-0" />
@@ -120,7 +124,9 @@ export const AddressModal: React.FC<AddressModalProps> = ({
 
               {!showSearchResults && addresses.length > 0 && (
                 <div>
-                  <h3 className="text-lg font-bold text-[#0F4A6A] mb-3">Saved addresses</h3>
+                  <h3 className="text-lg font-bold text-[#0F4A6A] mb-3">
+                    Saved addresses
+                  </h3>
                   <div className="space-y-2">
                     {addresses.map((addr) => (
                       <button

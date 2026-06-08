@@ -12,7 +12,7 @@ import { OptionalUser } from '../common/decorators/optional-user.decorator';
 
 @Resolver()
 export class UserResolver {
-  constructor(private readonly userService: UserService) { }
+  constructor(private readonly userService: UserService) {}
 
   @Query(() => User, { nullable: true })
   @Roles(Role.USER)

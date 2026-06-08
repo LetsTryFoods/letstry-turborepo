@@ -1,17 +1,23 @@
-'use client';
+"use client";
 
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { graphqlClient } from '@/lib/graphql/client-factory';
-import { SEARCH_PRODUCTS } from './search-query';
-import type { SearchProductsQuery, SearchProductsQueryVariables } from '@/gql/graphql';
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { graphqlClient } from "@/lib/graphql/client-factory";
+import { SEARCH_PRODUCTS } from "./search-query";
+import type {
+  SearchProductsQuery,
+  SearchProductsQueryVariables,
+} from "@/gql/graphql";
 
 const LIMIT = 50;
 
-export function useSearchProducts(searchTerm: string, nameOnly: boolean = false) {
+export function useSearchProducts(
+  searchTerm: string,
+  nameOnly: boolean = false,
+) {
   const trimmedSearchTerm = searchTerm.trim();
 
   return useInfiniteQuery<SearchProductsQuery, Error>({
-    queryKey: ['searchProducts', trimmedSearchTerm, nameOnly],
+    queryKey: ["searchProducts", trimmedSearchTerm, nameOnly],
     queryFn: async ({ pageParam }) => {
       const vars: SearchProductsQueryVariables = {
         searchTerm: trimmedSearchTerm,

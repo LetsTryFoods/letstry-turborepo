@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 export const GET_ALL_SHIPMENTS = gql`
   query ListShipments($filters: ShipmentFiltersInput) {
@@ -64,7 +64,7 @@ export const GET_ALL_SHIPMENTS = gql`
       }
     }
   }
-`
+`;
 
 export const GET_SHIPMENT_BY_ID = gql`
   query GetShipmentById($id: ID!) {
@@ -110,7 +110,7 @@ export const GET_SHIPMENT_BY_ID = gql`
       trackingLink
     }
   }
-`
+`;
 
 export const GET_SHIPMENT_BY_AWB = gql`
   query GetShipmentByAwb($awbNumber: String!) {
@@ -156,7 +156,7 @@ export const GET_SHIPMENT_BY_AWB = gql`
       trackingLink
     }
   }
-`
+`;
 
 export const GET_SHIPMENT_WITH_TRACKING = gql`
   query GetShipmentWithTracking($awbNumber: String!) {
@@ -219,7 +219,7 @@ export const GET_SHIPMENT_WITH_TRACKING = gql`
       }
     }
   }
-`
+`;
 
 export const CANCEL_SHIPMENT = gql`
   mutation CancelShipment($input: CancelShipmentInput!) {
@@ -231,17 +231,16 @@ export const CANCEL_SHIPMENT = gql`
       cancelledAt
     }
   }
-`
+`;
 
 export const GET_SHIPMENT_LABEL = gql`
   query GetShipmentLabel($awbNumber: String!) {
     getShipmentLabel(awbNumber: $awbNumber)
   }
-`
+`;
 
 export const SYNC_ACTIVE_SHIPMENTS = gql`
   mutation SyncActiveShipments {
     syncActiveShipments
   }
-`
-
+`;

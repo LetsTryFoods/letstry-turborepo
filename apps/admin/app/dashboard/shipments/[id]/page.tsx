@@ -1,22 +1,22 @@
-"use client"
+"use client";
 
-import { use, useState } from "react"
-import Link from "next/link"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Separator } from "@/components/ui/separator"
-import { useShipmentById, useCancelShipment } from "@/lib/shipments/queries"
-import { ShipmentStatusBadge } from "../components/ShipmentStatusBadge"
-import { TrackingTimeline } from "../components/TrackingTimeline"
-import { CancelShipmentDialog } from "../components/CancelShipmentDialog"
+import { use, useState } from "react";
+import Link from "next/link";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Separator } from "@/components/ui/separator";
+import { useShipmentById, useCancelShipment } from "@/lib/shipments/queries";
+import { ShipmentStatusBadge } from "../components/ShipmentStatusBadge";
+import { TrackingTimeline } from "../components/TrackingTimeline";
+import { CancelShipmentDialog } from "../components/CancelShipmentDialog";
 import {
   formatDate,
   formatWeight,
   formatCurrency,
   getServiceTypeLabel,
   copyToClipboard,
-} from "@/lib/shipments/utils"
+} from "@/lib/shipments/utils";
 import {
   RefreshCw,
   Copy,
@@ -27,40 +27,42 @@ import {
   FileText,
   Truck,
   ArrowLeft,
-} from "lucide-react"
-import { toast } from "react-hot-toast"
-import { useRouter } from "next/navigation"
+} from "lucide-react";
+import { toast } from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 interface ShipmentDetailPageProps {
-  params: Promise<{ id: string }>
+  params: Promise<{ id: string }>;
 }
 
-export default function ShipmentDetailPage({ params }: ShipmentDetailPageProps) {
-  const { id } = use(params)
-  const router = useRouter()
-  const { shipment, loading, error, refetch } = useShipmentById(id)
-  const { cancelShipment: performCancel } = useCancelShipment()
-  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false)
+export default function ShipmentDetailPage({
+  params,
+}: ShipmentDetailPageProps) {
+  const { id } = use(params);
+  const router = useRouter();
+  const { shipment, loading, error, refetch } = useShipmentById(id);
+  const { cancelShipment: performCancel } = useCancelShipment();
+  const [isCancelDialogOpen, setIsCancelDialogOpen] = useState(false);
 
   const handleCopy = async (text: string, label: string) => {
-    const success = await copyToClipboard(text)
+    const success = await copyToClipboard(text);
     if (success) {
-      toast.success(`${label} copied to clipboard`)
+      toast.success(`${label} copied to clipboard`);
     }
-  }
+  };
 
   const handleConfirmCancel = async () => {
-    if (!shipment) return
+    if (!shipment) return;
 
     try {
-      await performCancel({ awbNumber: shipment.dtdcAwbNumber })
-      toast.success("Shipment cancelled successfully")
-      refetch()
-      router.push("/dashboard/shipments")
+      await performCancel({ awbNumber: shipment.dtdcAwbNumber });
+      toast.success("Shipment cancelled successfully");
+      refetch();
+      router.push("/dashboard/shipments");
     } catch (error) {
-      toast.error("Failed to cancel shipment")
+      toast.error("Failed to cancel shipment");
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -80,7 +82,7 @@ export default function ShipmentDetailPage({ params }: ShipmentDetailPageProps) 
           <Skeleton className="h-64" />
         </div>
       </div>
-    )
+    );
   }
 
   if (error || !shipment) {
@@ -89,15 +91,21 @@ export default function ShipmentDetailPage({ params }: ShipmentDetailPageProps) 
         <Card className="border-destructive">
           <CardContent className="pt-6">
             <p className="text-destructive">
-              {error ? `Error loading shipment: ${(error as Error)?.message}` : "Shipment not found"}
+              {error
+                ? `Error loading shipment: ${(error as Error)?.message}`
+                : "Shipment not found"}
             </p>
-            <Button onClick={() => router.back()} variant="outline" className="mt-4">
+            <Button
+              onClick={() => router.back()}
+              variant="outline"
+              className="mt-4"
+            >
               Go Back
             </Button>
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -107,7 +115,9 @@ export default function ShipmentDetailPage({ params }: ShipmentDetailPageProps) 
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div className="flex-1">
-          <h1 className="text-2xl font-bold tracking-tight">Shipment Details</h1>
+          <h1 className="text-2xl font-bold tracking-tight">
+            Shipment Details
+          </h1>
           <p className="text-muted-foreground">
             Track and manage shipment information
           </p>
@@ -140,7 +150,11 @@ export default function ShipmentDetailPage({ params }: ShipmentDetailPageProps) 
           </Button>
           {shipment.labelUrl && (
             <Button asChild variant="outline" size="sm">
-              <a href={shipment.labelUrl} target="_blank" rel="noopener noreferrer">
+              <a
+                href={shipment.labelUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <Download className="h-4 w-4 mr-2" />
                 Label
               </a>
@@ -190,7 +204,9 @@ export default function ShipmentDetailPage({ params }: ShipmentDetailPageProps) 
               </div>
               <div>
                 <div className="text-muted-foreground">Service Type</div>
-                <div className="font-medium">{getServiceTypeLabel(shipment.serviceType)}</div>
+                <div className="font-medium">
+                  {getServiceTypeLabel(shipment.serviceType)}
+                </div>
               </div>
               <div>
                 <div className="text-muted-foreground">Load Type</div>
@@ -198,25 +214,37 @@ export default function ShipmentDetailPage({ params }: ShipmentDetailPageProps) 
               </div>
               <div>
                 <div className="text-muted-foreground">Booked On</div>
-                <div className="font-medium">{formatDate(shipment.bookedOn)}</div>
+                <div className="font-medium">
+                  {formatDate(shipment.bookedOn)}
+                </div>
               </div>
               <div>
                 <div className="text-muted-foreground">Expected Delivery</div>
-                <div className="font-medium">{formatDate(shipment.expectedDeliveryDate)}</div>
+                <div className="font-medium">
+                  {formatDate(shipment.expectedDeliveryDate)}
+                </div>
               </div>
               {shipment.revisedExpectedDeliveryDate && (
                 <div className="col-span-2">
-                  <div className="text-muted-foreground">Revised Delivery Date</div>
-                  <div className="font-medium">{formatDate(shipment.revisedExpectedDeliveryDate)}</div>
+                  <div className="text-muted-foreground">
+                    Revised Delivery Date
+                  </div>
+                  <div className="font-medium">
+                    {formatDate(shipment.revisedExpectedDeliveryDate)}
+                  </div>
                 </div>
               )}
               <div>
                 <div className="text-muted-foreground">Weight</div>
-                <div className="font-medium">{formatWeight(shipment.weight)}</div>
+                <div className="font-medium">
+                  {formatWeight(shipment.weight)}
+                </div>
               </div>
               <div>
                 <div className="text-muted-foreground">Declared Value</div>
-                <div className="font-medium">{formatCurrency(shipment.declaredValue)}</div>
+                <div className="font-medium">
+                  {formatCurrency(shipment.declaredValue)}
+                </div>
               </div>
               {shipment.currentLocation && (
                 <div className="col-span-2">
@@ -241,17 +269,23 @@ export default function ShipmentDetailPage({ params }: ShipmentDetailPageProps) 
           <CardContent className="space-y-2 text-sm">
             {shipment.originDetails ? (
               <>
-                <div className="font-medium text-base">{shipment.originDetails.name}</div>
+                <div className="font-medium text-base">
+                  {shipment.originDetails.name}
+                </div>
                 <div>{shipment.originDetails.phone}</div>
                 {shipment.originDetails.alternatePhone && (
-                  <div className="text-muted-foreground">{shipment.originDetails.alternatePhone}</div>
+                  <div className="text-muted-foreground">
+                    {shipment.originDetails.alternatePhone}
+                  </div>
                 )}
                 <div className="text-muted-foreground pt-2">
                   {shipment.originDetails.addressLine1}
-                  {shipment.originDetails.addressLine2 && `, ${shipment.originDetails.addressLine2}`}
+                  {shipment.originDetails.addressLine2 &&
+                    `, ${shipment.originDetails.addressLine2}`}
                 </div>
                 <div className="text-muted-foreground">
-                  {shipment.originDetails.city}, {shipment.originDetails.state} - {shipment.originDetails.pincode}
+                  {shipment.originDetails.city}, {shipment.originDetails.state}{" "}
+                  - {shipment.originDetails.pincode}
                 </div>
               </>
             ) : (
@@ -270,21 +304,30 @@ export default function ShipmentDetailPage({ params }: ShipmentDetailPageProps) 
           <CardContent className="space-y-2 text-sm">
             {shipment.destinationDetails ? (
               <>
-                <div className="font-medium text-base">{shipment.destinationDetails.name}</div>
+                <div className="font-medium text-base">
+                  {shipment.destinationDetails.name}
+                </div>
                 <div>{shipment.destinationDetails.phone}</div>
                 {shipment.destinationDetails.alternatePhone && (
-                  <div className="text-muted-foreground">{shipment.destinationDetails.alternatePhone}</div>
+                  <div className="text-muted-foreground">
+                    {shipment.destinationDetails.alternatePhone}
+                  </div>
                 )}
                 <div className="text-muted-foreground pt-2">
                   {shipment.destinationDetails.addressLine1}
-                  {shipment.destinationDetails.addressLine2 && `, ${shipment.destinationDetails.addressLine2}`}
+                  {shipment.destinationDetails.addressLine2 &&
+                    `, ${shipment.destinationDetails.addressLine2}`}
                 </div>
                 <div className="text-muted-foreground">
-                  {shipment.destinationDetails.city}, {shipment.destinationDetails.state} - {shipment.destinationDetails.pincode}
+                  {shipment.destinationDetails.city},{" "}
+                  {shipment.destinationDetails.state} -{" "}
+                  {shipment.destinationDetails.pincode}
                 </div>
               </>
             ) : (
-              <div className="text-muted-foreground">{shipment.destinationCity || "-"}</div>
+              <div className="text-muted-foreground">
+                {shipment.destinationCity || "-"}
+              </div>
             )}
           </CardContent>
         </Card>
@@ -301,7 +344,8 @@ export default function ShipmentDetailPage({ params }: ShipmentDetailPageProps) 
               <div>
                 <div className="text-muted-foreground">Dimensions</div>
                 <div className="font-medium">
-                  {shipment.dimensions.length} × {shipment.dimensions.width} × {shipment.dimensions.height} {shipment.dimensions.unit}
+                  {shipment.dimensions.length} × {shipment.dimensions.width} ×{" "}
+                  {shipment.dimensions.height} {shipment.dimensions.unit}
                 </div>
               </div>
             )}
@@ -311,7 +355,9 @@ export default function ShipmentDetailPage({ params }: ShipmentDetailPageProps) 
             </div>
             <div>
               <div className="text-muted-foreground">Declared Value</div>
-              <div className="font-medium">{formatCurrency(shipment.declaredValue)}</div>
+              <div className="font-medium">
+                {formatCurrency(shipment.declaredValue)}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -334,7 +380,9 @@ export default function ShipmentDetailPage({ params }: ShipmentDetailPageProps) 
               {shipment.invoiceDate && (
                 <div>
                   <div className="text-muted-foreground">Invoice Date</div>
-                  <div className="font-medium">{formatDate(shipment.invoiceDate)}</div>
+                  <div className="font-medium">
+                    {formatDate(shipment.invoiceDate)}
+                  </div>
                 </div>
               )}
               {shipment.ewayBill && (
@@ -373,5 +421,5 @@ export default function ShipmentDetailPage({ params }: ShipmentDetailPageProps) 
         awbNumber={shipment.dtdcAwbNumber}
       />
     </div>
-  )
+  );
 }

@@ -71,12 +71,14 @@ export const Navbar = ({ initialAuth, categories = [] }: NavbarProps) => {
         ],
       },
 
-      { href: '/track', label: 'Track Order', disableActive: true },
+      { href: "/track", label: "Track Order", disableActive: true },
       // { href: "/landing", label: "Landing" },
       { href: "/about-us", label: "About us" },
       // { href: "/contact-us", label: "Contact Us" },
-      
-      ...(!isAuthenticated ? [{ href: "#", label: "Login", isLogin: true }] : []),
+
+      ...(!isAuthenticated
+        ? [{ href: "#", label: "Login", isLogin: true }]
+        : []),
     ],
     [categories, isAuthenticated],
   );

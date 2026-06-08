@@ -1,13 +1,22 @@
-'use client'
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { ColumnSelector, ColumnDefinition } from "@/app/dashboard/components/column-selector"
-import { ImagePreviewDialog } from "@/app/dashboard/components/image-preview-dialog"
-import { useBannerPage } from "@/hooks/useBannerPage"
-import { BannerForm } from "./components/BannerForm"
-import { BannerTable } from "./components/BannerTable"
-import { DeleteBannerDialog } from "./components/DeleteBannerDialog"
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  ColumnSelector,
+  ColumnDefinition,
+} from "@/app/dashboard/components/column-selector";
+import { ImagePreviewDialog } from "@/app/dashboard/components/image-preview-dialog";
+import { useBannerPage } from "@/hooks/useBannerPage";
+import { BannerForm } from "./components/BannerForm";
+import { BannerTable } from "./components/BannerTable";
+import { DeleteBannerDialog } from "./components/DeleteBannerDialog";
 
 const allColumns: ColumnDefinition[] = [
   { key: "_id", label: "ID" },
@@ -28,7 +37,7 @@ const allColumns: ColumnDefinition[] = [
   { key: "textColor", label: "Text Color" },
   { key: "createdAt", label: "Created At" },
   { key: "updatedAt", label: "Updated At" },
-]
+];
 
 export default function BannersPage() {
   const {
@@ -52,8 +61,8 @@ export default function BannersPage() {
     imagePreview,
     setImagePreview,
     handleToggleActive,
-    handleImagePreview
-  } = useBannerPage()
+    handleImagePreview,
+  } = useBannerPage();
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -66,10 +75,12 @@ export default function BannersPage() {
             </DialogTrigger>
             <DialogContent className="max-w-7xl min-w-4xl max-h-[80vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>{editingBanner ? 'Edit Banner' : 'Add New Banner'}</DialogTitle>
+                <DialogTitle>
+                  {editingBanner ? "Edit Banner" : "Add New Banner"}
+                </DialogTitle>
               </DialogHeader>
-              <BannerForm 
-                onClose={handleCloseDialog} 
+              <BannerForm
+                onClose={handleCloseDialog}
                 initialData={editingBanner}
                 createBanner={createBanner}
                 updateBanner={updateBanner}
@@ -92,7 +103,9 @@ export default function BannersPage() {
           </div>
         ) : bannersError ? (
           <div className="flex items-center justify-center h-32">
-            <p className="text-destructive">Error loading banners: {bannersError.message}</p>
+            <p className="text-destructive">
+              Error loading banners: {bannersError.message}
+            </p>
           </div>
         ) : (
           <BannerTable
@@ -115,10 +128,10 @@ export default function BannersPage() {
 
       <ImagePreviewDialog
         imageUrl={imagePreview?.url || null}
-        title={imagePreview?.title || ''}
+        title={imagePreview?.title || ""}
         open={!!imagePreview}
         onOpenChange={() => setImagePreview(null)}
       />
     </div>
-  )
+  );
 }

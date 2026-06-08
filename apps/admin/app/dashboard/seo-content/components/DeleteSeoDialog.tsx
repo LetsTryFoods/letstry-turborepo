@@ -38,8 +38,10 @@ export function DeleteSeoDialog({
             <br />
             <br />
             This will remove all SEO metadata for the{" "}
-            <code className="px-1 py-0.5 bg-muted rounded">/{seoContent?.pageSlug}</code> page.
-            This action cannot be undone.
+            <code className="px-1 py-0.5 bg-muted rounded">
+              /{seoContent?.pageSlug}
+            </code>{" "}
+            page. This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

@@ -1,4 +1,4 @@
-import { WholesomeCarousel } from './wholesome-carousel';
+import { WholesomeCarousel } from "./wholesome-carousel";
 
 interface Category {
   id: string;
@@ -13,10 +13,12 @@ interface WholesomeChoicesProps {
 }
 
 export function WholesomeChoices({ categories }: WholesomeChoicesProps) {
-  const items = categories.map(cat => ({
+  const items = categories.map((cat) => ({
     title: cat.name,
     name: cat.name,
-    img: cat.imageUrl || 'https://d2tmwt8yl5m7qh.cloudfront.net/eaffe2ce9255d74a4ee81d3a20bdace9.webp',
+    img:
+      cat.imageUrl ||
+      "https://d2tmwt8yl5m7qh.cloudfront.net/eaffe2ce9255d74a4ee81d3a20bdace9.webp",
     slug: cat.slug,
     hasRange: true,
   }));
@@ -25,9 +27,9 @@ export function WholesomeChoices({ categories }: WholesomeChoicesProps) {
     <section
       className="w-full py-8 md:py-10 lg:py-12"
       style={{
-        background: "linear-gradient(180deg, #FFFFFF, #FAEFEB, #FFF0EA, #FFFFFF)",
+        background:
+          "linear-gradient(180deg, #FFFFFF, #FAEFEB, #FFF0EA, #FFFFFF)",
       }}
-
     >
       <div className="container py-8 md:py-12 lg:py-16 mx-auto">
         <h2 className="text-lg md:text-2xl lg:text-3xl font-bold text-black mb-6 mx-4">

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   View,
   Text,
@@ -10,25 +10,28 @@ import {
   Platform,
   ActivityIndicator,
   Alert,
-} from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useMutation } from '@apollo/client';
-import { CREATE_ADDRESS, GET_MY_ADDRESSES } from '../../src/lib/graphql/address';
-import { wp, RFValue } from '../../src/lib/utils/ui-utils';
+} from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Ionicons } from "@expo/vector-icons";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useMutation } from "@apollo/client";
+import {
+  CREATE_ADDRESS,
+  GET_MY_ADDRESSES,
+} from "../../src/lib/graphql/address";
+import { wp, RFValue } from "../../src/lib/utils/ui-utils";
 
 const addressSchema = z.object({
-  recipientName: z.string().min(2, 'Name is too short'),
-  recipientPhone: z.string().length(10, 'Phone must be 10 digits'),
-  buildingName: z.string().min(1, 'Building/House name is required'),
+  recipientName: z.string().min(2, "Name is too short"),
+  recipientPhone: z.string().length(10, "Phone must be 10 digits"),
+  buildingName: z.string().min(1, "Building/House name is required"),
   floor: z.string().optional(),
-  street: z.string().min(1, 'Street/Area is required'),
+  street: z.string().min(1, "Street/Area is required"),
   landmark: z.string().optional(),
-  label: z.enum(['Home', 'Work', 'Other']),
+  label: z.enum(["Home", "Work", "Other"]),
 });
 
 type AddressFormData = z.infer<typeof addressSchema>;
@@ -37,10 +40,13 @@ export default function AddressDetailsScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
 
-  const [createAddress, { loading: creatingAddress }] = useMutation(CREATE_ADDRESS, {
-    refetchQueries: [{ query: GET_MY_ADDRESSES }],
-    awaitRefetchQueries: true,
-  });
+  const [createAddress, { loading: creatingAddress }] = useMutation(
+    CREATE_ADDRESS,
+    {
+      refetchQueries: [{ query: GET_MY_ADDRESSES }],
+      awaitRefetchQueries: true,
+    },
+  );
 
   const {
     control,
@@ -50,14 +56,14 @@ export default function AddressDetailsScreen() {
   } = useForm<AddressFormData>({
     resolver: zodResolver(addressSchema),
     defaultValues: {
-      label: 'Home',
-      street: params.address as string || '',
+      label: "Home",
+      street: (params.address as string) || "",
     },
   });
 
   // Pre-fill fields once params are available
   React.useEffect(() => {
-    if (params.address) setValue('street', params.address as string);
+    if (params.address) setValue("street", params.address as string);
   }, [params.address]);
 
   const onSubmit = async (data: AddressFormData) => {
@@ -73,16 +79,16 @@ export default function AddressDetailsScreen() {
             floor: data.floor,
             streetArea: data.street,
             landmark: data.landmark,
-            addressLocality: (params.locality as string) || 'Delhi',
-            addressRegion: (params.region as string) || 'Delhi',
-            postalCode: (params.postalCode as string) || '110001',
-            addressCountry: (params.country as string) || 'India',
+            addressLocality: (params.locality as string) || "Delhi",
+            addressRegion: (params.region as string) || "Delhi",
+            postalCode: (params.postalCode as string) || "110001",
+            addressCountry: (params.country as string) || "India",
             latitude: parseFloat(params.latitude as string) || 0,
             longitude: parseFloat(params.longitude as string) || 0,
-            formattedAddress: (params.address as string) || '',
+            formattedAddress: (params.address as string) || "",
             isDefault: true,
-          }
-        }
+          },
+        },
       });
 
       const addressId = addressResult.data.createAddress._id;
@@ -91,13 +97,15 @@ export default function AddressDetailsScreen() {
       // Use replace so the address form is removed from the back-stack;
       // the user should not be able to go back to the form after saving.
       router.replace({
-        pathname: '/checkout/summary',
+        pathname: "/checkout/summary",
         params: { addressId },
       });
-
     } catch (err: any) {
-      console.error('[Address Error]', err);
-      Alert.alert('Error', err.message || 'Could not save address. Please try again.');
+      console.error("[Address Error]", err);
+      Alert.alert(
+        "Error",
+        err.message || "Could not save address. Please try again.",
+      );
     }
   };
 
@@ -106,7 +114,7 @@ export default function AddressDetailsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
       >
         <View style={styles.header}>
@@ -129,14 +137,19 @@ export default function AddressDetailsScreen() {
             name="recipientName"
             render={({ field: { onChange, value } }) => (
               <TextInput
-                style={[styles.input, errors.recipientName && styles.inputError]}
+                style={[
+                  styles.input,
+                  errors.recipientName && styles.inputError,
+                ]}
                 placeholder="Ex: John Doe"
                 value={value}
                 onChangeText={onChange}
               />
             )}
           />
-          {errors.recipientName && <Text style={styles.errorText}>{errors.recipientName.message}</Text>}
+          {errors.recipientName && (
+            <Text style={styles.errorText}>{errors.recipientName.message}</Text>
+          )}
 
           <Text style={styles.label}>Mobile Number *</Text>
           <Controller
@@ -144,7 +157,10 @@ export default function AddressDetailsScreen() {
             name="recipientPhone"
             render={({ field: { onChange, value } }) => (
               <TextInput
-                style={[styles.input, errors.recipientPhone && styles.inputError]}
+                style={[
+                  styles.input,
+                  errors.recipientPhone && styles.inputError,
+                ]}
                 placeholder="10-digit mobile number"
                 keyboardType="numeric"
                 maxLength={10}
@@ -153,7 +169,11 @@ export default function AddressDetailsScreen() {
               />
             )}
           />
-          {errors.recipientPhone && <Text style={styles.errorText}>{errors.recipientPhone.message}</Text>}
+          {errors.recipientPhone && (
+            <Text style={styles.errorText}>
+              {errors.recipientPhone.message}
+            </Text>
+          )}
 
           <View style={styles.divider} />
           <Text style={styles.sectionTitle}>Address Information</Text>
@@ -171,7 +191,9 @@ export default function AddressDetailsScreen() {
               />
             )}
           />
-          {errors.buildingName && <Text style={styles.errorText}>{errors.buildingName.message}</Text>}
+          {errors.buildingName && (
+            <Text style={styles.errorText}>{errors.buildingName.message}</Text>
+          )}
 
           <Text style={styles.label}>Floor / Block (Optional)</Text>
           <Controller
@@ -201,7 +223,9 @@ export default function AddressDetailsScreen() {
               />
             )}
           />
-          {errors.street && <Text style={styles.errorText}>{errors.street.message}</Text>}
+          {errors.street && (
+            <Text style={styles.errorText}>{errors.street.message}</Text>
+          )}
 
           <Text style={styles.label}>Landmark (Optional)</Text>
           <Controller
@@ -219,25 +243,35 @@ export default function AddressDetailsScreen() {
 
           <Text style={styles.label}>Save As</Text>
           <View style={styles.tagContainer}>
-            {(['Home', 'Work', 'Other'] as const).map((tag) => (
+            {(["Home", "Work", "Other"] as const).map((tag) => (
               <Controller
                 key={tag}
                 control={control}
                 name="label"
                 render={({ field: { value, onChange } }) => (
                   <TouchableOpacity
-                    style={[
-                      styles.tag,
-                      value === tag && styles.tagActive
-                    ]}
+                    style={[styles.tag, value === tag && styles.tagActive]}
                     onPress={() => onChange(tag)}
                   >
                     <Ionicons
-                      name={tag === 'Home' ? 'home' : tag === 'Work' ? 'briefcase' : 'location'}
+                      name={
+                        tag === "Home"
+                          ? "home"
+                          : tag === "Work"
+                            ? "briefcase"
+                            : "location"
+                      }
                       size={16}
-                      color={value === tag ? '#fff' : '#666'}
+                      color={value === tag ? "#fff" : "#666"}
                     />
-                    <Text style={[styles.tagText, value === tag && styles.tagTextActive]}>{tag}</Text>
+                    <Text
+                      style={[
+                        styles.tagText,
+                        value === tag && styles.tagTextActive,
+                      ]}
+                    >
+                      {tag}
+                    </Text>
                   </TouchableOpacity>
                 )}
               />
@@ -266,109 +300,109 @@ export default function AddressDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: wp('4%'),
-    paddingVertical: wp('4%'),
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: wp("4%"),
+    paddingVertical: wp("4%"),
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: "#f0f0f0",
   },
   headerTitle: {
     fontSize: RFValue(17),
-    fontWeight: '700',
-    color: '#222',
+    fontWeight: "700",
+    color: "#222",
     marginLeft: 12,
   },
   formContainer: {
-    paddingHorizontal: wp('5%'),
-    paddingTop: wp('5%'),
+    paddingHorizontal: wp("5%"),
+    paddingTop: wp("5%"),
   },
   sectionTitle: {
     fontSize: RFValue(14),
-    fontWeight: '700',
-    color: '#0fa958',
-    marginBottom: wp('4%'),
+    fontWeight: "700",
+    color: "#0fa958",
+    marginBottom: wp("4%"),
   },
   label: {
     fontSize: RFValue(12),
-    fontWeight: '600',
-    color: '#555',
+    fontWeight: "600",
+    color: "#555",
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#f9f9f9',
+    backgroundColor: "#f9f9f9",
     borderWidth: 1,
-    borderColor: '#eee',
+    borderColor: "#eee",
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 12,
     fontSize: RFValue(14),
-    color: '#222',
-    marginBottom: wp('4%'),
+    color: "#222",
+    marginBottom: wp("4%"),
   },
   inputError: {
-    borderColor: '#ff4b2b',
+    borderColor: "#ff4b2b",
   },
   errorText: {
     fontSize: RFValue(11),
-    color: '#ff4b2b',
-    marginTop: -wp('3%'),
-    marginBottom: wp('3%'),
+    color: "#ff4b2b",
+    marginTop: -wp("3%"),
+    marginBottom: wp("3%"),
   },
   divider: {
     height: 1,
-    backgroundColor: '#f0f0f0',
-    marginVertical: wp('4%'),
+    backgroundColor: "#f0f0f0",
+    marginVertical: wp("4%"),
   },
   tagContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 12,
-    marginBottom: wp('6%'),
+    marginBottom: wp("6%"),
   },
   tag: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#ddd',
-    backgroundColor: '#fff',
+    borderColor: "#ddd",
+    backgroundColor: "#fff",
   },
   tagActive: {
-    backgroundColor: '#0C5273',
-    borderColor: '#0C5273',
+    backgroundColor: "#0C5273",
+    borderColor: "#0C5273",
   },
   tagText: {
     fontSize: RFValue(12),
-    fontWeight: '600',
-    color: '#666',
+    fontWeight: "600",
+    color: "#666",
     marginLeft: 6,
   },
   tagTextActive: {
-    color: '#fff',
+    color: "#fff",
   },
   footer: {
-    padding: wp('5%'),
+    padding: wp("5%"),
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
-    backgroundColor: '#fff',
+    borderTopColor: "#f0f0f0",
+    backgroundColor: "#fff",
   },
   saveBtn: {
-    backgroundColor: '#0C5273',
+    backgroundColor: "#0C5273",
     paddingVertical: 16,
     borderRadius: 12,
-    alignItems: 'center',
+    alignItems: "center",
   },
   disabledBtn: {
     opacity: 0.7,
   },
   saveBtnText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: RFValue(15),
-    fontWeight: '700',
+    fontWeight: "700",
   },
 });

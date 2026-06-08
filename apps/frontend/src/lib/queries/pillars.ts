@@ -11,7 +11,7 @@
  * generated types.
  */
 
-import { gql } from 'graphql-request';
+import { gql } from "graphql-request";
 
 export const GET_PILLAR_BY_SLUG = gql`
   query GetPillarBySlug($slug: String!) {

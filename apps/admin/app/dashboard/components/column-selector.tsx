@@ -1,34 +1,42 @@
-'use client'
+"use client";
 
-import { Checkbox } from "@/components/ui/checkbox"
-import { Select, SelectContent, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export interface ColumnDefinition {
-  key: string
-  label: string
+  key: string;
+  label: string;
 }
 
 interface ColumnSelectorProps {
-  allColumns: ColumnDefinition[]
-  selectedColumns: string[]
-  onColumnToggle: (columnKey: string) => void
+  allColumns: ColumnDefinition[];
+  selectedColumns: string[];
+  onColumnToggle: (columnKey: string) => void;
 }
 
-export function ColumnSelector({ allColumns, selectedColumns, onColumnToggle }: ColumnSelectorProps) {
+export function ColumnSelector({
+  allColumns,
+  selectedColumns,
+  onColumnToggle,
+}: ColumnSelectorProps) {
   return (
     <div className="flex items-center gap-4">
       <h3 className="text-lg font-medium">Select Columns to Display</h3>
       <Select value={selectedColumns.length > 0 ? "has-selection" : ""}>
         <SelectTrigger className="w-[300px]">
           <SelectValue placeholder="Select fields you want to see">
-            {selectedColumns.length > 0 && 
-              `${selectedColumns.length} column${selectedColumns.length !== 1 ? 's' : ''} selected`
-            }
+            {selectedColumns.length > 0 &&
+              `${selectedColumns.length} column${selectedColumns.length !== 1 ? "s" : ""} selected`}
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
-          {allColumns.map(column => {
-            const isSelected = selectedColumns.includes(column.key)
+          {allColumns.map((column) => {
+            const isSelected = selectedColumns.includes(column.key);
             return (
               <div
                 key={column.key}
@@ -42,10 +50,10 @@ export function ColumnSelector({ allColumns, selectedColumns, onColumnToggle }: 
                 />
                 <span className="text-sm">{column.label}</span>
               </div>
-            )
+            );
           })}
         </SelectContent>
       </Select>
     </div>
-  )
+  );
 }

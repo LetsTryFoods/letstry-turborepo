@@ -1,4 +1,4 @@
-import { graphqlClient } from '@/lib/graphql/client-factory';
+import { graphqlClient } from "@/lib/graphql/client-factory";
 
 const SUBMIT_CONTACT_MESSAGE_MUTATION = `
   mutation SubmitContactMessage($input: SubmitContactInput!) {
@@ -21,7 +21,9 @@ export interface SubmitContactInput {
 export async function submitContactMessage(
   input: SubmitContactInput,
 ): Promise<{ success: boolean; message: string }> {
-  const data = await graphqlClient.request(SUBMIT_CONTACT_MESSAGE_MUTATION, { input }) as {
+  const data = (await graphqlClient.request(SUBMIT_CONTACT_MESSAGE_MUTATION, {
+    input,
+  })) as {
     submitContactMessage: { success: boolean; message: string };
   };
   return data.submitContactMessage;

@@ -3,17 +3,17 @@ export const generateSessionToken = (): string => {
 };
 
 export const getGuestSessionId = (): string => {
-  if (typeof window === 'undefined') return '';
-  
-  const stored = localStorage.getItem('guestSessionId');
+  if (typeof window === "undefined") return "";
+
+  const stored = localStorage.getItem("guestSessionId");
   if (stored) return stored;
-  
+
   const newId = crypto.randomUUID();
-  localStorage.setItem('guestSessionId', newId);
+  localStorage.setItem("guestSessionId", newId);
   return newId;
 };
 
 export const setGuestSessionId = (id: string): void => {
-  if (typeof window === 'undefined') return;
-  localStorage.setItem('guestSessionId', id);
+  if (typeof window === "undefined") return;
+  localStorage.setItem("guestSessionId", id);
 };

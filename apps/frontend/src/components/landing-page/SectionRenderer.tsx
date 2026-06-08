@@ -1,11 +1,11 @@
-import { LandingPageSection, LandingProduct } from '@/lib/landing-page';
-import { getCdnUrl } from '@/lib/image-utils';
-import { LandingBanner } from './LandingBanner';
-import { LandingContent } from './LandingContent';
-import { LandingCTA } from './LandingCTA';
-import { ProductDetailFAQ } from '@/components/product-page/ProductDetailFAQ';
-import { LandingProducts } from './LandingProducts';
-import { LandingTableOfContents } from './LandingTableOfContents';
+import { LandingPageSection, LandingProduct } from "@/lib/landing-page";
+import { getCdnUrl } from "@/lib/image-utils";
+import { LandingBanner } from "./LandingBanner";
+import { LandingContent } from "./LandingContent";
+import { LandingCTA } from "./LandingCTA";
+import { ProductDetailFAQ } from "@/components/product-page/ProductDetailFAQ";
+import { LandingProducts } from "./LandingProducts";
+import { LandingTableOfContents } from "./LandingTableOfContents";
 
 interface SectionRendererProps {
   section: LandingPageSection;
@@ -13,22 +13,26 @@ interface SectionRendererProps {
   tocSections?: LandingPageSection[];
 }
 
-export function SectionRenderer({ section, products = [], tocSections = [] }: SectionRendererProps) {
+export function SectionRenderer({
+  section,
+  products = [],
+  tocSections = [],
+}: SectionRendererProps) {
   if (!section.isActive) return null;
 
   switch (section.type) {
-    case 'hero': {
+    case "hero": {
       const tocItems = tocSections.map((s) => ({
-        id: s.type === 'hero' ? 'banner' : `${s.type}-${s.position}`,
+        id: s.type === "hero" ? "banner" : `${s.type}-${s.position}`,
         label: s.title,
       }));
       return (
         <>
           <LandingBanner
             headline={section.title}
-            subtext={section.subtitle || section.description || ''}
-            ctaText={section.buttonText || 'Explore Our Range'}
-            ctaLink={section.buttonLink || '#'}
+            subtext={section.subtitle || section.description || ""}
+            ctaText={section.buttonText || "Explore Our Range"}
+            ctaLink={section.buttonLink || "#"}
             backgroundImage={getCdnUrl(section.imageUrl) || undefined}
           />
           {tocItems.length > 1 && <LandingTableOfContents items={tocItems} />}
@@ -36,9 +40,9 @@ export function SectionRenderer({ section, products = [], tocSections = [] }: Se
       );
     }
 
-    case 'content': {
+    case "content": {
       const blocks = section.description
-        ? [{ heading: section.subtitle || '', body: section.description }]
+        ? [{ heading: section.subtitle || "", body: section.description }]
         : [];
       return (
         <LandingContent
@@ -49,7 +53,7 @@ export function SectionRenderer({ section, products = [], tocSections = [] }: Se
       );
     }
 
-    case 'products': {
+    case "products": {
       const sectionProducts = section.productSlugs
         .map((slug) => products.find((p) => p.slug === slug))
         .filter(Boolean) as LandingProduct[];
@@ -57,7 +61,9 @@ export function SectionRenderer({ section, products = [], tocSections = [] }: Se
       const mapped = sectionProducts.map((p) => ({
         name: p.name,
         slug: p.slug,
-        image: getCdnUrl(p.defaultVariant?.thumbnailUrl) || '/placeholder-product.png',
+        image:
+          getCdnUrl(p.defaultVariant?.thumbnailUrl) ||
+          "/placeholder-product.png",
         price: p.defaultVariant?.price ?? 0,
         mrp: p.defaultVariant?.mrp ?? undefined,
         websiteLink: `/product/${p.slug}`,
@@ -76,15 +82,20 @@ export function SectionRenderer({ section, products = [], tocSections = [] }: Se
       );
     }
 
-    case 'faq': {
+    case "faq": {
       const faqs = section.description
-        ? section.description.split('\n\n').reduce<{ question: string; answer: string }[]>((acc, block) => {
-            const lines = block.split('\n').filter(Boolean);
-            if (lines.length >= 1) {
-              acc.push({ question: lines[0], answer: lines.slice(1).join('\n') || '' });
-            }
-            return acc;
-          }, [])
+        ? section.description
+            .split("\n\n")
+            .reduce<{ question: string; answer: string }[]>((acc, block) => {
+              const lines = block.split("\n").filter(Boolean);
+              if (lines.length >= 1) {
+                acc.push({
+                  question: lines[0],
+                  answer: lines.slice(1).join("\n") || "",
+                });
+              }
+              return acc;
+            }, [])
         : [];
       return (
         <ProductDetailFAQ
@@ -94,14 +105,14 @@ export function SectionRenderer({ section, products = [], tocSections = [] }: Se
       );
     }
 
-    case 'cta': {
+    case "cta": {
       return (
         <LandingCTA
           headline={section.title}
-          description={section.description || section.subtitle || ''}
-          shopNowLink={section.buttonLink || '/products'}
-          buyNowLink={section.buttonLink || '/products'}
-          shopNowText={section.buttonText || 'Shop Now'}
+          description={section.description || section.subtitle || ""}
+          shopNowLink={section.buttonLink || "/products"}
+          buyNowLink={section.buttonLink || "/products"}
+          shopNowText={section.buttonText || "Shop Now"}
           buyNowText="Buy on Amazon"
         />
       );
@@ -115,12 +126,16 @@ export function SectionRenderer({ section, products = [], tocSections = [] }: Se
           style={{ backgroundColor: section.backgroundColor || undefined }}
         >
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">{section.title}</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
+              {section.title}
+            </h2>
             {section.subtitle && (
               <p className="text-lg text-[#0C5273] mb-3">{section.subtitle}</p>
             )}
             {section.description && (
-              <p className="text-gray-700 leading-relaxed">{section.description}</p>
+              <p className="text-gray-700 leading-relaxed">
+                {section.description}
+              </p>
             )}
             {section.buttonText && section.buttonLink && (
               <a

@@ -1,13 +1,13 @@
 "use client";
 
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
-import { useForm } from 'react-hook-form';
-import { toast } from 'react-hot-toast';
-import { FormInput } from './FormInput';
-import { PhoneInput } from './PhoneInput';
-import { AddressTypeSelector } from './AddressTypeSelector';
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { toast } from "react-hot-toast";
+import { FormInput } from "./FormInput";
+import { PhoneInput } from "./PhoneInput";
+import { AddressTypeSelector } from "./AddressTypeSelector";
 
 interface AddressDetailsModalProps {
   isOpen: boolean;
@@ -18,7 +18,7 @@ interface AddressDetailsModalProps {
 }
 
 export interface AddressFormData {
-  addressType: 'Home' | 'Office' | 'Flat' | 'Other';
+  addressType: "Home" | "Office" | "Flat" | "Other";
   recipientPhone: string;
   recipientName: string;
   buildingName: string;
@@ -38,25 +38,28 @@ export const AddressDetailsModal: React.FC<AddressDetailsModalProps> = ({
   initialData,
   isAuthenticated,
 }) => {
-
-
-  const { register, handleSubmit, watch, setValue, getValues, formState: { errors } } = useForm<AddressFormData>({
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    getValues,
+    formState: { errors },
+  } = useForm<AddressFormData>({
     defaultValues: {
-      addressType: initialData?.addressType || 'Home',
-      recipientPhone: initialData?.recipientPhone || '',
-      recipientName: initialData?.recipientName || '',
-      buildingName: initialData?.buildingName || '',
-      floor: initialData?.floor || '',
-      streetArea: initialData?.streetArea || '',
-      landmark: initialData?.landmark || '',
-      postalCode: initialData?.postalCode || '',
+      addressType: initialData?.addressType || "Home",
+      recipientPhone: initialData?.recipientPhone || "",
+      recipientName: initialData?.recipientName || "",
+      buildingName: initialData?.buildingName || "",
+      floor: initialData?.floor || "",
+      streetArea: initialData?.streetArea || "",
+      landmark: initialData?.landmark || "",
+      postalCode: initialData?.postalCode || "",
     },
   });
 
-  const addressType = watch('addressType');
-  const recipientPhone = watch('recipientPhone');
-
-
+  const addressType = watch("addressType");
+  const recipientPhone = watch("recipientPhone");
 
   const onSubmit = async (data: AddressFormData) => {
     await onSave(data);
@@ -85,7 +88,9 @@ export const AddressDetailsModal: React.FC<AddressDetailsModalProps> = ({
           >
             <div className="flex items-center justify-between p-4 border-b border-gray-100">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">Add Address Details</h2>
+                <h2 className="text-xl font-bold text-gray-900">
+                  Add Address Details
+                </h2>
                 <p className="text-sm text-gray-500 mt-1">
                   Complete address would assist better us in serving you
                 </p>
@@ -98,11 +103,14 @@ export const AddressDetailsModal: React.FC<AddressDetailsModalProps> = ({
               </button>
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="flex-1 overflow-y-auto p-4">
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="flex-1 overflow-y-auto p-4"
+            >
               <div className="space-y-4">
                 <AddressTypeSelector
                   value={addressType}
-                  onChange={(value) => setValue('addressType', value)}
+                  onChange={(value) => setValue("addressType", value)}
                 />
 
                 <p className="text-sm text-gray-500">
@@ -111,7 +119,8 @@ export const AddressDetailsModal: React.FC<AddressDetailsModalProps> = ({
 
                 <div>
                   <label className="block text-xs font-semibold text-gray-900 mb-2 uppercase tracking-wide">
-                    Recipient Phone Number <span className="text-red-500">*</span>
+                    Recipient Phone Number{" "}
+                    <span className="text-red-500">*</span>
                   </label>
                   <div className="flex gap-2">
                     <div className="w-20 px-3 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 font-medium">
@@ -119,16 +128,21 @@ export const AddressDetailsModal: React.FC<AddressDetailsModalProps> = ({
                     </div>
                     <input
                       type="tel"
-                      {...register('recipientPhone', { 
-                        required: 'Phone number is required', 
-                        pattern: { value: /^\d{10}$/, message: 'Phone number must be exactly 10 digits' } 
+                      {...register("recipientPhone", {
+                        required: "Phone number is required",
+                        pattern: {
+                          value: /^\d{10}$/,
+                          message: "Phone number must be exactly 10 digits",
+                        },
                       })}
                       className="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0F4A6A] focus:border-transparent"
                       placeholder="Enter phone number"
                     />
                   </div>
                   {errors.recipientPhone && (
-                    <p className="text-red-500 text-sm mt-1">{errors.recipientPhone.message}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.recipientPhone.message}
+                    </p>
                   )}
                 </div>
 
@@ -145,17 +159,23 @@ export const AddressDetailsModal: React.FC<AddressDetailsModalProps> = ({
                   <input
                     type="checkbox"
                     id="isOrderingForSomeoneElse"
-                    {...register('isOrderingForSomeoneElse')}
+                    {...register("isOrderingForSomeoneElse")}
                     className="w-4 h-4 text-[#0F4A6A] bg-gray-100 border-gray-300 rounded focus:ring-[#0F4A6A] focus:ring-2"
                   />
-                  <label htmlFor="isOrderingForSomeoneElse" className="text-sm text-gray-700">
+                  <label
+                    htmlFor="isOrderingForSomeoneElse"
+                    className="text-sm text-gray-700"
+                  >
                     Ordering for someone else?
                   </label>
                 </div>
 
-                {watch('isOrderingForSomeoneElse') && !isAuthenticated && (
+                {watch("isOrderingForSomeoneElse") && !isAuthenticated && (
                   <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
-                    <p className="text-sm text-gray-600">Please provide your contact details (the person placing the order):</p>
+                    <p className="text-sm text-gray-600">
+                      Please provide your contact details (the person placing
+                      the order):
+                    </p>
 
                     <div>
                       <label className="block text-xs font-semibold text-gray-900 mb-2 uppercase tracking-wide">
@@ -167,16 +187,21 @@ export const AddressDetailsModal: React.FC<AddressDetailsModalProps> = ({
                         </div>
                         <input
                           type="tel"
-                          {...register('placerPhone', { 
-                            required: 'Phone number is required', 
-                            pattern: { value: /^\d{10}$/, message: 'Phone number must be exactly 10 digits' } 
+                          {...register("placerPhone", {
+                            required: "Phone number is required",
+                            pattern: {
+                              value: /^\d{10}$/,
+                              message: "Phone number must be exactly 10 digits",
+                            },
                           })}
                           className="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0F4A6A] focus:border-transparent"
                           placeholder="Enter your phone number"
                         />
                       </div>
                       {errors.placerPhone && (
-                        <p className="text-red-500 text-sm mt-1">{errors.placerPhone.message}</p>
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.placerPhone.message}
+                        </p>
                       )}
                     </div>
 
@@ -189,10 +214,11 @@ export const AddressDetailsModal: React.FC<AddressDetailsModalProps> = ({
                   </div>
                 )}
 
-                {watch('isOrderingForSomeoneElse') && isAuthenticated && (
+                {watch("isOrderingForSomeoneElse") && isAuthenticated && (
                   <div className="p-4 bg-blue-50 rounded-lg">
                     <p className="text-sm text-gray-700">
-                      Your contact details will be automatically used for this order.
+                      Your contact details will be automatically used for this
+                      order.
                     </p>
                   </div>
                 )}

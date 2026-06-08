@@ -1,10 +1,14 @@
-import type { Metadata } from 'next';
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: 'Track Order',
+  title: "Track Order",
   robots: { index: false, follow: false },
 };
 
-export default function TrackLayout({ children }: { children: React.ReactNode }) {
+export default function TrackLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return <>{children}</>;
 }

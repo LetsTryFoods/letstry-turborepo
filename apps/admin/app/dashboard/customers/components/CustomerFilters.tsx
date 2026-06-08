@@ -65,7 +65,7 @@ export default function CustomerFilters({
 
   const watchedValues = form.watch();
   const hasActiveFilters = Object.values(watchedValues).some(
-    (value) => value !== ""
+    (value) => value !== "",
   );
 
   return (

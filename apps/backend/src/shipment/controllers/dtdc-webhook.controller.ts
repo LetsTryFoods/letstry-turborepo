@@ -1,4 +1,12 @@
-import { Controller, Post, Body, UseGuards, HttpCode, HttpStatus, Logger } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+  Logger,
+} from '@nestjs/common';
 import { DtdcWebhookService } from '../services/dtdc-webhook.service';
 import type { DtdcWebhookPayload } from '../interfaces/dtdc-payload.interface';
 import { DtdcWebhookAuthGuard } from '../guards/dtdc-webhook-auth.guard';
@@ -14,7 +22,9 @@ export class DtdcWebhookController {
   @Post('status')
   @UseGuards(DtdcWebhookAuthGuard)
   @HttpCode(HttpStatus.OK)
-  async handleStatusUpdate(@Body() payload: DtdcWebhookPayload): Promise<{ success: boolean }> {
+  async handleStatusUpdate(
+    @Body() payload: DtdcWebhookPayload,
+  ): Promise<{ success: boolean }> {
     const startTime = Date.now();
 
     try {

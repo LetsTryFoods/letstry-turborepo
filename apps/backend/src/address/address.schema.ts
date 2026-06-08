@@ -84,6 +84,10 @@ export class Address {
   @Field({ nullable: true })
   placeId?: string;
 
+  @Prop()
+  @Field({ nullable: true })
+  googlePostalCode?: string;
+
   @Field(() => GraphQLISODateTime)
   createdAt: Date;
 

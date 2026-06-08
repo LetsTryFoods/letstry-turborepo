@@ -18,7 +18,9 @@ export class CreateAddressInput {
   @Field()
   @IsNotEmpty()
   @IsString()
-  @Matches(/^\d{10}$/, { message: 'Recipient phone number must be exactly 10 digits' })
+  @Matches(/^\d{10}$/, {
+    message: 'Recipient phone number must be exactly 10 digits',
+  })
   recipientPhone: string;
 
   @Field()
@@ -90,6 +92,11 @@ export class CreateAddressInput {
   @IsOptional()
   @IsString()
   placeId?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  googlePostalCode?: string;
 }
 
 @InputType()
@@ -102,7 +109,9 @@ export class UpdateAddressInput {
   @Field({ nullable: true })
   @IsOptional()
   @IsString()
-  @Matches(/^\d{10}$/, { message: 'Recipient phone number must be exactly 10 digits' })
+  @Matches(/^\d{10}$/, {
+    message: 'Recipient phone number must be exactly 10 digits',
+  })
   recipientPhone?: string;
 
   @Field({ nullable: true })
@@ -174,6 +183,11 @@ export class UpdateAddressInput {
   @IsOptional()
   @IsString()
   placeId?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  googlePostalCode?: string;
 }
 
 @InputType()

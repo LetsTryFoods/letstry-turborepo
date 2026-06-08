@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface PriceSectionProps {
   price: number;
@@ -9,7 +9,7 @@ interface PriceSectionProps {
 export const PriceSection: React.FC<PriceSectionProps> = ({
   price,
   mrp,
-  currencySymbol = '₹',
+  currencySymbol = "₹",
 }) => {
   const discount = mrp ? Math.round(((mrp - price) / mrp) * 100) : 0;
 
@@ -17,11 +17,13 @@ export const PriceSection: React.FC<PriceSectionProps> = ({
     <div className="flex flex-col items-center justify-center gap-1">
       <div className="flex items-center gap-2">
         <span className="text-md font-bold text-gray-900">
-          {currencySymbol}{price.toFixed(2)}
+          {currencySymbol}
+          {price.toFixed(2)}
         </span>
         {mrp && mrp > price && (
           <span className="text-sm text-gray-500 line-through">
-            {currencySymbol}{mrp.toFixed(2)}
+            {currencySymbol}
+            {mrp.toFixed(2)}
           </span>
         )}
       </div>

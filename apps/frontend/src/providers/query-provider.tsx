@@ -17,7 +17,7 @@ export const QueryProvider = ({ children }: QueryProviderProps) => {
             refetchOnWindowFocus: false,
           },
         },
-      })
+      }),
   );
 
   return (

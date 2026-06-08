@@ -1,6 +1,6 @@
-import React from 'react';
-import Image from 'next/image';
-import { getCdnUrl } from '@/lib/image-utils';
+import React from "react";
+import Image from "next/image";
+import { getCdnUrl } from "@/lib/image-utils";
 
 interface SuggestionCardProps {
   id: string;

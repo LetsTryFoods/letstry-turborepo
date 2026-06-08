@@ -39,7 +39,7 @@ export function ProductFaqSection({ faqs }: ProductFaqSectionProps) {
       <div
         className={cn(
           "transition-all duration-500 ease-in-out overflow-hidden",
-          sectionOpen ? "max-h-[6000px] opacity-100" : "max-h-0 opacity-0"
+          sectionOpen ? "max-h-[6000px] opacity-100" : "max-h-0 opacity-0",
         )}
       >
         <div className="px-3 pb-3 sm:px-4 sm:pb-4 md:px-5 md:pb-5 lg:px-6 lg:pb-6 space-y-2">
@@ -68,7 +68,9 @@ export function ProductFaqSection({ faqs }: ProductFaqSectionProps) {
               <div
                 className={cn(
                   "transition-all duration-300 ease-in-out overflow-hidden",
-                  openIndex === index ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+                  openIndex === index
+                    ? "max-h-[500px] opacity-100"
+                    : "max-h-0 opacity-0",
                 )}
               >
                 <div className="px-4 pb-3 md:px-5 md:pb-4">

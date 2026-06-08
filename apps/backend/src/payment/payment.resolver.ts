@@ -1,10 +1,7 @@
 import { Resolver, Query, Mutation, Args, Context } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { PaymentService } from './services/core/payment.service';
-import {
-  InitiatePaymentInput,
-  ProcessRefundInput,
-} from './dto/payment.input';
+import { InitiatePaymentInput, ProcessRefundInput } from './dto/payment.input';
 import {
   InitiatePaymentResponse,
   PaymentStatusResponse,
@@ -17,7 +14,7 @@ import { OptionalUser } from '../common/decorators/optional-user.decorator';
 
 @Resolver()
 export class PaymentResolver {
-  constructor(private readonly paymentService: PaymentService) { }
+  constructor(private readonly paymentService: PaymentService) {}
 
   @Mutation(() => InitiatePaymentResponse)
   @Public()

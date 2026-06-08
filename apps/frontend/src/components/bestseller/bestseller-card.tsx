@@ -1,15 +1,15 @@
 "use client";
 import { useState } from "react";
-import { useQueryClient } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
+import { useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 import Image from "next/image";
 import Link from "next/link";
-import { CartService } from '@/lib/cart/cart-service';
-import { useAnalytics } from '@/hooks/use-analytics';
-import { useCart } from '@/lib/cart/use-cart';
-import { useClickSpark } from '@/hooks/use-click-spark';
-import { DiscountBadge } from '@/components/ui/discount-badge';
-import { getCdnUrl } from '@/lib/image-utils';
+import { CartService } from "@/lib/cart/cart-service";
+import { useAnalytics } from "@/hooks/use-analytics";
+import { useCart } from "@/lib/cart/use-cart";
+import { useClickSpark } from "@/hooks/use-click-spark";
+import { DiscountBadge } from "@/components/ui/discount-badge";
+import { getCdnUrl } from "@/lib/image-utils";
 
 type ProductVariant = {
   _id: string;
@@ -36,7 +36,7 @@ type BestsellerCardProps = {
   position?: number;
 };
 
-const BESTSELLER_LIST_NAME = 'Homepage Bestsellers';
+const BESTSELLER_LIST_NAME = "Homepage Bestsellers";
 
 export const BestsellerCard = ({ product, position }: BestsellerCardProps) => {
   const variant = product.defaultVariant;
@@ -45,7 +45,8 @@ export const BestsellerCard = ({ product, position }: BestsellerCardProps) => {
   const hasDiscount = variant.discountPercent > 0;
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
-  const { trackAddToCart, trackSelectItem, trackRemoveFromCart } = useAnalytics();
+  const { trackAddToCart, trackSelectItem, trackRemoveFromCart } =
+    useAnalytics();
 
   const handleSelectItem = () => {
     trackSelectItem({
@@ -60,9 +61,10 @@ export const BestsellerCard = ({ product, position }: BestsellerCardProps) => {
   const triggerSpark = useClickSpark();
 
   const cart = cartData?.myCart;
-  const cartItem = cart?.items?.find((item: any) => item.variantId === variant._id);
+  const cartItem = cart?.items?.find(
+    (item: any) => item.variantId === variant._id,
+  );
   const quantityInCart = cartItem?.quantity || 0;
-
 
   const handleAddToCart = async () => {
     if (isLoading) return;
@@ -79,10 +81,10 @@ export const BestsellerCard = ({ product, position }: BestsellerCardProps) => {
         variant: variant.packageSize,
       });
 
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
       toast.success(`${product.name} added to cart`);
     } catch (error) {
-      toast.error('Failed to add to cart');
+      toast.error("Failed to add to cart");
     } finally {
       setIsLoading(false);
     }
@@ -101,9 +103,9 @@ export const BestsellerCard = ({ product, position }: BestsellerCardProps) => {
         quantity: 1,
         variant: variant.packageSize,
       });
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
     } catch (error) {
-      toast.error('Failed to update cart');
+      toast.error("Failed to update cart");
     } finally {
       setIsLoading(false);
     }
@@ -126,22 +128,25 @@ export const BestsellerCard = ({ product, position }: BestsellerCardProps) => {
         quantity: 1,
         variant: variant.packageSize,
       });
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
     } catch (error) {
-      toast.error('Failed to update cart');
+      toast.error("Failed to update cart");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <article className="bestseller-card-bg relative flex flex-col h-full p-2 sm:p-4 md:p-5 lg:p-6 text-center rounded-xl sm:rounded-2xl lg:rounded-3xl"
+    <article
+      className="bestseller-card-bg relative flex flex-col h-full p-2 sm:p-4 md:p-5 lg:p-6 text-center rounded-xl sm:rounded-2xl lg:rounded-3xl"
       style={{
         boxShadow: "10px 5px 10px 4px #00000040",
         transition: "box-shadow 0.3s",
       }}
     >
-      {hasDiscount && <DiscountBadge discountPercent={variant.discountPercent} />}
+      {hasDiscount && (
+        <DiscountBadge discountPercent={variant.discountPercent} />
+      )}
 
       <Link href={`/product/${product.slug}`} onClick={handleSelectItem}>
         <div className="relative w-full h-[90px] sm:h-[110px] md:h-[100px] lg:h-40 mb-2 lg:mb-[10px]">
@@ -193,12 +198,15 @@ export const BestsellerCard = ({ product, position }: BestsellerCardProps) => {
           <input
             type="text"
             readOnly
-            value={isLoading ? '...' : quantityInCart}
+            value={isLoading ? "..." : quantityInCart}
             className="w-[36px] sm:w-[50px] lg:w-[80px] h-[28px] sm:h-[34px] lg:h-[44px] text-[12px] lg:text-[18px] text-center border-y-2 border-[#0C5273] text-white bg-[#0C5273] rounded-none"
           />
           <button
             className="cursor-pointer w-[26px] sm:w-[34px] lg:w-[40px] h-[28px] sm:h-[34px] lg:h-[44px] text-[12px] lg:text-[18px] border-2 border-[#0C5273] text-white bg-[#0C5273] font-semibold rounded-r hover:bg-[#003349] transition"
-            onClick={(e) => { triggerSpark(e, "#ffffff"); handleIncrement(); }}
+            onClick={(e) => {
+              triggerSpark(e, "#ffffff");
+              handleIncrement();
+            }}
             disabled={isLoading}
           >
             +
@@ -208,10 +216,13 @@ export const BestsellerCard = ({ product, position }: BestsellerCardProps) => {
         <div className="flex justify-center mt-auto">
           <button
             className="cursor-pointer w-full h-[28px] sm:h-[34px] lg:h-[44px] bg-[#0C5273] text-white font-semibold text-[10px] sm:text-[12px] lg:text-[16px] rounded-lg hover:bg-[#003349] transition disabled:opacity-50 disabled:cursor-not-allowed"
-            onClick={(e) => { triggerSpark(e, "#ffffff"); handleAddToCart(); }}
+            onClick={(e) => {
+              triggerSpark(e, "#ffffff");
+              handleAddToCart();
+            }}
             disabled={isLoading}
           >
-            {isLoading ? 'Adding...' : 'Add to Cart'}
+            {isLoading ? "Adding..." : "Add to Cart"}
           </button>
         </div>
       )}

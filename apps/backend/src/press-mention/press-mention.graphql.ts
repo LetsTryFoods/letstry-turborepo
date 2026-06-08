@@ -1,4 +1,10 @@
-import { ObjectType, Field, ID, Int, GraphQLISODateTime } from '@nestjs/graphql';
+import {
+  ObjectType,
+  Field,
+  ID,
+  Int,
+  GraphQLISODateTime,
+} from '@nestjs/graphql';
 
 @ObjectType()
 export class PressMention {

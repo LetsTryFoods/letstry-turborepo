@@ -12,10 +12,11 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
   {
-    id: '1',
-    slug: 'healthy-snacking-habits-for-kids',
-    title: 'Stories of Good Food and Better Choices',
-    excerpt: 'Snacks are more than just quick bites—they are a part of your daily nutrition. Discover how to make healthier snacking choices for you and your family.',
+    id: "1",
+    slug: "healthy-snacking-habits-for-kids",
+    title: "Stories of Good Food and Better Choices",
+    excerpt:
+      "Snacks are more than just quick bites—they are a part of your daily nutrition. Discover how to make healthier snacking choices for you and your family.",
     content: `
       <h2>The Importance of Healthy Snacking</h2>
       <p>Snacks are more than just quick bites—they are a part of your daily nutrition. Whether you're reaching for something mid-morning or need an afternoon pick-me-up, the choices you make can significantly impact your overall health and wellbeing.</p>
@@ -40,16 +41,17 @@ export const blogPosts: BlogPost[] = [
       
       <p>Remember, healthy snacking is not about restriction—it's about making informed choices that nourish your body while satisfying your taste buds.</p>
     `,
-    image: '/placeholder-image.svg',
-    date: 'Mar 24, 2025',
+    image: "/placeholder-image.svg",
+    date: "Mar 24, 2025",
     author: "Let's Try Team",
-    category: 'Healthy Eating',
+    category: "Healthy Eating",
   },
   {
-    id: '2',
-    slug: 'avoiding-processed-foods',
-    title: 'Stories of Good Food and Better Choices',
-    excerpt: 'Snacks are more than just quick bites—they are a part of your daily nutrition. Learn how to identify and avoid heavily processed foods in your diet.',
+    id: "2",
+    slug: "avoiding-processed-foods",
+    title: "Stories of Good Food and Better Choices",
+    excerpt:
+      "Snacks are more than just quick bites—they are a part of your daily nutrition. Learn how to identify and avoid heavily processed foods in your diet.",
     content: `
       <h2>Understanding Processed Foods</h2>
       <p>In today's fast-paced world, processed foods have become a staple in many households. However, not all processing is bad. Understanding the difference between minimally processed and heavily processed foods is key to making better dietary choices.</p>
@@ -80,16 +82,17 @@ export const blogPosts: BlogPost[] = [
       
       <p>By being mindful of what goes into your snacks, you can enjoy delicious treats while supporting your health goals.</p>
     `,
-    image: '/placeholder-image.svg',
-    date: 'Mar 24, 2025',
+    image: "/placeholder-image.svg",
+    date: "Mar 24, 2025",
     author: "Let's Try Team",
-    category: 'Nutrition',
+    category: "Nutrition",
   },
   {
-    id: '3',
-    slug: 'benefits-of-organic-snacking',
-    title: 'Stories of Good Food and Better Choices',
-    excerpt: 'Snacks are more than just quick bites—they are a part of your daily nutrition. Explore the numerous benefits of choosing organic snacks for your family.',
+    id: "3",
+    slug: "benefits-of-organic-snacking",
+    title: "Stories of Good Food and Better Choices",
+    excerpt:
+      "Snacks are more than just quick bites—they are a part of your daily nutrition. Explore the numerous benefits of choosing organic snacks for your family.",
     content: `
       <h2>The Organic Advantage</h2>
       <p>Organic snacking has gained popularity in recent years, and for good reason. When you choose organic, you're choosing foods that are grown and processed without synthetic pesticides, fertilizers, or genetically modified organisms.</p>
@@ -123,16 +126,17 @@ export const blogPosts: BlogPost[] = [
       
       <p>Choosing organic is an investment in your health and the planet's future. Every small choice adds up to make a big difference.</p>
     `,
-    image: '/placeholder-image.svg',
-    date: 'Mar 24, 2025',
+    image: "/placeholder-image.svg",
+    date: "Mar 24, 2025",
     author: "Let's Try Team",
-    category: 'Organic Living',
+    category: "Organic Living",
   },
   {
-    id: '4',
-    slug: 'traditional-indian-snacks-made-healthy',
-    title: 'Stories of Good Food and Better Choices',
-    excerpt: 'Snacks are more than just quick bites—they are a part of your daily nutrition. Discover how traditional Indian snacks can be made healthier without losing their authentic taste.',
+    id: "4",
+    slug: "traditional-indian-snacks-made-healthy",
+    title: "Stories of Good Food and Better Choices",
+    excerpt:
+      "Snacks are more than just quick bites—they are a part of your daily nutrition. Discover how traditional Indian snacks can be made healthier without losing their authentic taste.",
     content: `
       <h2>The Rich Heritage of Indian Snacks</h2>
       <p>Indian cuisine boasts a rich variety of traditional snacks that have been enjoyed for generations. From crispy namkeen to sweet treats, these snacks are an integral part of Indian culture and celebrations.</p>
@@ -165,10 +169,10 @@ export const blogPosts: BlogPost[] = [
       
       <p>Experience the perfect blend of tradition and health with Let's Try—where every snack tells a story of good food and better choices.</p>
     `,
-    image: '/placeholder-image.svg',
-    date: 'Mar 24, 2025',
+    image: "/placeholder-image.svg",
+    date: "Mar 24, 2025",
     author: "Let's Try Team",
-    category: 'Traditional Foods',
+    category: "Traditional Foods",
   },
 ];
 

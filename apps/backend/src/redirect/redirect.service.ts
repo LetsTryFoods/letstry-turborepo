@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Redirect } from './redirect.schema';
@@ -64,7 +68,10 @@ export class RedirectService {
     return this.redirectModel.findOne({ fromPath, isActive: true });
   }
 
-  async update(id: string, updateRedirectInput: UpdateRedirectInput): Promise<Redirect> {
+  async update(
+    id: string,
+    updateRedirectInput: UpdateRedirectInput,
+  ): Promise<Redirect> {
     if (updateRedirectInput.fromPath) {
       const existing = await this.redirectModel.findOne({
         fromPath: updateRedirectInput.fromPath,
@@ -72,7 +79,9 @@ export class RedirectService {
       });
 
       if (existing) {
-        throw new ConflictException('Redirect with this fromPath already exists');
+        throw new ConflictException(
+          'Redirect with this fromPath already exists',
+        );
       }
     }
 
@@ -102,6 +111,9 @@ export class RedirectService {
   }
 
   async getAllActiveRedirects(): Promise<Redirect[]> {
-    return this.redirectModel.find({ isActive: true }).select('fromPath toPath statusCode').lean();
+    return this.redirectModel
+      .find({ isActive: true })
+      .select('fromPath toPath statusCode')
+      .lean();
   }
 }

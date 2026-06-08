@@ -1,6 +1,10 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { IDeliveryPartnerAdapter, BookShipmentResult, TrackShipmentResult } from '../interface/delivery-partner.adapter.interface';
+import {
+  IDeliveryPartnerAdapter,
+  BookShipmentResult,
+  TrackShipmentResult,
+} from '../interface/delivery-partner.adapter.interface';
 import { CreateShipmentData } from '../../interfaces/shipment.interface';
 import { DtdcApiService } from '../../services/dtdc-api.service';
 import { DtdcBookingPayload } from '../../interfaces/dtdc-payload.interface';
@@ -16,15 +20,19 @@ export class DtdcAdapter implements IDeliveryPartnerAdapter {
     const bookingPayload: DtdcBookingPayload = {
       consignments: [
         {
-          customer_code: this.configService.get<string>('dtdc.customerCode') || '',
+          customer_code:
+            this.configService.get<string>('dtdc.customerCode') || '',
           service_type_id: data.serviceType,
           load_type: data.loadType,
           consignment_type: 'Forward',
-          dimension_unit: this.configService.get<string>('dtdc.defaults.dimensionUnit') || 'cm',
+          dimension_unit:
+            this.configService.get<string>('dtdc.defaults.dimensionUnit') ||
+            'cm',
           length: data.dimensions.length.toString(),
           width: data.dimensions.width.toString(),
           height: data.dimensions.height.toString(),
-          weight_unit: this.configService.get<string>('dtdc.defaults.weightUnit') || 'kg',
+          weight_unit:
+            this.configService.get<string>('dtdc.defaults.weightUnit') || 'kg',
           weight: data.weight.toString(),
           declared_value: data.declaredValue.toString(),
           num_pieces: (data.numPieces || 1).toString(),
@@ -52,14 +60,17 @@ export class DtdcAdapter implements IDeliveryPartnerAdapter {
             latitude: data.destinationDetails.latitude,
             longitude: data.destinationDetails.longitude,
           },
-          customer_reference_number: data.orderNumber || data.orderId || `REF-${Date.now()}`,
+          customer_reference_number:
+            data.orderNumber || data.orderId || `REF-${Date.now()}`,
           cod_collection_mode: data.codCollectionMode || '',
           cod_amount: data.codAmount?.toString() || '',
           commodity_id: data.commodityId,
           is_risk_surcharge_applicable: data.isRiskSurchargeApplicable || false,
           description: data.description,
           invoice_number: data.invoiceNumber,
-          invoice_date: data.invoiceDate ? data.invoiceDate.toISOString().split('T')[0] : undefined,
+          invoice_date: data.invoiceDate
+            ? data.invoiceDate.toISOString().split('T')[0]
+            : undefined,
           eway_bill: data.ewayBill,
           pieces_detail: data.piecesDetail?.map((piece) => ({
             description: piece.description,
@@ -73,15 +84,23 @@ export class DtdcAdapter implements IDeliveryPartnerAdapter {
       ],
     };
 
-    const bookingResponse = await this.dtdcApiService.bookShipment(bookingPayload);
+    const bookingResponse =
+      await this.dtdcApiService.bookShipment(bookingPayload);
 
-    if (bookingResponse.status !== 'OK' || !bookingResponse.data?.[0]?.success) {
-      const errorMsg = bookingResponse.data?.[0]?.message || bookingResponse.data?.[0]?.remarks || 'Booking failed';
+    if (
+      bookingResponse.status !== 'OK' ||
+      !bookingResponse.data?.[0]?.success
+    ) {
+      const errorMsg =
+        bookingResponse.data?.[0]?.message ||
+        bookingResponse.data?.[0]?.remarks ||
+        'Booking failed';
       throw new BadRequestException(errorMsg);
     }
 
     const awbNumber = bookingResponse.data[0].reference_number;
-    const providerOrderId = bookingPayload.consignments[0].customer_reference_number;
+    const providerOrderId =
+      bookingPayload.consignments[0].customer_reference_number;
 
     let labelUrl = '';
     try {
@@ -99,12 +118,17 @@ export class DtdcAdapter implements IDeliveryPartnerAdapter {
 
   async trackShipment(awbNumber: string): Promise<TrackShipmentResult | null> {
     const trackResponse = await this.dtdcApiService.trackShipment(awbNumber);
-    if (!trackResponse || !trackResponse.statusFlag || !trackResponse.trackDetails) {
+    if (
+      !trackResponse ||
+      !trackResponse.statusFlag ||
+      !trackResponse.trackDetails
+    ) {
       return null;
     }
 
     const trackDetails = trackResponse.trackDetails;
-    const latestEvent = trackDetails.length > 0 ? trackDetails[trackDetails.length - 1] : null;
+    const latestEvent =
+      trackDetails.length > 0 ? trackDetails[trackDetails.length - 1] : null;
 
     if (!latestEvent) return null;
 
@@ -112,7 +136,9 @@ export class DtdcAdapter implements IDeliveryPartnerAdapter {
     if (latestEvent.strActionDate && latestEvent.strActionTime) {
       const [dd, mm, yyyy] = String(latestEvent.strActionDate).split('-');
       if (dd && mm && yyyy) {
-         timestamp = new Date(`${yyyy}-${mm}-${dd}T${latestEvent.strActionTime}:00Z`);
+        timestamp = new Date(
+          `${yyyy}-${mm}-${dd}T${latestEvent.strActionTime}:00Z`,
+        );
       }
     }
 

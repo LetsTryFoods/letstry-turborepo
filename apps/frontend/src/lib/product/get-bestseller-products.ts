@@ -1,6 +1,6 @@
-import { createServerGraphQLClient } from '@/lib/graphql/server-client-factory';
-import { GET_PRODUCTS_BY_CATEGORY } from '@/lib/queries/products';
-import type { GetProductsByCategoryQuery } from '@/gql/graphql';
+import { createServerGraphQLClient } from "@/lib/graphql/server-client-factory";
+import { GET_PRODUCTS_BY_CATEGORY } from "@/lib/queries/products";
+import type { GetProductsByCategoryQuery } from "@/gql/graphql";
 
 /**
  * Fetch bestseller products for the home page carousel.
@@ -9,9 +9,9 @@ import type { GetProductsByCategoryQuery } from '@/gql/graphql';
  * renders an empty bestseller section instead of crashing the home page.
  */
 export async function getBestsellerProducts(
-  categorySlug: string = 'best-selling',
+  categorySlug: string = "best-selling",
   limit: number = 20,
-): Promise<GetProductsByCategoryQuery['productsByCategory']['items']> {
+): Promise<GetProductsByCategoryQuery["productsByCategory"]["items"]> {
   const client = createServerGraphQLClient();
 
   let categoryId: string | undefined;
@@ -26,7 +26,7 @@ export async function getBestsellerProducts(
     );
     categoryId = categoryQuery?.categoryBySlug?.id;
   } catch (err) {
-    console.error('[getBestsellerProducts] category lookup failed', err);
+    console.error("[getBestsellerProducts] category lookup failed", err);
     return [];
   }
 
@@ -44,7 +44,7 @@ export async function getBestsellerProducts(
     );
     return data?.productsByCategory?.items ?? [];
   } catch (err) {
-    console.error('[getBestsellerProducts] products fetch failed', err);
+    console.error("[getBestsellerProducts] products fetch failed", err);
     return [];
   }
 }

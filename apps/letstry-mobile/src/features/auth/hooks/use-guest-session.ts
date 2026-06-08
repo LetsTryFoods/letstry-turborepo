@@ -1,8 +1,8 @@
-import { useEffect, useRef } from 'react';
-import { AppState, AppStateStatus } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { GuestService } from '../services/guest.service';
-import AuthLogger from '../../../lib/utils/auth-logger';
+import { useEffect, useRef } from "react";
+import { AppState, AppStateStatus } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { GuestService } from "../services/guest.service";
+import AuthLogger from "../../../lib/utils/auth-logger";
 
 const UPDATE_INTERVAL = 60 * 1000; // 1 minute
 
@@ -13,12 +13,12 @@ export const useGuestSession = () => {
   const checkAndInitSession = async () => {
     try {
       // We only run guest session logic if there is no user token
-      const userToken = await AsyncStorage.getItem('access_token');
+      const userToken = await AsyncStorage.getItem("access_token");
       if (!userToken) {
         await GuestService.ensureGuestSession();
       }
     } catch (error) {
-      AuthLogger.error('useGuestSession: Error checking session:', error);
+      AuthLogger.error("useGuestSession: Error checking session:", error);
     }
   };
 
@@ -30,7 +30,7 @@ export const useGuestSession = () => {
     const handleAppStateChange = (nextAppState: AppStateStatus) => {
       if (
         appState.current.match(/inactive|background/) &&
-        nextAppState === 'active'
+        nextAppState === "active"
       ) {
         // App has come to the foreground!
         checkAndInitSession();
@@ -38,11 +38,14 @@ export const useGuestSession = () => {
       appState.current = nextAppState;
     };
 
-    const subscription = AppState.addEventListener('change', handleAppStateChange);
+    const subscription = AppState.addEventListener(
+      "change",
+      handleAppStateChange,
+    );
 
     // 3. Set up periodic updates while in foreground
     intervalRef.current = setInterval(() => {
-      if (appState.current === 'active') {
+      if (appState.current === "active") {
         checkAndInitSession();
       }
     }, UPDATE_INTERVAL);

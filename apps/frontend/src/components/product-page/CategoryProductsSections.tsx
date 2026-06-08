@@ -10,13 +10,10 @@ export const CategoryProductsSections: React.FC<
   CategoryProductsSectionsProps
 > = async ({ categoryIds }) => {
   if (!categoryIds || categoryIds.length === 0) {
-
     return null;
   }
 
-
   const categories = await getCategoriesByIds(categoryIds);
-
 
   const categoriesWithProducts = await Promise.all(
     categories.map(async (category) => {
@@ -25,13 +22,12 @@ export const CategoryProductsSections: React.FC<
         category,
         products,
       };
-    })
+    }),
   );
 
   const validCategories = categoriesWithProducts.filter(
-    ({ products }) => products.length > 0
+    ({ products }) => products.length > 0,
   );
-
 
   if (validCategories.length === 0) {
     return null;

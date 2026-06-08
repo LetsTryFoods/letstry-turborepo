@@ -123,13 +123,17 @@ export default () => ({
       bookingApi: 'consignment/softdata',
       labelApi: 'consignment/shippinglabel/stream',
       cancelApi: 'consignment/cancel',
-      pincodeApi: 'http://smarttrack.ctbsplus.dtdc.com/ratecalapi/PincodeApiCall',
+      pincodeApi:
+        'http://smarttrack.ctbsplus.dtdc.com/ratecalapi/PincodeApiCall',
     },
     tracking: {
       baseUrl: 'https://blktracksvc.dtdc.com/dtdc-api',
       tokenPath: '/api/dtdc/authenticate',
       trackPath: '/rest/JSONCnTrk/getTrackDetails',
-      pollIntervalHours: parseInt(process.env.DTDC_TRACKING_POLL_INTERVAL_HOURS || '1', 10),
+      pollIntervalHours: parseInt(
+        process.env.DTDC_TRACKING_POLL_INTERVAL_HOURS || '1',
+        10,
+      ),
     },
     defaults: {
       dimensionUnit: 'cm',
@@ -141,8 +145,11 @@ export default () => ({
     },
     origin: {
       name: process.env.WAREHOUSE_NAME || 'Earth Crust Private Limited P',
-      addressLine1: process.env.WAREHOUSE_ADDRESS_LINE1 || 'PLOT NO 2019, PH II SEC 38 HSIIDC RAI DISTT SONIPAT',
-      addressLine2: process.env.WAREHOUSE_ADDRESS_LINE2 || 'RAI, 131029, HSIIDC RAI',
+      addressLine1:
+        process.env.WAREHOUSE_ADDRESS_LINE1 ||
+        'PLOT NO 2019, PH II SEC 38 HSIIDC RAI DISTT SONIPAT',
+      addressLine2:
+        process.env.WAREHOUSE_ADDRESS_LINE2 || 'RAI, 131029, HSIIDC RAI',
       city: process.env.WAREHOUSE_CITY || 'Sonipat',
       state: process.env.WAREHOUSE_STATE || 'Haryana',
       pincode: process.env.WAREHOUSE_PINCODE || '131029',

@@ -257,7 +257,6 @@ export class PaymentOrderMinimalType {
   updatedAt: Date;
 }
 
-
 @ObjectType()
 export class InitiatePaymentResponse {
   @Field()

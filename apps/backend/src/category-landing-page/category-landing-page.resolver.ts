@@ -19,25 +19,41 @@ export class CategoryLandingPageResolver {
     return this.service.findAll();
   }
 
-  @Query(() => CategoryLandingPageType, { name: 'categoryLandingPage', nullable: true })
+  @Query(() => CategoryLandingPageType, {
+    name: 'categoryLandingPage',
+    nullable: true,
+  })
   @Roles(Role.ADMIN)
-  findOne(@Args('id', { type: () => ID }) id: string): Promise<CategoryLandingPageType> {
+  findOne(
+    @Args('id', { type: () => ID }) id: string,
+  ): Promise<CategoryLandingPageType> {
     return this.service.findOne(id);
   }
 
-  @Query(() => CategoryLandingPageType, { name: 'categoryLandingPageBySlug', nullable: true })
+  @Query(() => CategoryLandingPageType, {
+    name: 'categoryLandingPageBySlug',
+    nullable: true,
+  })
   @Public()
-  findBySlug(@Args('slug') slug: string): Promise<CategoryLandingPageType | null> {
+  findBySlug(
+    @Args('slug') slug: string,
+  ): Promise<CategoryLandingPageType | null> {
     return this.service.findBySlug(slug);
   }
 
-  @Mutation(() => CategoryLandingPageType, { name: 'createCategoryLandingPage' })
+  @Mutation(() => CategoryLandingPageType, {
+    name: 'createCategoryLandingPage',
+  })
   @Roles(Role.ADMIN)
-  create(@Args('input') input: CreateCategoryLandingPageInput): Promise<CategoryLandingPageType> {
+  create(
+    @Args('input') input: CreateCategoryLandingPageInput,
+  ): Promise<CategoryLandingPageType> {
     return this.service.create(input);
   }
 
-  @Mutation(() => CategoryLandingPageType, { name: 'updateCategoryLandingPage' })
+  @Mutation(() => CategoryLandingPageType, {
+    name: 'updateCategoryLandingPage',
+  })
   @Roles(Role.ADMIN)
   update(
     @Args('id', { type: () => ID }) id: string,
@@ -46,9 +62,13 @@ export class CategoryLandingPageResolver {
     return this.service.update(id, input);
   }
 
-  @Mutation(() => CategoryLandingPageType, { name: 'deleteCategoryLandingPage' })
+  @Mutation(() => CategoryLandingPageType, {
+    name: 'deleteCategoryLandingPage',
+  })
   @Roles(Role.ADMIN)
-  remove(@Args('id', { type: () => ID }) id: string): Promise<CategoryLandingPageType> {
+  remove(
+    @Args('id', { type: () => ID }) id: string,
+  ): Promise<CategoryLandingPageType> {
     return this.service.remove(id);
   }
 }

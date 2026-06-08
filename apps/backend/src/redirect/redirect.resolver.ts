@@ -1,6 +1,11 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
 import { RedirectService } from './redirect.service';
-import { RedirectType, PaginatedRedirects, CreateRedirectInput, UpdateRedirectInput } from './redirect.dto';
+import {
+  RedirectType,
+  PaginatedRedirects,
+  CreateRedirectInput,
+  UpdateRedirectInput,
+} from './redirect.dto';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Public } from '../common/decorators/public.decorator';
 import { Role } from '../common/enums/role.enum';
@@ -35,7 +40,9 @@ export class RedirectResolver {
 
   @Query(() => RedirectType, { nullable: true })
   @Public()
-  async redirectByPath(@Args('fromPath') fromPath: string): Promise<RedirectType | null> {
+  async redirectByPath(
+    @Args('fromPath') fromPath: string,
+  ): Promise<RedirectType | null> {
     return this.redirectService.findByFromPath(fromPath) as any;
   }
 

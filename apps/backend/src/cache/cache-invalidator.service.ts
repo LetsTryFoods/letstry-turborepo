@@ -10,7 +10,7 @@ export class CacheInvalidatorService {
   constructor(
     private readonly cacheService: CacheService,
     private readonly cacheKeyFactory: CacheKeyFactory,
-  ) { }
+  ) {}
 
   /**
    * Invalidate cache when a product is created, updated, or deleted.

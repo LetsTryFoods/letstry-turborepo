@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -18,83 +18,83 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
+} from "@/components/ui/form";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Switch } from "@/components/ui/switch"
-import { Loader2, Send, Mail, User, Phone } from "lucide-react"
-import { 
-  ContactQuery, 
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Loader2, Send, Mail, User, Phone } from "lucide-react";
+import {
+  ContactQuery,
   ContactStatus,
   statusLabels,
   useReplyToContact,
-  useUpdateContactStatus
-} from "@/lib/contact/useContact"
+  useUpdateContactStatus,
+} from "@/lib/contact/useContact";
 
 const replySchema = z.object({
   message: z.string().min(10, "Reply must be at least 10 characters"),
   updateStatus: z.boolean(),
-  newStatus: z.enum(["PENDING", "REVIEWED", "RESOLVED"]).optional()
-})
+  newStatus: z.enum(["PENDING", "REVIEWED", "RESOLVED"]).optional(),
+});
 
-type ReplyFormData = z.infer<typeof replySchema>
+type ReplyFormData = z.infer<typeof replySchema>;
 
 interface ContactReplyDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  query: ContactQuery | null
-  onSuccess: () => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  query: ContactQuery | null;
+  onSuccess: () => void;
 }
 
 export default function ContactReplyDialog({
   open,
   onOpenChange,
   query,
-  onSuccess
+  onSuccess,
 }: ContactReplyDialogProps) {
-  const { reply, loading: replyLoading } = useReplyToContact()
-  const { updateStatus, loading: statusLoading } = useUpdateContactStatus()
+  const { reply, loading: replyLoading } = useReplyToContact();
+  const { updateStatus, loading: statusLoading } = useUpdateContactStatus();
 
   const form = useForm<ReplyFormData>({
     resolver: zodResolver(replySchema),
     defaultValues: {
       message: "",
       updateStatus: false,
-      newStatus: "REVIEWED"
-    }
-  })
+      newStatus: "REVIEWED",
+    },
+  });
 
-  const watchUpdateStatus = form.watch("updateStatus")
+  const watchUpdateStatus = form.watch("updateStatus");
 
   const onSubmit = async (data: ReplyFormData) => {
-    if (!query) return
+    if (!query) return;
 
     try {
-      await reply(query._id, { message: data.message })
-      
+      await reply(query._id, { message: data.message });
+
       if (data.updateStatus && data.newStatus) {
-        await updateStatus(query._id, data.newStatus)
+        await updateStatus(query._id, data.newStatus);
       }
 
-      form.reset()
-      onSuccess()
-      onOpenChange(false)
+      form.reset();
+      onSuccess();
+      onOpenChange(false);
     } catch (error) {
-      console.error("Error sending reply:", error)
+      console.error("Error sending reply:", error);
     }
-  }
+  };
 
-  const loading = replyLoading || statusLoading
+  const loading = replyLoading || statusLoading;
 
-  if (!query) return null
+  if (!query) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -199,11 +199,13 @@ export default function ContactReplyDialog({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {(Object.keys(statusLabels) as ContactStatus[]).map((status) => (
-                            <SelectItem key={status} value={status}>
-                              {statusLabels[status]}
-                            </SelectItem>
-                          ))}
+                          {(Object.keys(statusLabels) as ContactStatus[]).map(
+                            (status) => (
+                              <SelectItem key={status} value={status}>
+                                {statusLabels[status]}
+                              </SelectItem>
+                            ),
+                          )}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -232,5 +234,5 @@ export default function ContactReplyDialog({
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

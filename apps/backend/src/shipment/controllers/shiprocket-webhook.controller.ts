@@ -12,13 +12,15 @@ export class ShiprocketWebhookController {
   constructor(
     @InjectQueue('tracking-queue') private trackingQueue: Queue,
     private readonly shipmentLogger: ShipmentLoggerService,
-  ) { }
+  ) {}
 
   @Post('partner-update')
   @UseGuards(ShiprocketWebhookAuthGuard)
   async handleWebhook(@Body() body: any, @Req() req: Request) {
     this.shipmentLogger.logShiprocketWebhookRaw(body);
-    this.logger.log(`Received webhook from Shiprocket: ${JSON.stringify(body)}`);
+    this.logger.log(
+      `Received webhook from Shiprocket: ${JSON.stringify(body)}`,
+    );
 
     try {
       const { awb, sr_order_id, current_status_id, scans } = body;
@@ -39,7 +41,7 @@ export class ShiprocketWebhookController {
               type: 'exponential',
               delay: 2000,
             },
-          }
+          },
         );
       }
     } catch (error) {

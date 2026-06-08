@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import Link from 'next/link'
+import { useState } from "react";
+import Link from "next/link";
 import {
   Table,
   TableBody,
@@ -7,49 +7,60 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from "@/components/ui/table";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Button } from '@/components/ui/button'
-import { Shipment } from '@/lib/shipments/types'
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { Shipment } from "@/lib/shipments/types";
 import {
   formatDate,
   formatWeight,
   formatCurrency,
   getRouteDisplay,
   copyToClipboard,
-} from '@/lib/shipments/utils'
-import { ShipmentStatusBadge } from './ShipmentStatusBadge'
-import { MoreHorizontal, Eye, Copy, XCircle, Download, MapPin } from 'lucide-react'
-import { toast } from 'react-hot-toast'
-import { useShipmentLabel } from '@/lib/shipments/queries'
+} from "@/lib/shipments/utils";
+import { ShipmentStatusBadge } from "./ShipmentStatusBadge";
+import {
+  MoreHorizontal,
+  Eye,
+  Copy,
+  XCircle,
+  Download,
+  MapPin,
+} from "lucide-react";
+import { toast } from "react-hot-toast";
+import { useShipmentLabel } from "@/lib/shipments/queries";
 
 interface ShipmentTableProps {
-  shipments: Shipment[]
-  onViewDetails: (shipment: Shipment) => void
-  onCancelShipment: (shipment: Shipment) => void
+  shipments: Shipment[];
+  onViewDetails: (shipment: Shipment) => void;
+  onCancelShipment: (shipment: Shipment) => void;
 }
 
-export function ShipmentTable({ shipments, onViewDetails, onCancelShipment }: ShipmentTableProps) {
-  const { downloadLabel } = useShipmentLabel()
+export function ShipmentTable({
+  shipments,
+  onViewDetails,
+  onCancelShipment,
+}: ShipmentTableProps) {
+  const { downloadLabel } = useShipmentLabel();
 
   const handleCopy = async (text: string, label: string) => {
-    const success = await copyToClipboard(text)
+    const success = await copyToClipboard(text);
     if (success) {
-      toast.success(`${label} copied to clipboard`)
+      toast.success(`${label} copied to clipboard`);
     }
-  }
+  };
 
   if (shipments.length === 0) {
     return (
       <div className="text-center py-12 border rounded-lg">
         <p className="text-muted-foreground">No shipments found</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -77,7 +88,9 @@ export function ShipmentTable({ shipments, onViewDetails, onCancelShipment }: Sh
                     variant="ghost"
                     size="icon"
                     className="h-6 w-6"
-                    onClick={() => handleCopy(shipment.dtdcAwbNumber, 'AWB Number')}
+                    onClick={() =>
+                      handleCopy(shipment.dtdcAwbNumber, "AWB Number")
+                    }
                   >
                     <Copy className="h-3 w-3" />
                   </Button>
@@ -92,7 +105,7 @@ export function ShipmentTable({ shipments, onViewDetails, onCancelShipment }: Sh
                     {shipment.orderId}
                   </Link>
                 ) : (
-                  '-'
+                  "-"
                 )}
               </TableCell>
               <TableCell>
@@ -101,14 +114,21 @@ export function ShipmentTable({ shipments, onViewDetails, onCancelShipment }: Sh
               <TableCell>
                 <div className="flex items-center gap-1 text-sm">
                   <MapPin className="h-3 w-3 text-muted-foreground" />
-                  {getRouteDisplay(shipment.originCity, shipment.destinationCity)}
+                  {getRouteDisplay(
+                    shipment.originCity,
+                    shipment.destinationCity,
+                  )}
                 </div>
               </TableCell>
-              <TableCell className="text-sm">{formatDate(shipment.bookedOn)}</TableCell>
+              <TableCell className="text-sm">
+                {formatDate(shipment.bookedOn)}
+              </TableCell>
               <TableCell className="text-sm">
                 {formatDate(shipment.expectedDeliveryDate)}
               </TableCell>
-              <TableCell className="text-sm">{formatWeight(shipment.weight)}</TableCell>
+              <TableCell className="text-sm">
+                {formatWeight(shipment.weight)}
+              </TableCell>
               <TableCell className="text-right">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -128,13 +148,19 @@ export function ShipmentTable({ shipments, onViewDetails, onCancelShipment }: Sh
                       </Link>
                     </DropdownMenuItem>
                     {shipment.trackingLink && (
-                      <DropdownMenuItem onClick={() => handleCopy(shipment.trackingLink!, 'Tracking Link')}>
+                      <DropdownMenuItem
+                        onClick={() =>
+                          handleCopy(shipment.trackingLink!, "Tracking Link")
+                        }
+                      >
                         <Copy className="mr-2 h-4 w-4" />
                         Copy Tracking Link
                       </DropdownMenuItem>
                     )}
                     {!shipment.isCancelled && !shipment.isDelivered && (
-                      <DropdownMenuItem onClick={() => downloadLabel(shipment.dtdcAwbNumber)}>
+                      <DropdownMenuItem
+                        onClick={() => downloadLabel(shipment.dtdcAwbNumber)}
+                      >
                         <Download className="mr-2 h-4 w-4" />
                         Download Label
                       </DropdownMenuItem>
@@ -156,5 +182,5 @@ export function ShipmentTable({ shipments, onViewDetails, onCancelShipment }: Sh
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }

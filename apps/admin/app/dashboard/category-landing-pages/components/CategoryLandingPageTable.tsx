@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import {
   Table,
@@ -7,10 +7,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
-import { Badge } from '@/components/ui/badge'
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,15 +18,15 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { MoreHorizontal, Pencil, Trash2, ExternalLink } from 'lucide-react'
-import { CategoryLandingPage } from '@/lib/category-landing-pages/useCategoryLandingPages'
+} from "@/components/ui/dropdown-menu";
+import { MoreHorizontal, Pencil, Trash2, ExternalLink } from "lucide-react";
+import { CategoryLandingPage } from "@/lib/category-landing-pages/useCategoryLandingPages";
 
 interface CategoryLandingPageTableProps {
-  pages: CategoryLandingPage[]
-  onToggleActive: (id: string) => void
-  onEdit: (page: CategoryLandingPage) => void
-  onDelete: (id: string) => void
+  pages: CategoryLandingPage[];
+  onToggleActive: (id: string) => void;
+  onEdit: (page: CategoryLandingPage) => void;
+  onDelete: (id: string) => void;
 }
 
 export function CategoryLandingPageTable({
@@ -51,7 +51,10 @@ export function CategoryLandingPageTable({
         <TableBody>
           {pages.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+              <TableCell
+                colSpan={6}
+                className="text-center text-muted-foreground py-8"
+              >
                 No category landing pages yet.
               </TableCell>
             </TableRow>
@@ -67,10 +70,14 @@ export function CategoryLandingPageTable({
                   </code>
                 </TableCell>
                 <TableCell>
-                  <Badge variant="secondary">{page.tiles?.length ?? 0} tiles</Badge>
+                  <Badge variant="secondary">
+                    {page.tiles?.length ?? 0} tiles
+                  </Badge>
                 </TableCell>
                 <TableCell>
-                  <Badge variant="secondary">{page.faqs?.length ?? 0} FAQs</Badge>
+                  <Badge variant="secondary">
+                    {page.faqs?.length ?? 0} FAQs
+                  </Badge>
                 </TableCell>
                 <TableCell>
                   <Switch
@@ -119,5 +126,5 @@ export function CategoryLandingPageTable({
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }

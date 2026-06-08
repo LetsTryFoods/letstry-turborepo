@@ -1,12 +1,15 @@
-import { getActiveBlogs } from '@/lib/blog';
-import type { Metadata } from 'next';
-import BlogGrid from './BlogGrid';
+import { getActiveBlogs } from "@/lib/blog";
+import type { Metadata } from "next";
+import BlogGrid from "./BlogGrid";
 
-const SITE_URL = (process.env.NEXT_PUBLIC_BASE_URL || 'https://letstryfoods.com').replace(/\/$/, '');
+const SITE_URL = (
+  process.env.NEXT_PUBLIC_BASE_URL || "https://letstryfoods.com"
+).replace(/\/$/, "");
 
-const TITLE = "Blog – Stories of Good Food and Better Choices | Let's Try Foods";
+const TITLE =
+  "Blog – Stories of Good Food and Better Choices | Let's Try Foods";
 const DESCRIPTION =
-  'Discover healthy eating tips, nutritional advice, and stories about making better food choices for you and your family.';
+  "Discover healthy eating tips, nutritional advice, and stories about making better food choices for you and your family.";
 
 /**
  * Metadata is generated per-request so we can add `robots: noindex` when
@@ -30,11 +33,11 @@ export async function generateMetadata(): Promise<Metadata> {
       title: TITLE,
       description: DESCRIPTION,
       url: `${SITE_URL}/blog`,
-      type: 'website',
+      type: "website",
       siteName: "Let's Try Foods",
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title: TITLE,
       description: DESCRIPTION,
     },

@@ -1,6 +1,6 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { wp, hp, RFValue } from '../../../lib/utils/ui-utils';
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
+import { wp, hp, RFValue } from "../../../lib/utils/ui-utils";
 
 interface CartNoticeProps {
   text: string;
@@ -16,30 +16,32 @@ interface CartNoticeProps {
 
 const CartNotice: React.FC<CartNoticeProps> = ({
   text,
-  backgroundColor = '#F5F5F5',
-  textColor = '#333',
+  backgroundColor = "#F5F5F5",
+  textColor = "#333",
   borderRadius = 8,
-  width = '100%',
+  width = "100%",
   padding = 12,
   marginVertical = 10,
   borderColor,
-  borderWidth
+  borderWidth,
 }) => {
   if (!text) return null;
 
   return (
-    <View style={[
-      styles.container, 
-      { 
-        backgroundColor, 
-        borderRadius, 
-        width: width as any, 
-        padding, 
-        marginVertical,
-        borderColor,
-        borderWidth
-      }
-    ]}>
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor,
+          borderRadius,
+          width: width as any,
+          padding,
+          marginVertical,
+          borderColor,
+          borderWidth,
+        },
+      ]}
+    >
       <Text style={[styles.text, { color: textColor }]}>{text}</Text>
     </View>
   );
@@ -47,14 +49,14 @@ const CartNotice: React.FC<CartNoticeProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    alignSelf: 'center',
-    justifyContent: 'center',
-    alignItems: 'center',
+    alignSelf: "center",
+    justifyContent: "center",
+    alignItems: "center",
   },
   text: {
     fontSize: RFValue(12),
-    textAlign: 'center',
-    fontWeight: '600',
+    textAlign: "center",
+    fontWeight: "600",
   },
 });
 

@@ -1,5 +1,5 @@
-import React from 'react';
-import type { CategoryFaq } from '@/lib/seo/category-faqs';
+import React from "react";
+import type { CategoryFaq } from "@/lib/seo/category-faqs";
 
 interface CategoryFaqSectionProps {
   categoryName: string;
@@ -28,7 +28,10 @@ export const CategoryFaqSection: React.FC<CategoryFaqSectionProps> = ({
       </h2>
       <div className="space-y-5">
         {faqs.map((f) => (
-          <div key={f.q} className="border-b border-gray-200 pb-5 last:border-b-0">
+          <div
+            key={f.q}
+            className="border-b border-gray-200 pb-5 last:border-b-0"
+          >
             <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
               {f.q}
             </h3>

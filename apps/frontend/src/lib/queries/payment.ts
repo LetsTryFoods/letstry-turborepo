@@ -1,4 +1,4 @@
-import { gql } from 'graphql-request';
+import { gql } from "graphql-request";
 
 export const INITIATE_PAYMENT = gql`
   mutation InitiatePayment($input: InitiatePaymentInput!) {

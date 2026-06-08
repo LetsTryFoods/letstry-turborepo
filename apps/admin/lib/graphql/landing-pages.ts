@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 const SECTION_FIELDS = `
   type
@@ -16,7 +16,7 @@ const SECTION_FIELDS = `
   backgroundColor
   position
   isActive
-`
+`;
 
 const SEO_FIELDS = `
   metaTitle
@@ -26,7 +26,7 @@ const SEO_FIELDS = `
   ogTitle
   ogDescription
   ogImage
-`
+`;
 
 const LANDING_PAGE_FIELDS = `
   _id
@@ -44,7 +44,7 @@ const LANDING_PAGE_FIELDS = `
   }
   createdAt
   updatedAt
-`
+`;
 
 export const GET_LANDING_PAGES = gql`
   query GetLandingPages {
@@ -52,7 +52,7 @@ export const GET_LANDING_PAGES = gql`
       ${LANDING_PAGE_FIELDS}
     }
   }
-`
+`;
 
 export const GET_LANDING_PAGE = gql`
   query GetLandingPage($id: ID!) {
@@ -60,7 +60,7 @@ export const GET_LANDING_PAGE = gql`
       ${LANDING_PAGE_FIELDS}
     }
   }
-`
+`;
 
 export const CREATE_LANDING_PAGE = gql`
   mutation CreateLandingPage($input: CreateLandingPageInput!) {
@@ -68,7 +68,7 @@ export const CREATE_LANDING_PAGE = gql`
       ${LANDING_PAGE_FIELDS}
     }
   }
-`
+`;
 
 export const UPDATE_LANDING_PAGE = gql`
   mutation UpdateLandingPage($id: ID!, $input: UpdateLandingPageInput!) {
@@ -76,7 +76,7 @@ export const UPDATE_LANDING_PAGE = gql`
       ${LANDING_PAGE_FIELDS}
     }
   }
-`
+`;
 
 export const UPDATE_LANDING_PAGE_ACTIVE = gql`
   mutation UpdateLandingPageActive($id: ID!, $isActive: Boolean!) {
@@ -85,7 +85,7 @@ export const UPDATE_LANDING_PAGE_ACTIVE = gql`
       isActive
     }
   }
-`
+`;
 
 export const DELETE_LANDING_PAGE = gql`
   mutation DeleteLandingPage($id: ID!) {
@@ -94,4 +94,4 @@ export const DELETE_LANDING_PAGE = gql`
       title
     }
   }
-`
+`;

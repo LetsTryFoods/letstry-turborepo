@@ -1,15 +1,21 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,59 +25,69 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { useCoupons, useDeleteCoupon, Coupon } from "@/lib/coupons/useCoupons"
-import { CouponForm } from "./components/CouponForm"
-import {CouponTable} from "./components/CouponTable"
-import { Plus, Search, RefreshCw, Ticket, TicketPercent, TicketX } from "lucide-react"
-import { Skeleton } from "@/components/ui/skeleton"
+} from "@/components/ui/alert-dialog";
+import { useCoupons, useDeleteCoupon, Coupon } from "@/lib/coupons/useCoupons";
+import { CouponForm } from "./components/CouponForm";
+import { CouponTable } from "./components/CouponTable";
+import {
+  Plus,
+  Search,
+  RefreshCw,
+  Ticket,
+  TicketPercent,
+  TicketX,
+} from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function CouponsPage() {
-  const { data, loading, error, refetch } = useCoupons()
-  const { deleteCoupon, loading: deleteLoading } = useDeleteCoupon()
+  const { data, loading, error, refetch } = useCoupons();
+  const { deleteCoupon, loading: deleteLoading } = useDeleteCoupon();
 
-  const [isFormOpen, setIsFormOpen] = useState(false)
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null)
-  const [searchTerm, setSearchTerm] = useState("")
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const coupons: Coupon[] = (data as any)?.coupons || []
+  const coupons: Coupon[] = (data as any)?.coupons || [];
 
   // Filter coupons based on search
-  const filteredCoupons = coupons.filter(coupon =>
-    coupon.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    coupon.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    coupon.description.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredCoupons = coupons.filter(
+    (coupon) =>
+      coupon.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      coupon.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      coupon.description.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
 
   // Stats
-  const activeCoupons = coupons.filter(c => c.isActive).length
-  const expiredCoupons = coupons.filter(c => new Date(c.endDate) < new Date()).length
+  const activeCoupons = coupons.filter((c) => c.isActive).length;
+  const expiredCoupons = coupons.filter(
+    (c) => new Date(c.endDate) < new Date(),
+  ).length;
 
   const handleCreate = () => {
-    setIsFormOpen(true)
-  }
+    setIsFormOpen(true);
+  };
 
   const handleDelete = (coupon: Coupon) => {
-    setSelectedCoupon(coupon)
-    setIsDeleteDialogOpen(true)
-  }
+    setSelectedCoupon(coupon);
+    setIsDeleteDialogOpen(true);
+  };
 
   const handleConfirmDelete = async () => {
-    if (!selectedCoupon) return
+    if (!selectedCoupon) return;
     try {
-      await deleteCoupon(selectedCoupon._id)
-      setIsDeleteDialogOpen(false)
-      setSelectedCoupon(null)
+      await deleteCoupon(selectedCoupon._id);
+      setIsDeleteDialogOpen(false);
+      setSelectedCoupon(null);
     } catch (error) {
-      console.error("Failed to delete coupon:", error)
+      console.error("Failed to delete coupon:", error);
     }
-  }
+  };
 
   const handleFormSuccess = () => {
-    setIsFormOpen(false)
-    refetch()
-  }
+    setIsFormOpen(false);
+    refetch();
+  };
 
   if (loading) {
     return (
@@ -90,7 +106,7 @@ export default function CouponsPage() {
         </div>
         <Skeleton className="h-96" />
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -98,14 +114,20 @@ export default function CouponsPage() {
       <div className="p-6">
         <Card className="border-destructive">
           <CardContent className="pt-6">
-            <p className="text-destructive">Error loading coupons: {error.message}</p>
-            <Button onClick={() => refetch()} variant="outline" className="mt-4">
+            <p className="text-destructive">
+              Error loading coupons: {error.message}
+            </p>
+            <Button
+              onClick={() => refetch()}
+              variant="outline"
+              className="mt-4"
+            >
               Try Again
             </Button>
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -143,20 +165,28 @@ export default function CouponsPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Coupons</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Active Coupons
+            </CardTitle>
             <TicketPercent className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{activeCoupons}</div>
+            <div className="text-2xl font-bold text-green-600">
+              {activeCoupons}
+            </div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Expired Coupons</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Expired Coupons
+            </CardTitle>
             <TicketX className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{expiredCoupons}</div>
+            <div className="text-2xl font-bold text-red-600">
+              {expiredCoupons}
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -179,14 +209,12 @@ export default function CouponsPage() {
         <CardHeader>
           <CardTitle>All Coupons</CardTitle>
           <CardDescription>
-            {filteredCoupons.length} coupon{filteredCoupons.length !== 1 ? 's' : ''} found
+            {filteredCoupons.length} coupon
+            {filteredCoupons.length !== 1 ? "s" : ""} found
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <CouponTable
-            coupons={filteredCoupons}
-            onDelete={handleDelete}
-          />
+          <CouponTable coupons={filteredCoupons} onDelete={handleDelete} />
         </CardContent>
       </Card>
 
@@ -204,17 +232,23 @@ export default function CouponsPage() {
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Coupon</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete the coupon &quot;{selectedCoupon?.name}&quot; ({selectedCoupon?.code})?
-              This action cannot be undone.
+              Are you sure you want to delete the coupon &quot;
+              {selectedCoupon?.name}&quot; ({selectedCoupon?.code})? This action
+              cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleteLoading}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleteLoading}>
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
               disabled={deleteLoading}
@@ -226,5 +260,5 @@ export default function CouponsPage() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  )
+  );
 }

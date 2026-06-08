@@ -30,6 +30,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BullBoardModule } from './bull-board/bull-board.module';
 import { RedirectModule } from './redirect/redirect.module';
+import { SettingsModule } from './settings/settings.module';
 import { BlogModule } from './blog/blog.module';
 import { BlogCategoryModule } from './blog-category/blog-category.module';
 import { CorporateEnquiryModule } from './corporate-enquiry/corporate-enquiry.module';
@@ -75,6 +76,7 @@ import { SampleInvoiceModule } from './sample-invoice/sample-invoice.module';
     ChargesModule,
     AddressModule,
     PaymentModule,
+    SettingsModule,
     NewsletterModule,
     OrderModule,
     PackingModule,
@@ -112,4 +114,4 @@ import { SampleInvoiceModule } from './sample-invoice/sample-invoice.module';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

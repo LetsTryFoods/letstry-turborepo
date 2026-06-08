@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { PaymentRefund, PaymentOrder, PaymentStatus } from '../../entities/payment.schema';
+import {
+  PaymentRefund,
+  PaymentOrder,
+  PaymentStatus,
+} from '../../entities/payment.schema';
 import { ZaakpayGatewayService } from '../../gateways/zaakpay/zaakpay-gateway.service';
 import { LedgerService } from './ledger.service';
 import { PaymentLoggerService } from '../../../common/services/payment-logger.service';
@@ -17,7 +21,7 @@ export class RefundService {
     private zaakpayGateway: ZaakpayGatewayService,
     private ledgerService: LedgerService,
     private paymentLogger: PaymentLoggerService,
-  ) { }
+  ) {}
 
   async initiateRefund(params: {
     paymentOrderId: string;

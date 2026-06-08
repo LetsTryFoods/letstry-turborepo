@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 export const GET_FOOTER_DETAILS = gql`
   query GetFooterDetails {
@@ -22,7 +22,7 @@ export const GET_FOOTER_DETAILS = gql`
       updatedAt
     }
   }
-`
+`;
 
 export const GET_FOOTER_DETAIL = gql`
   query GetFooterDetail($id: ID!) {
@@ -46,7 +46,7 @@ export const GET_FOOTER_DETAIL = gql`
       updatedAt
     }
   }
-`
+`;
 
 export const CREATE_FOOTER_DETAIL = gql`
   mutation CreateFooterDetail($input: CreateFooterDetailInput!) {
@@ -70,7 +70,7 @@ export const CREATE_FOOTER_DETAIL = gql`
       updatedAt
     }
   }
-`
+`;
 
 export const UPDATE_FOOTER_DETAIL = gql`
   mutation UpdateFooterDetail($id: ID!, $input: UpdateFooterDetailInput!) {
@@ -94,7 +94,7 @@ export const UPDATE_FOOTER_DETAIL = gql`
       updatedAt
     }
   }
-`
+`;
 
 export const DELETE_FOOTER_DETAIL = gql`
   mutation DeleteFooterDetail($id: ID!) {
@@ -103,4 +103,4 @@ export const DELETE_FOOTER_DETAIL = gql`
       companyName
     }
   }
-`
+`;

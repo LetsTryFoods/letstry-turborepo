@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 export const GET_COUPONS = gql`
   query GetCoupons {
@@ -19,7 +19,7 @@ export const GET_COUPONS = gql`
       updatedAt
     }
   }
-`
+`;
 
 export const GET_COUPON_BY_CODE = gql`
   query GetCouponByCode($code: String!) {
@@ -40,7 +40,7 @@ export const GET_COUPON_BY_CODE = gql`
       updatedAt
     }
   }
-`
+`;
 
 export const CREATE_COUPON = gql`
   mutation CreateCoupon($input: CreateCouponInput!) {
@@ -59,7 +59,7 @@ export const CREATE_COUPON = gql`
       isPublic
     }
   }
-`
+`;
 
 export const DELETE_COUPON = gql`
   mutation DeleteCoupon($id: ID!) {
@@ -68,9 +68,7 @@ export const DELETE_COUPON = gql`
       name
     }
   }
-`
-
-
+`;
 
 // Additional Context: These are recently edited files. Do not suggest code that has been deleted.
 /* 

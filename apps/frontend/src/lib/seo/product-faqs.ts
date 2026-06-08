@@ -37,32 +37,43 @@ export interface ProductFaq {
 }
 
 // Categories where "no maida" CANNOT be claimed (products contain refined wheat flour).
-const MAIDA_CONTAINING_SLUGS = new Set(['rusk', 'purani-delhi']);
+const MAIDA_CONTAINING_SLUGS = new Set(["rusk", "purani-delhi"]);
 
 // Categories where the cookies-only "no refined sugar" claim applies.
-const NO_REFINED_SUGAR_SLUGS = new Set(['cookies']);
+const NO_REFINED_SUGAR_SLUGS = new Set(["cookies"]);
 
 // Categories that are roasted (not fried) — palm-oil answer is phrased differently.
-const ROASTED_SLUGS = new Set(['makhana']);
+const ROASTED_SLUGS = new Set(["makhana"]);
 
 // Categories that are vrat / fasting suitable — surface a Navratri FAQ.
-const VRAT_SLUGS = new Set(['fasting-special']);
+const VRAT_SLUGS = new Set(["fasting-special"]);
 
 // Slugs that match the cookies range for diabetic-friendly questions.
-const DIABETIC_FRIENDLY_SLUGS = new Set(['cookies', 'healthy-snacks']);
+const DIABETIC_FRIENDLY_SLUGS = new Set(["cookies", "healthy-snacks"]);
 
 export function buildProductFaqs(input: ProductFaqInput): ProductFaq[] {
   const faqs: ProductFaq[] = [];
   const name = input.name;
-  const slug = (input.primaryCategorySlug || '').toLowerCase();
+  const slug = (input.primaryCategorySlug || "").toLowerCase();
   const isMaidaContaining = MAIDA_CONTAINING_SLUGS.has(slug);
   const canClaimNoRefinedSugar = NO_REFINED_SUGAR_SLUGS.has(slug);
-  const isRoastedRange = ROASTED_SLUGS.has(slug) || /makhana|roasted chana/i.test(name);
-  const isVratRange = VRAT_SLUGS.has(slug) || (input.occasions || []).some((o) => /vrat|navratri|fasting/i.test(o));
-  const isKidsAudience = (input.audience || []).some((a) => /kid|child|family/i.test(a));
-  const isFitnessAudience = (input.audience || []).some((a) => /fitness|protein|workout|gym/i.test(a));
-  const isDiabeticAudience = (input.audience || []).some((a) => /diabet/i.test(a)) || DIABETIC_FRIENDLY_SLUGS.has(slug);
-  const isGiftingOccasion = (input.occasions || []).some((o) => /gift|diwali|rakhi|festive|corporate/i.test(o));
+  const isRoastedRange =
+    ROASTED_SLUGS.has(slug) || /makhana|roasted chana/i.test(name);
+  const isVratRange =
+    VRAT_SLUGS.has(slug) ||
+    (input.occasions || []).some((o) => /vrat|navratri|fasting/i.test(o));
+  const isKidsAudience = (input.audience || []).some((a) =>
+    /kid|child|family/i.test(a),
+  );
+  const isFitnessAudience = (input.audience || []).some((a) =>
+    /fitness|protein|workout|gym/i.test(a),
+  );
+  const isDiabeticAudience =
+    (input.audience || []).some((a) => /diabet/i.test(a)) ||
+    DIABETIC_FRIENDLY_SLUGS.has(slug);
+  const isGiftingOccasion = (input.occasions || []).some((o) =>
+    /gift|diwali|rakhi|festive|corporate/i.test(o),
+  );
 
   // 1. Palm-oil question — universal claim.
   if (isRoastedRange) {
@@ -140,7 +151,7 @@ export function buildProductFaqs(input: ProductFaqInput): ProductFaq[] {
   if (isFitnessAudience || input.proteinContent) {
     const proteinLine = input.proteinContent
       ? ` Each 100g delivers ${input.proteinContent} of protein.`
-      : '';
+      : "";
     faqs.push({
       q: `Is ${name} good for fitness or post-workout snacking?`,
       a: `${name} fits well into a fitness-focused snacking routine because it's free of palm oil and (where applicable) maida.${proteinLine} Pair with fruit or yogurt for a balanced post-workout option.`,

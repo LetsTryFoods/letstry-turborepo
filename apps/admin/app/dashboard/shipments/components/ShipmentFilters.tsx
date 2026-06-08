@@ -1,23 +1,23 @@
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Search, X } from 'lucide-react'
-import { ShipmentStatusCode } from '@/lib/shipments/types'
+} from "@/components/ui/select";
+import { Search, X } from "lucide-react";
+import { ShipmentStatusCode } from "@/lib/shipments/types";
 
 interface ShipmentFiltersProps {
-  searchTerm: string
-  onSearchChange: (value: string) => void
-  statusFilter: string
-  onStatusChange: (value: string) => void
-  dateRange: { from?: Date; to?: Date }
-  onDateRangeChange: (range: { from?: Date; to?: Date }) => void
-  onClearFilters: () => void
+  searchTerm: string;
+  onSearchChange: (value: string) => void;
+  statusFilter: string;
+  onStatusChange: (value: string) => void;
+  dateRange: { from?: Date; to?: Date };
+  onDateRangeChange: (range: { from?: Date; to?: Date }) => void;
+  onClearFilters: () => void;
 }
 
 export function ShipmentFilters({
@@ -29,7 +29,8 @@ export function ShipmentFilters({
   onDateRangeChange,
   onClearFilters,
 }: ShipmentFiltersProps) {
-  const hasFilters = searchTerm || statusFilter !== 'ALL' || dateRange.from || dateRange.to
+  const hasFilters =
+    searchTerm || statusFilter !== "ALL" || dateRange.from || dateRange.to;
 
   return (
     <div className="flex flex-col sm:flex-row gap-3">
@@ -52,9 +53,13 @@ export function ShipmentFilters({
           <SelectItem value={ShipmentStatusCode.BKD}>Booked</SelectItem>
           <SelectItem value={ShipmentStatusCode.PUP}>Picked Up</SelectItem>
           <SelectItem value={ShipmentStatusCode.ITM}>In Transit</SelectItem>
-          <SelectItem value={ShipmentStatusCode.OFD}>Out for Delivery</SelectItem>
+          <SelectItem value={ShipmentStatusCode.OFD}>
+            Out for Delivery
+          </SelectItem>
           <SelectItem value={ShipmentStatusCode.DLV}>Delivered</SelectItem>
-          <SelectItem value={ShipmentStatusCode.NONDLV}>Not Delivered</SelectItem>
+          <SelectItem value={ShipmentStatusCode.NONDLV}>
+            Not Delivered
+          </SelectItem>
           <SelectItem value={ShipmentStatusCode.RTO}>RTO</SelectItem>
           <SelectItem value={ShipmentStatusCode.CAN}>Cancelled</SelectItem>
           <SelectItem value={ShipmentStatusCode.HLD}>On Hold</SelectItem>
@@ -65,7 +70,11 @@ export function ShipmentFilters({
         <Input
           type="date"
           placeholder="From Date"
-          value={dateRange.from ? new Date(dateRange.from).toISOString().split('T')[0] : ''}
+          value={
+            dateRange.from
+              ? new Date(dateRange.from).toISOString().split("T")[0]
+              : ""
+          }
           onChange={(e) =>
             onDateRangeChange({
               from: e.target.value ? new Date(e.target.value) : undefined,
@@ -77,7 +86,11 @@ export function ShipmentFilters({
         <Input
           type="date"
           placeholder="To Date"
-          value={dateRange.to ? new Date(dateRange.to).toISOString().split('T')[0] : ''}
+          value={
+            dateRange.to
+              ? new Date(dateRange.to).toISOString().split("T")[0]
+              : ""
+          }
           onChange={(e) =>
             onDateRangeChange({
               from: dateRange.from,
@@ -94,5 +107,5 @@ export function ShipmentFilters({
         </Button>
       )}
     </div>
-  )
+  );
 }

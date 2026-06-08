@@ -15,7 +15,8 @@ export class EncryptionUtil {
       );
 
       return encrypted.toString('base64');
-    } catch (error: any) { // Added 'any' type to error for TypeScript compatibility
+    } catch (error: any) {
+      // Added 'any' type to error for TypeScript compatibility
       throw new Error(`Encryption failed: ${error.message}`);
     }
   }

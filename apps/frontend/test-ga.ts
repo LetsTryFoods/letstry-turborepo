@@ -1,2 +1,2 @@
-import { sendGAEvent } from '@next/third-parties/google';
+import { sendGAEvent } from "@next/third-parties/google";
 console.log(sendGAEvent.toString());

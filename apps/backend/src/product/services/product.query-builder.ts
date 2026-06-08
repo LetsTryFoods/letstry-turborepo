@@ -5,7 +5,7 @@ export class ProductQueryBuilder {
 
   withArchived(includeArchived: boolean): this {
     if (!includeArchived) {
-      this.filter.isArchived = false;
+      this.filter.isArchived = { $ne: true };
     }
     return this;
   }
@@ -92,13 +92,14 @@ export class ProductQueryBuilder {
   build(): ProductFilter {
     if (
       this.filter.variants &&
-      this.filter.isArchived === false &&
+      this.filter.isArchived !== undefined &&
       !this.filter.$and
     ) {
       const variantsFilter = this.filter.variants;
+      const isArchivedFilter = this.filter.isArchived;
       delete this.filter.variants;
-      this.filter.$and = [{ isArchived: false }, { variants: variantsFilter }];
       delete this.filter.isArchived;
+      this.filter.$and = [{ isArchived: isArchivedFilter }, { variants: variantsFilter }];
     }
     return this.filter;
   }
@@ -124,7 +125,7 @@ export class ProductQueryBuilder {
     return new ProductQueryBuilder()
       .withCategoryId(categoryId)
       .withArchived(includeArchived)
-      .withoutOutOfStock(false)
+      .withoutOutOfStock(true)
       .build();
   }
 
@@ -145,7 +146,7 @@ export class ProductQueryBuilder {
     return new ProductQueryBuilder()
       .withSearch(searchTerm)
       .withArchived(includeArchived)
-      .withoutOutOfStock(false)
+      .withoutOutOfStock(true)
       .build();
   }
 
@@ -174,7 +175,7 @@ export class ProductQueryBuilder {
     return new ProductQueryBuilder()
       .withNameOnlySearch(searchTerm)
       .withArchived(includeArchived)
-      .withoutOutOfStock(false)
+      .withoutOutOfStock(true)
       .build();
   }
 }

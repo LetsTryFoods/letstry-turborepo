@@ -9,7 +9,7 @@ async function testUpload() {
 
   let files: string[] = [];
   try {
-    files = fs.readdirSync(dirPath).filter(file => {
+    files = fs.readdirSync(dirPath).filter((file) => {
       const ext = path.extname(file).toLowerCase();
       return ['.png', '.jpg', '.jpeg', '.webp', '.gif'].includes(ext);
     });

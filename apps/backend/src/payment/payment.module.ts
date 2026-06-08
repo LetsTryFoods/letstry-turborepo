@@ -84,4 +84,4 @@ import { WhatsAppModule } from '../whatsapp/whatsapp.module';
   ],
   exports: [PaymentService],
 })
-export class PaymentModule { }
+export class PaymentModule {}

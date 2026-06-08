@@ -1,7 +1,12 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useProductsForSeo, useUpdateProductSeo, Product, ProductSeo } from "@/lib/products/useProducts";
+import {
+  useProductsForSeo,
+  useUpdateProductSeo,
+  Product,
+  ProductSeo,
+} from "@/lib/products/useProducts";
 
 interface ProductSeoStatus {
   productId: string;
@@ -15,18 +20,27 @@ export function useProductSeoPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [selectedSeoData, setSelectedSeoData] = useState<ProductSeo | null>(null);
+  const [selectedSeoData, setSelectedSeoData] = useState<ProductSeo | null>(
+    null,
+  );
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState<"all" | "configured" | "not-configured">("all");
+  const [filterStatus, setFilterStatus] = useState<
+    "all" | "configured" | "not-configured"
+  >("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(20);
 
   // Fetch products with embedded SEO data
-  const { data: productsData, loading: productsLoading, error: productsError, refetch: refetchProducts } = useProductsForSeo(
+  const {
+    data: productsData,
+    loading: productsLoading,
+    error: productsError,
+    refetch: refetchProducts,
+  } = useProductsForSeo(
     { page: currentPage, limit: pageSize },
-    true // Include out of stock products
+    true, // Include out of stock products
   );
-  
+
   // Update product SEO hook (uses updateProduct mutation)
   const { updateProductSeo, loading: updateLoading } = useUpdateProductSeo();
 
@@ -38,7 +52,7 @@ export function useProductSeoPage() {
   // Create a map of product ID to SEO status for quick lookup (using embedded seo from product)
   const seoStatusMap = useMemo(() => {
     const map = new Map<string, ProductSeoStatus>();
-    
+
     products.forEach((product: Product) => {
       if (product.seo && product.seo.metaTitle) {
         map.set(product._id, {
@@ -49,23 +63,26 @@ export function useProductSeoPage() {
         });
       }
     });
-    
+
     return map;
   }, [products]);
 
   // Calculate statistics
   const stats = useMemo(() => {
     const totalProducts = paginationMeta?.totalCount || products.length;
-    const configuredCount = products.filter((p: Product) => p.seo && p.seo.metaTitle).length;
+    const configuredCount = products.filter(
+      (p: Product) => p.seo && p.seo.metaTitle,
+    ).length;
     const notConfiguredCount = totalProducts - configuredCount;
 
     return {
       totalProducts,
       configuredCount,
       notConfiguredCount,
-      coveragePercentage: totalProducts > 0 
-        ? Math.round((configuredCount / totalProducts) * 100) 
-        : 0,
+      coveragePercentage:
+        totalProducts > 0
+          ? Math.round((configuredCount / totalProducts) * 100)
+          : 0,
     };
   }, [products, paginationMeta]);
 
@@ -75,11 +92,12 @@ export function useProductSeoPage() {
 
     return products.filter((product: Product) => {
       // Search filter
-      const matchesSearch = 
+      const matchesSearch =
         searchTerm === "" ||
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.slug.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (product.brand && product.brand.toLowerCase().includes(searchTerm.toLowerCase()));
+        (product.brand &&
+          product.brand.toLowerCase().includes(searchTerm.toLowerCase()));
 
       // Status filter - use embedded seo
       const hasSeo = !!(product.seo && product.seo.metaTitle);
@@ -154,26 +172,26 @@ export function useProductSeoPage() {
     products: filteredProducts,
     seoStatusMap,
     stats,
-    
+
     // Loading states
     isLoading,
     deleteLoading: updateLoading,
     error,
-    
+
     // Form dialog state
     isFormOpen,
     selectedProduct,
     selectedSeoData,
-    
+
     // Delete dialog state
     isDeleteDialogOpen,
-    
+
     // Filters
     searchTerm,
     setSearchTerm,
     filterStatus,
     setFilterStatus,
-    
+
     // Handlers
     handleEditSeo,
     handleDeleteSeo,
@@ -181,7 +199,7 @@ export function useProductSeoPage() {
     handleCloseDeleteDialog,
     handleFormSuccess,
     handleConfirmDelete,
-    
+
     // Refetch
     refetchProducts,
 

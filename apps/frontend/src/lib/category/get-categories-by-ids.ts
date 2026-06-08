@@ -1,4 +1,4 @@
-import { createServerGraphQLClient } from '@/lib/graphql/server-client-factory';
+import { createServerGraphQLClient } from "@/lib/graphql/server-client-factory";
 
 interface CategoryInfo {
   id: string;
@@ -8,18 +8,19 @@ interface CategoryInfo {
 }
 
 export async function getCategoriesByIds(
-  categoryIds: string[]
+  categoryIds: string[],
 ): Promise<CategoryInfo[]> {
   if (!categoryIds || categoryIds.length === 0) {
     return [];
   }
 
   const client = createServerGraphQLClient();
-  
+
   try {
     const categoryPromises = categoryIds.map((id) =>
-      client.request<{ category: CategoryInfo }>(
-        `query GetCategory($id: ID!) {
+      client
+        .request<{ category: CategoryInfo }>(
+          `query GetCategory($id: ID!) {
           category(id: $id) {
             id
             name
@@ -27,20 +28,24 @@ export async function getCategoriesByIds(
             imageUrl
           }
         }`,
-        { id }
-      ).catch((error) => {
-        console.error(`Failed to fetch category ${id}:`, error);
-        return { category: null };
-      })
+          { id },
+        )
+        .catch((error) => {
+          console.error(`Failed to fetch category ${id}:`, error);
+          return { category: null };
+        }),
     );
 
     const results = await Promise.all(categoryPromises);
-    
+
     return results
       .map((result) => result.category)
-      .filter((category): category is CategoryInfo => category !== null && category !== undefined);
+      .filter(
+        (category): category is CategoryInfo =>
+          category !== null && category !== undefined,
+      );
   } catch (error) {
-    console.error('Error fetching categories:', error);
+    console.error("Error fetching categories:", error);
     return [];
   }
 }

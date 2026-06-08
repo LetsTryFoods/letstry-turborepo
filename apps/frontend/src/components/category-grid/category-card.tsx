@@ -1,16 +1,19 @@
 "use client";
 
-import Link from 'next/link';
-import Image from 'next/image';
-import type { Category } from '@/types/category.types';
-import { getCdnUrl } from '@/lib/image-utils';
+import Link from "next/link";
+import Image from "next/image";
+import type { Category } from "@/types/category.types";
+import { getCdnUrl } from "@/lib/image-utils";
 
 export interface CategoryCardProps {
   category: Category;
   priority?: boolean;
 }
 
-export const CategoryCard = ({ category, priority = false }: CategoryCardProps) => {
+export const CategoryCard = ({
+  category,
+  priority = false,
+}: CategoryCardProps) => {
   return (
     <article className="flex flex-col items-center text-center">
       <Link href={category.href} className="group w-full">

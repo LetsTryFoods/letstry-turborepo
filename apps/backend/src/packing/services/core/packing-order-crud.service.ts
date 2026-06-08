@@ -8,7 +8,7 @@ export class PackingOrderCrudService {
   constructor(
     @InjectModel(PackingOrder.name)
     private packingOrderModel: Model<PackingOrder>,
-  ) { }
+  ) {}
 
   async create(data: Partial<PackingOrder>): Promise<PackingOrder> {
     const order = new this.packingOrderModel(data);
@@ -23,16 +23,19 @@ export class PackingOrderCrudService {
     return this.packingOrderModel.findOne(filter).exec();
   }
 
-
   async findAll(filter: any = {}): Promise<PackingOrder[]> {
     const cleanFilter = Object.fromEntries(
-      Object.entries(filter).filter(([_, value]) => value !== undefined)
+      Object.entries(filter).filter(([_, value]) => value !== undefined),
     );
     return this.packingOrderModel.find(cleanFilter).exec();
   }
 
   async findRecent(limit: number = 100): Promise<PackingOrder[]> {
-    return this.packingOrderModel.find({}).sort({ createdAt: -1 }).limit(limit).exec();
+    return this.packingOrderModel
+      .find({})
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .exec();
   }
 
   async findByPacker(packerId: string): Promise<PackingOrder[]> {
@@ -52,7 +55,10 @@ export class PackingOrderCrudService {
       .exec();
   }
 
-  async resetForReassignment(id: string, newStatus: string): Promise<PackingOrder | null> {
+  async resetForReassignment(
+    id: string,
+    newStatus: string,
+  ): Promise<PackingOrder | null> {
     return this.packingOrderModel
       .findByIdAndUpdate(
         id,

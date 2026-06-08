@@ -202,19 +202,25 @@ export class CreateProductInput {
   @Field({ nullable: true }) manufacturingProcess?: string;
   @Field(() => [String], { nullable: true }) audience?: string[];
   @Field(() => [String], { nullable: true }) occasions?: string[];
-  @Field(() => [ProductHighlightInput], { nullable: true }) pros?: ProductHighlightInput[];
-  @Field(() => [ProductHighlightInput], { nullable: true }) cons?: ProductHighlightInput[];
-  @Field(() => [ProductCertificationInput], { nullable: true }) certifications?: ProductCertificationInput[];
-  @Field(() => [LifestyleImageInput], { nullable: true }) lifestyleImages?: LifestyleImageInput[];
+  @Field(() => [ProductHighlightInput], { nullable: true })
+  pros?: ProductHighlightInput[];
+  @Field(() => [ProductHighlightInput], { nullable: true })
+  cons?: ProductHighlightInput[];
+  @Field(() => [ProductCertificationInput], { nullable: true })
+  certifications?: ProductCertificationInput[];
+  @Field(() => [LifestyleImageInput], { nullable: true })
+  lifestyleImages?: LifestyleImageInput[];
   @Field({ nullable: true }) videoUrl?: string;
   @Field({ nullable: true }) videoTitle?: string;
   @Field({ nullable: true }) videoDescription?: string;
   @Field({ nullable: true }) videoThumbnailUrl?: string;
-  @Field(() => [ProductFaqEntryInput], { nullable: true }) productFaqs?: ProductFaqEntryInput[];
+  @Field(() => [ProductFaqEntryInput], { nullable: true })
+  productFaqs?: ProductFaqEntryInput[];
   @Field(() => [String], { nullable: true }) pillarSlugs?: string[];
   @Field(() => [String], { nullable: true }) relatedProductIds?: string[];
   @Field(() => [String], { nullable: true }) bundleProductIds?: string[];
-  @Field(() => ProductNutritionInput, { nullable: true }) nutrition?: ProductNutritionInput;
+  @Field(() => ProductNutritionInput, { nullable: true })
+  nutrition?: ProductNutritionInput;
   @Field({ nullable: true }) fssaiLicense?: string;
   @Field({ nullable: true }) countryOfOrigin?: string;
   @Field({ nullable: true }) deliveryLeadTime?: string;
@@ -291,19 +297,25 @@ export class UpdateProductInput {
   @Field({ nullable: true }) manufacturingProcess?: string;
   @Field(() => [String], { nullable: true }) audience?: string[];
   @Field(() => [String], { nullable: true }) occasions?: string[];
-  @Field(() => [ProductHighlightInput], { nullable: true }) pros?: ProductHighlightInput[];
-  @Field(() => [ProductHighlightInput], { nullable: true }) cons?: ProductHighlightInput[];
-  @Field(() => [ProductCertificationInput], { nullable: true }) certifications?: ProductCertificationInput[];
-  @Field(() => [LifestyleImageInput], { nullable: true }) lifestyleImages?: LifestyleImageInput[];
+  @Field(() => [ProductHighlightInput], { nullable: true })
+  pros?: ProductHighlightInput[];
+  @Field(() => [ProductHighlightInput], { nullable: true })
+  cons?: ProductHighlightInput[];
+  @Field(() => [ProductCertificationInput], { nullable: true })
+  certifications?: ProductCertificationInput[];
+  @Field(() => [LifestyleImageInput], { nullable: true })
+  lifestyleImages?: LifestyleImageInput[];
   @Field({ nullable: true }) videoUrl?: string;
   @Field({ nullable: true }) videoTitle?: string;
   @Field({ nullable: true }) videoDescription?: string;
   @Field({ nullable: true }) videoThumbnailUrl?: string;
-  @Field(() => [ProductFaqEntryInput], { nullable: true }) productFaqs?: ProductFaqEntryInput[];
+  @Field(() => [ProductFaqEntryInput], { nullable: true })
+  productFaqs?: ProductFaqEntryInput[];
   @Field(() => [String], { nullable: true }) pillarSlugs?: string[];
   @Field(() => [String], { nullable: true }) relatedProductIds?: string[];
   @Field(() => [String], { nullable: true }) bundleProductIds?: string[];
-  @Field(() => ProductNutritionInput, { nullable: true }) nutrition?: ProductNutritionInput;
+  @Field(() => ProductNutritionInput, { nullable: true })
+  nutrition?: ProductNutritionInput;
   @Field({ nullable: true }) fssaiLicense?: string;
   @Field({ nullable: true }) countryOfOrigin?: string;
   @Field({ nullable: true }) deliveryLeadTime?: string;

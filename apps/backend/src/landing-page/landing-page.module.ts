@@ -7,7 +7,9 @@ import { AdminModule } from '../admin/admin.module';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: LANDING_PAGE_MODEL, schema: LandingPageSchema }]),
+    MongooseModule.forFeature([
+      { name: LANDING_PAGE_MODEL, schema: LandingPageSchema },
+    ]),
     AdminModule,
   ],
   providers: [LandingPageService, LandingPageResolver],

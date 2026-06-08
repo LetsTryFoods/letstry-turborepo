@@ -1,4 +1,4 @@
-import { graphql } from '@/gql';
+import { graphql } from "@/gql";
 
 export const SEARCH_PLACES = graphql(`
   query SearchPlaces($query: String!, $sessionToken: String) {
@@ -47,6 +47,7 @@ export const GET_MY_ADDRESSES = graphql(`
       longitude
       formattedAddress
       placeId
+      googlePostalCode
     }
   }
 `);
@@ -58,6 +59,7 @@ export const CREATE_ADDRESS = graphql(`
       addressType
       formattedAddress
       isDefault
+      googlePostalCode
     }
   }
 `);

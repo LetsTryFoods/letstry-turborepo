@@ -1,8 +1,8 @@
-import React from 'react';
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { wp, hp, RFValue } from '../../lib/utils/ui-utils';
+import React from "react";
+import { TouchableOpacity, Text, StyleSheet } from "react-native";
+import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { wp, hp, RFValue } from "../../lib/utils/ui-utils";
 
 interface SearchBarProps {
   placeholder?: string;
@@ -11,15 +11,15 @@ interface SearchBarProps {
 
 const SearchBar: React.FC<SearchBarProps> = ({
   placeholder = "Search for snacks, sweets...",
-  searchText = ""
+  searchText = "",
 }) => {
   const router = useRouter();
 
   const handlePress = () => {
     // Navigate to search screen
     router.push({
-      pathname: '/search' as any,
-      params: { initialQuery: searchText || "" }
+      pathname: "/search" as any,
+      params: { initialQuery: searchText || "" },
     });
   };
 
@@ -29,7 +29,12 @@ const SearchBar: React.FC<SearchBarProps> = ({
       onPress={handlePress}
       activeOpacity={0.7}
     >
-      <Ionicons name="search" size={22} color="#888" style={styles.searchIcon} />
+      <Ionicons
+        name="search"
+        size={22}
+        color="#888"
+        style={styles.searchIcon}
+      />
       <Text
         allowFontScaling={false}
         numberOfLines={1}

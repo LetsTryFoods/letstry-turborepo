@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
 import {
   evaluateProductChecklist,
   scoreChecklist,
   type ChecklistItem,
-} from '@/lib/seo/checklist';
+} from "@/lib/seo/checklist";
 
 /**
  * Visual SEO checklist drop-in for the product edit page.
@@ -27,7 +27,7 @@ export function SeoChecklistPanel({
 
   return (
     <aside
-      className={`rounded-xl border border-gray-200 bg-white p-4 ${className || ''}`}
+      className={`rounded-xl border border-gray-200 bg-white p-4 ${className || ""}`}
       aria-label="SEO readiness checklist"
     >
       <header className="flex items-center justify-between mb-3">
@@ -40,10 +40,10 @@ export function SeoChecklistPanel({
         ))}
       </ul>
       <p className="mt-3 text-xs text-gray-500">
-        Aim for a score of 80+ before publishing. See the{' '}
+        Aim for a score of 80+ before publishing. See the{" "}
         <a href="/dashboard/seo-content/onboarding" className="underline">
           content onboarding guide
-        </a>{' '}
+        </a>{" "}
         for what each check means.
       </p>
     </aside>
@@ -52,30 +52,37 @@ export function SeoChecklistPanel({
 
 function ChecklistRow({ item }: { item: ChecklistItem }) {
   const dot = {
-    pass: 'bg-emerald-500',
-    warn: 'bg-amber-500',
-    fail: 'bg-red-500',
+    pass: "bg-emerald-500",
+    warn: "bg-amber-500",
+    fail: "bg-red-500",
   }[item.status];
   return (
     <li className="flex gap-2 items-start">
-      <span className={`mt-1.5 inline-block w-2 h-2 rounded-full ${dot}`} aria-hidden />
+      <span
+        className={`mt-1.5 inline-block w-2 h-2 rounded-full ${dot}`}
+        aria-hidden
+      />
       <div className="flex-1">
         <p className="text-gray-900">{item.label}</p>
-        {item.hint && <p className="text-xs text-gray-500 mt-0.5">{item.hint}</p>}
+        {item.hint && (
+          <p className="text-xs text-gray-500 mt-0.5">{item.hint}</p>
+        )}
       </div>
     </li>
   );
 }
 
 function ScoreBadge({ score }: { score: number }) {
-  const tone = score >= 80 ? 'emerald' : score >= 50 ? 'amber' : 'red';
+  const tone = score >= 80 ? "emerald" : score >= 50 ? "amber" : "red";
   const cls = {
-    emerald: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    amber: 'bg-amber-50 text-amber-700 border-amber-200',
-    red: 'bg-red-50 text-red-700 border-red-200',
+    emerald: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    amber: "bg-amber-50 text-amber-700 border-amber-200",
+    red: "bg-red-50 text-red-700 border-red-200",
   }[tone];
   return (
-    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${cls}`}>
+    <span
+      className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${cls}`}
+    >
       {score}/100
     </span>
   );

@@ -1,16 +1,16 @@
-import { useEffect } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Stack, useSegments } from 'expo-router';
-import { ApolloProvider } from '@apollo/client';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { StatusBar } from 'expo-status-bar';
-import { client as apolloClient } from '../src/lib/apollo-client';
-import CartModal from '../src/features/cart/components/CartModal';
-import ViewCartBar from '../src/features/cart/components/ViewCartBar';
-import { startNetworkLogging } from 'react-native-network-logger';
-import { GuestService } from '../src/features/auth/services/guest.service';
-import { useAuthStore } from '../src/store/auth-store';
-import * as SplashScreen from 'expo-splash-screen';
+import { useEffect } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Stack, useSegments } from "expo-router";
+import { ApolloProvider } from "@apollo/client";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
+import { client as apolloClient } from "../src/lib/apollo-client";
+import CartModal from "../src/features/cart/components/CartModal";
+import ViewCartBar from "../src/features/cart/components/ViewCartBar";
+import { startNetworkLogging } from "react-native-network-logger";
+import { GuestService } from "../src/features/auth/services/guest.service";
+import { useAuthStore } from "../src/store/auth-store";
+import * as SplashScreen from "expo-splash-screen";
 
 // Prevent splash screen from hiding automatically
 SplashScreen.preventAutoHideAsync().catch(() => {
@@ -28,7 +28,7 @@ const queryClient = new QueryClient();
 export default function RootLayout() {
   const segments = useSegments();
   const { isInitialized, setInitialized } = useAuthStore();
-  
+
   useEffect(() => {
     const init = async () => {
       await GuestService.ensureGuestSession();
@@ -45,8 +45,10 @@ export default function RootLayout() {
     return null;
   }
 
-  const isHomeRoute = segments[0] === '(tabs)' && (segments.length === 1 || (segments[1] as string) === 'index');
-  const isProductRoute = segments[0] === 'product';
+  const isHomeRoute =
+    segments[0] === "(tabs)" &&
+    (segments.length === 1 || (segments[1] as string) === "index");
+  const isProductRoute = segments[0] === "product";
   const shouldShowCartBar = isHomeRoute || isProductRoute;
 
   return (

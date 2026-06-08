@@ -31,7 +31,9 @@ export class AddressService {
     this.logger.log('Creating address', { identityId, input }, 'AddressModule');
 
     if (!/^\d{10}$/.test(input.recipientPhone)) {
-      throw new BadRequestException('Recipient phone number must be exactly 10 digits');
+      throw new BadRequestException(
+        'Recipient phone number must be exactly 10 digits',
+      );
     }
 
     if (input.isDefault) {
@@ -78,7 +80,9 @@ export class AddressService {
     const address = await this.getAddress(id, identityId);
 
     if (input.recipientPhone && !/^\d{10}$/.test(input.recipientPhone)) {
-      throw new BadRequestException('Recipient phone number must be exactly 10 digits');
+      throw new BadRequestException(
+        'Recipient phone number must be exactly 10 digits',
+      );
     }
 
     if (input.isDefault) {

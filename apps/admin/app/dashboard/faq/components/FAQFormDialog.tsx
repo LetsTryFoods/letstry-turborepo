@@ -1,16 +1,16 @@
-"use client"
+"use client";
 
-import { useEffect } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -19,51 +19,71 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
+} from "@/components/ui/form";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Button } from "@/components/ui/button"
-import { Switch } from "@/components/ui/switch"
-import { Loader2 } from "lucide-react"
-import { FAQ, FAQCategory, categoryLabels, useCreateFAQ, useUpdateFAQ } from "@/lib/faq/useFAQ"
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Loader2 } from "lucide-react";
+import {
+  FAQ,
+  FAQCategory,
+  categoryLabels,
+  useCreateFAQ,
+  useUpdateFAQ,
+} from "@/lib/faq/useFAQ";
 
 const faqSchema = z.object({
   question: z.string().min(10, "Question must be at least 10 characters"),
   answer: z.string().min(20, "Answer must be at least 20 characters"),
-  category: z.enum(["GENERAL", "ORDERS", "SHIPPING", "RETURNS", "PRODUCTS", "PAYMENT"]),
+  category: z.enum([
+    "GENERAL",
+    "ORDERS",
+    "SHIPPING",
+    "RETURNS",
+    "PRODUCTS",
+    "PAYMENT",
+  ]),
   status: z.enum(["ACTIVE", "INACTIVE"]),
-  order: z.number().min(1, "Order must be at least 1")
-})
+  order: z.number().min(1, "Order must be at least 1"),
+});
 
-type FAQFormData = z.infer<typeof faqSchema>
+type FAQFormData = z.infer<typeof faqSchema>;
 
 interface FAQFormDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  faq: FAQ | null
-  onSuccess: () => void
-  totalFAQs: number
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  faq: FAQ | null;
+  onSuccess: () => void;
+  totalFAQs: number;
 }
 
-const categories: FAQCategory[] = ["GENERAL", "ORDERS", "SHIPPING", "RETURNS", "PRODUCTS", "PAYMENT"]
+const categories: FAQCategory[] = [
+  "GENERAL",
+  "ORDERS",
+  "SHIPPING",
+  "RETURNS",
+  "PRODUCTS",
+  "PAYMENT",
+];
 
 export default function FAQFormDialog({
   open,
   onOpenChange,
   faq,
   onSuccess,
-  totalFAQs
+  totalFAQs,
 }: FAQFormDialogProps) {
-  const { createFAQ, loading: createLoading } = useCreateFAQ()
-  const { updateFAQ, loading: updateLoading } = useUpdateFAQ()
-  const isEditing = !!faq
+  const { createFAQ, loading: createLoading } = useCreateFAQ();
+  const { updateFAQ, loading: updateLoading } = useUpdateFAQ();
+  const isEditing = !!faq;
 
   const form = useForm<FAQFormData>({
     resolver: zodResolver(faqSchema),
@@ -72,9 +92,9 @@ export default function FAQFormDialog({
       answer: "",
       category: "GENERAL",
       status: "ACTIVE",
-      order: totalFAQs + 1
-    }
-  })
+      order: totalFAQs + 1,
+    },
+  });
 
   useEffect(() => {
     if (faq) {
@@ -83,34 +103,34 @@ export default function FAQFormDialog({
         answer: faq.answer,
         category: faq.category,
         status: faq.status,
-        order: faq.order
-      })
+        order: faq.order,
+      });
     } else {
       form.reset({
         question: "",
         answer: "",
         category: "GENERAL",
         status: "ACTIVE",
-        order: totalFAQs + 1
-      })
+        order: totalFAQs + 1,
+      });
     }
-  }, [faq, form, totalFAQs])
+  }, [faq, form, totalFAQs]);
 
   const onSubmit = async (data: FAQFormData) => {
     try {
       if (isEditing) {
-        await updateFAQ(faq._id, data)
+        await updateFAQ(faq._id, data);
       } else {
-        await createFAQ(data)
+        await createFAQ(data);
       }
-      onSuccess()
-      onOpenChange(false)
+      onSuccess();
+      onOpenChange(false);
     } catch (error) {
-      console.error("Error saving FAQ:", error)
+      console.error("Error saving FAQ:", error);
     }
-  }
+  };
 
-  const loading = createLoading || updateLoading
+  const loading = createLoading || updateLoading;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -133,9 +153,9 @@ export default function FAQFormDialog({
                 <FormItem>
                   <FormLabel>Question</FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="e.g., How can I place an order?" 
-                      {...field} 
+                    <Input
+                      placeholder="e.g., How can I place an order?"
+                      {...field}
                     />
                   </FormControl>
                   <FormDescription>
@@ -174,10 +194,7 @@ export default function FAQFormDialog({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Category</FormLabel>
-                    <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    >
+                    <Select value={field.value} onValueChange={field.onChange}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select a category" />
@@ -207,7 +224,9 @@ export default function FAQFormDialog({
                         type="number"
                         min={1}
                         {...field}
-                        onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                        onChange={(e) =>
+                          field.onChange(parseInt(e.target.value) || 1)
+                        }
                       />
                     </FormControl>
                     <FormMessage />
@@ -230,7 +249,7 @@ export default function FAQFormDialog({
                   <FormControl>
                     <Switch
                       checked={field.value === "ACTIVE"}
-                      onCheckedChange={(checked) => 
+                      onCheckedChange={(checked) =>
                         field.onChange(checked ? "ACTIVE" : "INACTIVE")
                       }
                     />
@@ -257,5 +276,5 @@ export default function FAQFormDialog({
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

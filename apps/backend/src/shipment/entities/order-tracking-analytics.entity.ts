@@ -31,4 +31,6 @@ export class OrderTrackingAnalytics extends Document {
   updatedAt?: Date;
 }
 
-export const OrderTrackingAnalyticsSchema = SchemaFactory.createForClass(OrderTrackingAnalytics);
+export const OrderTrackingAnalyticsSchema = SchemaFactory.createForClass(
+  OrderTrackingAnalytics,
+);

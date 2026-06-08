@@ -3,7 +3,10 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { LandingPageDocument, LANDING_PAGE_MODEL } from './landing-page.schema';
 import { LandingPage } from './landing-page.graphql';
-import { CreateLandingPageInput, UpdateLandingPageInput } from './landing-page.input';
+import {
+  CreateLandingPageInput,
+  UpdateLandingPageInput,
+} from './landing-page.input';
 import { CacheService } from '../cache/cache.service';
 import { CacheKeyFactory } from '../cache/cache-key.factory';
 import { CacheInvalidatorService } from '../cache/cache-invalidator.service';
@@ -15,7 +18,8 @@ export class LandingPageService {
   private readonly CACHE_TYPE_ACTIVE = 'active';
 
   constructor(
-    @InjectModel(LANDING_PAGE_MODEL) private landingPageModel: Model<LandingPageDocument>,
+    @InjectModel(LANDING_PAGE_MODEL)
+    private landingPageModel: Model<LandingPageDocument>,
     private readonly cacheService: CacheService,
     private readonly cacheKeyFactory: CacheKeyFactory,
     private readonly cacheInvalidatorService: CacheInvalidatorService,
@@ -36,7 +40,11 @@ export class LandingPageService {
 
   async findActive(): Promise<LandingPage[]> {
     return this.getCachedList(this.CACHE_TYPE_ACTIVE, () =>
-      this.landingPageModel.find({ isActive: true }).sort({ position: 1 }).lean().exec(),
+      this.landingPageModel
+        .find({ isActive: true })
+        .sort({ position: 1 })
+        .lean()
+        .exec(),
     );
   }
 
@@ -52,7 +60,10 @@ export class LandingPageService {
     return this.normalizePage(page);
   }
 
-  async update(id: string, input: UpdateLandingPageInput): Promise<LandingPage> {
+  async update(
+    id: string,
+    input: UpdateLandingPageInput,
+  ): Promise<LandingPage> {
     const page = await this.landingPageModel
       .findByIdAndUpdate(id, input, { new: true })
       .lean()
@@ -65,7 +76,10 @@ export class LandingPageService {
   }
 
   async remove(id: string): Promise<LandingPage> {
-    const page = await this.landingPageModel.findByIdAndDelete(id).lean().exec();
+    const page = await this.landingPageModel
+      .findByIdAndDelete(id)
+      .lean()
+      .exec();
     if (!page) {
       throw new NotFoundException(`Landing page with ID ${id} not found`);
     }
@@ -84,7 +98,10 @@ export class LandingPageService {
     } as any as LandingPage;
   }
 
-  private async getCachedList(type: string, fetcher: () => Promise<any[]>): Promise<LandingPage[]> {
+  private async getCachedList(
+    type: string,
+    fetcher: () => Promise<any[]>,
+  ): Promise<LandingPage[]> {
     const versionKey = this.cacheKeyFactory.getLandingPageListVersionKey();
     const version = await this.cacheService.getVersion(versionKey);
     const key = this.cacheKeyFactory.getLandingPageListKey(version, type);

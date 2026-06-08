@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,9 +6,9 @@ import {
   FlatList,
   TouchableOpacity,
   Image,
-} from 'react-native';
-import { wp, hp, RFValue, getImageUrl } from '../../../lib/utils/ui-utils';
-import { theme } from '../../../styles/theme';
+} from "react-native";
+import { wp, hp, RFValue, getImageUrl } from "../../../lib/utils/ui-utils";
+import { theme } from "../../../styles/theme";
 
 interface Category {
   id: string;
@@ -24,7 +24,7 @@ interface CategorySidebarProps {
   styleConfig?: any;
 }
 
-const ALL_PRODUCTS_ID = 'all';
+const ALL_PRODUCTS_ID = "all";
 const ITEM_HEIGHT = 140; // Estimated height for getItemLayout
 
 const CategorySidebar: React.FC<CategorySidebarProps> = ({
@@ -37,10 +37,10 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
 
   // Add "All Products" to the list
   const displayCategories = [
-    { 
-      id: ALL_PRODUCTS_ID, 
-      name: 'All Products', 
-      imageUrl: 'https://cdn-icons-png.flaticon.com/512/3144/3144456.png'
+    {
+      id: ALL_PRODUCTS_ID,
+      name: "All Products",
+      imageUrl: "https://cdn-icons-png.flaticon.com/512/3144/3144456.png",
     },
     ...categories,
   ];
@@ -48,7 +48,9 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
   // Auto-scroll to active category
   useEffect(() => {
     if (displayCategories.length > 0) {
-      const index = displayCategories.findIndex(item => item.id === activeCategoryId);
+      const index = displayCategories.findIndex(
+        (item) => item.id === activeCategoryId,
+      );
       if (index !== -1 && listRef.current) {
         listRef.current.scrollToIndex({
           index,
@@ -65,16 +67,27 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
       <TouchableOpacity
         key={item.id}
         style={[
-          styles.item, 
-          isActive ? [styles.activeItem, { backgroundColor: styleConfig.sidebarActiveBg || '#FFF9EB' }] : { backgroundColor: styleConfig.sidebarInactiveBg || 'transparent' }
+          styles.item,
+          isActive
+            ? [
+                styles.activeItem,
+                { backgroundColor: styleConfig.sidebarActiveBg || "#FFF9EB" },
+              ]
+            : {
+                backgroundColor: styleConfig.sidebarInactiveBg || "transparent",
+              },
         ]}
         onPress={() => onCategorySelect(item.id)}
         activeOpacity={0.7}
       >
-        <View style={[styles.iconContainer, isActive && styles.activeIconContainer]}>
+        <View
+          style={[styles.iconContainer, isActive && styles.activeIconContainer]}
+        >
           {item.imageUrl || item.mobileImageUrl ? (
             <Image
-              source={{ uri: getImageUrl(item.mobileImageUrl || item.imageUrl) }}
+              source={{
+                uri: getImageUrl(item.mobileImageUrl || item.imageUrl),
+              }}
               style={styles.icon}
               resizeMode="contain"
             />
@@ -84,9 +97,12 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
         </View>
         <Text
           style={[
-            styles.label, 
-            { color: styleConfig.sidebarInactiveText || '#666' },
-            isActive && [styles.activeLabel, { color: styleConfig.sidebarActiveText || theme.colors.primary }]
+            styles.label,
+            { color: styleConfig.sidebarInactiveText || "#666" },
+            isActive && [
+              styles.activeLabel,
+              { color: styleConfig.sidebarActiveText || theme.colors.primary },
+            ],
           ]}
           numberOfLines={2}
         >
@@ -111,10 +127,13 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
           index,
         })}
         // Prevent scroll crash if index not found immediately
-        onScrollToIndexFailed={info => {
-          const wait = new Promise(resolve => setTimeout(resolve, 500));
+        onScrollToIndexFailed={(info) => {
+          const wait = new Promise((resolve) => setTimeout(resolve, 500));
           wait.then(() => {
-            listRef.current?.scrollToIndex({ index: info.index, animated: true });
+            listRef.current?.scrollToIndex({
+              index: info.index,
+              animated: true,
+            });
           });
         }}
       />
@@ -124,36 +143,36 @@ const CategorySidebar: React.FC<CategorySidebarProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: wp('28%'),
-    backgroundColor: '#FFFFFF', // Pure white background
+    width: wp("28%"),
+    backgroundColor: "#FFFFFF", // Pure white background
     borderRightWidth: 1,
-    borderRightColor: '#F0F0F0',
+    borderRightColor: "#F0F0F0",
   },
   scrollContent: {
     paddingVertical: 10,
   },
   item: {
-    width: '100%',
-    alignItems: 'center',
+    width: "100%",
+    alignItems: "center",
     paddingVertical: 15,
     paddingHorizontal: 4,
   },
   activeItem: {
-    backgroundColor: '#FFF9EB', // Very light golden tint for active row
+    backgroundColor: "#FFF9EB", // Very light golden tint for active row
   },
   iconContainer: {
     width: 80,
     height: 80,
     borderRadius: 12,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#FFFFFF",
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: '#F5F5F5', // Very faint border
+    borderColor: "#F5F5F5", // Very faint border
   },
   activeIconContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     // Lift active item slightly with shadow
     shadowColor: theme.colors.primary,
     shadowOffset: { width: 0, height: 2 },
@@ -168,19 +187,19 @@ const styles = StyleSheet.create({
   placeholderIcon: {
     width: 60,
     height: 60,
-    backgroundColor: '#F9F9F9',
+    backgroundColor: "#F9F9F9",
     borderRadius: 8,
   },
   label: {
     fontSize: RFValue(9.5),
-    textAlign: 'center',
-    color: '#666',
-    fontWeight: '500',
+    textAlign: "center",
+    color: "#666",
+    fontWeight: "500",
     paddingHorizontal: 2,
   },
   activeLabel: {
     color: theme.colors.primary,
-    fontWeight: '700',
+    fontWeight: "700",
   },
 });
 

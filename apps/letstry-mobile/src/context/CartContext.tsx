@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback } from "react";
 
 interface CartItem {
   productId: string;
@@ -15,7 +15,9 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [items, setItems] = useState<CartItem[]>([]);
 
   const addItem = useCallback((productId: string, variantId: string) => {
@@ -23,7 +25,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const existing = prev.find((i) => i.variantId === variantId);
       if (existing) {
         return prev.map((i) =>
-          i.variantId === variantId ? { ...i, quantity: i.quantity + 1 } : i
+          i.variantId === variantId ? { ...i, quantity: i.quantity + 1 } : i,
         );
       }
       return [...prev, { productId, variantId, quantity: 1 }];
@@ -35,7 +37,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const existing = prev.find((i) => i.variantId === variantId);
       if (existing && existing.quantity > 1) {
         return prev.map((i) =>
-          i.variantId === variantId ? { ...i, quantity: i.quantity - 1 } : i
+          i.variantId === variantId ? { ...i, quantity: i.quantity - 1 } : i,
         );
       }
       return prev.filter((i) => i.variantId !== variantId);
@@ -46,11 +48,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     (variantId: string) => {
       return items.find((i) => i.variantId === variantId)?.quantity || 0;
     },
-    [items]
+    [items],
   );
 
   return (
-    <CartContext.Provider value={{ items, addItem, removeItem, getItemQuantity }}>
+    <CartContext.Provider
+      value={{ items, addItem, removeItem, getItemQuantity }}
+    >
       {children}
     </CartContext.Provider>
   );
@@ -58,6 +62,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 export const useCart = () => {
   const context = useContext(CartContext);
-  if (!context) throw new Error('useCart must be used within CartProvider');
+  if (!context) throw new Error("useCart must be used within CartProvider");
   return context;
 };

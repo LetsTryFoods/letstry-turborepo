@@ -1,7 +1,7 @@
-import React from 'react';
-import Image from 'next/image';
-import { Minus, Plus } from 'lucide-react';
-import { getCdnUrl } from '@/lib/image-utils';
+import React from "react";
+import Image from "next/image";
+import { Minus, Plus } from "lucide-react";
+import { getCdnUrl } from "@/lib/image-utils";
 
 interface CartItemProps {
   id: string;
@@ -39,7 +39,9 @@ export const CartItem: React.FC<CartItemProps> = ({
       </div>
       <div className="flex-1 flex flex-col">
         <div className="mb-2">
-          <h3 className="text-base font-bold text-black line-clamp-1">{title}</h3>
+          <h3 className="text-base font-bold text-black line-clamp-1">
+            {title}
+          </h3>
           <p className="text-sm text-gray-600">Size: {size}</p>
         </div>
 
@@ -56,7 +58,9 @@ export const CartItem: React.FC<CartItemProps> = ({
               >
                 <Minus size={16} strokeWidth={3} />
               </button>
-              <span className="w-10 text-center text-sm font-bold text-black">{quantity}</span>
+              <span className="w-10 text-center text-sm font-bold text-black">
+                {quantity}
+              </span>
               <button
                 onClick={() => onUpdateQuantity(id, quantity + 1)}
                 className="px-3 h-full bg-[#E8F3F7] text-[#003B65] hover:bg-[#D1E9F2] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"

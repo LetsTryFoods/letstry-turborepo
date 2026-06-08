@@ -1,31 +1,45 @@
-'use client'
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Switch } from "@/components/ui/switch"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react"
-import { Pagination } from "@/app/dashboard/components/pagination"
-import { ColumnDefinition } from "@/app/dashboard/components/column-selector"
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Switch } from "@/components/ui/switch";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Pagination } from "@/app/dashboard/components/pagination";
+import { ColumnDefinition } from "@/app/dashboard/components/column-selector";
 
 interface AddressTableProps {
-  addresses: any[]
-  selectedColumns: string[]
-  allColumns: ColumnDefinition[]
-  loading: boolean
-  error: any
+  addresses: any[];
+  selectedColumns: string[];
+  allColumns: ColumnDefinition[];
+  loading: boolean;
+  error: any;
   meta: {
-    totalCount: number
-    page: number
-    limit: number
-    totalPages: number
-    hasNextPage: boolean
-    hasPreviousPage: boolean
-  }
-  onPageChange: (page: number) => void
-  onActiveToggle: (id: string, isActive: boolean) => void
-  onEdit: (id: string) => void
-  onDelete: (id: string, batchCode: string) => void
+    totalCount: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
+  onPageChange: (page: number) => void;
+  onActiveToggle: (id: string, isActive: boolean) => void;
+  onEdit: (id: string) => void;
+  onDelete: (id: string, batchCode: string) => void;
 }
 
 export function AddressTable({
@@ -38,22 +52,24 @@ export function AddressTable({
   onPageChange,
   onActiveToggle,
   onEdit,
-  onDelete
+  onDelete,
 }: AddressTableProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-32">
         <p className="text-muted-foreground">Loading addresses...</p>
       </div>
-    )
+    );
   }
 
   if (error) {
     return (
       <div className="flex items-center justify-center h-32">
-        <p className="text-destructive">Error loading addresses: {error.message}</p>
+        <p className="text-destructive">
+          Error loading addresses: {error.message}
+        </p>
       </div>
-    )
+    );
   }
 
   return (
@@ -61,11 +77,9 @@ export function AddressTable({
       <Table>
         <TableHeader>
           <TableRow>
-            {selectedColumns.map(columnKey => {
-              const column = allColumns.find(c => c.key === columnKey)
-              return (
-                <TableHead key={columnKey}>{column?.label}</TableHead>
-              )
+            {selectedColumns.map((columnKey) => {
+              const column = allColumns.find((c) => c.key === columnKey);
+              return <TableHead key={columnKey}>{column?.label}</TableHead>;
             })}
             <TableHead className="w-[100px]">Actions</TableHead>
           </TableRow>
@@ -73,30 +87,39 @@ export function AddressTable({
         <TableBody>
           {addresses.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={selectedColumns.length + 1} className="text-center text-muted-foreground">
-                No addresses found. Add your first manufacturing address to get started.
+              <TableCell
+                colSpan={selectedColumns.length + 1}
+                className="text-center text-muted-foreground"
+              >
+                No addresses found. Add your first manufacturing address to get
+                started.
               </TableCell>
             </TableRow>
           ) : (
             addresses.map((address: any) => (
               <TableRow key={address._id}>
-                {selectedColumns.map(columnKey => (
+                {selectedColumns.map((columnKey) => (
                   <TableCell key={columnKey}>
-                    {columnKey === 'isActive' ? (
+                    {columnKey === "isActive" ? (
                       <Switch
                         checked={address.isActive}
-                        onCheckedChange={() => onActiveToggle(address._id, address.isActive)}
+                        onCheckedChange={() =>
+                          onActiveToggle(address._id, address.isActive)
+                        }
                       />
-                    ) : columnKey === 'subAddressHeading' ? (
-                      <div className="max-w-[300px] truncate" title={address.subAddressHeading}>
+                    ) : columnKey === "subAddressHeading" ? (
+                      <div
+                        className="max-w-[300px] truncate"
+                        title={address.subAddressHeading}
+                      >
                         {address.subAddressHeading}
                       </div>
-                    ) : columnKey === 'batchCode' ? (
+                    ) : columnKey === "batchCode" ? (
                       <span className="font-bold text-primary">
                         {address.batchCode}
                       </span>
                     ) : (
-                      String(address[columnKey as keyof typeof address] || '-')
+                      String(address[columnKey as keyof typeof address] || "-")
                     )}
                   </TableCell>
                 ))}
@@ -115,7 +138,7 @@ export function AddressTable({
                         Edit
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem 
+                      <DropdownMenuItem
                         onClick={() => onDelete(address._id, address.batchCode)}
                         className="text-destructive"
                       >
@@ -142,5 +165,5 @@ export function AddressTable({
         />
       )}
     </>
-  )
+  );
 }

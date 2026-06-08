@@ -1,7 +1,7 @@
-import { View, Text, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { LoginForm } from '../../src/features/auth/components/LoginForm';
-import { theme } from '../../src/styles/theme';
+import { View, Text, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { LoginForm } from "../../src/features/auth/components/LoginForm";
+import { theme } from "../../src/styles/theme";
 
 export default function LoginScreen() {
   return (

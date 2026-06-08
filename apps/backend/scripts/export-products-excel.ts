@@ -62,12 +62,18 @@ async function exportProducts() {
 
   const headerRow = sheet.getRow(1);
   headerRow.eachCell((cell) => {
-    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0C5273' } };
+    cell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF0C5273' },
+    };
     cell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 };
     cell.alignment = { vertical: 'middle', horizontal: 'center' };
     cell.border = {
-      top: { style: 'thin' }, bottom: { style: 'thin' },
-      left: { style: 'thin' }, right: { style: 'thin' },
+      top: { style: 'thin' },
+      bottom: { style: 'thin' },
+      left: { style: 'thin' },
+      right: { style: 'thin' },
     };
   });
   headerRow.height = 22;
@@ -115,8 +121,12 @@ async function exportProducts() {
         variantActive: '',
         isDefault: '',
         thumbnailUrl: '',
-        createdAt: product.createdAt ? new Date(product.createdAt).toLocaleString('en-IN') : '',
-        updatedAt: product.updatedAt ? new Date(product.updatedAt).toLocaleString('en-IN') : '',
+        createdAt: product.createdAt
+          ? new Date(product.createdAt).toLocaleString('en-IN')
+          : '',
+        updatedAt: product.updatedAt
+          ? new Date(product.updatedAt).toLocaleString('en-IN')
+          : '',
       });
       rowIndex++;
     } else {
@@ -155,8 +165,14 @@ async function exportProducts() {
           variantActive: v.isActive ? 'Yes' : 'No',
           isDefault: v.isDefault ? 'Yes' : 'No',
           thumbnailUrl: v.thumbnailUrl || '',
-          createdAt: i === 0 && product.createdAt ? new Date(product.createdAt).toLocaleString('en-IN') : '',
-          updatedAt: i === 0 && product.updatedAt ? new Date(product.updatedAt).toLocaleString('en-IN') : '',
+          createdAt:
+            i === 0 && product.createdAt
+              ? new Date(product.createdAt).toLocaleString('en-IN')
+              : '',
+          updatedAt:
+            i === 0 && product.updatedAt
+              ? new Date(product.updatedAt).toLocaleString('en-IN')
+              : '',
         });
         rowIndex++;
       }
@@ -168,13 +184,16 @@ async function exportProducts() {
     const isEven = index % 2 === 0;
     row.eachCell((cell) => {
       cell.fill = {
-        type: 'pattern', pattern: 'solid',
+        type: 'pattern',
+        pattern: 'solid',
         fgColor: { argb: isEven ? 'FFF0F7FA' : 'FFFFFFFF' },
       };
       cell.alignment = { vertical: 'middle', wrapText: true };
       cell.border = {
-        top: { style: 'hair' }, bottom: { style: 'hair' },
-        left: { style: 'hair' }, right: { style: 'hair' },
+        top: { style: 'hair' },
+        bottom: { style: 'hair' },
+        left: { style: 'hair' },
+        right: { style: 'hair' },
       };
     });
     row.height = 18;

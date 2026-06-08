@@ -14,9 +14,12 @@ export class DataExportService {
    */
   private resolvePath(path: string, obj: any) {
     if (!path || !obj) return undefined;
-    return path.split(/[.[\]]/).filter(Boolean).reduce((prev, curr) => {
-      return prev ? prev[curr] : undefined;
-    }, obj);
+    return path
+      .split(/[.[\]]/)
+      .filter(Boolean)
+      .reduce((prev, curr) => {
+        return prev ? prev[curr] : undefined;
+      }, obj);
   }
 
   /**
@@ -27,7 +30,9 @@ export class DataExportService {
       return value ? 'Yes' : 'No';
     }
     if (Array.isArray(value)) {
-      return value.map(v => (typeof v === 'object' ? JSON.stringify(v) : String(v))).join(', ');
+      return value
+        .map((v) => (typeof v === 'object' ? JSON.stringify(v) : String(v)))
+        .join(', ');
     }
     if (value instanceof Date) {
       return value.toISOString();
@@ -51,16 +56,16 @@ export class DataExportService {
     const worksheet = workbook.addWorksheet('Data');
 
     // Add headers
-    worksheet.columns = columns.map(col => ({
+    worksheet.columns = columns.map((col) => ({
       header: col.label,
       key: col.key,
       width: 20,
     }));
 
     // Add rows
-    data.forEach(item => {
+    data.forEach((item) => {
       const rowData: any = {};
-      columns.forEach(col => {
+      columns.forEach((col) => {
         const rawValue = this.resolvePath(col.key, item);
         rowData[col.key] = this.formatValue(rawValue);
       });
@@ -102,14 +107,14 @@ export class DataExportService {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Data');
 
-    worksheet.columns = columns.map(col => ({
+    worksheet.columns = columns.map((col) => ({
       header: col.label,
       key: col.key,
     }));
 
-    data.forEach(item => {
+    data.forEach((item) => {
       const rowData: any = {};
-      columns.forEach(col => {
+      columns.forEach((col) => {
         const rawValue = this.resolvePath(col.key, item);
         rowData[col.key] = this.formatValue(rawValue);
       });

@@ -1,5 +1,5 @@
-import { graphqlClient } from '@/lib/graphql/client-factory';
-import { INITIATE_PAYMENT } from '@/lib/queries/payment';
+import { graphqlClient } from "@/lib/graphql/client-factory";
+import { INITIATE_PAYMENT } from "@/lib/queries/payment";
 
 export interface InitiatePaymentInput {
   cartId: string;

@@ -94,6 +94,7 @@ pnpm mobile:ngrok
 ```
 
 This runs `scripts/start-with-ngrok.sh`, which:
+
 1. Starts ngrok on port `3001` (set `BACKEND_PORT=XXXX` to override)
 2. Automatically reads the public URL from ngrok's local API
 3. Launches Expo with `EXPO_PUBLIC_GRAPHQL_URL` set to the ngrok URL
@@ -114,13 +115,13 @@ This reads from `codegen.ts` and writes to `src/gql/graphql.ts`. **Never edit `g
 
 ## 🧰 Tech Stack
 
-| Concern | Tool |
-|---|---|
-| Framework | Expo + Expo Router |
-| Data Fetching | TanStack Query (React Query v5) |
-| GraphQL Client | Apollo Client |
-| Forms | React Hook Form |
-| Validation | Zod v3 |
-| Navigation | Expo Router (file-based) |
-| Type Safety | TypeScript + graphql-codegen |
-| Network Debug | react-native-network-logger |
+| Concern        | Tool                            |
+| -------------- | ------------------------------- |
+| Framework      | Expo + Expo Router              |
+| Data Fetching  | TanStack Query (React Query v5) |
+| GraphQL Client | Apollo Client                   |
+| Forms          | React Hook Form                 |
+| Validation     | Zod v3                          |
+| Navigation     | Expo Router (file-based)        |
+| Type Safety    | TypeScript + graphql-codegen    |
+| Network Debug  | react-native-network-logger     |

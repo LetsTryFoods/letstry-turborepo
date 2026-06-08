@@ -3,7 +3,7 @@ import { Product, ProductDocument } from '../product.schema';
 import { ProductFilter } from './product.types';
 
 export class ProductRepository {
-  constructor(private readonly productModel: Model<ProductDocument>) { }
+  constructor(private readonly productModel: Model<ProductDocument>) {}
 
   async countDocuments(filter: ProductFilter): Promise<number> {
     return this.productModel.countDocuments(filter).exec();
@@ -61,7 +61,13 @@ export class ProductRepository {
         { $sort: { relevanceScore: -1, createdAt: -1 } },
         { $skip: skip },
         { $limit: limit },
-        { $project: { nameMatchScore: 0, brandMatchScore: 0, relevanceScore: 0 } },
+        {
+          $project: {
+            nameMatchScore: 0,
+            brandMatchScore: 0,
+            relevanceScore: 0,
+          },
+        },
       ])
       .exec();
   }
@@ -92,11 +98,18 @@ export class ProductRepository {
    * Uses the indexed fields for O(1) lookup — no regex, no full scan.
    */
   async findBySkuOrGtin(identifier: string): Promise<Product | null> {
-    return this.productModel.findOne({
-      $or: [
-        { 'variants.sku': identifier },
-        { 'variants.gtin': identifier },
-      ],
-    }).exec();
+    return this.productModel
+      .findOne({
+        $or: [{ 'variants.sku': identifier }, { 'variants.gtin': identifier }],
+      })
+      .exec();
+  }
+
+  async updateMany(filter: any, update: any): Promise<any> {
+    return this.productModel.updateMany(filter, update).exec();
+  }
+
+  async delete(id: string): Promise<Product | null> {
+    return this.productModel.findByIdAndDelete(id).exec();
   }
 }

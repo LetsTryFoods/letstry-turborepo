@@ -16,7 +16,7 @@ export class CartValidationService {
     private readonly productValidationService: ProductValidationService,
     private readonly cartHydrationService: CartHydrationService,
     private readonly logger: WinstonLoggerService,
-  ) { }
+  ) {}
 
   async validateAndCleanCart(identityId: string): Promise<CartDocument | null> {
     const cart = await this.cartRepositoryService.getCart(identityId);

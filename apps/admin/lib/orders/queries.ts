@@ -197,7 +197,7 @@ export const useAllOrders = (input: GetAllOrdersInput = {}) => {
         },
       },
       fetchPolicy: "cache-and-network",
-    }
+    },
   );
 
   return {
@@ -217,7 +217,7 @@ export const useOrderById = (orderId: string) => {
       variables: { orderId },
       skip: !orderId,
       fetchPolicy: "cache-and-network",
-    }
+    },
   );
 
   return {

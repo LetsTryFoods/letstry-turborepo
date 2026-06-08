@@ -1,27 +1,27 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 import {
   useAllOrders,
   useUpdateOrderStatus,
   getOrderStats,
   Order,
-  OrderStatus
-} from "@/lib/orders/queries"
-import { OrderTable } from "./components/OrderTable"
-import { OrderDetailsDialog } from "./components/OrderDetailsDialog"
-import { Pagination } from "@/components/ui/pagination"
-import { useEffect } from "react"
+  OrderStatus,
+} from "@/lib/orders/queries";
+import { OrderTable } from "./components/OrderTable";
+import { OrderDetailsDialog } from "./components/OrderDetailsDialog";
+import { Pagination } from "@/components/ui/pagination";
+import { useEffect } from "react";
 import {
   Search,
   RefreshCw,
@@ -33,51 +33,51 @@ import {
   IndianRupee,
   ShoppingBag,
   Globe,
-  Smartphone
-} from "lucide-react"
-import { Skeleton } from "@/components/ui/skeleton"
+  Smartphone,
+} from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function OrdersPage() {
-  const [statusFilter, setStatusFilter] = useState<string>("ALL")
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false)
-  const [page, setPage] = useState(1)
-  const [limit, setLimit] = useState(10)
-  const [debouncedSearch, setDebouncedSearch] = useState("")
+  const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
   // Debounce search term
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedSearch(searchTerm)
-      setPage(1) // Reset to page 1 on search
-    }, 500)
-    return () => clearTimeout(timer)
-  }, [searchTerm])
+      setDebouncedSearch(searchTerm);
+      setPage(1); // Reset to page 1 on search
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   const { orders, summary, meta, loading, error, refetch } = useAllOrders({
-    status: statusFilter !== "ALL" ? statusFilter as OrderStatus : undefined,
+    status: statusFilter !== "ALL" ? (statusFilter as OrderStatus) : undefined,
     page,
     limit,
-    userSearch: debouncedSearch || undefined
-  })
-  const { updateStatus } = useUpdateOrderStatus()
+    userSearch: debouncedSearch || undefined,
+  });
+  const { updateStatus } = useUpdateOrderStatus();
 
-  const stats = getOrderStats(summary)
+  const stats = getOrderStats(summary);
 
   const handleViewDetails = (order: Order) => {
-    setSelectedOrder(order)
-    setIsDetailsOpen(true)
-  }
+    setSelectedOrder(order);
+    setIsDetailsOpen(true);
+  };
 
   const handleUpdateStatus = async (orderId: string, status: OrderStatus) => {
     try {
-      await updateStatus({ orderId, status })
-      refetch()
+      await updateStatus({ orderId, status });
+      refetch();
     } catch (error) {
-      console.error("Failed to update order status:", error)
+      console.error("Failed to update order status:", error);
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -97,7 +97,7 @@ export default function OrdersPage() {
         </div>
         <Skeleton className="h-96" />
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -105,14 +105,21 @@ export default function OrdersPage() {
       <div className="p-6">
         <Card className="border-destructive">
           <CardContent className="pt-6">
-            <p className="text-destructive">Error loading orders: {(error as Error)?.message || 'Unknown error'}</p>
-            <Button onClick={() => refetch()} variant="outline" className="mt-4">
+            <p className="text-destructive">
+              Error loading orders:{" "}
+              {(error as Error)?.message || "Unknown error"}
+            </p>
+            <Button
+              onClick={() => refetch()}
+              variant="outline"
+              className="mt-4"
+            >
               Try Again
             </Button>
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -142,10 +149,17 @@ export default function OrdersPage() {
             <div className="text-2xl font-bold">{stats.total}</div>
             <div className="flex items-center justify-between mt-2 pt-2 border-t text-[11px] text-muted-foreground">
               <span className="flex items-center gap-1">
-                <Globe className="h-3.5 w-3.5 text-teal-600 shrink-0" /> Web: <span className="font-bold text-foreground">{stats.webOrdersCount}</span>
+                <Globe className="h-3.5 w-3.5 text-teal-600 shrink-0" /> Web:{" "}
+                <span className="font-bold text-foreground">
+                  {stats.webOrdersCount}
+                </span>
               </span>
               <span className="flex items-center gap-1">
-                <Smartphone className="h-3.5 w-3.5 text-indigo-600 shrink-0" /> App: <span className="font-bold text-foreground">{stats.appOrdersCount}</span>
+                <Smartphone className="h-3.5 w-3.5 text-indigo-600 shrink-0" />{" "}
+                App:{" "}
+                <span className="font-bold text-foreground">
+                  {stats.appOrdersCount}
+                </span>
               </span>
             </div>
           </CardContent>
@@ -156,13 +170,22 @@ export default function OrdersPage() {
             <IndianRupee className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">₹{stats.totalRevenue.toLocaleString()}</div>
+            <div className="text-2xl font-bold text-green-600">
+              ₹{stats.totalRevenue.toLocaleString()}
+            </div>
             <div className="flex items-center justify-between mt-2 pt-2 border-t text-[11px] text-muted-foreground">
               <span className="flex items-center gap-1">
-                <Globe className="h-3.5 w-3.5 text-teal-600 shrink-0" /> Web: <span className="font-bold text-foreground">₹{stats.webRevenue.toLocaleString()}</span>
+                <Globe className="h-3.5 w-3.5 text-teal-600 shrink-0" /> Web:{" "}
+                <span className="font-bold text-foreground">
+                  ₹{stats.webRevenue.toLocaleString()}
+                </span>
               </span>
               <span className="flex items-center gap-1">
-                <Smartphone className="h-3.5 w-3.5 text-indigo-600 shrink-0" /> App: <span className="font-bold text-foreground">₹{stats.appRevenue.toLocaleString()}</span>
+                <Smartphone className="h-3.5 w-3.5 text-indigo-600 shrink-0" />{" "}
+                App:{" "}
+                <span className="font-bold text-foreground">
+                  ₹{stats.appRevenue.toLocaleString()}
+                </span>
               </span>
             </div>
           </CardContent>
@@ -173,7 +196,9 @@ export default function OrdersPage() {
             <Clock className="h-4 w-4 text-yellow-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">{stats.confirmed + stats.packed + (stats.shipmentFailed ?? 0)}</div>
+            <div className="text-2xl font-bold text-yellow-600">
+              {stats.confirmed + stats.packed + (stats.shipmentFailed ?? 0)}
+            </div>
             <p className="text-xs text-muted-foreground">Need attention</p>
           </CardContent>
         </Card>
@@ -183,7 +208,9 @@ export default function OrdersPage() {
             <Truck className="h-4 w-4 text-purple-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-600">{stats.shipped + stats.inTransit}</div>
+            <div className="text-2xl font-bold text-purple-600">
+              {stats.shipped + stats.inTransit}
+            </div>
             <p className="text-xs text-muted-foreground">Out for delivery</p>
           </CardContent>
         </Card>
@@ -272,11 +299,11 @@ export default function OrdersPage() {
                 className="pl-10"
               />
             </div>
-            <Select 
-              value={statusFilter} 
+            <Select
+              value={statusFilter}
               onValueChange={(val) => {
-                setStatusFilter(val)
-                setPage(1)
+                setStatusFilter(val);
+                setPage(1);
               }}
             >
               <SelectTrigger className="w-full sm:w-[180px]">
@@ -339,5 +366,5 @@ export default function OrdersPage() {
         onOpenChange={setIsDetailsOpen}
       />
     </div>
-  )
+  );
 }

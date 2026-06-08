@@ -1,5 +1,5 @@
-import React from 'react';
-import { Tag, ChevronRight } from 'lucide-react';
+import React from "react";
+import { Tag, ChevronRight } from "lucide-react";
 
 interface CartCouponProps {
   onClick?: () => void;

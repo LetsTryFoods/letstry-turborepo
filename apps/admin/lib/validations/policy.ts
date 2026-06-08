@@ -1,4 +1,4 @@
-import { z } from "zod"
+import { z } from "zod";
 
 export const policyFormSchema = z.object({
   title: z.string().min(2, {
@@ -8,6 +8,6 @@ export const policyFormSchema = z.object({
     message: "Content must be at least 10 characters.",
   }),
   type: z.string().optional(),
-})
+});
 
-export type PolicyFormValues = z.infer<typeof policyFormSchema>
+export type PolicyFormValues = z.infer<typeof policyFormSchema>;

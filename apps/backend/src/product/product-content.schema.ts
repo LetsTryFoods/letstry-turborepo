@@ -104,7 +104,8 @@ export class LifestyleImage {
   caption?: string;
 }
 
-export const LifestyleImageSchema = SchemaFactory.createForClass(LifestyleImage);
+export const LifestyleImageSchema =
+  SchemaFactory.createForClass(LifestyleImage);
 
 // ---------------------------------------------------------------------------
 // CMS-authored product FAQ. Supplements the data-driven FAQ generator.
@@ -121,7 +122,8 @@ export class ProductFaqEntry {
   answer: string;
 }
 
-export const ProductFaqEntrySchema = SchemaFactory.createForClass(ProductFaqEntry);
+export const ProductFaqEntrySchema =
+  SchemaFactory.createForClass(ProductFaqEntry);
 
 // ---------------------------------------------------------------------------
 // Pros / cons (positiveNotes / negativeNotes in Schema.org).

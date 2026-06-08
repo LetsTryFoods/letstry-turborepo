@@ -1,4 +1,4 @@
-import { graphql } from '@/gql';
+import { graphql } from "@/gql";
 
 export const CREATE_GUEST_MUTATION = graphql(`
   mutation CreateGuest($input: CreateGuestInput!) {

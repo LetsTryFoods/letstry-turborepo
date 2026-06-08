@@ -20,12 +20,16 @@ export function SeoTable({
   const columns = [
     {
       header: "Page Name",
-      render: (s: SeoContent) => <span className="font-medium">{s.pageName}</span>,
+      render: (s: SeoContent) => (
+        <span className="font-medium">{s.pageName}</span>
+      ),
     },
     {
       header: "Slug",
       render: (s: SeoContent) => (
-        <code className="px-2 py-1 bg-muted rounded text-xs">/{s.pageSlug}</code>
+        <code className="px-2 py-1 bg-muted rounded text-xs">
+          /{s.pageSlug}
+        </code>
       ),
     },
     {
@@ -39,7 +43,11 @@ export function SeoTable({
   ];
 
   if (loading && seoContents.length === 0) {
-    return <div className="text-center py-8 text-muted-foreground">Loading entries...</div>;
+    return (
+      <div className="text-center py-8 text-muted-foreground">
+        Loading entries...
+      </div>
+    );
   }
 
   return (

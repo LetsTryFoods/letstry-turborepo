@@ -1,5 +1,5 @@
-import { useQuery } from '@apollo/client/react';
-import { GET_TRACKING_ANALYTICS } from '@/lib/graphql/tracking';
+import { useQuery } from "@apollo/client/react";
+import { GET_TRACKING_ANALYTICS } from "@/lib/graphql/tracking";
 
 export interface TrackingAnalytics {
   totalSearches: number;
@@ -23,10 +23,13 @@ export interface TrackingAnalytics {
 export function useTrackingAnalytics(
   startDate?: string,
   endDate?: string,
-  limit: number = 100
+  limit: number = 100,
 ) {
-  return useQuery<{ getTrackingAnalytics: TrackingAnalytics }>(GET_TRACKING_ANALYTICS, {
-    variables: { startDate, endDate, limit },
-    fetchPolicy: 'cache-and-network',
-  });
+  return useQuery<{ getTrackingAnalytics: TrackingAnalytics }>(
+    GET_TRACKING_ANALYTICS,
+    {
+      variables: { startDate, endDate, limit },
+      fetchPolicy: "cache-and-network",
+    },
+  );
 }

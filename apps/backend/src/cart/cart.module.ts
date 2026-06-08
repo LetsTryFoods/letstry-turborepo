@@ -44,4 +44,4 @@ import { CartHydrationService } from './services/cart-hydration.service';
   ],
   exports: [CartService],
 })
-export class CartModule { }
+export class CartModule {}

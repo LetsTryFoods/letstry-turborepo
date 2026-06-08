@@ -27,7 +27,7 @@ type DataLayerEvent = {
  * or `page_title`, the spread below preserves them.
  */
 export const pushToDataLayer = (data: DataLayerEvent) => {
-  if (typeof window === 'undefined') return;
+  if (typeof window === "undefined") return;
 
   const { event, ecommerce, ...rest } = data;
   const baseParams = {
@@ -48,23 +48,25 @@ export const pushToDataLayer = (data: DataLayerEvent) => {
       ...baseParams,
       ...(ecommerce ? { ecommerce } : {}),
     });
-  } else if (typeof window.gtag === 'function') {
+  } else if (typeof window.gtag === "function") {
     // No GTM — send directly via gtag. Ecommerce fields must be flat (not nested).
-    const gtagPayload = ecommerce ? { ...baseParams, ...ecommerce } : baseParams;
-    window.gtag('event', event, gtagPayload);
+    const gtagPayload = ecommerce
+      ? { ...baseParams, ...ecommerce }
+      : baseParams;
+    window.gtag("event", event, gtagPayload);
   }
 };
 
 export const trackPageView = (url: string) => {
   pushToDataLayer({
-    event: 'pageview',
+    event: "pageview",
     page: url,
   });
 };
 
 export const trackEvent = (
   eventName: string,
-  eventParams?: Record<string, any>
+  eventParams?: Record<string, any>,
 ) => {
   pushToDataLayer({
     event: eventName,
@@ -73,8 +75,13 @@ export const trackEvent = (
 };
 
 export const trackEcommerce = (
-  action: 'view_item' | 'add_to_cart' | 'remove_from_cart' | 'begin_checkout' | 'purchase',
-  data: Record<string, any>
+  action:
+    | "view_item"
+    | "add_to_cart"
+    | "remove_from_cart"
+    | "begin_checkout"
+    | "purchase",
+  data: Record<string, any>,
 ) => {
   pushToDataLayer({
     event: action,
@@ -84,7 +91,7 @@ export const trackEcommerce = (
 
 export const trackUser = (userId: string, userData?: Record<string, any>) => {
   pushToDataLayer({
-    event: 'user_data',
+    event: "user_data",
     userId,
     ...userData,
   });

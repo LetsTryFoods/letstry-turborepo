@@ -1,8 +1,16 @@
-import { gql } from '@apollo/client';
+import { gql } from "@apollo/client";
 
 export const SEARCH_PRODUCTS = gql`
-  query SearchProducts($searchTerm: String!, $pagination: PaginationInput, $nameOnly: Boolean) {
-    searchProducts(searchTerm: $searchTerm, pagination: $pagination, nameOnly: $nameOnly) {
+  query SearchProducts(
+    $searchTerm: String!
+    $pagination: PaginationInput
+    $nameOnly: Boolean
+  ) {
+    searchProducts(
+      searchTerm: $searchTerm
+      pagination: $pagination
+      nameOnly: $nameOnly
+    ) {
       items {
         _id
         name

@@ -32,7 +32,7 @@ export class CartService {
     private readonly cartValidationService: CartValidationService,
     private readonly cartHydrationService: CartHydrationService,
     private readonly logger: WinstonLoggerService,
-  ) { }
+  ) {}
 
   async getCart(identityId: string): Promise<CartDocument | null> {
     this.logger.log('Fetching cart', { identityId }, 'CartModule');
@@ -116,7 +116,11 @@ export class CartService {
     return this.cartMergeService.mergeCarts(guestIdentityId, userIdentityId);
   }
 
-  async applyCoupon(identityId: string, code: string, userAgent?: string): Promise<CartDocument> {
+  async applyCoupon(
+    identityId: string,
+    code: string,
+    userAgent?: string,
+  ): Promise<CartDocument> {
     this.logger.log('Applying coupon', { identityId, code }, 'CartModule');
     const cart = await this.cartRepositoryService.getCartOrThrow(identityId);
 

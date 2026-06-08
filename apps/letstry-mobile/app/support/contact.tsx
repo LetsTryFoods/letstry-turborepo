@@ -1,40 +1,51 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { useMutation } from '@apollo/client';
-import { SUBMIT_CONTACT_MESSAGE } from '../../src/lib/graphql/support';
-import { RFValue, wp, hp } from '../../src/lib/utils/ui-utils';
-import * as Haptics from 'expo-haptics';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { useMutation } from "@apollo/client";
+import { SUBMIT_CONTACT_MESSAGE } from "../../src/lib/graphql/support";
+import { RFValue, wp, hp } from "../../src/lib/utils/ui-utils";
+import * as Haptics from "expo-haptics";
 
 const QUERY_TYPES = [
-  { label: 'General Inquiry', value: 'GENERAL' },
-  { label: 'Order Issue', value: 'ORDER_ISSUE' },
-  { label: 'Product Inquiry', value: 'PRODUCT_INQUIRY' },
-  { label: 'Complaint', value: 'COMPLAINT' },
-  { label: 'Feedback', value: 'FEEDBACK' },
-  { label: 'Return Request', value: 'RETURN_REQUEST' },
+  { label: "General Inquiry", value: "GENERAL" },
+  { label: "Order Issue", value: "ORDER_ISSUE" },
+  { label: "Product Inquiry", value: "PRODUCT_INQUIRY" },
+  { label: "Complaint", value: "COMPLAINT" },
+  { label: "Feedback", value: "FEEDBACK" },
+  { label: "Return Request", value: "RETURN_REQUEST" },
 ];
 
 export default function ContactUsScreen() {
   const router = useRouter();
   const [form, setForm] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    orderId: '',
-    queryType: '',
-    message: '',
+    name: "",
+    email: "",
+    phone: "",
+    orderId: "",
+    queryType: "",
+    message: "",
   });
 
   const [errors, setErrors] = useState({
-    email: '',
-    phone: '',
-    orderId: '',
-    queryType: '',
-    name: '',
-    message: '',
+    email: "",
+    phone: "",
+    orderId: "",
+    queryType: "",
+    name: "",
+    message: "",
   });
 
   const [submitContact, { loading }] = useMutation(SUBMIT_CONTACT_MESSAGE);
@@ -44,7 +55,7 @@ export default function ContactUsScreen() {
   };
 
   const validatePhone = (phone: string) => {
-    return /^\d{10}$/.test(phone.replace(/\s/g, ''));
+    return /^\d{10}$/.test(phone.replace(/\s/g, ""));
   };
 
   const validateOrderId = (orderId: string) => {
@@ -54,51 +65,61 @@ export default function ContactUsScreen() {
 
   const handleSubmit = async () => {
     let hasError = false;
-    const newErrors = { email: '', phone: '', orderId: '', queryType: '', name: '', message: '' };
+    const newErrors = {
+      email: "",
+      phone: "",
+      orderId: "",
+      queryType: "",
+      name: "",
+      message: "",
+    };
 
     if (!form.name.trim()) {
-      newErrors.name = 'Full Name is required.';
+      newErrors.name = "Full Name is required.";
       hasError = true;
     }
 
     if (!form.message.trim()) {
-      newErrors.message = 'Message is required.';
+      newErrors.message = "Message is required.";
       hasError = true;
     }
 
     if (!form.queryType) {
-      newErrors.queryType = 'Please select a query type.';
+      newErrors.queryType = "Please select a query type.";
       hasError = true;
     }
 
     if (!form.email) {
-      newErrors.email = 'Email Address is required.';
+      newErrors.email = "Email Address is required.";
       hasError = true;
     } else if (!validateEmail(form.email)) {
-      newErrors.email = 'Please enter a valid email address.';
+      newErrors.email = "Please enter a valid email address.";
       hasError = true;
     }
 
     if (!form.phone) {
-      newErrors.phone = 'Phone Number is required.';
+      newErrors.phone = "Phone Number is required.";
       hasError = true;
     } else if (!validatePhone(form.phone)) {
-      newErrors.phone = 'Phone number must be exactly 10 digits.';
+      newErrors.phone = "Phone number must be exactly 10 digits.";
       hasError = true;
     }
 
     if (!form.orderId) {
-      newErrors.orderId = 'Order ID is required.';
+      newErrors.orderId = "Order ID is required.";
       hasError = true;
     } else if (!validateOrderId(form.orderId)) {
-      newErrors.orderId = 'Invalid format. e.g. ORD_123456789_abc123';
+      newErrors.orderId = "Invalid format. e.g. ORD_123456789_abc123";
       hasError = true;
     }
 
     setErrors(newErrors);
     if (hasError) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      Alert.alert('Validation Error', 'Please correct the errors in the form before submitting.');
+      Alert.alert(
+        "Validation Error",
+        "Please correct the errors in the form before submitting.",
+      );
       return;
     }
 
@@ -113,46 +134,55 @@ export default function ContactUsScreen() {
             orderId: form.orderId || undefined,
             queryType: form.queryType || undefined,
             message: form.message,
-          }
-        }
+          },
+        },
       });
 
       if (data?.submitContactMessage?.success) {
         Alert.alert(
-          'Success',
-          'Your query has been submitted successfully. We will get back to you shortly.',
-          [{ text: 'OK', onPress: () => router.back() }]
+          "Success",
+          "Your query has been submitted successfully. We will get back to you shortly.",
+          [{ text: "OK", onPress: () => router.back() }],
         );
       } else {
-        Alert.alert('Error', data?.submitContactMessage?.message || 'Failed to submit query.');
+        Alert.alert(
+          "Error",
+          data?.submitContactMessage?.message || "Failed to submit query.",
+        );
       }
     } catch (error) {
-      console.error('Submit Error:', error);
-      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+      console.error("Submit Error:", error);
+      Alert.alert("Error", "An unexpected error occurred. Please try again.");
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
       >
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={styles.backBtn}
+          >
             <Ionicons name="chevron-back" size={24} color="#333" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Contact Support</Text>
         </View>
 
-        <ScrollView 
+        <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.introSection}>
             <Text style={styles.introTitle}>How can we help?</Text>
-            <Text style={styles.introSub}>Please fill out the form below and our team will get back to you within 24 hours.</Text>
+            <Text style={styles.introSub}>
+              Please fill out the form below and our team will get back to you
+              within 24 hours.
+            </Text>
           </View>
 
           <View style={styles.form}>
@@ -164,10 +194,12 @@ export default function ContactUsScreen() {
                 value={form.name}
                 onChangeText={(text) => {
                   setForm({ ...form, name: text });
-                  if (errors.name) setErrors({ ...errors, name: '' });
+                  if (errors.name) setErrors({ ...errors, name: "" });
                 }}
               />
-              {errors.name ? <Text style={styles.errorLabel}>{errors.name}</Text> : null}
+              {errors.name ? (
+                <Text style={styles.errorLabel}>{errors.name}</Text>
+              ) : null}
             </View>
 
             <View style={styles.inputGroup}>
@@ -180,10 +212,12 @@ export default function ContactUsScreen() {
                 maxLength={10}
                 onChangeText={(text) => {
                   setForm({ ...form, phone: text });
-                  if (errors.phone) setErrors({ ...errors, phone: '' });
+                  if (errors.phone) setErrors({ ...errors, phone: "" });
                 }}
               />
-              {errors.phone ? <Text style={styles.errorLabel}>{errors.phone}</Text> : null}
+              {errors.phone ? (
+                <Text style={styles.errorLabel}>{errors.phone}</Text>
+              ) : null}
             </View>
 
             <View style={styles.inputGroup}>
@@ -196,25 +230,32 @@ export default function ContactUsScreen() {
                 value={form.email}
                 onChangeText={(text) => {
                   setForm({ ...form, email: text });
-                  if (errors.email) setErrors({ ...errors, email: '' });
+                  if (errors.email) setErrors({ ...errors, email: "" });
                 }}
               />
-              {errors.email ? <Text style={styles.errorLabel}>{errors.email}</Text> : null}
+              {errors.email ? (
+                <Text style={styles.errorLabel}>{errors.email}</Text>
+              ) : null}
             </View>
 
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Order ID *</Text>
               <TextInput
-                style={[styles.input, errors.orderId ? styles.inputError : null]}
+                style={[
+                  styles.input,
+                  errors.orderId ? styles.inputError : null,
+                ]}
                 placeholder="Ex. ORD_123456789_abc123"
                 value={form.orderId}
                 autoCapitalize="none"
                 onChangeText={(text) => {
                   setForm({ ...form, orderId: text });
-                  if (errors.orderId) setErrors({ ...errors, orderId: '' });
+                  if (errors.orderId) setErrors({ ...errors, orderId: "" });
                 }}
               />
-              {errors.orderId ? <Text style={styles.errorLabel}>{errors.orderId}</Text> : null}
+              {errors.orderId ? (
+                <Text style={styles.errorLabel}>{errors.orderId}</Text>
+              ) : null}
             </View>
 
             <View style={styles.inputGroup}>
@@ -225,42 +266,60 @@ export default function ContactUsScreen() {
                   return (
                     <TouchableOpacity
                       key={type.value}
-                      style={[styles.chip, isSelected && styles.chipSelected, errors.queryType ? styles.inputError : null]}
+                      style={[
+                        styles.chip,
+                        isSelected && styles.chipSelected,
+                        errors.queryType ? styles.inputError : null,
+                      ]}
                       onPress={() => {
                         Haptics.selectionAsync();
                         setForm({ ...form, queryType: type.value });
-                        if (errors.queryType) setErrors({ ...errors, queryType: '' });
+                        if (errors.queryType)
+                          setErrors({ ...errors, queryType: "" });
                       }}
                     >
-                      <Text style={[styles.chipText, isSelected && styles.chipTextSelected]}>
+                      <Text
+                        style={[
+                          styles.chipText,
+                          isSelected && styles.chipTextSelected,
+                        ]}
+                      >
                         {type.label}
                       </Text>
                     </TouchableOpacity>
                   );
                 })}
               </View>
-              {errors.queryType ? <Text style={styles.errorLabel}>{errors.queryType}</Text> : null}
+              {errors.queryType ? (
+                <Text style={styles.errorLabel}>{errors.queryType}</Text>
+              ) : null}
             </View>
 
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Message *</Text>
               <TextInput
-                style={[styles.input, styles.textArea, errors.message ? styles.inputError : null]}
+                style={[
+                  styles.input,
+                  styles.textArea,
+                  errors.message ? styles.inputError : null,
+                ]}
                 placeholder="Tell us more about your query..."
                 multiline
                 numberOfLines={4}
                 value={form.message}
                 onChangeText={(text) => {
                   setForm({ ...form, message: text });
-                  if (errors.message) setErrors({ ...errors, message: '' });
+                  if (errors.message) setErrors({ ...errors, message: "" });
                 }}
                 textAlignVertical="top"
               />
-              {errors.message ? <Text style={styles.errorLabel}>{errors.message}</Text> : null}
+              {errors.message ? (
+                <Text style={styles.errorLabel}>{errors.message}</Text>
+              ) : null}
             </View>
 
-            <TouchableOpacity 
-              style={[styles.submitBtn, loading && styles.disabledBtn]} 
+            <TouchableOpacity
+              style={[styles.submitBtn, loading && styles.disabledBtn]}
               onPress={handleSubmit}
               disabled={loading}
             >
@@ -278,52 +337,57 @@ export default function ContactUsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FFF' },
+  container: { flex: 1, backgroundColor: "#FFF" },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: wp('4%'),
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: wp("4%"),
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#EEE',
+    borderBottomColor: "#EEE",
   },
   backBtn: { padding: 4 },
   headerTitle: {
     fontSize: RFValue(16),
-    fontWeight: '700',
-    color: '#333',
+    fontWeight: "700",
+    color: "#333",
     marginLeft: 12,
   },
-  scrollContent: { padding: wp('5%'), paddingBottom: 40 },
+  scrollContent: { padding: wp("5%"), paddingBottom: 40 },
   introSection: { marginBottom: 24 },
-  introTitle: { fontSize: RFValue(20), fontWeight: '800', color: '#333', marginBottom: 8 },
-  introSub: { fontSize: RFValue(13), color: '#666', lineHeight: 20 },
+  introTitle: {
+    fontSize: RFValue(20),
+    fontWeight: "800",
+    color: "#333",
+    marginBottom: 8,
+  },
+  introSub: { fontSize: RFValue(13), color: "#666", lineHeight: 20 },
   form: { gap: 16 },
   inputGroup: { gap: 8 },
-  label: { fontSize: RFValue(13), fontWeight: '700', color: '#444' },
+  label: { fontSize: RFValue(13), fontWeight: "700", color: "#444" },
   input: {
-    backgroundColor: '#F8F9FA',
+    backgroundColor: "#F8F9FA",
     borderRadius: 12,
     padding: 14,
     fontSize: RFValue(14),
     borderWidth: 1,
-    borderColor: '#E9ECEF',
-    color: '#333',
+    borderColor: "#E9ECEF",
+    color: "#333",
   },
   inputError: {
-    borderColor: '#E53935',
-    backgroundColor: '#FFF8F8',
+    borderColor: "#E53935",
+    backgroundColor: "#FFF8F8",
   },
   errorLabel: {
     fontSize: RFValue(11),
-    color: '#E53935',
-    fontWeight: '600',
+    color: "#E53935",
+    fontWeight: "600",
     marginTop: 2,
   },
   textArea: { minHeight: 120, paddingTop: 14 },
   chipsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 8,
     marginTop: 4,
   },
@@ -331,33 +395,33 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: "#F8F9FA",
     borderWidth: 1,
-    borderColor: '#E9ECEF',
+    borderColor: "#E9ECEF",
   },
   chipSelected: {
-    backgroundColor: '#0C5273',
-    borderColor: '#0C5273',
+    backgroundColor: "#0C5273",
+    borderColor: "#0C5273",
   },
   chipText: {
     fontSize: RFValue(12),
-    color: '#666',
-    fontWeight: '600',
+    color: "#666",
+    fontWeight: "600",
   },
   chipTextSelected: {
-    color: '#FFF',
+    color: "#FFF",
   },
   submitBtn: {
-    backgroundColor: '#0C5273',
+    backgroundColor: "#0C5273",
     paddingVertical: 16,
     borderRadius: 12,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 10,
-    shadowColor: '#0C5273',
+    shadowColor: "#0C5273",
     shadowOpacity: 0.2,
     shadowRadius: 10,
     elevation: 4,
   },
   disabledBtn: { opacity: 0.7 },
-  submitBtnText: { color: '#FFF', fontSize: RFValue(15), fontWeight: '800' },
+  submitBtnText: { color: "#FFF", fontSize: RFValue(15), fontWeight: "800" },
 });

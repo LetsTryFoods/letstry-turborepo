@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 export const GET_QR_ANALYTICS = gql`
   query GetQrAnalytics {
@@ -31,4 +31,4 @@ export const GET_QR_ANALYTICS = gql`
       }
     }
   }
-`
+`;

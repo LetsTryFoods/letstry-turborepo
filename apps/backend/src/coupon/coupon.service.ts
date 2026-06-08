@@ -30,7 +30,11 @@ export class CouponService {
     return coupon;
   }
 
-  async validateCoupon(code: string, cartTotal: number, userAgent?: string): Promise<Coupon> {
+  async validateCoupon(
+    code: string,
+    cartTotal: number,
+    userAgent?: string,
+  ): Promise<Coupon> {
     const coupon = await this.getCouponByCode(code);
 
     this.validateStatus(coupon);
@@ -45,14 +49,17 @@ export class CouponService {
   }
 
   private detectPlatform(userAgent: string): string {
-    const mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+    const mobileRegex =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
     return mobileRegex.test(userAgent) ? 'MOBILE' : 'DESKTOP';
   }
 
   private validatePlatform(coupon: Coupon, userAgent: string): void {
     const detectedPlatform = this.detectPlatform(userAgent);
     if (coupon.platform !== 'BOTH' && coupon.platform !== detectedPlatform) {
-      throw new BadRequestException(`Coupon is only valid for ${coupon.platform.toLowerCase()} platform`);
+      throw new BadRequestException(
+        `Coupon is only valid for ${coupon.platform.toLowerCase()} platform`,
+      );
     }
   }
 
@@ -110,10 +117,7 @@ export class CouponService {
         isActive: true,
         isPublic: true,
         startDate: { $lte: now },
-        $or: [
-          { hasInfiniteValidity: true },
-          { endDate: { $gte: now } },
-        ],
+        $or: [{ hasInfiniteValidity: true }, { endDate: { $gte: now } }],
         $and: [
           {
             $or: [

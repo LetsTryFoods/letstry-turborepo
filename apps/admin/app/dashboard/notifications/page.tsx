@@ -1,70 +1,73 @@
-"use client"
+"use client";
 
-import { useState, useMemo } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+import { useState, useMemo } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { 
-  Bell, 
-  Mail, 
-  MessageSquare, 
-  Send, 
-  Clock, 
+} from "@/components/ui/select";
+import {
+  Bell,
+  Mail,
+  MessageSquare,
+  Send,
+  Clock,
   Search,
   BarChart3,
   MousePointer,
   Plus,
   CheckCircle,
-  XCircle
-} from "lucide-react"
-import { 
-  useNotifications, 
-  NotificationStatus, 
+  XCircle,
+} from "lucide-react";
+import {
+  useNotifications,
+  NotificationStatus,
   NotificationType,
-  getNotificationStats 
-} from "@/lib/notifications/useNotifications"
-import NotificationTable from "./components/NotificationTable"
-import SendNotificationDialog from "./components/SendNotificationDialog"
-import { ComingSoonBanner } from "@/components/ComingSoonBanner"
+  getNotificationStats,
+} from "@/lib/notifications/useNotifications";
+import NotificationTable from "./components/NotificationTable";
+import SendNotificationDialog from "./components/SendNotificationDialog";
+import { ComingSoonBanner } from "@/components/ComingSoonBanner";
 
 export default function NotificationsPage() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [statusFilter, setStatusFilter] = useState<NotificationStatus | "ALL">("ALL")
-  const [typeFilter, setTypeFilter] = useState<NotificationType | "ALL">("ALL")
-  const [showSendDialog, setShowSendDialog] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<NotificationStatus | "ALL">(
+    "ALL",
+  );
+  const [typeFilter, setTypeFilter] = useState<NotificationType | "ALL">("ALL");
+  const [showSendDialog, setShowSendDialog] = useState(false);
 
-  const { data, refetch } = useNotifications()
-  const notifications = data?.notifications || []
+  const { data, refetch } = useNotifications();
+  const notifications = data?.notifications || [];
 
   // Get overall stats
-  const stats = useMemo(() => getNotificationStats(notifications), [notifications])
+  const stats = useMemo(
+    () => getNotificationStats(notifications),
+    [notifications],
+  );
 
   // Filter notifications
   const filteredNotifications = useMemo(() => {
     return notifications.filter((notification) => {
-      const matchesSearch = 
+      const matchesSearch =
         searchQuery === "" ||
         notification.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        notification.message.toLowerCase().includes(searchQuery.toLowerCase())
+        notification.message.toLowerCase().includes(searchQuery.toLowerCase());
 
-      const matchesStatus = 
-        statusFilter === "ALL" || 
-        notification.status === statusFilter
+      const matchesStatus =
+        statusFilter === "ALL" || notification.status === statusFilter;
 
-      const matchesType = 
-        typeFilter === "ALL" || 
-        notification.type === typeFilter
+      const matchesType =
+        typeFilter === "ALL" || notification.type === typeFilter;
 
-      return matchesSearch && matchesStatus && matchesType
-    })
-  }, [notifications, searchQuery, statusFilter, typeFilter])
+      return matchesSearch && matchesStatus && matchesType;
+    });
+  }, [notifications, searchQuery, statusFilter, typeFilter]);
 
   return (
     <div className="space-y-6 mx-6 auto mb-12">
@@ -113,14 +116,14 @@ export default function NotificationsPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Click Rate</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Avg Click Rate
+            </CardTitle>
             <MousePointer className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.avgClickRate}%</div>
-            <p className="text-xs text-muted-foreground">
-              Engagement metric
-            </p>
+            <p className="text-xs text-muted-foreground">Engagement metric</p>
           </CardContent>
         </Card>
 
@@ -131,9 +134,7 @@ export default function NotificationsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.scheduled}</div>
-            <p className="text-xs text-muted-foreground">
-              Pending to be sent
-            </p>
+            <p className="text-xs text-muted-foreground">Pending to be sent</p>
           </CardContent>
         </Card>
       </div>
@@ -149,17 +150,23 @@ export default function NotificationsPage() {
             <div className="grid grid-cols-3 gap-4">
               <div className="text-center p-4 bg-purple-50 rounded-lg">
                 <Bell className="h-6 w-6 text-purple-600 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-purple-600">{stats.pushCount}</p>
+                <p className="text-2xl font-bold text-purple-600">
+                  {stats.pushCount}
+                </p>
                 <p className="text-xs text-muted-foreground">Push</p>
               </div>
               <div className="text-center p-4 bg-blue-50 rounded-lg">
                 <Mail className="h-6 w-6 text-blue-600 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-blue-600">{stats.emailCount}</p>
+                <p className="text-2xl font-bold text-blue-600">
+                  {stats.emailCount}
+                </p>
                 <p className="text-xs text-muted-foreground">Email</p>
               </div>
               <div className="text-center p-4 bg-green-50 rounded-lg">
                 <MessageSquare className="h-6 w-6 text-green-600 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-green-600">{stats.smsCount}</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {stats.smsCount}
+                </p>
                 <p className="text-xs text-muted-foreground">SMS</p>
               </div>
             </div>
@@ -178,7 +185,9 @@ export default function NotificationsPage() {
                 <p className="text-xs text-muted-foreground">Draft</p>
               </div>
               <div className="text-center p-3 bg-orange-50 rounded-lg">
-                <p className="text-xl font-bold text-orange-600">{stats.scheduled}</p>
+                <p className="text-xl font-bold text-orange-600">
+                  {stats.scheduled}
+                </p>
                 <p className="text-xs text-muted-foreground">Scheduled</p>
               </div>
               <div className="text-center p-3 bg-green-50 rounded-lg">
@@ -207,9 +216,11 @@ export default function NotificationsPage() {
                 className="pl-10"
               />
             </div>
-            <Select 
-              value={statusFilter} 
-              onValueChange={(value) => setStatusFilter(value as NotificationStatus | "ALL")}
+            <Select
+              value={statusFilter}
+              onValueChange={(value) =>
+                setStatusFilter(value as NotificationStatus | "ALL")
+              }
             >
               <SelectTrigger className="w-full sm:w-[150px]">
                 <SelectValue placeholder="Status" />
@@ -222,9 +233,11 @@ export default function NotificationsPage() {
                 <SelectItem value="FAILED">Failed</SelectItem>
               </SelectContent>
             </Select>
-            <Select 
-              value={typeFilter} 
-              onValueChange={(value) => setTypeFilter(value as NotificationType | "ALL")}
+            <Select
+              value={typeFilter}
+              onValueChange={(value) =>
+                setTypeFilter(value as NotificationType | "ALL")
+              }
             >
               <SelectTrigger className="w-full sm:w-[150px]">
                 <SelectValue placeholder="Type" />
@@ -236,12 +249,12 @@ export default function NotificationsPage() {
                 <SelectItem value="SMS">SMS</SelectItem>
               </SelectContent>
             </Select>
-            <Button 
+            <Button
               variant="outline"
               onClick={() => {
-                setSearchQuery("")
-                setStatusFilter("ALL")
-                setTypeFilter("ALL")
+                setSearchQuery("");
+                setStatusFilter("ALL");
+                setTypeFilter("ALL");
               }}
             >
               Clear Filters
@@ -253,13 +266,14 @@ export default function NotificationsPage() {
       {/* Results count */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          Showing {filteredNotifications.length} of {notifications.length} notifications
+          Showing {filteredNotifications.length} of {notifications.length}{" "}
+          notifications
         </p>
       </div>
 
       {/* Notification Table */}
-      <NotificationTable 
-        notifications={filteredNotifications} 
+      <NotificationTable
+        notifications={filteredNotifications}
         onRefresh={refetch}
       />
 
@@ -270,5 +284,5 @@ export default function NotificationsPage() {
         onSuccess={refetch}
       />
     </div>
-  )
+  );
 }

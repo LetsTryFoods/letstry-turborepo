@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from "next/link";
 
 export interface BreadcrumbCrumb {
   label: string;
@@ -19,11 +19,17 @@ export function Breadcrumbs({ crumbs }: { crumbs: BreadcrumbCrumb[] }) {
           return (
             <li key={`${c.label}-${i}`} className="flex items-center gap-1">
               {!isLast && c.href ? (
-                <Link href={c.href} className="hover:text-gray-800 underline-offset-2 hover:underline">
+                <Link
+                  href={c.href}
+                  className="hover:text-gray-800 underline-offset-2 hover:underline"
+                >
                   {c.label}
                 </Link>
               ) : (
-                <span aria-current={isLast ? 'page' : undefined} className="text-gray-800">
+                <span
+                  aria-current={isLast ? "page" : undefined}
+                  className="text-gray-800"
+                >
                   {c.label}
                 </span>
               )}

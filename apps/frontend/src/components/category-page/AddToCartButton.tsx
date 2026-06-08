@@ -1,10 +1,12 @@
-import React from 'react';
+import React from "react";
 
 interface AddToCartButtonProps {
   onClick: () => void;
 }
 
-export const AddToCartButton: React.FC<AddToCartButtonProps> = ({ onClick }) => {
+export const AddToCartButton: React.FC<AddToCartButtonProps> = ({
+  onClick,
+}) => {
   return (
     <button
       onClick={onClick}

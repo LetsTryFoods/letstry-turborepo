@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   Sidebar,
@@ -10,7 +10,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 import {
   ArrowRightLeft,
   BarChart3,
@@ -49,11 +49,11 @@ import {
   Sheet,
   Receipt,
   type LucideIcon,
-} from "lucide-react"
-import { useRouter } from "next/navigation"
-import { usePolicies, useDeletePolicy } from "@/lib/policies/usePolicies"
-import { useState } from "react"
-import { toast } from "react-hot-toast"
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { usePolicies, useDeletePolicy } from "@/lib/policies/usePolicies";
+import { useState } from "react";
+import { toast } from "react-hot-toast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -63,25 +63,25 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { handleLogout } from "@/lib/auth/logout"
+} from "@/components/ui/alert-dialog";
+import { handleLogout } from "@/lib/auth/logout";
 
 interface NavItem {
-  title: string
-  url: string
-  icon: LucideIcon
+  title: string;
+  url: string;
+  icon: LucideIcon;
   /**
    * When true, the entry is rendered greyed-out with a "Coming soon" badge
    * to signal that the underlying backend / wiring is still being built.
    * The page itself remains reachable so the content team can preview the
    * UI, but in-page banners warn that edits won't persist.
    */
-  comingSoon?: boolean
+  comingSoon?: boolean;
 }
 
 interface NavGroup {
-  label: string
-  items: NavItem[]
+  label: string;
+  items: NavItem[];
 }
 
 // Sidebar reorganized into logical groups so the content team can find
@@ -97,14 +97,20 @@ const navGroups: NavGroup[] = [
     items: [
       { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
       { title: "QR Analytics", url: "/dashboard/analytics", icon: BarChart3 },
-      { title: "SEO Onboarding", url: "/dashboard/seo-content/onboarding", icon: ListChecks },
+      {
+        title: "SEO Onboarding",
+        url: "/dashboard/seo-content/onboarding",
+        icon: ListChecks,
+      },
       { title: "Reports", url: "/dashboard/reports", icon: BarChart3 },
+      { title: "CSV to Excel", url: "/dashboard/csv-to-excel", icon: Sheet },
     ],
   },
   {
     label: "Catalog",
     items: [
       { title: "Products", url: "/dashboard/products", icon: Package },
+      { title: "Inventory", url: "/dashboard/inventory", icon: PackageCheck },
       { title: "Categories", url: "/dashboard/categories", icon: FolderTree },
       { title: "Banners", url: "/dashboard/banners", icon: Image },
       { title: "SKU Master", url: "/dashboard/sku-master", icon: Sheet },
@@ -114,23 +120,53 @@ const navGroups: NavGroup[] = [
     label: "Content",
     items: [
       { title: "Blogs", url: "/dashboard/blogs", icon: FileText },
-      { title: "Blog Categories", url: "/dashboard/blog-categories", icon: Bookmark },
+      {
+        title: "Blog Categories",
+        url: "/dashboard/blog-categories",
+        icon: Bookmark,
+      },
       { title: "Landing Pages", url: "/dashboard/landing-pages", icon: Layers },
-      { title: "Category Pages", url: "/dashboard/category-landing-pages", icon: Layers },
+      {
+        title: "Category Pages",
+        url: "/dashboard/category-landing-pages",
+        icon: Layers,
+      },
       { title: "Pillars", url: "/dashboard/pillars", icon: BookOpen },
       { title: "Authors", url: "/dashboard/authors", icon: PenTool },
-      { title: "Press Mentions", url: "/dashboard/press-mentions", icon: Newspaper },
-      { title: "FAQ", url: "/dashboard/faq", icon: HelpCircle, comingSoon: true },
+      {
+        title: "Press Mentions",
+        url: "/dashboard/press-mentions",
+        icon: Newspaper,
+      },
+      {
+        title: "FAQ",
+        url: "/dashboard/faq",
+        icon: HelpCircle,
+        comingSoon: true,
+      },
     ],
   },
   {
     label: "SEO",
     items: [
-      { title: "SEO Content", url: "/dashboard/seo-content", icon: RefreshCcw, comingSoon: true },
+      {
+        title: "SEO Content",
+        url: "/dashboard/seo-content",
+        icon: RefreshCcw,
+        comingSoon: true,
+      },
       { title: "Product SEO", url: "/dashboard/sco-product", icon: Search },
-      { title: "Category SEO", url: "/dashboard/sco-category", icon: FolderTree },
+      {
+        title: "Category SEO",
+        url: "/dashboard/sco-category",
+        icon: FolderTree,
+      },
       { title: "Policy SEO", url: "/dashboard/sco-policy", icon: FileText },
-      { title: "URL Redirects", url: "/dashboard/redirects", icon: ArrowRightLeft },
+      {
+        title: "URL Redirects",
+        url: "/dashboard/redirects",
+        icon: ArrowRightLeft,
+      },
     ],
   },
   {
@@ -148,67 +184,116 @@ const navGroups: NavGroup[] = [
     items: [
       { title: "Customers", url: "/dashboard/customers", icon: Users },
       { title: "Admin Users", url: "/dashboard/admins", icon: UserCheck },
-      { title: "Reviews", url: "/dashboard/reviews", icon: Star, comingSoon: true },
+      {
+        title: "Reviews",
+        url: "/dashboard/reviews",
+        icon: Star,
+        comingSoon: true,
+      },
     ],
   },
   {
     label: "Inquiries",
     items: [
-      { title: "Contact Queries", url: "/dashboard/contact", icon: MessageSquare },
-      { title: "Corporate Enquiries", url: "/dashboard/corporate-enquiries", icon: Briefcase },
+      {
+        title: "Contact Queries",
+        url: "/dashboard/contact",
+        icon: MessageSquare,
+      },
+      {
+        title: "Corporate Enquiries",
+        url: "/dashboard/corporate-enquiries",
+        icon: Briefcase,
+      },
     ],
   },
   {
     label: "Operations",
     items: [
       { title: "Packers", url: "/dashboard/packers", icon: UserCheck },
-      { title: "Packing Orders", url: "/dashboard/packing-orders", icon: PackageCheck },
-      { title: "Notifications", url: "/dashboard/notifications", icon: Bell, comingSoon: true },
+      {
+        title: "Packing Orders",
+        url: "/dashboard/packing-orders",
+        icon: PackageCheck,
+      },
+      {
+        title: "Notifications",
+        url: "/dashboard/notifications",
+        icon: Bell,
+        comingSoon: true,
+      },
       { title: "Pincodes", url: "/dashboard/pincodes", icon: ListChecks },
-      { title: "Sample Invoice", url: "/dashboard/sample-invoice", icon: Receipt },
+      {
+        title: "Sample Invoice",
+        url: "/dashboard/sample-invoice",
+        icon: Receipt,
+      },
     ],
   },
   {
     label: "Settings",
     items: [
-      { title: "Footer Detail", url: "/dashboard/footer-detail", icon: PanelBottom },
-      { title: "Pickup Locations", url: "/dashboard/pickup-locations", icon: Building2 },
-      { title: "App Settings", url: "/dashboard/settings", icon: Settings, comingSoon: true },
-      { title: "Profile", url: "/dashboard/profile", icon: UserCircle, comingSoon: true },
+      {
+        title: "Footer Detail",
+        url: "/dashboard/footer-detail",
+        icon: PanelBottom,
+      },
+      {
+        title: "Pickup Locations",
+        url: "/dashboard/pickup-locations",
+        icon: Building2,
+      },
+      {
+        title: "App Settings",
+        url: "/dashboard/settings",
+        icon: Settings,
+        comingSoon: true,
+      },
+      {
+        title: "Profile",
+        url: "/dashboard/profile",
+        icon: UserCircle,
+        comingSoon: true,
+      },
     ],
   },
-]
+];
 
 export function AppSidebar() {
-  const router = useRouter()
-  const { data: policiesData } = usePolicies()
-  const { mutate: deletePolicy } = useDeletePolicy()
-  const policies = (policiesData as { policies?: Array<{ _id: string; title: string }> })?.policies || []
+  const router = useRouter();
+  const { data: policiesData } = usePolicies();
+  const { mutate: deletePolicy } = useDeletePolicy();
+  const policies =
+    (policiesData as { policies?: Array<{ _id: string; title: string }> })
+      ?.policies || [];
 
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [policyToDelete, setPolicyToDelete] = useState<{ _id: string; title: string } | null>(null)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [policyToDelete, setPolicyToDelete] = useState<{
+    _id: string;
+    title: string;
+  } | null>(null);
 
   const handleDeleteClick = (policy: { _id: string; title: string }) => {
-    setPolicyToDelete(policy)
-    setDeleteDialogOpen(true)
-  }
+    setPolicyToDelete(policy);
+    setDeleteDialogOpen(true);
+  };
 
   const confirmDelete = async () => {
-    if (!policyToDelete) return
+    if (!policyToDelete) return;
 
     try {
       await deletePolicy({
         variables: { id: policyToDelete._id },
-      })
-      toast.success("Policy deleted successfully")
-      setDeleteDialogOpen(false)
-      setPolicyToDelete(null)
-      router.push("/dashboard")
+      });
+      toast.success("Policy deleted successfully");
+      setDeleteDialogOpen(false);
+      setPolicyToDelete(null);
+      router.push("/dashboard");
     } catch (error) {
-      console.error("Delete error:", error)
-      toast.error("Failed to delete policy")
+      console.error("Delete error:", error);
+      toast.error("Failed to delete policy");
     }
-  }
+  };
 
   return (
     <Sidebar>
@@ -228,7 +313,10 @@ export function AppSidebar() {
                           : undefined
                       }
                     >
-                      <a href={item.url} className="flex items-center justify-between gap-2">
+                      <a
+                        href={item.url}
+                        className="flex items-center justify-between gap-2"
+                      >
                         <span className="flex items-center gap-2">
                           <item.icon className="h-4 w-4" />
                           <span>{item.title}</span>
@@ -274,8 +362,8 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                   <button
                     onClick={(e) => {
-                      e.preventDefault()
-                      handleDeleteClick(policy)
+                      e.preventDefault();
+                      handleDeleteClick(policy);
                     }}
                     className="absolute right-2 top-1.5 opacity-0 group-hover/item:opacity-100 transition-opacity p-1 hover:bg-destructive/10 rounded text-destructive"
                   >
@@ -303,7 +391,8 @@ export function AppSidebar() {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the policy &quot;{policyToDelete?.title}&quot;.
+              This action cannot be undone. This will permanently delete the
+              policy &quot;{policyToDelete?.title}&quot;.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -318,5 +407,5 @@ export function AppSidebar() {
         </AlertDialogContent>
       </AlertDialog>
     </Sidebar>
-  )
+  );
 }

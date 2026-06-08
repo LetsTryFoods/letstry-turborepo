@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,86 +8,98 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { AbandonedCart, whatsAppTemplates, useSendWhatsAppNotification } from "@/lib/abandoned-carts/useAbandonedCarts"
-import { MessageCircle, Send, Loader2, CheckCircle, Phone } from "lucide-react"
-import { toast } from "react-hot-toast"
+} from "@/components/ui/select";
+import {
+  AbandonedCart,
+  whatsAppTemplates,
+  useSendWhatsAppNotification,
+} from "@/lib/abandoned-carts/useAbandonedCarts";
+import { MessageCircle, Send, Loader2, CheckCircle, Phone } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 interface WhatsAppDialogProps {
-  cart: AbandonedCart | null
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  cart: AbandonedCart | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-export function WhatsAppDialog({ cart, open, onOpenChange }: WhatsAppDialogProps) {
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
-  const [message, setMessage] = useState<string>('')
-  const [isSending, setIsSending] = useState(false)
-  const [isSent, setIsSent] = useState(false)
-  const { sendNotification } = useSendWhatsAppNotification()
+export function WhatsAppDialog({
+  cart,
+  open,
+  onOpenChange,
+}: WhatsAppDialogProps) {
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
+  const [isSending, setIsSending] = useState(false);
+  const [isSent, setIsSent] = useState(false);
+  const { sendNotification } = useSendWhatsAppNotification();
 
-  if (!cart) return null
+  if (!cart) return null;
 
   const handleTemplateChange = (templateId: string) => {
-    setSelectedTemplate(templateId)
-    const template = whatsAppTemplates.find(t => t.id === templateId)
+    setSelectedTemplate(templateId);
+    const template = whatsAppTemplates.find((t) => t.id === templateId);
     if (template) {
       // Replace placeholders with actual values
       const personalizedMessage = template.message
-        .replace('{{name}}', cart.customer.name.split(' ')[0])
-        .replace('{{value}}', cart.subtotal.toLocaleString())
-      setMessage(personalizedMessage)
+        .replace("{{name}}", cart.customer.name.split(" ")[0])
+        .replace("{{value}}", cart.subtotal.toLocaleString());
+      setMessage(personalizedMessage);
     }
-    setIsSent(false)
-  }
+    setIsSent(false);
+  };
 
   const handleSend = async () => {
     if (!message.trim()) {
-      toast.error('Please select a template or enter a message')
-      return
+      toast.error("Please select a template or enter a message");
+      return;
     }
 
-    setIsSending(true)
+    setIsSending(true);
     try {
       // Format phone number for WhatsApp (remove + and spaces)
-      const formattedPhone = cart.customer.phone.replace(/[\s+]/g, '')
-      
+      const formattedPhone = cart.customer.phone.replace(/[\s+]/g, "");
+
       // Encode message for URL
-      const encodedMessage = encodeURIComponent(message)
-      
+      const encodedMessage = encodeURIComponent(message);
+
       // Open WhatsApp Web with pre-filled message
-      const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodedMessage}`
-      window.open(whatsappUrl, '_blank')
-      
+      const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodedMessage}`;
+      window.open(whatsappUrl, "_blank");
+
       // Call backend API to log the notification (dummy for now)
-      await sendNotification(cart.customer.phone, cart.customer.name, cart.subtotal)
-      
-      setIsSent(true)
-      toast.success('WhatsApp opened with message!')
+      await sendNotification(
+        cart.customer.phone,
+        cart.customer.name,
+        cart.subtotal,
+      );
+
+      setIsSent(true);
+      toast.success("WhatsApp opened with message!");
     } catch (error) {
-      toast.error('Failed to send notification')
-      console.error(error)
+      toast.error("Failed to send notification");
+      console.error(error);
     } finally {
-      setIsSending(false)
+      setIsSending(false);
     }
-  }
+  };
 
   const handleClose = () => {
-    setSelectedTemplate('')
-    setMessage('')
-    setIsSent(false)
-    onOpenChange(false)
-  }
+    setSelectedTemplate("");
+    setMessage("");
+    setIsSent(false);
+    onOpenChange(false);
+  };
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -98,7 +110,8 @@ export function WhatsAppDialog({ cart, open, onOpenChange }: WhatsAppDialogProps
             Send WhatsApp Notification
           </DialogTitle>
           <DialogDescription>
-            Send a reminder to {cart.customer.name} about their abandoned cart worth ₹{cart.subtotal.toLocaleString()}
+            Send a reminder to {cart.customer.name} about their abandoned cart
+            worth ₹{cart.subtotal.toLocaleString()}
           </DialogDescription>
         </DialogHeader>
 
@@ -110,14 +123,19 @@ export function WhatsAppDialog({ cart, open, onOpenChange }: WhatsAppDialogProps
             </div>
             <div>
               <p className="font-medium">{cart.customer.name}</p>
-              <p className="text-sm text-muted-foreground font-mono">{cart.customer.phone}</p>
+              <p className="text-sm text-muted-foreground font-mono">
+                {cart.customer.phone}
+              </p>
             </div>
           </div>
 
           {/* Template Selection */}
           <div className="space-y-2">
             <Label htmlFor="template">Select Message Template</Label>
-            <Select value={selectedTemplate} onValueChange={handleTemplateChange}>
+            <Select
+              value={selectedTemplate}
+              onValueChange={handleTemplateChange}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Choose a template..." />
               </SelectTrigger>
@@ -150,7 +168,9 @@ export function WhatsAppDialog({ cart, open, onOpenChange }: WhatsAppDialogProps
           {isSent && (
             <div className="flex items-center gap-2 p-3 bg-green-50 text-green-700 rounded-lg">
               <CheckCircle className="h-5 w-5" />
-              <span className="text-sm">WhatsApp opened successfully! Check your browser.</span>
+              <span className="text-sm">
+                WhatsApp opened successfully! Check your browser.
+              </span>
             </div>
           )}
         </div>
@@ -159,8 +179,8 @@ export function WhatsAppDialog({ cart, open, onOpenChange }: WhatsAppDialogProps
           <Button variant="outline" onClick={handleClose}>
             Cancel
           </Button>
-          <Button 
-            onClick={handleSend} 
+          <Button
+            onClick={handleSend}
             disabled={isSending || !message.trim()}
             className="bg-green-600 hover:bg-green-700"
           >
@@ -179,5 +199,5 @@ export function WhatsAppDialog({ cart, open, onOpenChange }: WhatsAppDialogProps
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

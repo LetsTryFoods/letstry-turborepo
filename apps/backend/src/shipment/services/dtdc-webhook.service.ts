@@ -20,7 +20,7 @@ export class DtdcWebhookService {
   async processWebhook(payload: DtdcWebhookPayload): Promise<void> {
     const awbNumber = payload.shipment.strShipmentNo;
     const latestStatus = payload.shipmentStatus[0];
-    
+
     const webhookLog = await this.webhookLogModel.create({
       awbNumber,
       statusCode: latestStatus.strAction,
@@ -47,7 +47,11 @@ export class DtdcWebhookService {
     this.shipmentLogger.logWebhookReceived(awbNumber, latestStatus.strAction);
   }
 
-  async markWebhookProcessed(webhookLogId: string, success: boolean, error?: string): Promise<void> {
+  async markWebhookProcessed(
+    webhookLogId: string,
+    success: boolean,
+    error?: string,
+  ): Promise<void> {
     await this.webhookLogModel.findByIdAndUpdate(webhookLogId, {
       processed: success,
       processedAt: new Date(),

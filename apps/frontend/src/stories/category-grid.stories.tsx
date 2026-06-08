@@ -1,11 +1,11 @@
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { CategoryGrid } from '../components/category-grid/category-grid';
+import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { CategoryGrid } from "../components/category-grid/category-grid";
 
 const meta: Meta<typeof CategoryGrid> = {
-  title: 'Components/CategoryGrid',
+  title: "Components/CategoryGrid",
   component: CategoryGrid,
-  parameters: { layout: 'fullscreen' },
-  tags: ['autodocs'],
+  parameters: { layout: "fullscreen" },
+  tags: ["autodocs"],
 };
 
 export default meta;

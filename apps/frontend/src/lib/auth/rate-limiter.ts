@@ -27,7 +27,7 @@ class RateLimiter {
   check(
     identifier: string,
     maxAttempts: number = 3,
-    windowMs: number = 300000
+    windowMs: number = 300000,
   ): {
     allowed: boolean;
     remaining: number;

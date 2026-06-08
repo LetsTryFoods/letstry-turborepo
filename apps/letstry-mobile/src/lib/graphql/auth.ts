@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { gql } from "@apollo/client";
 
 export const ME_QUERY = gql`
   query Me {
@@ -26,7 +26,11 @@ export const VERIFY_OTP_AND_LOGIN = gql`
 `;
 
 export const VERIFY_WHATSAPP_OTP = gql`
-  mutation VerifyWhatsAppOtp($phoneNumber: String!, $otp: String!, $input: CreateUserInput) {
+  mutation VerifyWhatsAppOtp(
+    $phoneNumber: String!
+    $otp: String!
+    $input: CreateUserInput
+  ) {
     verifyWhatsAppOtp(phoneNumber: $phoneNumber, otp: $otp, input: $input)
   }
 `;

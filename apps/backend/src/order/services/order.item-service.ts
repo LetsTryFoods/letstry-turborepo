@@ -4,7 +4,7 @@ import { ProductService } from '../../product/product.service';
 
 @Injectable()
 export class OrderItemService {
-  constructor(private productService: ProductService) { }
+  constructor(private productService: ProductService) {}
 
   async populateOrderItems(order: Order): Promise<any> {
     const populatedItems = await Promise.all(
@@ -39,7 +39,9 @@ export class OrderItemService {
 
         try {
           // Try variant lookup first
-          let product = vId ? await this.productService.findByVariantId(vId) : null;
+          let product = vId
+            ? await this.productService.findByVariantId(vId)
+            : null;
 
           // Fallback to product lookup if variant lookup failed but we have a productId
           if (!product && pId) {
@@ -59,9 +61,9 @@ export class OrderItemService {
             };
           }
 
-          const variant = vId ? product.variants.find(
-            (v) => v._id.toString() === vId,
-          ) : null;
+          const variant = vId
+            ? product.variants.find((v) => v._id.toString() === vId)
+            : null;
 
           if (!variant) {
             return {
@@ -127,7 +129,9 @@ export class OrderItemService {
 
         try {
           // Try variant lookup first
-          let product = vId ? await this.productService.findByVariantId(vId) : null;
+          let product = vId
+            ? await this.productService.findByVariantId(vId)
+            : null;
 
           // Fallback to product lookup if variant lookup failed but we have a productId
           if (!product && pId) {
@@ -147,9 +151,9 @@ export class OrderItemService {
             };
           }
 
-          const variant = vId ? product.variants.find(
-            (v) => v._id.toString() === vId,
-          ) : null;
+          const variant = vId
+            ? product.variants.find((v) => v._id.toString() === vId)
+            : null;
 
           if (!variant) {
             return {

@@ -1,11 +1,17 @@
-"use client"
+"use client";
 
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Switch } from "@/components/ui/switch"
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import {
   Form,
   FormControl,
@@ -14,19 +20,30 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Separator } from "@/components/ui/separator"
-import { useCharges, useCreateOrUpdateCharges } from "@/lib/charges/useCharges"
-import { chargesFormSchema, ChargesFormValues } from "@/lib/validations/charges.schema"
-import { useEffect } from "react"
-import { Loader2, Save, IndianRupee, Percent, Truck, Package } from "lucide-react"
-import { Skeleton } from "@/components/ui/skeleton"
+} from "@/components/ui/form";
+import { Separator } from "@/components/ui/separator";
+import { useCharges, useCreateOrUpdateCharges } from "@/lib/charges/useCharges";
+import {
+  chargesFormSchema,
+  ChargesFormValues,
+} from "@/lib/validations/charges.schema";
+import { useEffect } from "react";
+import {
+  Loader2,
+  Save,
+  IndianRupee,
+  Percent,
+  Truck,
+  Package,
+} from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ChargesPage() {
-  const { data, loading, error, refetch } = useCharges()
-  const { createOrUpdateCharges, loading: updateLoading } = useCreateOrUpdateCharges()
+  const { data, loading, error, refetch } = useCharges();
+  const { createOrUpdateCharges, loading: updateLoading } =
+    useCreateOrUpdateCharges();
 
-  const charges = (data as any)?.charges
+  const charges = (data as any)?.charges;
 
   const form = useForm<ChargesFormValues>({
     resolver: zodResolver(chargesFormSchema),
@@ -38,7 +55,7 @@ export default function ChargesPage() {
       deliveryDelhiBelowThreshold: 0,
       deliveryRestBelowThreshold: 0,
     },
-  })
+  });
 
   // Update form when data loads
   useEffect(() => {
@@ -50,18 +67,18 @@ export default function ChargesPage() {
         freeDeliveryThreshold: charges.freeDeliveryThreshold ?? 0,
         deliveryDelhiBelowThreshold: charges.deliveryDelhiBelowThreshold ?? 0,
         deliveryRestBelowThreshold: charges.deliveryRestBelowThreshold ?? 0,
-      })
+      });
     }
-  }, [charges, form])
+  }, [charges, form]);
 
   const onSubmit = async (values: ChargesFormValues) => {
     try {
-      await createOrUpdateCharges(values)
-      refetch()
+      await createOrUpdateCharges(values);
+      refetch();
     } catch (error) {
-      console.error("Failed to save charges:", error)
+      console.error("Failed to save charges:", error);
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -77,7 +94,7 @@ export default function ChargesPage() {
           <Skeleton className="h-64" />
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -85,14 +102,20 @@ export default function ChargesPage() {
       <div className="p-6">
         <Card className="border-destructive">
           <CardContent className="pt-6">
-            <p className="text-destructive">Error loading charges: {error.message}</p>
-            <Button onClick={() => refetch()} variant="outline" className="mt-4">
+            <p className="text-destructive">
+              Error loading charges: {error.message}
+            </p>
+            <Button
+              onClick={() => refetch()}
+              variant="outline"
+              className="mt-4"
+            >
               Try Again
             </Button>
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -172,7 +195,9 @@ export default function ChargesPage() {
                             min="0"
                             className="pl-9"
                             {...field}
-                            onChange={e => field.onChange(Number(e.target.value))}
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
                           />
                         </div>
                       </FormControl>
@@ -200,7 +225,9 @@ export default function ChargesPage() {
                             max="100"
                             className="pl-9"
                             {...field}
-                            onChange={e => field.onChange(Number(e.target.value))}
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
                           />
                         </div>
                       </FormControl>
@@ -241,7 +268,9 @@ export default function ChargesPage() {
                             min="0"
                             className="pl-9"
                             {...field}
-                            onChange={e => field.onChange(Number(e.target.value))}
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
                           />
                         </div>
                       </FormControl>
@@ -274,7 +303,9 @@ export default function ChargesPage() {
                             min="0"
                             className="pl-9"
                             {...field}
-                            onChange={e => field.onChange(Number(e.target.value))}
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
                           />
                         </div>
                       </FormControl>
@@ -301,7 +332,9 @@ export default function ChargesPage() {
                             min="0"
                             className="pl-9"
                             {...field}
-                            onChange={e => field.onChange(Number(e.target.value))}
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
                           />
                         </div>
                       </FormControl>
@@ -335,5 +368,5 @@ export default function ChargesPage() {
         </form>
       </Form>
     </div>
-  )
+  );
 }

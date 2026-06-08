@@ -54,11 +54,11 @@ export class UploadService {
     const cloudfrontDomain = this.configService.get<string>(
       'aws.cloudfrontDomain',
     );
-    
+
     if (!cloudfrontDomain) {
       throw new Error('AWS_CLOUDFRONT_DOMAIN environment variable is not set');
     }
-    
+
     const baseUrl = cloudfrontDomain.replace(/\/$/, '');
     return `${baseUrl}/${key}`;
   }
@@ -105,7 +105,7 @@ export class UploadService {
         ? key.replace(/\.[^.]+$/, '.webp')
         : key;
     const finalUrl = this.getCloudFrontUrl(finalKey);
- 
+
     return {
       uploadUrl,
       key: finalKey,

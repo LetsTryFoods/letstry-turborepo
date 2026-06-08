@@ -20,16 +20,16 @@ The data window for this baseline is **last 90 days: Feb 7 – May 7, 2026**. An
 
 ## 2. Real numbers (90 days)
 
-| Metric | Value |
-|---|---|
-| Sessions | 30,903 |
-| Active users | 22,986 |
-| New users | 22,855 (**99.4%** of active) |
-| Total events | 165,979 |
-| Engagement rate | 90.64% |
-| Avg engagement time per session | 47s |
-| Total revenue (GA4) | **₹0.00** (purchase event has never fired) |
-| Sessions with ≥1 key event | 0.38% |
+| Metric                          | Value                                      |
+| ------------------------------- | ------------------------------------------ |
+| Sessions                        | 30,903                                     |
+| Active users                    | 22,986                                     |
+| New users                       | 22,855 (**99.4%** of active)               |
+| Total events                    | 165,979                                    |
+| Engagement rate                 | 90.64%                                     |
+| Avg engagement time per session | 47s                                        |
+| Total revenue (GA4)             | **₹0.00** (purchase event has never fired) |
+| Sessions with ≥1 key event      | 0.38%                                      |
 
 The ₹0 revenue is not an error. The `purchase` event has never successfully fired on this property — every web order placed since launch is invisible to GA4. The event is configured as a key event ("No stream data detected") but no integration writes to it. Real revenue lives only in the backend Mongo orders collection.
 
@@ -37,15 +37,15 @@ The ₹0 revenue is not an error. The `purchase` event has never successfully fi
 
 ## 3. Channel mix
 
-| Channel | Sessions | % | Avg engagement |
-|---|---|---|---|
-| **Organic Search** | 21,438 | **77.05%** | 51s |
-| Direct | 5,148 | 18.5% | 31s |
-| Organic Social | 536 | 1.93% | 19s |
-| Unassigned | 502 | 1.8% | 43s |
-| Referral | 282 | 1.01% | **1m 57s** |
-| Organic Shopping | 12 | 0.04% | 4m 40s |
-| Paid / Email / Affiliate | **0** | — | — |
+| Channel                  | Sessions | %          | Avg engagement |
+| ------------------------ | -------- | ---------- | -------------- |
+| **Organic Search**       | 21,438   | **77.05%** | 51s            |
+| Direct                   | 5,148    | 18.5%      | 31s            |
+| Organic Social           | 536      | 1.93%      | 19s            |
+| Unassigned               | 502      | 1.8%       | 43s            |
+| Referral                 | 282      | 1.01%      | **1m 57s**     |
+| Organic Shopping         | 12       | 0.04%      | 4m 40s         |
+| Paid / Email / Affiliate | **0**    | —          | —              |
 
 The site has effectively **one traffic source** (Google organic). Direct is overwhelmingly dark-social — WhatsApp shares, app referrals, untagged links — and carries no campaign attribution. Organic Social is negligible despite an Instagram presence (likely because Instagram links aren't UTM-tagged, so they collapse into Direct). Organic Shopping (Merchant Center feed) is effectively dead at 12 sessions in 90 days.
 
@@ -56,6 +56,7 @@ The site has effectively **one traffic source** (Google organic). Direct is over
 GSC ↔ GA4 link is active on this property, so query/landing joins are now valid.
 
 **Top 25 organic queries by clicks (90 days):**
+
 - Every single query in the top 25 is a brand variant: `lets try`, `let's try`, `letstry`, `letstryfoods`, plus parent-company queries (`earth crust pvt ltd`, `earth crust private limited`).
 - Top 25 alone account for **14,663 of 17,184 clicks (85%)**.
 - Including the long-tail "lets try [category/product]" variants, branded share is **~95%+**.
@@ -70,21 +71,21 @@ GSC ↔ GA4 link is active on this property, so query/landing joins are now vali
 
 90-day organic clicks by landing page (top of the long tail; full table has 404 rows):
 
-| Landing | Sessions | Organic clicks | Organic impressions | CTR | Avg pos | Notes |
-|---|---|---|---|---|---|---|
-| `/` | 20,963 | 17,804 | 148,147 | 12.02% | 7.06 | 67–80% of all entries |
-| `/about-us` | 539 | 514 | **34,377** | **1.5%** | 2.11 | **Largest CTR opportunity on site** |
-| `/healthy-snacks` | 388 | 349 | **30,012** | **1.16%** | 1.95 | "No palm oil" cluster anchor |
-| `/bhujia` | 308 | 234 | 1,872 | 12.5% | 3.43 | Healthy CTR |
-| `/product/roasted-chana` | 260 | 228 | 10,978 | 2.08% | 7.46 | Rank-improvement play (page 2) |
-| `/product/sattu` | 254 | 223 | 3,343 | **6.67%** | 4.68 | **Conversion outlier — 1.97% session key-event rate** |
-| `/cookies` | 335 | 195 | 4,299 | 4.54% | 2.36 | OK |
-| `/fasting-special` | 195 | 150 | **19,424** | **0.77%** | 1.69 | Massive impression base, almost no clicks |
-| `/product/lets-try-pack-of-6-assorted` | 142 | 145 | **20,091** | **0.72%** | 1.88 | High-intent product, weak snippet |
-| `/about` | — | 132 | 8,807 | 1.5% | 2.14 | Duplicate of /about-us — see §8 |
-| `/product/kettle-cooked-pudina-potato-wafers` | 126 | 98 | 12,215 | **0.8%** | 2.01 | High-volume CTR target |
-| `/bulk-corporate` | — | 61 | **11,460** | **0.53%** | 1.51 | Hidden B2B funnel — pos 1.51 with awful CTR |
-| `/address` | 614 | — | — | — | — | **#3 landing page, but post-purchase traffic (FSSAI batch lookup)** |
+| Landing                                       | Sessions | Organic clicks | Organic impressions | CTR       | Avg pos | Notes                                                               |
+| --------------------------------------------- | -------- | -------------- | ------------------- | --------- | ------- | ------------------------------------------------------------------- |
+| `/`                                           | 20,963   | 17,804         | 148,147             | 12.02%    | 7.06    | 67–80% of all entries                                               |
+| `/about-us`                                   | 539      | 514            | **34,377**          | **1.5%**  | 2.11    | **Largest CTR opportunity on site**                                 |
+| `/healthy-snacks`                             | 388      | 349            | **30,012**          | **1.16%** | 1.95    | "No palm oil" cluster anchor                                        |
+| `/bhujia`                                     | 308      | 234            | 1,872               | 12.5%     | 3.43    | Healthy CTR                                                         |
+| `/product/roasted-chana`                      | 260      | 228            | 10,978              | 2.08%     | 7.46    | Rank-improvement play (page 2)                                      |
+| `/product/sattu`                              | 254      | 223            | 3,343               | **6.67%** | 4.68    | **Conversion outlier — 1.97% session key-event rate**               |
+| `/cookies`                                    | 335      | 195            | 4,299               | 4.54%     | 2.36    | OK                                                                  |
+| `/fasting-special`                            | 195      | 150            | **19,424**          | **0.77%** | 1.69    | Massive impression base, almost no clicks                           |
+| `/product/lets-try-pack-of-6-assorted`        | 142      | 145            | **20,091**          | **0.72%** | 1.88    | High-intent product, weak snippet                                   |
+| `/about`                                      | —        | 132            | 8,807               | 1.5%      | 2.14    | Duplicate of /about-us — see §8                                     |
+| `/product/kettle-cooked-pudina-potato-wafers` | 126      | 98             | 12,215              | **0.8%**  | 2.01    | High-volume CTR target                                              |
+| `/bulk-corporate`                             | —        | 61             | **11,460**          | **0.53%** | 1.51    | Hidden B2B funnel — pos 1.51 with awful CTR                         |
+| `/address`                                    | 614      | —              | —                   | —         | —       | **#3 landing page, but post-purchase traffic (FSSAI batch lookup)** |
 
 ### CTR sleeping giants (the meta-rewrite playbook)
 
@@ -117,7 +118,7 @@ Doubling CTR on just these six pages is a ~+1,300 organic-click/quarter gain at 
    └─ 0 purchased (event broken)
 ```
 
-**The single worst step is cart → checkout: only 259 of 1,565 carts (16.5%) ever click "Proceed".** That's 83% cart abandonment *before* the checkout screen even loads. This is a UX/CRO problem at the cart drawer, independent of any analytics work, and it's currently the highest-leverage product-side fix on the site.
+**The single worst step is cart → checkout: only 259 of 1,565 carts (16.5%) ever click "Proceed".** That's 83% cart abandonment _before_ the checkout screen even loads. This is a UX/CRO problem at the cart drawer, independent of any analytics work, and it's currently the highest-leverage product-side fix on the site.
 
 We cannot measure checkout → purchase conversion at all because the `purchase` event is broken.
 
@@ -130,21 +131,21 @@ We cannot measure checkout → purchase conversion at all because the `purchase`
 1. **Genuine low repeat-web-visit rate.** Customers reorder via WhatsApp links and the mobile app pathway, not by returning to the website with their original cookie intact.
 2. **Returning-customer traffic is misclassified as new.** The `/address` page (manufacturing units / FSSAI batch code lookup) is the **#3 landing page** with 614 sessions in 90 days. These are existing customers reading their packaging and looking up batch codes — explicitly post-purchase activity. They show up as "new users" because their original session cookie has expired by the time they revisit, often weeks or months later.
 
-So the brand has *real* repeat customers, just nearly none of them re-enter through a continuous web session. Phase 5 of the analytics rebuild (stable `user_id`, hashed phone) will partially fix the visibility problem by stitching repeat visits to the same backend user record.
+So the brand has _real_ repeat customers, just nearly none of them re-enter through a continuous web session. Phase 5 of the analytics rebuild (stable `user_id`, hashed phone) will partially fix the visibility problem by stitching repeat visits to the same backend user record.
 
 ---
 
 ## 8. Duplicate URL pollution — still active
 
-Sprint 1a's `/category/X → /X` redirect work was supposed to consolidate authority. Google's index still shows the old URLs *and* they are still receiving meaningful clicks:
+Sprint 1a's `/category/X → /X` redirect work was supposed to consolidate authority. Google's index still shows the old URLs _and_ they are still receiving meaningful clicks:
 
-| Clean URL (clicks) | Duplicate still indexed (clicks) |
-|---|---|
-| `/healthy-snacks` (349) | `/category/Healthy%20Snacks` (85) |
-| `/bhujia` (234) | `/category/Bhujia` (55) |
-| `/cookies` (195) | `/category/Cookies` (48) |
-| — | `/category/Purani%20Delhi` (48) |
-| `/about-us` (514) | `/about` (132) |
+| Clean URL (clicks)                          | Duplicate still indexed (clicks)                              |
+| ------------------------------------------- | ------------------------------------------------------------- |
+| `/healthy-snacks` (349)                     | `/category/Healthy%20Snacks` (85)                             |
+| `/bhujia` (234)                             | `/category/Bhujia` (55)                                       |
+| `/cookies` (195)                            | `/category/Cookies` (48)                                      |
+| —                                           | `/category/Purani%20Delhi` (48)                               |
+| `/about-us` (514)                           | `/about` (132)                                                |
 | `/product/lets-try-purani-delhi-papdi` (46) | `/product/let-s-try-purani-delhi-papdi` (45) ← typo duplicate |
 
 Each duplicate is splitting Google's authority signal between two URLs. Likely cause: the redirect is a 302 (temporary) instead of 301 (permanent), and/or it doesn't match `%20`-encoded variants. Worth a 5-minute `curl -I` audit to confirm. Tracked as Phase 7 in the analytics-rebuild spec.
@@ -155,11 +156,11 @@ Each duplicate is splitting Google's authority signal between two URLs. Likely c
 
 GA4 key events on this property:
 
-| Event | Status |
-|---|---|
-| `add_to_cart` | Active — drives ~all of the 314 "key events" reported on landing pages |
+| Event           | Status                                                                                                                                                                                                                                                                              |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `add_to_cart`   | Active — drives ~all of the 314 "key events" reported on landing pages                                                                                                                                                                                                              |
 | `generate_lead` | Configured, but only fires when GA4's auto `form_submit` detects a form submission. Because every login form on the site uses `e.preventDefault()` and submits via JS, auto-detection misses ~all real submits. Total lifetime volume: **3 events in 13 months.** Effectively dead. |
-| `purchase` | Configured, marked "No stream data detected." Zero data ever — confirmed bug. |
+| `purchase`      | Configured, marked "No stream data detected." Zero data ever — confirmed bug.                                                                                                                                                                                                       |
 
 **The 0.38% session key-event rate that GA4 currently reports = 0.38% of sessions added something to cart.** It is not a sales conversion rate. Anyone treating this number as "site converts at 0.38%" has been misled.
 
@@ -170,6 +171,7 @@ GA4 key events on this property:
 ## 10. What changed vs the Q1 baseline
 
 ### Confirmed correct
+
 - 95%+ branded-search dominance
 - Homepage dominance (~80% of organic clicks)
 - "CTR opportunity, not rankings opportunity"
@@ -178,11 +180,13 @@ GA4 key events on this property:
 - `purchase` event broken
 
 ### Corrected
+
 - Total session/user volume was ~3× too high in the Q1 baseline (wrong-property error)
 - True organic share is 77%, not 68%
 - `/search` noindex listed as urgent — actually shipped in Sprint 1b; the lingering 155 sessions are Google-deindex-lag, not a code bug. Recommend submitting GSC URL Removal request to accelerate.
 
 ### Newly identified
+
 - `/about-us` is the largest CTR optimisation target (34K imp, 1.5% CTR) — not surfaced in the Q1 baseline at all
 - `/bulk-corporate` is a hidden B2B funnel (11K imp, 0.53% CTR) at pos 1.51
 - `/product/sattu` is the conversion outlier worth diagnosing and replicating

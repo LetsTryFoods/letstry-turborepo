@@ -2,8 +2,9 @@ import { getHomeCategories } from "@/lib/home";
 import { Navbar } from "./navbar";
 
 export const NavbarWrapper = async () => {
-  let categories: Array<{ href: string; label: string , favourite: boolean }> = [];
-  
+  let categories: Array<{ href: string; label: string; favourite: boolean }> =
+    [];
+
   try {
     const categoryData = await getHomeCategories(100);
     categories = categoryData.items.map((c) => ({

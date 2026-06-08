@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 export const GET_ADDRESSES = gql`
   query GetAddresses($pagination: PaginationInput!) {
@@ -23,7 +23,7 @@ export const GET_ADDRESSES = gql`
       }
     }
   }
-`
+`;
 
 export const GET_ADDRESS = gql`
   query GetAddress($id: ID!) {
@@ -38,7 +38,7 @@ export const GET_ADDRESS = gql`
       updatedAt
     }
   }
-`
+`;
 
 export const CREATE_ADDRESS = gql`
   mutation CreateAddress($input: CreateManufacturingAddressInput!) {
@@ -53,7 +53,7 @@ export const CREATE_ADDRESS = gql`
       updatedAt
     }
   }
-`
+`;
 
 export const UPDATE_ADDRESS = gql`
   mutation UpdateAddress($id: ID!, $input: UpdateManufacturingAddressInput!) {
@@ -68,7 +68,7 @@ export const UPDATE_ADDRESS = gql`
       updatedAt
     }
   }
-`
+`;
 
 export const DELETE_ADDRESS = gql`
   mutation DeleteAddress($id: ID!) {
@@ -77,4 +77,4 @@ export const DELETE_ADDRESS = gql`
       batchCode
     }
   }
-`
+`;

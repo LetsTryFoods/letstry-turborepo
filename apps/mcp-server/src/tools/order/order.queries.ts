@@ -1,4 +1,4 @@
-import { gql } from 'graphql-request';
+import { gql } from "graphql-request";
 
 export const GET_MY_ORDERS_QUERY = gql`
   query GetMyOrders($input: GetMyOrdersInput!) {

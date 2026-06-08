@@ -1,13 +1,13 @@
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { TopBanner } from '../components/top-banner/top-banner';
+import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { TopBanner } from "../components/top-banner/top-banner";
 
 const meta: Meta<typeof TopBanner> = {
-  title: 'Components/TopBanner',
+  title: "Components/TopBanner",
   component: TopBanner,
   parameters: {
-    layout: 'fullscreen',
+    layout: "fullscreen",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 };
 
 export default meta;
@@ -19,18 +19,13 @@ export const TextFallback: Story = {
 
 export const CustomItems: Story = {
   args: {
-    items: [
-      'Organic',
-      'Gluten Free',
-      'Non-GMO',
-      'Vegan',
-    ],
+    items: ["Organic", "Gluten Free", "Non-GMO", "Vegan"],
   },
 };
 
 export const WithImage: Story = {
   args: {
-    imageUrl: '/banner-image.png',
-    imageAlt: 'Promotional Banner',
+    imageUrl: "/banner-image.png",
+    imageAlt: "Promotional Banner",
   },
 };

@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@apollo/client/react';
-import { gql } from '@apollo/client';
+import { useQuery, useMutation } from "@apollo/client/react";
+import { gql } from "@apollo/client";
 
 export const GET_PICKUP_LOCATIONS = gql`
   query GetPickupLocations {
@@ -68,9 +68,12 @@ export interface RemovePickupLocationData {
 }
 
 export function usePickupLocations() {
-  const { data, loading, error, refetch } = useQuery<GetPickupLocationsData>(GET_PICKUP_LOCATIONS, {
-    fetchPolicy: 'network-only',
-  });
+  const { data, loading, error, refetch } = useQuery<GetPickupLocationsData>(
+    GET_PICKUP_LOCATIONS,
+    {
+      fetchPolicy: "network-only",
+    },
+  );
 
   return {
     pickupLocations: (data?.getPickupLocations || []) as PickupLocation[],
@@ -81,12 +84,13 @@ export function usePickupLocations() {
 }
 
 export function useCreatePickupLocation() {
-  const [createPickupLocation, { loading, error }] = useMutation<CreatePickupLocationData>(CREATE_PICKUP_LOCATION, {
-    refetchQueries: [{ query: GET_PICKUP_LOCATIONS }],
-  });
+  const [createPickupLocation, { loading, error }] =
+    useMutation<CreatePickupLocationData>(CREATE_PICKUP_LOCATION, {
+      refetchQueries: [{ query: GET_PICKUP_LOCATIONS }],
+    });
 
   return {
-    createPickupLocation: async (input: Omit<PickupLocation, '_id'>) => {
+    createPickupLocation: async (input: Omit<PickupLocation, "_id">) => {
       return createPickupLocation({ variables: { input } });
     },
     loading,
@@ -95,9 +99,10 @@ export function useCreatePickupLocation() {
 }
 
 export function useRemovePickupLocation() {
-  const [removePickupLocation, { loading, error }] = useMutation<RemovePickupLocationData>(REMOVE_PICKUP_LOCATION, {
-    refetchQueries: [{ query: GET_PICKUP_LOCATIONS }],
-  });
+  const [removePickupLocation, { loading, error }] =
+    useMutation<RemovePickupLocationData>(REMOVE_PICKUP_LOCATION, {
+      refetchQueries: [{ query: GET_PICKUP_LOCATIONS }],
+    });
 
   return {
     removePickupLocation: async (id: string) => {

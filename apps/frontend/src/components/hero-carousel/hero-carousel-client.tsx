@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, Navigation } from 'swiper/modules';
-import 'swiper/css';
-import 'swiper/css/navigation';
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, Navigation } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import type { Swiper as SwiperType } from 'swiper';
+import type { Swiper as SwiperType } from "swiper";
 import { getCdnUrl } from "@/lib/image-utils";
 import { useAnalytics } from "@/hooks/use-analytics";
 
@@ -53,18 +53,21 @@ export const HeroCarouselClient = ({ banners }: HeroCarouselClientProps) => {
 
   useEffect(() => {
     if (!banners || banners.length === 0) return;
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
-    fireViewPromotion(banners[0], isMobile ? 'home_hero_mobile' : 'home_hero_desktop');
+    const isMobile = typeof window !== "undefined" && window.innerWidth < 1024;
+    fireViewPromotion(
+      banners[0],
+      isMobile ? "home_hero_mobile" : "home_hero_desktop",
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [banners]);
 
   useEffect(() => {
-    fireViewPromotion(banners?.[mobileActiveIndex], 'home_hero_mobile');
+    fireViewPromotion(banners?.[mobileActiveIndex], "home_hero_mobile");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mobileActiveIndex]);
 
   useEffect(() => {
-    fireViewPromotion(banners?.[desktopActiveIndex], 'home_hero_desktop');
+    fireViewPromotion(banners?.[desktopActiveIndex], "home_hero_desktop");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [desktopActiveIndex]);
 
@@ -89,11 +92,13 @@ export const HeroCarouselClient = ({ banners }: HeroCarouselClientProps) => {
       <section className="my-2 px-2 sm:px-2 md:px-3 lg:hidden block">
         <div
           className="relative w-full overflow-hidden rounded-[10px]"
-          style={{ aspectRatio: `${MOBILE_BANNER_WIDTH} / ${MOBILE_BANNER_HEIGHT}` }}
+          style={{
+            aspectRatio: `${MOBILE_BANNER_WIDTH} / ${MOBILE_BANNER_HEIGHT}`,
+          }}
         >
           <Swiper
             modules={[Autoplay]}
-            style={{ width: '100%', height: '100%' }}
+            style={{ width: "100%", height: "100%" }}
             className="rounded-[10px]"
             spaceBetween={0}
             slidesPerView={1}
@@ -105,11 +110,11 @@ export const HeroCarouselClient = ({ banners }: HeroCarouselClientProps) => {
               <SwiperSlide key={banner._id} className="!h-full">
                 <div
                   className="relative w-full h-full cursor-pointer"
-                  onClick={() => handleBannerClick(banner, 'home_hero_mobile')}
+                  onClick={() => handleBannerClick(banner, "home_hero_mobile")}
                 >
                   <Image
                     src={getCdnUrl(banner.mobileImageUrl)}
-                    alt={banner.headline || 'Promotional banner'}
+                    alt={banner.headline || "Promotional banner"}
                     fill
                     priority={i === 0}
                     className="object-contain rounded-[10px] bg-gray-100"
@@ -118,12 +123,16 @@ export const HeroCarouselClient = ({ banners }: HeroCarouselClientProps) => {
                   />
                   <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-10">
                     {banners.map((_, j) => (
-                      <div key={j} className="w-6 h-1 bg-white/30 overflow-hidden rounded-sm">
+                      <div
+                        key={j}
+                        className="w-6 h-1 bg-white/30 overflow-hidden rounded-sm"
+                      >
                         <div
-                          className={`h-full bg-white ${j === mobileActiveIndex
-                            ? 'w-full transition-[width] duration-[2000ms] ease-linear'
-                            : 'w-0'
-                            }`}
+                          className={`h-full bg-white ${
+                            j === mobileActiveIndex
+                              ? "w-full transition-[width] duration-[2000ms] ease-linear"
+                              : "w-0"
+                          }`}
                         />
                       </div>
                     ))}
@@ -138,19 +147,21 @@ export const HeroCarouselClient = ({ banners }: HeroCarouselClientProps) => {
       <section className="lg:my-4 md:mt-2 px-4 sm:px-3 md:px-6 lg:px-10 hidden lg:block">
         <div
           className="relative w-full overflow-hidden rounded-[16px]"
-          style={{ aspectRatio: `${DESKTOP_BANNER_WIDTH} / ${DESKTOP_BANNER_HEIGHT}` }}
+          style={{
+            aspectRatio: `${DESKTOP_BANNER_WIDTH} / ${DESKTOP_BANNER_HEIGHT}`,
+          }}
         >
           <Swiper
             modules={[Autoplay, Navigation]}
-            style={{ width: '100%', height: '100%' }}
+            style={{ width: "100%", height: "100%" }}
             className="rounded-[16px] hero-carousel-swiper"
             spaceBetween={0}
             slidesPerView={1}
             autoplay={{ delay: 4000, disableOnInteraction: false }}
             loop
             navigation={{
-              nextEl: '.swiper-button-next-custom',
-              prevEl: '.swiper-button-prev-custom',
+              nextEl: ".swiper-button-next-custom",
+              prevEl: ".swiper-button-prev-custom",
             }}
             onSlideChange={(swiper) => setDesktopActiveIndex(swiper.realIndex)}
           >
@@ -158,11 +169,11 @@ export const HeroCarouselClient = ({ banners }: HeroCarouselClientProps) => {
               <SwiperSlide key={banner._id} className="!h-full">
                 <div
                   className="relative w-full h-full cursor-pointer"
-                  onClick={() => handleBannerClick(banner, 'home_hero_desktop')}
+                  onClick={() => handleBannerClick(banner, "home_hero_desktop")}
                 >
                   <Image
                     src={getCdnUrl(banner.imageUrl)}
-                    alt={banner.headline || 'Promotional banner'}
+                    alt={banner.headline || "Promotional banner"}
                     fill
                     priority={i === 0}
                     className="object-cover rounded-[16px] bg-gray-100"
@@ -171,12 +182,16 @@ export const HeroCarouselClient = ({ banners }: HeroCarouselClientProps) => {
                   />
                   <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-10">
                     {banners.map((_, j) => (
-                      <div key={j} className="lg:w-20 md:w-16 w-5 h-1 bg-white/30 overflow-hidden rounded-sm">
+                      <div
+                        key={j}
+                        className="lg:w-20 md:w-16 w-5 h-1 bg-white/30 overflow-hidden rounded-sm"
+                      >
                         <div
-                          className={`h-full bg-white ${j === desktopActiveIndex
-                            ? 'w-full transition-[width] duration-[2000ms] ease-linear'
-                            : 'w-0'
-                            }`}
+                          className={`h-full bg-white ${
+                            j === desktopActiveIndex
+                              ? "w-full transition-[width] duration-[2000ms] ease-linear"
+                              : "w-0"
+                          }`}
                         />
                       </div>
                     ))}
@@ -186,12 +201,32 @@ export const HeroCarouselClient = ({ banners }: HeroCarouselClientProps) => {
             ))}
 
             <button className="swiper-button-prev-custom absolute left-4 top-1/2 -translate-y-1/2 z-10 size-8 rounded-full bg-white/80 hover:bg-white flex items-center justify-center shadow-md transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="m15 18-6-6 6-6" />
               </svg>
             </button>
             <button className="swiper-button-next-custom absolute right-4 top-1/2 -translate-y-1/2 z-10 size-8 rounded-full bg-white/80 hover:bg-white flex items-center justify-center shadow-md transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="m9 18 6-6-6-6" />
               </svg>
             </button>

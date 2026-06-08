@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   Dialog,
@@ -6,51 +6,66 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/components/ui/dialog"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { AbandonedCart } from "@/lib/abandoned-carts/useAbandonedCarts"
-import { format, formatDistanceToNow } from "date-fns"
-import { 
-  ShoppingCart, 
-  User, 
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { AbandonedCart } from "@/lib/abandoned-carts/useAbandonedCarts";
+import { format, formatDistanceToNow } from "date-fns";
+import {
+  ShoppingCart,
+  User,
   Phone,
   Mail,
   Clock,
   MessageCircle,
-  MessageSquare, 
-  IndianRupee
-} from "lucide-react"
-import { getCdnUrl } from "@/lib/utils/image-utils"
+  MessageSquare,
+  IndianRupee,
+} from "lucide-react";
+import { getCdnUrl } from "@/lib/utils/image-utils";
 
 interface CartDetailsDialogProps {
-  cart: AbandonedCart | null
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onSendWhatsApp: (cart: AbandonedCart) => void
-  onSendSMS: (cart: AbandonedCart) => void
+  cart: AbandonedCart | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSendWhatsApp: (cart: AbandonedCart) => void;
+  onSendSMS: (cart: AbandonedCart) => void;
 }
 
-export function CartDetailsDialog({ cart, open, onOpenChange, onSendWhatsApp, onSendSMS }: CartDetailsDialogProps) {
-  if (!cart) return null
+export function CartDetailsDialog({
+  cart,
+  open,
+  onOpenChange,
+  onSendWhatsApp,
+  onSendSMS,
+}: CartDetailsDialogProps) {
+  if (!cart) return null;
 
   const getActivityBadge = (lastActivity: string) => {
-    const now = new Date()
-    const activityDate = new Date(lastActivity)
-    const hoursDiff = (now.getTime() - activityDate.getTime()) / (1000 * 60 * 60)
+    const now = new Date();
+    const activityDate = new Date(lastActivity);
+    const hoursDiff =
+      (now.getTime() - activityDate.getTime()) / (1000 * 60 * 60);
 
     if (hoursDiff < 24) {
-      return <Badge className="bg-green-600">Active Today</Badge>
+      return <Badge className="bg-green-600">Active Today</Badge>;
     } else if (hoursDiff < 72) {
-      return <Badge variant="outline" className="border-yellow-500 text-yellow-600">2-3 Days Ago</Badge>
+      return (
+        <Badge variant="outline" className="border-yellow-500 text-yellow-600">
+          2-3 Days Ago
+        </Badge>
+      );
     } else if (hoursDiff < 168) {
-      return <Badge variant="outline" className="border-orange-500 text-orange-600">This Week</Badge>
+      return (
+        <Badge variant="outline" className="border-orange-500 text-orange-600">
+          This Week
+        </Badge>
+      );
     } else {
-      return <Badge variant="secondary">Older</Badge>
+      return <Badge variant="secondary">Older</Badge>;
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -61,7 +76,10 @@ export function CartDetailsDialog({ cart, open, onOpenChange, onSendWhatsApp, on
             {getActivityBadge(cart.lastActivity)}
           </DialogTitle>
           <DialogDescription>
-            Last activity {formatDistanceToNow(new Date(cart.lastActivity), { addSuffix: true })}
+            Last activity{" "}
+            {formatDistanceToNow(new Date(cart.lastActivity), {
+              addSuffix: true,
+            })}
           </DialogDescription>
         </DialogHeader>
 
@@ -84,7 +102,9 @@ export function CartDetailsDialog({ cart, open, onOpenChange, onSendWhatsApp, on
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Phone className="h-4 w-4 text-muted-foreground" />
-                <code className="font-mono bg-muted px-2 py-1 rounded">{cart.customer.phone}</code>
+                <code className="font-mono bg-muted px-2 py-1 rounded">
+                  {cart.customer.phone}
+                </code>
               </div>
               <div className="flex gap-2 pt-2">
                 <Button
@@ -96,8 +116,8 @@ export function CartDetailsDialog({ cart, open, onOpenChange, onSendWhatsApp, on
                   <MessageCircle className="h-4 w-4 mr-2" />
                   Send WhatsApp
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   className="border-blue-500 text-blue-600 hover:bg-blue-50"
                   onClick={() => onSendSMS(cart)}
@@ -130,21 +150,27 @@ export function CartDetailsDialog({ cart, open, onOpenChange, onSendWhatsApp, on
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{item.product.name}</p>
+                      <p className="font-medium truncate">
+                        {item.product.name}
+                      </p>
                       <p className="text-sm text-muted-foreground">
                         Variant: {item.variant} • Qty: {item.quantity}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium">₹{(item.price * item.quantity).toLocaleString()}</p>
-                      <p className="text-xs text-muted-foreground">₹{item.price} each</p>
+                      <p className="font-medium">
+                        ₹{(item.price * item.quantity).toLocaleString()}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        ₹{item.price} each
+                      </p>
                     </div>
                   </div>
                 ))}
               </div>
-              
+
               <Separator className="my-4" />
-              
+
               {/* Cart Total */}
               <div className="flex justify-between items-center">
                 <span className="font-medium">Cart Total</span>
@@ -168,15 +194,24 @@ export function CartDetailsDialog({ cart, open, onOpenChange, onSendWhatsApp, on
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Cart Created</span>
-                  <span>{format(new Date(cart.createdAt), 'dd MMM yyyy, hh:mm a')}</span>
+                  <span>
+                    {format(new Date(cart.createdAt), "dd MMM yyyy, hh:mm a")}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Last Updated</span>
-                  <span>{format(new Date(cart.updatedAt), 'dd MMM yyyy, hh:mm a')}</span>
+                  <span>
+                    {format(new Date(cart.updatedAt), "dd MMM yyyy, hh:mm a")}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Last Activity</span>
-                  <span>{format(new Date(cart.lastActivity), 'dd MMM yyyy, hh:mm a')}</span>
+                  <span>
+                    {format(
+                      new Date(cart.lastActivity),
+                      "dd MMM yyyy, hh:mm a",
+                    )}
+                  </span>
                 </div>
               </div>
             </CardContent>
@@ -184,5 +219,5 @@ export function CartDetailsDialog({ cart, open, onOpenChange, onSendWhatsApp, on
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

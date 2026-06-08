@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -8,9 +8,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,7 +18,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,70 +28,73 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { 
-  Edit, 
-  MoreHorizontal, 
+} from "@/components/ui/alert-dialog";
+import {
+  Edit,
+  MoreHorizontal,
   Trash2,
   Eye,
   EyeOff,
-  GripVertical
-} from "lucide-react"
-import { 
-  FAQ, 
+  GripVertical,
+} from "lucide-react";
+import {
+  FAQ,
   FAQStatus,
   categoryLabels,
-  useUpdateFAQ, 
-  useDeleteFAQ 
-} from "@/lib/faq/useFAQ"
+  useUpdateFAQ,
+  useDeleteFAQ,
+} from "@/lib/faq/useFAQ";
 
 interface FAQTableProps {
-  faqs: FAQ[]
-  onRefresh: () => void
-  onEdit: (faq: FAQ) => void
+  faqs: FAQ[];
+  onRefresh: () => void;
+  onEdit: (faq: FAQ) => void;
 }
 
-const statusConfig: Record<FAQStatus, { label: string; variant: "default" | "secondary" }> = {
+const statusConfig: Record<
+  FAQStatus,
+  { label: string; variant: "default" | "secondary" }
+> = {
   ACTIVE: { label: "Active", variant: "default" },
-  INACTIVE: { label: "Inactive", variant: "secondary" }
-}
+  INACTIVE: { label: "Inactive", variant: "secondary" },
+};
 
 export default function FAQTable({ faqs, onRefresh, onEdit }: FAQTableProps) {
-  const [selectedFAQ, setSelectedFAQ] = useState<FAQ | null>(null)
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-  const [showStatusDialog, setShowStatusDialog] = useState(false)
+  const [selectedFAQ, setSelectedFAQ] = useState<FAQ | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showStatusDialog, setShowStatusDialog] = useState(false);
 
-  const { updateFAQ } = useUpdateFAQ()
-  const { deleteFAQ } = useDeleteFAQ()
+  const { updateFAQ } = useUpdateFAQ();
+  const { deleteFAQ } = useDeleteFAQ();
 
   const handleStatusToggle = (faq: FAQ) => {
-    setSelectedFAQ(faq)
-    setShowStatusDialog(true)
-  }
+    setSelectedFAQ(faq);
+    setShowStatusDialog(true);
+  };
 
   const handleDelete = (faq: FAQ) => {
-    setSelectedFAQ(faq)
-    setShowDeleteDialog(true)
-  }
+    setSelectedFAQ(faq);
+    setShowDeleteDialog(true);
+  };
 
   const confirmStatusToggle = async () => {
     if (selectedFAQ) {
-      const newStatus = selectedFAQ.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE'
-      await updateFAQ(selectedFAQ._id, { status: newStatus })
-      onRefresh()
+      const newStatus = selectedFAQ.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
+      await updateFAQ(selectedFAQ._id, { status: newStatus });
+      onRefresh();
     }
-    setShowStatusDialog(false)
-    setSelectedFAQ(null)
-  }
+    setShowStatusDialog(false);
+    setSelectedFAQ(null);
+  };
 
   const confirmDelete = async () => {
     if (selectedFAQ) {
-      await deleteFAQ(selectedFAQ._id)
-      onRefresh()
+      await deleteFAQ(selectedFAQ._id);
+      onRefresh();
     }
-    setShowDeleteDialog(false)
-    setSelectedFAQ(null)
-  }
+    setShowDeleteDialog(false);
+    setSelectedFAQ(null);
+  };
 
   return (
     <>
@@ -109,19 +112,24 @@ export default function FAQTable({ faqs, onRefresh, onEdit }: FAQTableProps) {
           <TableBody>
             {faqs.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                <TableCell
+                  colSpan={5}
+                  className="text-center py-8 text-muted-foreground"
+                >
                   No FAQs found
                 </TableCell>
               </TableRow>
             ) : (
               faqs.map((faq) => {
-                const status = statusConfig[faq.status]
+                const status = statusConfig[faq.status];
                 return (
                   <TableRow key={faq._id}>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <GripVertical className="h-4 w-4 text-muted-foreground cursor-move" />
-                        <span className="text-muted-foreground">{faq.order}</span>
+                        <span className="text-muted-foreground">
+                          {faq.order}
+                        </span>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -138,9 +146,7 @@ export default function FAQTable({ faqs, onRefresh, onEdit }: FAQTableProps) {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-center">
-                      <Badge variant={status.variant}>
-                        {status.label}
-                      </Badge>
+                      <Badge variant={status.variant}>{status.label}</Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
@@ -155,8 +161,10 @@ export default function FAQTable({ faqs, onRefresh, onEdit }: FAQTableProps) {
                             <Edit className="mr-2 h-4 w-4" />
                             Edit
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleStatusToggle(faq)}>
-                            {faq.status === 'ACTIVE' ? (
+                          <DropdownMenuItem
+                            onClick={() => handleStatusToggle(faq)}
+                          >
+                            {faq.status === "ACTIVE" ? (
                               <>
                                 <EyeOff className="mr-2 h-4 w-4" />
                                 Deactivate
@@ -169,7 +177,7 @@ export default function FAQTable({ faqs, onRefresh, onEdit }: FAQTableProps) {
                             )}
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem 
+                          <DropdownMenuItem
                             onClick={() => handleDelete(faq)}
                             className="text-red-600"
                           >
@@ -180,7 +188,7 @@ export default function FAQTable({ faqs, onRefresh, onEdit }: FAQTableProps) {
                       </DropdownMenu>
                     </TableCell>
                   </TableRow>
-                )
+                );
               })
             )}
           </TableBody>
@@ -192,12 +200,16 @@ export default function FAQTable({ faqs, onRefresh, onEdit }: FAQTableProps) {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {selectedFAQ?.status === 'ACTIVE' ? 'Deactivate' : 'Activate'} FAQ
+              {selectedFAQ?.status === "ACTIVE" ? "Deactivate" : "Activate"} FAQ
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to {selectedFAQ?.status === 'ACTIVE' ? 'deactivate' : 'activate'} this FAQ?
-              <span className="block mt-2 font-medium">&quot;{selectedFAQ?.question}&quot;</span>
-              {selectedFAQ?.status === 'ACTIVE' ? (
+              Are you sure you want to{" "}
+              {selectedFAQ?.status === "ACTIVE" ? "deactivate" : "activate"}{" "}
+              this FAQ?
+              <span className="block mt-2 font-medium">
+                &quot;{selectedFAQ?.question}&quot;
+              </span>
+              {selectedFAQ?.status === "ACTIVE" ? (
                 <span className="block mt-2 text-orange-600">
                   This FAQ will no longer be visible to customers.
                 </span>
@@ -224,7 +236,9 @@ export default function FAQTable({ faqs, onRefresh, onEdit }: FAQTableProps) {
             <AlertDialogTitle>Delete FAQ</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to delete this FAQ?
-              <span className="block mt-2 font-medium">&quot;{selectedFAQ?.question}&quot;</span>
+              <span className="block mt-2 font-medium">
+                &quot;{selectedFAQ?.question}&quot;
+              </span>
               <span className="block mt-2 text-red-600">
                 This action cannot be undone.
               </span>
@@ -232,7 +246,7 @@ export default function FAQTable({ faqs, onRefresh, onEdit }: FAQTableProps) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={confirmDelete}
               className="bg-red-600 hover:bg-red-700"
             >
@@ -242,5 +256,5 @@ export default function FAQTable({ faqs, onRefresh, onEdit }: FAQTableProps) {
         </AlertDialogContent>
       </AlertDialog>
     </>
-  )
+  );
 }

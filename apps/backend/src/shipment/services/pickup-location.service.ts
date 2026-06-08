@@ -7,15 +7,20 @@ import { CreatePickupLocationInput } from '../dto/create-pickup-location.input';
 @Injectable()
 export class PickupLocationService {
   constructor(
-    @InjectModel(PickupLocation.name) private pickupLocationModel: Model<PickupLocation>,
+    @InjectModel(PickupLocation.name)
+    private pickupLocationModel: Model<PickupLocation>,
   ) {}
 
   async findAll(): Promise<PickupLocation[]> {
     return this.pickupLocationModel.find().exec();
   }
 
-  async create(createPickupLocationInput: CreatePickupLocationInput): Promise<PickupLocation> {
-    const createdPickupLocation = new this.pickupLocationModel(createPickupLocationInput);
+  async create(
+    createPickupLocationInput: CreatePickupLocationInput,
+  ): Promise<PickupLocation> {
+    const createdPickupLocation = new this.pickupLocationModel(
+      createPickupLocationInput,
+    );
     return createdPickupLocation.save();
   }
 

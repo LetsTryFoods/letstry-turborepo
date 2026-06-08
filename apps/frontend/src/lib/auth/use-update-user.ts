@@ -19,7 +19,11 @@ interface UseUpdateUserReturn {
 }
 
 export function useUpdateUser(onSuccess?: () => void): UseUpdateUserReturn {
-  const { mutate: updateUserMutation, isPending, error } = useMutation({
+  const {
+    mutate: updateUserMutation,
+    isPending,
+    error,
+  } = useMutation({
     mutationFn: async (input: UpdateUserInput) => {
       const response = await graphqlClient.request(UPDATE_USER_MUTATION, {
         input,

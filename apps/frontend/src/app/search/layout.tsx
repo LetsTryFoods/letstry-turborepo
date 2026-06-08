@@ -1,7 +1,7 @@
-import type { Metadata } from 'next';
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: 'Search',
+  title: "Search",
   robots: {
     index: false,
     follow: true,

@@ -1,8 +1,8 @@
-import { getCookie, setCookie, deleteCookie } from 'cookies-next';
+import { getCookie, setCookie, deleteCookie } from "cookies-next";
 
 export const StorageService = {
   setStorageItem: (key: string, value: string) => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       localStorage.setItem(key, value);
       sessionStorage.setItem(key, value);
       setCookie(key, value, { maxAge: 60 * 60 * 24 * 30 });
@@ -10,7 +10,7 @@ export const StorageService = {
   },
 
   getStorageItem: (key: string): string | null => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const cookieVal = getCookie(key);
       if (cookieVal) return cookieVal as string;
 
@@ -23,7 +23,7 @@ export const StorageService = {
   },
 
   removeStorageItem: (key: string) => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       localStorage.removeItem(key);
       sessionStorage.removeItem(key);
       deleteCookie(key);
@@ -31,7 +31,7 @@ export const StorageService = {
   },
 
   isLoggedIn: (): boolean => {
-    const token = getCookie('access_token');
+    const token = getCookie("access_token");
     return !!token;
-  }
+  },
 };

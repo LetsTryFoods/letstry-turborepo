@@ -23,7 +23,6 @@ export const useClickSpark = () => {
         canvas.height = window.innerHeight;
       });
     }
-    
 
     const ctx = canvasRef.current.getContext("2d");
     if (!ctx) return;

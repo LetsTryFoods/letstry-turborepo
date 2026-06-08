@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   Table,
@@ -7,52 +7,68 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Eye, MessageCircle, MessageSquare } from "lucide-react"
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Eye, MessageCircle, MessageSquare } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
-import { AbandonedCart } from "@/lib/abandoned-carts/useAbandonedCarts"
-import { format, formatDistanceToNow } from "date-fns"
-import { ShoppingCart } from "lucide-react"
+} from "@/components/ui/tooltip";
+import { AbandonedCart } from "@/lib/abandoned-carts/useAbandonedCarts";
+import { format, formatDistanceToNow } from "date-fns";
+import { ShoppingCart } from "lucide-react";
 
 interface CartTableProps {
-  carts: AbandonedCart[]
-  onViewDetails: (cart: AbandonedCart) => void
-  onSendWhatsApp: (cart: AbandonedCart) => void
-  onSendSMS: (cart: AbandonedCart) => void
+  carts: AbandonedCart[];
+  onViewDetails: (cart: AbandonedCart) => void;
+  onSendWhatsApp: (cart: AbandonedCart) => void;
+  onSendSMS: (cart: AbandonedCart) => void;
 }
 
-export function CartTable({ carts, onViewDetails, onSendWhatsApp, onSendSMS }: CartTableProps) {
+export function CartTable({
+  carts,
+  onViewDetails,
+  onSendWhatsApp,
+  onSendSMS,
+}: CartTableProps) {
   const getActivityBadge = (lastActivity: string) => {
-    const now = new Date()
-    const activityDate = new Date(lastActivity)
-    const hoursDiff = (now.getTime() - activityDate.getTime()) / (1000 * 60 * 60)
+    const now = new Date();
+    const activityDate = new Date(lastActivity);
+    const hoursDiff =
+      (now.getTime() - activityDate.getTime()) / (1000 * 60 * 60);
 
     if (hoursDiff < 24) {
-      return <Badge className="bg-green-600">Active Today</Badge>
+      return <Badge className="bg-green-600">Active Today</Badge>;
     } else if (hoursDiff < 72) {
-      return <Badge variant="outline" className="border-yellow-500 text-yellow-600">2-3 Days</Badge>
+      return (
+        <Badge variant="outline" className="border-yellow-500 text-yellow-600">
+          2-3 Days
+        </Badge>
+      );
     } else if (hoursDiff < 168) {
-      return <Badge variant="outline" className="border-orange-500 text-orange-600">This Week</Badge>
+      return (
+        <Badge variant="outline" className="border-orange-500 text-orange-600">
+          This Week
+        </Badge>
+      );
     } else {
-      return <Badge variant="secondary">Older</Badge>
+      return <Badge variant="secondary">Older</Badge>;
     }
-  }
+  };
 
   if (carts.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-48 text-center">
         <ShoppingCart className="h-12 w-12 text-muted-foreground mb-4" />
         <p className="text-muted-foreground">No abandoned carts found</p>
-        <p className="text-sm text-muted-foreground">Great! All customers have completed their orders</p>
+        <p className="text-sm text-muted-foreground">
+          Great! All customers have completed their orders
+        </p>
       </div>
-    )
+    );
   }
 
   return (
@@ -75,7 +91,9 @@ export function CartTable({ carts, onViewDetails, onSendWhatsApp, onSendSMS }: C
               <TableCell>
                 <div>
                   <p className="font-medium">{cart.customer.name}</p>
-                  <p className="text-xs text-muted-foreground">{cart.customer.email}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {cart.customer.email}
+                  </p>
                 </div>
               </TableCell>
               <TableCell>
@@ -88,10 +106,14 @@ export function CartTable({ carts, onViewDetails, onSendWhatsApp, onSendSMS }: C
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div className="cursor-help">
-                        <p className="text-sm">{cart.items.length} item{cart.items.length > 1 ? 's' : ''}</p>
+                        <p className="text-sm">
+                          {cart.items.length} item
+                          {cart.items.length > 1 ? "s" : ""}
+                        </p>
                         <p className="text-xs text-muted-foreground truncate max-w-[150px]">
                           {cart.items[0]?.product.name}
-                          {cart.items.length > 1 && ` +${cart.items.length - 1} more`}
+                          {cart.items.length > 1 &&
+                            ` +${cart.items.length - 1} more`}
                         </p>
                       </div>
                     </TooltipTrigger>
@@ -99,7 +121,8 @@ export function CartTable({ carts, onViewDetails, onSendWhatsApp, onSendSMS }: C
                       <div className="space-y-1">
                         {cart.items.map((item, idx) => (
                           <p key={idx} className="text-xs">
-                            {item.quantity}x {item.product.name} ({item.variant})
+                            {item.quantity}x {item.product.name} ({item.variant}
+                            )
                           </p>
                         ))}
                       </div>
@@ -108,17 +131,23 @@ export function CartTable({ carts, onViewDetails, onSendWhatsApp, onSendSMS }: C
                 </TooltipProvider>
               </TableCell>
               <TableCell className="text-right">
-                <p className="font-semibold text-green-600">₹{cart.subtotal.toLocaleString()}</p>
+                <p className="font-semibold text-green-600">
+                  ₹{cart.subtotal.toLocaleString()}
+                </p>
               </TableCell>
               <TableCell>
                 <div>
-                  <p className="text-sm">{formatDistanceToNow(new Date(cart.lastActivity), { addSuffix: true })}</p>
-                  <p className="text-xs text-muted-foreground">{format(new Date(cart.lastActivity), 'dd MMM, hh:mm a')}</p>
+                  <p className="text-sm">
+                    {formatDistanceToNow(new Date(cart.lastActivity), {
+                      addSuffix: true,
+                    })}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {format(new Date(cart.lastActivity), "dd MMM, hh:mm a")}
+                  </p>
                 </div>
               </TableCell>
-              <TableCell>
-                {getActivityBadge(cart.lastActivity)}
-              </TableCell>
+              <TableCell>{getActivityBadge(cart.lastActivity)}</TableCell>
               <TableCell className="text-right">
                 <div className="flex items-center justify-end gap-2">
                   <TooltipProvider>
@@ -174,5 +203,5 @@ export function CartTable({ carts, onViewDetails, onSendWhatsApp, onSendSMS }: C
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }

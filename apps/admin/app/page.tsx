@@ -1,14 +1,13 @@
-
-import { redirect } from 'next/navigation'
+import { redirect } from "next/navigation";
 
 function page() {
-
-
-  redirect('/dashboard')
+  redirect("/dashboard");
 
   return (
-    <div className=' w-screen h-screen flex justify-center items-center'>Redirection ...</div>
-  )
+    <div className=" w-screen h-screen flex justify-center items-center">
+      Redirection ...
+    </div>
+  );
 }
 
-export default page
+export default page;

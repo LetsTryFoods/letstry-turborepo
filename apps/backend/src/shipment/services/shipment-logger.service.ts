@@ -12,29 +12,38 @@ export class ShipmentLoggerService {
 
   constructor(private configService: ConfigService) {
     const logConfig = this.configService.get('logger');
-    
-    const createWinstonLogger = (filename: string) => winston.createLogger({
-      level: 'info',
-      format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.errors({ stack: true }),
-        winston.format.json(),
-      ),
-      transports: [
-        new winston.transports.File({
-          filename: path.resolve(filename),
-          format: winston.format.combine(
-            winston.format.timestamp(),
-            winston.format.json(),
-          ),
-        }),
-      ],
-    });
 
-    this.generalLogger = createWinstonLogger(logConfig.shipmentFile || 'logs/shipment.log');
-    this.dtdcLogger = createWinstonLogger(logConfig.dtdcFile || 'logs/dtdc.log');
-    this.shiprocketLogger = createWinstonLogger(logConfig.shiprocketFile || 'logs/shiprocket.log');
-    this.shiprocketWebhookLogger = createWinstonLogger('logs/shiprocket-webhook-concilation.log');
+    const createWinstonLogger = (filename: string) =>
+      winston.createLogger({
+        level: 'info',
+        format: winston.format.combine(
+          winston.format.timestamp(),
+          winston.format.errors({ stack: true }),
+          winston.format.json(),
+        ),
+        transports: [
+          new winston.transports.File({
+            filename: path.resolve(filename),
+            format: winston.format.combine(
+              winston.format.timestamp(),
+              winston.format.json(),
+            ),
+          }),
+        ],
+      });
+
+    this.generalLogger = createWinstonLogger(
+      logConfig.shipmentFile || 'logs/shipment.log',
+    );
+    this.dtdcLogger = createWinstonLogger(
+      logConfig.dtdcFile || 'logs/dtdc.log',
+    );
+    this.shiprocketLogger = createWinstonLogger(
+      logConfig.shiprocketFile || 'logs/shiprocket.log',
+    );
+    this.shiprocketWebhookLogger = createWinstonLogger(
+      'logs/shiprocket-webhook-concilation.log',
+    );
   }
 
   private getLogger(provider?: string): winston.Logger {
@@ -45,7 +54,12 @@ export class ShipmentLoggerService {
     return this.generalLogger;
   }
 
-  logShipmentBooked(awbNumber: string, orderId: string, shipmentId: string, provider?: string) {
+  logShipmentBooked(
+    awbNumber: string,
+    orderId: string,
+    shipmentId: string,
+    provider?: string,
+  ) {
     this.getLogger(provider).info('Shipment booked successfully', {
       event: 'SHIPMENT_BOOKED',
       awbNumber,
@@ -78,7 +92,11 @@ export class ShipmentLoggerService {
     });
   }
 
-  logShipmentCancelled(awbNumber: string, shipmentId: string, provider?: string) {
+  logShipmentCancelled(
+    awbNumber: string,
+    shipmentId: string,
+    provider?: string,
+  ) {
     this.getLogger(provider).info('Shipment cancelled', {
       event: 'SHIPMENT_CANCELLED',
       awbNumber,
@@ -86,7 +104,12 @@ export class ShipmentLoggerService {
     });
   }
 
-  logShipmentStatusUpdated(awbNumber: string, statusCode: string, statusDescription: string, provider?: string) {
+  logShipmentStatusUpdated(
+    awbNumber: string,
+    statusCode: string,
+    statusDescription: string,
+    provider?: string,
+  ) {
     this.getLogger(provider).info('Shipment status updated', {
       event: 'STATUS_UPDATED',
       awbNumber,
@@ -101,7 +124,7 @@ export class ShipmentLoggerService {
       awbNumber,
       statusCode,
     });
-    
+
     if (provider?.toUpperCase() === 'SHIPROCKET') {
       this.shiprocketWebhookLogger.info('Shiprocket webhook raw payload', {
         event: 'WEBHOOK_RAW',
@@ -115,18 +138,23 @@ export class ShipmentLoggerService {
     this.shiprocketWebhookLogger.info('Received Shiprocket Webhook', {
       event: 'RAW_PAYLOAD',
       payload,
-      receivedAt: new Date().toISOString()
+      receivedAt: new Date().toISOString(),
     });
   }
 
-  logShiprocketWebhookResult(awbNumber: string, success: boolean, internalStatus: string, error?: string) {
+  logShiprocketWebhookResult(
+    awbNumber: string,
+    success: boolean,
+    internalStatus: string,
+    error?: string,
+  ) {
     this.shiprocketWebhookLogger.info('Processed Shiprocket Webhook', {
       event: 'PROCESS_RESULT',
       awbNumber,
       success,
       internalStatus,
       error,
-      processedAt: new Date().toISOString()
+      processedAt: new Date().toISOString(),
     });
   }
 
@@ -146,7 +174,12 @@ export class ShipmentLoggerService {
     });
   }
 
-  logWebhookFailed(awbNumber: string, error: string, duration: number, provider?: string) {
+  logWebhookFailed(
+    awbNumber: string,
+    error: string,
+    duration: number,
+    provider?: string,
+  ) {
     this.getLogger(provider).error('Webhook processing failed', {
       event: 'WEBHOOK_FAILED',
       awbNumber,
@@ -155,7 +188,14 @@ export class ShipmentLoggerService {
     });
   }
 
-  logApiCall(endpoint: string, method: string, statusCode: number, duration: number, provider?: string, response?: any) {
+  logApiCall(
+    endpoint: string,
+    method: string,
+    statusCode: number,
+    duration: number,
+    provider?: string,
+    response?: any,
+  ) {
     this.getLogger(provider).info(`${provider || 'API'} call`, {
       event: 'API_CALL',
       endpoint,
@@ -166,7 +206,14 @@ export class ShipmentLoggerService {
     });
   }
 
-  logApiError(endpoint: string, method: string, error: string, duration: number, provider?: string, response?: any) {
+  logApiError(
+    endpoint: string,
+    method: string,
+    error: string,
+    duration: number,
+    provider?: string,
+    response?: any,
+  ) {
     this.getLogger(provider).error(`${provider || 'API'} call failed`, {
       event: 'API_ERROR',
       endpoint,
@@ -177,7 +224,12 @@ export class ShipmentLoggerService {
     });
   }
 
-  logPincodeCheck(origin: string, destination: string, serviceable: boolean, provider?: string) {
+  logPincodeCheck(
+    origin: string,
+    destination: string,
+    serviceable: boolean,
+    provider?: string,
+  ) {
     this.getLogger(provider).info('Pincode serviceability checked', {
       event: 'PINCODE_CHECK',
       origin,
@@ -194,7 +246,12 @@ export class ShipmentLoggerService {
     });
   }
 
-  logError(message: string, error: any, context?: Record<string, any>, provider?: string) {
+  logError(
+    message: string,
+    error: any,
+    context?: Record<string, any>,
+    provider?: string,
+  ) {
     this.getLogger(provider).error(message, {
       error: error.message || error,
       stack: error.stack,

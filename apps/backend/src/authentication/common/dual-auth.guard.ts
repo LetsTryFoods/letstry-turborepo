@@ -31,7 +31,8 @@ export class DualAuthGuard extends AuthGuard('jwt') {
       }
     } catch (err) {}
 
-    let sessionId = request.cookies?.sessionId || request.headers['x-session-id'];
+    let sessionId =
+      request.cookies?.sessionId || request.headers['x-session-id'];
 
     if (!sessionId && request.cookies?.guest_session) {
       if (typeof request.cookies.guest_session === 'string') {

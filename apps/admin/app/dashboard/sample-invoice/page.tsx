@@ -1,12 +1,20 @@
-"use client"
+"use client";
 
-import Image from "next/image"
-import { useState, useRef, useMemo } from "react"
-import { useSampleInvoiceProducts } from "@/lib/sample-invoice/queries"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import Image from "next/image";
+import { useState, useRef, useMemo } from "react";
+import { useSampleInvoiceProducts } from "@/lib/sample-invoice/queries";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -14,7 +22,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
 import {
   Search,
   Plus,
@@ -31,39 +39,43 @@ import {
   History,
   FileImage,
   Pencil,
-} from "lucide-react"
-import { format } from "date-fns"
-import { toast } from "react-hot-toast"
-import { useCreateSampleInvoice, useSampleInvoices, useUpdateSampleInvoice } from "@/lib/sample-invoice/queries"
-import { printSampleInvoiceLabel } from "@/lib/utils/label-printer"
+} from "lucide-react";
+import { format } from "date-fns";
+import { toast } from "react-hot-toast";
+import {
+  useCreateSampleInvoice,
+  useSampleInvoices,
+  useUpdateSampleInvoice,
+} from "@/lib/sample-invoice/queries";
+import { printSampleInvoiceLabel } from "@/lib/utils/label-printer";
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 interface InvoiceLineItem {
-  skuId: string
-  sku: string
-  skuName: string
-  uom: string
-  price: number
-  quantity: number
+  skuId: string;
+  sku: string;
+  skuName: string;
+  uom: string;
+  price: number;
+  quantity: number;
 }
 
 interface RecipientDetails {
-  name: string
-  company: string
-  address: string
-  phone: string
-  notes: string
+  name: string;
+  company: string;
+  address: string;
+  phone: string;
+  notes: string;
 }
 
 // ---------------------------------------------------------------------------
 // Auto-generate invoice number: INV-YYYYMMDD-XXX
 // ---------------------------------------------------------------------------
 function generateInvoiceNumber() {
-  const today = format(new Date(), "yyyyMMdd")
-  const suffix = Math.floor(100 + Math.random() * 900) // 3-digit random
-  return `INV-${today}-${suffix}`
+  const today = format(new Date(), "yyyyMMdd");
+  const suffix = Math.floor(100 + Math.random() * 900); // 3-digit random
+  return `INV-${today}-${suffix}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -99,18 +111,18 @@ const PRINT_STYLES = `
     }
     .no-print { display: none !important; }
   }
-`
+`;
 
 // ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
 export default function SampleInvoicePage() {
-  const { data, loading } = useSampleInvoiceProducts()
+  const { data, loading } = useSampleInvoiceProducts();
 
   // Flatten products and variants for searchable records
   const records = useMemo(() => {
-    const productsList = (data as any)?.products?.items ?? []
-    const allVariants: any[] = []
+    const productsList = (data as any)?.products?.items ?? [];
+    const allVariants: any[] = [];
     productsList.forEach((prod: any) => {
       if (prod.variants) {
         prod.variants.forEach((v: any) => {
@@ -120,26 +132,26 @@ export default function SampleInvoicePage() {
             name: v.name,
             price: v.price ?? 0,
             mrp: v.mrp ?? 0,
-            uom: v.weight ? `${v.weight} ${v.weightUnit ?? 'g'}` : 'Pcs',
-          })
-        })
+            uom: v.weight ? `${v.weight} ${v.weightUnit ?? "g"}` : "Pcs",
+          });
+        });
       }
-    })
-    return allVariants
-  }, [data])
+    });
+    return allVariants;
+  }, [data]);
 
   // Mutation + saved invoices list
-  const [createInvoice, { loading: saving }] = useCreateSampleInvoice()
-  const [updateInvoice, { loading: updating }] = useUpdateSampleInvoice()
-  const { data: savedData } = useSampleInvoices()
-  const savedInvoices: any[] = (savedData as any)?.sampleInvoices ?? []
+  const [createInvoice, { loading: saving }] = useCreateSampleInvoice();
+  const [updateInvoice, { loading: updating }] = useUpdateSampleInvoice();
+  const { data: savedData } = useSampleInvoices();
+  const savedInvoices: any[] = (savedData as any)?.sampleInvoices ?? [];
 
-  const [savedId, setSavedId] = useState<string | null>(null)
-  const [editingId, setEditingId] = useState<string | null>(null)
+  const [savedId, setSavedId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   // Invoice meta
-  const [invoiceNumber, setInvoiceNumber] = useState(generateInvoiceNumber)
-  const invoiceDate = format(new Date(), "dd MMM yyyy")
+  const [invoiceNumber, setInvoiceNumber] = useState(generateInvoiceNumber);
+  const invoiceDate = format(new Date(), "dd MMM yyyy");
 
   // Recipient
   const [recipient, setRecipient] = useState<RecipientDetails>({
@@ -148,38 +160,40 @@ export default function SampleInvoicePage() {
     address: "",
     phone: "",
     notes: "",
-  })
+  });
 
   // SKU picker state
-  const [skuSearch, setSkuSearch] = useState("")
-  const [showPicker, setShowPicker] = useState(false)
+  const [skuSearch, setSkuSearch] = useState("");
+  const [showPicker, setShowPicker] = useState(false);
 
   // Selected line items
-  const [lineItems, setLineItems] = useState<InvoiceLineItem[]>([])
+  const [lineItems, setLineItems] = useState<InvoiceLineItem[]>([]);
+
+  // Complimentary state
+  const [isComplimentary, setIsComplimentary] = useState(true);
 
   // Print style injected once
-  const styleInjected = useRef(false)
+  const styleInjected = useRef(false);
   if (typeof document !== "undefined" && !styleInjected.current) {
-    const style = document.createElement("style")
-    style.innerHTML = PRINT_STYLES
-    document.head.appendChild(style)
-    styleInjected.current = true
+    const style = document.createElement("style");
+    style.innerHTML = PRINT_STYLES;
+    document.head.appendChild(style);
+    styleInjected.current = true;
   }
 
   // Filtered SKUs for picker (exclude already added)
   const filteredSkus = useMemo(() => {
-    const addedIds = new Set(lineItems.map((l) => l.skuId))
+    const addedIds = new Set(lineItems.map((l) => l.skuId));
     return records
       .filter((r) => !addedIds.has(r._id))
       .filter((r) => {
-        const q = skuSearch.toLowerCase()
+        const q = skuSearch.toLowerCase();
         return (
-          r.name.toLowerCase().includes(q) ||
-          r.sku.toLowerCase().includes(q)
-        )
+          r.name.toLowerCase().includes(q) || r.sku.toLowerCase().includes(q)
+        );
       })
-      .slice(0, 30) // cap for performance
-  }, [records, lineItems, skuSearch])
+      .slice(0, 30); // cap for performance
+  }, [records, lineItems, skuSearch]);
 
   // Add a SKU to the invoice
   const addSku = (sku: any) => {
@@ -194,59 +208,65 @@ export default function SampleInvoicePage() {
         price: sku.price ?? 0,
         quantity: 1,
       },
-    ])
-    setSkuSearch("")
-  }
+    ]);
+    setSkuSearch("");
+  };
 
   // Update quantity
   const updateQty = (skuId: string, qty: number) => {
-    if (qty < 1) return
+    if (qty < 1) return;
     setLineItems((prev) =>
-      prev.map((item) => (item.skuId === skuId ? { ...item, quantity: qty } : item))
-    )
-  }
+      prev.map((item) =>
+        item.skuId === skuId ? { ...item, quantity: qty } : item,
+      ),
+    );
+  };
 
   // Remove line
   const removeLine = (skuId: string) => {
-    setLineItems((prev) => prev.filter((item) => item.skuId !== skuId))
-  }
+    setLineItems((prev) => prev.filter((item) => item.skuId !== skuId));
+  };
 
   // Totals
-  const totalPcs = lineItems.reduce((acc, l) => acc + l.quantity, 0)
-  const totalValue = lineItems.reduce((acc, l) => acc + l.price * l.quantity, 0)
+  const totalPcs = lineItems.reduce((acc, l) => acc + l.quantity, 0);
+  const totalValue = lineItems.reduce(
+    (acc, l) => acc + l.price * l.quantity,
+    0,
+  );
 
   // Print
   const handlePrint = () => {
-    window.print()
-  }
+    window.print();
+  };
 
   const handleCancelEdit = () => {
-    setEditingId(null)
-    setSavedId(null)
-    setLineItems([])
+    setEditingId(null);
+    setSavedId(null);
+    setLineItems([]);
+    setIsComplimentary(true);
     setRecipient({
       name: "",
       company: "",
       address: "",
       phone: "",
       notes: "",
-    })
-    setInvoiceNumber(generateInvoiceNumber())
-  }
+    });
+    setInvoiceNumber(generateInvoiceNumber());
+  };
 
   const handleLoadInvoice = (inv: any) => {
-    setEditingId(inv._id)
-    setInvoiceNumber(inv.invoiceNumber)
+    setEditingId(inv._id);
+    setInvoiceNumber(inv.invoiceNumber);
     setRecipient({
       name: inv.recipient?.name || "",
       company: inv.recipient?.company || "",
       address: inv.recipient?.address || "",
       phone: inv.recipient?.phone || "",
       notes: inv.recipient?.notes || "",
-    })
+    });
 
     const mapped = inv.items.map((item: any) => {
-      const match = records.find((r) => r.sku === item.sku)
+      const match = records.find((r) => r.sku === item.sku);
       return {
         skuId: match?._id || item.sku,
         sku: item.sku,
@@ -254,26 +274,28 @@ export default function SampleInvoicePage() {
         uom: item.uom || "Pcs",
         price: item.mrp || 0,
         quantity: item.quantity,
-      }
-    })
-    setLineItems(mapped)
-  }
+      };
+    });
+    setLineItems(mapped);
+    setIsComplimentary(inv.isComplimentary ?? true);
+  };
 
   const handlePrintSavedInvoice = (inv: any) => {
-    handleLoadInvoice(inv)
+    handleLoadInvoice(inv);
     setTimeout(() => {
-      window.print()
-    }, 150)
-  }
+      window.print();
+    }, 150);
+  };
 
   // Save to DB
   const handleSave = async () => {
     if (lineItems.length === 0) {
-      toast.error("Add at least one item before saving.")
-      return
+      toast.error("Add at least one item before saving.");
+      return;
     }
     const inputPayload = {
       invoiceNumber,
+      isComplimentary,
       recipient: {
         name: recipient.name || undefined,
         company: recipient.company || undefined,
@@ -288,7 +310,7 @@ export default function SampleInvoicePage() {
         mrp: l.price,
         quantity: l.quantity,
       })),
-    }
+    };
 
     try {
       if (editingId) {
@@ -297,23 +319,23 @@ export default function SampleInvoicePage() {
             id: editingId,
             input: inputPayload,
           },
-        })
-        toast.success(`Invoice ${invoiceNumber} updated successfully!`)
-        handleCancelEdit()
+        });
+        toast.success(`Invoice ${invoiceNumber} updated successfully!`);
+        handleCancelEdit();
       } else {
         const result = await createInvoice({
           variables: {
             input: inputPayload,
           },
-        })
-        const id = (result.data as any)?.createSampleInvoice?._id
-        setSavedId(id ?? null)
-        toast.success(`Invoice ${invoiceNumber} saved successfully!`)
+        });
+        const id = (result.data as any)?.createSampleInvoice?._id;
+        setSavedId(id ?? null);
+        toast.success(`Invoice ${invoiceNumber} saved successfully!`);
       }
     } catch (err: any) {
-      toast.error("Save failed: " + (err?.message ?? "Unknown error"))
+      toast.error("Save failed: " + (err?.message ?? "Unknown error"));
     }
-  }
+  };
 
   return (
     <div className="mx-6 mb-12 space-y-6 no-print-wrapper">
@@ -325,13 +347,17 @@ export default function SampleInvoicePage() {
               {editingId ? "Edit Dispatch Invoice" : "Dispatch Invoice"}
             </h1>
             {editingId && (
-              <Badge variant="outline" className="border-indigo-500 text-indigo-700 bg-indigo-50 font-mono">
+              <Badge
+                variant="outline"
+                className="border-indigo-500 text-indigo-700 bg-indigo-50 font-mono"
+              >
                 Editing: {invoiceNumber}
               </Badge>
             )}
           </div>
           <p className="text-muted-foreground mt-1">
-            Generate and record dynamic dispatch invoices using your live product variant catalog.
+            Generate and record dynamic dispatch invoices using your live
+            product variant catalog.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -361,7 +387,13 @@ export default function SampleInvoicePage() {
             ) : (
               <Save className="h-4 w-4" />
             )}
-            {editingId ? (updating ? "Updating..." : "Update Invoice") : (saving ? "Saving..." : "Save Invoice")}
+            {editingId
+              ? updating
+                ? "Updating..."
+                : "Update Invoice"
+              : saving
+                ? "Saving..."
+                : "Save Invoice"}
           </Button>
           <Button
             onClick={handlePrint}
@@ -373,15 +405,17 @@ export default function SampleInvoicePage() {
           </Button>
           <Button
             variant="outline"
-            onClick={() => printSampleInvoiceLabel({
-              invoiceNumber,
-              recipient: {
-                name: recipient.name,
-                company: recipient.company,
-                address: recipient.address,
-                phone: recipient.phone
-              }
-            })}
+            onClick={() =>
+              printSampleInvoiceLabel({
+                invoiceNumber,
+                recipient: {
+                  name: recipient.name,
+                  company: recipient.company,
+                  address: recipient.address,
+                  phone: recipient.phone,
+                },
+              })
+            }
             disabled={lineItems.length === 0}
             className="gap-2 text-indigo-600 border-indigo-200 hover:bg-indigo-50"
           >
@@ -401,7 +435,9 @@ export default function SampleInvoicePage() {
                 <User className="h-4 w-4" />
                 Recipient Details
               </CardTitle>
-              <CardDescription>Enter receiver or company dispatch details</CardDescription>
+              <CardDescription>
+                Enter receiver or company dispatch details
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
@@ -412,7 +448,9 @@ export default function SampleInvoicePage() {
                   <Input
                     placeholder="Recipient name"
                     value={recipient.name}
-                    onChange={(e) => setRecipient((p) => ({ ...p, name: e.target.value }))}
+                    onChange={(e) =>
+                      setRecipient((p) => ({ ...p, name: e.target.value }))
+                    }
                   />
                 </div>
                 <div className="space-y-1">
@@ -422,7 +460,9 @@ export default function SampleInvoicePage() {
                   <Input
                     placeholder="Company / Organization"
                     value={recipient.company}
-                    onChange={(e) => setRecipient((p) => ({ ...p, company: e.target.value }))}
+                    onChange={(e) =>
+                      setRecipient((p) => ({ ...p, company: e.target.value }))
+                    }
                   />
                 </div>
               </div>
@@ -433,7 +473,9 @@ export default function SampleInvoicePage() {
                 <Input
                   placeholder="Delivery address"
                   value={recipient.address}
-                  onChange={(e) => setRecipient((p) => ({ ...p, address: e.target.value }))}
+                  onChange={(e) =>
+                    setRecipient((p) => ({ ...p, address: e.target.value }))
+                  }
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -444,7 +486,9 @@ export default function SampleInvoicePage() {
                   <Input
                     placeholder="+91 9999999999"
                     value={recipient.phone}
-                    onChange={(e) => setRecipient((p) => ({ ...p, phone: e.target.value }))}
+                    onChange={(e) =>
+                      setRecipient((p) => ({ ...p, phone: e.target.value }))
+                    }
                   />
                 </div>
                 <div className="space-y-1">
@@ -454,9 +498,21 @@ export default function SampleInvoicePage() {
                   <Input
                     placeholder="Optional remarks"
                     value={recipient.notes}
-                    onChange={(e) => setRecipient((p) => ({ ...p, notes: e.target.value }))}
+                    onChange={(e) =>
+                      setRecipient((p) => ({ ...p, notes: e.target.value }))
+                    }
                   />
                 </div>
+              </div>
+              <div className="flex items-center space-x-2 pt-2 border-t mt-3">
+                <Switch
+                  id="complimentary"
+                  checked={isComplimentary}
+                  onCheckedChange={setIsComplimentary}
+                />
+                <Label htmlFor="complimentary" className="text-sm font-medium leading-none">
+                  Mark as Complimentary
+                </Label>
               </div>
             </CardContent>
           </Card>
@@ -468,7 +524,9 @@ export default function SampleInvoicePage() {
                 <Package className="h-4 w-4" />
                 Select Products
               </CardTitle>
-              <CardDescription>Search and add items directly from your live database catalog</CardDescription>
+              <CardDescription>
+                Search and add items directly from your live database catalog
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="relative">
@@ -478,8 +536,8 @@ export default function SampleInvoicePage() {
                   placeholder="Search product variant name or SKU..."
                   value={skuSearch}
                   onChange={(e) => {
-                    setSkuSearch(e.target.value)
-                    setShowPicker(true)
+                    setSkuSearch(e.target.value);
+                    setShowPicker(true);
                   }}
                   onFocus={() => setShowPicker(true)}
                 />
@@ -494,7 +552,9 @@ export default function SampleInvoicePage() {
                     </div>
                   ) : filteredSkus.length === 0 ? (
                     <p className="text-center py-6 text-sm text-muted-foreground">
-                      {skuSearch ? "No matching products found" : "All items already added"}
+                      {skuSearch
+                        ? "No matching products found"
+                        : "All items already added"}
                     </p>
                   ) : (
                     <div className="max-h-60 overflow-y-auto divide-y">
@@ -502,19 +562,26 @@ export default function SampleInvoicePage() {
                         <button
                           key={sku._id}
                           onClick={() => {
-                            addSku(sku)
-                            setShowPicker(false)
+                            addSku(sku);
+                            setShowPicker(false);
                           }}
                           className="w-full text-left px-4 py-2.5 hover:bg-muted/60 transition-colors flex items-center justify-between gap-2"
                         >
                           <div>
-                            <span className="text-sm font-medium">{sku.name}</span>
+                            <span className="text-sm font-medium">
+                              {sku.name}
+                            </span>
                             <div className="flex items-center gap-2 mt-0.5">
-                              <Badge variant="outline" className="text-[10px] font-mono px-1 py-0">
+                              <Badge
+                                variant="outline"
+                                className="text-[10px] font-mono px-1 py-0"
+                              >
                                 {sku.sku}
                               </Badge>
                               {sku.uom && (
-                                <span className="text-xs text-muted-foreground">{sku.uom}</span>
+                                <span className="text-xs text-muted-foreground">
+                                  {sku.uom}
+                                </span>
                               )}
                               {sku.price != null && (
                                 <span className="text-xs text-muted-foreground font-semibold text-green-700">
@@ -557,8 +624,12 @@ export default function SampleInvoicePage() {
                         <TableRow key={item.skuId}>
                           <TableCell>
                             <div>
-                              <p className="text-sm font-medium">{item.skuName}</p>
-                              <p className="text-xs text-muted-foreground font-mono">{item.sku}</p>
+                              <p className="text-sm font-medium">
+                                {item.skuName}
+                              </p>
+                              <p className="text-xs text-muted-foreground font-mono">
+                                {item.sku}
+                              </p>
                             </div>
                           </TableCell>
                           <TableCell className="text-sm">{item.uom}</TableCell>
@@ -569,12 +640,19 @@ export default function SampleInvoicePage() {
                               step={0.01}
                               className="w-24 h-8 text-sm"
                               value={item.price}
-                              onChange={(e) => setLineItems((prev) =>
-                                prev.map((li) => li.skuId === item.skuId
-                                  ? { ...li, price: parseFloat(e.target.value) || 0 }
-                                  : li
+                              onChange={(e) =>
+                                setLineItems((prev) =>
+                                  prev.map((li) =>
+                                    li.skuId === item.skuId
+                                      ? {
+                                        ...li,
+                                        price:
+                                          parseFloat(e.target.value) || 0,
+                                      }
+                                      : li,
+                                  ),
                                 )
-                              )}
+                              }
                             />
                           </TableCell>
                           <TableCell>
@@ -583,7 +661,12 @@ export default function SampleInvoicePage() {
                               min={1}
                               className="w-20 h-8 text-sm"
                               value={item.quantity}
-                              onChange={(e) => updateQty(item.skuId, parseInt(e.target.value) || 1)}
+                              onChange={(e) =>
+                                updateQty(
+                                  item.skuId,
+                                  parseInt(e.target.value) || 1,
+                                )
+                              }
                             />
                           </TableCell>
                           <TableCell>
@@ -624,13 +707,15 @@ export default function SampleInvoicePage() {
                   className="object-contain"
                   priority
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  Dispatch Invoice
-                </p>
+                <p className="text-xs text-gray-500 mt-1">Dispatch Invoice</p>
               </div>
               <div className="text-right">
-                <p className="text-xs text-gray-400 uppercase tracking-wide">Invoice No.</p>
-                <p className="font-bold font-mono text-[#0C5273]">{invoiceNumber}</p>
+                <p className="text-xs text-gray-400 uppercase tracking-wide">
+                  Invoice No.
+                </p>
+                <p className="font-bold font-mono text-[#0C5273]">
+                  {invoiceNumber}
+                </p>
                 <p className="text-xs text-gray-500 mt-1">{invoiceDate}</p>
               </div>
             </div>
@@ -648,18 +733,24 @@ export default function SampleInvoicePage() {
                   <>
                     <div className="flex items-center gap-1.5">
                       <User className="h-3.5 w-3.5 text-gray-400" />
-                      <span className="font-semibold text-gray-800">{recipient.name}</span>
+                      <span className="font-semibold text-gray-800">
+                        {recipient.name}
+                      </span>
                     </div>
                     {recipient.company && (
                       <div className="flex items-center gap-1.5">
                         <Building2 className="h-3.5 w-3.5 text-gray-400" />
-                        <span className="text-gray-600">{recipient.company}</span>
+                        <span className="text-gray-600">
+                          {recipient.company}
+                        </span>
                       </div>
                     )}
                     {recipient.address && (
                       <div className="flex items-center gap-1.5">
                         <MapPin className="h-3.5 w-3.5 text-gray-400" />
-                        <span className="text-gray-600">{recipient.address}</span>
+                        <span className="text-gray-600">
+                          {recipient.address}
+                        </span>
                       </div>
                     )}
                     {recipient.phone && (
@@ -684,17 +775,28 @@ export default function SampleInvoicePage() {
               </p>
               {lineItems.length === 0 ? (
                 <div className="border-2 border-dashed rounded-lg py-8 text-center text-gray-400 text-xs">
-                  No items added yet. Search and select products from the left panel.
+                  No items added yet. Search and select products from the left
+                  panel.
                 </div>
               ) : (
                 <table className="w-full text-sm border-collapse">
                   <thead>
                     <tr className="bg-[#0C5273] text-white">
-                      <th className="text-left px-3 py-2 rounded-tl-lg text-xs font-semibold">#</th>
-                      <th className="text-left px-3 py-2 text-xs font-semibold">SKU Name</th>
-                      <th className="text-center px-3 py-2 text-xs font-semibold">UoM</th>
-                      <th className="text-right px-3 py-2 text-xs font-semibold">Price</th>
-                      <th className="text-right px-3 py-2 rounded-tr-lg text-xs font-semibold">Qty</th>
+                      <th className="text-left px-3 py-2 rounded-tl-lg text-xs font-semibold">
+                        #
+                      </th>
+                      <th className="text-left px-3 py-2 text-xs font-semibold">
+                        SKU Name
+                      </th>
+                      <th className="text-center px-3 py-2 text-xs font-semibold">
+                        UoM
+                      </th>
+                      <th className="text-right px-3 py-2 text-xs font-semibold">
+                        Price
+                      </th>
+                      <th className="text-right px-3 py-2 rounded-tr-lg text-xs font-semibold">
+                        Qty
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -703,9 +805,18 @@ export default function SampleInvoicePage() {
                         key={item.skuId}
                         className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}
                       >
-                        <td className="px-3 py-2 text-gray-400 text-xs whitespace-nowrap">{idx + 1}</td>
-                        <td className="px-3 py-2 font-medium text-gray-800 max-w-[220px]" style={{ wordBreak: 'break-word' }}>{item.skuName}</td>
-                        <td className="px-3 py-2 text-center text-gray-600 whitespace-nowrap">{item.uom}</td>
+                        <td className="px-3 py-2 text-gray-400 text-xs whitespace-nowrap">
+                          {idx + 1}
+                        </td>
+                        <td
+                          className="px-3 py-2 font-medium text-gray-800 max-w-[220px]"
+                          style={{ wordBreak: "break-word" }}
+                        >
+                          {item.skuName}
+                        </td>
+                        <td className="px-3 py-2 text-center text-gray-600 whitespace-nowrap">
+                          {item.uom}
+                        </td>
                         <td className="px-3 py-2 text-right text-gray-600 whitespace-nowrap">
                           {item.price > 0 ? `₹${item.price}` : "—"}
                         </td>
@@ -732,11 +843,21 @@ export default function SampleInvoicePage() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Total Value</span>
-                  <span className="font-medium text-gray-700">₹{totalValue.toFixed(2)}</span>
+                  <span className="font-medium text-gray-700">
+                    ₹{totalValue.toFixed(2)}
+                  </span>
                 </div>
                 <div className="flex justify-between text-base font-bold border-t pt-2 mt-2">
                   <span className="text-gray-800">Total Amount</span>
-                  <span className="text-[#0C5273] font-bold">Complimentary</span>
+                  {isComplimentary ? (
+                    <span className="text-[#0C5273] font-bold">
+                      Complimentary
+                    </span>
+                  ) : (
+                    <span className="text-[#0C5273] font-bold">
+                      ₹{totalValue.toFixed(2)}
+                    </span>
+                  )}
                 </div>
               </div>
             )}
@@ -752,11 +873,8 @@ export default function SampleInvoicePage() {
 
             {/* Footer */}
             <div className="mt-8 border-t pt-4 text-center">
-              <p className="text-xs text-gray-400">
-                This document is for record-keeping purposes only.
-              </p>
               <p className="text-xs text-gray-400 mt-0.5">
-                LetsTry Foods Pvt. Ltd. — Generated on {invoiceDate}
+                Generated on {invoiceDate}
               </p>
             </div>
           </div>
@@ -781,7 +899,9 @@ export default function SampleInvoicePage() {
             <History className="h-4 w-4" />
             Saved Invoices
           </CardTitle>
-          <CardDescription>All sample invoices saved to the database</CardDescription>
+          <CardDescription>
+            All sample invoices saved to the database
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {savedInvoices.length === 0 ? (
@@ -811,16 +931,31 @@ export default function SampleInvoicePage() {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-sm">
-                        {inv.recipient?.name || <span className="text-muted-foreground italic">—</span>}
+                        {inv.recipient?.name || (
+                          <span className="text-muted-foreground italic">
+                            —
+                          </span>
+                        )}
                         {inv.recipient?.company && (
-                          <span className="text-muted-foreground text-xs block">{inv.recipient.company}</span>
+                          <span className="text-muted-foreground text-xs block">
+                            {inv.recipient.company}
+                          </span>
                         )}
                       </TableCell>
-                      <TableCell className="text-center text-sm">{inv.items.length}</TableCell>
-                      <TableCell className="text-center text-sm font-medium">{inv.totalPcs}</TableCell>
-                      <TableCell className="text-right text-sm font-medium">₹{inv.totalMrpValue.toFixed(2)}</TableCell>
+                      <TableCell className="text-center text-sm">
+                        {inv.items.length}
+                      </TableCell>
+                      <TableCell className="text-center text-sm font-medium">
+                        {inv.totalPcs}
+                      </TableCell>
+                      <TableCell className="text-right text-sm font-medium">
+                        ₹{inv.totalMrpValue.toFixed(2)}
+                      </TableCell>
                       <TableCell className="text-right text-xs text-muted-foreground">
-                        {format(new Date(inv.createdAt), "dd MMM yyyy, hh:mm a")}
+                        {format(
+                          new Date(inv.createdAt),
+                          "dd MMM yyyy, hh:mm a",
+                        )}
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1.5">
@@ -829,8 +964,8 @@ export default function SampleInvoicePage() {
                             size="icon"
                             className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 h-8 w-8"
                             onClick={() => {
-                              handleLoadInvoice(inv)
-                              window.scrollTo({ top: 0, behavior: 'smooth' })
+                              handleLoadInvoice(inv);
+                              window.scrollTo({ top: 0, behavior: "smooth" });
                             }}
                             title="Edit Invoice"
                           >
@@ -865,5 +1000,5 @@ export default function SampleInvoicePage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

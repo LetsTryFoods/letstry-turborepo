@@ -1,5 +1,7 @@
-
-import { PickupLocation, PickupLocationSchema } from './entities/pickup-location.entity';
+import {
+  PickupLocation,
+  PickupLocationSchema,
+} from './entities/pickup-location.entity';
 import { DeliveryPartnerFactory } from './core/factories/delivery-partner.factory';
 import { DtdcAdapter } from './adapters/dtdc/dtdc.adapter';
 import { ShiprocketAdapter } from './adapters/shiprocket/shiprocket.adapter';
@@ -25,7 +27,10 @@ import {
   DtdcWebhookLogSchema,
 } from './entities/dtdc-webhook-log.entity';
 import { DtdcApiLog, DtdcApiLogSchema } from './entities/dtdc-api-log.entity';
-import { OrderTrackingAnalytics, OrderTrackingAnalyticsSchema } from './entities/order-tracking-analytics.entity';
+import {
+  OrderTrackingAnalytics,
+  OrderTrackingAnalyticsSchema,
+} from './entities/order-tracking-analytics.entity';
 import { ShipmentService } from './services/shipment.service';
 import { DtdcApiService } from './services/dtdc-api.service';
 import { TrackingService } from './services/tracking.service';
@@ -49,10 +54,16 @@ import { PickupLocationResolver } from './resolvers/pickup-location.resolver';
   imports: [
     MongooseModule.forFeature([
       { name: Shipment.name, schema: ShipmentSchema },
-      { name: ShipmentTrackingHistory.name, schema: ShipmentTrackingHistorySchema },
+      {
+        name: ShipmentTrackingHistory.name,
+        schema: ShipmentTrackingHistorySchema,
+      },
       { name: DtdcWebhookLog.name, schema: DtdcWebhookLogSchema },
       { name: DtdcApiLog.name, schema: DtdcApiLogSchema },
-      { name: OrderTrackingAnalytics.name, schema: OrderTrackingAnalyticsSchema },
+      {
+        name: OrderTrackingAnalytics.name,
+        schema: OrderTrackingAnalyticsSchema,
+      },
       { name: PickupLocation.name, schema: PickupLocationSchema },
     ]),
     BullModule.registerQueue({
@@ -73,7 +84,11 @@ import { PickupLocationResolver } from './resolvers/pickup-location.resolver';
     forwardRef(() => OrderModule),
     AppCacheModule,
   ],
-  controllers: [DtdcWebhookController, ShipmentController, ShiprocketWebhookController],
+  controllers: [
+    DtdcWebhookController,
+    ShipmentController,
+    ShiprocketWebhookController,
+  ],
   providers: [
     DeliveryPartnerFactory,
     DtdcAdapter,
@@ -98,6 +113,12 @@ import { PickupLocationResolver } from './resolvers/pickup-location.resolver';
     TrackingProcessor,
     TrackingLoggerService,
   ],
-  exports: [ShipmentService, DtdcApiService, TrackingService, ShipmentLoggerService, PickupLocationService],
+  exports: [
+    ShipmentService,
+    DtdcApiService,
+    TrackingService,
+    ShipmentLoggerService,
+    PickupLocationService,
+  ],
 })
-export class ShipmentModule { }
+export class ShipmentModule {}

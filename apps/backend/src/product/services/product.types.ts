@@ -7,7 +7,7 @@ export interface ProductFilter {
   name?: RegExp;
   slug?: string;
   categoryIds?: string | string[];
-  isArchived?: boolean;
+  isArchived?: boolean | { $ne: boolean };
   availabilityStatus?: string | { $ne: string };
   'variants.sku'?: string;
   'variants._id'?: string;

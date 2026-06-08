@@ -3,23 +3,23 @@ import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 @InputType()
 export class AdminPunchShipmentInput {
-    @Field(() => ID)
-    @IsNotEmpty()
-    @IsString()
-    orderId: string;
+  @Field(() => ID)
+  @IsNotEmpty()
+  @IsString()
+  orderId: string;
 
-    @Field({ nullable: true })
-    @IsOptional()
-    @IsString()
-    serviceType?: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  serviceType?: string;
 
-    @Field({ nullable: true })
-    @IsOptional()
-    @IsString()
-    provider?: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  provider?: string;
 
-    @Field({ nullable: true })
-    @IsOptional()
-    @IsString()
-    pickupLocationName?: string;
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  pickupLocationName?: string;
 }

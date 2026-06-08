@@ -1,15 +1,18 @@
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { registerAppTool, registerAppResource } from '@modelcontextprotocol/ext-apps/server';
-import { createUIResource } from '@mcp-ui/server';
-import { z } from 'zod';
-import { searchProducts } from './search-products.service.js';
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import {
+  registerAppTool,
+  registerAppResource,
+} from "@modelcontextprotocol/ext-apps/server";
+import { createUIResource } from "@mcp-ui/server";
+import { z } from "zod";
+import { searchProducts } from "./search-products.service.js";
 
 export function registerSearchProductsTool(server: McpServer): void {
-    const searchWidgetUI = createUIResource({
-        uri: 'ui://letstry-foods/search-widget',
-        content: {
-            type: 'rawHtml',
-            htmlString: `
+  const searchWidgetUI = createUIResource({
+    uri: "ui://letstry-foods/search-widget",
+    content: {
+      type: "rawHtml",
+      htmlString: `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -265,46 +268,62 @@ export function registerSearchProductsTool(server: McpServer): void {
     </script>
 </body>
 </html>
-            `
-        },
-        encoding: 'text',
-    });
+            `,
+    },
+    encoding: "text",
+  });
 
-    registerAppResource(server, 'search_widget_ui', searchWidgetUI.resource.uri, {}, async () => ({
-        contents: [searchWidgetUI.resource],
-    }));
+  registerAppResource(
+    server,
+    "search_widget_ui",
+    searchWidgetUI.resource.uri,
+    {},
+    async () => ({
+      contents: [searchWidgetUI.resource],
+    }),
+  );
 
-    registerAppTool(
-        server,
-        'search_products',
-        {
-            description: 'Search for products in the LetsTry Foods catalog by name or keyword. Returns product details including variants, prices, and stock.',
-            inputSchema: {
-                searchTerm: z.string().describe('Product name or keyword to search for'),
-                page: z.number().int().min(1).default(1).describe('Page number'),
-                limit: z.number().int().min(1).max(20).default(10).describe('Number of results per page'),
-            },
-            _meta: {
-                ui: { resourceUri: searchWidgetUI.resource.uri },
-            },
-        },
-        async ({ searchTerm, page, limit }) => {
-            const result = await searchProducts({ searchTerm, page, limit }) as any;
+  registerAppTool(
+    server,
+    "search_products",
+    {
+      description:
+        "Search for products in the LetsTry Foods catalog by name or keyword. Returns product details including variants, prices, and stock.",
+      inputSchema: {
+        searchTerm: z
+          .string()
+          .describe("Product name or keyword to search for"),
+        page: z.number().int().min(1).default(1).describe("Page number"),
+        limit: z
+          .number()
+          .int()
+          .min(1)
+          .max(20)
+          .default(10)
+          .describe("Number of results per page"),
+      },
+      _meta: {
+        ui: { resourceUri: searchWidgetUI.resource.uri },
+      },
+    },
+    async ({ searchTerm, page, limit }) => {
+      const result = (await searchProducts({ searchTerm, page, limit })) as any;
 
-            // Generate fallback Markdown for environments without UI support (or for Claude's text understanding)
-            let mdText = `Found ${result?.searchProducts?.meta?.totalCount || 0} results:\n\n`;
+      // Generate fallback Markdown for environments without UI support (or for Claude's text understanding)
+      let mdText = `Found ${result?.searchProducts?.meta?.totalCount || 0} results:\n\n`;
 
-            if (result && result.searchProducts && result.searchProducts.items) {
-                result.searchProducts.items.forEach((item: any) => {
-                    const v = item.defaultVariant || item.variants[0];
-                    if (v) mdText += `- **${item.name}**: ₹${v.price} (${v.weight}${v.weightUnit})\n`;
-                });
-            }
+      if (result && result.searchProducts && result.searchProducts.items) {
+        result.searchProducts.items.forEach((item: any) => {
+          const v = item.defaultVariant || item.variants[0];
+          if (v)
+            mdText += `- **${item.name}**: ₹${v.price} (${v.weight}${v.weightUnit})\n`;
+        });
+      }
 
-            return {
-                content: [{ type: 'text', text: mdText }],
-                data: result, // This is broadcast via postMessage to the iframe
-            };
-        },
-    );
+      return {
+        content: [{ type: "text", text: mdText }],
+        data: result, // This is broadcast via postMessage to the iframe
+      };
+    },
+  );
 }

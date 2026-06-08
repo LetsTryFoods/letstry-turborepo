@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef } from "react";
 import {
   View,
   Text,
@@ -7,12 +7,12 @@ import {
   Pressable,
   Animated,
   ActivityIndicator,
-} from 'react-native';
-import { Image } from 'expo-image';
-import * as Haptics from 'expo-haptics';
-import { wp, hp, RFValue, getImageUrl } from '../../lib/utils/ui-utils';
-import { useCart } from '../../features/cart/hooks/use-cart';
-import { useCartMutations } from '../../features/cart/hooks/use-cart-mutations';
+} from "react-native";
+import { Image } from "expo-image";
+import * as Haptics from "expo-haptics";
+import { wp, hp, RFValue, getImageUrl } from "../../lib/utils/ui-utils";
+import { useCart } from "../../features/cart/hooks/use-cart";
+import { useCartMutations } from "../../features/cart/hooks/use-cart-mutations";
 
 // Note: useCart will be integrated once the CartProvider is implemented in the new app.
 // For now, we'll use a placeholder or props.
@@ -57,21 +57,31 @@ const ProductCard: React.FC<ProductCardProps> = ({
   quantity: propQuantity,
   onAddToCart,
   onRemoveFromCart,
-  cardStyles
+  cardStyles,
 }) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   // Real Global Cart Integration
   const { data: cartData } = useCart();
-  const { addToCart, updateCartItem, removeFromCart, isAdding, isUpdating, isRemoving } = useCartMutations();
+  const {
+    addToCart,
+    updateCartItem,
+    removeFromCart,
+    isAdding,
+    isUpdating,
+    isRemoving,
+  } = useCartMutations();
 
   const variant = product.defaultVariant;
   if (!variant) return null;
 
   // Sync quantity from global cart if not passed as prop
   const cartItems = (cartData as any)?.myCart?.items || [];
-  const currentCartItem = cartItems.find((item: any) => item.productId === product._id);
-  const cartQuantity = propQuantity !== undefined ? propQuantity : (currentCartItem?.quantity || 0);
+  const currentCartItem = cartItems.find(
+    (item: any) => item.productId === product._id,
+  );
+  const cartQuantity =
+    propQuantity !== undefined ? propQuantity : currentCartItem?.quantity || 0;
 
   const handleAdd = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -84,8 +94,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
             input: {
               productId: variant._id, // Use variant ID as required by backend flow
               quantity: 1,
-            }
-          }
+            },
+          },
         });
       } else {
         updateCartItem({
@@ -93,8 +103,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
             input: {
               productId: variant._id,
               quantity: cartQuantity + 1,
-            }
-          }
+            },
+          },
         });
       }
     }
@@ -108,8 +118,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
       if (cartQuantity === 1) {
         removeFromCart({
           variables: {
-            productId: variant._id
-          }
+            productId: variant._id,
+          },
         });
       } else {
         updateCartItem({
@@ -117,8 +127,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
             input: {
               productId: variant._id,
               quantity: cartQuantity - 1,
-            }
-          }
+            },
+          },
         });
       }
     }
@@ -154,12 +164,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
     >
-      <Animated.View style={[
+      <Animated.View
+        style={[
           styles.cardContainer,
           { transform: [{ scale: scaleAnim }] },
           style,
-          cardStyles
-        ]}>
+          cardStyles,
+        ]}
+      >
         <View style={styles.card}>
           {/* Tag */}
           {primaryTag && (
@@ -185,32 +197,45 @@ const ProductCard: React.FC<ProductCardProps> = ({
                 {product.name}
               </Text>
               <Text style={styles.weight}>
-                {variant.weight}{variant.weightUnit} • {variant.packageSize}
+                {variant.weight}
+                {variant.weightUnit} • {variant.packageSize}
               </Text>
 
               {discountPercentage > 0 && (
-                <Text style={styles.discountText}>{`${discountPercentage}% OFF`}</Text>
+                <Text
+                  style={styles.discountText}
+                >{`${discountPercentage}% OFF`}</Text>
               )}
 
               <View style={styles.priceContainer}>
-                <Text style={styles.price}>₹{Number(actualPrice).toFixed(0)}</Text>
-                {showMRP && <Text style={styles.mrp}>₹{Number(mrp).toFixed(0)}</Text>}
+                <Text style={styles.price}>
+                  ₹{Number(actualPrice).toFixed(0)}
+                </Text>
+                {showMRP && (
+                  <Text style={styles.mrp}>₹{Number(mrp).toFixed(0)}</Text>
+                )}
               </View>
             </View>
           </View>
 
           <View style={styles.actionsContainer}>
             {isUpdatingCart ? (
-              <View style={[styles.addButton, { borderColor: '#ddd' }]}>
+              <View style={[styles.addButton, { borderColor: "#ddd" }]}>
                 <ActivityIndicator size="small" color="#0C5273" />
               </View>
             ) : cartQuantity > 0 ? (
               <View style={styles.quantityContainer}>
-                <TouchableOpacity style={styles.quantityButton} onPress={handleRemove}>
+                <TouchableOpacity
+                  style={styles.quantityButton}
+                  onPress={handleRemove}
+                >
                   <Text style={styles.quantityButtonText}>−</Text>
                 </TouchableOpacity>
                 <Text style={styles.quantityValueText}>{cartQuantity}</Text>
-                <TouchableOpacity style={styles.quantityButton} onPress={handleAdd}>
+                <TouchableOpacity
+                  style={styles.quantityButton}
+                  onPress={handleAdd}
+                >
                   <Text style={styles.quantityButtonText}>+</Text>
                 </TouchableOpacity>
               </View>
@@ -228,11 +253,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
 const getTagStyle = (tag: string) => {
   switch (tag) {
-    case "Bestseller": return { backgroundColor: "#C5CAF4" };
-    case "Trending": return { backgroundColor: "#F0BBD2" };
-    case "Fasting": return { backgroundColor: "#FBE9AE" };
-    case "New Launched": return { backgroundColor: "#B8EEB3" };
-    default: return { backgroundColor: "#EDEDED" };
+    case "Bestseller":
+      return { backgroundColor: "#C5CAF4" };
+    case "Trending":
+      return { backgroundColor: "#F0BBD2" };
+    case "Fasting":
+      return { backgroundColor: "#FBE9AE" };
+    case "New Launched":
+      return { backgroundColor: "#B8EEB3" };
+    default:
+      return { backgroundColor: "#EDEDED" };
   }
 };
 
@@ -248,7 +278,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
-    overflow: 'visible', // Allow button to breathe
+    overflow: "visible", // Allow button to breathe
   },
   card: {
     padding: wp("2.5%"),

@@ -70,4 +70,5 @@ export class CategoryLandingPage {
   isActive: boolean;
 }
 
-export const CategoryLandingPageSchema = SchemaFactory.createForClass(CategoryLandingPage);
+export const CategoryLandingPageSchema =
+  SchemaFactory.createForClass(CategoryLandingPage);

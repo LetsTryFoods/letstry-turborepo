@@ -35,17 +35,29 @@ interface UserData {
   dateOfBirth?: string;
 }
 
-const ProfileField = ({ label, type = "text", disabled, control, name, placeholder }: ProfileFieldProps) => (
+const ProfileField = ({
+  label,
+  type = "text",
+  disabled,
+  control,
+  name,
+  placeholder,
+}: ProfileFieldProps) => (
   <div className="flex items-center justify-between border-b border-gray-100 pb-2">
     <label className="text-sm font-medium text-black w-1/3">{label}</label>
     <Controller
       name={name}
       control={control}
       render={({ field }) => {
-        const displayValue = type === "date" && field.value && disabled
-          ? new Date(field.value).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
-          : field.value;
-        
+        const displayValue =
+          type === "date" && field.value && disabled
+            ? new Date(field.value).toLocaleDateString("en-US", {
+                month: "2-digit",
+                day: "2-digit",
+                year: "numeric",
+              })
+            : field.value;
+
         return (
           <Input
             {...field}
@@ -73,12 +85,14 @@ export const ProfileInfo = () => {
 
       try {
         setIsLoading(true);
-        const data = await graphqlClient.request(ME_QUERY) as { me: UserData };
+        const data = (await graphqlClient.request(ME_QUERY)) as {
+          me: UserData;
+        };
         if (data.me) {
           setUserData(data.me);
         }
       } catch (error) {
-        console.error('Failed to fetch user data:', error);
+        console.error("Failed to fetch user data:", error);
       } finally {
         setIsLoading(false);
       }
@@ -87,14 +101,18 @@ export const ProfileInfo = () => {
     fetchUserData();
   }, [isAuthenticated]);
 
-  const fullName = userData ? `${userData.firstName} ${userData.lastName}`.trim() : "";
+  const fullName = userData
+    ? `${userData.firstName} ${userData.lastName}`.trim()
+    : "";
 
   const { control, handleSubmit, reset } = useForm<ProfileFormData>({
     defaultValues: {
       name: fullName,
       email: userData?.email || "",
       phoneNumber: userData?.phoneNumber || "",
-      dateOfBirth: userData?.dateOfBirth ? new Date(userData.dateOfBirth).toISOString().split('T')[0] : "",
+      dateOfBirth: userData?.dateOfBirth
+        ? new Date(userData.dateOfBirth).toISOString().split("T")[0]
+        : "",
     },
   });
 
@@ -104,7 +122,9 @@ export const ProfileInfo = () => {
         name: fullName,
         email: userData.email || "",
         phoneNumber: userData.phoneNumber || "",
-        dateOfBirth: userData.dateOfBirth ? new Date(userData.dateOfBirth).toISOString().split('T')[0] : "",
+        dateOfBirth: userData.dateOfBirth
+          ? new Date(userData.dateOfBirth).toISOString().split("T")[0]
+          : "",
       });
     }
   }, [userData, fullName, reset]);
@@ -144,11 +164,19 @@ export const ProfileInfo = () => {
             <User className="w-8 h-8 text-black" />
           </div>
           <div>
-            <h2 className="font-semibold text-lg text-black">{fullName || "Guest User"}</h2>
-            <p className="text-black">{userData?.email || "guest@example.com"}</p>
+            <h2 className="font-semibold text-lg text-black">
+              {fullName || "Guest User"}
+            </h2>
+            <p className="text-black">
+              {userData?.email || "guest@example.com"}
+            </p>
           </div>
         </div>
-        <Button variant="ghost" size="icon" onClick={() => setIsEditing(!isEditing)}>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsEditing(!isEditing)}
+        >
           <Pencil className="w-5 h-5 text-black" />
         </Button>
       </div>

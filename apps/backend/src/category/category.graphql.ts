@@ -10,8 +10,6 @@ export class CategoryFaqEntry {
   answer: string;
 }
 
-
-
 @ObjectType()
 export class Category {
   @Field(() => ID)
@@ -59,7 +57,8 @@ export class Category {
   // ---- Sprint 4 rich content ---------------------------------------------
   @Field({ nullable: true }) longDescription?: string;
   @Field({ nullable: true }) editorialIntro?: string;
-  @Field(() => [CategoryFaqEntry], { nullable: true }) categoryFaqs?: CategoryFaqEntry[];
+  @Field(() => [CategoryFaqEntry], { nullable: true })
+  categoryFaqs?: CategoryFaqEntry[];
   @Field(() => [String], { nullable: true }) featuredProductIds?: string[];
   @Field(() => [String], { nullable: true }) pillarSlugs?: string[];
   @Field(() => [String], { nullable: true }) editorialHighlights?: string[];

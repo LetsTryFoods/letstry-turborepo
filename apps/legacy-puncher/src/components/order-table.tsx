@@ -20,7 +20,7 @@ import {
   Loader2,
   ExternalLink,
   PackageCheck,
-  Tag
+  Tag,
 } from "lucide-react";
 
 interface OrderTableProps {
@@ -28,7 +28,7 @@ interface OrderTableProps {
 }
 
 interface OrderState {
-  punched?: 'DTDC' | 'SHIPROCKET';
+  punched?: "DTDC" | "SHIPROCKET";
   awb?: string;
   labelUrl?: string;
   isPunching?: boolean;
@@ -37,18 +37,23 @@ interface OrderState {
 }
 
 export function OrderTable({ orders }: OrderTableProps) {
-  const [orderStates, setOrderStates] = useState<Record<string, OrderState>>({});
+  const [orderStates, setOrderStates] = useState<Record<string, OrderState>>(
+    {},
+  );
 
   const updateOrderState = (orderId: string, newState: Partial<OrderState>) => {
-    setOrderStates(prev => ({
+    setOrderStates((prev) => ({
       ...prev,
-      [orderId]: { ...(prev[orderId] || {}), ...newState }
+      [orderId]: { ...(prev[orderId] || {}), ...newState },
     }));
   };
 
-  const handlePunch = async (order: LegacyOrder, provider: 'DTDC' | 'SHIPROCKET') => {
+  const handlePunch = async (
+    order: LegacyOrder,
+    provider: "DTDC" | "SHIPROCKET",
+  ) => {
     updateOrderState(order.orderId, { isPunching: true });
-    
+
     try {
       const response = await fetch("/api/punch", {
         method: "POST",
@@ -138,16 +143,16 @@ export function OrderTable({ orders }: OrderTableProps) {
 
   const handleDownloadLabel = (labelUrl: string, awb: string) => {
     if (!labelUrl) return;
-    
+
     // If labelUrl is base64 (starts with data:application/pdf;base64,)
-    if (labelUrl.startsWith('data:')) {
-      const link = document.createElement('a');
+    if (labelUrl.startsWith("data:")) {
+      const link = document.createElement("a");
       link.href = labelUrl;
       link.download = `label-${awb}.pdf`;
       link.click();
     } else {
       // If it's a direct URL
-      window.open(labelUrl, '_blank');
+      window.open(labelUrl, "_blank");
     }
   };
 
@@ -174,27 +179,37 @@ export function OrderTable({ orders }: OrderTableProps) {
                 <TableCell className="font-medium">{order.orderId}</TableCell>
                 <TableCell>
                   <div className="flex flex-col">
-                    <span className="font-semibold">{order.address.recipientName}</span>
-                    <span className="text-xs text-slate-500">{order.address.city}, {order.address.pincode}</span>
+                    <span className="font-semibold">
+                      {order.address.recipientName}
+                    </span>
+                    <span className="text-xs text-slate-500">
+                      {order.address.city}, {order.address.pincode}
+                    </span>
                   </div>
                 </TableCell>
                 <TableCell>
-                  <div className="text-xs">
-                    {order.items.length} items
-                  </div>
+                  <div className="text-xs">{order.items.length} items</div>
                 </TableCell>
                 <TableCell>₹{order.totalAmount}</TableCell>
                 <TableCell>
                   {isPunched ? (
                     <div className="flex flex-col gap-1">
-                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                      <Badge
+                        variant="outline"
+                        className="bg-green-50 text-green-700 border-green-200"
+                      >
                         <PackageCheck className="mr-1 h-3 w-3" />
                         Punched ({state.punched})
                       </Badge>
-                      <span className="text-[10px] text-slate-500 font-mono">{state.awb}</span>
+                      <span className="text-[10px] text-slate-500 font-mono">
+                        {state.awb}
+                      </span>
                     </div>
                   ) : (
-                    <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+                    <Badge
+                      variant="outline"
+                      className="bg-amber-50 text-amber-700 border-amber-200"
+                    >
                       Pending
                     </Badge>
                   )}
@@ -207,20 +222,28 @@ export function OrderTable({ orders }: OrderTableProps) {
                           size="sm"
                           variant="outline"
                           className="h-8"
-                          onClick={() => handlePunch(order, 'DTDC')}
+                          onClick={() => handlePunch(order, "DTDC")}
                           disabled={state.isPunching}
                         >
-                          {state.isPunching ? <Loader2 className="h-3 w-3 animate-spin" /> : <Truck className="mr-1 h-3 w-3" />}
+                          {state.isPunching ? (
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                          ) : (
+                            <Truck className="mr-1 h-3 w-3" />
+                          )}
                           DTDC
                         </Button>
                         <Button
                           size="sm"
                           variant="outline"
                           className="h-8"
-                          onClick={() => handlePunch(order, 'SHIPROCKET')}
+                          onClick={() => handlePunch(order, "SHIPROCKET")}
                           disabled={state.isPunching}
                         >
-                          {state.isPunching ? <Loader2 className="h-3 w-3 animate-spin" /> : <Truck className="mr-1 h-3 w-3" />}
+                          {state.isPunching ? (
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                          ) : (
+                            <Truck className="mr-1 h-3 w-3" />
+                          )}
                           Shiprocket
                         </Button>
                       </>
@@ -230,7 +253,9 @@ export function OrderTable({ orders }: OrderTableProps) {
                           size="sm"
                           variant="secondary"
                           className="h-8"
-                          onClick={() => handleDownloadLabel(state.labelUrl!, state.awb!)}
+                          onClick={() =>
+                            handleDownloadLabel(state.labelUrl!, state.awb!)
+                          }
                         >
                           <Download className="mr-1 h-3 w-3" />
                           Ship Label
@@ -244,7 +269,11 @@ export function OrderTable({ orders }: OrderTableProps) {
                       onClick={() => handleGenerateLabel(order)}
                       disabled={state.isGeneratingLabel}
                     >
-                      {state.isGeneratingLabel ? <Loader2 className="h-3 w-3 animate-spin" /> : <Tag className="mr-1 h-3 w-3" />}
+                      {state.isGeneratingLabel ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <Tag className="mr-1 h-3 w-3" />
+                      )}
                       Delivery Label
                     </Button>
                     <Button
@@ -254,7 +283,11 @@ export function OrderTable({ orders }: OrderTableProps) {
                       onClick={() => handleGenerateInvoice(order)}
                       disabled={state.isGeneratingInvoice}
                     >
-                      {state.isGeneratingInvoice ? <Loader2 className="h-3 w-3 animate-spin" /> : <FileText className="mr-1 h-3 w-3" />}
+                      {state.isGeneratingInvoice ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <FileText className="mr-1 h-3 w-3" />
+                      )}
                       Invoice
                     </Button>
                   </div>

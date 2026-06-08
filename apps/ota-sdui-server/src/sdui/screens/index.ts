@@ -1,11 +1,11 @@
-import { FastifyRequest, FastifyReply } from 'fastify';
-import { homeScreen } from './home';
-import { cartScreen } from './cart';
-import { loyaltyScreen } from './loyalty';
-import { categoriesScreen } from './categories';
-import { profileScreen } from './profile';
-import { productDetailScreen } from './product_detail';
-import { SDUIScreen } from '../types';
+import { FastifyRequest, FastifyReply } from "fastify";
+import { homeScreen } from "./home";
+import { cartScreen } from "./cart";
+import { loyaltyScreen } from "./loyalty";
+import { categoriesScreen } from "./categories";
+import { profileScreen } from "./profile";
+import { productDetailScreen } from "./product_detail";
+import { SDUIScreen } from "../types";
 
 const screenRegistry: Record<string, SDUIScreen> = {
   home: homeScreen,
@@ -13,10 +13,13 @@ const screenRegistry: Record<string, SDUIScreen> = {
   loyalty_dashboard: loyaltyScreen,
   categories_screen: categoriesScreen,
   profile_screen: profileScreen,
-  product_detail_screen: productDetailScreen
+  product_detail_screen: productDetailScreen,
 };
 
-export const screenHandler = async (req: FastifyRequest, reply: FastifyReply) => {
+export const screenHandler = async (
+  req: FastifyRequest,
+  reply: FastifyReply,
+) => {
   const { id } = req.params as { id: string };
 
   const screenDefinition = screenRegistry[id];

@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useState, useRef, useCallback, useEffect } from "react"
-import * as XLSX from "xlsx"
+import { useState, useRef, useCallback, useEffect } from "react";
+import * as XLSX from "xlsx";
 import {
   Table,
   TableBody,
@@ -9,10 +9,16 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   FileSpreadsheet,
   Upload,
@@ -25,22 +31,25 @@ import {
   RefreshCw,
   Search,
   List,
-} from "lucide-react"
-import { Input } from "@/components/ui/input"
+} from "lucide-react";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Pagination } from "../components/pagination"
-import { useSkuMasters, SkuMasterRecord } from "@/lib/sku-master/queries"
-import { gql } from "@apollo/client"
-import { useMutation } from "@apollo/client/react"
-import { toast } from "react-hot-toast"
-import { GET_SKU_MASTERS } from "@/lib/sku-master/queries"
-import { ColumnSelector, ColumnDefinition } from "../components/column-selector"
+} from "@/components/ui/select";
+import { Pagination } from "../components/pagination";
+import { useSkuMasters, SkuMasterRecord } from "@/lib/sku-master/queries";
+import { gql } from "@apollo/client";
+import { useMutation } from "@apollo/client/react";
+import { toast } from "react-hot-toast";
+import { GET_SKU_MASTERS } from "@/lib/sku-master/queries";
+import {
+  ColumnSelector,
+  ColumnDefinition,
+} from "../components/column-selector";
 
 // ---------------------------------------------------------------------------
 // Column Definitions for toggling
@@ -58,7 +67,7 @@ const ALL_COLUMNS: ColumnDefinition[] = [
   { key: "npiLinksUpdated", label: "NPI Updated" },
   { key: "printFilesRaw", label: "Print RAW" },
   { key: "printFilesUpdated", label: "Print Updated" },
-]
+];
 
 // ---------------------------------------------------------------------------
 // GraphQL mutation — bulk upsert rows parsed from the Excel file
@@ -67,7 +76,7 @@ const BULK_UPSERT_SKU_MASTERS = gql`
   mutation BulkUpsertSkuMasters($rows: [SkuMasterRowInput!]!) {
     bulkUpsertSkuMasters(rows: $rows)
   }
-`
+`;
 
 // ---------------------------------------------------------------------------
 // Excel column → field mapping
@@ -78,35 +87,36 @@ const COLUMN_MAP: Record<string, keyof SkuMasterRecord> = {
   "Vendors Name": "vendorName",
   "Vendors Contact Details": "vendorContactDetails",
   "Job Structure": "jobStructure",
-  "UoM": "uom",
+  UoM: "uom",
   "Case Size": "caseSize",
-  "MRP": "mrp",
+  MRP: "mrp",
   "NPI Links RAW": "npiLinksRaw",
   "New Updated Links (to be considered)": "npiLinksUpdated",
   "Print Files RAW": "printFilesRaw",
   "New Drive Links  (to be considered)": "printFilesUpdated",
-}
+};
 
 interface ParsedRow {
-  masterSku: number
-  skuName: string
-  vendorName?: string
-  vendorContactDetails?: string
-  jobStructure?: string
-  uom?: string
-  caseSize?: number
-  mrp?: number
-  npiLinksRaw?: string
-  npiLinksUpdated?: string
-  printFilesRaw?: string
-  printFilesUpdated?: string
+  masterSku: number;
+  skuName: string;
+  vendorName?: string;
+  vendorContactDetails?: string;
+  jobStructure?: string;
+  uom?: string;
+  caseSize?: number;
+  mrp?: number;
+  npiLinksRaw?: string;
+  npiLinksUpdated?: string;
+  printFilesRaw?: string;
+  printFilesUpdated?: string;
 }
 
 // ---------------------------------------------------------------------------
 // Helper to open a Google Drive link safely
 // ---------------------------------------------------------------------------
 function DriveLink({ url }: { url?: string }) {
-  if (!url || url === "-") return <span className="text-muted-foreground text-xs">—</span>
+  if (!url || url === "-")
+    return <span className="text-muted-foreground text-xs">—</span>;
   return (
     <a
       href={url}
@@ -117,184 +127,202 @@ function DriveLink({ url }: { url?: string }) {
       Drive
       <ExternalLink className="h-3 w-3 shrink-0" />
     </a>
-  )
+  );
 }
 
 // ---------------------------------------------------------------------------
 // Page
 // ---------------------------------------------------------------------------
 export default function SkuMasterPage() {
-  const { data, loading, error, refetch } = useSkuMasters()
-  const [bulkUpsert, { loading: uploading }] = useMutation<{ bulkUpsertSkuMasters: number }>(BULK_UPSERT_SKU_MASTERS, {
+  const { data, loading, error, refetch } = useSkuMasters();
+  const [bulkUpsert, { loading: uploading }] = useMutation<{
+    bulkUpsertSkuMasters: number;
+  }>(BULK_UPSERT_SKU_MASTERS, {
     refetchQueries: [{ query: GET_SKU_MASTERS }],
-  })
+  });
 
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const [dragOver, setDragOver] = useState(false)
-  const [parseError, setParseError] = useState<string | null>(null)
-  const [previewRows, setPreviewRows] = useState<ParsedRow[]>([])
-  const [fileName, setFileName] = useState<string | null>(null)
-  const [uploadResult, setUploadResult] = useState<number | null>(null)
-  const [searchQuery, setSearchQuery] = useState("")
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [dragOver, setDragOver] = useState(false);
+  const [parseError, setParseError] = useState<string | null>(null);
+  const [previewRows, setPreviewRows] = useState<ParsedRow[]>([]);
+  const [fileName, setFileName] = useState<string | null>(null);
+  const [uploadResult, setUploadResult] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize, setPageSize] = useState(10)
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const [selectedColumns, setSelectedColumns] = useState<string[]>(
-    ALL_COLUMNS.map((c) => c.key)
-  )
+    ALL_COLUMNS.map((c) => c.key),
+  );
 
   const toggleColumn = useCallback((key: string) => {
     setSelectedColumns((prev) =>
-      prev.includes(key) ? prev.filter((c) => c !== key) : [...prev, key]
-    )
-  }, [])
+      prev.includes(key) ? prev.filter((c) => c !== key) : [...prev, key],
+    );
+  }, []);
 
-  const records: SkuMasterRecord[] = data?.skuMasters ?? []
+  const records: SkuMasterRecord[] = data?.skuMasters ?? [];
 
   const filteredRecords = records.filter(
     (r) =>
       r.skuName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       String(r.masterSku).includes(searchQuery) ||
-      (r.vendorName || "").toLowerCase().includes(searchQuery.toLowerCase())
-  )
+      (r.vendorName || "").toLowerCase().includes(searchQuery.toLowerCase()),
+  );
 
   // Reset to page 1 if search changes
   useEffect(() => {
-    setCurrentPage(1)
-  }, [searchQuery])
+    setCurrentPage(1);
+  }, [searchQuery]);
 
-  const totalCount = filteredRecords.length
-  const totalPages = Math.ceil(totalCount / pageSize)
-  const paginatedRecords = filteredRecords.slice((currentPage - 1) * pageSize, currentPage * pageSize)
+  const totalCount = filteredRecords.length;
+  const totalPages = Math.ceil(totalCount / pageSize);
+  const paginatedRecords = filteredRecords.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
+  );
 
   // ── Parse XLSX ─────────────────────────────────────────────────────────────
   const parseFile = useCallback((file: File) => {
-    setParseError(null)
-    setPreviewRows([])
-    setUploadResult(null)
+    setParseError(null);
+    setPreviewRows([]);
+    setUploadResult(null);
 
     if (!file.name.match(/\.(xlsx|xls|csv)$/i)) {
-      setParseError("Please upload an Excel file (.xlsx / .xls) or CSV.")
-      return
+      setParseError("Please upload an Excel file (.xlsx / .xls) or CSV.");
+      return;
     }
 
-    setFileName(file.name)
+    setFileName(file.name);
 
-    const reader = new FileReader()
+    const reader = new FileReader();
     reader.onload = (e) => {
       try {
-        const data = new Uint8Array(e.target?.result as ArrayBuffer)
-        const workbook = XLSX.read(data, { type: "array" })
-        const sheet = workbook.Sheets[workbook.SheetNames[0]]
+        const data = new Uint8Array(e.target?.result as ArrayBuffer);
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
         const rawData: any[][] = XLSX.utils.sheet_to_json(sheet, {
           header: 1,
           defval: "",
-        })
+        });
 
         // Find the header row (look in the first 20 rows)
-        let headerRowIndex = -1
+        let headerRowIndex = -1;
         for (let i = 0; i < Math.min(20, rawData.length); i++) {
           // Replace ALL whitespace (including newlines from Alt+Enter) with a single space
           const rowStr = rawData[i]
             .map((cell) => String(cell).replace(/\s+/g, " ").trim())
             .join(" ")
-            .toLowerCase()
+            .toLowerCase();
 
           if (rowStr.includes("master sku") || rowStr.includes("sku name")) {
-            headerRowIndex = i
-            break
+            headerRowIndex = i;
+            break;
           }
         }
 
         if (headerRowIndex === -1) {
-          const preview = rawData.slice(0, 3).map(r => r.filter(Boolean).join(" | ")).join(" \\n ") || "No data parsed";
+          const preview =
+            rawData
+              .slice(0, 3)
+              .map((r) => r.filter(Boolean).join(" | "))
+              .join(" \\n ") || "No data parsed";
           setParseError(
             `Parse Error: Sheets [${workbook.SheetNames.join(", ")}], Rows parsed: ${rawData.length}. ` +
-            `Could not find 'Master SKU' or 'SKU Name' in the first 20 rows. (Preview of first 3 rows: ${preview})`
-          )
-          return
+              `Could not find 'Master SKU' or 'SKU Name' in the first 20 rows. (Preview of first 3 rows: ${preview})`,
+          );
+          return;
         }
 
         // Normalize the headers found in the file
         const fileHeaders = rawData[headerRowIndex].map((h: any) =>
-          String(h).trim().replace(/\s+/g, " ").toLowerCase()
-        )
+          String(h).trim().replace(/\s+/g, " ").toLowerCase(),
+        );
 
-        const dataRows = rawData.slice(headerRowIndex + 1)
+        const dataRows = rawData.slice(headerRowIndex + 1);
 
         const parsed: ParsedRow[] = dataRows
           .map((rowArray) => {
-            const obj: Partial<ParsedRow> = {}
+            const obj: Partial<ParsedRow> = {};
 
             for (const [excelCol, field] of Object.entries(COLUMN_MAP)) {
               // Normalize the expected column name
-              const expectedCol = excelCol.trim().replace(/\s+/g, " ").toLowerCase()
-              const colIndex = fileHeaders.findIndex((h) => h === expectedCol)
+              const expectedCol = excelCol
+                .trim()
+                .replace(/\s+/g, " ")
+                .toLowerCase();
+              const colIndex = fileHeaders.findIndex((h) => h === expectedCol);
 
               if (colIndex !== -1) {
-                const val = rowArray[colIndex]
-                if (val === undefined || val === null || val === "") continue
+                const val = rowArray[colIndex];
+                if (val === undefined || val === null || val === "") continue;
 
                 if (field === "masterSku" || field === "caseSize") {
-                  const num = Number(val)
-                  if (!isNaN(num)) (obj as Record<string, unknown>)[field] = num
+                  const num = Number(val);
+                  if (!isNaN(num))
+                    (obj as Record<string, unknown>)[field] = num;
                 } else if (field === "mrp") {
-                  const num = parseFloat(String(val).replace(/[^0-9.]/g, ""))
-                  if (!isNaN(num)) obj.mrp = num
+                  const num = parseFloat(String(val).replace(/[^0-9.]/g, ""));
+                  if (!isNaN(num)) obj.mrp = num;
                 } else {
-                  ; (obj as Record<string, unknown>)[field] = String(val).trim()
+                  (obj as Record<string, unknown>)[field] = String(val).trim();
                 }
               }
             }
-            return obj as ParsedRow
+            return obj as ParsedRow;
           })
-          .filter((r) => r.masterSku && r.skuName) // Both must exist
+          .filter((r) => r.masterSku && r.skuName); // Both must exist
 
         if (!parsed.length) {
           setParseError(
             "No valid rows found. We found headers: " +
-            fileHeaders.filter(Boolean).join(", ") +
-            " but no rows with both Master SKU and SKU Name."
-          )
-          return
+              fileHeaders.filter(Boolean).join(", ") +
+              " but no rows with both Master SKU and SKU Name.",
+          );
+          return;
         }
 
-        setPreviewRows(parsed)
+        setPreviewRows(parsed);
       } catch (err) {
-        setParseError("Failed to parse file: " + (err instanceof Error ? err.message : String(err)))
+        setParseError(
+          "Failed to parse file: " +
+            (err instanceof Error ? err.message : String(err)),
+        );
       }
-    }
-    reader.readAsArrayBuffer(file)
-  }, [])
+    };
+    reader.readAsArrayBuffer(file);
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) parseFile(file)
-    e.target.value = ""
-  }
+    const file = e.target.files?.[0];
+    if (file) parseFile(file);
+    e.target.value = "";
+  };
 
   const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    setDragOver(false)
-    const file = e.dataTransfer.files?.[0]
-    if (file) parseFile(file)
-  }
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) parseFile(file);
+  };
 
   // ── Upload to DB ────────────────────────────────────────────────────────────
   const handleUpload = async () => {
-    if (!previewRows.length) return
+    if (!previewRows.length) return;
     try {
-      const { data } = await bulkUpsert({ variables: { rows: previewRows } })
-      const count: number = data?.bulkUpsertSkuMasters ?? previewRows.length
-      setUploadResult(count)
-      setPreviewRows([])
-      setFileName(null)
-      toast.success(`${count} SKU record(s) saved to database.`)
+      const { data } = await bulkUpsert({ variables: { rows: previewRows } });
+      const count: number = data?.bulkUpsertSkuMasters ?? previewRows.length;
+      setUploadResult(count);
+      setPreviewRows([]);
+      setFileName(null);
+      toast.success(`${count} SKU record(s) saved to database.`);
     } catch (err) {
-      toast.error("Upload failed: " + (err instanceof Error ? err.message : String(err)))
+      toast.error(
+        "Upload failed: " + (err instanceof Error ? err.message : String(err)),
+      );
     }
-  }
+  };
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
@@ -335,21 +363,26 @@ export default function SkuMasterPage() {
             Import from Excel
           </CardTitle>
           <CardDescription>
-            Upload an <strong>.xlsx</strong>, <strong>.xls</strong>, or <strong>.csv</strong> file
-            with the standard SKU Master column headers. Rows are matched on{" "}
-            <code className="bg-muted px-1 rounded text-xs">Master SKU</code> — existing records
-            are updated, new ones are inserted.
+            Upload an <strong>.xlsx</strong>, <strong>.xls</strong>, or{" "}
+            <strong>.csv</strong> file with the standard SKU Master column
+            headers. Rows are matched on{" "}
+            <code className="bg-muted px-1 rounded text-xs">Master SKU</code> —
+            existing records are updated, new ones are inserted.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Drop zone */}
           <div
-            className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-colors ${dragOver
-              ? "border-primary bg-primary/5"
-              : "border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/40"
-              }`}
+            className={`border-2 border-dashed rounded-xl p-10 text-center cursor-pointer transition-colors ${
+              dragOver
+                ? "border-primary bg-primary/5"
+                : "border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/40"
+            }`}
             onClick={() => fileInputRef.current?.click()}
-            onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragOver(true);
+            }}
             onDragLeave={() => setDragOver(false)}
             onDrop={handleDrop}
           >
@@ -361,7 +394,9 @@ export default function SkuMasterPage() {
                 "Drop your Excel file here, or click to browse"
               )}
             </p>
-            <p className="text-xs text-muted-foreground mt-1">.xlsx · .xls · .csv</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              .xlsx · .xls · .csv
+            </p>
           </div>
 
           <input
@@ -424,20 +459,39 @@ export default function SkuMasterPage() {
                   <TableBody>
                     {previewRows.map((row, idx) => (
                       <TableRow key={idx}>
-                        <TableCell className="font-mono">{row.masterSku}</TableCell>
-                        <TableCell className="max-w-[180px] truncate" title={row.skuName}>
+                        <TableCell className="font-mono">
+                          {row.masterSku}
+                        </TableCell>
+                        <TableCell
+                          className="max-w-[180px] truncate"
+                          title={row.skuName}
+                        >
                           {row.skuName}
                         </TableCell>
-                        <TableCell className="text-xs">{row.vendorName ?? "—"}</TableCell>
-                        <TableCell className="text-xs">{row.uom ?? "—"}</TableCell>
-                        <TableCell className="text-xs">{row.caseSize ?? "—"}</TableCell>
+                        <TableCell className="text-xs">
+                          {row.vendorName ?? "—"}
+                        </TableCell>
+                        <TableCell className="text-xs">
+                          {row.uom ?? "—"}
+                        </TableCell>
+                        <TableCell className="text-xs">
+                          {row.caseSize ?? "—"}
+                        </TableCell>
                         <TableCell className="text-xs">
                           {row.mrp != null ? `₹${row.mrp}` : "—"}
                         </TableCell>
-                        <TableCell><DriveLink url={row.npiLinksRaw} /></TableCell>
-                        <TableCell><DriveLink url={row.npiLinksUpdated} /></TableCell>
-                        <TableCell><DriveLink url={row.printFilesRaw} /></TableCell>
-                        <TableCell><DriveLink url={row.printFilesUpdated} /></TableCell>
+                        <TableCell>
+                          <DriveLink url={row.npiLinksRaw} />
+                        </TableCell>
+                        <TableCell>
+                          <DriveLink url={row.npiLinksUpdated} />
+                        </TableCell>
+                        <TableCell>
+                          <DriveLink url={row.printFilesRaw} />
+                        </TableCell>
+                        <TableCell>
+                          <DriveLink url={row.printFilesUpdated} />
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -456,7 +510,9 @@ export default function SkuMasterPage() {
               <Database className="h-5 w-5" />
               All SKU Records
             </CardTitle>
-            <CardDescription>Current data stored in the database.</CardDescription>
+            <CardDescription>
+              Current data stored in the database.
+            </CardDescription>
           </div>
           <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
             <div className="relative w-full sm:w-72">
@@ -472,8 +528,8 @@ export default function SkuMasterPage() {
             <Select
               value={String(pageSize)}
               onValueChange={(val) => {
-                setPageSize(Number(val))
-                setCurrentPage(1)
+                setPageSize(Number(val));
+                setCurrentPage(1);
               }}
             >
               <SelectTrigger className="w-[140px]">
@@ -506,31 +562,59 @@ export default function SkuMasterPage() {
             </div>
           ) : records.length === 0 ? (
             <div className="text-center py-10 text-muted-foreground text-sm">
-              No SKU records in the database yet. Upload an Excel file above to get started.
+              No SKU records in the database yet. Upload an Excel file above to
+              get started.
             </div>
           ) : (
             <div className="rounded-md border overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    {selectedColumns.includes("masterSku") && <TableHead className="w-[100px]">Master SKU</TableHead>}
-                    {selectedColumns.includes("skuName") && <TableHead>SKU Name</TableHead>}
-                    {selectedColumns.includes("vendorName") && <TableHead>Vendor</TableHead>}
-                    {selectedColumns.includes("vendorContactDetails") && <TableHead>Contact</TableHead>}
-                    {selectedColumns.includes("jobStructure") && <TableHead>Job Structure</TableHead>}
-                    {selectedColumns.includes("uom") && <TableHead>UoM</TableHead>}
-                    {selectedColumns.includes("caseSize") && <TableHead>Case Size</TableHead>}
-                    {selectedColumns.includes("mrp") && <TableHead>MRP</TableHead>}
-                    {selectedColumns.includes("npiLinksRaw") && <TableHead>NPI RAW</TableHead>}
-                    {selectedColumns.includes("npiLinksUpdated") && <TableHead>NPI Updated</TableHead>}
-                    {selectedColumns.includes("printFilesRaw") && <TableHead>Print RAW</TableHead>}
-                    {selectedColumns.includes("printFilesUpdated") && <TableHead>Print Updated</TableHead>}
+                    {selectedColumns.includes("masterSku") && (
+                      <TableHead className="w-[100px]">Master SKU</TableHead>
+                    )}
+                    {selectedColumns.includes("skuName") && (
+                      <TableHead>SKU Name</TableHead>
+                    )}
+                    {selectedColumns.includes("vendorName") && (
+                      <TableHead>Vendor</TableHead>
+                    )}
+                    {selectedColumns.includes("vendorContactDetails") && (
+                      <TableHead>Contact</TableHead>
+                    )}
+                    {selectedColumns.includes("jobStructure") && (
+                      <TableHead>Job Structure</TableHead>
+                    )}
+                    {selectedColumns.includes("uom") && (
+                      <TableHead>UoM</TableHead>
+                    )}
+                    {selectedColumns.includes("caseSize") && (
+                      <TableHead>Case Size</TableHead>
+                    )}
+                    {selectedColumns.includes("mrp") && (
+                      <TableHead>MRP</TableHead>
+                    )}
+                    {selectedColumns.includes("npiLinksRaw") && (
+                      <TableHead>NPI RAW</TableHead>
+                    )}
+                    {selectedColumns.includes("npiLinksUpdated") && (
+                      <TableHead>NPI Updated</TableHead>
+                    )}
+                    {selectedColumns.includes("printFilesRaw") && (
+                      <TableHead>Print RAW</TableHead>
+                    )}
+                    {selectedColumns.includes("printFilesUpdated") && (
+                      <TableHead>Print Updated</TableHead>
+                    )}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {paginatedRecords.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={12} className="text-center py-8 text-muted-foreground">
+                      <TableCell
+                        colSpan={12}
+                        className="text-center py-8 text-muted-foreground"
+                      >
                         No matching records found.
                       </TableCell>
                     </TableRow>
@@ -539,18 +623,26 @@ export default function SkuMasterPage() {
                       <TableRow key={r._id}>
                         {selectedColumns.includes("masterSku") && (
                           <TableCell>
-                            <Badge variant="outline" className="font-mono text-xs">
+                            <Badge
+                              variant="outline"
+                              className="font-mono text-xs"
+                            >
                               {r.masterSku}
                             </Badge>
                           </TableCell>
                         )}
                         {selectedColumns.includes("skuName") && (
-                          <TableCell className="font-medium max-w-[200px] truncate" title={r.skuName}>
+                          <TableCell
+                            className="font-medium max-w-[200px] truncate"
+                            title={r.skuName}
+                          >
                             {r.skuName}
                           </TableCell>
                         )}
                         {selectedColumns.includes("vendorName") && (
-                          <TableCell className="text-sm">{r.vendorName ?? "—"}</TableCell>
+                          <TableCell className="text-sm">
+                            {r.vendorName ?? "—"}
+                          </TableCell>
                         )}
                         {selectedColumns.includes("vendorContactDetails") && (
                           <TableCell className="text-xs text-muted-foreground max-w-[140px] truncate">
@@ -558,13 +650,19 @@ export default function SkuMasterPage() {
                           </TableCell>
                         )}
                         {selectedColumns.includes("jobStructure") && (
-                          <TableCell className="text-xs">{r.jobStructure ?? "—"}</TableCell>
+                          <TableCell className="text-xs">
+                            {r.jobStructure ?? "—"}
+                          </TableCell>
                         )}
                         {selectedColumns.includes("uom") && (
-                          <TableCell className="text-xs">{r.uom ?? "—"}</TableCell>
+                          <TableCell className="text-xs">
+                            {r.uom ?? "—"}
+                          </TableCell>
                         )}
                         {selectedColumns.includes("caseSize") && (
-                          <TableCell className="text-xs">{r.caseSize ?? "—"}</TableCell>
+                          <TableCell className="text-xs">
+                            {r.caseSize ?? "—"}
+                          </TableCell>
                         )}
                         {selectedColumns.includes("mrp") && (
                           <TableCell className="text-xs">
@@ -572,19 +670,28 @@ export default function SkuMasterPage() {
                           </TableCell>
                         )}
                         {selectedColumns.includes("npiLinksRaw") && (
-                          <TableCell><DriveLink url={r.npiLinksRaw} /></TableCell>
+                          <TableCell>
+                            <DriveLink url={r.npiLinksRaw} />
+                          </TableCell>
                         )}
                         {selectedColumns.includes("npiLinksUpdated") && (
-                          <TableCell><DriveLink url={r.npiLinksUpdated} /></TableCell>
+                          <TableCell>
+                            <DriveLink url={r.npiLinksUpdated} />
+                          </TableCell>
                         )}
                         {selectedColumns.includes("printFilesRaw") && (
-                          <TableCell><DriveLink url={r.printFilesRaw} /></TableCell>
+                          <TableCell>
+                            <DriveLink url={r.printFilesRaw} />
+                          </TableCell>
                         )}
                         {selectedColumns.includes("printFilesUpdated") && (
-                          <TableCell><DriveLink url={r.printFilesUpdated} /></TableCell>
+                          <TableCell>
+                            <DriveLink url={r.printFilesUpdated} />
+                          </TableCell>
                         )}
                       </TableRow>
-                    )))}
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </div>
@@ -605,5 +712,5 @@ export default function SkuMasterPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

@@ -57,10 +57,7 @@ export class CategoryQueryBuilder {
     if (!searchTerm) return this;
 
     const regex = new RegExp(searchTerm, 'i');
-    this.filter.$or = [
-      { name: regex },
-      { description: regex },
-    ];
+    this.filter.$or = [{ name: regex }, { description: regex }];
 
     return this;
   }
@@ -78,7 +75,7 @@ export class CategoryCacheDecorator {
     private readonly cacheService: CacheService,
     private readonly cacheKeyFactory: CacheKeyFactory,
     private readonly ttl: number = CATEGORY_CACHE_TTL,
-  ) { }
+  ) {}
 
   async withCache<T>(
     versionKey: string,
@@ -159,7 +156,7 @@ export class PaginationHelper {
 // 5. CATEGORY REPOSITORY (Data Access Layer)
 // ============================================================================
 export class CategoryRepository {
-  constructor(private readonly categoryModel: Model<CategoryDocument>) { }
+  constructor(private readonly categoryModel: Model<CategoryDocument>) {}
 
   async countDocuments(filter: any): Promise<number> {
     return this.categoryModel.countDocuments(filter).exec();
@@ -220,7 +217,7 @@ export class CategoryQueryService {
     private readonly repository: CategoryRepository,
     private readonly cacheDecorator: CategoryCacheDecorator,
     private readonly cacheKeyFactory: CacheKeyFactory,
-  ) { }
+  ) {}
 
   async findAll(includeArchived: boolean): Promise<Category[]> {
     const filter = new CategoryQueryBuilder()
@@ -469,7 +466,7 @@ export class CategoryCommandService {
     private readonly slugService: SlugService,
     private readonly cacheInvalidator: CacheInvalidatorService,
     private readonly productModel?: Model<any>,
-  ) { }
+  ) {}
 
   async create(input: CreateCategoryInput): Promise<Category> {
     const slug = await this.resolveSlug(input.name, input.slug);

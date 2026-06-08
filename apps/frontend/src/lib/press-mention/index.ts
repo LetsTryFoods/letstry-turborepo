@@ -1,5 +1,5 @@
-import { createServerGraphQLClient } from '@/lib/graphql/server-client-factory';
-import { GET_ACTIVE_PRESS_MENTIONS } from '@/lib/queries/press-mentions';
+import { createServerGraphQLClient } from "@/lib/graphql/server-client-factory";
+import { GET_ACTIVE_PRESS_MENTIONS } from "@/lib/queries/press-mentions";
 
 export interface PressMention {
   _id: string;
@@ -24,7 +24,7 @@ export async function getActivePressMentions(): Promise<PressMention[]> {
     );
     return data?.activePressMentions ?? [];
   } catch (e) {
-    console.error('getActivePressMentions failed', e);
+    console.error("getActivePressMentions failed", e);
     return [];
   }
 }

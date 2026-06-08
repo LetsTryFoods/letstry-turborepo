@@ -9,7 +9,7 @@ export class PackerAuthService {
   constructor(
     private readonly packerCrud: PackerCrudService,
     private readonly jwtService: JwtService,
-  ) { }
+  ) {}
 
   async validateCredentials(
     employeeId: string,

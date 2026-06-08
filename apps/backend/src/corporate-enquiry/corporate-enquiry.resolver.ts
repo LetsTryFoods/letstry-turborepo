@@ -11,20 +11,22 @@ import { RolesGuard } from '../common/guards/roles.guard';
 
 @Resolver()
 export class CorporateEnquiryResolver {
-    constructor(private readonly corporateEnquiryService: CorporateEnquiryService) { }
+  constructor(
+    private readonly corporateEnquiryService: CorporateEnquiryService,
+  ) {}
 
-    @Mutation(() => CorporateEnquiryResponse)
-    @Public()
-    async submitCorporateEnquiry(
-        @Args('input') input: SubmitCorporateEnquiryInput,
-    ): Promise<CorporateEnquiryResponse> {
-        return this.corporateEnquiryService.submit(input);
-    }
+  @Mutation(() => CorporateEnquiryResponse)
+  @Public()
+  async submitCorporateEnquiry(
+    @Args('input') input: SubmitCorporateEnquiryInput,
+  ): Promise<CorporateEnquiryResponse> {
+    return this.corporateEnquiryService.submit(input);
+  }
 
-    @Query(() => [CorporateEnquiry])
-    @Roles(Role.ADMIN)
-    @UseGuards(RolesGuard)
-    async getAllCorporateEnquiries(): Promise<CorporateEnquiry[]> {
-        return this.corporateEnquiryService.findAll();
-    }
+  @Query(() => [CorporateEnquiry])
+  @Roles(Role.ADMIN)
+  @UseGuards(RolesGuard)
+  async getAllCorporateEnquiries(): Promise<CorporateEnquiry[]> {
+    return this.corporateEnquiryService.findAll();
+  }
 }

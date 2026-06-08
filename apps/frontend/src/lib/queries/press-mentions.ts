@@ -1,4 +1,4 @@
-import { gql } from 'graphql-request';
+import { gql } from "graphql-request";
 
 const PRESS_MENTION_FIELDS = `
   _id

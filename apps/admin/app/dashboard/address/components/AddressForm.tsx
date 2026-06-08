@@ -1,22 +1,37 @@
-'use client'
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Checkbox } from "@/components/ui/checkbox"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { addressFormSchema, AddressFormValues } from "@/lib/validations/address.schema"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  addressFormSchema,
+  AddressFormValues,
+} from "@/lib/validations/address.schema";
 
 interface AddressFormProps {
-  onClose: () => void
-  initialData?: any | null
-  createAddress: any
-  updateAddress: any
+  onClose: () => void;
+  initialData?: any | null;
+  createAddress: any;
+  updateAddress: any;
 }
 
-export function AddressForm({ onClose, initialData, createAddress, updateAddress }: AddressFormProps) {
+export function AddressForm({
+  onClose,
+  initialData,
+  createAddress,
+  updateAddress,
+}: AddressFormProps) {
   const form = useForm<AddressFormValues>({
     resolver: zodResolver(addressFormSchema),
     defaultValues: {
@@ -26,7 +41,7 @@ export function AddressForm({ onClose, initialData, createAddress, updateAddress
       fssaiLicenseNumber: initialData?.fssaiLicenseNumber || "",
       isActive: initialData?.isActive ?? true,
     },
-  })
+  });
 
   const onSubmit = async (data: AddressFormValues) => {
     try {
@@ -34,21 +49,21 @@ export function AddressForm({ onClose, initialData, createAddress, updateAddress
         await updateAddress({
           variables: {
             id: initialData._id,
-            input: data
-          }
-        })
+            input: data,
+          },
+        });
       } else {
         await createAddress({
           variables: {
-            input: data
-          }
-        })
+            input: data,
+          },
+        });
       }
-      onClose()
+      onClose();
     } catch (error) {
-      console.error("Failed to save address:", error)
+      console.error("Failed to save address:", error);
     }
-  }
+  };
 
   return (
     <Form {...form}>
@@ -89,7 +104,10 @@ export function AddressForm({ onClose, initialData, createAddress, updateAddress
             <FormItem>
               <FormLabel>Company Name *</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="e.g., Earth Crust Private Limited" />
+                <Input
+                  {...field}
+                  placeholder="e.g., Earth Crust Private Limited"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -103,9 +121,9 @@ export function AddressForm({ onClose, initialData, createAddress, updateAddress
             <FormItem>
               <FormLabel>Full Address *</FormLabel>
               <FormControl>
-                <Textarea 
-                  {...field} 
-                  placeholder="e.g., 118H, PHASE-V, SECTOR-56, HSIIDC, KUNDLI, DISTT. SONIPAT, HARYANA-131028" 
+                <Textarea
+                  {...field}
+                  placeholder="e.g., 118H, PHASE-V, SECTOR-56, HSIIDC, KUNDLI, DISTT. SONIPAT, HARYANA-131028"
                   rows={3}
                 />
               </FormControl>
@@ -135,10 +153,10 @@ export function AddressForm({ onClose, initialData, createAddress, updateAddress
             Cancel
           </Button>
           <Button type="submit">
-            {initialData ? 'Update' : 'Create'} Address
+            {initialData ? "Update" : "Create"} Address
           </Button>
         </div>
       </form>
     </Form>
-  )
+  );
 }

@@ -1,7 +1,7 @@
-import { createServerGraphQLClient } from '@/lib/graphql/server-client-factory';
-import { GET_PRODUCT_BY_SLUG } from '@/lib/queries/products';
-import { GET_PRODUCT_BY_SLUG_MINIMAL } from '@/lib/queries/products-minimal';
-import type { GetProductBySlugQuery } from '@/gql/graphql';
+import { createServerGraphQLClient } from "@/lib/graphql/server-client-factory";
+import { GET_PRODUCT_BY_SLUG } from "@/lib/queries/products";
+import { GET_PRODUCT_BY_SLUG_MINIMAL } from "@/lib/queries/products-minimal";
+import type { GetProductBySlugQuery } from "@/gql/graphql";
 
 /**
  * Sprint 4 hotfix — resilient product fetch with two-tier fallback.
@@ -25,7 +25,7 @@ import type { GetProductBySlugQuery } from '@/gql/graphql';
  */
 export async function getProductBySlug(
   slug: string,
-): Promise<GetProductBySlugQuery['productBySlug'] | null> {
+): Promise<GetProductBySlugQuery["productBySlug"] | null> {
   const client = createServerGraphQLClient();
 
   // Tier 1: full Sprint 4 query.
@@ -41,7 +41,7 @@ export async function getProductBySlug(
     // Log loudly so the tech lead notices — every product page falling back
     // to the minimal query is a sign the backend redeploy is overdue.
     console.error(
-      '[getProductBySlug] Sprint 4 query failed, falling back to minimal query',
+      "[getProductBySlug] Sprint 4 query failed, falling back to minimal query",
       { slug, error: err instanceof Error ? err.message : err },
     );
   }
@@ -54,7 +54,7 @@ export async function getProductBySlug(
     );
     return data?.productBySlug ?? null;
   } catch (err) {
-    console.error('[getProductBySlug] minimal query also failed', {
+    console.error("[getProductBySlug] minimal query also failed", {
       slug,
       error: err instanceof Error ? err.message : err,
     });

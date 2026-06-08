@@ -22,22 +22,34 @@ export class ShipmentWebhookProcessor extends WorkerHost {
     super();
   }
 
-  async process(job: Job<{ webhookLogId: string; payload: DtdcWebhookPayload }>): Promise<void> {
+  async process(
+    job: Job<{ webhookLogId: string; payload: DtdcWebhookPayload }>,
+  ): Promise<void> {
     const { webhookLogId, payload } = job.data;
 
     try {
       const awbNumber = payload.shipment.strShipmentNo;
       const latestStatus = payload.shipmentStatus[0];
-      
+
       const shipment = await this.shipmentService.findByAwbNumber(awbNumber);
 
       if (!shipment) {
-        this.shipmentLogger.logError('Shipment not found for webhook', new Error('Not found'), { awbNumber });
-        await this.webhookService.markWebhookProcessed(webhookLogId, false, 'Shipment not found');
+        this.shipmentLogger.logError(
+          'Shipment not found for webhook',
+          new Error('Not found'),
+          { awbNumber },
+        );
+        await this.webhookService.markWebhookProcessed(
+          webhookLogId,
+          false,
+          'Shipment not found',
+        );
         return;
       }
 
-      const statusDescription = this.statusMapper.getStatusDescription(latestStatus.strAction);
+      const statusDescription = this.statusMapper.getStatusDescription(
+        latestStatus.strAction,
+      );
 
       await this.shipmentService.updateStatus(
         awbNumber,
@@ -46,7 +58,10 @@ export class ShipmentWebhookProcessor extends WorkerHost {
         latestStatus.strOrigin,
       );
 
-      const trackingEvent = await this.trackingService.addTrackingEvent(shipment._id.toString(), latestStatus);
+      const trackingEvent = await this.trackingService.addTrackingEvent(
+        shipment._id.toString(),
+        latestStatus,
+      );
 
       await this.webhookService.markWebhookProcessed(webhookLogId, true);
 
@@ -62,8 +77,15 @@ export class ShipmentWebhookProcessor extends WorkerHost {
 
       this.shipmentLogger.logWebhookReceived(awbNumber, latestStatus.strAction);
     } catch (error) {
-      this.shipmentLogger.logError('Failed to process webhook', error, { awbNumber: payload.shipment?.strShipmentNo, webhookLogId });
-      await this.webhookService.markWebhookProcessed(webhookLogId, false, error.message);
+      this.shipmentLogger.logError('Failed to process webhook', error, {
+        awbNumber: payload.shipment?.strShipmentNo,
+        webhookLogId,
+      });
+      await this.webhookService.markWebhookProcessed(
+        webhookLogId,
+        false,
+        error.message,
+      );
       throw error;
     }
   }

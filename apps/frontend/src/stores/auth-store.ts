@@ -1,15 +1,20 @@
-import { create } from 'zustand';
-import { onAuthStateChanged, type User as FirebaseUser } from 'firebase/auth';
-import { auth } from '@/lib/firebase/config';
-import { authService } from '@/lib/firebase/auth-service';
-import { whatsAppOtpService } from '@/lib/whatsapp/whatsapp-otp-service';
-import { setAuthTokens, logoutAction, setGuestModeAction, getCurrentUser } from '@/lib/auth/auth-actions';
-import { verifyOtpAndLogin } from '@/lib/auth/client-auth';
-import { graphqlClient } from '@/lib/graphql/client-factory';
-import { LOGOUT_MUTATION } from '@/lib/queries/auth';
-import type { AuthUser } from '@/types/auth.types';
-import { OtpProvider } from '@/types/whatsapp.types';
-import { trackEvent } from '@/lib/analytics/data-layer';
+import { create } from "zustand";
+import { onAuthStateChanged, type User as FirebaseUser } from "firebase/auth";
+import { auth } from "@/lib/firebase/config";
+import { authService } from "@/lib/firebase/auth-service";
+import { whatsAppOtpService } from "@/lib/whatsapp/whatsapp-otp-service";
+import {
+  setAuthTokens,
+  logoutAction,
+  setGuestModeAction,
+  getCurrentUser,
+} from "@/lib/auth/auth-actions";
+import { verifyOtpAndLogin } from "@/lib/auth/client-auth";
+import { graphqlClient } from "@/lib/graphql/client-factory";
+import { LOGOUT_MUTATION } from "@/lib/queries/auth";
+import type { AuthUser } from "@/types/auth.types";
+import { OtpProvider } from "@/types/whatsapp.types";
+import { trackEvent } from "@/lib/analytics/data-layer";
 
 interface AuthStore {
   user: AuthUser | null;
@@ -48,24 +53,22 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     try {
       set({ isLoading: true });
       try {
-        const { ME_QUERY } = await import('@/lib/queries/auth');
-        const data = await graphqlClient.request(ME_QUERY) as { me: any };
-
+        const { ME_QUERY } = await import("@/lib/queries/auth");
+        const data = (await graphqlClient.request(ME_QUERY)) as { me: any };
 
         if (data.me) {
           set({
             user: {
               uid: data.me._id,
               phoneNumber: data.me.phoneNumber,
-              idToken: '',
+              idToken: "",
               isGuest: false,
             },
             isAuthenticated: true,
             isGuest: false,
           });
         }
-      } catch (error) {
-      }
+      } catch (error) {}
 
       onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
         if (firebaseUser) {
@@ -85,15 +88,16 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
               });
             }
           } catch (error) {
-            console.error('[AUTH] Firebase auth state change error:', error);
+            console.error("[AUTH] Firebase auth state change error:", error);
           }
         } else {
-
           const currentState = get();
           if (currentState.user && !currentState.isGuest) {
             try {
-              const { ME_QUERY } = await import('@/lib/queries/auth');
-              const data = await graphqlClient.request(ME_QUERY) as { me: any };
+              const { ME_QUERY } = await import("@/lib/queries/auth");
+              const data = (await graphqlClient.request(ME_QUERY)) as {
+                me: any;
+              };
 
               if (!data.me) {
                 set({
@@ -112,9 +116,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       });
 
       set({ isInitialized: true });
-
     } catch (error) {
-      console.error('Auth initialization error:', error);
+      console.error("Auth initialization error:", error);
     } finally {
       set({ isLoading: false });
     }
@@ -128,14 +131,17 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
       if (whatsappResult.success) {
         set({ otpProvider: OtpProvider.WhatsApp });
-        return { provider: 'whatsapp', message: whatsappResult.message };
+        return { provider: "whatsapp", message: whatsappResult.message };
       }
 
       set({ otpProvider: OtpProvider.Firebase });
-      const confirmationResult = await authService.sendOTP(phoneNumber, 'recaptcha-container');
-      return { provider: 'firebase', confirmationResult };
+      const confirmationResult = await authService.sendOTP(
+        phoneNumber,
+        "recaptcha-container",
+      );
+      return { provider: "firebase", confirmationResult };
     } catch (error: any) {
-      const errorMessage = error.message || 'Failed to send OTP';
+      const errorMessage = error.message || "Failed to send OTP";
       set({ error: errorMessage, otpProvider: null });
       throw error;
     }
@@ -144,10 +150,13 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   sendFirebaseOTP: async (phoneNumber: string) => {
     try {
       set({ error: null, otpProvider: OtpProvider.Firebase });
-      const confirmationResult = await authService.sendOTP(phoneNumber, 'recaptcha-container');
-      return { provider: 'firebase', confirmationResult };
+      const confirmationResult = await authService.sendOTP(
+        phoneNumber,
+        "recaptcha-container",
+      );
+      return { provider: "firebase", confirmationResult };
     } catch (error: any) {
-      const errorMessage = error.message || 'Failed to send OTP';
+      const errorMessage = error.message || "Failed to send OTP";
       set({ error: errorMessage, otpProvider: null });
       throw error;
     }
@@ -157,7 +166,11 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     try {
       set({ error: null, isLoading: true });
 
-      const { idToken, user: firebaseUser, isNewUser } = await authService.verifyOTP(confirmationResult, otp);
+      const {
+        idToken,
+        user: firebaseUser,
+        isNewUser,
+      } = await authService.verifyOTP(confirmationResult, otp);
 
       const userData = {
         phoneNumber: firebaseUser.phoneNumber || "",
@@ -170,7 +183,10 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         throw new Error(result.error || "Authentication failed");
       }
 
-      trackEvent(isNewUser ? 'sign_up' : 'login', { method: 'phone', platform: 'web' });
+      trackEvent(isNewUser ? "sign_up" : "login", {
+        method: "phone",
+        platform: "web",
+      });
 
       set({
         user: {
@@ -186,7 +202,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
       window.location.reload();
     } catch (error: any) {
-      const errorMessage = error.message || 'Failed to verify OTP';
+      const errorMessage = error.message || "Failed to verify OTP";
       set({ error: errorMessage });
       throw error;
     } finally {
@@ -198,7 +214,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     try {
       set({ error: null, isLoading: true });
 
-      const { verifyWhatsAppOtp } = await import('@/lib/queries/whatsapp');
+      const { verifyWhatsAppOtp } = await import("@/lib/queries/whatsapp");
 
       const result = await verifyWhatsAppOtp(phoneNumber, otp);
 
@@ -206,7 +222,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         throw new Error(result.error || "Authentication failed");
       }
 
-      trackEvent('login', { method: 'whatsapp', platform: 'web' });
+      trackEvent("login", { method: "whatsapp", platform: "web" });
 
       set({
         user: {
@@ -222,7 +238,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
       window.location.reload();
     } catch (error: any) {
-      const errorMessage = error.message || 'Failed to verify WhatsApp OTP';
+      const errorMessage = error.message || "Failed to verify WhatsApp OTP";
       set({ error: errorMessage });
       throw error;
     } finally {
@@ -239,7 +255,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       try {
         await graphqlClient.request(LOGOUT_MUTATION);
       } catch (e) {
-        console.error('Backend logout failed:', e);
+        console.error("Backend logout failed:", e);
         // Continue with client cleanup even if backend fails
       }
 
@@ -269,7 +285,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         error: null,
       });
     } catch (error) {
-      console.error('Set guest mode error:', error);
+      console.error("Set guest mode error:", error);
     }
   },
 
@@ -291,7 +307,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         }
       }
     } catch (error) {
-      console.error('Token refresh error:', error);
+      console.error("Token refresh error:", error);
     }
   },
 }));

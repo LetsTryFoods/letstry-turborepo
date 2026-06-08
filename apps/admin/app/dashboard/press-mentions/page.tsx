@@ -1,18 +1,18 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { toast } from 'react-hot-toast';
+import { useState } from "react";
+import { toast } from "react-hot-toast";
 import {
   usePressMentions,
   useCreatePressMention,
   useUpdatePressMention,
   useRemovePressMention,
   type PressMention,
-} from '@/lib/press-mentions/usePressMentions';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+} from "@/lib/press-mentions/usePressMentions";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 /**
  * Sprint 5 — Press Mention CRUD admin page.
@@ -32,7 +32,8 @@ export default function PressMentionsAdminPage() {
   const { remove } = useRemovePressMention();
 
   const mentions: PressMention[] =
-    (data as { pressMentions?: PressMention[] } | undefined)?.pressMentions || [];
+    (data as { pressMentions?: PressMention[] } | undefined)?.pressMentions ||
+    [];
   const [editing, setEditing] = useState<PressMention | null>(null);
 
   return (
@@ -41,11 +42,13 @@ export default function PressMentionsAdminPage() {
         <div>
           <h1 className="text-2xl font-bold">Press mentions</h1>
           <p className="text-sm text-gray-500">
-            Media coverage of Let&apos;s Try Foods. Drives <code>/press</code> and the
-            NewsArticle schema emitted from it.
+            Media coverage of Let&apos;s Try Foods. Drives <code>/press</code>{" "}
+            and the NewsArticle schema emitted from it.
           </p>
         </div>
-        <Button onClick={() => setEditing(emptyMention())}>+ New mention</Button>
+        <Button onClick={() => setEditing(emptyMention())}>
+          + New mention
+        </Button>
       </header>
 
       {loading && <p className="text-sm text-gray-500">Loading…</p>}
@@ -59,11 +62,15 @@ export default function PressMentionsAdminPage() {
                 <span className="text-xs text-gray-500 ml-2">
                   {m.category && `· ${m.category} `}
                   {m.publishedAt && `· ${formatDate(m.publishedAt)} `}
-                  {m.isActive ? '· active' : '· draft'}
+                  {m.isActive ? "· active" : "· draft"}
                 </span>
               </CardTitle>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => setEditing(m)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setEditing(m)}
+                >
                   Edit
                 </Button>
                 <Button
@@ -81,9 +88,13 @@ export default function PressMentionsAdminPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-sm font-medium text-gray-900 mb-1">{m.headline}</p>
+              <p className="text-sm font-medium text-gray-900 mb-1">
+                {m.headline}
+              </p>
               {m.excerpt && (
-                <p className="text-sm text-gray-700 line-clamp-2 mb-2">{m.excerpt}</p>
+                <p className="text-sm text-gray-700 line-clamp-2 mb-2">
+                  {m.excerpt}
+                </p>
               )}
               <a
                 href={m.url}
@@ -98,8 +109,8 @@ export default function PressMentionsAdminPage() {
         ))}
         {!loading && mentions.length === 0 && (
           <p className="text-sm text-gray-500">
-            No press mentions yet. Add the first one — every entry strengthens the
-            brand&apos;s E-E-A-T signal and unlocks NewsArticle schema on{' '}
+            No press mentions yet. Add the first one — every entry strengthens
+            the brand&apos;s E-E-A-T signal and unlocks NewsArticle schema on{" "}
             <code>/press</code>.
           </p>
         )}
@@ -139,25 +150,25 @@ function stripServerFields(m: PressMention) {
 
 function emptyMention(): PressMention {
   return {
-    _id: '',
-    slug: '',
-    publication: '',
-    headline: '',
-    url: '',
+    _id: "",
+    slug: "",
+    publication: "",
+    headline: "",
+    url: "",
     publishedAt: new Date().toISOString().slice(0, 10),
     isActive: true,
     position: 0,
-    createdAt: '',
-    updatedAt: '',
+    createdAt: "",
+    updatedAt: "",
   };
 }
 
 function formatDate(iso: string) {
   try {
-    return new Date(iso).toLocaleDateString('en-IN', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
+    return new Date(iso).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
     });
   } catch {
     return iso;
@@ -175,11 +186,11 @@ function PressMentionForm({
 }) {
   // Convert the timestamp to a YYYY-MM-DD string for the date input.
   const toDateInput = (iso: string) => {
-    if (!iso) return '';
+    if (!iso) return "";
     try {
       return new Date(iso).toISOString().slice(0, 10);
     } catch {
-      return '';
+      return "";
     }
   };
 
@@ -191,7 +202,7 @@ function PressMentionForm({
   return (
     <Card className="border-amber-200 bg-amber-50/40">
       <CardHeader>
-        <CardTitle>{mention._id ? 'Edit mention' : 'New mention'}</CardTitle>
+        <CardTitle>{mention._id ? "Edit mention" : "New mention"}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <Field
@@ -203,7 +214,10 @@ function PressMentionForm({
             onChange={(e) => setForm({ ...form, slug: e.target.value })}
           />
         </Field>
-        <Field label="Publication name" hint='e.g. "YourStory", "The Better India", "Times of India"'>
+        <Field
+          label="Publication name"
+          hint='e.g. "YourStory", "The Better India", "Times of India"'
+        >
           <Input
             value={form.publication}
             onChange={(e) => setForm({ ...form, publication: e.target.value })}
@@ -211,13 +225,16 @@ function PressMentionForm({
         </Field>
         <Field label="Publication logo URL (optional)">
           <Input
-            value={form.publicationLogoUrl || ''}
+            value={form.publicationLogoUrl || ""}
             onChange={(e) =>
               setForm({ ...form, publicationLogoUrl: e.target.value })
             }
           />
         </Field>
-        <Field label="Article headline" hint="As it appears on the publication's site">
+        <Field
+          label="Article headline"
+          hint="As it appears on the publication's site"
+        >
           <Input
             value={form.headline}
             onChange={(e) => setForm({ ...form, headline: e.target.value })}
@@ -235,20 +252,22 @@ function PressMentionForm({
         >
           <Textarea
             rows={3}
-            value={form.excerpt || ''}
+            value={form.excerpt || ""}
             onChange={(e) => setForm({ ...form, excerpt: e.target.value })}
           />
         </Field>
         <Field label="Cover image URL (optional)">
           <Input
-            value={form.coverImageUrl || ''}
-            onChange={(e) => setForm({ ...form, coverImageUrl: e.target.value })}
+            value={form.coverImageUrl || ""}
+            onChange={(e) =>
+              setForm({ ...form, coverImageUrl: e.target.value })
+            }
           />
         </Field>
         <Field label="Published date">
           <Input
             type="date"
-            value={form.publishedAt || ''}
+            value={form.publishedAt || ""}
             onChange={(e) => setForm({ ...form, publishedAt: e.target.value })}
           />
         </Field>
@@ -257,7 +276,7 @@ function PressMentionForm({
           hint="e.g. feature, review, interview, listicle"
         >
           <Input
-            value={form.category || ''}
+            value={form.category || ""}
             onChange={(e) => setForm({ ...form, category: e.target.value })}
           />
         </Field>

@@ -11,7 +11,7 @@ export class QueryExecutor {
   constructor(
     private readonly repository: ProductRepository,
     private readonly cacheStrategyFactory: ProductCacheStrategyFactory,
-  ) { }
+  ) {}
 
   async executeFind(
     filter: ProductFilter,

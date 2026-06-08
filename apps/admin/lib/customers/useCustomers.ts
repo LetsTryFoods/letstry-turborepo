@@ -106,8 +106,9 @@ const mapBackendCustomerToFrontend = (backendCustomer: any): Customer => {
   return {
     _id: backendCustomer._id,
     name:
-      `${backendCustomer.firstName || ""} ${backendCustomer.lastName || ""
-        }`.trim() || "Guest User",
+      `${backendCustomer.firstName || ""} ${
+        backendCustomer.lastName || ""
+      }`.trim() || "Guest User",
     email: backendCustomer.email || "",
     phone: backendCustomer.displayPhone || backendCustomer.phoneNumber || "",
     status: backendCustomer.status.toUpperCase() as CustomerStatus,
@@ -142,7 +143,7 @@ export const useCustomers = (input?: GetCustomersInput) => {
         },
       },
       fetchPolicy: "network-only",
-    }
+    },
   );
 
   const customers =
@@ -159,14 +160,13 @@ export const useCustomers = (input?: GetCustomersInput) => {
 };
 
 export const useCustomerDetails = (id: string) => {
-  const { data, loading, error, refetch } = useQuery<{ getCustomerDetails: any }>(
-    GET_CUSTOMER_DETAILS,
-    {
-      variables: { id },
-      skip: !id,
-      fetchPolicy: "network-only",
-    }
-  );
+  const { data, loading, error, refetch } = useQuery<{
+    getCustomerDetails: any;
+  }>(GET_CUSTOMER_DETAILS, {
+    variables: { id },
+    skip: !id,
+    fetchPolicy: "network-only",
+  });
 
   return {
     customer: data?.getCustomerDetails,
@@ -200,7 +200,7 @@ export const getCustomerStats = (customers: Customer[]) => {
     avgOrderValue:
       Math.round(
         customers.reduce((sum, c) => sum + c.totalSpent, 0) /
-        customers.reduce((sum, c) => sum + c.totalOrders, 0)
+          customers.reduce((sum, c) => sum + c.totalOrders, 0),
       ) || 0,
     newThisMonth: customers.filter((c) => {
       const created = new Date(c.createdAt);

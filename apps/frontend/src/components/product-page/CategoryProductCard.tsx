@@ -44,7 +44,8 @@ export const CategoryProductCard: React.FC<CategoryProductCardProps> = ({
   const quantityInCart =
     cartItems.find((item) => item.productId === product._id)?.quantity || 0;
 
-  const displayImage = getCdnUrl(variant.thumbnailUrl) || "/placeholder-image.svg";
+  const displayImage =
+    getCdnUrl(variant.thumbnailUrl) || "/placeholder-image.svg";
 
   const handleAddToCart = async () => {
     if (isLoading) return;

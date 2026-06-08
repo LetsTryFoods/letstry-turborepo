@@ -92,9 +92,10 @@ export function SpinWheelCanvas() {
     <div
       style={{
         transform: `rotate(${rotation}deg)`,
-        transition: phase === "spinning"
-          ? "transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)"
-          : "none",
+        transition:
+          phase === "spinning"
+            ? "transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)"
+            : "none",
         borderRadius: "50%",
       }}
     >

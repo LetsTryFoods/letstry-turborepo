@@ -1,16 +1,18 @@
-import { notFound } from 'next/navigation';
-import type { Metadata } from 'next';
-import Link from 'next/link';
-import Image from 'next/image';
-import { getCategoryLandingPageBySlug } from '@/lib/category-landing-page/get-category-landing-page';
-import { getPillarByCustomRoute } from '@/lib/pillar';
-import { PillarRenderer } from '@/components/pillar/PillarRenderer';
-import { ProductDetailFAQ } from '@/components/product-page/ProductDetailFAQ';
-import { getCdnUrl } from '@/lib/image-utils';
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+import Link from "next/link";
+import Image from "next/image";
+import { getCategoryLandingPageBySlug } from "@/lib/category-landing-page/get-category-landing-page";
+import { getPillarByCustomRoute } from "@/lib/pillar";
+import { PillarRenderer } from "@/components/pillar/PillarRenderer";
+import { ProductDetailFAQ } from "@/components/product-page/ProductDetailFAQ";
+import { getCdnUrl } from "@/lib/image-utils";
 
-const PAGE_SLUG = 'no-palm-oil-snacks';
+const PAGE_SLUG = "no-palm-oil-snacks";
 const PAGE_PATH = `/${PAGE_SLUG}`;
-const SITE_URL = (process.env.NEXT_PUBLIC_BASE_URL || 'https://letstryfoods.com').replace(/\/$/, '');
+const SITE_URL = (
+  process.env.NEXT_PUBLIC_BASE_URL || "https://letstryfoods.com"
+).replace(/\/$/, "");
 const PAGE_URL = `${SITE_URL}${PAGE_PATH}`;
 
 /**
@@ -42,7 +44,7 @@ export async function generateMetadata(): Promise<Metadata> {
         title: pillar.seo?.ogTitle || title,
         description: pillar.seo?.ogDescription || description,
         url: PAGE_URL,
-        type: 'website',
+        type: "website",
         siteName: "Let's Try Foods",
         images: pillar.seo?.ogImage
           ? [{ url: getCdnUrl(pillar.seo.ogImage) }]
@@ -51,10 +53,14 @@ export async function generateMetadata(): Promise<Metadata> {
             : [],
       },
       twitter: {
-        card: (pillar.seo?.twitterCard as 'summary' | 'summary_large_image') || 'summary_large_image',
+        card:
+          (pillar.seo?.twitterCard as "summary" | "summary_large_image") ||
+          "summary_large_image",
         title: pillar.seo?.twitterTitle || title,
         description: pillar.seo?.twitterDescription || description,
-        images: pillar.seo?.twitterImage ? [getCdnUrl(pillar.seo.twitterImage)] : undefined,
+        images: pillar.seo?.twitterImage
+          ? [getCdnUrl(pillar.seo.twitterImage)]
+          : undefined,
       },
       robots: pillar.seo?.robots || undefined,
     };
@@ -66,7 +72,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   const seo = page.seo;
   const title = seo?.metaTitle || page.pageTitle;
-  const description = seo?.metaDescription || page.description || '';
+  const description = seo?.metaDescription || page.description || "";
 
   return {
     title: { absolute: title },
@@ -77,12 +83,14 @@ export async function generateMetadata(): Promise<Metadata> {
       title: seo?.ogTitle || title,
       description: seo?.ogDescription || description,
       url: PAGE_URL,
-      type: 'website',
+      type: "website",
       siteName: "Let's Try Foods",
-      images: seo?.ogImage ? [{ url: seo.ogImage, width: 1200, height: 630, alt: title }] : [],
+      images: seo?.ogImage
+        ? [{ url: seo.ogImage, width: 1200, height: 630, alt: title }]
+        : [],
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title: seo?.ogTitle || title,
       description: seo?.ogDescription || description,
       images: seo?.ogImage ? [seo.ogImage] : [],
@@ -106,37 +114,42 @@ export default async function NoPalmOilSnacksPage() {
 
   const faqSchema = sortedFaqs.length
     ? {
-        '@context': 'https://schema.org',
-        '@type': 'FAQPage',
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
         mainEntity: sortedFaqs.map((f) => ({
-          '@type': 'Question',
+          "@type": "Question",
           name: f.question,
-          acceptedAnswer: { '@type': 'Answer', text: f.answer },
+          acceptedAnswer: { "@type": "Answer", text: f.answer },
         })),
       }
     : null;
 
   const breadcrumbSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
-      { '@type': 'ListItem', position: 2, name: page.pageTitle, item: PAGE_URL },
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: page.pageTitle,
+        item: PAGE_URL,
+      },
     ],
   };
 
   const speakableSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'WebPage',
-    '@id': `${PAGE_URL}#speakable`,
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `${PAGE_URL}#speakable`,
     url: PAGE_URL,
     speakable: {
-      '@type': 'SpeakableSpecification',
+      "@type": "SpeakableSpecification",
       cssSelector: ['[data-speakable="true"]'],
     },
   };
 
-  const paragraphs = (page.description || '').split('\n\n').filter(Boolean);
+  const paragraphs = (page.description || "").split("\n\n").filter(Boolean);
 
   return (
     <>
@@ -157,9 +170,10 @@ export default async function NoPalmOilSnacksPage() {
 
       <main className="min-h-screen bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
-
           <nav className="text-sm text-gray-500 mb-6">
-            <Link href="/" className="hover:text-gray-800">Home</Link>
+            <Link href="/" className="hover:text-gray-800">
+              Home
+            </Link>
             <span className="mx-2">/</span>
             <span className="text-gray-800">{page.pageTitle}</span>
           </nav>
@@ -171,7 +185,7 @@ export default async function NoPalmOilSnacksPage() {
           {paragraphs.map((para, i) => (
             <p
               key={i}
-              data-speakable={i === 0 ? 'true' : undefined}
+              data-speakable={i === 0 ? "true" : undefined}
               className="text-base sm:text-lg text-gray-700 leading-relaxed mb-4"
             >
               {para}
@@ -179,18 +193,21 @@ export default async function NoPalmOilSnacksPage() {
           ))}
 
           {sortedTiles.length > 0 && (
-            <section aria-labelledby="categories-heading" className="mt-6 mb-14">
+            <section
+              aria-labelledby="categories-heading"
+              className="mt-6 mb-14"
+            >
               <h2
                 id="categories-heading"
                 className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-6"
               >
-                {page.tilesHeading || 'Shop by Category'}
+                {page.tilesHeading || "Shop by Category"}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
                 {sortedTiles.map((tile, i) => {
-                  const isExternal = tile.shopNowUrl.startsWith('http');
+                  const isExternal = tile.shopNowUrl.startsWith("http");
                   const cardClass =
-                    'block rounded-2xl border border-gray-200 overflow-hidden hover:border-gray-400 hover:shadow-md transition';
+                    "block rounded-2xl border border-gray-200 overflow-hidden hover:border-gray-400 hover:shadow-md transition";
 
                   const cardInner = (
                     <>
@@ -206,9 +223,13 @@ export default async function NoPalmOilSnacksPage() {
                         </div>
                       )}
                       <div className="p-5">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">{tile.name}</h3>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                          {tile.name}
+                        </h3>
                         {tile.blurb && (
-                          <p className="text-sm text-gray-600 leading-relaxed">{tile.blurb}</p>
+                          <p className="text-sm text-gray-600 leading-relaxed">
+                            {tile.blurb}
+                          </p>
                         )}
                         <span className="inline-block mt-3 text-sm font-semibold text-[#0C5273]">
                           Shop Now →
@@ -240,12 +261,11 @@ export default async function NoPalmOilSnacksPage() {
           {sortedFaqs.length > 0 && (
             <div className="mb-8">
               <ProductDetailFAQ
-                heading={page.faqHeading || 'Frequently Asked Questions'}
+                heading={page.faqHeading || "Frequently Asked Questions"}
                 faqs={sortedFaqs.map((f) => ({ q: f.question, a: f.answer }))}
               />
             </div>
           )}
-
         </div>
       </main>
     </>

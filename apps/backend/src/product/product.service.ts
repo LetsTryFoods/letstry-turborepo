@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Product, ProductDocument } from './product.schema';
+import { DeletedProduct, DeletedProductDocument } from './deleted-product.schema';
 import { ProductSeo } from './product-seo.schema';
 import { ProductSeoService } from './product-seo.service';
 import { CreateProductInput, UpdateProductInput } from './product.input';
@@ -24,6 +25,7 @@ export class ProductService {
 
   constructor(
     @InjectModel(Product.name) productModel: Model<ProductDocument>,
+    @InjectModel(DeletedProduct.name) private deletedProductModel: Model<DeletedProductDocument>,
     private readonly productSeoService: ProductSeoService,
     slugService: SlugService,
     cacheService: CacheService,
@@ -46,6 +48,7 @@ export class ProductService {
       slugService,
       cacheInvalidatorService,
       logger,
+      this.deletedProductModel,
     );
   }
 
@@ -215,5 +218,9 @@ export class ProductService {
   /** Exact indexed lookup — SKU or GTIN. No scan. */
   findBySkuOrGtin(identifier: string): Promise<Product | null> {
     return this.queryService.findBySkuOrGtin(identifier);
+  }
+
+  zeroAllStock(): Promise<boolean> {
+    return this.commandService.zeroAllStock();
   }
 }

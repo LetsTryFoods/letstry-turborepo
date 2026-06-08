@@ -59,7 +59,10 @@ export class CartCalculationService {
     return charges?.active ? charges.handlingCharge : 0;
   }
 
-  async calculateShippingCost(subtotal: number, shippingAddress?: any): Promise<number> {
+  async calculateShippingCost(
+    subtotal: number,
+    shippingAddress?: any,
+  ): Promise<number> {
     if (!shippingAddress?.pincode) {
       return 0;
     }
@@ -74,7 +77,9 @@ export class CartCalculationService {
     }
 
     const isNCR = isNCRPincode(shippingAddress.pincode);
-    return isNCR ? charges.deliveryDelhiBelowThreshold : charges.deliveryRestBelowThreshold;
+    return isNCR
+      ? charges.deliveryDelhiBelowThreshold
+      : charges.deliveryRestBelowThreshold;
   }
 
   async recalculateCart(cart: Cart, shippingAddress?: any): Promise<void> {
@@ -91,9 +96,13 @@ export class CartCalculationService {
         subtotal,
         cart.items,
       );
-    const handlingCharge = cart.items.length > 0 ? await this.getHandlingCharge() : 0;
+    const handlingCharge =
+      cart.items.length > 0 ? await this.getHandlingCharge() : 0;
 
-    const shippingCost = await this.calculateShippingCost(subtotal, shippingAddress);
+    const shippingCost = await this.calculateShippingCost(
+      subtotal,
+      shippingAddress,
+    );
     const estimatedTax = 0;
     const grandTotal = this.calculateGrandTotal(
       subtotal,
@@ -104,7 +113,9 @@ export class CartCalculationService {
     );
 
     const charges = await this.chargesService.getCharges();
-    const freeDeliveryThreshold = charges?.active ? charges.freeDeliveryThreshold : 499;
+    const freeDeliveryThreshold = charges?.active
+      ? charges.freeDeliveryThreshold
+      : 499;
 
     cart.totalsSummary = {
       subtotal,

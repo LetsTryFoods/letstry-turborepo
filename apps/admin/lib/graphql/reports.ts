@@ -54,3 +54,13 @@ export const GET_SHIPPING_INSIGHTS = gql`
     }
   }
 `;
+
+export const GET_SALES_BY_STATE = gql`
+  query GetSalesByState($period: String!) {
+    getSalesByState(period: $period) {
+      state
+      orders
+      revenue
+    }
+  }
+`;

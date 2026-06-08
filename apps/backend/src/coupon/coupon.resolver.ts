@@ -23,7 +23,9 @@ export class CouponResolver {
   @Mutation(() => Coupon)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  async deleteCoupon(@Args('id', { type: () => ID }) id: string): Promise<Coupon> {
+  async deleteCoupon(
+    @Args('id', { type: () => ID }) id: string,
+  ): Promise<Coupon> {
     return this.couponService.deleteCoupon(id);
   }
 

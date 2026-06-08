@@ -11,7 +11,10 @@ import { PaymentLoggerService } from '../../../common/services/payment-logger.se
 import { OrderService } from '../../../order/order.service';
 import { CartService } from '../../../cart/cart.service';
 import { OrderCartLoggerService } from '../../../order/order-cart-logger.service';
-import { Identity, IdentityDocument } from '../../../common/schemas/identity.schema';
+import {
+  Identity,
+  IdentityDocument,
+} from '../../../common/schemas/identity.schema';
 
 @Injectable()
 export class PaymentExecutorService {
@@ -29,7 +32,7 @@ export class PaymentExecutorService {
     @InjectQueue('whatsapp-notification-queue')
     private whatsappQueue: Queue,
     private configService: ConfigService,
-  ) { }
+  ) {}
 
   async executePaymentOrder(params: {
     paymentOrderId: string;
@@ -105,7 +108,9 @@ export class PaymentExecutorService {
 
     if (!paymentOrder) {
       // For app integration, query external DB for order and send WhatsApp
-      const externalOrder = await this.queryExternalOrder(params.paymentOrderId);
+      const externalOrder = await this.queryExternalOrder(
+        params.paymentOrderId,
+      );
       if (externalOrder) {
         await this.sendWhatsAppForExternalOrder(externalOrder, params);
       }
@@ -129,7 +134,9 @@ export class PaymentExecutorService {
         paymentMethodId: params.pspRawResponse.paymentmethod,
         cardHashId: params.pspRawResponse.cardhashId,
         productDescription: params.pspRawResponse.productDescription,
-        pspTxnTime: params.pspRawResponse.pgTransTime ? new Date(params.pspRawResponse.pgTransTime) : undefined,
+        pspTxnTime: params.pspRawResponse.pgTransTime
+          ? new Date(params.pspRawResponse.pgTransTime)
+          : undefined,
         pspRawResponse: params.pspRawResponse,
         pspResponseCode: params.pspRawResponse.responseCode,
         pspResponseMessage: params.pspRawResponse.responseDescription,
@@ -182,7 +189,8 @@ export class PaymentExecutorService {
     }
 
     // Fetch identity data for authenticated users
-    let placerContact: { phone?: string; email?: string } | undefined = undefined;
+    let placerContact: { phone?: string; email?: string } | undefined =
+      undefined;
     if (paymentOrder.identityId) {
       const identity = await this.identityModel
         .findById(paymentOrder.identityId)
@@ -225,7 +233,9 @@ export class PaymentExecutorService {
         deliveryCharge: cart.totalsSummary.shippingCost.toString(),
         handlingCharge: (cart.totalsSummary.handlingCharge || 0).toString(),
         currency: 'INR',
-        shippingAddressId: cart.shippingAddressId ? new Types.ObjectId(cart.shippingAddressId) : undefined,
+        shippingAddressId: cart.shippingAddressId
+          ? new Types.ObjectId(cart.shippingAddressId)
+          : undefined,
         placerContact:
           placerContact ||
           (paymentOrder.identityId ? undefined : { phone: paymentOrder.phone }), // For guests, use payment phone as placer if provided
@@ -234,7 +244,9 @@ export class PaymentExecutorService {
         },
         items: cart.items.map((item: any) => ({
           productId: new Types.ObjectId(item.productId),
-          variantId: item.variantId ? new Types.ObjectId(item.variantId) : undefined,
+          variantId: item.variantId
+            ? new Types.ObjectId(item.variantId)
+            : undefined,
           quantity: item.quantity || 0,
           price: item.unitPrice?.toString() || '0',
           totalPrice: item.totalPrice?.toString() || '0',
@@ -248,7 +260,7 @@ export class PaymentExecutorService {
       this.paymentLogger.log('Constructed Order Payload', {
         step: 'PAYLOAD_CONSRUCTED',
         payload: createOrderPayload,
-        itemsDetails: createOrderPayload.items.map(item => ({
+        itemsDetails: createOrderPayload.items.map((item) => ({
           productId: item.productId,
           variantId: item.variantId,
           name: item.name,
@@ -320,31 +332,42 @@ export class PaymentExecutorService {
         orderId: order.orderId,
       });
 
-      const identity = await this.identityModel.findById(paymentOrder.identityId);
-      const paymentEvent = await this.getPaymentEvent(paymentOrder.paymentEventId);
+      const identity = await this.identityModel.findById(
+        paymentOrder.identityId,
+      );
+      const paymentEvent = await this.getPaymentEvent(
+        paymentOrder.paymentEventId,
+      );
 
       const isValidPhone = (phone?: string) => phone && phone !== 'N/A';
 
       const phoneNumber =
         (isValidPhone(identity?.phoneNumber) && identity?.phoneNumber) ||
-        (isValidPhone(order.recipientContact?.phone) && order.recipientContact.phone) ||
-        (isValidPhone(paymentEvent?.cartSnapshot?.shippingAddress?.recipientPhone) &&
+        (isValidPhone(order.recipientContact?.phone) &&
+          order.recipientContact.phone) ||
+        (isValidPhone(
+          paymentEvent?.cartSnapshot?.shippingAddress?.recipientPhone,
+        ) &&
           paymentEvent.cartSnapshot.shippingAddress.recipientPhone);
 
       this.paymentLogger.log('WhatsApp phone number resolution', {
         identityPhone: identity?.phoneNumber,
         orderPhone: order.recipientContact?.phone,
-        shippingPhone: paymentEvent?.cartSnapshot?.shippingAddress?.recipientPhone,
-        resolvedPhone: phoneNumber
+        shippingPhone:
+          paymentEvent?.cartSnapshot?.shippingAddress?.recipientPhone,
+        resolvedPhone: phoneNumber,
       });
 
       if (!phoneNumber || phoneNumber === 'N/A') {
-        this.paymentLogger.warn('No phone number available for WhatsApp notification', {
-          paymentOrderId: paymentOrder.paymentOrderId,
-          orderId: order.orderId,
-          identityPhone: identity?.phoneNumber,
-          orderPhone: order.recipientContact?.phone,
-        });
+        this.paymentLogger.warn(
+          'No phone number available for WhatsApp notification',
+          {
+            paymentOrderId: paymentOrder.paymentOrderId,
+            orderId: order.orderId,
+            identityPhone: identity?.phoneNumber,
+            orderPhone: order.recipientContact?.phone,
+          },
+        );
         return;
       }
 
@@ -355,9 +378,10 @@ export class PaymentExecutorService {
       });
 
       const normalizedPhone = phoneNumber.replace(/^\+/, '');
-      const formattedPhone = normalizedPhone.length === 10
-        ? `91${normalizedPhone}`
-        : normalizedPhone;
+      const formattedPhone =
+        normalizedPhone.length === 10
+          ? `91${normalizedPhone}`
+          : normalizedPhone;
 
       await this.whatsappQueue.add('payment-confirmation', {
         phoneNumber: formattedPhone,
@@ -506,7 +530,9 @@ export class PaymentExecutorService {
 
   private async queryExternalOrder(orderId: string): Promise<any> {
     const mongoose = require('mongoose');
-    const mongoUrl = this.configService.get<string>('TEMP_APP_ORDERS_MONGO_URL');
+    const mongoUrl = this.configService.get<string>(
+      'TEMP_APP_ORDERS_MONGO_URL',
+    );
     if (!mongoUrl) {
       this.paymentLogger.error('TEMP_APP_ORDERS_MONGO_URL not configured');
       return null;
@@ -515,18 +541,23 @@ export class PaymentExecutorService {
     let conn;
     try {
       conn = await mongoose.createConnection(mongoUrl);
-      const OrderModel = conn.model('Order', new mongoose.Schema({
-        orderId: String,
-        address: {
-          recipientPhoneNumber: String,
-        },
-        createdAt: Date,
-        totalAmount: Number,
-      }));
+      const OrderModel = conn.model(
+        'Order',
+        new mongoose.Schema({
+          orderId: String,
+          address: {
+            recipientPhoneNumber: String,
+          },
+          createdAt: Date,
+          totalAmount: Number,
+        }),
+      );
       const order = await OrderModel.findOne({ orderId });
       return order;
     } catch (error) {
-      this.paymentLogger.error('Error querying external order', error.message, { orderId });
+      this.paymentLogger.error('Error querying external order', error.message, {
+        orderId,
+      });
       return null;
     } finally {
       if (conn) await conn.close();
@@ -552,7 +583,9 @@ export class PaymentExecutorService {
 
       const phoneNumber = order.address?.recipientPhoneNumber;
       if (!phoneNumber) {
-        this.paymentLogger.warn('No phone number in external order', { orderId: params.paymentOrderId });
+        this.paymentLogger.warn('No phone number in external order', {
+          orderId: params.paymentOrderId,
+        });
         return;
       }
 
@@ -563,11 +596,14 @@ export class PaymentExecutorService {
       });
 
       const normalizedPhone = phoneNumber.replace(/^\+/, '');
-      const formattedPhone = normalizedPhone.length === 10
-        ? `91${normalizedPhone}`
-        : normalizedPhone;
+      const formattedPhone =
+        normalizedPhone.length === 10
+          ? `91${normalizedPhone}`
+          : normalizedPhone;
 
-      const amountInRupees = (parseInt(params.pspRawResponse.amount) / 100).toFixed(2);
+      const amountInRupees = (
+        parseInt(params.pspRawResponse.amount) / 100
+      ).toFixed(2);
 
       await this.whatsappQueue.add('payment-confirmation', {
         phoneNumber: formattedPhone,
@@ -583,9 +619,13 @@ export class PaymentExecutorService {
         phoneNumber: formattedPhone,
       });
     } catch (error) {
-      this.paymentLogger.error('Error sending WhatsApp for external order', error.message, {
-        orderId: params.paymentOrderId,
-      });
+      this.paymentLogger.error(
+        'Error sending WhatsApp for external order',
+        error.message,
+        {
+          orderId: params.paymentOrderId,
+        },
+      );
     }
   }
 }

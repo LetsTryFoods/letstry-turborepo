@@ -18,7 +18,12 @@ import { ProductModule } from '../product/product.module';
     LoggerModule,
     forwardRef(() => ProductModule),
   ],
-  providers: [CategoryService, CategorySeoService, CategoryResolver, CategoryLoader],
+  providers: [
+    CategoryService,
+    CategorySeoService,
+    CategoryResolver,
+    CategoryLoader,
+  ],
   exports: [CategoryService, CategorySeoService, CategoryLoader],
 })
-export class CategoryModule { }
+export class CategoryModule {}

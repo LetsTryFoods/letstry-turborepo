@@ -1,19 +1,21 @@
-import { notFound } from 'next/navigation';
-import type { Metadata } from 'next';
-import Link from 'next/link';
-import Image from 'next/image';
-import { getCategoryBySlug } from '@/lib/category';
-import { getCategoryLandingPageBySlug } from '@/lib/category-landing-page/get-category-landing-page';
-import { CategoryPageContainer } from '@/components/category-page/CategoryPageContainer';
-import { CategoryHeader } from '@/components/category-page/CategoryHeader';
-import { ProductGrid } from '@/components/category-page/ProductGrid';
-import { ProductDetailFAQ } from '@/components/product-page/ProductDetailFAQ';
-import type { Product } from '@/components/category-page/ProductCard';
-import { getCdnUrl } from '@/lib/image-utils';
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+import Link from "next/link";
+import Image from "next/image";
+import { getCategoryBySlug } from "@/lib/category";
+import { getCategoryLandingPageBySlug } from "@/lib/category-landing-page/get-category-landing-page";
+import { CategoryPageContainer } from "@/components/category-page/CategoryPageContainer";
+import { CategoryHeader } from "@/components/category-page/CategoryHeader";
+import { ProductGrid } from "@/components/category-page/ProductGrid";
+import { ProductDetailFAQ } from "@/components/product-page/ProductDetailFAQ";
+import type { Product } from "@/components/category-page/ProductCard";
+import { getCdnUrl } from "@/lib/image-utils";
 
 export const revalidate = 1800;
 
-const SITE_URL = (process.env.NEXT_PUBLIC_BASE_URL || 'https://letstryfoods.com').replace(/\/$/, '');
+const SITE_URL = (
+  process.env.NEXT_PUBLIC_BASE_URL || "https://letstryfoods.com"
+).replace(/\/$/, "");
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -35,16 +37,18 @@ function mapProductData(apiProduct: any): Product {
   if (variants.length === 0 && defaultVariant) {
     variants.push({
       id: defaultVariant._id || apiProduct._id,
-      weight: defaultVariant.packageSize || 'Standard',
+      weight: defaultVariant.packageSize || "Standard",
       price: defaultVariant.price,
       mrp: defaultVariant.mrp,
     });
   }
 
   const tags = apiProduct.tags || [];
-  let badge: Product['badge'] = undefined;
-  if (tags.includes('trending')) badge = { label: 'Trending', variant: 'trending' };
-  else if (tags.includes('bestseller')) badge = { label: 'Bestseller', variant: 'bestseller' };
+  let badge: Product["badge"] = undefined;
+  if (tags.includes("trending"))
+    badge = { label: "Trending", variant: "trending" };
+  else if (tags.includes("bestseller"))
+    badge = { label: "Bestseller", variant: "bestseller" };
 
   return {
     id: apiProduct._id,
@@ -60,7 +64,9 @@ function mapProductData(apiProduct: any): Product {
 
 // ─── Metadata ─────────────────────────────────────────────────────────────────
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const [category, landingPage] = await Promise.all([
     getCategoryBySlug(slug).catch(() => null),
@@ -68,7 +74,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   ]);
 
   if (!category && !landingPage) {
-    return { title: 'Category Not Found | Letstry' };
+    return { title: "Category Not Found | Letstry" };
   }
 
   const pageUrl = `${SITE_URL}/category/${slug}`;
@@ -80,15 +86,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const title =
     lpSeo?.metaTitle ||
     catSeo?.metaTitle ||
-    (landingPage?.pageTitle ? `${landingPage.pageTitle} | Let's Try Foods` : null) ||
-    (category ? `${category.name} | Let's Try Foods` : 'Category | Let\'s Try Foods');
+    (landingPage?.pageTitle
+      ? `${landingPage.pageTitle} | Let's Try Foods`
+      : null) ||
+    (category
+      ? `${category.name} | Let's Try Foods`
+      : "Category | Let's Try Foods");
 
   const description =
     lpSeo?.metaDescription ||
     catSeo?.metaDescription ||
-    landingPage?.description?.split('\n\n')[0] ||
+    landingPage?.description?.split("\n\n")[0] ||
     category?.description ||
-    `Shop ${category?.name || ''} at Let's Try Foods.`;
+    `Shop ${category?.name || ""} at Let's Try Foods.`;
 
   const ogImage =
     lpSeo?.ogImage ||
@@ -99,17 +109,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title,
     description,
     keywords: lpSeo?.metaKeywords || catSeo?.metaKeywords || [],
-    alternates: { canonical: lpSeo?.canonicalUrl || catSeo?.canonicalUrl || pageUrl },
+    alternates: {
+      canonical: lpSeo?.canonicalUrl || catSeo?.canonicalUrl || pageUrl,
+    },
     openGraph: {
       title: lpSeo?.ogTitle || catSeo?.ogTitle || title,
       description: lpSeo?.ogDescription || catSeo?.ogDescription || description,
       url: pageUrl,
-      type: 'website',
+      type: "website",
       siteName: "Let's Try Foods",
-      images: ogImage ? [{ url: ogImage, width: 1200, height: 630, alt: title as string }] : [],
+      images: ogImage
+        ? [{ url: ogImage, width: 1200, height: 630, alt: title as string }]
+        : [],
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title: lpSeo?.ogTitle || catSeo?.ogTitle || title,
       description: lpSeo?.ogDescription || catSeo?.ogDescription || description,
       images: ogImage ? [ogImage] : [],
@@ -119,10 +133,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default async function CategoryPage({ params, searchParams }: PageProps) {
+export default async function CategoryPage({
+  params,
+  searchParams,
+}: PageProps) {
   const { slug } = await params;
   const { type } = await searchParams;
-  const categoryType = type === 'special' ? 'special' : 'default';
+  const categoryType = type === "special" ? "special" : "default";
 
   // Parallel fetch: category products + rich landing-page content
   const [category, landingPage] = await Promise.all([
@@ -140,30 +157,32 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
     ? [...landingPage.faqs].sort((a, b) => a.position - b.position)
     : [];
 
-  const pageTitle = landingPage?.pageTitle || category?.name || '';
-  const paragraphs = (landingPage?.description || '').split('\n\n').filter(Boolean);
+  const pageTitle = landingPage?.pageTitle || category?.name || "";
+  const paragraphs = (landingPage?.description || "")
+    .split("\n\n")
+    .filter(Boolean);
   const pageUrl = `${SITE_URL}/category/${slug}`;
 
   // Structured data
   const faqSchema =
     sortedFaqs.length > 0
       ? {
-          '@context': 'https://schema.org',
-          '@type': 'FAQPage',
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
           mainEntity: sortedFaqs.map((f) => ({
-            '@type': 'Question',
+            "@type": "Question",
             name: f.question,
-            acceptedAnswer: { '@type': 'Answer', text: f.answer },
+            acceptedAnswer: { "@type": "Answer", text: f.answer },
           })),
         }
       : null;
 
   const breadcrumbSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
-      { '@type': 'ListItem', position: 2, name: pageTitle, item: pageUrl },
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: pageTitle, item: pageUrl },
     ],
   };
 
@@ -171,8 +190,15 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
   if (!landingPage) {
     return (
       <CategoryPageContainer>
-        <CategoryHeader title={category!.name} productCount={category!.productCount} />
-        <ProductGrid products={products} categoryType={categoryType} slug={slug} />
+        <CategoryHeader
+          title={category!.name}
+          productCount={category!.productCount}
+        />
+        <ProductGrid
+          products={products}
+          categoryType={categoryType}
+          slug={slug}
+        />
       </CategoryPageContainer>
     );
   }
@@ -193,10 +219,11 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
 
       <main className="min-h-screen bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-
           {/* Breadcrumb */}
           <nav className="text-sm text-gray-500 mb-6">
-            <Link href="/" className="hover:text-gray-800">Home</Link>
+            <Link href="/" className="hover:text-gray-800">
+              Home
+            </Link>
             <span className="mx-2">/</span>
             <span className="text-gray-800">{pageTitle}</span>
           </nav>
@@ -208,7 +235,7 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
           {paragraphs.map((para, i) => (
             <p
               key={i}
-              data-speakable={i === 0 ? 'true' : undefined}
+              data-speakable={i === 0 ? "true" : undefined}
               className="text-base sm:text-lg text-gray-700 leading-relaxed mb-4 max-w-3xl"
             >
               {para}
@@ -222,13 +249,13 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
                 id="tiles-heading"
                 className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-6"
               >
-                {landingPage.tilesHeading || 'Shop by Category'}
+                {landingPage.tilesHeading || "Shop by Category"}
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {sortedTiles.map((tile, i) => {
-                  const isExternal = tile.shopNowUrl.startsWith('http');
+                  const isExternal = tile.shopNowUrl.startsWith("http");
                   const cardClass =
-                    'block rounded-2xl border border-gray-200 overflow-hidden hover:border-gray-400 hover:shadow-md transition group';
+                    "block rounded-2xl border border-gray-200 overflow-hidden hover:border-gray-400 hover:shadow-md transition group";
 
                   const cardInner = (
                     <>
@@ -246,7 +273,9 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
                         <div className="aspect-[4/3] w-full bg-amber-50" />
                       )}
                       <div className="p-4">
-                        <h3 className="text-base font-semibold text-gray-900 mb-1">{tile.name}</h3>
+                        <h3 className="text-base font-semibold text-gray-900 mb-1">
+                          {tile.name}
+                        </h3>
                         {tile.blurb && (
                           <p className="text-xs text-gray-600 leading-relaxed line-clamp-2">
                             {tile.blurb}
@@ -286,14 +315,16 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
                 id="products-heading"
                 className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-6"
               >
-                {category?.name
-                  ? `Shop ${category.name}`
-                  : 'Browse Products'}
+                {category?.name ? `Shop ${category.name}` : "Browse Products"}
                 <span className="ml-2 text-base font-normal text-gray-500">
                   ({products.length} products)
                 </span>
               </h2>
-              <ProductGrid products={products} categoryType={categoryType} slug={slug} />
+              <ProductGrid
+                products={products}
+                categoryType={categoryType}
+                slug={slug}
+              />
             </section>
           )}
 
@@ -301,12 +332,11 @@ export default async function CategoryPage({ params, searchParams }: PageProps) 
           {sortedFaqs.length > 0 && (
             <div className="mb-10">
               <ProductDetailFAQ
-                heading={landingPage.faqHeading || 'Frequently Asked Questions'}
+                heading={landingPage.faqHeading || "Frequently Asked Questions"}
                 faqs={sortedFaqs.map((f) => ({ q: f.question, a: f.answer }))}
               />
             </div>
           )}
-
         </div>
       </main>
     </>

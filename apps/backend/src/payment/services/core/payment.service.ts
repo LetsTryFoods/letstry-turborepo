@@ -6,7 +6,11 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ConfigService } from '@nestjs/config';
-import { PaymentEvent, PaymentOrder, PaymentStatus } from '../../entities/payment.schema';
+import {
+  PaymentEvent,
+  PaymentOrder,
+  PaymentStatus,
+} from '../../entities/payment.schema';
 import { PaymentExecutorService } from '../domain/payment-executor.service';
 import { RefundService } from './refund.service';
 import { PaymentLoggerService } from '../../../common/services/payment-logger.service';
@@ -29,9 +33,13 @@ export class PaymentService {
     private readonly paymentLogger: PaymentLoggerService,
     private readonly configService: ConfigService,
     private readonly cartService: CartService,
-  ) { }
+  ) {}
 
-  async initiatePayment(identityId: string, input: InitiatePaymentInput, idempotencyKey?: string) {
+  async initiatePayment(
+    identityId: string,
+    input: InitiatePaymentInput,
+    idempotencyKey?: string,
+  ) {
     try {
       if (idempotencyKey) {
         const existingOrder = await this.paymentOrderModel.findOne({
@@ -102,7 +110,9 @@ export class PaymentService {
 
       if (cart.shippingAddressId) {
         const AddressModel = this.paymentEventModel.db.model('Address');
-        const address = await AddressModel.findById(cart.shippingAddressId).lean().exec();
+        const address = await AddressModel.findById(cart.shippingAddressId)
+          .lean()
+          .exec();
         if (address) {
           buyerName = (address as any).recipientName || buyerName;
           buyerPhone = (address as any).recipientPhone || buyerPhone;
@@ -124,8 +134,8 @@ export class PaymentService {
         }
       }
 
-      const paymentData =
-        await this.paymentExecutorService.executePaymentOrder({
+      const paymentData = await this.paymentExecutorService.executePaymentOrder(
+        {
           paymentOrderId: paymentOrder.paymentOrderId,
           identityId,
           amount,
@@ -140,7 +150,8 @@ export class PaymentService {
           buyerPincode,
           productDescription: 'Order Payment',
           returnUrl: this.getReturnUrl(),
-        });
+        },
+      );
 
       return {
         paymentOrderId: paymentOrder.paymentOrderId,
@@ -150,7 +161,6 @@ export class PaymentService {
       this.handlePaymentError(error, 'Initiation failed');
     }
   }
-
 
   async getPaymentStatus(paymentOrderId: string) {
     const paymentOrder = await this.paymentOrderModel.findOne({
@@ -259,7 +269,9 @@ export class PaymentService {
 
     if (params.cart.shippingAddressId) {
       const Address = this.paymentEventModel.db.model('Address');
-      const address = await Address.findById(params.cart.shippingAddressId).lean().exec();
+      const address = await Address.findById(params.cart.shippingAddressId)
+        .lean()
+        .exec();
 
       if (address) {
         shippingAddress = {

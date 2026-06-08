@@ -1,91 +1,116 @@
-"use client"
+"use client";
 
-import { useState, useMemo } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+import { useState, useMemo } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { 
-  HelpCircle, 
-  Plus, 
-  Search, 
-  CheckCircle2, 
+} from "@/components/ui/select";
+import {
+  HelpCircle,
+  Plus,
+  Search,
+  CheckCircle2,
   XCircle,
-  Loader2
-} from "lucide-react"
-import { useFAQs, getFAQStats, FAQ, FAQCategory, FAQStatus, categoryLabels } from "@/lib/faq/useFAQ"
-import FAQTable from "./components/FAQTable"
-import FAQFormDialog from "./components/FAQFormDialog"
-import { ComingSoonBanner } from "@/components/ComingSoonBanner"
+  Loader2,
+} from "lucide-react";
+import {
+  useFAQs,
+  getFAQStats,
+  FAQ,
+  FAQCategory,
+  FAQStatus,
+  categoryLabels,
+} from "@/lib/faq/useFAQ";
+import FAQTable from "./components/FAQTable";
+import FAQFormDialog from "./components/FAQFormDialog";
+import { ComingSoonBanner } from "@/components/ComingSoonBanner";
 
-const categories: (FAQCategory | "ALL")[] = ["ALL", "GENERAL", "ORDERS", "SHIPPING", "RETURNS", "PRODUCTS", "PAYMENT"]
-const statuses: (FAQStatus | "ALL")[] = ["ALL", "ACTIVE", "INACTIVE"]
+const categories: (FAQCategory | "ALL")[] = [
+  "ALL",
+  "GENERAL",
+  "ORDERS",
+  "SHIPPING",
+  "RETURNS",
+  "PRODUCTS",
+  "PAYMENT",
+];
+const statuses: (FAQStatus | "ALL")[] = ["ALL", "ACTIVE", "INACTIVE"];
 
 export default function FAQPage() {
-  const { data, loading, refetch } = useFAQs()
-  const faqs = data.faqs
-  const [searchQuery, setSearchQuery] = useState("")
-  const [categoryFilter, setCategoryFilter] = useState<FAQCategory | "ALL">("ALL")
-  const [statusFilter, setStatusFilter] = useState<FAQStatus | "ALL">("ALL")
-  const [showFormDialog, setShowFormDialog] = useState(false)
-  const [editingFAQ, setEditingFAQ] = useState<FAQ | null>(null)
+  const { data, loading, refetch } = useFAQs();
+  const faqs = data.faqs;
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<FAQCategory | "ALL">(
+    "ALL",
+  );
+  const [statusFilter, setStatusFilter] = useState<FAQStatus | "ALL">("ALL");
+  const [showFormDialog, setShowFormDialog] = useState(false);
+  const [editingFAQ, setEditingFAQ] = useState<FAQ | null>(null);
 
-  const stats = useMemo(() => getFAQStats(faqs), [faqs])
+  const stats = useMemo(() => getFAQStats(faqs), [faqs]);
 
   const filteredFAQs = useMemo(() => {
-    return faqs.filter(faq => {
-      // Search filter
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase()
-        if (
-          !faq.question.toLowerCase().includes(query) &&
-          !faq.answer.toLowerCase().includes(query)
-        ) {
-          return false
+    return faqs
+      .filter((faq) => {
+        // Search filter
+        if (searchQuery) {
+          const query = searchQuery.toLowerCase();
+          if (
+            !faq.question.toLowerCase().includes(query) &&
+            !faq.answer.toLowerCase().includes(query)
+          ) {
+            return false;
+          }
         }
-      }
 
-      // Category filter
-      if (categoryFilter !== "ALL" && faq.category !== categoryFilter) {
-        return false
-      }
+        // Category filter
+        if (categoryFilter !== "ALL" && faq.category !== categoryFilter) {
+          return false;
+        }
 
-      // Status filter
-      if (statusFilter !== "ALL" && faq.status !== statusFilter) {
-        return false
-      }
+        // Status filter
+        if (statusFilter !== "ALL" && faq.status !== statusFilter) {
+          return false;
+        }
 
-      return true
-    }).sort((a, b) => a.order - b.order)
-  }, [faqs, searchQuery, categoryFilter, statusFilter])
+        return true;
+      })
+      .sort((a, b) => a.order - b.order);
+  }, [faqs, searchQuery, categoryFilter, statusFilter]);
 
   const handleEdit = (faq: FAQ) => {
-    setEditingFAQ(faq)
-    setShowFormDialog(true)
-  }
+    setEditingFAQ(faq);
+    setShowFormDialog(true);
+  };
 
   const handleAddNew = () => {
-    setEditingFAQ(null)
-    setShowFormDialog(true)
-  }
+    setEditingFAQ(null);
+    setShowFormDialog(true);
+  };
 
   const handleSuccess = () => {
-    refetch()
-    setEditingFAQ(null)
-  }
+    refetch();
+    setEditingFAQ(null);
+  };
 
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
-    )
+    );
   }
 
   return (
@@ -125,7 +150,9 @@ export default function FAQPage() {
             <CheckCircle2 className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.active}</div>
+            <div className="text-2xl font-bold text-green-600">
+              {stats.active}
+            </div>
             <p className="text-xs text-muted-foreground">
               Visible to customers
             </p>
@@ -137,10 +164,10 @@ export default function FAQPage() {
             <XCircle className="h-4 w-4 text-gray-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-600">{stats.inactive}</div>
-            <p className="text-xs text-muted-foreground">
-              Hidden from website
-            </p>
+            <div className="text-2xl font-bold text-gray-600">
+              {stats.inactive}
+            </div>
+            <p className="text-xs text-muted-foreground">Hidden from website</p>
           </CardContent>
         </Card>
         <Card>
@@ -149,10 +176,14 @@ export default function FAQPage() {
             <HelpCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{Object.keys(stats.categoryCount).filter(k => stats.categoryCount[k as FAQCategory] > 0).length}</div>
-            <p className="text-xs text-muted-foreground">
-              FAQ categories used
-            </p>
+            <div className="text-2xl font-bold">
+              {
+                Object.keys(stats.categoryCount).filter(
+                  (k) => stats.categoryCount[k as FAQCategory] > 0,
+                ).length
+              }
+            </div>
+            <p className="text-xs text-muted-foreground">FAQ categories used</p>
           </CardContent>
         </Card>
       </div>
@@ -166,18 +197,20 @@ export default function FAQPage() {
         <CardContent>
           <div className="flex flex-wrap gap-3">
             {(Object.keys(categoryLabels) as FAQCategory[]).map((category) => {
-              const count = stats.categoryCount[category] || 0
+              const count = stats.categoryCount[category] || 0;
               return (
-                <div 
+                <div
                   key={category}
                   className="flex items-center gap-2 px-3 py-2 rounded-lg bg-muted"
                 >
-                  <span className="font-medium">{categoryLabels[category]}</span>
+                  <span className="font-medium">
+                    {categoryLabels[category]}
+                  </span>
                   <span className="px-2 py-0.5 rounded-full bg-primary text-primary-foreground text-sm">
                     {count}
                   </span>
                 </div>
-              )
+              );
             })}
           </div>
         </CardContent>
@@ -204,7 +237,9 @@ export default function FAQPage() {
             </div>
             <Select
               value={categoryFilter}
-              onValueChange={(value) => setCategoryFilter(value as FAQCategory | "ALL")}
+              onValueChange={(value) =>
+                setCategoryFilter(value as FAQCategory | "ALL")
+              }
             >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Category" />
@@ -212,14 +247,18 @@ export default function FAQPage() {
               <SelectContent>
                 {categories.map((category) => (
                   <SelectItem key={category} value={category}>
-                    {category === "ALL" ? "All Categories" : categoryLabels[category]}
+                    {category === "ALL"
+                      ? "All Categories"
+                      : categoryLabels[category]}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
             <Select
               value={statusFilter}
-              onValueChange={(value) => setStatusFilter(value as FAQStatus | "ALL")}
+              onValueChange={(value) =>
+                setStatusFilter(value as FAQStatus | "ALL")
+              }
             >
               <SelectTrigger className="w-[150px]">
                 <SelectValue placeholder="Status" />
@@ -227,7 +266,9 @@ export default function FAQPage() {
               <SelectContent>
                 {statuses.map((status) => (
                   <SelectItem key={status} value={status}>
-                    {status === "ALL" ? "All Status" : status.charAt(0) + status.slice(1).toLowerCase()}
+                    {status === "ALL"
+                      ? "All Status"
+                      : status.charAt(0) + status.slice(1).toLowerCase()}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -235,9 +276,9 @@ export default function FAQPage() {
           </div>
 
           {/* Table */}
-          <FAQTable 
-            faqs={filteredFAQs} 
-            onRefresh={refetch} 
+          <FAQTable
+            faqs={filteredFAQs}
+            onRefresh={refetch}
             onEdit={handleEdit}
           />
         </CardContent>
@@ -252,5 +293,5 @@ export default function FAQPage() {
         totalFAQs={faqs.length}
       />
     </div>
-  )
+  );
 }

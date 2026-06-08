@@ -1,17 +1,17 @@
-import React, { useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { CartHeader } from './CartHeader';
-import { CartItem } from './CartItem';
-import { CartCoupon } from './CartCoupon';
-import { CartSuggestions } from './CartSuggestions';
-import { CartFooter } from './CartFooter';
-import { PriceDetails } from './PriceDetails';
-import { CouponsModal } from './CouponsModal';
-import { AddressModal } from './AddressModal';
-import { AddressDetailsModal, AddressFormData } from './AddressDetailsModal';
-import { PaymentModal } from './PaymentModal';
-import { AppliedCoupon } from './AppliedCoupon';
-import { ChevronUp } from 'lucide-react';
+import React, { useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { CartHeader } from "./CartHeader";
+import { CartItem } from "./CartItem";
+import { CartCoupon } from "./CartCoupon";
+import { CartSuggestions } from "./CartSuggestions";
+import { CartFooter } from "./CartFooter";
+import { PriceDetails } from "./PriceDetails";
+import { CouponsModal } from "./CouponsModal";
+import { AddressModal } from "./AddressModal";
+import { AddressDetailsModal, AddressFormData } from "./AddressDetailsModal";
+import { PaymentModal } from "./PaymentModal";
+import { AppliedCoupon } from "./AppliedCoupon";
+import { ChevronUp } from "lucide-react";
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -115,38 +115,36 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 }) => {
   const [isMobile, setIsMobile] = React.useState(false);
 
-
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [isOpen]);
 
   const variants = {
-    initial: isMobile ? { y: '100%' } : { x: '100%' },
+    initial: isMobile ? { y: "100%" } : { x: "100%" },
     animate: isMobile ? { y: 0 } : { x: 0 },
-    exit: isMobile ? { y: '100%' } : { x: '100%' },
+    exit: isMobile ? { y: "100%" } : { x: "100%" },
   };
 
   return (
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-[100] flex items-end md:justify-end isolate">
-
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -161,7 +159,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             initial="initial"
             animate="animate"
             exit="exit"
-            transition={{ type: 'tween', duration: 0.3, ease: 'easeOut' }}
+            transition={{ type: "tween", duration: 0.3, ease: "easeOut" }}
             className="relative w-full md:w-[448px] h-[85vh] md:h-full bg-white shadow-2xl flex flex-col rounded-t-[20px] md:rounded-t-none overflow-hidden"
           >
             <CartHeader
@@ -256,8 +254,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               userDetails={userDetails}
             />
           </motion.div>
-        </div >
+        </div>
       )}
-    </AnimatePresence >
+    </AnimatePresence>
   );
 };

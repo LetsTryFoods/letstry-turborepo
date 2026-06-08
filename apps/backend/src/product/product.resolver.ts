@@ -33,7 +33,7 @@ export class ProductResolver {
     private readonly productService: ProductService,
     private readonly categoryLoader: CategoryLoader,
     private readonly inventoryService: InventoryService,
-  ) { }
+  ) {}
 
   @Query(() => PaginatedProducts, { name: 'products' })
   @Public()
@@ -122,12 +122,15 @@ export class ProductResolver {
     pagination: PaginationInput,
     @Args('nameOnly', { type: () => Boolean, defaultValue: false })
     nameOnly: boolean,
+    @Args('includeArchived', { type: () => Boolean, defaultValue: false })
+    includeArchived: boolean,
   ): Promise<PaginatedProducts> {
     const result = await this.productService.searchProductsPaginated(
       searchTerm,
       pagination.page,
       pagination.limit,
       nameOnly,
+      includeArchived,
     );
     return {
       items: result.items,
@@ -236,6 +239,12 @@ export class ProductResolver {
     );
   }
 
+  @Mutation(() => Boolean, { name: 'zeroAllProductStock' })
+  @Roles(Role.ADMIN)
+  async zeroAllProductStock(): Promise<boolean> {
+    return this.productService.zeroAllStock();
+  }
+
   @Query(() => ProductVariant, { name: 'productVariant', nullable: true })
   @Public()
   async getProductVariant(
@@ -243,7 +252,7 @@ export class ProductResolver {
     @Args('variantId', { type: () => ID }) variantId: string,
   ): Promise<ProductVariant | null> {
     const product = await this.productService.findOne(productId);
-    return product.variants.find((v) => v._id === variantId) || null;
+    return product.variants.find((v) => v._id.toString() === variantId) || null;
   }
 
   @ResolveField(() => [Category], { name: 'categories', nullable: true })
@@ -300,15 +309,20 @@ export class ProductResolver {
     @Args('identifier') identifier: string,
     @Args('incrementBy', { type: () => Int }) incrementBy: number,
     @Args('reason', { type: () => String, nullable: true }) reason: string,
-    @Args('referenceId', { type: () => String, nullable: true }) referenceId: string,
-    @Args('performedBy', { type: () => String, nullable: true }) performedBy: string,
+    @Args('referenceId', { type: () => String, nullable: true })
+    referenceId: string,
+    @Args('performedBy', { type: () => String, nullable: true })
+    performedBy: string,
   ): Promise<any> {
-    const action = incrementBy > 0 ? InventoryAction.INWARD : InventoryAction.MANUAL_ADJUSTMENT;
+    const action =
+      incrementBy > 0
+        ? InventoryAction.INWARD
+        : InventoryAction.MANUAL_ADJUSTMENT;
     const result = await this.inventoryService.adjustStockByIdentifier(
       identifier,
       incrementBy,
       action,
-      { notes: reason, referenceId, performedBy }
+      { notes: reason, referenceId, performedBy },
     );
     const logs = await this.inventoryService.getLogsBySku(result.sku);
     return logs[0];
@@ -320,7 +334,8 @@ export class ProductResolver {
   async setInventory(
     @Args('identifier') identifier: string,
     @Args('newStockLevel', { type: () => Int }) newStockLevel: number,
-    @Args('performedBy', { type: () => String, nullable: true }) performedBy: string,
+    @Args('performedBy', { type: () => String, nullable: true })
+    performedBy: string,
   ): Promise<any> {
     const result = await this.inventoryService.setStockLevel(
       identifier,
@@ -333,9 +348,7 @@ export class ProductResolver {
 
   @Query(() => [InventoryLog], { name: 'inventoryLogs' })
   @Roles(Role.ADMIN)
-  async getInventoryLogs(
-    @Args('sku') sku: string,
-  ): Promise<InventoryLog[]> {
+  async getInventoryLogs(@Args('sku') sku: string): Promise<InventoryLog[]> {
     return this.inventoryService.getLogsBySku(sku);
   }
 

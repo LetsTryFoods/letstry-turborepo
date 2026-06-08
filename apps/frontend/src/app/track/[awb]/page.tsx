@@ -1,10 +1,20 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import { getBackendApiUrl } from '@/lib/utils/api';
-import { CheckCircle, Truck, XCircle, Package, MapPin, Clock, Loader2, ShoppingBag, User } from 'lucide-react';
-import Link from 'next/link';
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { getBackendApiUrl } from "@/lib/utils/api";
+import {
+  CheckCircle,
+  Truck,
+  XCircle,
+  Package,
+  MapPin,
+  Clock,
+  Loader2,
+  ShoppingBag,
+  User,
+} from "lucide-react";
+import Link from "next/link";
 
 interface TrackingEvent {
   statusCode: string;
@@ -57,31 +67,37 @@ interface TrackingData {
 
 function maskPhone(phone: string): string {
   if (phone.length < 7) return phone;
-  return phone.slice(0, 3) + '****' + phone.slice(-3);
+  return phone.slice(0, 3) + "****" + phone.slice(-3);
 }
 
 function formatDateTime(iso: string): string {
-  return new Date(iso).toLocaleString('en-IN', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+  return new Date(iso).toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
     hour12: true,
-    timeZone: 'Asia/Kolkata',
+    timeZone: "Asia/Kolkata",
   });
 }
 
-function StatusIcon({ isDelivered, isCancelled }: { isDelivered: boolean; isCancelled: boolean }) {
+function StatusIcon({
+  isDelivered,
+  isCancelled,
+}: {
+  isDelivered: boolean;
+  isCancelled: boolean;
+}) {
   if (isDelivered) return <CheckCircle className="h-10 w-10 text-green-600" />;
   if (isCancelled) return <XCircle className="h-10 w-10 text-red-500" />;
   return <Truck className="h-10 w-10 text-yellow-500" />;
 }
 
 function statusBadgeClass(isDelivered: boolean, isCancelled: boolean): string {
-  if (isDelivered) return 'bg-green-100 text-green-700';
-  if (isCancelled) return 'bg-red-100 text-red-700';
-  return 'bg-yellow-100 text-yellow-700';
+  if (isDelivered) return "bg-green-100 text-green-700";
+  if (isCancelled) return "bg-red-100 text-red-700";
+  return "bg-yellow-100 text-yellow-700";
 }
 
 export default function TrackPage() {
@@ -98,7 +114,7 @@ export default function TrackPage() {
     const baseUrl = getBackendApiUrl();
     fetch(`${baseUrl}/shipments/track/${awb}`)
       .then((res) => {
-        if (!res.ok) throw new Error('not found');
+        if (!res.ok) throw new Error("not found");
         return res.json();
       })
       .then((json) => setData(json))
@@ -106,7 +122,7 @@ export default function TrackPage() {
       .finally(() => setLoading(false));
   }, [awb]);
 
-  console.log(data, "tracking data")
+  console.log(data, "tracking data");
 
   if (loading) {
     return (
@@ -121,16 +137,24 @@ export default function TrackPage() {
       <main className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
         <div className="text-center">
           <XCircle className="h-12 w-12 text-red-400 mx-auto mb-4" />
-          <h1 className="text-xl font-semibold text-gray-900 mb-2">Tracking Not Found</h1>
-          <p className="text-gray-500 text-sm mb-6">No shipment found for AWB <span className="font-medium">{awb}</span></p>
-          <Link href="/" className="text-yellow-600 hover:underline text-sm">← Back to home</Link>
+          <h1 className="text-xl font-semibold text-gray-900 mb-2">
+            Tracking Not Found
+          </h1>
+          <p className="text-gray-500 text-sm mb-6">
+            No shipment found for AWB <span className="font-medium">{awb}</span>
+          </p>
+          <Link href="/" className="text-yellow-600 hover:underline text-sm">
+            ← Back to home
+          </Link>
         </div>
       </main>
     );
   }
 
   const sortedHistory = [...data.trackingHistory].sort(
-    (a, b) => new Date(b.actionDatetime).getTime() - new Date(a.actionDatetime).getTime(),
+    (a, b) =>
+      new Date(b.actionDatetime).getTime() -
+      new Date(a.actionDatetime).getTime(),
   );
 
   return (
@@ -142,17 +166,22 @@ export default function TrackPage() {
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <div className="flex items-center gap-4 mb-4">
-            <StatusIcon isDelivered={data.isDelivered} isCancelled={data.isCancelled} />
+            <StatusIcon
+              isDelivered={data.isDelivered}
+              isCancelled={data.isCancelled}
+            />
             <div>
               <p className="text-xs text-gray-400 mb-0.5">AWB Number</p>
-              <p className="text-lg font-semibold text-gray-900">{data.awbNumber}</p>
+              <p className="text-lg font-semibold text-gray-900">
+                {data.awbNumber}
+              </p>
             </div>
           </div>
 
           <span
             className={`inline-block text-xs font-medium px-3 py-1 rounded-full mb-4 ${statusBadgeClass(data.isDelivered, data.isCancelled)}`}
           >
-            {data.statusDescription || data.statusCode || 'In Progress'}
+            {data.statusDescription || data.statusCode || "In Progress"}
           </span>
 
           <div className="grid grid-cols-2 gap-4 text-sm">
@@ -160,21 +189,27 @@ export default function TrackPage() {
               <MapPin className="h-4 w-4 text-gray-400 mt-0.5 shrink-0" />
               <div>
                 <p className="text-gray-400 text-xs">From</p>
-                <p className="font-medium text-gray-800">{data.origin || '—'}</p>
+                <p className="font-medium text-gray-800">
+                  {data.origin || "—"}
+                </p>
               </div>
             </div>
             <div className="flex gap-2 items-start">
               <MapPin className="h-4 w-4 text-gray-400 mt-0.5 shrink-0" />
               <div>
                 <p className="text-gray-400 text-xs">To</p>
-                <p className="font-medium text-gray-800">{data.destination || '—'}</p>
+                <p className="font-medium text-gray-800">
+                  {data.destination || "—"}
+                </p>
               </div>
             </div>
             <div className="flex gap-2 items-start">
               <Clock className="h-4 w-4 text-gray-400 mt-0.5 shrink-0" />
               <div>
                 <p className="text-gray-400 text-xs">Booked On</p>
-                <p className="font-medium text-gray-800">{formatDateTime(data.bookedAt)}</p>
+                <p className="font-medium text-gray-800">
+                  {formatDateTime(data.bookedAt)}
+                </p>
               </div>
             </div>
             {data.estimatedDelivery && (
@@ -182,7 +217,9 @@ export default function TrackPage() {
                 <Clock className="h-4 w-4 text-gray-400 mt-0.5 shrink-0" />
                 <div>
                   <p className="text-gray-400 text-xs">Est. Delivery</p>
-                  <p className="font-medium text-gray-800">{formatDateTime(data.estimatedDelivery)}</p>
+                  <p className="font-medium text-gray-800">
+                    {formatDateTime(data.estimatedDelivery)}
+                  </p>
                 </div>
               </div>
             )}
@@ -196,11 +233,20 @@ export default function TrackPage() {
               Delivery Address
             </h2>
             <div className="text-sm text-gray-700 space-y-1">
-              <p className="font-medium text-gray-900">{data.deliveryAddress.name}</p>
+              <p className="font-medium text-gray-900">
+                {data.deliveryAddress.name}
+              </p>
               <p>{data.deliveryAddress.addressLine1}</p>
-              {data.deliveryAddress.addressLine2 && <p>{data.deliveryAddress.addressLine2}</p>}
-              <p>{data.deliveryAddress.city}, {data.deliveryAddress.state} — {data.deliveryAddress.pincode}</p>
-              <p className="text-gray-500">{maskPhone(data.deliveryAddress.phone)}</p>
+              {data.deliveryAddress.addressLine2 && (
+                <p>{data.deliveryAddress.addressLine2}</p>
+              )}
+              <p>
+                {data.deliveryAddress.city}, {data.deliveryAddress.state} —{" "}
+                {data.deliveryAddress.pincode}
+              </p>
+              <p className="text-gray-500">
+                {maskPhone(data.deliveryAddress.phone)}
+              </p>
             </div>
           </div>
         )}
@@ -211,27 +257,43 @@ export default function TrackPage() {
               <ShoppingBag className="h-4 w-4 text-yellow-500" />
               Order Details
               {data.order.orderId && (
-                <span className="ml-auto text-xs text-gray-400 font-normal">#{data.order.orderId}</span>
+                <span className="ml-auto text-xs text-gray-400 font-normal">
+                  #{data.order.orderId}
+                </span>
               )}
             </h2>
             <div className="space-y-3">
               {data.order.items.map((item, idx) => (
                 <div key={idx} className="flex items-center gap-3">
                   {item.image && (
-                    <img src={`${imageCdn}/${item.image}`} alt={item.name} className="h-12 w-12 rounded-lg object-cover shrink-0 bg-gray-50" />
+                    <img
+                      src={`${imageCdn}/${item.image}`}
+                      alt={item.name}
+                      className="h-12 w-12 rounded-lg object-cover shrink-0 bg-gray-50"
+                    />
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">{item.name}</p>
-                    {item.variant && <p className="text-xs text-gray-400">{item.variant}</p>}
-                    <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {item.name}
+                    </p>
+                    {item.variant && (
+                      <p className="text-xs text-gray-400">{item.variant}</p>
+                    )}
+                    <p className="text-xs text-gray-500">
+                      Qty: {item.quantity}
+                    </p>
                   </div>
-                  <p className="text-sm font-medium text-gray-800 shrink-0">₹{item.totalPrice}</p>
+                  <p className="text-sm font-medium text-gray-800 shrink-0">
+                    ₹{item.totalPrice}
+                  </p>
                 </div>
               ))}
             </div>
             <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between text-sm">
               <span className="text-gray-500">Total</span>
-              <span className="font-semibold text-gray-900">₹{data.order.totalAmount}</span>
+              <span className="font-semibold text-gray-900">
+                ₹{data.order.totalAmount}
+              </span>
             </div>
           </div>
         )}
@@ -246,15 +308,21 @@ export default function TrackPage() {
               {sortedHistory.map((event, idx) => (
                 <li key={idx} className="ml-4">
                   <span className="absolute -left-1.5 mt-1.5 h-3 w-3 rounded-full border-2 border-white bg-yellow-400" />
-                  <p className="text-xs text-gray-400">{formatDateTime(event.actionDatetime)}</p>
-                  <p className="text-sm font-medium text-gray-900 mt-0.5">{event.statusDescription || event.statusCode}</p>
+                  <p className="text-xs text-gray-400">
+                    {formatDateTime(event.actionDatetime)}
+                  </p>
+                  <p className="text-sm font-medium text-gray-900 mt-0.5">
+                    {event.statusDescription || event.statusCode}
+                  </p>
                   {event.location && (
                     <p className="text-xs text-gray-500 mt-0.5 flex gap-1 items-center">
                       <MapPin className="h-3 w-3" /> {event.location}
                     </p>
                   )}
                   {event.remarks && (
-                    <p className="text-xs text-gray-400 mt-0.5">{event.remarks}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      {event.remarks}
+                    </p>
                   )}
                 </li>
               ))}

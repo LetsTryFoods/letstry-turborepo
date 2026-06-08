@@ -42,6 +42,7 @@ export type Address = {
   createdAt: Scalars['DateTime']['output'];
   floor?: Maybe<Scalars['String']['output']>;
   formattedAddress: Scalars['String']['output'];
+  googlePostalCode?: Maybe<Scalars['String']['output']>;
   identityId: Scalars['ID']['output'];
   isDefault: Scalars['Boolean']['output'];
   landmark?: Maybe<Scalars['String']['output']>;
@@ -583,6 +584,7 @@ export type CreateAddressInput = {
   buildingName: Scalars['String']['input'];
   floor?: InputMaybe<Scalars['String']['input']>;
   formattedAddress: Scalars['String']['input'];
+  googlePostalCode?: InputMaybe<Scalars['String']['input']>;
   isDefault?: InputMaybe<Scalars['Boolean']['input']>;
   landmark?: InputMaybe<Scalars['String']['input']>;
   latitude: Scalars['Float']['input'];
@@ -1131,6 +1133,14 @@ export type GetPaymentsListInput = {
   page?: Scalars['Int']['input'];
 };
 
+export type GlobalSettings = {
+  __typename?: 'GlobalSettings';
+  _id: Scalars['ID']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  isPackerScanBypassEnabled: Scalars['Boolean']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
 export type GoogleMapsAddressOutput = {
   __typename?: 'GoogleMapsAddressOutput';
   country?: Maybe<Scalars['String']['output']>;
@@ -1377,6 +1387,7 @@ export type Mutation = {
   updateCategoryLandingPage: CategoryLandingPageType;
   updateCategorySeo: CategorySeo;
   updateContactStatus: Contact;
+  updateGlobalSettings: GlobalSettings;
   updateGuest: Guest;
   updateLandingPage: LandingPage;
   updateOrderStatus: OrderType;
@@ -1396,6 +1407,7 @@ export type Mutation = {
   uploadEvidence: PackingOrder;
   verifyOtpAndLogin: Scalars['String']['output'];
   verifyWhatsAppOtp: Scalars['String']['output'];
+  zeroAllProductStock: Scalars['Boolean']['output'];
 };
 
 
@@ -1852,6 +1864,11 @@ export type MutationUpdateContactStatusArgs = {
 };
 
 
+export type MutationUpdateGlobalSettingsArgs = {
+  isPackerScanBypassEnabled: Scalars['Boolean']['input'];
+};
+
+
 export type MutationUpdateGuestArgs = {
   id: Scalars['ID']['input'];
   input: UpdateGuestInput;
@@ -2014,6 +2031,7 @@ export type OrderReportResponse = {
   __typename?: 'OrderReportResponse';
   categorySales: Array<CategorySalesType>;
   dailySales: Array<DailySalesType>;
+  platformStats?: Maybe<PlatformOrderStatsType>;
   summary: ReportSummaryType;
   topCustomers: Array<TopCustomerType>;
   topProducts: Array<TopProductType>;
@@ -2087,6 +2105,7 @@ export type OrderType = {
 
 export type OrderUserInfo = {
   __typename?: 'OrderUserInfo';
+  deviceInfo?: Maybe<Scalars['JSON']['output']>;
   email?: Maybe<Scalars['String']['output']>;
   firstName?: Maybe<Scalars['String']['output']>;
   identityId: Scalars['String']['output'];
@@ -2128,9 +2147,13 @@ export type OrderWithUserInfo = {
 
 export type OrdersSummary = {
   __typename?: 'OrdersSummary';
+  appOrdersCount: Scalars['Int']['output'];
+  appRevenue: Scalars['Float']['output'];
   statusCounts: OrderStatusCount;
   totalOrders: Scalars['Int']['output'];
   totalRevenue: Scalars['String']['output'];
+  webOrdersCount: Scalars['Int']['output'];
+  webRevenue: Scalars['Float']['output'];
 };
 
 export type Packer = {
@@ -2561,6 +2584,12 @@ export type PlacePredictionOutput = {
   secondaryText: Scalars['String']['output'];
 };
 
+export type PlatformOrderStatsType = {
+  __typename?: 'PlatformOrderStatsType';
+  app: Scalars['Int']['output'];
+  website: Scalars['Int']['output'];
+};
+
 export type PlatformStats = {
   __typename?: 'PlatformStats';
   android: Scalars['Int']['output'];
@@ -2945,6 +2974,7 @@ export type Query = {
   getCustomerDetails: CustomerDetails;
   getDeliveryRecommendation: DeliveryRecommendation;
   getEvidenceByOrder: PackingEvidence;
+  getGlobalSettings: GlobalSettings;
   getGuestOrderById: OrderType;
   getGuestOrders: PaginatedOrdersResponse;
   getGuestShipmentWithTracking: ShipmentWithTrackingResponse;
@@ -2961,6 +2991,7 @@ export type Query = {
   getPaymentStatus: PaymentStatusResponse;
   getPickupLocations: Array<PickupLocationType>;
   getPlaceDetails: PlaceDetailsOutput;
+  getSalesByState: Array<StateSalesType>;
   getShipmentByAwb?: Maybe<ShipmentResponse>;
   getShipmentById?: Maybe<ShipmentResponse>;
   getShipmentLabel?: Maybe<Scalars['String']['output']>;
@@ -3238,6 +3269,11 @@ export type QueryGetPlaceDetailsArgs = {
 };
 
 
+export type QueryGetSalesByStateArgs = {
+  period?: Scalars['String']['input'];
+};
+
+
 export type QueryGetShipmentByAwbArgs = {
   awbNumber: Scalars['String']['input'];
 };
@@ -3410,6 +3446,7 @@ export type QuerySearchPlacesArgs = {
 
 
 export type QuerySearchProductsArgs = {
+  includeArchived?: Scalars['Boolean']['input'];
   nameOnly?: Scalars['Boolean']['input'];
   pagination?: PaginationInput;
   searchTerm: Scalars['String']['input'];
@@ -3787,6 +3824,13 @@ export enum SortOrder {
   Desc = 'DESC'
 }
 
+export type StateSalesType = {
+  __typename?: 'StateSalesType';
+  orders: Scalars['Int']['output'];
+  revenue: Scalars['Float']['output'];
+  state: Scalars['String']['output'];
+};
+
 export type StatusStats = {
   __typename?: 'StatusStats';
   active: Scalars['Int']['output'];
@@ -3880,6 +3924,7 @@ export type UpdateAddressInput = {
   buildingName?: InputMaybe<Scalars['String']['input']>;
   floor?: InputMaybe<Scalars['String']['input']>;
   formattedAddress?: InputMaybe<Scalars['String']['input']>;
+  googlePostalCode?: InputMaybe<Scalars['String']['input']>;
   isDefault?: InputMaybe<Scalars['Boolean']['input']>;
   landmark?: InputMaybe<Scalars['String']['input']>;
   latitude?: InputMaybe<Scalars['Float']['input']>;
@@ -4207,14 +4252,14 @@ export type GetPlaceDetailsQuery = { __typename?: 'Query', getPlaceDetails: { __
 export type GetMyAddressesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetMyAddressesQuery = { __typename?: 'Query', myAddresses: Array<{ __typename?: 'Address', _id: string, addressType: string, recipientPhone: string, recipientName: string, buildingName: string, floor?: string | null, streetArea?: string | null, landmark?: string | null, addressLocality: string, addressRegion: string, postalCode: string, addressCountry: string, isDefault: boolean, latitude: number, longitude: number, formattedAddress: string, placeId?: string | null }> };
+export type GetMyAddressesQuery = { __typename?: 'Query', myAddresses: Array<{ __typename?: 'Address', _id: string, addressType: string, recipientPhone: string, recipientName: string, buildingName: string, floor?: string | null, streetArea?: string | null, landmark?: string | null, addressLocality: string, addressRegion: string, postalCode: string, addressCountry: string, isDefault: boolean, latitude: number, longitude: number, formattedAddress: string, placeId?: string | null, googlePostalCode?: string | null }> };
 
 export type CreateAddressMutationVariables = Exact<{
   input: CreateAddressInput;
 }>;
 
 
-export type CreateAddressMutation = { __typename?: 'Mutation', createAddress: { __typename?: 'Address', _id: string, addressType: string, formattedAddress: string, isDefault: boolean } };
+export type CreateAddressMutation = { __typename?: 'Mutation', createAddress: { __typename?: 'Address', _id: string, addressType: string, formattedAddress: string, isDefault: boolean, googlePostalCode?: string | null } };
 
 export type AdminLogoutMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -4550,6 +4595,7 @@ export const GetMyAddressesDocument = new TypedDocumentString(`
     longitude
     formattedAddress
     placeId
+    googlePostalCode
   }
 }
     `) as unknown as TypedDocumentString<GetMyAddressesQuery, GetMyAddressesQueryVariables>;
@@ -4560,6 +4606,7 @@ export const CreateAddressDocument = new TypedDocumentString(`
     addressType
     formattedAddress
     isDefault
+    googlePostalCode
   }
 }
     `) as unknown as TypedDocumentString<CreateAddressMutation, CreateAddressMutationVariables>;

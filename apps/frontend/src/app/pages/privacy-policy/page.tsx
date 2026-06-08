@@ -66,7 +66,12 @@ export default async function PrivacyPolicyPage() {
 
         <section className="space-y-4 leading-snug text-justify lg:mb-8 md:mb-8">
           <p className="text-[12px] lg:text-[16px] md:text-[16px]">
-            Earth Crust company ("Letstryfoods", "we", "us", or "our") respects your privacy and is committed to protecting your personal data. This Privacy Policy outlines how we collect, use, and safeguard your information when you use our mobile application ("App") and website ("Services"). By accessing or using our Services, you agree to the collection and use of information in accordance with this policy.
+            Earth Crust company ("Letstryfoods", "we", "us", or "our") respects
+            your privacy and is committed to protecting your personal data. This
+            Privacy Policy outlines how we collect, use, and safeguard your
+            information when you use our mobile application ("App") and website
+            ("Services"). By accessing or using our Services, you agree to the
+            collection and use of information in accordance with this policy.
           </p>
         </section>
 
@@ -75,12 +80,30 @@ export default async function PrivacyPolicyPage() {
             1. Information We Collect
           </h2>
           <p className="text-[12px] lg:text-[16px] md:text-[16px]">
-            We collect the following types of information to provide and improve our Service to you:
+            We collect the following types of information to provide and improve
+            our Service to you:
           </p>
           <ul className="list-disc ml-5 text-[12px] lg:text-[16px] md:text-[16px] space-y-2">
-            <li><strong>Personal Information:</strong> When you register an account or place an order, we may collect personally identifiable information such as your name, email address, phone number, shipping address, and billing information.</li>
-            <li><strong>Usage Data:</strong> We may collect information about how the App is accessed and used. This Usage Data may include information such as your device's Internet Protocol (IP) address, device type, operating system version, unique device identifiers, and other diagnostic data.</li>
-            <li><strong>Location Data:</strong> With your permission, we may collect and process information about your actual location to facilitate order delivery and provide location-based services. You can enable or disable location services at any time through your device settings.</li>
+            <li>
+              <strong>Personal Information:</strong> When you register an
+              account or place an order, we may collect personally identifiable
+              information such as your name, email address, phone number,
+              shipping address, and billing information.
+            </li>
+            <li>
+              <strong>Usage Data:</strong> We may collect information about how
+              the App is accessed and used. This Usage Data may include
+              information such as your device's Internet Protocol (IP) address,
+              device type, operating system version, unique device identifiers,
+              and other diagnostic data.
+            </li>
+            <li>
+              <strong>Location Data:</strong> With your permission, we may
+              collect and process information about your actual location to
+              facilitate order delivery and provide location-based services. You
+              can enable or disable location services at any time through your
+              device settings.
+            </li>
           </ul>
         </section>
 
@@ -93,10 +116,19 @@ export default async function PrivacyPolicyPage() {
           </p>
           <ul className="list-disc ml-5 text-[12px] lg:text-[16px] md:text-[16px] space-y-2">
             <li>To provide, maintain, and improve our Services.</li>
-            <li>To process your orders, process payments, and facilitate order deliveries.</li>
+            <li>
+              To process your orders, process payments, and facilitate order
+              deliveries.
+            </li>
             <li>To manage your account and provide customer support.</li>
-            <li>To communicate with you regarding updates, promotions, and important account notifications.</li>
-            <li>To monitor the usage of our App and detect, prevent, and address technical issues.</li>
+            <li>
+              To communicate with you regarding updates, promotions, and
+              important account notifications.
+            </li>
+            <li>
+              To monitor the usage of our App and detect, prevent, and address
+              technical issues.
+            </li>
           </ul>
         </section>
 
@@ -105,15 +137,29 @@ export default async function PrivacyPolicyPage() {
             3. Third-Party Services & Data Sharing
           </h2>
           <p className="text-[12px] lg:text-[16px] md:text-[16px]">
-            We do not sell or rent your personal data to third parties. However, we may share your information with trusted third-party service providers who assist us in operating our App, conducting our business, or serving our users. These may include:
+            We do not sell or rent your personal data to third parties. However,
+            we may share your information with trusted third-party service
+            providers who assist us in operating our App, conducting our
+            business, or serving our users. These may include:
           </p>
           <ul className="list-disc ml-5 text-[12px] lg:text-[16px] md:text-[16px] space-y-2">
-            <li><strong>Payment Processors:</strong> To process secure transactions.</li>
-            <li><strong>Delivery Partners:</strong> To fulfill and ship your orders.</li>
-            <li><strong>Analytics Providers:</strong> Tools such as Google Analytics or Firebase to analyze App usage and performance.</li>
+            <li>
+              <strong>Payment Processors:</strong> To process secure
+              transactions.
+            </li>
+            <li>
+              <strong>Delivery Partners:</strong> To fulfill and ship your
+              orders.
+            </li>
+            <li>
+              <strong>Analytics Providers:</strong> Tools such as Google
+              Analytics or Firebase to analyze App usage and performance.
+            </li>
           </ul>
           <p className="text-[12px] lg:text-[16px] md:text-[16px]">
-            These third parties have access to your Personal Data only to perform these tasks on our behalf and are obligated not to disclose or use it for any other purpose.
+            These third parties have access to your Personal Data only to
+            perform these tasks on our behalf and are obligated not to disclose
+            or use it for any other purpose.
           </p>
         </section>
 
@@ -122,7 +168,11 @@ export default async function PrivacyPolicyPage() {
             4. Security of Data
           </h2>
           <p className="text-[12px] lg:text-[16px] md:text-[16px]">
-            The security of your data is important to us, but remember that no method of transmission over the Internet, or method of electronic storage is 100% secure. While we strive to use commercially acceptable means to protect your Personal Data, we cannot guarantee its absolute security.
+            The security of your data is important to us, but remember that no
+            method of transmission over the Internet, or method of electronic
+            storage is 100% secure. While we strive to use commercially
+            acceptable means to protect your Personal Data, we cannot guarantee
+            its absolute security.
           </p>
         </section>
 
@@ -131,10 +181,17 @@ export default async function PrivacyPolicyPage() {
             5. Data Retention & Account Deletion
           </h2>
           <p className="text-[12px] lg:text-[16px] md:text-[16px]">
-            We will retain your Personal Data only for as long as is necessary for the purposes set out in this Privacy Policy.
+            We will retain your Personal Data only for as long as is necessary
+            for the purposes set out in this Privacy Policy.
           </p>
           <p className="text-[12px] lg:text-[16px] md:text-[16px]">
-            <strong>How to request data deletion:</strong> You have the right to request the deletion of your account and personal information at any time. To do so, please contact our support team at <strong>ecom@earthcrust.co.in</strong> or call us at <strong>+91-9654-932-262</strong>. Once your request is received, your account and all associated personal data will be permanently removed from our systems within 30 days.
+            <strong>How to request data deletion:</strong> You have the right to
+            request the deletion of your account and personal information at any
+            time. To do so, please contact our support team at{" "}
+            <strong>ecom@earthcrust.co.in</strong> or call us at{" "}
+            <strong>+91-9654-932-262</strong>. Once your request is received,
+            your account and all associated personal data will be permanently
+            removed from our systems within 30 days.
           </p>
         </section>
 
@@ -143,7 +200,10 @@ export default async function PrivacyPolicyPage() {
             6. Changes to This Privacy Policy
           </h2>
           <p className="text-[12px] lg:text-[16px] md:text-[16px]">
-            We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page. You are advised to review this Privacy Policy periodically for any changes.
+            We may update our Privacy Policy from time to time. We will notify
+            you of any changes by posting the new Privacy Policy on this page.
+            You are advised to review this Privacy Policy periodically for any
+            changes.
           </p>
         </section>
 
@@ -152,11 +212,16 @@ export default async function PrivacyPolicyPage() {
             7. Contact Us
           </h2>
           <p className="text-[12px] lg:text-[16px] md:text-[16px]">
-            If you have any questions about this Privacy Policy, please contact us:
+            If you have any questions about this Privacy Policy, please contact
+            us:
           </p>
           <ul className="list-disc ml-5 text-[12px] lg:text-[16px] md:text-[16px] space-y-2">
-            <li><strong>Email:</strong> ecom@earthcrust.co.in</li>
-            <li><strong>Phone:</strong> +91-9654-932-262</li>
+            <li>
+              <strong>Email:</strong> ecom@earthcrust.co.in
+            </li>
+            <li>
+              <strong>Phone:</strong> +91-9654-932-262
+            </li>
           </ul>
         </section>
       </div>

@@ -90,7 +90,6 @@ After the sign-up process is complete, follow the steps listed below to create a
 
 - The password for the API user will be sent to your registered email address (not the API user email ID).
 
-
 Once created, you can proceed to generate an auth token using the Authentication API for further integration.
 
 # Document and API Usage Guidelines
@@ -106,8 +105,6 @@ Once created, you can proceed to generate an auth token using the Authentication
 - Authorization: Bearer
 
 - All the APIs are provided with their appropriate example requests and responses for successful and failed calls. The example definitions are:
-
-
   - **Successful Call**: The API call was correct.
 
   - **Invalid Data**: The data entered was incorrect.
@@ -116,23 +113,21 @@ Once created, you can proceed to generate an auth token using the Authentication
 
   - **Wrong Format**: There is a syntax error in the code.
 
-
 - **Note**: The `order_id` defined by you at the time of order creation is your reference order id. The `order_id` returned in the API response is the _Shiprocket order id_. All our APIs will use this Shiprocket order id to access your created order unless stated otherwise.
-
 
 # Errors and Response codes
 
 While using Shiprocket's APIs, you may run into some standard response and error codes. The most common ones are listed along with their descriptions as follows:
 
-| **RESPONSE CODE** | **DESCRIPTION** |
-| --- | --- |
-| `200` & `202` \- **OK** & **Accepted** | Everything worked as expected, and you'll get a response. Some APIs may respond with an error message if data is invalid. |
-| `400` \- **Bad Request** | The request was invalid or cannot be otherwise served. |
-| `401` \- **Unauthorized** | There is some error during validation. You need to check your token or credentials. |
-| `404` \- **Not Found** | The URI requested is invalid or the resource requested does not exist. |
-| `405` \- **Method Not Allowed** | The API was accessed using the wrong method. Check your HTTP method. |
-| `422` \- **Unprocessable Entity** | It means the request contains incorrect syntax or cannot be fulfilled. Try checking your code for errors. |
-| `429` \- **Too Many Requests** | You have exceeded the API call rate limit. |
+| **RESPONSE CODE**                               | **DESCRIPTION**                                                                                                                     |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `200` & `202` \- **OK** & **Accepted**          | Everything worked as expected, and you'll get a response. Some APIs may respond with an error message if data is invalid.           |
+| `400` \- **Bad Request**                        | The request was invalid or cannot be otherwise served.                                                                              |
+| `401` \- **Unauthorized**                       | There is some error during validation. You need to check your token or credentials.                                                 |
+| `404` \- **Not Found**                          | The URI requested is invalid or the resource requested does not exist.                                                              |
+| `405` \- **Method Not Allowed**                 | The API was accessed using the wrong method. Check your HTTP method.                                                                |
+| `422` \- **Unprocessable Entity**               | It means the request contains incorrect syntax or cannot be fulfilled. Try checking your code for errors.                           |
+| `429` \- **Too Many Requests**                  | You have exceeded the API call rate limit.                                                                                          |
 | `500`, `502`, `503`, `504` \- **Server Errors** | Some server error has occurred. Some APIs may show this due to syntax or parameter errors. Try contacting support if this persists. |
 
 # Webhooks
@@ -151,7 +146,6 @@ You can set up a webhook with Shiprocket to get tracking updates. We will proact
 
 - Add the security token (not mandatory)
 
-
 When we get a new tracking event, a POST request is made to the callback URL you added to your Shiprocket account.
 
 **Webhook Specifications:**
@@ -165,7 +159,6 @@ When we get a new tracking event, a POST request is made to the callback URL you
 - Security token should be an`x-api-key`
 
 - The URL should be set to send only code 200 in response.
-
 
 ### Sample Body:
 
@@ -342,7 +335,6 @@ Businesses can enhance their internal and customer-facing applications using Sen
 
 - SenseAddress API - Provides address standardization and validation
 
-
 ### Use Cases for RTO Score API:
 
 - Online retail platforms
@@ -351,7 +343,6 @@ Businesses can enhance their internal and customer-facing applications using Sen
 
 - E-commerce customer service tools
 
-
 ### Use Cases for Sense Address API:
 
 - Operational efficiency
@@ -359,7 +350,6 @@ Businesses can enhance their internal and customer-facing applications using Sen
 - Delivery success
 
 - Address quality and accuracy
-
 
 ### Applications:
 
@@ -373,7 +363,6 @@ Businesses can enhance their internal and customer-facing applications using Sen
 
 - **Location Intelligence**: Various industry applications
 
-
 ### API Details:
 
 - Address Score API: Evaluates and scores addresses for overall quality and suitability.
@@ -381,7 +370,6 @@ Businesses can enhance their internal and customer-facing applications using Sen
 - Address Verification API: Validates and ensures accuracy by comparing addresses with past entries.
 
 - RTO Prediction API: Uses machine learning, historical data, and key parameters to forecast if an order will return to its origin efficiently.
-
 
 ### Support:
 
@@ -392,7 +380,6 @@ Businesses can enhance their internal and customer-facing applications using Sen
 For any other issues, please email us at: [_**support@shiprocket.com**_](https://mailto:support@shiprocket.in/).
 
 - The Shiprocket terms of service are listed here: [Terms Of Service](https://www.shiprocket.in/terms-conditions/)
-
 
 # Shiprocket MCP Server
 
@@ -414,23 +401,22 @@ A Model Context Protocol (MCP) server that enables AI clients (like Claude or Cu
 
 - **Manage your entire order workflow—from creation to delivery—through natural prompts.**
 
-
 ### List of Tools available:
 
 View More
 
-| **Tool Name** | **Description** |
-| --- | --- |
-| **shipping\_rate\_calculator** | **Get shipping rates for a specific package between origin and destination.** |
-| **estimated\_date\_of\_delivery** | **Estimate the delivery date for a shipment based on locations.** |
-| **order\_create** | **Create a new shipment/order in the Shiprocket platform.** |
-| **order\_list** | **List recent orders created via the account.** |
-| **order\_track** | **Track a specific order using AWB, Shiprocket Order ID, or source ID.** |
-| **order\_ship** | **Assign a courier and generate shipping for a created order.** |
-| **order\_pickup\_schedule** | **Schedule a pickup for an existing order.** |
-| **generate\_shipment\_label** | **Generate or retrieve the shipping label (PDF).** |
-| **order\_cancel** | **Cancel a created order before it is shipped.** |
-| **list\_pickup\_addresses** | **Retrieve a list of pickup addresses configured for the seller account.** |
+| **Tool Name**                  | **Description**                                                               |
+| ------------------------------ | ----------------------------------------------------------------------------- |
+| **shipping_rate_calculator**   | **Get shipping rates for a specific package between origin and destination.** |
+| **estimated_date_of_delivery** | **Estimate the delivery date for a shipment based on locations.**             |
+| **order_create**               | **Create a new shipment/order in the Shiprocket platform.**                   |
+| **order_list**                 | **List recent orders created via the account.**                               |
+| **order_track**                | **Track a specific order using AWB, Shiprocket Order ID, or source ID.**      |
+| **order_ship**                 | **Assign a courier and generate shipping for a created order.**               |
+| **order_pickup_schedule**      | **Schedule a pickup for an existing order.**                                  |
+| **generate_shipment_label**    | **Generate or retrieve the shipping label (PDF).**                            |
+| **order_cancel**               | **Cancel a created order before it is shipped.**                              |
+| **list_pickup_addresses**      | **Retrieve a list of pickup addresses configured for the seller account.**    |
 
 ### **Use cases :**
 
@@ -447,8 +433,6 @@ View More
 - **Tool:** **`shipping_rate_calculator`**
 
 - **Inputs:**
-
-
   - **Pickup Pincode: 110001 (Delhi)**
 
   - **Delivery Pincode: 560001 (Bangalore)**
@@ -456,7 +440,6 @@ View More
   - **Weight: 1kg**
 
   - **COD: Yes**
-
 
 **AI Response (Simplified Output):**
 
@@ -467,7 +450,6 @@ You have 3 courier options:
 - **Bluedart: ₹110, Delivery in 1 day**
 
 - **Xpressbees: ₹90, Delivery in 3 days**
-
 
 COD available with all options.
 
@@ -486,8 +468,6 @@ This allows the user to choose the best courier based on cost and speed, all wit
 - **Tool:**`order_create`
 
 - **Inputs:**
-
-
   - **Pickup Address: Mumbai (400001)**
 
   - **Delivery Address: Pune (411001)**
@@ -497,7 +477,6 @@ This allows the user to choose the best courier based on cost and speed, all wit
   - **COD Amount: ₹999**
 
   - **Customer: Ramesh, 9876543210**
-
 
 **AI Response:**
 
@@ -511,10 +490,9 @@ New Order created successfully with Shiprocket Order ID: SR123456.
 
 - **Tool:** **`order_ship`**
 
-- **Logic: Auto-select fastest courier based on shipping\_rate\_calculator**
+- **Logic: Auto-select fastest courier based on shipping_rate_calculator**
 
 - **Result: Courier assigned, AWB generated.**
-
 
 **AI Response:**
 
@@ -531,14 +509,11 @@ Shipped via Delhivery. AWB Number: DLV987654321
 **Tool Used:** **`order_pickup_schedule`**
 
 - **Inputs:**
-
-
   - **Order ID: SR123456**
 
   - **Date: Tomorrow**
 
   - **Pickup Slot: Default (morning/afternoon)**
-
 
 **AI Response:**
 
@@ -565,7 +540,6 @@ You can now print the label and attach it to the package—done!
 - **Node.js v22.14.0 or higher (but < v23)**
 
 - **Claude Desktop or Cursor app for integrating MCP servers.**
-
 
 ### **Installation & Setup**
 
@@ -610,7 +584,7 @@ json
 }
 ```
 
-**Claude: save as ~/Library/Application Support/Claude/claude\_desktop\_config.json**
+**Claude: save as ~/Library/Application Support/Claude/claude_desktop_config.json**
 
 **Cursor: save as ~/.cursor/mcp.json**
 
@@ -623,18 +597,13 @@ Open/restart Claude or Cursor. You’ll see “Shiprocket” as an available MCP
 - **MCP Protocol via STDIO: Communicates with AI clients using standard I/O streams**
 
 - **Core Components:**
-
-
   - **HTTP Client: Authenticates with Shiprocket using email/password to fetch a bearer token.**
 
   - **Tool Mapper: Receives MCP calls → runs validation → dispatches to Shiprocket’s REST endpoints.**
 
   - **Error Handling: Wraps API calls with structured responses to AI clients.**
 
-
 - **Code Layout:**
-
-
   - **src/transports/stdio.ts: MCP–stdio handler**
 
   - **src/mcp/tools.ts: Tool definitions and parameter schemas**
@@ -642,7 +611,6 @@ Open/restart Claude or Cursor. You’ll see “Shiprocket” as an available MCP
   - **src/mcp/connections.ts: Authentication/session management**
 
   - **src/main.ts: Entry point to initialize server**
-
 
 ## Authentication API
 
@@ -659,7 +627,6 @@ Your API keys carry many privileges, so be sure to keep them secure! Do not shar
 - Include _**'Authorization: Bearer \[yourtokenvalue\]'**_ in the appropriate field of your code.
 
 - That's all! In case of any error, try checking your parameters.
-
 
 ### POSTGenerate Token
 
@@ -765,84 +732,83 @@ You have to pass all the required params at the minimum to create a quick custom
 
 **Note:**
 
-- In case the 'shipping\_is\_billing' field is false, further shipping detail fields are required.
+- In case the 'shipping_is_billing' field is false, further shipping detail fields are required.
 
 If no channel id is passed, the order will be assigned to the default custom channel. If the channel id is not known, use the 'Get All Channels' API to get the list of all integrated channels in your Shiprocket account.
 
-- order\_id field cannot be equal to an already existing id. Doing so does not change or affect the existing order.
+- order_id field cannot be equal to an already existing id. Doing so does not change or affect the existing order.
 
-- New orders cannot be created with order id's same as that of cancelled orders. If error 422 shows up despite filling in the correct details, consider changing the order\_id.
+- New orders cannot be created with order id's same as that of cancelled orders. If error 422 shows up despite filling in the correct details, consider changing the order_id.
 
-- Be sure to input the correct calculated sub\_total amount. The total is not calculated automatically through the API.
+- Be sure to input the correct calculated sub_total amount. The total is not calculated automatically through the API.
 
-- The 'order\_id' returned in the response is the Shiprocket order\_id. Please save this order ID as we will use this in future API calls.
-
+- The 'order_id' returned in the response is the Shiprocket order_id. Please save this order ID as we will use this in future API calls.
 
 #### Parameters:
 
 View More
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `order_id` | YES | _string_ | The order id you want to specify to the order. Max char: 50. (Avoid passing character values as this contradicts some other API calls). | 224477 or 224-477 |
-| `order_date` | YES | _string_ | The date of order creation in yyyy-mm-dd format. Time is additional. | 2019-07-24 11:11 |
-| `pickup_location` | YES | _string_ | The name of the pickup location added in your Shiprocket account. This cannot be a new location. | Jammu |
-| `channel_id` | NO | _integer_ | Mention this in case you need to assign the order to a particular channel. Default is 'Custom'. | 27022 |
-| `comment` | NO | _string_ | Option to add 'From' field to the shipment. To do this, enter the name in the following format: 'Reseller: \[name\]'. | Reseller: Divine |
-| `reseller_name` | NO | _string_ | The 'from' name if you want to print. Use 'Reseller: \[name\]' | Reseller: Divine |
-| `company_name` | NO | _string_ | Name of the company. | Amazon |
-| `billing_customer_name` | YES | _string_ | First name of the billed customer. | John |
-| `billing_last_name` | NO | _string_ | Last name of the billed customer. | Doe |
-| `billing_address` | YES | _string_ | address details of the billed customer. | Civil line, House 20 |
-| `billing_address_2` | NO | _string_ | Further address details of the billed customer. | Near Hokage House |
-| `billing_city` | YES | _string_ | Billing address city. Max char: 30. | New Delhi |
-| `billing_pincode` | YES | _integer_ | Pincode of the billing address. | 110002 |
-| `billing_state` | YES | _string_ | Billing address state. | Delhi |
-| `billing_country` | YES | _string_ | Billing address country. | India |
-| `billing_email` | YES | _string_ | Email address of the billed customer. | [John@doe.com](https://mailto:John@doe.com/) |
-| `billing_phone` | YES | _integer_ | The phone number of the billing customer. | 9856321472 |
-| `billing_alternate_phone` | NO | _integer_ | Alternate phone number of the billing customer. | 8604690454 |
-| `shipping_is_billing` | YES | _boolean_ | Whether the shipping address is the same as billing address. 1 or 'true' for yes and 0 or 'false' for no. | true |
-| `shipping_customer_name` | CONDITIONAL YES | _string_ | Name of the customer the order is shipped to. Required in case billing is not same as shipping. | Jane |
-| `shipping_last_name` | NO | _string_ | Last name of the shipping customer. | Doe |
-| `shipping_address` | CONDITIONAL YES | _string_ | Address of the Shipping customer. Required in case billing is not same as shipping. | Lane number 69 |
-| `shipping_address_2` | NO | _string_ | Further address details of shipping customer. | Andheri |
-| `billing_isd_code` | NO | _string_ | ISD code of the billing address. | +91 |
-| `shipping_city` | CONDITIONAL YES | _string_ | Shipping address city. | Mumbai |
-| `shipping_pincode` | CONDITIONAL YES | _integer_ | Shipping address pincode. | 200912 |
-| `shipping_country` | CONDITIONAL YES | _string_ | Shipping address country. | India |
-| `shipping_state` | CONDITIONAL YES | _string_ | Shipping address state. | Maharashtra |
-| `shipping_email` | NO | _string_ | Email of the shipping customer. | [Jane@doe.com](https://mailto:Jane@doe.com/) |
-| `shipping_phone` | CONDITIONAL YES | _integer_ | Phone no. of the shipping customer. |  |
-| `longitude` | NO | _float_ | Destination (Shipping address) Longitude. | 69.0747 |
-| `latitude` | NO | _float_ | Destination (Shipping address) Latitude | 22.4064 |
-| `order_items` | YES | / | List of items and their relevant fields in the form of Array. | / |
-| `name` | YES | _string_ | Name of the product. | Jeans |
-| `sku` | YES | _string_ | The sku id of the product. | cbs123 |
-| `units` | YES | _integer_ | No of units that are to be shipped. | 10 |
-| `selling_price` | YES | _integer_ | The selling price per unit in Rupee. Inclusive of GST. | 900 |
-| `discount` | NO | _integer_ | The discount amount in Rupee. Inclusive of tax. | 10 |
-| `tax` | NO | _integer_ | The tax percentage on the item. | 5 |
-| `hsn` | NO | _integer_ | Harmonised System Nomenclature code. Used to determine the category of taxation the goods fall under. | 44122 |
-| `payment_method` | YES | _string_ | The method of payment. Can be either COD (Cash on delivery) Or Prepaid. | COD |
-| `shipping_charges` | NO | _integer_ | Shipping charges if any in Rupee. | 5 |
-| `giftwrap_charges` | NO | _integer_ | Giftwrap charges if any in Rupee. | 5 |
-| `transaction_charges` | NO | _integer_ | Transaction charges if any in Rupee. | 5 |
-| `total_discount` | NO | _integer_ | The total discount amount in Rupee. | 15 |
-| `sub_total` | YES | _integer_ | Calculated sub total amount in Rupee after deductions. | 9010 |
-| `length` | YES | _float_ | The length of the item in cms. Must be more than 0.5. | 10 |
-| `breadth` | YES | _float_ | The breadth of the item in cms. Must be more than 0.5. | 10 |
-| `height` | YES | _float_ | The height of the item in cms. Must be more than 0.5. | 10 |
-| `weight` | YES | _float_ | The weight of the item in kgs. Must be more than 0. | 2.5 |
-| `customer_gstin` | NO | _string_ | Goods and Services Tax Identification Number. | 29ABCDE1234F2Z5 |
-| `invoice_number` | NO | _string_ |  |  |
-| `order_type` | NO | _string_ | Key to differentiate between Essentials or Non Essentials Shipments. Order type can only be ESSENTIALS or NON ESSENTIALS. Please note it is case sensitive and blank values are allowed. | ESSENTIALS |
-| `checkout_shipping_method` | NO | _string_ | Only for SRF users. | a. SR\_RUSH: SDD, NDD <br>b. SR\_STANDARD: Surface Delivery <br>c. SR\_EXPRESS: Air Delivery <br>d. SR\_QUICK: 3 hrs delivery |
-| `what3words_address` | NO | _string_ | What3words is a proprietary geocode system designed to identify any location on the surface of Earth with a resolution of about 3 meters. The system encodes geographic coordinates into three permanently fixed dictionary words. | toddler.geologist.animated |
-| `is_insurance_opt` | NO | _boolean_ | To secure shipments above the order value of Rs 2500 | true |
-| `is_document` | NO | _integer_ | To create a document order | 1 or 0 |
-| `order_tag` | NO | _string_ | To add tags to your orders | abc, xyz |
-| `reseller_name` | NO | _string_ | To display the vendor name on the label | brandname |
+| **PARAMS**                 | **REQUIRED**    | **DATA TYPE** | **DESCRIPTION**                                                                                                                                                                                                                    | **EXAMPLE**                                                                                                               |
+| -------------------------- | --------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `order_id`                 | YES             | _string_      | The order id you want to specify to the order. Max char: 50. (Avoid passing character values as this contradicts some other API calls).                                                                                            | 224477 or 224-477                                                                                                         |
+| `order_date`               | YES             | _string_      | The date of order creation in yyyy-mm-dd format. Time is additional.                                                                                                                                                               | 2019-07-24 11:11                                                                                                          |
+| `pickup_location`          | YES             | _string_      | The name of the pickup location added in your Shiprocket account. This cannot be a new location.                                                                                                                                   | Jammu                                                                                                                     |
+| `channel_id`               | NO              | _integer_     | Mention this in case you need to assign the order to a particular channel. Default is 'Custom'.                                                                                                                                    | 27022                                                                                                                     |
+| `comment`                  | NO              | _string_      | Option to add 'From' field to the shipment. To do this, enter the name in the following format: 'Reseller: \[name\]'.                                                                                                              | Reseller: Divine                                                                                                          |
+| `reseller_name`            | NO              | _string_      | The 'from' name if you want to print. Use 'Reseller: \[name\]'                                                                                                                                                                     | Reseller: Divine                                                                                                          |
+| `company_name`             | NO              | _string_      | Name of the company.                                                                                                                                                                                                               | Amazon                                                                                                                    |
+| `billing_customer_name`    | YES             | _string_      | First name of the billed customer.                                                                                                                                                                                                 | John                                                                                                                      |
+| `billing_last_name`        | NO              | _string_      | Last name of the billed customer.                                                                                                                                                                                                  | Doe                                                                                                                       |
+| `billing_address`          | YES             | _string_      | address details of the billed customer.                                                                                                                                                                                            | Civil line, House 20                                                                                                      |
+| `billing_address_2`        | NO              | _string_      | Further address details of the billed customer.                                                                                                                                                                                    | Near Hokage House                                                                                                         |
+| `billing_city`             | YES             | _string_      | Billing address city. Max char: 30.                                                                                                                                                                                                | New Delhi                                                                                                                 |
+| `billing_pincode`          | YES             | _integer_     | Pincode of the billing address.                                                                                                                                                                                                    | 110002                                                                                                                    |
+| `billing_state`            | YES             | _string_      | Billing address state.                                                                                                                                                                                                             | Delhi                                                                                                                     |
+| `billing_country`          | YES             | _string_      | Billing address country.                                                                                                                                                                                                           | India                                                                                                                     |
+| `billing_email`            | YES             | _string_      | Email address of the billed customer.                                                                                                                                                                                              | [John@doe.com](https://mailto:John@doe.com/)                                                                              |
+| `billing_phone`            | YES             | _integer_     | The phone number of the billing customer.                                                                                                                                                                                          | 9856321472                                                                                                                |
+| `billing_alternate_phone`  | NO              | _integer_     | Alternate phone number of the billing customer.                                                                                                                                                                                    | 8604690454                                                                                                                |
+| `shipping_is_billing`      | YES             | _boolean_     | Whether the shipping address is the same as billing address. 1 or 'true' for yes and 0 or 'false' for no.                                                                                                                          | true                                                                                                                      |
+| `shipping_customer_name`   | CONDITIONAL YES | _string_      | Name of the customer the order is shipped to. Required in case billing is not same as shipping.                                                                                                                                    | Jane                                                                                                                      |
+| `shipping_last_name`       | NO              | _string_      | Last name of the shipping customer.                                                                                                                                                                                                | Doe                                                                                                                       |
+| `shipping_address`         | CONDITIONAL YES | _string_      | Address of the Shipping customer. Required in case billing is not same as shipping.                                                                                                                                                | Lane number 69                                                                                                            |
+| `shipping_address_2`       | NO              | _string_      | Further address details of shipping customer.                                                                                                                                                                                      | Andheri                                                                                                                   |
+| `billing_isd_code`         | NO              | _string_      | ISD code of the billing address.                                                                                                                                                                                                   | +91                                                                                                                       |
+| `shipping_city`            | CONDITIONAL YES | _string_      | Shipping address city.                                                                                                                                                                                                             | Mumbai                                                                                                                    |
+| `shipping_pincode`         | CONDITIONAL YES | _integer_     | Shipping address pincode.                                                                                                                                                                                                          | 200912                                                                                                                    |
+| `shipping_country`         | CONDITIONAL YES | _string_      | Shipping address country.                                                                                                                                                                                                          | India                                                                                                                     |
+| `shipping_state`           | CONDITIONAL YES | _string_      | Shipping address state.                                                                                                                                                                                                            | Maharashtra                                                                                                               |
+| `shipping_email`           | NO              | _string_      | Email of the shipping customer.                                                                                                                                                                                                    | [Jane@doe.com](https://mailto:Jane@doe.com/)                                                                              |
+| `shipping_phone`           | CONDITIONAL YES | _integer_     | Phone no. of the shipping customer.                                                                                                                                                                                                |                                                                                                                           |
+| `longitude`                | NO              | _float_       | Destination (Shipping address) Longitude.                                                                                                                                                                                          | 69.0747                                                                                                                   |
+| `latitude`                 | NO              | _float_       | Destination (Shipping address) Latitude                                                                                                                                                                                            | 22.4064                                                                                                                   |
+| `order_items`              | YES             | /             | List of items and their relevant fields in the form of Array.                                                                                                                                                                      | /                                                                                                                         |
+| `name`                     | YES             | _string_      | Name of the product.                                                                                                                                                                                                               | Jeans                                                                                                                     |
+| `sku`                      | YES             | _string_      | The sku id of the product.                                                                                                                                                                                                         | cbs123                                                                                                                    |
+| `units`                    | YES             | _integer_     | No of units that are to be shipped.                                                                                                                                                                                                | 10                                                                                                                        |
+| `selling_price`            | YES             | _integer_     | The selling price per unit in Rupee. Inclusive of GST.                                                                                                                                                                             | 900                                                                                                                       |
+| `discount`                 | NO              | _integer_     | The discount amount in Rupee. Inclusive of tax.                                                                                                                                                                                    | 10                                                                                                                        |
+| `tax`                      | NO              | _integer_     | The tax percentage on the item.                                                                                                                                                                                                    | 5                                                                                                                         |
+| `hsn`                      | NO              | _integer_     | Harmonised System Nomenclature code. Used to determine the category of taxation the goods fall under.                                                                                                                              | 44122                                                                                                                     |
+| `payment_method`           | YES             | _string_      | The method of payment. Can be either COD (Cash on delivery) Or Prepaid.                                                                                                                                                            | COD                                                                                                                       |
+| `shipping_charges`         | NO              | _integer_     | Shipping charges if any in Rupee.                                                                                                                                                                                                  | 5                                                                                                                         |
+| `giftwrap_charges`         | NO              | _integer_     | Giftwrap charges if any in Rupee.                                                                                                                                                                                                  | 5                                                                                                                         |
+| `transaction_charges`      | NO              | _integer_     | Transaction charges if any in Rupee.                                                                                                                                                                                               | 5                                                                                                                         |
+| `total_discount`           | NO              | _integer_     | The total discount amount in Rupee.                                                                                                                                                                                                | 15                                                                                                                        |
+| `sub_total`                | YES             | _integer_     | Calculated sub total amount in Rupee after deductions.                                                                                                                                                                             | 9010                                                                                                                      |
+| `length`                   | YES             | _float_       | The length of the item in cms. Must be more than 0.5.                                                                                                                                                                              | 10                                                                                                                        |
+| `breadth`                  | YES             | _float_       | The breadth of the item in cms. Must be more than 0.5.                                                                                                                                                                             | 10                                                                                                                        |
+| `height`                   | YES             | _float_       | The height of the item in cms. Must be more than 0.5.                                                                                                                                                                              | 10                                                                                                                        |
+| `weight`                   | YES             | _float_       | The weight of the item in kgs. Must be more than 0.                                                                                                                                                                                | 2.5                                                                                                                       |
+| `customer_gstin`           | NO              | _string_      | Goods and Services Tax Identification Number.                                                                                                                                                                                      | 29ABCDE1234F2Z5                                                                                                           |
+| `invoice_number`           | NO              | _string_      |                                                                                                                                                                                                                                    |                                                                                                                           |
+| `order_type`               | NO              | _string_      | Key to differentiate between Essentials or Non Essentials Shipments. Order type can only be ESSENTIALS or NON ESSENTIALS. Please note it is case sensitive and blank values are allowed.                                           | ESSENTIALS                                                                                                                |
+| `checkout_shipping_method` | NO              | _string_      | Only for SRF users.                                                                                                                                                                                                                | a. SR_RUSH: SDD, NDD <br>b. SR_STANDARD: Surface Delivery <br>c. SR_EXPRESS: Air Delivery <br>d. SR_QUICK: 3 hrs delivery |
+| `what3words_address`       | NO              | _string_      | What3words is a proprietary geocode system designed to identify any location on the surface of Earth with a resolution of about 3 meters. The system encodes geographic coordinates into three permanently fixed dictionary words. | toddler.geologist.animated                                                                                                |
+| `is_insurance_opt`         | NO              | _boolean_     | To secure shipments above the order value of Rs 2500                                                                                                                                                                               | true                                                                                                                      |
+| `is_document`              | NO              | _integer_     | To create a document order                                                                                                                                                                                                         | 1 or 0                                                                                                                    |
+| `order_tag`                | NO              | _string_      | To add tags to your orders                                                                                                                                                                                                         | abc, xyz                                                                                                                  |
+| `reseller_name`            | NO              | _string_      | To display the vendor name on the label                                                                                                                                                                                            | brandname                                                                                                                 |
 
 HEADERS
 
@@ -1051,65 +1017,64 @@ The order created will be added under the specified channel. All the other param
 
 **Note:**
 
-- Channel\_id field is required.
+- Channel_id field is required.
 
-- Order\_id cannot be the same as the already existing order id.
+- Order_id cannot be the same as the already existing order id.
 
 - Inventory Sync must be turned on to use this API. This can be done under the 'Channels' portion on the left-hand panel of your Shiprocket account.
 
 - Inventory details of your Shiprocket account can be accessed using the 'Get Inventory Details' API.
 
-
 #### Parameters:
 
 View More
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `order_id` | YES | _string_ | The order id you want to specify to the order. Max char: 20. (Avoid passing character values as this contradicts some other API calls). | 224477 or 224-477 |
-| `order_date` | YES | _string_ | The date of order creation in yyyy-mm-dd format. Time is an additional option. | 2019-07-24 11:11 |
-| `pickup_location` | NO | _string_ | The name of the pickup location added in your Shiprocket account. This cannot be a new location. Default Pickup location is selected in case the parameter is not filled. | Jammu |
-| `channel_id` | YES | _integer_ | The id of the specific channel to be selected. | 27022 |
-| `comment` | NO | _string_ | Option to add 'From' field to the shipment. To do this, enter the name in the following format: 'Reseller: \[name\].' | Reseller: Divine |
-| `billing_customer_name` | YES | _string_ | First name of the customer who is billed. | John |
-| `billing_last_name` | NO | _string_ | Last name of the billed customer. | Doe |
-| `billing_address` | YES | _string_ | Primary address of the billed customer. Min char: 3. | House 221B, Leaf Village |
-| `billing_address_2` | NO | _string_ | Further address details of the billed customer. | Near Hokage House |
-| `billing_city` | YES | _string_ | Billing address city. Max char: 30. | New Delhi |
-| `billing_pincode` | YES | _integer_ | Pincode of the billing address. | 110002 |
-| `billing_state` | YES | _string_ | Billing address state. | Delhi |
-| `billing_country` | YES | _string_ | Billing address country. | India |
-| `billing_email` | YES | _string_ | Email address of the billed customer. | [John@doe.com](https://mailto:John@doe.com/) |
-| `billing_phone` | YES | _integer_ | Phone number of the billed customer. | 9876543210 |
-| `shipping_is_billing` | YES | _boolean_ | Whether the shipping address is the same as billing address. 1 or 'true' for yes and 0 or 'false' for no. | true |
-| `shipping_customer_name` | CONDITIONAL YES | _string_ | Name of the customer the order is shipped to. Required in case billing is not same as shipping. | Jane |
-| `shipping_last_name` | NO | _string_ | Last name of the shipping customer. | Doe |
-| `shipping_address` | CONDITIONAL YES | _string_ | Address of the Shipping customer. Required in case billing is not same as shipping. | Lane 69 |
-| `shipping_address_2` | NO | _string_ | Further address details of shipping customer. | Andheri |
-| `shipping_city` | CONDITIONAL YES | _string_ | Shipping address city. | Mumbai |
-| `shipping_pincode` | CONDITIONAL YES | _integer_ | Shipping address pincode. | 200912 |
-| `shipping_country` | CONDITIONAL YES | _string_ | Shipping address country. | India |
-| `shipping_state` | CONDITIONAL YES | _string_ | Shipping address state. | Maharashtra |
-| `shipping_email` | CONDITIONAL YES | _string_ | Email of the shipping customer. | [jane@doe.com](https://mailto:jane@doe.com/) |
-| `shipping_phone` | CONDITIONAL YES | _integer_ | Phone no. of the shipping customer | 9887655432 |
-| `order_items` | YES | / | Array containing further fields. | / |
-| `name` | YES | _string_ | Name of the product. | Jeans |
-| `sku` | YES | _string_ | The sku id of the product. | cbs123 |
-| `units` | YES | _integer_ | No. of units that are to be shipped. | 10 |
-| `selling_price` | YES | _integer_ | The selling price per unit in Rupee. Inclusive of GST. | 900 |
-| `discount` | NO | _integer_ | The discount amount in Rupee. Inclusive of tax. | 10 |
-| `tax` | NO | _integer_ | The tax percentage on the item. | 5 |
-| `hsn` | NO | _integer_ | Harmonised System Nomenclature code. Used to determine the category of taxation the goods fall under. | 44122 |
-| `payment_method` | YES | _string_ | The method of payment. Can be either COD (Cash on delivery) Or Prepaid. | COD |
-| `shipping_charges` | NO | _integer_ | Shipping charges if any in Rupee. | 5 |
-| `giftwrap_charges` | NO | _integer_ | Giftwrap charges if any in Rupee. | 5 |
-| `transaction_charges` | NO | _integer_ | Transaction charges if any in Rupee. | 5 |
-| `total_discount` | NO | _integer_ | The total discount amount in Rupee. | 15 |
-| `sub_total` | YES | _integer_ | Calculated sub total amount in Rupee. | 9010 |
-| `length` | YES | _integer_ | The length of the item in cms. Must be more than 0.5. | 10 |
-| `breadth` | YES | _integer_ | The breadth of the item in cms. Must be more than 0.5. | 10 |
-| `height` | YES | _integer_ | The height of the item in cms. Must be more than 0.5. | 10 |
-| `weight` | YES | _integer_ | The weight of the item in kgs. Must be more than 0. | 2.5 |
+| **PARAMS**               | **REQUIRED**    | **DATA TYPE** | **DESCRIPTION**                                                                                                                                                           | **EXAMPLE**                                  |
+| ------------------------ | --------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| `order_id`               | YES             | _string_      | The order id you want to specify to the order. Max char: 20. (Avoid passing character values as this contradicts some other API calls).                                   | 224477 or 224-477                            |
+| `order_date`             | YES             | _string_      | The date of order creation in yyyy-mm-dd format. Time is an additional option.                                                                                            | 2019-07-24 11:11                             |
+| `pickup_location`        | NO              | _string_      | The name of the pickup location added in your Shiprocket account. This cannot be a new location. Default Pickup location is selected in case the parameter is not filled. | Jammu                                        |
+| `channel_id`             | YES             | _integer_     | The id of the specific channel to be selected.                                                                                                                            | 27022                                        |
+| `comment`                | NO              | _string_      | Option to add 'From' field to the shipment. To do this, enter the name in the following format: 'Reseller: \[name\].'                                                     | Reseller: Divine                             |
+| `billing_customer_name`  | YES             | _string_      | First name of the customer who is billed.                                                                                                                                 | John                                         |
+| `billing_last_name`      | NO              | _string_      | Last name of the billed customer.                                                                                                                                         | Doe                                          |
+| `billing_address`        | YES             | _string_      | Primary address of the billed customer. Min char: 3.                                                                                                                      | House 221B, Leaf Village                     |
+| `billing_address_2`      | NO              | _string_      | Further address details of the billed customer.                                                                                                                           | Near Hokage House                            |
+| `billing_city`           | YES             | _string_      | Billing address city. Max char: 30.                                                                                                                                       | New Delhi                                    |
+| `billing_pincode`        | YES             | _integer_     | Pincode of the billing address.                                                                                                                                           | 110002                                       |
+| `billing_state`          | YES             | _string_      | Billing address state.                                                                                                                                                    | Delhi                                        |
+| `billing_country`        | YES             | _string_      | Billing address country.                                                                                                                                                  | India                                        |
+| `billing_email`          | YES             | _string_      | Email address of the billed customer.                                                                                                                                     | [John@doe.com](https://mailto:John@doe.com/) |
+| `billing_phone`          | YES             | _integer_     | Phone number of the billed customer.                                                                                                                                      | 9876543210                                   |
+| `shipping_is_billing`    | YES             | _boolean_     | Whether the shipping address is the same as billing address. 1 or 'true' for yes and 0 or 'false' for no.                                                                 | true                                         |
+| `shipping_customer_name` | CONDITIONAL YES | _string_      | Name of the customer the order is shipped to. Required in case billing is not same as shipping.                                                                           | Jane                                         |
+| `shipping_last_name`     | NO              | _string_      | Last name of the shipping customer.                                                                                                                                       | Doe                                          |
+| `shipping_address`       | CONDITIONAL YES | _string_      | Address of the Shipping customer. Required in case billing is not same as shipping.                                                                                       | Lane 69                                      |
+| `shipping_address_2`     | NO              | _string_      | Further address details of shipping customer.                                                                                                                             | Andheri                                      |
+| `shipping_city`          | CONDITIONAL YES | _string_      | Shipping address city.                                                                                                                                                    | Mumbai                                       |
+| `shipping_pincode`       | CONDITIONAL YES | _integer_     | Shipping address pincode.                                                                                                                                                 | 200912                                       |
+| `shipping_country`       | CONDITIONAL YES | _string_      | Shipping address country.                                                                                                                                                 | India                                        |
+| `shipping_state`         | CONDITIONAL YES | _string_      | Shipping address state.                                                                                                                                                   | Maharashtra                                  |
+| `shipping_email`         | CONDITIONAL YES | _string_      | Email of the shipping customer.                                                                                                                                           | [jane@doe.com](https://mailto:jane@doe.com/) |
+| `shipping_phone`         | CONDITIONAL YES | _integer_     | Phone no. of the shipping customer                                                                                                                                        | 9887655432                                   |
+| `order_items`            | YES             | /             | Array containing further fields.                                                                                                                                          | /                                            |
+| `name`                   | YES             | _string_      | Name of the product.                                                                                                                                                      | Jeans                                        |
+| `sku`                    | YES             | _string_      | The sku id of the product.                                                                                                                                                | cbs123                                       |
+| `units`                  | YES             | _integer_     | No. of units that are to be shipped.                                                                                                                                      | 10                                           |
+| `selling_price`          | YES             | _integer_     | The selling price per unit in Rupee. Inclusive of GST.                                                                                                                    | 900                                          |
+| `discount`               | NO              | _integer_     | The discount amount in Rupee. Inclusive of tax.                                                                                                                           | 10                                           |
+| `tax`                    | NO              | _integer_     | The tax percentage on the item.                                                                                                                                           | 5                                            |
+| `hsn`                    | NO              | _integer_     | Harmonised System Nomenclature code. Used to determine the category of taxation the goods fall under.                                                                     | 44122                                        |
+| `payment_method`         | YES             | _string_      | The method of payment. Can be either COD (Cash on delivery) Or Prepaid.                                                                                                   | COD                                          |
+| `shipping_charges`       | NO              | _integer_     | Shipping charges if any in Rupee.                                                                                                                                         | 5                                            |
+| `giftwrap_charges`       | NO              | _integer_     | Giftwrap charges if any in Rupee.                                                                                                                                         | 5                                            |
+| `transaction_charges`    | NO              | _integer_     | Transaction charges if any in Rupee.                                                                                                                                      | 5                                            |
+| `total_discount`         | NO              | _integer_     | The total discount amount in Rupee.                                                                                                                                       | 15                                           |
+| `sub_total`              | YES             | _integer_     | Calculated sub total amount in Rupee.                                                                                                                                     | 9010                                         |
+| `length`                 | YES             | _integer_     | The length of the item in cms. Must be more than 0.5.                                                                                                                     | 10                                           |
+| `breadth`                | YES             | _integer_     | The breadth of the item in cms. Must be more than 0.5.                                                                                                                    | 10                                           |
+| `height`                 | YES             | _integer_     | The height of the item in cms. Must be more than 0.5.                                                                                                                     | 10                                           |
+| `weight`                 | YES             | _integer_     | The weight of the item in kgs. Must be more than 0.                                                                                                                       | 2.5                                          |
 
 HEADERS
 
@@ -1307,15 +1272,15 @@ Using this API, you can modify the pickup location of an already created order. 
 **Note:**
 
 - Pickup location can only be changed/updated to an already existing pickup location in your account.
-- The 'order\_id' to be passed is the Shiprocket order\_id received at the time of order creation.
+- The 'order_id' to be passed is the Shiprocket order_id received at the time of order creation.
 - Multiple order ids can be passed as an array, separated by commas. eg: \["141414,142424,143434"\]
 
 #### Parameters:
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `order_id` | YES | _integer_ | The Shiprocket order\_id specified to the order. | 16167171 |
-| `pickup_location` | YES | _string_ | The pickup location you want to change your current pickup location to. | Delhi |
+| **PARAMS**        | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                                                         | **EXAMPLE** |
+| ----------------- | ------------ | ------------- | ----------------------------------------------------------------------- | ----------- |
+| `order_id`        | YES          | _integer_     | The Shiprocket order_id specified to the order.                         | 16167171    |
+| `pickup_location` | YES          | _string_      | The pickup location you want to change your current pickup location to. | Delhi       |
 
 HEADERS
 
@@ -1417,19 +1382,19 @@ You can update the customer's name and delivery address through this API by pass
 
 View More
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `order_id` | YES | _integer_ | The Shiprocket order\_id specified to the order. | 16178831 |
-| `shipping_customer_name` | YES | _string_ | The name of the customer. | John Doe |
-| `shipping_phone` | YES | _integer_ | Phone number of the customer. | 9988998899 |
-| `shipping_address` | YES | _string_ | Primary address of the customer. | House no 123 |
-| `shipping_address_2` | NO | _string_ | Further address details of the customer. | Beside CM house |
-| `shipping_city` | YES | _string_ | Shipping city name. | Pune |
-| `shipping_state` | YES | _string_ | Shipping state name. | Maharashtra |
-| `shipping_country` | YES | _string_ | Shipping country name. | India |
-| `shipping_pincode` | YES | _integer_ | Shipping address pincode. | 120023 |
-| `shipping_email` | NO | _string_ | Customer's email address. | [john@doe.com](mailto:john@doe.com) |
-| `billing_alternate_phone` | NO | _string_ | The customer alternate phone. | 8604690454 |
+| **PARAMS**                | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                                 | **EXAMPLE**                         |
+| ------------------------- | ------------ | ------------- | ----------------------------------------------- | ----------------------------------- |
+| `order_id`                | YES          | _integer_     | The Shiprocket order_id specified to the order. | 16178831                            |
+| `shipping_customer_name`  | YES          | _string_      | The name of the customer.                       | John Doe                            |
+| `shipping_phone`          | YES          | _integer_     | Phone number of the customer.                   | 9988998899                          |
+| `shipping_address`        | YES          | _string_      | Primary address of the customer.                | House no 123                        |
+| `shipping_address_2`      | NO           | _string_      | Further address details of the customer.        | Beside CM house                     |
+| `shipping_city`           | YES          | _string_      | Shipping city name.                             | Pune                                |
+| `shipping_state`          | YES          | _string_      | Shipping state name.                            | Maharashtra                         |
+| `shipping_country`        | YES          | _string_      | Shipping country name.                          | India                               |
+| `shipping_pincode`        | YES          | _integer_     | Shipping address pincode.                       | 120023                              |
+| `shipping_email`          | NO           | _string_      | Customer's email address.                       | [john@doe.com](mailto:john@doe.com) |
+| `billing_alternate_phone` | NO           | _string_      | The customer alternate phone.                   | 8604690454                          |
 
 HEADERS
 
@@ -1535,7 +1500,7 @@ https://apiv2.shiprocket.in/v1/external/orders/update/adhoc
 
 Use this API to update your orders. You have to pass all the required params at the minimum to create a quick custom order. You can add additional parameters as per your preference.
 
-You can update only the order\_items details before assigning the AWB (before Ready to Ship status). You can only update these key-value pairs i.e., increase/decrease the quantity, update tax/discount, add/remove product items. We've also enabled changing the nature of the order from a non-document to a document. You jus t need to pass the is\_document key with the value of 1 in the payload.
+You can update only the order_items details before assigning the AWB (before Ready to Ship status). You can only update these key-value pairs i.e., increase/decrease the quantity, update tax/discount, add/remove product items. We've also enabled changing the nature of the order from a non-document to a document. You jus t need to pass the is_document key with the value of 1 in the payload.
 
 HEADERS
 
@@ -1738,13 +1703,13 @@ keep-alive
 
 https://apiv2.shiprocket.in/v1/external/orders/cancel
 
-Use this API to cancel a created order. Multiple order\_ids can be passed together as an array to cancel them simultaneously.
+Use this API to cancel a created order. Multiple order_ids can be passed together as an array to cancel them simultaneously.
 
 #### Parameters:
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `ids` | YES | _integer_ | The Shiprocket order id/ids of the orders that need to be canceled. | 16178831 |
+| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                                                     | **EXAMPLE** |
+| ---------- | ------------ | ------------- | ------------------------------------------------------------------- | ----------- |
+| `ids`      | YES          | _integer_     | The Shiprocket order id/ids of the orders that need to be canceled. | 16178831    |
 
 HEADERS
 
@@ -1823,17 +1788,17 @@ Use this API to add inventory for ordered products that are out of stock or low 
 **Notes:**
 
 - Inventory sync of your account must be turned on to use this API.
-- The order\_id to be passed is the shiprocket order id.
-If you don't know the product id, Use the 'Get Product Details' API to get details about all the existing products.
+- The order_id to be passed is the shiprocket order id.
+  If you don't know the product id, Use the 'Get Product Details' API to get details about all the existing products.
 
 #### Parameters:
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `order_id` | YES | _integer_ | The Shiprocket order\_id specified to the order. | 16167171 |
-| `order_product_id` | YES | _integer_ | The product id of the product to be added. | 17171717 |
-| `quantity` | YES | _string_ | The number of items you want to add. | 10 |
-| `action` | YES | _string_ | The action you want to carry out. Is 'add'. | add |
+| **PARAMS**         | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                                 | **EXAMPLE** |
+| ------------------ | ------------ | ------------- | ----------------------------------------------- | ----------- |
+| `order_id`         | YES          | _integer_     | The Shiprocket order_id specified to the order. | 16167171    |
+| `order_product_id` | YES          | _integer_     | The product id of the product to be added.      | 17171717    |
+| `quantity`         | YES          | _string_      | The number of items you want to add.            | 10          |
+| `action`           | YES          | _string_      | The action you want to carry out. Is 'add'.     | add         |
 
 HEADERS
 
@@ -1963,11 +1928,11 @@ This API maps your unmapped inventory products.
 
 #### Parameters:
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `order_id` | YES | _integer_ | The Shiprocket order\_id specified to the order. | 16167171 |
-| `order_product_id` | YES | _integer_ | The product id of the product to be mapped. | 17171717 |
-| `master_sku` | YES | _string_ | The sku id of the product. In the case of a single integrated channel, master sku is the same as channel\_sku; Otherwise, it can be found using the 'Get All Products' API. | chakra123 |
+| **PARAMS**         | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                                                                                                                                                            | **EXAMPLE** |
+| ------------------ | ------------ | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| `order_id`         | YES          | _integer_     | The Shiprocket order_id specified to the order.                                                                                                                            | 16167171    |
+| `order_product_id` | YES          | _integer_     | The product id of the product to be mapped.                                                                                                                                | 17171717    |
+| `master_sku`       | YES          | _string_      | The sku id of the product. In the case of a single integrated channel, master sku is the same as channel_sku; Otherwise, it can be found using the 'Get All Products' API. | chakra123   |
 
 HEADERS
 
@@ -2178,99 +2143,99 @@ All available couriers, along with their codes, are mentioned below:
 
 View More
 
-| **COURIER ID** | **COURIER NAME** |
-| --- | --- |
-| 1 | Blue Dart |
-| 4 | Amazon Shipping 5Kg |
-| 6 | DTDC Surface |
-| 10 | Delhivery |
-| 14 | Ecom Express Surface |
-| 18 | DTDC 5kg |
-| 19 | Ecom Express Surface 2kg |
-| 23 | Xpressbees 1kg |
-| 24 | Xpressbees 2kg |
-| 25 | Xpressbees 5kg |
-| 29 | Amazon Shipping 1Kg |
-| 32 | Amazon Shipping 2Kg |
-| 33 | Xpressbees |
-| 35 | Aramex International |
-| 39 | Delhivery Surface 5 Kgs |
-| 43 | Delhivery Surface |
-| 45 | Ecom Express Reverse |
-| 46 | Shadowfax Reverse |
-| 48 | Ekart Logistics |
-| 51 | Xpressbees Surface |
-| 54 | Ekart Logistics Surface |
-| 55 | Blue Dart Surface |
-| 58 | Shadowfax Surface |
-| 60 | Ecom Premium and ROS |
-| 61 | Delhivery Reverse |
-| 64 | Delhivery 500G Savex (A) |
-| 65 | Delhivery 500G Savex (S) |
-| 66 | Ecom Exp Savex (A) |
-| 67 | Ecom ROS Savex (A) |
-| 69 | Kerry Indev Express Surface |
-| 71 | Self Delivery |
-| 72 | Bluedart Savex (A) |
-| 75 | SRF Standard 500gm |
-| 76 | Delhivery 5KG Savex (S) |
-| 77 | Delhivery 10KG Savex (S) |
-| 78 | Delhivery 20KG Savex (S) |
-| 79 | SRF Standard 2kg |
-| 81 | SRF Standard |
-| 82 | DTDC 2kg |
-| 83 | Delhivery 500G Savex RVP |
-| 84 | Delhivery 500G Savex RVP-QC |
-| 85 | Standard |
-| 86 | Express |
-| 87 | Delhivery 5KG Savex RVP (S) |
-| 88 | Delhivery 10KG Savex RVP (S) |
-| 89 | Delhivery 20KG Savex RVP (S) |
-| 90 | Standard 500gm |
-| 91 | Standard 2kg |
-| 92 | Standard 5kg |
-| 93 | Standard 10kg |
-| 94 | Standard 20kg |
-| 95 | Shadowfax Local |
-| 97 | Dunzo Local |
-| 98 | SRF Standard 5kg |
-| 99 | Ecom Express ROS Reverse |
-| 100 | Delhivery Surface 10 Kgs |
-| 101 | Delhivery Surface 20 Kgs |
-| 106 | Borzo |
-| 107 | Borzo 5 Kg |
-| 114 | SRF Standard 10kg |
-| 115 | Shadowfax Savex |
-| 116 | SRF Standard 20kg |
-| 117 | SRF Express |
-| 118 | Bluedart Savex Exchange |
-| 119 | Identify Plus SDD Lite |
-| 120 | Identify Plus SDD Standard |
-| 125 | Xpressbees Reverse |
-| 126 | Bluedart Savex TDD |
-| 130 | Ekart 10kg |
-| 138 | Delhivery Reverse 5kg |
-| 140 | SRX Premium |
-| 141 | SRF RUSH |
-| 142 | Amazon Surface 500gm Prepaid |
-| 144 | Xpressbees Reverse 2kg |
-| 145 | Xpressbees Reverse 5 kg |
-| 146 | Kerry Indev 2kg Surface |
-| 150 | Xpressbees Reverse 1kg |
-| 154 | Kerry Indev Express |
-| 159 | Xpressbees 10kg |
-| 170 | Ekart 2Kg |
-| 171 | Ekart 5Kg |
-| 181 | Amazon Shipping 10Kg |
-| 182 | Amazon Shipping 20Kg |
-| 195 | Amazon Surface 500gm COD |
-| 196 | DTDC 500GMS |
-| 235 | DTDC Express |
-| 240 | SRX Priority |
-| 313 | Wholemark |
-| 501 | Bluedart CE Savex |
-| 524 | Sm Shadowfax Surface 3Kg |
-| 777 | Shadowfax DS |
+| **COURIER ID** | **COURIER NAME**             |
+| -------------- | ---------------------------- |
+| 1              | Blue Dart                    |
+| 4              | Amazon Shipping 5Kg          |
+| 6              | DTDC Surface                 |
+| 10             | Delhivery                    |
+| 14             | Ecom Express Surface         |
+| 18             | DTDC 5kg                     |
+| 19             | Ecom Express Surface 2kg     |
+| 23             | Xpressbees 1kg               |
+| 24             | Xpressbees 2kg               |
+| 25             | Xpressbees 5kg               |
+| 29             | Amazon Shipping 1Kg          |
+| 32             | Amazon Shipping 2Kg          |
+| 33             | Xpressbees                   |
+| 35             | Aramex International         |
+| 39             | Delhivery Surface 5 Kgs      |
+| 43             | Delhivery Surface            |
+| 45             | Ecom Express Reverse         |
+| 46             | Shadowfax Reverse            |
+| 48             | Ekart Logistics              |
+| 51             | Xpressbees Surface           |
+| 54             | Ekart Logistics Surface      |
+| 55             | Blue Dart Surface            |
+| 58             | Shadowfax Surface            |
+| 60             | Ecom Premium and ROS         |
+| 61             | Delhivery Reverse            |
+| 64             | Delhivery 500G Savex (A)     |
+| 65             | Delhivery 500G Savex (S)     |
+| 66             | Ecom Exp Savex (A)           |
+| 67             | Ecom ROS Savex (A)           |
+| 69             | Kerry Indev Express Surface  |
+| 71             | Self Delivery                |
+| 72             | Bluedart Savex (A)           |
+| 75             | SRF Standard 500gm           |
+| 76             | Delhivery 5KG Savex (S)      |
+| 77             | Delhivery 10KG Savex (S)     |
+| 78             | Delhivery 20KG Savex (S)     |
+| 79             | SRF Standard 2kg             |
+| 81             | SRF Standard                 |
+| 82             | DTDC 2kg                     |
+| 83             | Delhivery 500G Savex RVP     |
+| 84             | Delhivery 500G Savex RVP-QC  |
+| 85             | Standard                     |
+| 86             | Express                      |
+| 87             | Delhivery 5KG Savex RVP (S)  |
+| 88             | Delhivery 10KG Savex RVP (S) |
+| 89             | Delhivery 20KG Savex RVP (S) |
+| 90             | Standard 500gm               |
+| 91             | Standard 2kg                 |
+| 92             | Standard 5kg                 |
+| 93             | Standard 10kg                |
+| 94             | Standard 20kg                |
+| 95             | Shadowfax Local              |
+| 97             | Dunzo Local                  |
+| 98             | SRF Standard 5kg             |
+| 99             | Ecom Express ROS Reverse     |
+| 100            | Delhivery Surface 10 Kgs     |
+| 101            | Delhivery Surface 20 Kgs     |
+| 106            | Borzo                        |
+| 107            | Borzo 5 Kg                   |
+| 114            | SRF Standard 10kg            |
+| 115            | Shadowfax Savex              |
+| 116            | SRF Standard 20kg            |
+| 117            | SRF Express                  |
+| 118            | Bluedart Savex Exchange      |
+| 119            | Identify Plus SDD Lite       |
+| 120            | Identify Plus SDD Standard   |
+| 125            | Xpressbees Reverse           |
+| 126            | Bluedart Savex TDD           |
+| 130            | Ekart 10kg                   |
+| 138            | Delhivery Reverse 5kg        |
+| 140            | SRX Premium                  |
+| 141            | SRF RUSH                     |
+| 142            | Amazon Surface 500gm Prepaid |
+| 144            | Xpressbees Reverse 2kg       |
+| 145            | Xpressbees Reverse 5 kg      |
+| 146            | Kerry Indev 2kg Surface      |
+| 150            | Xpressbees Reverse 1kg       |
+| 154            | Kerry Indev Express          |
+| 159            | Xpressbees 10kg              |
+| 170            | Ekart 2Kg                    |
+| 171            | Ekart 5Kg                    |
+| 181            | Amazon Shipping 10Kg         |
+| 182            | Amazon Shipping 20Kg         |
+| 195            | Amazon Surface 500gm COD     |
+| 196            | DTDC 500GMS                  |
+| 235            | DTDC Express                 |
+| 240            | SRX Priority                 |
+| 313            | Wholemark                    |
+| 501            | Bluedart CE Savex            |
+| 524            | Sm Shadowfax Surface 3Kg     |
+| 777            | Shadowfax DS                 |
 
 ### POSTGenerate AWB for Shipment
 
@@ -2280,11 +2245,11 @@ This API can be used to assign the AWB (Air Waybill Number) to your shipment. Th
 
 #### Parameters:
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `shipment_id` | YES | _integer_ | The shipment id of the order you want to create the AWB for. | 16016920 |
-| `courier_id` | NO | _integer_ | The courier id of the courier service you want to select. The default courier is selected in case no id is specified. | 10 |
-| `status` | NO | _string_ | Use this to change the courier of a shipment. Value: reassign. Note that this can be done only once in 24 hours. | reassign |
+| **PARAMS**    | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                                                                                                       | **EXAMPLE** |
+| ------------- | ------------ | ------------- | --------------------------------------------------------------------------------------------------------------------- | ----------- |
+| `shipment_id` | YES          | _integer_     | The shipment id of the order you want to create the AWB for.                                                          | 16016920    |
+| `courier_id`  | NO           | _integer_     | The courier id of the courier service you want to select. The default courier is selected in case no id is specified. | 10          |
+| `status`      | NO           | _string_      | Use this to change the courier of a shipment. Value: reassign. Note that this can be done only once in 24 hours.      | reassign    |
 
 HEADERS
 
@@ -2438,13 +2403,13 @@ Use this API to check the list of couriers and the related information with Ship
 
 - This API will work on a company level.
 - You can use filters to sort your data. By default, all the couriers are shown if no filter is used.
-- total\_courier\_count will change based on the filter used.
+- total_courier_count will change based on the filter used.
 
 #### Parameters:
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `type` | NO | _string_ | Use this as a parameter. Possible values are : active/inactive/all | [https://apiv2.shiprocket.in/v1/external/courier/courierListWithCounts?type=active](https://apiv2.shiprocket.in/v1/external/courier/courierListWithCounts?type=active%27) |
+| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                                                    | **EXAMPLE**                                                                                                                                                               |
+| ---------- | ------------ | ------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `type`     | NO           | _string_      | Use this as a parameter. Possible values are : active/inactive/all | [https://apiv2.shiprocket.in/v1/external/courier/courierListWithCounts?type=active](https://apiv2.shiprocket.in/v1/external/courier/courierListWithCounts?type=active%27) |
 
 HEADERS
 
@@ -2878,29 +2843,29 @@ Further details like the estimated time of delivery, the rates along with the id
 
 **Note:**
 
-- One of either the 'order\_id' or 'cod' and 'weight' is required. If you specify the order id, the cod and weight fields are not required and vice versa.
+- One of either the 'order_id' or 'cod' and 'weight' is required. If you specify the order id, the cod and weight fields are not required and vice versa.
 - You can add further fields to add the shipment details and filter the search.
 
 #### Parameters:
 
 View More
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `pickup_postcode` | YES | _integer_ | Postcode from where the order will be picked. | 110030 |
-| `delivery_postcode` | YES | _integer_ | Postcode where the order will be delivered | 122002 |
-| `order_id` | NO | _integer_ | If order id is already created in Shiprocket panel then you can use this shiprocket order id in servicibility | 123456 |
-| `cod` | CONDITIONAL YES | _boolean_ | 1 for Cash on Delivery and 0 for Prepaid orders. | 1 |
-| `weight` | CONDITIONAL YES | _string_ | The weight of shipment in kgs. | 2 |
-| `length` | NO | _integer_ | The length of the shipment in cms. | 15 |
-| `breadth` | NO | _integer_ | The breadth of the shipment in cms. | 10 |
-| `height` | NO | _integer_ | The height of the shipment in cms. | 5 |
-| `declared_value` | NO | _integer_ | The price of the order shipment in rupees. | 50 |
-| `mode` | NO | _string_ | The mode of travel. Either: Surface or Air | Air |
-| `is_return` | NO | _integer_ | Whether the order is a return order or not. 1 in case of Yes and 0 for No. (declared\_value field is required in case you use this parameter) | 0 |
-| `couriers_type` | NO | _integer_ | Use this to filter out and show only "documents" couriers like XB documents, etc. The only accepted value is 1. | 1 |
-| `only_local` | NO | _integer_ | Use this to filter out and show only Hyperlocal couriers. The only accepted value is 1. | 1 |
-| `qc_check` | CONDITIONAL YES | _integer_ | Use this filter to show only the QC-enabled couriers. is\_return has to be set to 1 | 1 |
+| **PARAMS**          | **REQUIRED**    | **DATA TYPE** | **DESCRIPTION**                                                                                                                              | **EXAMPLE** |
+| ------------------- | --------------- | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| `pickup_postcode`   | YES             | _integer_     | Postcode from where the order will be picked.                                                                                                | 110030      |
+| `delivery_postcode` | YES             | _integer_     | Postcode where the order will be delivered                                                                                                   | 122002      |
+| `order_id`          | NO              | _integer_     | If order id is already created in Shiprocket panel then you can use this shiprocket order id in servicibility                                | 123456      |
+| `cod`               | CONDITIONAL YES | _boolean_     | 1 for Cash on Delivery and 0 for Prepaid orders.                                                                                             | 1           |
+| `weight`            | CONDITIONAL YES | _string_      | The weight of shipment in kgs.                                                                                                               | 2           |
+| `length`            | NO              | _integer_     | The length of the shipment in cms.                                                                                                           | 15          |
+| `breadth`           | NO              | _integer_     | The breadth of the shipment in cms.                                                                                                          | 10          |
+| `height`            | NO              | _integer_     | The height of the shipment in cms.                                                                                                           | 5           |
+| `declared_value`    | NO              | _integer_     | The price of the order shipment in rupees.                                                                                                   | 50          |
+| `mode`              | NO              | _string_      | The mode of travel. Either: Surface or Air                                                                                                   | Air         |
+| `is_return`         | NO              | _integer_     | Whether the order is a return order or not. 1 in case of Yes and 0 for No. (declared_value field is required in case you use this parameter) | 0           |
+| `couriers_type`     | NO              | _integer_     | Use this to filter out and show only "documents" couriers like XB documents, etc. The only accepted value is 1.                              | 1           |
+| `only_local`        | NO              | _integer_     | Use this to filter out and show only Hyperlocal couriers. The only accepted value is 1.                                                      | 1           |
+| `qc_check`          | CONDITIONAL YES | _integer_     | Use this filter to show only the QC-enabled couriers. is_return has to be set to 1                                                           | 1           |
 
 HEADERS
 
@@ -3256,16 +3221,16 @@ You will have to call the 'Generate Manifest' API after the successful response 
 **Note:**
 
 - The AWB must be already generated for the shipment id to generate the pickup request.
-- Only one shipment\_id can be passed at a time.
-- In case the pickup\_date falls on a holiday or Sunday, the shipment will be booked for the next available date.
+- Only one shipment_id can be passed at a time.
+- In case the pickup_date falls on a holiday or Sunday, the shipment will be booked for the next available date.
 
 #### Parameters:
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `shipment_id` | YES | integer | The shipment id of the shipment which is requested for pickup. | \[16090109\] |
-| `status` | NO | _string_ | Use this field to retry if the pickup request fails. Value: retry | retry |
-| `pickup_date` | NO | _Array of Dates_ | Use this field to schedule a pickup for a future date. The date format would be YYYY-MM-DD. You can reschedule the date till that date has not passed | \["2022-06-04"\] |
+| **PARAMS**    | **REQUIRED** | **DATA TYPE**    | **DESCRIPTION**                                                                                                                                       | **EXAMPLE**      |
+| ------------- | ------------ | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| `shipment_id` | YES          | integer          | The shipment id of the shipment which is requested for pickup.                                                                                        | \[16090109\]     |
+| `status`      | NO           | _string_         | Use this field to retry if the pickup request fails. Value: retry                                                                                     | retry            |
+| `pickup_date` | NO           | _Array of Dates_ | Use this field to schedule a pickup for a future date. The date format would be YYYY-MM-DD. You can reschedule the date till that date has not passed | \["2022-06-04"\] |
 
 HEADERS
 
@@ -3380,96 +3345,96 @@ The 'filter' values are mentioned below. Use these to filter your data:
 
 View More
 
-| **filter\_by** | **filter** | **description** |
-| --- | --- | --- |
-| payment\_method |  |  |
-| -> | cod | cash on delivery orders |
-| -> | Prepaid | for prepaid orders |
-| channel\_order\_id |  |  |
-| -> | 123 | Your order id |
-| status |  |  |
-| -> | 1 | New |
-| -> | 2 | Invoiced |
-| -> | 3 | Ready To Ship |
-| -> | 4 | Pickup Scheduled |
-| -> | 5 | Canceled |
-| -> | 6 | Shipped |
-| -> | 7 | Delivered |
-| -> | 8 | ePayment Failed |
-| -> | 9 | Returned |
-| -> | 10 | Unmapped |
-| -> | 11 | Unfulfillable |
-| -> | 12 | Pickup Queue |
-| -> | 13 | Pickup Rescheduled |
-| -> | 14 | Pickup Error// Created when there is an error on the pickup schedule |
-| -> | 15 | RTO Initiated |
-| -> | 16 | RTO Delivered |
-| -> | 17 | RTO Acknowledged |
-| -> | 18 | Cancellation Requested |
-| -> | 19 | Out for Delivery |
-| -> | 20 | In Transit |
-| -> | 21 | Return Pending |
-| -> | 22 | Return Initiated |
-| -> | 23 | Return Pickup Queued |
-| -> | 24 | Return Pickup Error |
-| -> | 25 | Return In Transit |
-| -> | 26 | Return Delivered |
-| -> | 27 | Return Cancelled |
-| -> | 28 | Return Pickup Generated |
-| -> | 29 | Return Cancellation Requested |
-| -> | 30 | Return Pickup Cancelled |
-| -> | 31 | Return Pickup Rescheduled |
-| -> | 32 | Return Picked Up |
-| -> | 33 | Lost |
-| -> | 34 | Out For Pickup |
-| -> | 35 | Pickup Exception |
-| -> | 36 | Undelivered |
-| -> | 37 | Delivery Delayed |
-| -> | 38 | Partial Delivered |
-| -> | 39 | Destroyed |
-| -> | 40 | Damaged |
-| -> | 41 | Fulfilled |
-| -> | 42 | Archived |
-| -> | 43 | Reached Destination Hub |
-| -> | 44 | Misrouted |
-| -> | 45 | RTO\_OFD |
-| -> | 46 | RTO\_NDR |
-| -> | 47 | Return Out For Pickup |
-| -> | 48 | Return Out For Delivery |
-| -> | 49 | Return Pickup Exception |
-| -> | 50 | Return Undelivered |
-| -> | 51 | Picked Up |
-| -> | 52 | Self Fulfilled |
-| -> | 53 | Disposed Off |
-| -> | 54 | Canceled before Dispatched |
-| -> | 55 | RTO In-Transit |
-| -> | 57 | QC Failed |
-| -> | 58 | Reached Warehouse |
-| -> | 59 | Custom Cleared |
-| -> | 60 | In Flight |
-| -> | 61 | Handover to Courier |
-| -> | 62 | Booked |
-| -> | 64 | In Transit Overseas |
-| -> | 65 | Connection Aligned |
-| -> | 66 | Reached Overseas Warehouse |
-| -> | 67 | Custom Cleared Overseas |
-| -> | 68 | RETURN ACKNOWLEGED |
-| -> | 69 | Box Packing |
-| -> | 70 | Pickup Booked |
-| -> | 71 | DARKSTORE SCHEDULED |
-| -> | 72 | Allocation in Progress |
-| -> | 81 | PROCESSED AT WAREHOUSE |
-| -> | 73 | FC Allocated |
-| -> | 74 | Picklist Generated |
-| -> | 75 | Ready to Pack |
-| -> | 76 | Packed |
-| -> | 80 | FC MANIFEST GENERATED |
-| -> | 82 | PACKED EXCEPTION |
-| -> | 83 | HANDOVER EXCEPTION |
-| -> | 87 | RTO\_LOCK |
-| -> | 88 | UNTRACEABLE |
-| -> | 89 | ISSUE\_RELATED\_TO\_THE\_RECIPIENT |
-| -> | 90 | REACHED\_BACK\_AT\_SELLER\_CITY |
+| **filter_by**    | **filter** | **description**                                                      |
+| ---------------- | ---------- | -------------------------------------------------------------------- |
+| payment_method   |            |                                                                      |
+| ->               | cod        | cash on delivery orders                                              |
+| ->               | Prepaid    | for prepaid orders                                                   |
+| channel_order_id |            |                                                                      |
+| ->               | 123        | Your order id                                                        |
+| status           |            |                                                                      |
+| ->               | 1          | New                                                                  |
+| ->               | 2          | Invoiced                                                             |
+| ->               | 3          | Ready To Ship                                                        |
+| ->               | 4          | Pickup Scheduled                                                     |
+| ->               | 5          | Canceled                                                             |
+| ->               | 6          | Shipped                                                              |
+| ->               | 7          | Delivered                                                            |
+| ->               | 8          | ePayment Failed                                                      |
+| ->               | 9          | Returned                                                             |
+| ->               | 10         | Unmapped                                                             |
+| ->               | 11         | Unfulfillable                                                        |
+| ->               | 12         | Pickup Queue                                                         |
+| ->               | 13         | Pickup Rescheduled                                                   |
+| ->               | 14         | Pickup Error// Created when there is an error on the pickup schedule |
+| ->               | 15         | RTO Initiated                                                        |
+| ->               | 16         | RTO Delivered                                                        |
+| ->               | 17         | RTO Acknowledged                                                     |
+| ->               | 18         | Cancellation Requested                                               |
+| ->               | 19         | Out for Delivery                                                     |
+| ->               | 20         | In Transit                                                           |
+| ->               | 21         | Return Pending                                                       |
+| ->               | 22         | Return Initiated                                                     |
+| ->               | 23         | Return Pickup Queued                                                 |
+| ->               | 24         | Return Pickup Error                                                  |
+| ->               | 25         | Return In Transit                                                    |
+| ->               | 26         | Return Delivered                                                     |
+| ->               | 27         | Return Cancelled                                                     |
+| ->               | 28         | Return Pickup Generated                                              |
+| ->               | 29         | Return Cancellation Requested                                        |
+| ->               | 30         | Return Pickup Cancelled                                              |
+| ->               | 31         | Return Pickup Rescheduled                                            |
+| ->               | 32         | Return Picked Up                                                     |
+| ->               | 33         | Lost                                                                 |
+| ->               | 34         | Out For Pickup                                                       |
+| ->               | 35         | Pickup Exception                                                     |
+| ->               | 36         | Undelivered                                                          |
+| ->               | 37         | Delivery Delayed                                                     |
+| ->               | 38         | Partial Delivered                                                    |
+| ->               | 39         | Destroyed                                                            |
+| ->               | 40         | Damaged                                                              |
+| ->               | 41         | Fulfilled                                                            |
+| ->               | 42         | Archived                                                             |
+| ->               | 43         | Reached Destination Hub                                              |
+| ->               | 44         | Misrouted                                                            |
+| ->               | 45         | RTO_OFD                                                              |
+| ->               | 46         | RTO_NDR                                                              |
+| ->               | 47         | Return Out For Pickup                                                |
+| ->               | 48         | Return Out For Delivery                                              |
+| ->               | 49         | Return Pickup Exception                                              |
+| ->               | 50         | Return Undelivered                                                   |
+| ->               | 51         | Picked Up                                                            |
+| ->               | 52         | Self Fulfilled                                                       |
+| ->               | 53         | Disposed Off                                                         |
+| ->               | 54         | Canceled before Dispatched                                           |
+| ->               | 55         | RTO In-Transit                                                       |
+| ->               | 57         | QC Failed                                                            |
+| ->               | 58         | Reached Warehouse                                                    |
+| ->               | 59         | Custom Cleared                                                       |
+| ->               | 60         | In Flight                                                            |
+| ->               | 61         | Handover to Courier                                                  |
+| ->               | 62         | Booked                                                               |
+| ->               | 64         | In Transit Overseas                                                  |
+| ->               | 65         | Connection Aligned                                                   |
+| ->               | 66         | Reached Overseas Warehouse                                           |
+| ->               | 67         | Custom Cleared Overseas                                              |
+| ->               | 68         | RETURN ACKNOWLEGED                                                   |
+| ->               | 69         | Box Packing                                                          |
+| ->               | 70         | Pickup Booked                                                        |
+| ->               | 71         | DARKSTORE SCHEDULED                                                  |
+| ->               | 72         | Allocation in Progress                                               |
+| ->               | 81         | PROCESSED AT WAREHOUSE                                               |
+| ->               | 73         | FC Allocated                                                         |
+| ->               | 74         | Picklist Generated                                                   |
+| ->               | 75         | Ready to Pack                                                        |
+| ->               | 76         | Packed                                                               |
+| ->               | 80         | FC MANIFEST GENERATED                                                |
+| ->               | 82         | PACKED EXCEPTION                                                     |
+| ->               | 83         | HANDOVER EXCEPTION                                                   |
+| ->               | 87         | RTO_LOCK                                                             |
+| ->               | 88         | UNTRACEABLE                                                          |
+| ->               | 89         | ISSUE_RELATED_TO_THE_RECIPIENT                                       |
+| ->               | 90         | REACHED_BACK_AT_SELLER_CITY                                          |
 
 ### GETGet all Orders
 
@@ -3495,21 +3460,21 @@ Plain Text
 
 View More
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `page` | NO | _integer_ | The page number to display. | 5 |
-| `per_page` | NO | _integer_ | The number of entries per page. | 5 |
-| `sort` | NO | _string_ | Sort conditions: ASC or DESC | ASC |
-| `sort_by` | NO | _string_ | The Field to sort by: id or status | id |
-| `to` | NO | _string_ | The end date. | 2018-07-24 |
-| `from` | NO | _string_ | The start date. | 2019-07-24 |
-| `filter_by` | NO | _string_ | Field to filter by. | status, payment\_method, delivery\_country, channel\_order\_id |
-| `filter` | NO | _string_ | Value of the field |  |
-| `search` | NO | _string_ | Search for AWB or by Channel order\_id (order id specified by you). | 224477 |
-| `pickup_location` | NO | _string_ | Search Orders on the basis of pickup location. | xyz |
-| `channel_id` | NO | _integer_ | Channel ID Returned in Get Integrated Channels API | 123 |
-| `fbs` | NO | _integer_ | Use this filter if you want to view and filter the SRF orders | 0 or 1 |
-| `fbs_all_orders` | NO | _integer_ | Use this filter if you want to view both SRF and Last mile (core) orders | 0 or 1 |
+| **PARAMS**        | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                                                          | **EXAMPLE**                                                |
+| ----------------- | ------------ | ------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------- |
+| `page`            | NO           | _integer_     | The page number to display.                                              | 5                                                          |
+| `per_page`        | NO           | _integer_     | The number of entries per page.                                          | 5                                                          |
+| `sort`            | NO           | _string_      | Sort conditions: ASC or DESC                                             | ASC                                                        |
+| `sort_by`         | NO           | _string_      | The Field to sort by: id or status                                       | id                                                         |
+| `to`              | NO           | _string_      | The end date.                                                            | 2018-07-24                                                 |
+| `from`            | NO           | _string_      | The start date.                                                          | 2019-07-24                                                 |
+| `filter_by`       | NO           | _string_      | Field to filter by.                                                      | status, payment_method, delivery_country, channel_order_id |
+| `filter`          | NO           | _string_      | Value of the field                                                       |                                                            |
+| `search`          | NO           | _string_      | Search for AWB or by Channel order_id (order id specified by you).       | 224477                                                     |
+| `pickup_location` | NO           | _string_      | Search Orders on the basis of pickup location.                           | xyz                                                        |
+| `channel_id`      | NO           | _integer_     | Channel ID Returned in Get Integrated Channels API                       | 123                                                        |
+| `fbs`             | NO           | _integer_     | Use this filter if you want to view and filter the SRF orders            | 0 or 1                                                     |
+| `fbs_all_orders`  | NO           | _integer_     | Use this filter if you want to view both SRF and Last mile (core) orders | 0 or 1                                                     |
 
 HEADERS
 
@@ -3674,13 +3639,13 @@ keep-alive
 
 https://apiv2.shiprocket.in/v1/external/orders/show
 
-Get the order and shipment details of a particular order through this API by passing the Shiprocket order\_id in the endpoint URL itself — type in your order\_id in place of {id}.
+Get the order and shipment details of a particular order through this API by passing the Shiprocket order_id in the endpoint URL itself — type in your order_id in place of {id}.
 
 No other body parameters are required.
 
 **Note:**
 
-For SRF orders, you'll receive an extra parameter viz., fulfillment\_status. This key will have four values:
+For SRF orders, you'll receive an extra parameter viz., fulfillment_status. This key will have four values:
 
 - Ready to Pack,
 - Packed
@@ -3689,8 +3654,8 @@ For SRF orders, you'll receive an extra parameter viz., fulfillment\_status. Thi
 
 #### Path:
 
-| **EXAMPLE** |
-| --- |
+| **EXAMPLE**                                                                                                                  |
+| ---------------------------------------------------------------------------------------------------------------------------- |
 | [https://apiv2.shiprocket.in/v1/external/orders/show/16167171](https://apiv2.shiprocket.in/v1/external/orders/show/16167171) |
 
 HEADERS
@@ -4104,7 +4069,6 @@ Bodyraw
 
 ```javascript
 {
-
 }
 ```
 
@@ -4197,63 +4161,63 @@ The parameter specifications are the same as the custom order API, with a few ex
 
 View More
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `order_id` | YES | _string_ | The order id you want to specify to the order. Max char: 50. (Avoid passing character values as this contradicts some other API calls) | 99711997 |
-| `order_date` | YES | _string_ | The date of order creation in yyyy-mm-dd format. Time is an additional option. | 2019-08-05 |
-| `channel_id` | NO | _integer_ | Id of the desired channel where the order is to be placed. 'Custom' channel id is selected in case parameter is not filled. | 768903 |
-| `pickup_customer_name` | YES | _string_ | The customer’s first name. | John |
-| `pickup_last_name` | NO | _string_ | The customer’s last name. | Doe |
-| `pickup_address` | YES | _string_ | The customer's primary address. | 416, Udyog Vihar III, Sector 20 |
-| `pickup_address_2` | NO | _string_ | Additional customer address details. | DDA |
-| `pickup_city` | YES | _string_ | The customer's city name. | Delhi |
-| `pickup_state` | YES | _string_ | The customer's state. | New Delhi |
-| `pickup_country` | YES | _string_ | Customer's country name. | India |
-| `pickup_pincode` | YES | _integer_ | Pincode of the customer address. | 110002 |
-| `pickup_email` | YES | _string_ | Customer's email address. | [john@doe.com](https://mailto:john@doe.com/) |
-| `pickup_phone` | YES | _string_ | Customer's phone number. | 9999999999 |
-| `pickup_isd_code` | NO | _string_ | ISD code. | 91 |
-| `shipping_customer_name` | YES | _string_ | The name of the seller the package is shipped back to. | Jane |
-| `shipping_last_name` | NO | _string_ | The last name of the seller. | Doe |
-| `shipping_address` | YES | _string_ | The address the package is shipped to. | Castle |
-| `shipping_address_2` | NO | _string_ | Further shipping address details. | Bridge |
-| `shipping_city` | YES | _string_ | The shipping address city. | Mumbai |
-| `shipping_country` | YES | _string_ | The shipping address country. | India |
-| `shipping_pincode` | YES | _integer_ | The shipping pincode. | 220022 |
-| `shipping_state` | YES | _string_ | Shipping address state. | Maharashtra |
-| `shipping_email` | NO | _string_ | The email of the seller the package is shipped to. | [jane@doe.com](https://mailto:jane@doe.com/) |
-| `shipping_isd_code` | NO | _string_ | The shipping isd code. | 91 |
-| `shipping_phone` | YES | _integer_ | Phone no. of the shipping customer | 8888888888 |
-| `order_items` | YES | / | Array containing further fields. | / |
-| `name` | YES | _string_ | Name of the product. | ball123 |
-| `sku` | YES | _string_ | The sku id of the product. | Tennis Ball |
-| `units` | YES | _integer_ | No of units that are to be shipped. | 1 |
-| `selling_price` | YES | _integer_ | The selling price per unit in Rupee. Inclusive of GST. | 10 |
-| `discount` | NO | _integer_ | The discount amount in Rupee. Inclusive of tax. | 0 |
-| `hsn` | NO | _string_ | Harmonised System Nomenclature code. Used to determine the category of taxation the goods fall under. | 4412 |
-| `return_reason` | NO | _string_ | Bought by Mistake, Both product and shipping box damaged | Please refer to the "Possible return\_reason values" section |
-| `qc_enable` | CONDITIONAL YES | _string_ | If True, QC will be performed for that product and QC will be performed only for a single SKU per order | true/false |
-| `qc_color` | NO | _varchar(180)_ | The color of the product can be passed in this parameter | Red |
-| `qc_brand` | NO | _varchar(255)_ | The brand of the product can be passed in this parameter | 768903 |
-| `qc_serial_no` | NO | _varchar(255)_ | The serial number of the product can be passed in this parameter | T13123124 |
-| `qc_ean_barcode` | NO | _varchar(255)_ | EAN/Barcode of the product can be passed in this parameter | QWRE123 |
-| `qc_size` | NO | _varchar(180)_ | The size of the product can be passed in this parameter | 8 |
-| `qc_product_name` | CONDITIONAL YES | _varchar(255)_ | If qc\_enable set True, then Product name should be passed in this parameter | Shoes |
-| `qc_product_image` | CONDITIONAL YES | _varchar(255)_ | If qc\_enable set True, then Product image should be passed in this parameter (only png/jpg format supported) | [https://s3-ap-southeast-1.amazonaws.com/kr-multichannel/1636713733zxja.png](https://s3-ap-southeast-1.amazonaws.com/kr-multichannel/1636713733zxja.png) |
-| `qc_product_imei` | NO | _varchar(255)_ | IMEI of the device | 398612387501872509 |
-| `qc_brand_tag` | NO | _boolean_ | Eligible Categories : Selective like Footwear, Apparels <br>The pickup agent will cross-check the provided brand name, which should match the brand tag affixed to the item(s) upon delivery. Can be either 0 or 1 | 1 |
-| `qc_used_check` | NO | _boolean_ | Eligible Product Categories : All <br>The pickup agent will check the product being handed over for clear signs of usage. Can be either 0 or 1 | 0 |
-| `qc_sealtag_check` | NO | _boolean_ | Eligible Product Categories : All <br>The pickup agent will check if the seal tag is intact in the products received from the buyer. Can be either 0 or 1 | 1 |
-| `qc_check_damaged_product` | NO | _string_ | Eligible Product Categories : All <br>The pickup agent will check the product for any signs of damages. Can be either yes or no | yes |
-| `payment_method` | YES | _string_ | The method of payment. This should always be prepaid. | Prepaid |
-| `total_discount` | NO | _string_ | The total discount amount in Rupee. | 0 |
-| `sub_total` | YES | _integer_ | Calculated sub total amount in Rupee after deductions. | 10 |
-| `length` | YES | _float_ | The length of the shipment in cms. | 10 |
-| `breadth` | YES | _float_ | The breadth of the shipment in cms. | 15 |
-| `height` | YES | _float_ | The height of the shipment in cms. | 20 |
-| `weight` | YES | _float_ | The shipment weight in kgs. | 1 |
+| **PARAMS**                 | **REQUIRED**    | **DATA TYPE**  | **DESCRIPTION**                                                                                                                                                                                                    | **EXAMPLE**                                                                                                                                              |
+| -------------------------- | --------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `order_id`                 | YES             | _string_       | The order id you want to specify to the order. Max char: 50. (Avoid passing character values as this contradicts some other API calls)                                                                             | 99711997                                                                                                                                                 |
+| `order_date`               | YES             | _string_       | The date of order creation in yyyy-mm-dd format. Time is an additional option.                                                                                                                                     | 2019-08-05                                                                                                                                               |
+| `channel_id`               | NO              | _integer_      | Id of the desired channel where the order is to be placed. 'Custom' channel id is selected in case parameter is not filled.                                                                                        | 768903                                                                                                                                                   |
+| `pickup_customer_name`     | YES             | _string_       | The customer’s first name.                                                                                                                                                                                         | John                                                                                                                                                     |
+| `pickup_last_name`         | NO              | _string_       | The customer’s last name.                                                                                                                                                                                          | Doe                                                                                                                                                      |
+| `pickup_address`           | YES             | _string_       | The customer's primary address.                                                                                                                                                                                    | 416, Udyog Vihar III, Sector 20                                                                                                                          |
+| `pickup_address_2`         | NO              | _string_       | Additional customer address details.                                                                                                                                                                               | DDA                                                                                                                                                      |
+| `pickup_city`              | YES             | _string_       | The customer's city name.                                                                                                                                                                                          | Delhi                                                                                                                                                    |
+| `pickup_state`             | YES             | _string_       | The customer's state.                                                                                                                                                                                              | New Delhi                                                                                                                                                |
+| `pickup_country`           | YES             | _string_       | Customer's country name.                                                                                                                                                                                           | India                                                                                                                                                    |
+| `pickup_pincode`           | YES             | _integer_      | Pincode of the customer address.                                                                                                                                                                                   | 110002                                                                                                                                                   |
+| `pickup_email`             | YES             | _string_       | Customer's email address.                                                                                                                                                                                          | [john@doe.com](https://mailto:john@doe.com/)                                                                                                             |
+| `pickup_phone`             | YES             | _string_       | Customer's phone number.                                                                                                                                                                                           | 9999999999                                                                                                                                               |
+| `pickup_isd_code`          | NO              | _string_       | ISD code.                                                                                                                                                                                                          | 91                                                                                                                                                       |
+| `shipping_customer_name`   | YES             | _string_       | The name of the seller the package is shipped back to.                                                                                                                                                             | Jane                                                                                                                                                     |
+| `shipping_last_name`       | NO              | _string_       | The last name of the seller.                                                                                                                                                                                       | Doe                                                                                                                                                      |
+| `shipping_address`         | YES             | _string_       | The address the package is shipped to.                                                                                                                                                                             | Castle                                                                                                                                                   |
+| `shipping_address_2`       | NO              | _string_       | Further shipping address details.                                                                                                                                                                                  | Bridge                                                                                                                                                   |
+| `shipping_city`            | YES             | _string_       | The shipping address city.                                                                                                                                                                                         | Mumbai                                                                                                                                                   |
+| `shipping_country`         | YES             | _string_       | The shipping address country.                                                                                                                                                                                      | India                                                                                                                                                    |
+| `shipping_pincode`         | YES             | _integer_      | The shipping pincode.                                                                                                                                                                                              | 220022                                                                                                                                                   |
+| `shipping_state`           | YES             | _string_       | Shipping address state.                                                                                                                                                                                            | Maharashtra                                                                                                                                              |
+| `shipping_email`           | NO              | _string_       | The email of the seller the package is shipped to.                                                                                                                                                                 | [jane@doe.com](https://mailto:jane@doe.com/)                                                                                                             |
+| `shipping_isd_code`        | NO              | _string_       | The shipping isd code.                                                                                                                                                                                             | 91                                                                                                                                                       |
+| `shipping_phone`           | YES             | _integer_      | Phone no. of the shipping customer                                                                                                                                                                                 | 8888888888                                                                                                                                               |
+| `order_items`              | YES             | /              | Array containing further fields.                                                                                                                                                                                   | /                                                                                                                                                        |
+| `name`                     | YES             | _string_       | Name of the product.                                                                                                                                                                                               | ball123                                                                                                                                                  |
+| `sku`                      | YES             | _string_       | The sku id of the product.                                                                                                                                                                                         | Tennis Ball                                                                                                                                              |
+| `units`                    | YES             | _integer_      | No of units that are to be shipped.                                                                                                                                                                                | 1                                                                                                                                                        |
+| `selling_price`            | YES             | _integer_      | The selling price per unit in Rupee. Inclusive of GST.                                                                                                                                                             | 10                                                                                                                                                       |
+| `discount`                 | NO              | _integer_      | The discount amount in Rupee. Inclusive of tax.                                                                                                                                                                    | 0                                                                                                                                                        |
+| `hsn`                      | NO              | _string_       | Harmonised System Nomenclature code. Used to determine the category of taxation the goods fall under.                                                                                                              | 4412                                                                                                                                                     |
+| `return_reason`            | NO              | _string_       | Bought by Mistake, Both product and shipping box damaged                                                                                                                                                           | Please refer to the "Possible return_reason values" section                                                                                              |
+| `qc_enable`                | CONDITIONAL YES | _string_       | If True, QC will be performed for that product and QC will be performed only for a single SKU per order                                                                                                            | true/false                                                                                                                                               |
+| `qc_color`                 | NO              | _varchar(180)_ | The color of the product can be passed in this parameter                                                                                                                                                           | Red                                                                                                                                                      |
+| `qc_brand`                 | NO              | _varchar(255)_ | The brand of the product can be passed in this parameter                                                                                                                                                           | 768903                                                                                                                                                   |
+| `qc_serial_no`             | NO              | _varchar(255)_ | The serial number of the product can be passed in this parameter                                                                                                                                                   | T13123124                                                                                                                                                |
+| `qc_ean_barcode`           | NO              | _varchar(255)_ | EAN/Barcode of the product can be passed in this parameter                                                                                                                                                         | QWRE123                                                                                                                                                  |
+| `qc_size`                  | NO              | _varchar(180)_ | The size of the product can be passed in this parameter                                                                                                                                                            | 8                                                                                                                                                        |
+| `qc_product_name`          | CONDITIONAL YES | _varchar(255)_ | If qc_enable set True, then Product name should be passed in this parameter                                                                                                                                        | Shoes                                                                                                                                                    |
+| `qc_product_image`         | CONDITIONAL YES | _varchar(255)_ | If qc_enable set True, then Product image should be passed in this parameter (only png/jpg format supported)                                                                                                       | [https://s3-ap-southeast-1.amazonaws.com/kr-multichannel/1636713733zxja.png](https://s3-ap-southeast-1.amazonaws.com/kr-multichannel/1636713733zxja.png) |
+| `qc_product_imei`          | NO              | _varchar(255)_ | IMEI of the device                                                                                                                                                                                                 | 398612387501872509                                                                                                                                       |
+| `qc_brand_tag`             | NO              | _boolean_      | Eligible Categories : Selective like Footwear, Apparels <br>The pickup agent will cross-check the provided brand name, which should match the brand tag affixed to the item(s) upon delivery. Can be either 0 or 1 | 1                                                                                                                                                        |
+| `qc_used_check`            | NO              | _boolean_      | Eligible Product Categories : All <br>The pickup agent will check the product being handed over for clear signs of usage. Can be either 0 or 1                                                                     | 0                                                                                                                                                        |
+| `qc_sealtag_check`         | NO              | _boolean_      | Eligible Product Categories : All <br>The pickup agent will check if the seal tag is intact in the products received from the buyer. Can be either 0 or 1                                                          | 1                                                                                                                                                        |
+| `qc_check_damaged_product` | NO              | _string_       | Eligible Product Categories : All <br>The pickup agent will check the product for any signs of damages. Can be either yes or no                                                                                    | yes                                                                                                                                                      |
+| `payment_method`           | YES             | _string_       | The method of payment. This should always be prepaid.                                                                                                                                                              | Prepaid                                                                                                                                                  |
+| `total_discount`           | NO              | _string_       | The total discount amount in Rupee.                                                                                                                                                                                | 0                                                                                                                                                        |
+| `sub_total`                | YES             | _integer_      | Calculated sub total amount in Rupee after deductions.                                                                                                                                                             | 10                                                                                                                                                       |
+| `length`                   | YES             | _float_        | The length of the shipment in cms.                                                                                                                                                                                 | 10                                                                                                                                                       |
+| `breadth`                  | YES             | _float_        | The breadth of the shipment in cms.                                                                                                                                                                                | 15                                                                                                                                                       |
+| `height`                   | YES             | _float_        | The height of the shipment in cms.                                                                                                                                                                                 | 20                                                                                                                                                       |
+| `weight`                   | YES             | _float_        | The shipment weight in kgs.                                                                                                                                                                                        | 1                                                                                                                                                        |
 
-#### **Possible return\_reason values**:
+#### **Possible return_reason values**:
 
 View More
 
@@ -4502,59 +4466,59 @@ Use this API to create a new exchange order in your Shiprocket panel. Exchange o
 
 View More
 
-| PARAMS | REQUIRED | DATA TYPE | DESCRIPTION | EXAMPLE |
-| --- | --- | --- | --- | --- |
-| `exchange_order_id` | YES | _String_ | Unique ID for the exchange order | EX\_TEST002 |
-| `seller_pickup_location_id` | YES | _String_ | Pickup location ID of the seller | 5723898 |
-| `seller_shipping_location_id` | YES | _String_ | Shipping location ID of the seller | 5723898 |
-| `return_order_id` | YES | _String_ | Unique ID for the return order | R\_TEST002 |
-| `order_date` | YES | _Date_ | Date of order placement (YYYY-MM-DD) | 2024-12-10 |
-| `payment_method` | YES | _String_ | Payment method used for the order | prepaid |
-| `buyer_shipping_first_name` | YES | _String_ | First name of the shipping buyer | Test |
-| `buyer_shipping_last_name` | NO | _String_ | Last name of the shipping buyer | Test |
-| `buyer_shipping_email` | NO | _String_ | Email of the shipping buyer (valid email format) | [test@gmail.com](https://null/) |
-| `buyer_shipping_address` | YES | _String_ | Full address of the shipping buyer | dkalsd |
-| `buyer_shipping_address_2` | NO | _String_ | Additional address details |  |
-| `buyer_shipping_city` | YES | _String_ | City of the shipping buyer | South West Delhi |
-| `buyer_shipping_state` | YES | _String_ | State of the shipping buyer | Delhi |
-| `buyer_shipping_country` | YES | _String_ | Country of the shipping buyer | India |
-| `buyer_shipping_pincode` | YES | _String_ | Pincode of the shipping address | 110045 |
-| `buyer_shipping_phone` | YES | _String_ | Contact number of the shipping buyer (10 digits) | 9716414139 |
-| `buyer_pickup_first_name` | YES | _String_ | First name of the pickup buyer | Test |
-| `buyer_pickup_last_name` | NO | _String_ | Last name of the pickup buyer | Test |
-| `buyer_pickup_email` | NO | _String_ | Email of the pickup buyer | [test@gmail.com](https://null/) |
-| `buyer_pickup_address` | YES | _String_ | Full address of the pickup buyer | Test |
-| `buyer_pickup_address_2` | NO | _String_ | Additional pickup address details |  |
-| `buyer_pickup_city` | YES | _String_ | City of the pickup buyer | South West Delhi |
-| `buyer_pickup_state` | YES | _String_ | State of the pickup buyer | Delhi |
-| `buyer_pickup_country` | YES | _String_ | Country of the pickup buyer | India |
-| `buyer_pickup_pincode` | YES | _String_ | Pincode of the pickup address | 110045 |
-| `buyer_pickup_phone` | YES | _String_ | Contact number of the pickup buyer (10 digits) | 9716414139 |
-| `order_items` | YES | _Array_ | List of items in the order |  |
-| `order_items[].name` | YES | _String_ | Name of the product | Black tshirt XL |
-| `order_items[].selling_price` | YES | _Float_ | Price of the product | 500.00 |
-| `order_items[].units` | YES | _Integer_ | Quantity of the product | 1 |
-| `order_items[].hsn` | YES | _String_ | HSN code of the product | 1733808730720 |
-| `order_items[].sku` | YES | _String_ | SKU of the product | mackbook |
-| `order_items[].tax` | NO | _Float_ | Tax amount |  |
-| `order_items[].discount` | NO | _Float_ | Discount on the product |  |
-| `order_items[].exchange_item_id` | NO | _String_ | Exchange item ID | 193658024 |
-| `order_items[].exchange_item_name` | YES | _String_ | Exchange item name | Black tshirt XL |
-| `order_items[].exchange_item_sku` | YES | _String_ | Exchange item SKU | mackbook |
-| `sub_total` | YES | _Float_ | Subtotal amount | 500.00 |
-| `shipping_charges` | NO | _Float_ | Shipping charges |  |
-| `giftwrap_charges` | NO | _Float_ | Gift wrapping charges |  |
-| `total_discount` | NO | _Float_ | Total discount on the order | 0 |
-| `transaction_charges` | NO | _Float_ | Transaction charges |  |
-| `return_length` | YES | _Float_ | Return package length (cm) | 10.00 |
-| `return_breadth` | YES | _Float_ | Return package breadth (cm) | 10.00 |
-| `return_height` | YES | _Float_ | Return package height (cm) | 10.00 |
-| `return_weight` | YES | _Float_ | Return package weight (kg) | 0.500 |
-| `exchange_length` | YES | _Float_ | Exchange package length (cm) | 11.00 |
-| `exchange_breadth` | YES | _Float_ | Exchange package breadth (cm) | 11.00 |
-| `exchange_height` | YES | _Float_ | Exchange package height (cm) | 11.00 |
-| `exchange_weight` | YES | _Float_ | Exchange package weight (kg) | 11.00 |
-| `return_reason` | YES | _String_ | Reason for return | 29 |
+| PARAMS                             | REQUIRED | DATA TYPE | DESCRIPTION                                      | EXAMPLE                         |
+| ---------------------------------- | -------- | --------- | ------------------------------------------------ | ------------------------------- |
+| `exchange_order_id`                | YES      | _String_  | Unique ID for the exchange order                 | EX_TEST002                      |
+| `seller_pickup_location_id`        | YES      | _String_  | Pickup location ID of the seller                 | 5723898                         |
+| `seller_shipping_location_id`      | YES      | _String_  | Shipping location ID of the seller               | 5723898                         |
+| `return_order_id`                  | YES      | _String_  | Unique ID for the return order                   | R_TEST002                       |
+| `order_date`                       | YES      | _Date_    | Date of order placement (YYYY-MM-DD)             | 2024-12-10                      |
+| `payment_method`                   | YES      | _String_  | Payment method used for the order                | prepaid                         |
+| `buyer_shipping_first_name`        | YES      | _String_  | First name of the shipping buyer                 | Test                            |
+| `buyer_shipping_last_name`         | NO       | _String_  | Last name of the shipping buyer                  | Test                            |
+| `buyer_shipping_email`             | NO       | _String_  | Email of the shipping buyer (valid email format) | [test@gmail.com](https://null/) |
+| `buyer_shipping_address`           | YES      | _String_  | Full address of the shipping buyer               | dkalsd                          |
+| `buyer_shipping_address_2`         | NO       | _String_  | Additional address details                       |                                 |
+| `buyer_shipping_city`              | YES      | _String_  | City of the shipping buyer                       | South West Delhi                |
+| `buyer_shipping_state`             | YES      | _String_  | State of the shipping buyer                      | Delhi                           |
+| `buyer_shipping_country`           | YES      | _String_  | Country of the shipping buyer                    | India                           |
+| `buyer_shipping_pincode`           | YES      | _String_  | Pincode of the shipping address                  | 110045                          |
+| `buyer_shipping_phone`             | YES      | _String_  | Contact number of the shipping buyer (10 digits) | 9716414139                      |
+| `buyer_pickup_first_name`          | YES      | _String_  | First name of the pickup buyer                   | Test                            |
+| `buyer_pickup_last_name`           | NO       | _String_  | Last name of the pickup buyer                    | Test                            |
+| `buyer_pickup_email`               | NO       | _String_  | Email of the pickup buyer                        | [test@gmail.com](https://null/) |
+| `buyer_pickup_address`             | YES      | _String_  | Full address of the pickup buyer                 | Test                            |
+| `buyer_pickup_address_2`           | NO       | _String_  | Additional pickup address details                |                                 |
+| `buyer_pickup_city`                | YES      | _String_  | City of the pickup buyer                         | South West Delhi                |
+| `buyer_pickup_state`               | YES      | _String_  | State of the pickup buyer                        | Delhi                           |
+| `buyer_pickup_country`             | YES      | _String_  | Country of the pickup buyer                      | India                           |
+| `buyer_pickup_pincode`             | YES      | _String_  | Pincode of the pickup address                    | 110045                          |
+| `buyer_pickup_phone`               | YES      | _String_  | Contact number of the pickup buyer (10 digits)   | 9716414139                      |
+| `order_items`                      | YES      | _Array_   | List of items in the order                       |                                 |
+| `order_items[].name`               | YES      | _String_  | Name of the product                              | Black tshirt XL                 |
+| `order_items[].selling_price`      | YES      | _Float_   | Price of the product                             | 500.00                          |
+| `order_items[].units`              | YES      | _Integer_ | Quantity of the product                          | 1                               |
+| `order_items[].hsn`                | YES      | _String_  | HSN code of the product                          | 1733808730720                   |
+| `order_items[].sku`                | YES      | _String_  | SKU of the product                               | mackbook                        |
+| `order_items[].tax`                | NO       | _Float_   | Tax amount                                       |                                 |
+| `order_items[].discount`           | NO       | _Float_   | Discount on the product                          |                                 |
+| `order_items[].exchange_item_id`   | NO       | _String_  | Exchange item ID                                 | 193658024                       |
+| `order_items[].exchange_item_name` | YES      | _String_  | Exchange item name                               | Black tshirt XL                 |
+| `order_items[].exchange_item_sku`  | YES      | _String_  | Exchange item SKU                                | mackbook                        |
+| `sub_total`                        | YES      | _Float_   | Subtotal amount                                  | 500.00                          |
+| `shipping_charges`                 | NO       | _Float_   | Shipping charges                                 |                                 |
+| `giftwrap_charges`                 | NO       | _Float_   | Gift wrapping charges                            |                                 |
+| `total_discount`                   | NO       | _Float_   | Total discount on the order                      | 0                               |
+| `transaction_charges`              | NO       | _Float_   | Transaction charges                              |                                 |
+| `return_length`                    | YES      | _Float_   | Return package length (cm)                       | 10.00                           |
+| `return_breadth`                   | YES      | _Float_   | Return package breadth (cm)                      | 10.00                           |
+| `return_height`                    | YES      | _Float_   | Return package height (cm)                       | 10.00                           |
+| `return_weight`                    | YES      | _Float_   | Return package weight (kg)                       | 0.500                           |
+| `exchange_length`                  | YES      | _Float_   | Exchange package length (cm)                     | 11.00                           |
+| `exchange_breadth`                 | YES      | _Float_   | Exchange package breadth (cm)                    | 11.00                           |
+| `exchange_height`                  | YES      | _Float_   | Exchange package height (cm)                     | 11.00                           |
+| `exchange_weight`                  | YES      | _Float_   | Exchange package weight (kg)                     | 11.00                           |
+| `return_reason`                    | YES      | _String_  | Reason for return                                | 29                              |
 
 AUTHORIZATIONBearer Token
 
@@ -4784,15 +4748,15 @@ Use this API to update your return orders. Please specify the parameters based o
 
 View More
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `order_id` | YES | _string_ | Your return order ID | R\_1231234 |
-| `action` | YES | _string_ | Pass array of action. Allowed actions: <br>`1. product_details: Allows you to edit the weight and dimensions`<br>`2. warehouse_address: Allows you to change the return address` | "action": \["product\_details"\] |
-| `length` | CONDITIONAL YES | _float_ | The length of the item in cms. Must be more than 0.5 | 12 |
-| `breadth` | CONDITIONAL YES | _float_ | The breadth of the item in cms. Must be more than 0.5 | 23 |
-| `height` | CONDITIONAL YES | _float_ | The height of the item in cms. Must be more than 0.5 | 30 |
-| `weight` | CONDITIONAL YES | _float_ | The weight of the item in kgs. Must be more than 0. | 10 |
-| `return_warehouse_id` | CONDITIONAL YES | _integer_ | Id of pickup location | 213443 |
+| **PARAMS**            | **REQUIRED**    | **DATA TYPE** | **DESCRIPTION**                                                                                                                                                                  | **EXAMPLE**                     |
+| --------------------- | --------------- | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| `order_id`            | YES             | _string_      | Your return order ID                                                                                                                                                             | R_1231234                       |
+| `action`              | YES             | _string_      | Pass array of action. Allowed actions: <br>`1. product_details: Allows you to edit the weight and dimensions`<br>`2. warehouse_address: Allows you to change the return address` | "action": \["product_details"\] |
+| `length`              | CONDITIONAL YES | _float_       | The length of the item in cms. Must be more than 0.5                                                                                                                             | 12                              |
+| `breadth`             | CONDITIONAL YES | _float_       | The breadth of the item in cms. Must be more than 0.5                                                                                                                            | 23                              |
+| `height`              | CONDITIONAL YES | _float_       | The height of the item in cms. Must be more than 0.5                                                                                                                             | 30                              |
+| `weight`              | CONDITIONAL YES | _float_       | The weight of the item in kgs. Must be more than 0.                                                                                                                              | 10                              |
+| `return_warehouse_id` | CONDITIONAL YES | _integer_     | Id of pickup location                                                                                                                                                            | 213443                          |
 
 AUTHORIZATIONBearer Token
 
@@ -4916,12 +4880,12 @@ No parameters are required to use the API. However, further parameters can be de
 
 #### Parameters:
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `page` | NO | _integer_ | The page number to display. | 1 |
-| `per_page` | NO | _integer_ | The number of orders per page. | 2 |
-| `to` | NO | _string_ | Ending date of search. | 2019-08-04 |
-| `from` | NO | _string_ | Starting date of search. | 2019-08-05 |
+| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                | **EXAMPLE** |
+| ---------- | ------------ | ------------- | ------------------------------ | ----------- |
+| `page`     | NO           | _integer_     | The page number to display.    | 1           |
+| `per_page` | NO           | _integer_     | The number of orders per page. | 2           |
+| `to`       | NO           | _string_      | Ending date of search.         | 2019-08-04  |
+| `from`     | NO           | _string_      | Starting date of search.       | 2019-08-05  |
 
 HEADERS
 
@@ -5082,29 +5046,28 @@ Further details like the estimated time of delivery, the rates along with the id
 
 **Note:**
 
-- One of either the 'order\_id' or 'cod' and 'weight' is required. If you specify the order id, the cod and weight fields are not required and vice versa.
+- One of either the 'order_id' or 'cod' and 'weight' is required. If you specify the order id, the cod and weight fields are not required and vice versa.
 
 - You can add further fields to add the shipment details and filter the search.
-
 
 #### Parameters:
 
 View More
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `pickup_postcode` | YES | _integer_ | The shipment id of the order you want to create the AWB of. | 16016920 |
-| `delivery_postcode` | YES | _integer_ | The courier id of the courier service you want to select. The default courier is selected in case no id is specified. | 10 |
-| `order_id` | CONDITIONAL YES | _integer_ | Use this to change the courier of a shipment. Value: reassign Note that this can be done only once in 24 hours. | reassign |
-| `cod` | CONDITIONAL YES | _boolean_ | 1 for Cash on Delivery and 0 for Prepaid orders. | 1 |
-| `weight` | CONDITIONAL YES | _string_ | The weight of shipment in kgs. | 2 |
-| `length` | NO | _integer_ | The length of the shipment in cms. | 15 |
-| `breadth` | NO | _integer_ | The breadth of the shipment in cms. | 10 |
-| `height` | NO | _integer_ | The height of the shipment in cms. | 5 |
-| `declared_value` | NO | _integer_ | The price of the order shipment rupee. | 50 |
-| `mode` | NO | _string_ | The mode of travel. Either: Surface or Air | Air |
-| `is_return` | YES | _integer_ | Whether the order is return order or not. 1 in case of Yes and 0 for No | 1 |
-| `qc_check` | NO | _integer_ | Filter out QC couriers from the serviceability list | 1 |
+| **PARAMS**          | **REQUIRED**    | **DATA TYPE** | **DESCRIPTION**                                                                                                       | **EXAMPLE** |
+| ------------------- | --------------- | ------------- | --------------------------------------------------------------------------------------------------------------------- | ----------- |
+| `pickup_postcode`   | YES             | _integer_     | The shipment id of the order you want to create the AWB of.                                                           | 16016920    |
+| `delivery_postcode` | YES             | _integer_     | The courier id of the courier service you want to select. The default courier is selected in case no id is specified. | 10          |
+| `order_id`          | CONDITIONAL YES | _integer_     | Use this to change the courier of a shipment. Value: reassign Note that this can be done only once in 24 hours.       | reassign    |
+| `cod`               | CONDITIONAL YES | _boolean_     | 1 for Cash on Delivery and 0 for Prepaid orders.                                                                      | 1           |
+| `weight`            | CONDITIONAL YES | _string_      | The weight of shipment in kgs.                                                                                        | 2           |
+| `length`            | NO              | _integer_     | The length of the shipment in cms.                                                                                    | 15          |
+| `breadth`           | NO              | _integer_     | The breadth of the shipment in cms.                                                                                   | 10          |
+| `height`            | NO              | _integer_     | The height of the shipment in cms.                                                                                    | 5           |
+| `declared_value`    | NO              | _integer_     | The price of the order shipment rupee.                                                                                | 50          |
+| `mode`              | NO              | _string_      | The mode of travel. Either: Surface or Air                                                                            | Air         |
+| `is_return`         | YES             | _integer_     | Whether the order is return order or not. 1 in case of Yes and 0 for No                                               | 1           |
+| `qc_check`          | NO              | _integer_     | Filter out QC couriers from the serviceability list                                                                   | 1           |
 
 HEADERS
 
@@ -5144,12 +5107,12 @@ This API can be used to assign the AWB (Air Waybill Number) to your shipment. Th
 
 #### Parameters:
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `shipment_id` | YES | _integer_ | The shipment id of the order you want to create the AWB of. | 16016920 |
-| `courier_id` | NO | _integer_ | The courier id of the courier service you want to select. The default courier is selected in case no id is specified. | 10 |
-| `status` | NO | _string_ | Use this to change the courier of a shipment. Value: reassign Note that this can be done only once in 24 hours. | reassign |
-| `is_return` | YES | _integer_ | Whether the order is return order or not. 1 in case of Yes and 0 for No. | 1 |
+| **PARAMS**    | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                                                                                                       | **EXAMPLE** |
+| ------------- | ------------ | ------------- | --------------------------------------------------------------------------------------------------------------------- | ----------- |
+| `shipment_id` | YES          | _integer_     | The shipment id of the order you want to create the AWB of.                                                           | 16016920    |
+| `courier_id`  | NO           | _integer_     | The courier id of the courier service you want to select. The default courier is selected in case no id is specified. | 10          |
+| `status`      | NO           | _string_      | Use this to change the courier of a shipment. Value: reassign Note that this can be done only once in 24 hours.       | reassign    |
+| `is_return`   | YES          | _integer_     | Whether the order is return order or not. 1 in case of Yes and 0 for No.                                              | 1           |
 
 HEADERS
 
@@ -5208,54 +5171,54 @@ Below are some associated status codes related to the shipments:
 
 View More
 
-| **STATUS CODE** | **DESCRIPTION** |
-| --- | --- |
-| 1 | AWB Assigned |
-| 2 | Label Generated |
-| 3 | Pickup Scheduled/Generated |
-| 4 | Pickup Queued |
-| 5 | Manifest Generated |
-| 6 | Shipped |
-| 7 | Delivered |
-| 8 | Cancelled |
-| 9 | RTO Initiated |
-| 10 | RTO Delivered |
-| 11 | Pending |
-| 12 | Lost |
-| 13 | Pickup Error |
-| 14 | RTO Acknowledged |
-| 15 | Pickup Rescheduled |
-| 16 | Cancellation Requested |
-| 17 | Out For Delivery |
-| 18 | In Transit |
-| 19 | Out For Pickup |
-| 20 | Pickup Exception |
-| 21 | Undelivered |
-| 22 | Delayed |
-| 23 | Partial\_Delivered |
-| 24 | Destroyed |
-| 25 | Damaged |
-| 26 | Fulfilled |
-| 38 | Reached at Destination |
-| 39 | Misrouted |
-| 40 | RTO NDR |
-| 41 | RTO OFD |
-| 42 | Picked Up |
-| 43 | Self Fulfilled |
-| 44 | DISPOSED\_OFF |
-| 45 | CANCELLED\_BEFORE\_DISPATCHED |
-| 46 | RTO\_IN\_TRANSIT |
-| 47 | QC Failed |
-| 48 | Reached Warehouse |
-| 49 | Custom Cleared |
-| 50 | In Flight |
-| 51 | Handover to Courier |
-| 52 | Shipment Booked |
-| 54 | In Transit Overseas |
-| 55 | Connection Aligned |
-| 56 | Reached Overseas Warehouse |
-| 57 | Custom Cleared Overseas |
-| 59 | Box Packing |
+| **STATUS CODE** | **DESCRIPTION**             |
+| --------------- | --------------------------- |
+| 1               | AWB Assigned                |
+| 2               | Label Generated             |
+| 3               | Pickup Scheduled/Generated  |
+| 4               | Pickup Queued               |
+| 5               | Manifest Generated          |
+| 6               | Shipped                     |
+| 7               | Delivered                   |
+| 8               | Cancelled                   |
+| 9               | RTO Initiated               |
+| 10              | RTO Delivered               |
+| 11              | Pending                     |
+| 12              | Lost                        |
+| 13              | Pickup Error                |
+| 14              | RTO Acknowledged            |
+| 15              | Pickup Rescheduled          |
+| 16              | Cancellation Requested      |
+| 17              | Out For Delivery            |
+| 18              | In Transit                  |
+| 19              | Out For Pickup              |
+| 20              | Pickup Exception            |
+| 21              | Undelivered                 |
+| 22              | Delayed                     |
+| 23              | Partial_Delivered           |
+| 24              | Destroyed                   |
+| 25              | Damaged                     |
+| 26              | Fulfilled                   |
+| 38              | Reached at Destination      |
+| 39              | Misrouted                   |
+| 40              | RTO NDR                     |
+| 41              | RTO OFD                     |
+| 42              | Picked Up                   |
+| 43              | Self Fulfilled              |
+| 44              | DISPOSED_OFF                |
+| 45              | CANCELLED_BEFORE_DISPATCHED |
+| 46              | RTO_IN_TRANSIT              |
+| 47              | QC Failed                   |
+| 48              | Reached Warehouse           |
+| 49              | Custom Cleared              |
+| 50              | In Flight                   |
+| 51              | Handover to Courier         |
+| 52              | Shipment Booked             |
+| 54              | In Transit Overseas         |
+| 55              | Connection Aligned          |
+| 56              | Reached Overseas Warehouse  |
+| 57              | Custom Cleared Overseas     |
+| 59              | Box Packing                 |
 
 ### GETGet All Shipment Details
 
@@ -5267,12 +5230,12 @@ The data is displayed in the default format if no filter or sort condition is pa
 
 #### Parameters:
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| ` sort` | NO | _string_ | The sort format: ASC or DESC | ASC |
-| `sort_by` | NO | _string_ | The field to sort by. | id |
-| `filter` | NO | _string_ | The filter value. | 141121 |
-| `filter_by` | NO | _string_ | The filed to filter by. | id |
+| **PARAMS**  | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**              | **EXAMPLE** |
+| ----------- | ------------ | ------------- | ---------------------------- | ----------- |
+| ` sort`     | NO           | _string_      | The sort format: ASC or DESC | ASC         |
+| `sort_by`   | NO           | _string_      | The field to sort by.        | id          |
+| `filter`    | NO           | _string_      | The filter value.            | 141121      |
+| `filter_by` | NO           | _string_      | The filed to filter by.      | id          |
 
 HEADERS
 
@@ -5410,13 +5373,13 @@ keep-alive
 
 https://apiv2.shiprocket.in/v1/external/shipments
 
-Get the details of a specific Shipment by passing the value of shipment\_id in the endpoint URL.
+Get the details of a specific Shipment by passing the value of shipment_id in the endpoint URL.
 No other body parameters are required.
 
 #### Path:
 
-| **EXAMPLE** |
-| --- |
+| **EXAMPLE**                                                                                                              |
+| ------------------------------------------------------------------------------------------------------------------------ |
 | [https://apiv2.shiprocket.in/v1/external/shipments/16016920](https://apiv2.shiprocket.in/v1/external/shipments/16016920) |
 
 HEADERS
@@ -5555,9 +5518,9 @@ Use this API to cancel a created shipment before the "Out for Pickup" state. Mul
 
 #### Parameters:
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `awbs` | YES | _string_ | The AWB/List of AWBs that need to be canceled. | 19041211125783 |
+| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                                | **EXAMPLE**    |
+| ---------- | ------------ | ------------- | ---------------------------------------------- | -------------- |
+| `awbs`     | YES          | _string_      | The AWB/List of AWBs that need to be canceled. | 19041211125783 |
 
 HEADERS
 
@@ -5649,9 +5612,9 @@ This API generates the manifest and displays the download URL of the same.
 
 #### Parameters:
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `shipment_id` | YES | _integer_ | The shipment id of the order. Multiple ids can be passed as an array, separated by commas. | \[16090109\] |
+| **PARAMS**    | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                                                                            | **EXAMPLE**  |
+| ------------- | ------------ | ------------- | ------------------------------------------------------------------------------------------ | ------------ |
+| `shipment_id` | YES          | _integer_     | The shipment id of the order. Multiple ids can be passed as an array, separated by commas. | \[16090109\] |
 
 HEADERS
 
@@ -5757,9 +5720,9 @@ Use this API to print the generated manifest of orders at an individual level.
 
 #### Parameters:
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `order_ids` | YES | _integer_ | The Shiprocket order id of whose manifest is to be generated. Multiple ids can be passed together as an array. | \[16090109\] |
+| **PARAMS**  | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                                                                                                | **EXAMPLE**  |
+| ----------- | ------------ | ------------- | -------------------------------------------------------------------------------------------------------------- | ------------ |
+| `order_ids` | YES          | _integer_     | The Shiprocket order id of whose manifest is to be generated. Multiple ids can be passed together as an array. | \[16090109\] |
 
 HEADERS
 
@@ -5861,13 +5824,13 @@ This API displays the URL of the generated label.
 **Note:**
 
 - The AWB must be assigned to the shipment to generate the label.
-- 'shipment\_id' must be passed as an array.
+- 'shipment_id' must be passed as an array.
 
 #### Parameters:
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `shipment_id` | YES | _integer_ | The shipment id of the order whose label is to be generated. Multiple ids can be passed together as an array. | \[16104408,16104409\] |
+| **PARAMS**    | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                                                                                               | **EXAMPLE**           |
+| ------------- | ------------ | ------------- | ------------------------------------------------------------------------------------------------------------- | --------------------- |
+| `shipment_id` | YES          | _integer_     | The shipment id of the order whose label is to be generated. Multiple ids can be passed together as an array. | \[16104408,16104409\] |
 
 HEADERS
 
@@ -5977,9 +5940,9 @@ Multiple ids can be passed together as an array.
 
 #### Parameters:
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `ids` | YES | _integer_ | The Shiprocket order id of the orders whose invoices are to be created. Multiple ids can be passed together as an array. | \[16255275,16255276\] |
+| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                                                                                                          | **EXAMPLE**           |
+| ---------- | ------------ | ------------- | ------------------------------------------------------------------------------------------------------------------------ | --------------------- |
+| `ids`      | YES          | _integer_     | The Shiprocket order id of the orders whose invoices are to be created. Multiple ids can be passed together as an array. | \[16255275,16255276\] |
 
 HEADERS
 
@@ -6089,90 +6052,89 @@ This API integrates several other APIs to perform all these tasks together.
 
 **Notes:**
 
-- Use the 'vendor\_details' array to add a new pickup location to your account and assign it to your order.
+- Use the 'vendor_details' array to add a new pickup location to your account and assign it to your order.
 
-- The 'pickup\_location' field must contain a new pickup location name for adding a new pickup location to your Shiprocket account.
+- The 'pickup_location' field must contain a new pickup location name for adding a new pickup location to your Shiprocket account.
 
 - In case of multiple items per order, please pass the final weight (sum total weight of items) of the shipment.
-
 
 #### Parameters:
 
 View More
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `mode` | NO | _string_ | The mode of shipment, either surface or air. _Value_: **Surface** or **Air** | Air |
-| `request_pickup` | NO | _boolean_ | Use false if you dont want to request pickup. Default value is true. | true |
-| `print_label` | NO | _boolean_ | Use false if you dont want to print label. Default value is true. | true |
-| `generate_manifest` | NO | _boolean_ | Use false if you dont want to generate manifest. Default value is true. | true |
-| `courier_id` | NO | _integer_ | The courier id of the courier you want to assign. Refer to the servicability API to get id. | 10 |
-| `reseller_name` | NO | _string_ | The 'from' name if you want to print. Use 'Reseller: \[name\]' | Reseller: Divine |
-| `order_id` | YES | _string_ | The custom reference id you want to assign to the order. | 2477 |
-| `isd_code` | NO | _string_ | The isd code | 91 |
-| `billing_isd_code` | NO | _string_ | The billing isd code. | 91 |
-| `order_date` | YES | _string_ | The date of the creation of order. | 2019-08-04 |
-| `channel_id` | NO | _string_ | The channel id of the specific channel. Use the Channels API to get id. | 72505 |
-| `company_name` | NO | _string_ | Name of the company. | Amazon |
-| `billing_customer_name` | YES | _string_ | The first name of customer to be billed. | John |
-| `billing_last_name` | NO | _string_ | The last name of the billing customer. | Doe |
-| `billing_address` | YES | _string_ | The primary billing address. | House no 21 |
-| `billing_address_2` | NO | _string_ | Additional billing address details. | Street 2, Dwarka |
-| `billing_city` | YES | _string_ | The billing city. | Delhi |
-| `billing_state` | YES | _string_ | The billing address state. | New Delhi |
-| `billing_country` | YES | _string_ | The billing address country. | India |
-| `billing_pincode` | YES | _integer_ | The pincode of the billing address. | 110002 |
-| `billing_email` | YES | _string_ | The billing customer email. | [john@doe.com](https://mailto:john@doe.com/) |
-| `billing_phone` | YES | _integer_ | The billing customer phone. | 9999998899 |
-| `billing_alternate_phone` | NO | _integer_ | The billing customer alternate phone. | 8404690454 |
-| `shipping_is_billing` | YES | _boolean_ | Whether shipping details are the same as billing details. **true** for yes **false** for no. | true |
-| `shipping_customer_name` | CONDITIONAL YES | _string_ | Shipping customer's first name. | Jane |
-| `shipping_last_name` | NO | _string_ | Shipping customer's last name. | Doe |
-| `shipping_address` | CONDITIONAL YES | _string_ | The shipping address. | House no X |
-| `shipping_address_2` | NO | _string_ | Additional shipping address details. | Street X |
-| `shipping_city` | CONDITIONAL YES | _string_ | The shipping city. | Mumbai |
-| `shipping_state` | CONDITIONAL YES | _string_ | The state of the shipping address. | Maharashtra |
-| `shipping_country` | CONDITIONAL YES | _string_ | The shipping address country. | India |
-| `shipping_pincode` | CONDITIONAL YES | _integer_ | Shipping pincode. | 230023 |
-| `shipping_email` | CONDITIONAL YES | _string_ | The email of the shipping customer. | [Jane@Doe.com](https://mailto:Jane@doe.com/) |
-| `shipping_phone` | CONDITIONAL YES | _integer_ | The phone number of the shipping customer. | 8877997799 |
-| `order_items` | YES | / | Array containing further parameters. | / |
-| `name` | YES | _string_ | The name of the product. | Jeans |
-| `sku` | YES | _string_ | sku Code of the product. | Bat |
-| `units` | YES | _integer_ | Number of units. | 10 |
-| `hsn` | NO | _integer_ | HSN code if available. | 4412 |
-| `selling_price` | YES | _integer_ | The selling price of each unit inclusive of GST. | 200 |
-| `tax` | NO | _integer_ | The tax applied in percent. | 20 |
-| `discount` | NO | _integer_ | The discount amount inclusive of tax. | 20 |
-| `payment_method` | YES | _string_ | If the payment method is Cash on delivery ( **COD**) or **Prepaid**. | COD |
-| `shipping_charges` | NO | _integer_ | The shipping charges if any in rupees. | 5 |
-| `giftwrap_charges` | NO | _integer_ | The gift-wrap charges if any in rupees. | 5 |
-| `transaction_charges` | NO | _integer_ | The transaction charges if any in rupees. | 10 |
-| `total_discount` | NO | _integer_ | The discount amount in rupees. | 15 |
-| `sub_total` | YES | _integer_ | The sub total amount in rupees. | 1800 |
-| `weight` | YES | _integer_ | The weight of the shipment in kgs. | 2 |
-| `length` | YES | _integer_ | The length of the shipment in cms. Must be more than 0.5 | 10 |
-| `breadth` | YES | _integer_ | The breadth of the shipment in cms. Must be more than 0.5 | 15 |
-| `height` | YES | _integer_ | The height of the shipment in cms. Must be more than 0.5 | 20 |
-| `pickup_location` | YES | _string_ | The pickup location name. Equal to an existing pickup location. If you use 'vendor details' to add a new location, it must be equal to the new pickup location name. | Office |
-| `customer_gstin` | NO | _string_ | Goods and Services Tax Identification Number. | 29ABCDE1234F2Z5 |
-| `vendor_details` | NO | / | Array containing further parameters. Use to assign/add a new pickup location to your account. | / |
-| `email` | CONDITIONAL YES | _string_ | The shipper's email address. | [john@doe.com](https://mailto:john@doe.com/) |
-| `phone` | CONDITIONAL YES | _integer_ | The shipper's phone number. | 8888999888 |
-| `name` | CONDITIONAL YES | _string_ | The shipper's name. | John Doe |
-| `address` | CONDITIONAL YES | _string_ | The pickup location address. Min 10 characters. | Office Building |
-| `address_2` | NO | _string_ | Additional address details. Min 10 characters. | Street 2 house 4 |
-| `city` | CONDITIONAL YES | _string_ | The pickup location city. | Pune |
-| `state` | CONDITIONAL YES | _string_ | The pickup state. | Maharashtra |
-| `country` | CONDITIONAL YES | _string_ | The pickup location country. | India |
-| `pin_code` | CONDITIONAL YES | _integer_ | The pickup pincode. | 200099 |
-| `pickup_location` | CONDITIONAL YES | _string_ | New pickup location name. Max: 36 char. Alphanumeric only. | New Office |
-| `order_type` | NO | _string_ | Key to differentiate between Essentials or Non Essentials Shipments. Order type can only be ESSENTIALS or NON ESSENTIALS. Please note it is case sensitive and blank values are allowed | ESSENTIALS |
-| `longitude` | NO | _float_ | Destination (Shipping address) Longitude. | 69.0747 |
-| `latitude` | NO | _float_ | Destination (Shipping address) Latitude | 22.4064 |
-| `what3words_address` | NO | _string_ | What3words is a proprietary geocode system designed to identify any location on the surface of Earth with a resolution of about 3 meters. The system encodes geographic coordinates into three permanently fixed dictionary words. | toddler.geologist.animated |
-| `is_document` | NO | _integer_ | To create a document order | 1 or 0 |
-| `reseller_name` | NO | _string_ | To display the vendor name on the label | brandname |
+| **PARAMS**                | **REQUIRED**    | **DATA TYPE** | **DESCRIPTION**                                                                                                                                                                                                                    | **EXAMPLE**                                  |
+| ------------------------- | --------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| `mode`                    | NO              | _string_      | The mode of shipment, either surface or air. _Value_: **Surface** or **Air**                                                                                                                                                       | Air                                          |
+| `request_pickup`          | NO              | _boolean_     | Use false if you dont want to request pickup. Default value is true.                                                                                                                                                               | true                                         |
+| `print_label`             | NO              | _boolean_     | Use false if you dont want to print label. Default value is true.                                                                                                                                                                  | true                                         |
+| `generate_manifest`       | NO              | _boolean_     | Use false if you dont want to generate manifest. Default value is true.                                                                                                                                                            | true                                         |
+| `courier_id`              | NO              | _integer_     | The courier id of the courier you want to assign. Refer to the servicability API to get id.                                                                                                                                        | 10                                           |
+| `reseller_name`           | NO              | _string_      | The 'from' name if you want to print. Use 'Reseller: \[name\]'                                                                                                                                                                     | Reseller: Divine                             |
+| `order_id`                | YES             | _string_      | The custom reference id you want to assign to the order.                                                                                                                                                                           | 2477                                         |
+| `isd_code`                | NO              | _string_      | The isd code                                                                                                                                                                                                                       | 91                                           |
+| `billing_isd_code`        | NO              | _string_      | The billing isd code.                                                                                                                                                                                                              | 91                                           |
+| `order_date`              | YES             | _string_      | The date of the creation of order.                                                                                                                                                                                                 | 2019-08-04                                   |
+| `channel_id`              | NO              | _string_      | The channel id of the specific channel. Use the Channels API to get id.                                                                                                                                                            | 72505                                        |
+| `company_name`            | NO              | _string_      | Name of the company.                                                                                                                                                                                                               | Amazon                                       |
+| `billing_customer_name`   | YES             | _string_      | The first name of customer to be billed.                                                                                                                                                                                           | John                                         |
+| `billing_last_name`       | NO              | _string_      | The last name of the billing customer.                                                                                                                                                                                             | Doe                                          |
+| `billing_address`         | YES             | _string_      | The primary billing address.                                                                                                                                                                                                       | House no 21                                  |
+| `billing_address_2`       | NO              | _string_      | Additional billing address details.                                                                                                                                                                                                | Street 2, Dwarka                             |
+| `billing_city`            | YES             | _string_      | The billing city.                                                                                                                                                                                                                  | Delhi                                        |
+| `billing_state`           | YES             | _string_      | The billing address state.                                                                                                                                                                                                         | New Delhi                                    |
+| `billing_country`         | YES             | _string_      | The billing address country.                                                                                                                                                                                                       | India                                        |
+| `billing_pincode`         | YES             | _integer_     | The pincode of the billing address.                                                                                                                                                                                                | 110002                                       |
+| `billing_email`           | YES             | _string_      | The billing customer email.                                                                                                                                                                                                        | [john@doe.com](https://mailto:john@doe.com/) |
+| `billing_phone`           | YES             | _integer_     | The billing customer phone.                                                                                                                                                                                                        | 9999998899                                   |
+| `billing_alternate_phone` | NO              | _integer_     | The billing customer alternate phone.                                                                                                                                                                                              | 8404690454                                   |
+| `shipping_is_billing`     | YES             | _boolean_     | Whether shipping details are the same as billing details. **true** for yes **false** for no.                                                                                                                                       | true                                         |
+| `shipping_customer_name`  | CONDITIONAL YES | _string_      | Shipping customer's first name.                                                                                                                                                                                                    | Jane                                         |
+| `shipping_last_name`      | NO              | _string_      | Shipping customer's last name.                                                                                                                                                                                                     | Doe                                          |
+| `shipping_address`        | CONDITIONAL YES | _string_      | The shipping address.                                                                                                                                                                                                              | House no X                                   |
+| `shipping_address_2`      | NO              | _string_      | Additional shipping address details.                                                                                                                                                                                               | Street X                                     |
+| `shipping_city`           | CONDITIONAL YES | _string_      | The shipping city.                                                                                                                                                                                                                 | Mumbai                                       |
+| `shipping_state`          | CONDITIONAL YES | _string_      | The state of the shipping address.                                                                                                                                                                                                 | Maharashtra                                  |
+| `shipping_country`        | CONDITIONAL YES | _string_      | The shipping address country.                                                                                                                                                                                                      | India                                        |
+| `shipping_pincode`        | CONDITIONAL YES | _integer_     | Shipping pincode.                                                                                                                                                                                                                  | 230023                                       |
+| `shipping_email`          | CONDITIONAL YES | _string_      | The email of the shipping customer.                                                                                                                                                                                                | [Jane@Doe.com](https://mailto:Jane@doe.com/) |
+| `shipping_phone`          | CONDITIONAL YES | _integer_     | The phone number of the shipping customer.                                                                                                                                                                                         | 8877997799                                   |
+| `order_items`             | YES             | /             | Array containing further parameters.                                                                                                                                                                                               | /                                            |
+| `name`                    | YES             | _string_      | The name of the product.                                                                                                                                                                                                           | Jeans                                        |
+| `sku`                     | YES             | _string_      | sku Code of the product.                                                                                                                                                                                                           | Bat                                          |
+| `units`                   | YES             | _integer_     | Number of units.                                                                                                                                                                                                                   | 10                                           |
+| `hsn`                     | NO              | _integer_     | HSN code if available.                                                                                                                                                                                                             | 4412                                         |
+| `selling_price`           | YES             | _integer_     | The selling price of each unit inclusive of GST.                                                                                                                                                                                   | 200                                          |
+| `tax`                     | NO              | _integer_     | The tax applied in percent.                                                                                                                                                                                                        | 20                                           |
+| `discount`                | NO              | _integer_     | The discount amount inclusive of tax.                                                                                                                                                                                              | 20                                           |
+| `payment_method`          | YES             | _string_      | If the payment method is Cash on delivery ( **COD**) or **Prepaid**.                                                                                                                                                               | COD                                          |
+| `shipping_charges`        | NO              | _integer_     | The shipping charges if any in rupees.                                                                                                                                                                                             | 5                                            |
+| `giftwrap_charges`        | NO              | _integer_     | The gift-wrap charges if any in rupees.                                                                                                                                                                                            | 5                                            |
+| `transaction_charges`     | NO              | _integer_     | The transaction charges if any in rupees.                                                                                                                                                                                          | 10                                           |
+| `total_discount`          | NO              | _integer_     | The discount amount in rupees.                                                                                                                                                                                                     | 15                                           |
+| `sub_total`               | YES             | _integer_     | The sub total amount in rupees.                                                                                                                                                                                                    | 1800                                         |
+| `weight`                  | YES             | _integer_     | The weight of the shipment in kgs.                                                                                                                                                                                                 | 2                                            |
+| `length`                  | YES             | _integer_     | The length of the shipment in cms. Must be more than 0.5                                                                                                                                                                           | 10                                           |
+| `breadth`                 | YES             | _integer_     | The breadth of the shipment in cms. Must be more than 0.5                                                                                                                                                                          | 15                                           |
+| `height`                  | YES             | _integer_     | The height of the shipment in cms. Must be more than 0.5                                                                                                                                                                           | 20                                           |
+| `pickup_location`         | YES             | _string_      | The pickup location name. Equal to an existing pickup location. If you use 'vendor details' to add a new location, it must be equal to the new pickup location name.                                                               | Office                                       |
+| `customer_gstin`          | NO              | _string_      | Goods and Services Tax Identification Number.                                                                                                                                                                                      | 29ABCDE1234F2Z5                              |
+| `vendor_details`          | NO              | /             | Array containing further parameters. Use to assign/add a new pickup location to your account.                                                                                                                                      | /                                            |
+| `email`                   | CONDITIONAL YES | _string_      | The shipper's email address.                                                                                                                                                                                                       | [john@doe.com](https://mailto:john@doe.com/) |
+| `phone`                   | CONDITIONAL YES | _integer_     | The shipper's phone number.                                                                                                                                                                                                        | 8888999888                                   |
+| `name`                    | CONDITIONAL YES | _string_      | The shipper's name.                                                                                                                                                                                                                | John Doe                                     |
+| `address`                 | CONDITIONAL YES | _string_      | The pickup location address. Min 10 characters.                                                                                                                                                                                    | Office Building                              |
+| `address_2`               | NO              | _string_      | Additional address details. Min 10 characters.                                                                                                                                                                                     | Street 2 house 4                             |
+| `city`                    | CONDITIONAL YES | _string_      | The pickup location city.                                                                                                                                                                                                          | Pune                                         |
+| `state`                   | CONDITIONAL YES | _string_      | The pickup state.                                                                                                                                                                                                                  | Maharashtra                                  |
+| `country`                 | CONDITIONAL YES | _string_      | The pickup location country.                                                                                                                                                                                                       | India                                        |
+| `pin_code`                | CONDITIONAL YES | _integer_     | The pickup pincode.                                                                                                                                                                                                                | 200099                                       |
+| `pickup_location`         | CONDITIONAL YES | _string_      | New pickup location name. Max: 36 char. Alphanumeric only.                                                                                                                                                                         | New Office                                   |
+| `order_type`              | NO              | _string_      | Key to differentiate between Essentials or Non Essentials Shipments. Order type can only be ESSENTIALS or NON ESSENTIALS. Please note it is case sensitive and blank values are allowed                                            | ESSENTIALS                                   |
+| `longitude`               | NO              | _float_       | Destination (Shipping address) Longitude.                                                                                                                                                                                          | 69.0747                                      |
+| `latitude`                | NO              | _float_       | Destination (Shipping address) Latitude                                                                                                                                                                                            | 22.4064                                      |
+| `what3words_address`      | NO              | _string_      | What3words is a proprietary geocode system designed to identify any location on the surface of Earth with a resolution of about 3 meters. The system encodes geographic coordinates into three permanently fixed dictionary words. | toddler.geologist.animated                   |
+| `is_document`             | NO              | _integer_     | To create a document order                                                                                                                                                                                                         | 1 or 0                                       |
+| `reseller_name`           | NO              | _string_      | To display the vendor name on the label                                                                                                                                                                                            | brandname                                    |
 
 HEADERS
 
@@ -6416,67 +6378,66 @@ The specifications are the same as the custom return order API, with a few excep
 
 **Notes:**
 
-- pickup\_location field is not required.
+- pickup_location field is not required.
 
 - Label and Manifest are not required in case of returns.
-
 
 #### Parameters:
 
 View More
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `order_id` | YES | _string_ | The order id you want to specify to the order. Max char: 50. (Avoid passing character values as this contradicts some other API calls) | 99711997 |
-| `order_date` | YES | _string_ | The date of order creation in yyyy-mm-dd format. Time is an additional option. | 2019-08-05 |
-| `channel_id` | NO | _integer_ | Id of the desired channel where the order is to be placed. 'Custom' channel id is selected in case parameter is not filled. | 768903 |
-| `pickup_customer_name` | YES | _string_ | The customer’s first name. | John |
-| `pickup_last_name` | NO | _string_ | The customer’s last name. | Doe |
-| `company_name` | NO | _string_ | Name of the company | Amazon |
-| `pickup_address` | YES | _string_ | The customer's primary address. | Home |
-| `pickup_address_2` | NO | _string_ | Additional customer address details. | DDA |
-| `pickup_city` | YES | _string_ | The customer's city name. | Delhi |
-| `pickup_state` | YES | _string_ | The customer's state. | New Delhi |
-| `pickup_country` | YES | _string_ | Customer's country name. | India |
-| `pickup_pincode` | YES | _integer_ | Pincode of the customer address. | 110002 |
-| `pickup_email` | YES | _string_ | Customer's email address. | [john@doe.com](https://mailto:john@doe.com/) |
-| `pickup_phone` | YES | _string_ | Customer's phone number. | 9999999999 |
-| `pickup_isd_code` | NO | _string_ | ISD code. | 91 |
-| `shipping_customer_name` | YES | _string_ | The name of the seller the package is shipped back to. | Jane |
-| `shipping_last_name` | NO | _string_ | The last name of the seller. | Doe |
-| `shipping_address` | YES | _string_ | The address the package is shipped to. | Castle |
-| `shipping_address_2` | NO | _string_ | Further shipping address details. | Bridge |
-| `shipping_city` | YES | _string_ | The shipping address city. | Mumbai |
-| `shipping_country` | YES | _string_ | The shipping address country. | India |
-| `shipping_pincode` | YES | _integer_ | The shipping pincode. | 220022 |
-| `shipping_state` | YES | _string_ | Shipping address state. | Maharashtra |
-| `shipping_email` | YES | _string_ | The email of the seller the package is shipped to. | [jane@doe.com](https://mailto:jane@doe.com/) |
-| `shipping_isd_code` | NO | _string_ | The shipping isd code. | 91 |
-| `shipping_phone` | YES | _integer_ | Phone no. of the shipping customer | 8888888888 |
-| `order_items` | YES | / | Array containing further fields. | / |
-| `name` | YES | _string_ | Name of the product. | ball123 |
-| `sku` | YES | _string_ | The sku id of the product. | Tennis Ball |
-| `units` | YES | _integer_ | No of units that are to be shipped. | 1 |
-| `selling_price` | YES | _integer_ | The selling price per unit in Rupee. Inclusive of GST. | 10 |
-| `discount` | NO | _integer_ | The discount amount in Rupee. Inclusive of tax. | 0 |
-| `hsn` | NO | _string_ | Harmonised System Nomenclature code. Used to determine the category of taxation the goods fall under. | 4412 |
-| `qc_enable` | CONDITIONAL YES | _string_ | If True, QC will be performed for that product and QC will be performed only for a single SKU per order | TRUE/FALSE |
-| `qc_color` | NO | _varchar(180)_ | The color of the product can be passed in this parameter | Red |
-| `qc_brand` | NO | _varchar(255)_ | The brand of the product can be passed in this parameter | 768903 |
-| `qc_serial_no` | NO | _varchar(255)_ | The serial number of the product can be passed in this parameter | T13123124 |
-| `qc_ean_barcode` | NO | _varchar(255)_ | EAN/Barcode of the product can be passed in this parameter | QWRE123 |
-| `qc_size` | NO | _varchar(180)_ | The size of the product can be passed in this parameter | 8 |
-| `qc_product_name` | CONDITIONAL YES | _varchar(255)_ | If qc\_enable set True, then Product name should be passed in this parameter | Shoes |
-| `qc_product_image` | CONDITIONAL YES | _varchar(255)_ | If qc\_enable set True, then Product image should be passed in this parameter (only png/jpg format supported) | [https://s3-ap-southeast-1.amazonaws.com/kr-multichannel/1636713733zxja.png](https://s3-ap-southeast-1.amazonaws.com/kr-multichannel/1636713733zxja.png) |
-| `qc_product_imei` | NO | _varchar(255)_ | IMEI of the device | 86532976457823 |
-| `payment_method` | YES | _string_ | The method of payment. Can be either COD (Cash on delivery) Or Prepaid. | Prepaid |
-| `total_discount` | NO | _string_ | The total discount amount in Rupee. | 0 |
-| `sub_total` | YES | _integer_ | Calculated sub total amount in Rupee after deductions. | 10 |
-| `length` | YES | _integer_ | The length of the shipment in cms. | 10 |
-| `breadth` | YES | _integer_ | The breadth of the shipment in cms. | 15 |
-| `height` | YES | _integer_ | The height of the shipment in cms. | 20 |
-| `weight` | YES | _integer_ | The shipment weight in kgs. | 1 |
-| `request_pickup` | NO | _boolean_ | Use false if you dont want to request pickup. Default value is true. | true |
+| **PARAMS**               | **REQUIRED**    | **DATA TYPE**  | **DESCRIPTION**                                                                                                                        | **EXAMPLE**                                                                                                                                              |
+| ------------------------ | --------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `order_id`               | YES             | _string_       | The order id you want to specify to the order. Max char: 50. (Avoid passing character values as this contradicts some other API calls) | 99711997                                                                                                                                                 |
+| `order_date`             | YES             | _string_       | The date of order creation in yyyy-mm-dd format. Time is an additional option.                                                         | 2019-08-05                                                                                                                                               |
+| `channel_id`             | NO              | _integer_      | Id of the desired channel where the order is to be placed. 'Custom' channel id is selected in case parameter is not filled.            | 768903                                                                                                                                                   |
+| `pickup_customer_name`   | YES             | _string_       | The customer’s first name.                                                                                                             | John                                                                                                                                                     |
+| `pickup_last_name`       | NO              | _string_       | The customer’s last name.                                                                                                              | Doe                                                                                                                                                      |
+| `company_name`           | NO              | _string_       | Name of the company                                                                                                                    | Amazon                                                                                                                                                   |
+| `pickup_address`         | YES             | _string_       | The customer's primary address.                                                                                                        | Home                                                                                                                                                     |
+| `pickup_address_2`       | NO              | _string_       | Additional customer address details.                                                                                                   | DDA                                                                                                                                                      |
+| `pickup_city`            | YES             | _string_       | The customer's city name.                                                                                                              | Delhi                                                                                                                                                    |
+| `pickup_state`           | YES             | _string_       | The customer's state.                                                                                                                  | New Delhi                                                                                                                                                |
+| `pickup_country`         | YES             | _string_       | Customer's country name.                                                                                                               | India                                                                                                                                                    |
+| `pickup_pincode`         | YES             | _integer_      | Pincode of the customer address.                                                                                                       | 110002                                                                                                                                                   |
+| `pickup_email`           | YES             | _string_       | Customer's email address.                                                                                                              | [john@doe.com](https://mailto:john@doe.com/)                                                                                                             |
+| `pickup_phone`           | YES             | _string_       | Customer's phone number.                                                                                                               | 9999999999                                                                                                                                               |
+| `pickup_isd_code`        | NO              | _string_       | ISD code.                                                                                                                              | 91                                                                                                                                                       |
+| `shipping_customer_name` | YES             | _string_       | The name of the seller the package is shipped back to.                                                                                 | Jane                                                                                                                                                     |
+| `shipping_last_name`     | NO              | _string_       | The last name of the seller.                                                                                                           | Doe                                                                                                                                                      |
+| `shipping_address`       | YES             | _string_       | The address the package is shipped to.                                                                                                 | Castle                                                                                                                                                   |
+| `shipping_address_2`     | NO              | _string_       | Further shipping address details.                                                                                                      | Bridge                                                                                                                                                   |
+| `shipping_city`          | YES             | _string_       | The shipping address city.                                                                                                             | Mumbai                                                                                                                                                   |
+| `shipping_country`       | YES             | _string_       | The shipping address country.                                                                                                          | India                                                                                                                                                    |
+| `shipping_pincode`       | YES             | _integer_      | The shipping pincode.                                                                                                                  | 220022                                                                                                                                                   |
+| `shipping_state`         | YES             | _string_       | Shipping address state.                                                                                                                | Maharashtra                                                                                                                                              |
+| `shipping_email`         | YES             | _string_       | The email of the seller the package is shipped to.                                                                                     | [jane@doe.com](https://mailto:jane@doe.com/)                                                                                                             |
+| `shipping_isd_code`      | NO              | _string_       | The shipping isd code.                                                                                                                 | 91                                                                                                                                                       |
+| `shipping_phone`         | YES             | _integer_      | Phone no. of the shipping customer                                                                                                     | 8888888888                                                                                                                                               |
+| `order_items`            | YES             | /              | Array containing further fields.                                                                                                       | /                                                                                                                                                        |
+| `name`                   | YES             | _string_       | Name of the product.                                                                                                                   | ball123                                                                                                                                                  |
+| `sku`                    | YES             | _string_       | The sku id of the product.                                                                                                             | Tennis Ball                                                                                                                                              |
+| `units`                  | YES             | _integer_      | No of units that are to be shipped.                                                                                                    | 1                                                                                                                                                        |
+| `selling_price`          | YES             | _integer_      | The selling price per unit in Rupee. Inclusive of GST.                                                                                 | 10                                                                                                                                                       |
+| `discount`               | NO              | _integer_      | The discount amount in Rupee. Inclusive of tax.                                                                                        | 0                                                                                                                                                        |
+| `hsn`                    | NO              | _string_       | Harmonised System Nomenclature code. Used to determine the category of taxation the goods fall under.                                  | 4412                                                                                                                                                     |
+| `qc_enable`              | CONDITIONAL YES | _string_       | If True, QC will be performed for that product and QC will be performed only for a single SKU per order                                | TRUE/FALSE                                                                                                                                               |
+| `qc_color`               | NO              | _varchar(180)_ | The color of the product can be passed in this parameter                                                                               | Red                                                                                                                                                      |
+| `qc_brand`               | NO              | _varchar(255)_ | The brand of the product can be passed in this parameter                                                                               | 768903                                                                                                                                                   |
+| `qc_serial_no`           | NO              | _varchar(255)_ | The serial number of the product can be passed in this parameter                                                                       | T13123124                                                                                                                                                |
+| `qc_ean_barcode`         | NO              | _varchar(255)_ | EAN/Barcode of the product can be passed in this parameter                                                                             | QWRE123                                                                                                                                                  |
+| `qc_size`                | NO              | _varchar(180)_ | The size of the product can be passed in this parameter                                                                                | 8                                                                                                                                                        |
+| `qc_product_name`        | CONDITIONAL YES | _varchar(255)_ | If qc_enable set True, then Product name should be passed in this parameter                                                            | Shoes                                                                                                                                                    |
+| `qc_product_image`       | CONDITIONAL YES | _varchar(255)_ | If qc_enable set True, then Product image should be passed in this parameter (only png/jpg format supported)                           | [https://s3-ap-southeast-1.amazonaws.com/kr-multichannel/1636713733zxja.png](https://s3-ap-southeast-1.amazonaws.com/kr-multichannel/1636713733zxja.png) |
+| `qc_product_imei`        | NO              | _varchar(255)_ | IMEI of the device                                                                                                                     | 86532976457823                                                                                                                                           |
+| `payment_method`         | YES             | _string_       | The method of payment. Can be either COD (Cash on delivery) Or Prepaid.                                                                | Prepaid                                                                                                                                                  |
+| `total_discount`         | NO              | _string_       | The total discount amount in Rupee.                                                                                                    | 0                                                                                                                                                        |
+| `sub_total`              | YES             | _integer_      | Calculated sub total amount in Rupee after deductions.                                                                                 | 10                                                                                                                                                       |
+| `length`                 | YES             | _integer_      | The length of the shipment in cms.                                                                                                     | 10                                                                                                                                                       |
+| `breadth`                | YES             | _integer_      | The breadth of the shipment in cms.                                                                                                    | 15                                                                                                                                                       |
+| `height`                 | YES             | _integer_      | The height of the shipment in cms.                                                                                                     | 20                                                                                                                                                       |
+| `weight`                 | YES             | _integer_      | The shipment weight in kgs.                                                                                                            | 1                                                                                                                                                        |
+| `request_pickup`         | NO              | _boolean_      | Use false if you dont want to request pickup. Default value is true.                                                                   | true                                                                                                                                                     |
 
 HEADERS
 
@@ -6612,29 +6573,29 @@ json
 
 ```json
 {
-"status": 1,
-"payload": {
-"order_created": 1,
-"awb_generated": 1,
-"pickup_generated": 1,
-"pickup_scheduled_date": "2022-02-17 09:00:00",
-"order_id": 186255214,
-"shipment_id": 185783600,
-"awb_code": "24112321126686",
-"courier_company_id": 125,
-"courier_name": "Xpressbees Reverse",
-"assigned_date_time": {
-"date": "2022-02-16 16:34:06.963419",
-"timezone_type": 3,
-"timezone": "Asia/Kolkata"
-},
-"applied_weight": 0.5,
-"cod": 0,
-"is_return": 1,
-"routing_code": "N/S-01/13B/015",
-"rto_routing_code": "",
-"pickup_token_number": "",
-}
+  "status": 1,
+  "payload": {
+    "order_created": 1,
+    "awb_generated": 1,
+    "pickup_generated": 1,
+    "pickup_scheduled_date": "2022-02-17 09:00:00",
+    "order_id": 186255214,
+    "shipment_id": 185783600,
+    "awb_code": "24112321126686",
+    "courier_company_id": 125,
+    "courier_name": "Xpressbees Reverse",
+    "assigned_date_time": {
+      "date": "2022-02-16 16:34:06.963419",
+      "timezone_type": 3,
+      "timezone": "Asia/Kolkata"
+    },
+    "applied_weight": 0.5,
+    "cod": 0,
+    "is_return": 1,
+    "routing_code": "N/S-01/13B/015",
+    "rto_routing_code": "",
+    "pickup_token_number": ""
+  }
 }
 ```
 
@@ -6696,13 +6657,13 @@ You can also sort and filter the data according to your needs by passing the opt
 
 #### Parameters:
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `page` | NO | _integer_ | The page number to display. | 5 |
-| `per_page` | NO | _integer_ | The number of entries per page. | 5 |
-| `to` | NO | _string_ | The end date. | 2021-08-02 |
-| `from` | NO | _string_ | The start date. | 2021-08-02 |
-| `search` | NO | _string_ | Search for AWB. | 224477 |
+| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                 | **EXAMPLE** |
+| ---------- | ------------ | ------------- | ------------------------------- | ----------- |
+| `page`     | NO           | _integer_     | The page number to display.     | 5           |
+| `per_page` | NO           | _integer_     | The number of entries per page. | 5           |
+| `to`       | NO           | _string_      | The end date.                   | 2021-08-02  |
+| `from`     | NO           | _string_      | The start date.                 | 2021-08-02  |
+| `search`   | NO           | _string_      | Search for AWB.                 | 224477      |
 
 HEADERS
 
@@ -6932,8 +6893,8 @@ Type in your AWB code in place of {AWB}. No other body parameters are required.
 
 #### Path:
 
-| **EXAMPLE** |
-| --- |
+| **EXAMPLE**                                                                                                  |
+| ------------------------------------------------------------------------------------------------------------ |
 | [https://apiv2.shiprocket.in/v1/external/ndr/94711332](https://apiv2.shiprocket.in/v1/external/ndr/94711332) |
 
 HEADERS
@@ -7085,17 +7046,17 @@ This API will let you take actions like Reattempt and RTO on the shipments that 
 
 View More
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `action` | YES | _string_ | The action needs to be specified | ‘fake-attempt’ or ‘re-attempt’ or 'return' |
-| `comments` | YES | _string_ | Any comment can be mentioned | The Byer does not want the product |
-| `phone` | NO | _string_ | The phone number will be updated at the time of re-attempt and fake-attempt | 9999988888 |
-| `proof_audio` | CONDITIONAL YES | _string_ | URL of the audio which will be updated at the time of the fake attempt | [https://s3-ap-southeast-1.amazonaws.com/kr-multichannel/imports/ndr/1655100133\_file\_example\_MP3\_700KB.mp3](https://s3-ap-southeast-1.amazonaws.com/kr-multichannel/imports/ndr/1655100133_file_example_MP3_700KB.mp3) |
-| `proof_image` | CONDITIONAL YES | _string_ | URL of the image which will be updated at the time of the fake attempt | [https://s3-ap-southeast-1.amazonaws.com/kr-multichannel/imports/ndr/img\_7687678678.jpg](https://s3-ap-southeast-1.amazonaws.com/kr-multichannel/imports/ndr/img_7687678678.jpg) |
-| `remarks` | CONDITIONAL YES | _string_ | Remarks will be updated at the time of a fake attempt | Delivery Requested |
-| `address1` | NO | _string_ | address1 will be updated at the time of re-attempt and fake-attempt | U-56, sector-23, Noida, India |
-| `address2` | NO | _string_ | addres2 will be updated at the time of re-attempt and fake-attempt | U-56, sector-23, Noida, India |
-| `deferred_date` | NO | _date(string)_ | Deferred date will be updated as preferred\_date at the time of fake-attempt and re-attempt | 2022-08-10 |
+| **PARAMS**      | **REQUIRED**    | **DATA TYPE**  | **DESCRIPTION**                                                                            | **EXAMPLE**                                                                                                                                                                                                            |
+| --------------- | --------------- | -------------- | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `action`        | YES             | _string_       | The action needs to be specified                                                           | ‘fake-attempt’ or ‘re-attempt’ or 'return'                                                                                                                                                                             |
+| `comments`      | YES             | _string_       | Any comment can be mentioned                                                               | The Byer does not want the product                                                                                                                                                                                     |
+| `phone`         | NO              | _string_       | The phone number will be updated at the time of re-attempt and fake-attempt                | 9999988888                                                                                                                                                                                                             |
+| `proof_audio`   | CONDITIONAL YES | _string_       | URL of the audio which will be updated at the time of the fake attempt                     | [https://s3-ap-southeast-1.amazonaws.com/kr-multichannel/imports/ndr/1655100133_file_example_MP3_700KB.mp3](https://s3-ap-southeast-1.amazonaws.com/kr-multichannel/imports/ndr/1655100133_file_example_MP3_700KB.mp3) |
+| `proof_image`   | CONDITIONAL YES | _string_       | URL of the image which will be updated at the time of the fake attempt                     | [https://s3-ap-southeast-1.amazonaws.com/kr-multichannel/imports/ndr/img_7687678678.jpg](https://s3-ap-southeast-1.amazonaws.com/kr-multichannel/imports/ndr/img_7687678678.jpg)                                       |
+| `remarks`       | CONDITIONAL YES | _string_       | Remarks will be updated at the time of a fake attempt                                      | Delivery Requested                                                                                                                                                                                                     |
+| `address1`      | NO              | _string_       | address1 will be updated at the time of re-attempt and fake-attempt                        | U-56, sector-23, Noida, India                                                                                                                                                                                          |
+| `address2`      | NO              | _string_       | addres2 will be updated at the time of re-attempt and fake-attempt                         | U-56, sector-23, Noida, India                                                                                                                                                                                          |
+| `deferred_date` | NO              | _date(string)_ | Deferred date will be updated as preferred_date at the time of fake-attempt and re-attempt | 2022-08-10                                                                                                                                                                                                             |
 
 HEADERS
 
@@ -7188,61 +7149,61 @@ Use these APIs to get the tracking details of your shipments through the AWB cod
 
 View More
 
-| **STATUS CODE** |  | **DESCRIPTION** |
-| --- | --- | --- |
-| 6 |  | Shipped |
-| 7 |  | Delivered |
-| 8 |  | Canceled |
-| 9 |  | RTO Initiated |
-| 10 |  | RTO Delivered |
-| 12 |  | Lost |
-| 13 |  | Pickup Error |
-| 14 |  | RTO Acknowledged |
-| 15 |  | Pickup Rescheduled |
-| 16 |  | Cancellation Requested |
-| 17 |  | Out For Delivery |
-| 18 |  | In Transit |
-| 19 |  | Out For Pickup |
-| 20 |  | Pickup Exception |
-| 21 |  | Undelivered |
-| 22 |  | Delayed |
-| 23 |  | Partial\_Delivered |
-| 24 |  | DESTROYED |
-| 25 |  | DAMAGED |
-| 26 |  | FULFILLED |
-| 27 |  | Pickup Booked |
-| 38 |  | REACHED AT DESTINATION HUB |
-| 39 |  | MISROUTED |
-| 40 |  | RTO\_NDR |
-| 41 |  | RTO\_OFD |
-| 42 |  | PICKED UP |
-| 43 |  | SELF FULFILLED |
-| 44 |  | DISPOSED OFF |
-| 45 |  | CANCELLED\_BEFORE\_DISPATCHED |
-| 46 |  | RTO IN INTRANSIT |
-| 47 |  | QC FAILED |
-| 48 |  | Reached Warehouse |
-| 49 |  | Custom Cleared |
-| 50 |  | In Flight |
-| 51 |  | Handover to Courier |
-| 52 |  | Shipment Booked |
-| 54 |  | In Transit Overseas |
-| 55 |  | Connection Aligned |
-| 56 |  | Reached Overseas Warehouse |
-| 57 |  | Custom Cleared Overseas |
-| 59 |  | Box Packing |
-| 68 |  | PROCESSED AT WAREHOUSE |
-| 60 |  | FC Allocated |
-| 61 |  | Picklist Generated |
-| 62 |  | Ready To Pack |
-| 63 |  | Packed |
-| 67 |  | FC MANIFEST GENERATED |
-| 71 |  | HANDOVER EXCEPTION |
-| 72 |  | PACKED EXCEPTION |
-| 75 |  | RTO\_LOCK |
-| 76 |  | UNTRACEABLE |
-| 77 |  | ISSUE\_RELATED\_TO\_THE\_RECIPIENT |
-| 78 |  | REACHED\_BACK\_AT\_SELLER\_CITY |
+| **STATUS CODE** |     | **DESCRIPTION**                |
+| --------------- | --- | ------------------------------ |
+| 6               |     | Shipped                        |
+| 7               |     | Delivered                      |
+| 8               |     | Canceled                       |
+| 9               |     | RTO Initiated                  |
+| 10              |     | RTO Delivered                  |
+| 12              |     | Lost                           |
+| 13              |     | Pickup Error                   |
+| 14              |     | RTO Acknowledged               |
+| 15              |     | Pickup Rescheduled             |
+| 16              |     | Cancellation Requested         |
+| 17              |     | Out For Delivery               |
+| 18              |     | In Transit                     |
+| 19              |     | Out For Pickup                 |
+| 20              |     | Pickup Exception               |
+| 21              |     | Undelivered                    |
+| 22              |     | Delayed                        |
+| 23              |     | Partial_Delivered              |
+| 24              |     | DESTROYED                      |
+| 25              |     | DAMAGED                        |
+| 26              |     | FULFILLED                      |
+| 27              |     | Pickup Booked                  |
+| 38              |     | REACHED AT DESTINATION HUB     |
+| 39              |     | MISROUTED                      |
+| 40              |     | RTO_NDR                        |
+| 41              |     | RTO_OFD                        |
+| 42              |     | PICKED UP                      |
+| 43              |     | SELF FULFILLED                 |
+| 44              |     | DISPOSED OFF                   |
+| 45              |     | CANCELLED_BEFORE_DISPATCHED    |
+| 46              |     | RTO IN INTRANSIT               |
+| 47              |     | QC FAILED                      |
+| 48              |     | Reached Warehouse              |
+| 49              |     | Custom Cleared                 |
+| 50              |     | In Flight                      |
+| 51              |     | Handover to Courier            |
+| 52              |     | Shipment Booked                |
+| 54              |     | In Transit Overseas            |
+| 55              |     | Connection Aligned             |
+| 56              |     | Reached Overseas Warehouse     |
+| 57              |     | Custom Cleared Overseas        |
+| 59              |     | Box Packing                    |
+| 68              |     | PROCESSED AT WAREHOUSE         |
+| 60              |     | FC Allocated                   |
+| 61              |     | Picklist Generated             |
+| 62              |     | Ready To Pack                  |
+| 63              |     | Packed                         |
+| 67              |     | FC MANIFEST GENERATED          |
+| 71              |     | HANDOVER EXCEPTION             |
+| 72              |     | PACKED EXCEPTION               |
+| 75              |     | RTO_LOCK                       |
+| 76              |     | UNTRACEABLE                    |
+| 77              |     | ISSUE_RELATED_TO_THE_RECIPIENT |
+| 78              |     | REACHED_BACK_AT_SELLER_CITY    |
 
 ### GETGet Tracking through AWB
 
@@ -7255,8 +7216,8 @@ The response is displayed in JSON format.
 
 #### Path:
 
-| **EXAMPLE** |
-| --- |
+| **EXAMPLE**                                                                                                                                      |
+| ------------------------------------------------------------------------------------------------------------------------------------------------ |
 | [https://apiv2.shiprocket.in/v1/external/courier/track/awb/788830567028](https://apiv2.shiprocket.in/v1/external/courier/track/awb/788830567028) |
 
 HEADERS
@@ -7451,9 +7412,9 @@ The response is displayed in JSON format.
 
 #### Parameters:
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `awbs` | YES | _string_ | The AWB codes of the shipments. Must be passed as an array. | \["788830567028","788829354408"\] |
+| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                                             | **EXAMPLE**                       |
+| ---------- | ------------ | ------------- | ----------------------------------------------------------- | --------------------------------- |
+| `awbs`     | YES          | _string_      | The AWB codes of the shipments. Must be passed as an array. | \["788830567028","788829354408"\] |
 
 HEADERS
 
@@ -7614,15 +7575,15 @@ keep-alive
 
 https://apiv2.shiprocket.in/v1/external/courier/track/shipment/{shipment\_id}
 
-Get the tracking details of your shipment by entering the shipment\_id of the same in the endpoint URL.
+Get the tracking details of your shipment by entering the shipment_id of the same in the endpoint URL.
 No other body parameters are required to access this API.
 
 The response is displayed in JSON format.
 
 #### Path:
 
-| **EXAMPLE** |
-| --- |
+| **EXAMPLE**                                                                                                                                        |
+| -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [https://apiv2.shiprocket.in/v1/external/courier/track/shipment/16104408](https://apiv2.shiprocket.in/v1/external/courier/track/shipment/16104408) |
 
 HEADERS
@@ -7757,22 +7718,22 @@ keep-alive
 https://apiv2.shiprocket.in/v1/external/courier/track?order\_id=123&channel\_id=12345
 
 Get the tracking details of your shipment by entering the Order ID of the same in the endpoint URL itself.
-If you have the same order ID in more than one channel, then use the param channel\_id.
+If you have the same order ID in more than one channel, then use the param channel_id.
 
 The response is displayed in JSON format.
 
 #### Parameters:
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `order_id` | YES | _string_ | The order ID/number of your store. | NO-123 |
-| `channel_id` | NO | _integer_ | Channel ID corresponding to the store | 12345 |
+| **PARAMS**   | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                       | **EXAMPLE** |
+| ------------ | ------------ | ------------- | ------------------------------------- | ----------- |
+| `order_id`   | YES          | _string_      | The order ID/number of your store.    | NO-123      |
+| `channel_id` | NO           | _integer_     | Channel ID corresponding to the store | 12345       |
 
 #### Path:
 
-| **EXAMPLE** |
-| --- |
-| [https://apiv2.shiprocket.in/v1/external/courier/track?order\_id=123&channel\_id=12345](https://apiv2.shiprocket.in/v1/external/courier/track?order_id=123&channel_id=12345) |
+| **EXAMPLE**                                                                                                                                                                |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [https://apiv2.shiprocket.in/v1/external/courier/track?order_id=123&channel_id=12345](https://apiv2.shiprocket.in/v1/external/courier/track?order_id=123&channel_id=12345) |
 
 HEADERS
 
@@ -7782,11 +7743,11 @@ Bearer {token}
 
 PARAMS
 
-order\_id
+order_id
 
 123
 
-channel\_id
+channel_id
 
 12345
 
@@ -8013,23 +7974,23 @@ Further details to the address can be added if required.
 
 View More
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `pickup_location` | YES | _string_ | The nickname of the new pickup location. Max 36 characters. | Home |
-| `name` | YES | _string_ | The shipper's name. | Deadpool |
-| `email` | YES | _string_ | The shipper's email address. | [deadpool@chimichanga.com](mailto:deadpool@chimichanga.com) |
-| `phone` | YES | _integer_ | Shipper's phone number. | 9777777779 |
-| `address` | YES | _string_ | Shipper's primary address. Max 80 characters. | Mutant Facility, Sector 3 |
-| `address_2` | NO | _string_ | Additional address details. | House number 34 |
-| `city` | YES | _string_ | Pickup location city name. | Pune |
-| `state` | YES | _string_ | Pickup location state name. | Maharashtra |
-| `country` | YES | _string_ | Pickup location country. | India |
-| `pin_code` | YES | _integer_ | Pickup location pincode. | 110022 |
-| `lat` | NO | _float_ | Pickup location Latitude. | 22.4064 |
-| `long` | NO | _float_ | Pickup location Longitude. | 69.0747 |
-| `address_type` | NO | _string_ | To be given if address of different vendor is to be provided with pickup address | vendor |
-| `vendor_name` | NO | _string_ | Name of vendor if address\_type is vendor | John |
-| `gstin` | NO | _string_ | gstin of vendor | 09XXXCH7409R1XXX |
+| **PARAMS**        | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                                                                  | **EXAMPLE**                                                 |
+| ----------------- | ------------ | ------------- | -------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `pickup_location` | YES          | _string_      | The nickname of the new pickup location. Max 36 characters.                      | Home                                                        |
+| `name`            | YES          | _string_      | The shipper's name.                                                              | Deadpool                                                    |
+| `email`           | YES          | _string_      | The shipper's email address.                                                     | [deadpool@chimichanga.com](mailto:deadpool@chimichanga.com) |
+| `phone`           | YES          | _integer_     | Shipper's phone number.                                                          | 9777777779                                                  |
+| `address`         | YES          | _string_      | Shipper's primary address. Max 80 characters.                                    | Mutant Facility, Sector 3                                   |
+| `address_2`       | NO           | _string_      | Additional address details.                                                      | House number 34                                             |
+| `city`            | YES          | _string_      | Pickup location city name.                                                       | Pune                                                        |
+| `state`           | YES          | _string_      | Pickup location state name.                                                      | Maharashtra                                                 |
+| `country`         | YES          | _string_      | Pickup location country.                                                         | India                                                       |
+| `pin_code`        | YES          | _integer_     | Pickup location pincode.                                                         | 110022                                                      |
+| `lat`             | NO           | _float_       | Pickup location Latitude.                                                        | 22.4064                                                     |
+| `long`            | NO           | _float_       | Pickup location Longitude.                                                       | 69.0747                                                     |
+| `address_type`    | NO           | _string_      | To be given if address of different vendor is to be provided with pickup address | vendor                                                      |
+| `vendor_name`     | NO           | _string_      | Name of vendor if address_type is vendor                                         | John                                                        |
+| `gstin`           | NO           | _string_      | gstin of vendor                                                                  | 09XXXCH7409R1XXX                                            |
 
 HEADERS
 
@@ -8185,96 +8146,96 @@ The 'filter' values are mentioned below. Use these to filter your data:
 
 View More
 
-| **filter\_by** | **filter** | **description** |
-| --- | --- | --- |
-| payment\_method |  |  |
-| -> | cod | cash on delivery orders |
-| -> | Prepaid | for prepaid orders |
-| channel\_order\_id |  |  |
-| -> | 123 | Your order id |
-| status |  |  |
-| -> | 1 | New |
-| -> | 2 | Invoiced |
-| -> | 3 | Ready To Ship |
-| -> | 4 | Pickup Scheduled |
-| -> | 5 | Canceled |
-| -> | 6 | Shipped |
-| -> | 7 | Delivered |
-| -> | 8 | ePayment Failed |
-| -> | 9 | Returned |
-| -> | 10 | Unmapped |
-| -> | 11 | Unfulfillable |
-| -> | 12 | Pickup Queue |
-| -> | 13 | Pickup Rescheduled |
-| -> | 14 | Pickup Error// Created when there is an error on the pickup schedule |
-| -> | 15 | RTO Initiated |
-| -> | 16 | RTO Delivered |
-| -> | 17 | RTO Acknowledged |
-| -> | 18 | Cancellation Requested |
-| -> | 19 | Out for Delivery |
-| -> | 20 | In Transit |
-| -> | 21 | Return Pending |
-| -> | 22 | Return Initiated |
-| -> | 23 | Return Pickup Queued |
-| -> | 24 | Return Pickup Error |
-| -> | 25 | Return In Transit |
-| -> | 26 | Return Delivered |
-| -> | 27 | Return Cancelled |
-| -> | 28 | Return Pickup Generated |
-| -> | 29 | Return Cancellation Requested |
-| -> | 30 | Return Pickup Cancelled |
-| -> | 31 | Return Pickup Rescheduled |
-| -> | 32 | Return Picked Up |
-| -> | 33 | Lost |
-| -> | 34 | Out For Pickup |
-| -> | 35 | Pickup Exception |
-| -> | 36 | Undelivered |
-| -> | 37 | Delivery Delayed |
-| -> | 38 | Partial Delivered |
-| -> | 39 | Destroyed |
-| -> | 40 | Damaged |
-| -> | 41 | Fulfilled |
-| -> | 42 | Archived |
-| -> | 43 | Reached Destination Hub |
-| -> | 44 | Misrouted |
-| -> | 45 | RTO\_OFD |
-| -> | 46 | RTO\_NDR |
-| -> | 47 | Return Out For Pickup |
-| -> | 48 | Return Out For Delivery |
-| -> | 49 | Return Pickup Exception |
-| -> | 50 | Return Undelivered |
-| -> | 51 | Picked Up |
-| -> | 52 | Self Fulfilled |
-| -> | 53 | Disposed Off |
-| -> | 54 | Canceled before Dispatched |
-| -> | 55 | RTO In-Transit |
-| -> | 57 | QC Failed |
-| -> | 58 | Reached Warehouse |
-| -> | 59 | Custom Cleared |
-| -> | 60 | In Flight |
-| -> | 61 | Handover to Courier |
-| -> | 62 | Booked |
-| -> | 64 | In Transit Overseas |
-| -> | 65 | Connection Aligned |
-| -> | 66 | Reached Overseas Warehouse |
-| -> | 67 | Custom Cleared Overseas |
-| -> | 68 | RETURN ACKNOWLEGED |
-| -> | 69 | Box Packing |
-| -> | 70 | Pickup Booked |
-| -> | 71 | DARKSTORE SCHEDULED |
-| -> | 72 | Allocation in Progress |
-| -> | 81 | PROCESSED AT WAREHOUSE |
-| -> | 73 | FC Allocated |
-| -> | 74 | Picklist Generated |
-| -> | 75 | Ready to Pack |
-| -> | 76 | Packed |
-| -> | 80 | FC MANIFEST GENERATED |
-| -> | 82 | PACKED EXCEPTION |
-| -> | 83 | HANDOVER EXCEPTION |
-| -> | 87 | RTO\_LOCK |
-| -> | 88 | UNTRACEABLE |
-| -> | 89 | ISSUE\_RELATED\_TO\_THE\_RECIPIENT |
-| -> | 90 | REACHED\_BACK\_AT\_SELLER\_CITY |
+| **filter_by**    | **filter** | **description**                                                      |
+| ---------------- | ---------- | -------------------------------------------------------------------- |
+| payment_method   |            |                                                                      |
+| ->               | cod        | cash on delivery orders                                              |
+| ->               | Prepaid    | for prepaid orders                                                   |
+| channel_order_id |            |                                                                      |
+| ->               | 123        | Your order id                                                        |
+| status           |            |                                                                      |
+| ->               | 1          | New                                                                  |
+| ->               | 2          | Invoiced                                                             |
+| ->               | 3          | Ready To Ship                                                        |
+| ->               | 4          | Pickup Scheduled                                                     |
+| ->               | 5          | Canceled                                                             |
+| ->               | 6          | Shipped                                                              |
+| ->               | 7          | Delivered                                                            |
+| ->               | 8          | ePayment Failed                                                      |
+| ->               | 9          | Returned                                                             |
+| ->               | 10         | Unmapped                                                             |
+| ->               | 11         | Unfulfillable                                                        |
+| ->               | 12         | Pickup Queue                                                         |
+| ->               | 13         | Pickup Rescheduled                                                   |
+| ->               | 14         | Pickup Error// Created when there is an error on the pickup schedule |
+| ->               | 15         | RTO Initiated                                                        |
+| ->               | 16         | RTO Delivered                                                        |
+| ->               | 17         | RTO Acknowledged                                                     |
+| ->               | 18         | Cancellation Requested                                               |
+| ->               | 19         | Out for Delivery                                                     |
+| ->               | 20         | In Transit                                                           |
+| ->               | 21         | Return Pending                                                       |
+| ->               | 22         | Return Initiated                                                     |
+| ->               | 23         | Return Pickup Queued                                                 |
+| ->               | 24         | Return Pickup Error                                                  |
+| ->               | 25         | Return In Transit                                                    |
+| ->               | 26         | Return Delivered                                                     |
+| ->               | 27         | Return Cancelled                                                     |
+| ->               | 28         | Return Pickup Generated                                              |
+| ->               | 29         | Return Cancellation Requested                                        |
+| ->               | 30         | Return Pickup Cancelled                                              |
+| ->               | 31         | Return Pickup Rescheduled                                            |
+| ->               | 32         | Return Picked Up                                                     |
+| ->               | 33         | Lost                                                                 |
+| ->               | 34         | Out For Pickup                                                       |
+| ->               | 35         | Pickup Exception                                                     |
+| ->               | 36         | Undelivered                                                          |
+| ->               | 37         | Delivery Delayed                                                     |
+| ->               | 38         | Partial Delivered                                                    |
+| ->               | 39         | Destroyed                                                            |
+| ->               | 40         | Damaged                                                              |
+| ->               | 41         | Fulfilled                                                            |
+| ->               | 42         | Archived                                                             |
+| ->               | 43         | Reached Destination Hub                                              |
+| ->               | 44         | Misrouted                                                            |
+| ->               | 45         | RTO_OFD                                                              |
+| ->               | 46         | RTO_NDR                                                              |
+| ->               | 47         | Return Out For Pickup                                                |
+| ->               | 48         | Return Out For Delivery                                              |
+| ->               | 49         | Return Pickup Exception                                              |
+| ->               | 50         | Return Undelivered                                                   |
+| ->               | 51         | Picked Up                                                            |
+| ->               | 52         | Self Fulfilled                                                       |
+| ->               | 53         | Disposed Off                                                         |
+| ->               | 54         | Canceled before Dispatched                                           |
+| ->               | 55         | RTO In-Transit                                                       |
+| ->               | 57         | QC Failed                                                            |
+| ->               | 58         | Reached Warehouse                                                    |
+| ->               | 59         | Custom Cleared                                                       |
+| ->               | 60         | In Flight                                                            |
+| ->               | 61         | Handover to Courier                                                  |
+| ->               | 62         | Booked                                                               |
+| ->               | 64         | In Transit Overseas                                                  |
+| ->               | 65         | Connection Aligned                                                   |
+| ->               | 66         | Reached Overseas Warehouse                                           |
+| ->               | 67         | Custom Cleared Overseas                                              |
+| ->               | 68         | RETURN ACKNOWLEGED                                                   |
+| ->               | 69         | Box Packing                                                          |
+| ->               | 70         | Pickup Booked                                                        |
+| ->               | 71         | DARKSTORE SCHEDULED                                                  |
+| ->               | 72         | Allocation in Progress                                               |
+| ->               | 81         | PROCESSED AT WAREHOUSE                                               |
+| ->               | 73         | FC Allocated                                                         |
+| ->               | 74         | Picklist Generated                                                   |
+| ->               | 75         | Ready to Pack                                                        |
+| ->               | 76         | Packed                                                               |
+| ->               | 80         | FC MANIFEST GENERATED                                                |
+| ->               | 82         | PACKED EXCEPTION                                                     |
+| ->               | 83         | HANDOVER EXCEPTION                                                   |
+| ->               | 87         | RTO_LOCK                                                             |
+| ->               | 88         | UNTRACEABLE                                                          |
+| ->               | 89         | ISSUE_RELATED_TO_THE_RECIPIENT                                       |
+| ->               | 90         | REACHED_BACK_AT_SELLER_CITY                                          |
 
 ### POSTCreate Custom Order
 
@@ -8286,84 +8247,83 @@ You have to pass all the required params at the minimum to create a quick custom
 
 **Note:**
 
-- In case the 'shipping\_is\_billing' field is false, further shipping detail fields are required.
+- In case the 'shipping_is_billing' field is false, further shipping detail fields are required.
 
 If no channel id is passed, the order will be assigned to the default custom channel. If the channel id is not known, use the 'Get All Channels' API to get the list of all integrated channels in your Shiprocket account.
 
-- order\_id field cannot be equal to an already existing id. Doing so does not change or affect the existing order.
+- order_id field cannot be equal to an already existing id. Doing so does not change or affect the existing order.
 
-- New orders cannot be created with order id's same as that of cancelled orders. If error 422 shows up despite filling in the correct details, consider changing the order\_id.
+- New orders cannot be created with order id's same as that of cancelled orders. If error 422 shows up despite filling in the correct details, consider changing the order_id.
 
-- Be sure to input the correct calculated sub\_total amount. The total is not calculated automatically through the API.
+- Be sure to input the correct calculated sub_total amount. The total is not calculated automatically through the API.
 
-- The 'order\_id' returned in the response is the Shiprocket order\_id. Please save this order ID as we will use this in future API calls.
-
+- The 'order_id' returned in the response is the Shiprocket order_id. Please save this order ID as we will use this in future API calls.
 
 #### Parameters:
 
 View More
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `order_id` | YES | _string_ | The order id you want to specify to the order. Max char: 50. (Avoid passing character values as this contradicts some other API calls). | 224477 or 224-477 |
-| `order_date` | YES | _string_ | The date of order creation in yyyy-mm-dd format. Time is additional. | 2019-07-24 11:11 |
-| `pickup_location` | YES | _string_ | The name of the pickup location added in your Shiprocket account. This cannot be a new location. | Jammu |
-| `channel_id` | NO | _integer_ | Mention this in case you need to assign the order to a particular channel. Deafult is 'Custom'. | 27022 |
-| `comment` | NO | _string_ | Option to add 'From' field to the shipment. To do this, enter the name in the following format: 'Reseller: \[name\]'. | Reseller: Divine |
-| `reseller_name` | NO | _string_ | The 'from' name if you want to print. Use 'Reseller: \[name\]' | Reseller: Divine |
-| `company_name` | NO | _string_ | Name of the company. | Amazon |
-| `billing_customer_name` | YES | _string_ | First name of the billed customer. | John |
-| `billing_last_name` | NO | _string_ | Last name of the billed customer. | Doe |
-| `billing_address` | YES | _string_ | address details of the billed customer. | Civil line, House 20 |
-| `billing_address_2` | NO | _string_ | Further address details of the billed customer. | Near Hokage House |
-| `billing_city` | YES | _string_ | Billing address city. Max char: 30. | New Delhi |
-| `billing_pincode` | YES | _integer_ | Pincode of the billing address. | 110002 |
-| `billing_state` | YES | _string_ | Billing address state. | Delhi |
-| `billing_country` | YES | _string_ | Billing address country. | India |
-| `billing_email` | YES | _string_ | Email address of the billed customer. | [John@doe.com](https://mailto:John@doe.com/) |
-| `billing_phone` | YES | _integer_ | The phone number of the billing customer. | 9856321472 |
-| `billing_alternate_phone` | NO | _integer_ | Alternate phone number of the billing customer. | 8604690454 |
-| `shipping_is_billing` | YES | _boolean_ | Whether the shipping address is the same as billing address. 1 or 'true' for yes and 0 or 'false' for no. | true |
-| `shipping_customer_name` | CONDITIONAL YES | _string_ | Name of the customer the order is shipped to. Required in case billing is not same as shipping. | Jane |
-| `shipping_last_name` | NO | _string_ | Last name of the shipping customer. | Doe |
-| `shipping_address` | CONDITIONAL YES | _string_ | Address of the Shipping customer. Required in case billing is not same as shipping. | Lane number 69 |
-| `shipping_address_2` | NO | _string_ | Further address details of shipping customer. | Andheri |
-| `billing_isd_code` | NO | _string_ | ISD code of the billing address. | +91 |
-| `shipping_city` | CONDITIONAL YES | _string_ | Shipping address city. | Mumbai |
-| `shipping_pincode` | CONDITIONAL YES | _integer_ | Shipping address pincode. | 200912 |
-| `shipping_country` | CONDITIONAL YES | _string_ | Shipping address country. | India |
-| `shipping_state` | CONDITIONAL YES | _string_ | Shipping address state. | Maharashtra |
-| `shipping_email` | NO | _string_ | Email of the shipping customer. | [Jane@doe.com](https://mailto:Jane@doe.com/) |
-| `shipping_phone` | CONDITIONAL YES | _integer_ | Phone no. of the shipping customer. |  |
-| `longitude` | YES | _float_ | Delivery Longitude. Mandatory in case of Hyper local shipments | 77.06745147705078 |
-| `latitude` | YES | _float_ | Delivery Latitude. Mandatory in case of Hyper local shipments | 28.50724220275879 |
-| `order_items` | YES | / | List of items and their relevant fields in the form of Array. | / |
-| `name` | YES | _string_ | Name of the product. | Jeans |
-| `sku` | YES | _string_ | The sku id of the product. | cbs123 |
-| `units` | YES | _integer_ | No of units that are to be shipped. | 10 |
-| `selling_price` | YES | _integer_ | The selling price per unit in Rupee. Inclusive of GST. | 900 |
-| `discount` | NO | _integer_ | The discount amount in Rupee. Inclusive of tax. | 10 |
-| `tax` | NO | _integer_ | The tax percentage on the item. | 5 |
-| `hsn` | NO | _integer_ | Harmonised System Nomenclature code. Used to determine the category of taxation the goods fall under. | 44122 |
-| `payment_method` | YES | _string_ | The method of payment. Can be either COD (Cash on delivery) Or Prepaid. | COD |
-| `shipping_charges` | NO | _integer_ | Shipping charges if any in Rupee. | 5 |
-| `giftwrap_charges` | NO | _integer_ | Giftwrap charges if any in Rupee. | 5 |
-| `transaction_charges` | NO | _integer_ | Transaction charges if any in Rupee. | 5 |
-| `total_discount` | NO | _integer_ | The total discount amount in Rupee. | 15 |
-| `sub_total` | YES | _integer_ | Calculated sub total amount in Rupee after deductions. | 9010 |
-| `length` | YES | _float_ | The length of the item in cms. Must be more than 0.5. | 10 |
-| `breadth` | YES | _float_ | The breadth of the item in cms. Must be more than 0.5. | 10 |
-| `height` | YES | _float_ | The height of the item in cms. Must be more than 0.5. | 10 |
-| `weight` | YES | _float_ | The weight of the item in kgs. Must be more than 0. | 2.5 |
-| `ewaybill_no` | NO | _string_ | Details relating to the shipment of goods. . | K92373490 |
-| `customer_gstin` | NO | _string_ | Goods and Services Tax Identification Number. | 29ABCDE1234F2Z5 |
-| `invoice_number` | NO | _string_ |  |  |
-| `order_type` | NO | _string_ | Key to differentiate between Essentials or Non Essentials Shipments. Order type can only be ESSENTIALS or NON ESSENTIALS. Please note it is case sensitive and blank values are allowed. | ESSENTIALS |
-| `checkout_shipping_method` | NO | _string_ | Only for SRF users. | a. SR\_RUSH: SDD, NDD <br>b. SR\_STANDARD: Surface Delivery <br>c. SR\_EXPRESS: Air Delivery <br>d. SR\_QUICK: 3 hrs delivery |
-| `what3words_address` | NO | _string_ | What3words is a proprietary geocode system designed to identify any location on the surface of Earth with a resolution of about 3 meters. The system encodes geographic coordinates into three permanently fixed dictionary words. | toddler.geologist.animated |
-| `is_insurance_opt` | NO | _boolean_ | To secure shipments above the order value of Rs 2500 | true |
-| `is_document` | NO | _integer_ | To create a document order | 1 or 0 |
-| `shipping_method` | YES | _string_ | Shipping method use HL in case of Hyper local shipments | HL |
+| **PARAMS**                 | **REQUIRED**    | **DATA TYPE** | **DESCRIPTION**                                                                                                                                                                                                                    | **EXAMPLE**                                                                                                               |
+| -------------------------- | --------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `order_id`                 | YES             | _string_      | The order id you want to specify to the order. Max char: 50. (Avoid passing character values as this contradicts some other API calls).                                                                                            | 224477 or 224-477                                                                                                         |
+| `order_date`               | YES             | _string_      | The date of order creation in yyyy-mm-dd format. Time is additional.                                                                                                                                                               | 2019-07-24 11:11                                                                                                          |
+| `pickup_location`          | YES             | _string_      | The name of the pickup location added in your Shiprocket account. This cannot be a new location.                                                                                                                                   | Jammu                                                                                                                     |
+| `channel_id`               | NO              | _integer_     | Mention this in case you need to assign the order to a particular channel. Deafult is 'Custom'.                                                                                                                                    | 27022                                                                                                                     |
+| `comment`                  | NO              | _string_      | Option to add 'From' field to the shipment. To do this, enter the name in the following format: 'Reseller: \[name\]'.                                                                                                              | Reseller: Divine                                                                                                          |
+| `reseller_name`            | NO              | _string_      | The 'from' name if you want to print. Use 'Reseller: \[name\]'                                                                                                                                                                     | Reseller: Divine                                                                                                          |
+| `company_name`             | NO              | _string_      | Name of the company.                                                                                                                                                                                                               | Amazon                                                                                                                    |
+| `billing_customer_name`    | YES             | _string_      | First name of the billed customer.                                                                                                                                                                                                 | John                                                                                                                      |
+| `billing_last_name`        | NO              | _string_      | Last name of the billed customer.                                                                                                                                                                                                  | Doe                                                                                                                       |
+| `billing_address`          | YES             | _string_      | address details of the billed customer.                                                                                                                                                                                            | Civil line, House 20                                                                                                      |
+| `billing_address_2`        | NO              | _string_      | Further address details of the billed customer.                                                                                                                                                                                    | Near Hokage House                                                                                                         |
+| `billing_city`             | YES             | _string_      | Billing address city. Max char: 30.                                                                                                                                                                                                | New Delhi                                                                                                                 |
+| `billing_pincode`          | YES             | _integer_     | Pincode of the billing address.                                                                                                                                                                                                    | 110002                                                                                                                    |
+| `billing_state`            | YES             | _string_      | Billing address state.                                                                                                                                                                                                             | Delhi                                                                                                                     |
+| `billing_country`          | YES             | _string_      | Billing address country.                                                                                                                                                                                                           | India                                                                                                                     |
+| `billing_email`            | YES             | _string_      | Email address of the billed customer.                                                                                                                                                                                              | [John@doe.com](https://mailto:John@doe.com/)                                                                              |
+| `billing_phone`            | YES             | _integer_     | The phone number of the billing customer.                                                                                                                                                                                          | 9856321472                                                                                                                |
+| `billing_alternate_phone`  | NO              | _integer_     | Alternate phone number of the billing customer.                                                                                                                                                                                    | 8604690454                                                                                                                |
+| `shipping_is_billing`      | YES             | _boolean_     | Whether the shipping address is the same as billing address. 1 or 'true' for yes and 0 or 'false' for no.                                                                                                                          | true                                                                                                                      |
+| `shipping_customer_name`   | CONDITIONAL YES | _string_      | Name of the customer the order is shipped to. Required in case billing is not same as shipping.                                                                                                                                    | Jane                                                                                                                      |
+| `shipping_last_name`       | NO              | _string_      | Last name of the shipping customer.                                                                                                                                                                                                | Doe                                                                                                                       |
+| `shipping_address`         | CONDITIONAL YES | _string_      | Address of the Shipping customer. Required in case billing is not same as shipping.                                                                                                                                                | Lane number 69                                                                                                            |
+| `shipping_address_2`       | NO              | _string_      | Further address details of shipping customer.                                                                                                                                                                                      | Andheri                                                                                                                   |
+| `billing_isd_code`         | NO              | _string_      | ISD code of the billing address.                                                                                                                                                                                                   | +91                                                                                                                       |
+| `shipping_city`            | CONDITIONAL YES | _string_      | Shipping address city.                                                                                                                                                                                                             | Mumbai                                                                                                                    |
+| `shipping_pincode`         | CONDITIONAL YES | _integer_     | Shipping address pincode.                                                                                                                                                                                                          | 200912                                                                                                                    |
+| `shipping_country`         | CONDITIONAL YES | _string_      | Shipping address country.                                                                                                                                                                                                          | India                                                                                                                     |
+| `shipping_state`           | CONDITIONAL YES | _string_      | Shipping address state.                                                                                                                                                                                                            | Maharashtra                                                                                                               |
+| `shipping_email`           | NO              | _string_      | Email of the shipping customer.                                                                                                                                                                                                    | [Jane@doe.com](https://mailto:Jane@doe.com/)                                                                              |
+| `shipping_phone`           | CONDITIONAL YES | _integer_     | Phone no. of the shipping customer.                                                                                                                                                                                                |                                                                                                                           |
+| `longitude`                | YES             | _float_       | Delivery Longitude. Mandatory in case of Hyper local shipments                                                                                                                                                                     | 77.06745147705078                                                                                                         |
+| `latitude`                 | YES             | _float_       | Delivery Latitude. Mandatory in case of Hyper local shipments                                                                                                                                                                      | 28.50724220275879                                                                                                         |
+| `order_items`              | YES             | /             | List of items and their relevant fields in the form of Array.                                                                                                                                                                      | /                                                                                                                         |
+| `name`                     | YES             | _string_      | Name of the product.                                                                                                                                                                                                               | Jeans                                                                                                                     |
+| `sku`                      | YES             | _string_      | The sku id of the product.                                                                                                                                                                                                         | cbs123                                                                                                                    |
+| `units`                    | YES             | _integer_     | No of units that are to be shipped.                                                                                                                                                                                                | 10                                                                                                                        |
+| `selling_price`            | YES             | _integer_     | The selling price per unit in Rupee. Inclusive of GST.                                                                                                                                                                             | 900                                                                                                                       |
+| `discount`                 | NO              | _integer_     | The discount amount in Rupee. Inclusive of tax.                                                                                                                                                                                    | 10                                                                                                                        |
+| `tax`                      | NO              | _integer_     | The tax percentage on the item.                                                                                                                                                                                                    | 5                                                                                                                         |
+| `hsn`                      | NO              | _integer_     | Harmonised System Nomenclature code. Used to determine the category of taxation the goods fall under.                                                                                                                              | 44122                                                                                                                     |
+| `payment_method`           | YES             | _string_      | The method of payment. Can be either COD (Cash on delivery) Or Prepaid.                                                                                                                                                            | COD                                                                                                                       |
+| `shipping_charges`         | NO              | _integer_     | Shipping charges if any in Rupee.                                                                                                                                                                                                  | 5                                                                                                                         |
+| `giftwrap_charges`         | NO              | _integer_     | Giftwrap charges if any in Rupee.                                                                                                                                                                                                  | 5                                                                                                                         |
+| `transaction_charges`      | NO              | _integer_     | Transaction charges if any in Rupee.                                                                                                                                                                                               | 5                                                                                                                         |
+| `total_discount`           | NO              | _integer_     | The total discount amount in Rupee.                                                                                                                                                                                                | 15                                                                                                                        |
+| `sub_total`                | YES             | _integer_     | Calculated sub total amount in Rupee after deductions.                                                                                                                                                                             | 9010                                                                                                                      |
+| `length`                   | YES             | _float_       | The length of the item in cms. Must be more than 0.5.                                                                                                                                                                              | 10                                                                                                                        |
+| `breadth`                  | YES             | _float_       | The breadth of the item in cms. Must be more than 0.5.                                                                                                                                                                             | 10                                                                                                                        |
+| `height`                   | YES             | _float_       | The height of the item in cms. Must be more than 0.5.                                                                                                                                                                              | 10                                                                                                                        |
+| `weight`                   | YES             | _float_       | The weight of the item in kgs. Must be more than 0.                                                                                                                                                                                | 2.5                                                                                                                       |
+| `ewaybill_no`              | NO              | _string_      | Details relating to the shipment of goods. .                                                                                                                                                                                       | K92373490                                                                                                                 |
+| `customer_gstin`           | NO              | _string_      | Goods and Services Tax Identification Number.                                                                                                                                                                                      | 29ABCDE1234F2Z5                                                                                                           |
+| `invoice_number`           | NO              | _string_      |                                                                                                                                                                                                                                    |                                                                                                                           |
+| `order_type`               | NO              | _string_      | Key to differentiate between Essentials or Non Essentials Shipments. Order type can only be ESSENTIALS or NON ESSENTIALS. Please note it is case sensitive and blank values are allowed.                                           | ESSENTIALS                                                                                                                |
+| `checkout_shipping_method` | NO              | _string_      | Only for SRF users.                                                                                                                                                                                                                | a. SR_RUSH: SDD, NDD <br>b. SR_STANDARD: Surface Delivery <br>c. SR_EXPRESS: Air Delivery <br>d. SR_QUICK: 3 hrs delivery |
+| `what3words_address`       | NO              | _string_      | What3words is a proprietary geocode system designed to identify any location on the surface of Earth with a resolution of about 3 meters. The system encodes geographic coordinates into three permanently fixed dictionary words. | toddler.geologist.animated                                                                                                |
+| `is_insurance_opt`         | NO              | _boolean_     | To secure shipments above the order value of Rs 2500                                                                                                                                                                               | true                                                                                                                      |
+| `is_document`              | NO              | _integer_     | To create a document order                                                                                                                                                                                                         | 1 or 0                                                                                                                    |
+| `shipping_method`          | YES             | _string_      | Shipping method use HL in case of Hyper local shipments                                                                                                                                                                            | HL                                                                                                                        |
 
 HEADERS
 
@@ -8588,20 +8548,20 @@ Plain Text
 
 View More
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `page` | NO | _integer_ | The page number to display. | 5 |
-| `per_page` | NO | _integer_ | The number of entries per page. | 5 |
-| `sort` | NO | _string_ | Sort conditions: ASC or DESC | ASC |
-| `sort_by` | NO | _string_ | The Field to sort by: id or status | id |
-| `to` | NO | _string_ | The end date. | 2018-07-24 |
-| `from` | NO | _string_ | The start date. | 2019-07-24 |
-| `filter_by` | NO | _string_ | Field to filter by. | status, payment\_method, delivery\_country, channel\_order\_id |
-| `filter` | NO | _string_ | Value of the field |  |
-| `search` | NO | _string_ | Search for AWB or by Channel order\_id (order id specified by you). | 224477 |
-| `pickup_location` | NO | _string_ | Search Orders on the basis of pickup location. | xyz |
-| `channel_id` | NO | _integer_ | Channel ID Returned in Get Integrated Channels API | 123 |
-| `fbs` | NO | _integer_ | Use this filter if you want to view and filter the SRF orders | 0 or 1 |
+| **PARAMS**        | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                                                    | **EXAMPLE**                                                |
+| ----------------- | ------------ | ------------- | ------------------------------------------------------------------ | ---------------------------------------------------------- |
+| `page`            | NO           | _integer_     | The page number to display.                                        | 5                                                          |
+| `per_page`        | NO           | _integer_     | The number of entries per page.                                    | 5                                                          |
+| `sort`            | NO           | _string_      | Sort conditions: ASC or DESC                                       | ASC                                                        |
+| `sort_by`         | NO           | _string_      | The Field to sort by: id or status                                 | id                                                         |
+| `to`              | NO           | _string_      | The end date.                                                      | 2018-07-24                                                 |
+| `from`            | NO           | _string_      | The start date.                                                    | 2019-07-24                                                 |
+| `filter_by`       | NO           | _string_      | Field to filter by.                                                | status, payment_method, delivery_country, channel_order_id |
+| `filter`          | NO           | _string_      | Value of the field                                                 |                                                            |
+| `search`          | NO           | _string_      | Search for AWB or by Channel order_id (order id specified by you). | 224477                                                     |
+| `pickup_location` | NO           | _string_      | Search Orders on the basis of pickup location.                     | xyz                                                        |
+| `channel_id`      | NO           | _integer_     | Channel ID Returned in Get Integrated Channels API                 | 123                                                        |
+| `fbs`             | NO           | _integer_     | Use this filter if you want to view and filter the SRF orders      | 0 or 1                                                     |
 
 HEADERS
 
@@ -8766,13 +8726,13 @@ keep-alive
 
 https://apiv2.shiprocket.in/v1/external/orders/show
 
-Get the order and shipment details of a particular order through this API by passing the Shiprocket order\_id in the endpoint URL itself — type in your order\_id in place of {id}.
+Get the order and shipment details of a particular order through this API by passing the Shiprocket order_id in the endpoint URL itself — type in your order_id in place of {id}.
 
 No other body parameters are required.
 
 **Note:**
 
-For SRF orders, you'll receive an extra parameter viz., fulfillment\_status. This key will have four values:
+For SRF orders, you'll receive an extra parameter viz., fulfillment_status. This key will have four values:
 
 - Ready to Pack,
 - Packed
@@ -8781,8 +8741,8 @@ For SRF orders, you'll receive an extra parameter viz., fulfillment\_status. Thi
 
 #### Path:
 
-| **EXAMPLE** |
-| --- |
+| **EXAMPLE**                                                                                                                  |
+| ---------------------------------------------------------------------------------------------------------------------------- |
 | [https://apiv2.shiprocket.in/v1/external/orders/show/16167171](https://apiv2.shiprocket.in/v1/external/orders/show/16167171) |
 
 HEADERS
@@ -9196,7 +9156,6 @@ Bodyraw
 
 ```javascript
 {
-
 }
 ```
 
@@ -9287,11 +9246,11 @@ This API can be used to assign the AWB (Air Waybill Number) to your shipment. Th
 
 #### Parameters:
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `shipment_id` | YES | _integer_ | The shipment id of the order you want to create the AWB for. | 16016920 |
-| `courier_id` | NO | _integer_ | The courier id of the courier service you want to select. The default courier is selected in case no id is specified. | 10 |
-| `status` | NO | _string_ | Use this to change the courier of a shipment. Value: reassign. Note that this can be done only once in 24 hours. | reassign |
+| **PARAMS**    | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                                                                                                       | **EXAMPLE** |
+| ------------- | ------------ | ------------- | --------------------------------------------------------------------------------------------------------------------- | ----------- |
+| `shipment_id` | YES          | _integer_     | The shipment id of the order you want to create the AWB for.                                                          | 16016920    |
+| `courier_id`  | NO           | _integer_     | The courier id of the courier service you want to select. The default courier is selected in case no id is specified. | 10          |
+| `status`      | NO           | _string_      | Use this to change the courier of a shipment. Value: reassign. Note that this can be done only once in 24 hours.      | reassign    |
 
 HEADERS
 
@@ -9393,26 +9352,25 @@ Further details like the estimated time of delivery, the rates along with the id
 
 **Note:**
 
-- One of either the 'order\_id' or 'cod' and 'weight' is required. If you specify the order id, the cod and weight fields are not required and vice versa.
+- One of either the 'order_id' or 'cod' and 'weight' is required. If you specify the order id, the cod and weight fields are not required and vice versa.
 
 - You can add further fields to add the shipment details and filter the search.
-
 
 #### Parameters:
 
 View More
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `pickup_postcode` | YES | _integer_ | Postcode from where the order will be picked. | 110030 |
-| `delivery_postcode` | YES | _integer_ | Postcode where the order will be delivered | 122002 |
-| `order_id` | NO | _integer_ | If order id is already created in Shiprocket panel then you can use this shiprocket order id in servicibility | 123456 |
-| `cod` | CONDITIONAL YES | _boolean_ | 1 for Cash on Delivery and 0 for Prepaid orders. | 1 |
-| `is_new_hyperlocal` | YES | _boolean_ | 1 in case of hyper-local shipments | 1 |
-| `lat_from` | YES | _float_ | Pickup Latitude. Mandatory in case of Hyper local shipments | 28.509223937988 |
-| `long_from` | YES | _float_ | Pickup Longitude. Mandatory in case of Hyper local shipments | 77.067848205566 |
-| `lat_to` | YES | _float_ | Delivery Latitude. Mandatory in case of Hyper local shipments | 28.50724220275879 |
-| `long_to` | YES | _float_ | Delivery Longitude. Mandatory in case of Hyper local shipments | 77.06745147705078 |
+| **PARAMS**          | **REQUIRED**    | **DATA TYPE** | **DESCRIPTION**                                                                                               | **EXAMPLE**       |
+| ------------------- | --------------- | ------------- | ------------------------------------------------------------------------------------------------------------- | ----------------- |
+| `pickup_postcode`   | YES             | _integer_     | Postcode from where the order will be picked.                                                                 | 110030            |
+| `delivery_postcode` | YES             | _integer_     | Postcode where the order will be delivered                                                                    | 122002            |
+| `order_id`          | NO              | _integer_     | If order id is already created in Shiprocket panel then you can use this shiprocket order id in servicibility | 123456            |
+| `cod`               | CONDITIONAL YES | _boolean_     | 1 for Cash on Delivery and 0 for Prepaid orders.                                                              | 1                 |
+| `is_new_hyperlocal` | YES             | _boolean_     | 1 in case of hyper-local shipments                                                                            | 1                 |
+| `lat_from`          | YES             | _float_       | Pickup Latitude. Mandatory in case of Hyper local shipments                                                   | 28.509223937988   |
+| `long_from`         | YES             | _float_       | Pickup Longitude. Mandatory in case of Hyper local shipments                                                  | 77.067848205566   |
+| `lat_to`            | YES             | _float_       | Delivery Latitude. Mandatory in case of Hyper local shipments                                                 | 28.50724220275879 |
+| `long_to`           | YES             | _float_       | Delivery Longitude. Mandatory in case of Hyper local shipments                                                | 77.06745147705078 |
 
 HEADERS
 
@@ -9505,66 +9463,66 @@ Use these APIs to get the tracking details of your shipments through the AWB cod
 
 View More
 
-| **STATUS CODE** | **DESCRIPTION** |
-| --- | --- |
-| 6 | Shipped |
-| 7 | Delivered |
-| 8 | Canceled |
-| 9 | RTO Initiated |
-| 10 | RTO Delivered |
-| 12 | Lost |
-| 13 | Pickup Error |
-| 14 | RTO Acknowledged |
-| 15 | Pickup Rescheduled |
-| 16 | Cancellation Requested |
-| 17 | Out For Delivery |
-| 18 | In Transit |
-| 19 | Out For Pickup |
-| 20 | Pickup Exception |
-| 21 | Undelivered |
-| 22 | Delayed |
-| 23 | Partial\_Delivered |
-| 24 | DESTROYED |
-| 25 | DAMAGED |
-| 26 | FULFILLED |
-| 27 | Pickup Booked |
-| 38 | REACHED AT DESTINATION HUB |
-| 39 | MISROUTED |
-| 40 | RTO\_NDR |
-| 41 | RTO\_OFD |
-| 42 | PICKED UP |
-| 43 | SELF FULFILLED |
-| 44 | DISPOSED OFF |
-| 45 | CANCELLED\_BEFORE\_DISPATCHED |
-| 46 | RTO IN INTRANSIT |
-| 47 | QC FAILED |
-| 48 | Reached Warehouse |
-| 49 | Custom Cleared |
-| 50 | In Flight |
-| 51 | Handover to Courier |
-| 52 | Shipment Booked |
-| 54 | In Transit Overseas |
-| 55 | Connection Aligned |
-| 56 | Reached Overseas Warehouse |
-| 57 | Custom Cleared Overseas |
-| 59 | Box Packing |
-| 68 | PROCESSED AT WAREHOUSE |
-| 60 | FC Allocated |
-| 61 | Picklist Generated |
-| 62 | Ready To Pack |
-| 63 | Packed |
-| 67 | FC MANIFEST GENERATED |
-| 71 | HANDOVER EXCEPTION |
-| 72 | PACKED EXCEPTION |
-| 75 | RTO\_LOCK |
-| 76 | UNTRACEABLE |
-| 77 | ISSUE\_RELATED\_TO\_THE\_RECIPIENT |
-| 78 | REACHED\_BACK\_AT\_SELLER\_CITY |
-| 79 | RIDER ASSIGNED |
-| 80 | RIDER UNASSIGNED |
-| 81 | RIDER ASSIGNED |
-| 82 | RIDER REACHED AT DROP |
-| 83 | SEARCHING\_FOR\_RIDER |
+| **STATUS CODE** | **DESCRIPTION**                |
+| --------------- | ------------------------------ |
+| 6               | Shipped                        |
+| 7               | Delivered                      |
+| 8               | Canceled                       |
+| 9               | RTO Initiated                  |
+| 10              | RTO Delivered                  |
+| 12              | Lost                           |
+| 13              | Pickup Error                   |
+| 14              | RTO Acknowledged               |
+| 15              | Pickup Rescheduled             |
+| 16              | Cancellation Requested         |
+| 17              | Out For Delivery               |
+| 18              | In Transit                     |
+| 19              | Out For Pickup                 |
+| 20              | Pickup Exception               |
+| 21              | Undelivered                    |
+| 22              | Delayed                        |
+| 23              | Partial_Delivered              |
+| 24              | DESTROYED                      |
+| 25              | DAMAGED                        |
+| 26              | FULFILLED                      |
+| 27              | Pickup Booked                  |
+| 38              | REACHED AT DESTINATION HUB     |
+| 39              | MISROUTED                      |
+| 40              | RTO_NDR                        |
+| 41              | RTO_OFD                        |
+| 42              | PICKED UP                      |
+| 43              | SELF FULFILLED                 |
+| 44              | DISPOSED OFF                   |
+| 45              | CANCELLED_BEFORE_DISPATCHED    |
+| 46              | RTO IN INTRANSIT               |
+| 47              | QC FAILED                      |
+| 48              | Reached Warehouse              |
+| 49              | Custom Cleared                 |
+| 50              | In Flight                      |
+| 51              | Handover to Courier            |
+| 52              | Shipment Booked                |
+| 54              | In Transit Overseas            |
+| 55              | Connection Aligned             |
+| 56              | Reached Overseas Warehouse     |
+| 57              | Custom Cleared Overseas        |
+| 59              | Box Packing                    |
+| 68              | PROCESSED AT WAREHOUSE         |
+| 60              | FC Allocated                   |
+| 61              | Picklist Generated             |
+| 62              | Ready To Pack                  |
+| 63              | Packed                         |
+| 67              | FC MANIFEST GENERATED          |
+| 71              | HANDOVER EXCEPTION             |
+| 72              | PACKED EXCEPTION               |
+| 75              | RTO_LOCK                       |
+| 76              | UNTRACEABLE                    |
+| 77              | ISSUE_RELATED_TO_THE_RECIPIENT |
+| 78              | REACHED_BACK_AT_SELLER_CITY    |
+| 79              | RIDER ASSIGNED                 |
+| 80              | RIDER UNASSIGNED               |
+| 81              | RIDER ASSIGNED                 |
+| 82              | RIDER REACHED AT DROP          |
+| 83              | SEARCHING_FOR_RIDER            |
 
 ### GETGet Tracking through AWB
 
@@ -9577,8 +9535,8 @@ The response is displayed in JSON format.
 
 #### Path:
 
-| **EXAMPLE** |
-| --- |
+| **EXAMPLE**                                                                                                                                      |
+| ------------------------------------------------------------------------------------------------------------------------------------------------ |
 | [https://apiv2.shiprocket.in/v1/external/courier/track/awb/788830567028](https://apiv2.shiprocket.in/v1/external/courier/track/awb/788830567028) |
 
 HEADERS
@@ -9773,9 +9731,9 @@ The response is displayed in JSON format.
 
 #### Parameters:
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `awbs` | YES | _string_ | The AWB codes of the shipments. Must be passed as an array. | \["788830567028","788829354408"\] |
+| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                                             | **EXAMPLE**                       |
+| ---------- | ------------ | ------------- | ----------------------------------------------------------- | --------------------------------- |
+| `awbs`     | YES          | _string_      | The AWB codes of the shipments. Must be passed as an array. | \["788830567028","788829354408"\] |
 
 HEADERS
 
@@ -9936,15 +9894,15 @@ keep-alive
 
 https://apiv2.shiprocket.in/v1/external/courier/track/shipment/{shipment\_id}
 
-Get the tracking details of your shipment by entering the shipment\_id of the same in the endpoint URL.
+Get the tracking details of your shipment by entering the shipment_id of the same in the endpoint URL.
 No other body parameters are required to access this API.
 
 The response is displayed in JSON format.
 
 #### Path:
 
-| **EXAMPLE** |
-| --- |
+| **EXAMPLE**                                                                                                                                        |
+| -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [https://apiv2.shiprocket.in/v1/external/courier/track/shipment/16104408](https://apiv2.shiprocket.in/v1/external/courier/track/shipment/16104408) |
 
 HEADERS
@@ -10079,22 +10037,22 @@ keep-alive
 https://apiv2.shiprocket.in/v1/external/courier/track?order\_id=123&channel\_id=12345
 
 Get the tracking details of your shipment by entering the Order ID of the same in the endpoint URL itself.
-If you have the same order ID in more than one channel, then use the param channel\_id.
+If you have the same order ID in more than one channel, then use the param channel_id.
 
 The response is displayed in JSON format.
 
 #### Parameters:
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `order_id` | YES | _string_ | The order ID/number of your store. | NO-123 |
-| `channel_id` | NO | _integer_ | Channel ID corresponding to the store | 12345 |
+| **PARAMS**   | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                       | **EXAMPLE** |
+| ------------ | ------------ | ------------- | ------------------------------------- | ----------- |
+| `order_id`   | YES          | _string_      | The order ID/number of your store.    | NO-123      |
+| `channel_id` | NO           | _integer_     | Channel ID corresponding to the store | 12345       |
 
 #### Path:
 
-| **EXAMPLE** |
-| --- |
-| [https://apiv2.shiprocket.in/v1/external/courier/track?order\_id=123&channel\_id=12345](https://apiv2.shiprocket.in/v1/external/courier/track?order_id=123&channel_id=12345) |
+| **EXAMPLE**                                                                                                                                                                |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [https://apiv2.shiprocket.in/v1/external/courier/track?order_id=123&channel_id=12345](https://apiv2.shiprocket.in/v1/external/courier/track?order_id=123&channel_id=12345) |
 
 HEADERS
 
@@ -10104,11 +10062,11 @@ Bearer {token}
 
 PARAMS
 
-order\_id
+order_id
 
 123
 
-channel\_id
+channel_id
 
 12345
 
@@ -10335,23 +10293,23 @@ Further details to the address can be added if required.
 
 View More
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `pickup_location` | YES | _string_ | The nickname of the new pickup location. Max 36 characters. | Home |
-| `name` | YES | _string_ | The shipper's name. | Deadpool |
-| `email` | YES | _string_ | The shipper's email address. | [deadpool@chimichanga.com](https://mailto:deadpool@chimichanga.com/) |
-| `phone` | YES | _integer_ | Shipper's phone number. | 9777777779 |
-| `address` | YES | _string_ | Shipper's primary address. Max 80 characters. | Mutant Facility, Sector 3 |
-| `address_2` | NO | _string_ | Additional address details. | House number 34 |
-| `city` | YES | _string_ | Pickup location city name. | Pune |
-| `state` | YES | _string_ | Pickup location state name. | Maharashtra |
-| `country` | YES | _string_ | Pickup location country. | India |
-| `pin_code` | YES | _integer_ | Pickup location pincode. | 110022 |
-| `lat` | YES | _float_ | Pickup location Latitude. | 22.4064 |
-| `long` | YES | _float_ | Pickup location Longitude. | 69.0747 |
-| `address_type` | NO | _string_ | To be given if address of different vendor is to be provided with pickup address | vendor |
-| `vendor_name` | NO | _string_ | Name of vendor if address\_type is vendor | John |
-| `gstin` | NO | _string_ | gstin of vendor | 09XXXCH7409R1XXX |
+| **PARAMS**        | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                                                                  | **EXAMPLE**                                                          |
+| ----------------- | ------------ | ------------- | -------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `pickup_location` | YES          | _string_      | The nickname of the new pickup location. Max 36 characters.                      | Home                                                                 |
+| `name`            | YES          | _string_      | The shipper's name.                                                              | Deadpool                                                             |
+| `email`           | YES          | _string_      | The shipper's email address.                                                     | [deadpool@chimichanga.com](https://mailto:deadpool@chimichanga.com/) |
+| `phone`           | YES          | _integer_     | Shipper's phone number.                                                          | 9777777779                                                           |
+| `address`         | YES          | _string_      | Shipper's primary address. Max 80 characters.                                    | Mutant Facility, Sector 3                                            |
+| `address_2`       | NO           | _string_      | Additional address details.                                                      | House number 34                                                      |
+| `city`            | YES          | _string_      | Pickup location city name.                                                       | Pune                                                                 |
+| `state`           | YES          | _string_      | Pickup location state name.                                                      | Maharashtra                                                          |
+| `country`         | YES          | _string_      | Pickup location country.                                                         | India                                                                |
+| `pin_code`        | YES          | _integer_     | Pickup location pincode.                                                         | 110022                                                               |
+| `lat`             | YES          | _float_       | Pickup location Latitude.                                                        | 22.4064                                                              |
+| `long`            | YES          | _float_       | Pickup location Longitude.                                                       | 69.0747                                                              |
+| `address_type`    | NO           | _string_      | To be given if address of different vendor is to be provided with pickup address | vendor                                                               |
+| `vendor_name`     | NO           | _string_      | Name of vendor if address_type is vendor                                         | John                                                                 |
+| `gstin`           | NO           | _string_      | gstin of vendor                                                                  | 09XXXCH7409R1XXX                                                     |
 
 HEADERS
 
@@ -10514,8 +10472,8 @@ The response is displayed in JSON format.
 
 #### Path:
 
-| **EXAMPLE** |
-| --- |
+| **EXAMPLE**                                                                                                                                      |
+| ------------------------------------------------------------------------------------------------------------------------------------------------ |
 | [https://apiv2.shiprocket.in/v1/external/courier/track/awb/788830567028](https://apiv2.shiprocket.in/v1/external/courier/track/awb/788830567028) |
 
 HEADERS
@@ -10699,15 +10657,15 @@ keep-alive
 
 https://apiv2.shiprocket.in/v1/external/courier/track/shipment/{shipment\_id}
 
-Get the tracking details of your shipment by entering the shipment\_id of the same in the endpoint URL.
+Get the tracking details of your shipment by entering the shipment_id of the same in the endpoint URL.
 No other body parameters are required to access this API.
 
 The response is displayed in JSON format.
 
 #### Path:
 
-| **EXAMPLE** |
-| --- |
+| **EXAMPLE**                                                                                                                                        |
+| -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [https://apiv2.shiprocket.in/v1/external/courier/track/shipment/16104408](https://apiv2.shiprocket.in/v1/external/courier/track/shipment/16104408) |
 
 HEADERS
@@ -10842,22 +10800,22 @@ keep-alive
 https://apiv2.shiprocket.in/v1/external/courier/track?order\_id=123&channel\_id=12345
 
 Get the tracking details of your shipment by entering the Order ID of the same in the endpoint URL itself.
-If you have the same order ID in more than one channel, then use the param channel\_id.
+If you have the same order ID in more than one channel, then use the param channel_id.
 
 The response is displayed in JSON format.
 
 #### Parameters:
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `order_id` | YES | _string_ | The order ID/number of your store. | NO-123 |
-| `channel_id` | NO | _integer_ | Channel ID corresponding to the store | 12345 |
+| **PARAMS**   | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                       | **EXAMPLE** |
+| ------------ | ------------ | ------------- | ------------------------------------- | ----------- |
+| `order_id`   | YES          | _string_      | The order ID/number of your store.    | NO-123      |
+| `channel_id` | NO           | _integer_     | Channel ID corresponding to the store | 12345       |
 
 #### Path:
 
-| **EXAMPLE** |
-| --- |
-| [https://apiv2.shiprocket.in/v1/external/courier/track?order\_id=123&channel\_id=12345](https://apiv2.shiprocket.in/v1/external/courier/track?order_id=123&channel_id=12345) |
+| **EXAMPLE**                                                                                                                                                                |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [https://apiv2.shiprocket.in/v1/external/courier/track?order_id=123&channel_id=12345](https://apiv2.shiprocket.in/v1/external/courier/track?order_id=123&channel_id=12345) |
 
 HEADERS
 
@@ -10867,11 +10825,11 @@ Bearer {token}
 
 PARAMS
 
-order\_id
+order_id
 
 123
 
-channel\_id
+channel_id
 
 12345
 
@@ -11792,11 +11750,11 @@ Use this API for your international KYC. This API return your KYC status.
 
 Please check the documentation for the documents for KYC.
 
-| PARAMS | REQUIRED DATA | DATA TYPE | DESCRIPTION | EXAMPLE |
-| --- | --- | --- | --- | --- |
-| organization\_type | Yes | string | Seller organization | company |
-| ip\_address | Yes | int unsigned | Seller's ip\_address | 192.168.1.1.0 |
-| documents | Yes | array | Documentaion for organization type <br>(document size is not greater than 3 MB) | Please check request |
+| PARAMS            | REQUIRED DATA | DATA TYPE    | DESCRIPTION                                                                     | EXAMPLE              |
+| ----------------- | ------------- | ------------ | ------------------------------------------------------------------------------- | -------------------- |
+| organization_type | Yes           | string       | Seller organization                                                             | company              |
+| ip_address        | Yes           | int unsigned | Seller's ip_address                                                             | 192.168.1.1.0        |
+| documents         | Yes           | array        | Documentaion for organization type <br>(document size is not greater than 3 MB) | Please check request |
 
 AUTHORIZATIONBearer Token
 
@@ -11967,12 +11925,12 @@ addbankdetailsforinternationalsettings.TheAPIendpoint, parameters, request sampl
 
 data, success response , and failed response are outlined below.
 
-| PARAMS | REQUIRED | DATA TYPE | DESCRIPTION | EXAMPLE |
-| --- | --- | --- | --- | --- |
-| bank\_account\_type | YES | string | ankaccounttype.Mustbe <br>either"saving"or"current". | "saving" |
-| beneficiary\_name | YES | string | Beneficiaryname. <br>Alphabetsandspacesonly | "JohnDoe" |
-| bank\_ifsc\_code | YES | string | BankIFSCcode.Must <br>followaspecificpattern | "ABCD0123456" |
-| bank\_account\_number | YES | integer | Bankaccountnumber. <br>Shouldbebetween9and <br>18digits. | 1234567890 |
+| PARAMS              | REQUIRED | DATA TYPE | DESCRIPTION                                              | EXAMPLE       |
+| ------------------- | -------- | --------- | -------------------------------------------------------- | ------------- |
+| bank_account_type   | YES      | string    | ankaccounttype.Mustbe <br>either"saving"or"current".     | "saving"      |
+| beneficiary_name    | YES      | string    | Beneficiaryname. <br>Alphabetsandspacesonly              | "JohnDoe"     |
+| bank_ifsc_code      | YES      | string    | BankIFSCcode.Must <br>followaspecificpattern             | "ABCD0123456" |
+| bank_account_number | YES      | integer   | Bankaccountnumber. <br>Shouldbebetween9and <br>18digits. | 1234567890    |
 
 AUTHORIZATIONBearer Token
 
@@ -12044,86 +12002,86 @@ You have to pass all the required params at the minimum to create a quick custom
 
 **Note:**
 
-- In case the 'shipping\_is\_billing' field is false, further shipping detail fields are required.
+- In case the 'shipping_is_billing' field is false, further shipping detail fields are required.
 
 If no channel id is passed, the order will be assigned to the default custom channel. If the channel id is not known, use the 'Get All Channels' API to get the list of all integrated channels in your Shiprocket account.
 
-- order\_id field cannot be equal to an already existing id. Doing so does not change or affect the existing order.
-- New orders cannot be created with order id's same as that of cancelled orders. If error 422 shows up despite filling in the correct details, consider changing the order\_id.
-- Be sure to input the correct calculated sub\_total amount. The total is not calculated automatically through the API.
-- The 'order\_id' returned in the response is the Shiprocket order\_id. Please save this order ID as we will use this in future API calls.
+- order_id field cannot be equal to an already existing id. Doing so does not change or affect the existing order.
+- New orders cannot be created with order id's same as that of cancelled orders. If error 422 shows up despite filling in the correct details, consider changing the order_id.
+- Be sure to input the correct calculated sub_total amount. The total is not calculated automatically through the API.
+- The 'order_id' returned in the response is the Shiprocket order_id. Please save this order ID as we will use this in future API calls.
 
 #### Parameters:
 
 View More
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `order_id` | YES | _string_ | The order id you want to specify to the order. Max char: 50. (Avoid passing character values as this contradicts some other API calls). | 224477 or 224-477 |
-| `order_date` | YES | _string_ | The date of order creation in yyyy-mm-dd format. Time is additional. | 2019-07-24 11:11 |
-| `pickup_location` | YES | _string_ | The name of the pickup location added in your Shiprocket account. This cannot be a new location. | Jammu |
-| `channel_id` | NO | _integer_ | Mention this in case you need to assign the order to a particular channel. Deafult is 'Custom'. | 27022 |
-| `comment` | NO | _string_ | Option to add 'From' field to the shipment. To do this, enter the name in the following format: 'Reseller: \[name\]'. | Reseller: Divine |
-| `reseller_name` | NO | _string_ | The 'from' name if you want to print. Use 'Reseller: \[name\]' | Reseller: Divine |
-| `company_name` | NO | _string_ | Name of the company. | Amazon |
-| `billing_customer_name` | YES | _string_ | First name of the billed customer. | John |
-| `billing_last_name` | NO | _string_ | Last name of the billed customer. | Doe |
-| `billing_address` | NO | _string_ | address details of the billed customer. | Civil line, House 20 |
-| `billing_address_2` | NO | _string_ | Further address details of the billed customer. | Near Hokage House |
-| `billing_city` | YES | _string_ | Billing address city. Max char: 30. | New Delhi |
-| `billing_pincode` | YES | _integer_ | Pincode of the billing address. | 110002 |
-| `billing_state` | YES | _string_ | Billing address state. | Delhi |
-| `billing_country` | YES | _string_ | Billing address country. | India |
-| `billing_email` | YES | _string_ | Email address of the billed customer. | [John@doe.com](mailto:John@doe.com) |
-| `billing_phone` | YES | _integer_ | The phone number of the billing customer. | 9856321472 |
-| `billing_alternate_phone` | NO | _integer_ | Alternate phone number of the billing customer. | 8604690454 |
-| `shipping_is_billing` | YES | _boolean_ | Whether the shipping address is the same as billing address. 1 or 'true' for yes and 0 or 'false' for no. | true |
-| `shipping_customer_name` | CONDITIONAL YES | _string_ | Name of the customer the order is shipped to. Required in case billing is not same as shipping. | Jane |
-| `shipping_last_name` | NO | _string_ | Last name of the shipping customer. | Doe |
-| `shipping_address` | CONDITIONAL YES | _string_ | Address of the Shipping customer. Required in case billing is not same as shipping. | Lane number 69 |
-| `shipping_address_2` | NO | _string_ | Further address details of shipping customer. | Andheri |
-| `billing_isd_code` | NO | _string_ | ISD code of the billing address. | +91 |
-| `shipping_city` | CONDITIONAL YES | _string_ | Shipping address city. | Mumbai |
-| `shipping_pincode` | CONDITIONAL YES | _integer_ | Shipping address pincode. | 200912 |
-| `shipping_country` | CONDITIONAL YES | _string_ | Shipping address country. | India |
-| `shipping_state` | CONDITIONAL YES | _string_ | Shipping address state. | Maharashtra |
-| `shipping_email` | CONDITIONAL YES | _string_ | Email of the shipping customer. | [Jane@doe.com](mailto:Jane@doe.com) |
-| `shipping_phone` | CONDITIONAL YES | _integer_ | Phone no. of the shipping customer. |  |
-| `longitude` | NO | _float_ | Destination (Shipping address) Longitude. | 69.0747 |
-| `latitude` | NO | _float_ | Destination (Shipping address) Latitude | 22.4064 |
-| `order_items` | YES | / | List of items and their relevant fields in the form of Array. | / |
-| `name` | YES | _string_ | Name of the product. | Jeans |
-| `sku` | YES | _string_ | The sku id of the product. | cbs123 |
-| `units` | YES | _integer_ | No of units that are to be shipped. | 10 |
-| `selling_price` | YES | _integer_ | The selling price per unit in Rupee. Inclusive of GST. | 900 |
-| `discount` | NO | _integer_ | The discount amount in Rupee. Inclusive of tax. | 10 |
-| `tax` | NO | _integer_ | The tax percentage on the item. | 5 |
-| `hsn` | NO | _integer_ | Harmonised System Nomenclature code. Used to determine the category of taxation the goods fall under. | 44122 |
-| `payment_method` | YES | _string_ | The method of payment. Can be either COD (Cash on delivery) Or Prepaid. | COD |
-| `shipping_charges` | NO | _integer_ | Shipping charges if any in Rupee. | 5 |
-| `giftwrap_charges` | NO | _integer_ | Giftwrap charges if any in Rupee. | 5 |
-| `transaction_charges` | NO | _integer_ | Transaction charges if any in Rupee. | 5 |
-| `total_discount` | NO | _integer_ | The total discount amount in Rupee. | 15 |
-| `sub_total` | YES | _integer_ | Calculated sub total amount in Rupee after deductions. | 9010 |
-| `length` | YES | _float_ | The length of the item in cms. Must be more than 0.5. | 10 |
-| `breadth` | YES | _float_ | The breadth of the item in cms. Must be more than 0.5. | 10 |
-| `height` | YES | _float_ | The height of the item in cms. Must be more than 0.5. | 10 |
-| `weight` | YES | _float_ | The weight of the item in kgs. Must be more than 0. | 2.5 |
-| `ewaybill_no` | NO | _string_ | Details relating to the shipment of goods. . | K92373490 |
-| `customer_gstin` | NO | _string_ | Goods and Services Tax Identification Number. | 29ABCDE1234F2Z5 |
-| `invoice_number` | NO | _string_ |  |  |
-| `order_type` | NO | _string_ | Key to differentiate between Essentials or Non Essentials Shipments. Order type can only be ESSENTIALS or NON ESSENTIALS. Please note it is case sensitive and blank values are allowed. | ESSENTIALS |
-| `checkout_shipping_method` | NO | _string_ | Only for SRF users. | a. SR\_RUSH: SDD, NDD <br>b. SR\_STANDARD: Surface Delivery <br>c. SR\_EXPRESS: Air Delivery <br>d. SR\_QUICK: 3 hrs delivery |
-| `what3words_address` | NO | _string_ | What3words is a proprietary geocode system designed to identify any location on the surface of Earth with a resolution of about 3 meters. The system encodes geographic coordinates into three permanently fixed dictionary words. | toddler.geologist.animated |
-| purpose\_of\_shipment | NO | interger | The purpose of the shipment. values are 0 - gift, 1- sample, commercial - 2. | 1 |
-| currency | YES | string | The currency of the order. Possible values are INR,USD,GBP, EUR, AUD, CAD, SAR, AED,SGD | USD |
-| reasonOfExport | YES | integer | The reason for the export. Possible values are 0 - BONAFIDE\_SAMPLE, 1 - SAMPLE, 2 - GIFT, 3 - COMMERCIAL | 2 |
-| commodity | NO | boolean | Indicates if the order is a commodity or not | true |
-| mies | NO |  |  | true |
-| igstPaymentStatus | NO | char | possible values are 'A'- not applicable, 'B'- LUT or Export under Bond, 'C'- Export Against Payment of IGST | A |
-| Terms\_Of\_Invoice | YES | string | FOB and CIF | FOB |
-| ioss | YES | string |  |  |
-| eori | YES | string |  |  |
+| **PARAMS**                 | **REQUIRED**    | **DATA TYPE** | **DESCRIPTION**                                                                                                                                                                                                                    | **EXAMPLE**                                                                                                               |
+| -------------------------- | --------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `order_id`                 | YES             | _string_      | The order id you want to specify to the order. Max char: 50. (Avoid passing character values as this contradicts some other API calls).                                                                                            | 224477 or 224-477                                                                                                         |
+| `order_date`               | YES             | _string_      | The date of order creation in yyyy-mm-dd format. Time is additional.                                                                                                                                                               | 2019-07-24 11:11                                                                                                          |
+| `pickup_location`          | YES             | _string_      | The name of the pickup location added in your Shiprocket account. This cannot be a new location.                                                                                                                                   | Jammu                                                                                                                     |
+| `channel_id`               | NO              | _integer_     | Mention this in case you need to assign the order to a particular channel. Deafult is 'Custom'.                                                                                                                                    | 27022                                                                                                                     |
+| `comment`                  | NO              | _string_      | Option to add 'From' field to the shipment. To do this, enter the name in the following format: 'Reseller: \[name\]'.                                                                                                              | Reseller: Divine                                                                                                          |
+| `reseller_name`            | NO              | _string_      | The 'from' name if you want to print. Use 'Reseller: \[name\]'                                                                                                                                                                     | Reseller: Divine                                                                                                          |
+| `company_name`             | NO              | _string_      | Name of the company.                                                                                                                                                                                                               | Amazon                                                                                                                    |
+| `billing_customer_name`    | YES             | _string_      | First name of the billed customer.                                                                                                                                                                                                 | John                                                                                                                      |
+| `billing_last_name`        | NO              | _string_      | Last name of the billed customer.                                                                                                                                                                                                  | Doe                                                                                                                       |
+| `billing_address`          | NO              | _string_      | address details of the billed customer.                                                                                                                                                                                            | Civil line, House 20                                                                                                      |
+| `billing_address_2`        | NO              | _string_      | Further address details of the billed customer.                                                                                                                                                                                    | Near Hokage House                                                                                                         |
+| `billing_city`             | YES             | _string_      | Billing address city. Max char: 30.                                                                                                                                                                                                | New Delhi                                                                                                                 |
+| `billing_pincode`          | YES             | _integer_     | Pincode of the billing address.                                                                                                                                                                                                    | 110002                                                                                                                    |
+| `billing_state`            | YES             | _string_      | Billing address state.                                                                                                                                                                                                             | Delhi                                                                                                                     |
+| `billing_country`          | YES             | _string_      | Billing address country.                                                                                                                                                                                                           | India                                                                                                                     |
+| `billing_email`            | YES             | _string_      | Email address of the billed customer.                                                                                                                                                                                              | [John@doe.com](mailto:John@doe.com)                                                                                       |
+| `billing_phone`            | YES             | _integer_     | The phone number of the billing customer.                                                                                                                                                                                          | 9856321472                                                                                                                |
+| `billing_alternate_phone`  | NO              | _integer_     | Alternate phone number of the billing customer.                                                                                                                                                                                    | 8604690454                                                                                                                |
+| `shipping_is_billing`      | YES             | _boolean_     | Whether the shipping address is the same as billing address. 1 or 'true' for yes and 0 or 'false' for no.                                                                                                                          | true                                                                                                                      |
+| `shipping_customer_name`   | CONDITIONAL YES | _string_      | Name of the customer the order is shipped to. Required in case billing is not same as shipping.                                                                                                                                    | Jane                                                                                                                      |
+| `shipping_last_name`       | NO              | _string_      | Last name of the shipping customer.                                                                                                                                                                                                | Doe                                                                                                                       |
+| `shipping_address`         | CONDITIONAL YES | _string_      | Address of the Shipping customer. Required in case billing is not same as shipping.                                                                                                                                                | Lane number 69                                                                                                            |
+| `shipping_address_2`       | NO              | _string_      | Further address details of shipping customer.                                                                                                                                                                                      | Andheri                                                                                                                   |
+| `billing_isd_code`         | NO              | _string_      | ISD code of the billing address.                                                                                                                                                                                                   | +91                                                                                                                       |
+| `shipping_city`            | CONDITIONAL YES | _string_      | Shipping address city.                                                                                                                                                                                                             | Mumbai                                                                                                                    |
+| `shipping_pincode`         | CONDITIONAL YES | _integer_     | Shipping address pincode.                                                                                                                                                                                                          | 200912                                                                                                                    |
+| `shipping_country`         | CONDITIONAL YES | _string_      | Shipping address country.                                                                                                                                                                                                          | India                                                                                                                     |
+| `shipping_state`           | CONDITIONAL YES | _string_      | Shipping address state.                                                                                                                                                                                                            | Maharashtra                                                                                                               |
+| `shipping_email`           | CONDITIONAL YES | _string_      | Email of the shipping customer.                                                                                                                                                                                                    | [Jane@doe.com](mailto:Jane@doe.com)                                                                                       |
+| `shipping_phone`           | CONDITIONAL YES | _integer_     | Phone no. of the shipping customer.                                                                                                                                                                                                |                                                                                                                           |
+| `longitude`                | NO              | _float_       | Destination (Shipping address) Longitude.                                                                                                                                                                                          | 69.0747                                                                                                                   |
+| `latitude`                 | NO              | _float_       | Destination (Shipping address) Latitude                                                                                                                                                                                            | 22.4064                                                                                                                   |
+| `order_items`              | YES             | /             | List of items and their relevant fields in the form of Array.                                                                                                                                                                      | /                                                                                                                         |
+| `name`                     | YES             | _string_      | Name of the product.                                                                                                                                                                                                               | Jeans                                                                                                                     |
+| `sku`                      | YES             | _string_      | The sku id of the product.                                                                                                                                                                                                         | cbs123                                                                                                                    |
+| `units`                    | YES             | _integer_     | No of units that are to be shipped.                                                                                                                                                                                                | 10                                                                                                                        |
+| `selling_price`            | YES             | _integer_     | The selling price per unit in Rupee. Inclusive of GST.                                                                                                                                                                             | 900                                                                                                                       |
+| `discount`                 | NO              | _integer_     | The discount amount in Rupee. Inclusive of tax.                                                                                                                                                                                    | 10                                                                                                                        |
+| `tax`                      | NO              | _integer_     | The tax percentage on the item.                                                                                                                                                                                                    | 5                                                                                                                         |
+| `hsn`                      | NO              | _integer_     | Harmonised System Nomenclature code. Used to determine the category of taxation the goods fall under.                                                                                                                              | 44122                                                                                                                     |
+| `payment_method`           | YES             | _string_      | The method of payment. Can be either COD (Cash on delivery) Or Prepaid.                                                                                                                                                            | COD                                                                                                                       |
+| `shipping_charges`         | NO              | _integer_     | Shipping charges if any in Rupee.                                                                                                                                                                                                  | 5                                                                                                                         |
+| `giftwrap_charges`         | NO              | _integer_     | Giftwrap charges if any in Rupee.                                                                                                                                                                                                  | 5                                                                                                                         |
+| `transaction_charges`      | NO              | _integer_     | Transaction charges if any in Rupee.                                                                                                                                                                                               | 5                                                                                                                         |
+| `total_discount`           | NO              | _integer_     | The total discount amount in Rupee.                                                                                                                                                                                                | 15                                                                                                                        |
+| `sub_total`                | YES             | _integer_     | Calculated sub total amount in Rupee after deductions.                                                                                                                                                                             | 9010                                                                                                                      |
+| `length`                   | YES             | _float_       | The length of the item in cms. Must be more than 0.5.                                                                                                                                                                              | 10                                                                                                                        |
+| `breadth`                  | YES             | _float_       | The breadth of the item in cms. Must be more than 0.5.                                                                                                                                                                             | 10                                                                                                                        |
+| `height`                   | YES             | _float_       | The height of the item in cms. Must be more than 0.5.                                                                                                                                                                              | 10                                                                                                                        |
+| `weight`                   | YES             | _float_       | The weight of the item in kgs. Must be more than 0.                                                                                                                                                                                | 2.5                                                                                                                       |
+| `ewaybill_no`              | NO              | _string_      | Details relating to the shipment of goods. .                                                                                                                                                                                       | K92373490                                                                                                                 |
+| `customer_gstin`           | NO              | _string_      | Goods and Services Tax Identification Number.                                                                                                                                                                                      | 29ABCDE1234F2Z5                                                                                                           |
+| `invoice_number`           | NO              | _string_      |                                                                                                                                                                                                                                    |                                                                                                                           |
+| `order_type`               | NO              | _string_      | Key to differentiate between Essentials or Non Essentials Shipments. Order type can only be ESSENTIALS or NON ESSENTIALS. Please note it is case sensitive and blank values are allowed.                                           | ESSENTIALS                                                                                                                |
+| `checkout_shipping_method` | NO              | _string_      | Only for SRF users.                                                                                                                                                                                                                | a. SR_RUSH: SDD, NDD <br>b. SR_STANDARD: Surface Delivery <br>c. SR_EXPRESS: Air Delivery <br>d. SR_QUICK: 3 hrs delivery |
+| `what3words_address`       | NO              | _string_      | What3words is a proprietary geocode system designed to identify any location on the surface of Earth with a resolution of about 3 meters. The system encodes geographic coordinates into three permanently fixed dictionary words. | toddler.geologist.animated                                                                                                |
+| purpose_of_shipment        | NO              | interger      | The purpose of the shipment. values are 0 - gift, 1- sample, commercial - 2.                                                                                                                                                       | 1                                                                                                                         |
+| currency                   | YES             | string        | The currency of the order. Possible values are INR,USD,GBP, EUR, AUD, CAD, SAR, AED,SGD                                                                                                                                            | USD                                                                                                                       |
+| reasonOfExport             | YES             | integer       | The reason for the export. Possible values are 0 - BONAFIDE_SAMPLE, 1 - SAMPLE, 2 - GIFT, 3 - COMMERCIAL                                                                                                                           | 2                                                                                                                         |
+| commodity                  | NO              | boolean       | Indicates if the order is a commodity or not                                                                                                                                                                                       | true                                                                                                                      |
+| mies                       | NO              |               |                                                                                                                                                                                                                                    | true                                                                                                                      |
+| igstPaymentStatus          | NO              | char          | possible values are 'A'- not applicable, 'B'- LUT or Export under Bond, 'C'- Export Against Payment of IGST                                                                                                                        | A                                                                                                                         |
+| Terms_Of_Invoice           | YES             | string        | FOB and CIF                                                                                                                                                                                                                        | FOB                                                                                                                       |
+| ioss                       | YES             | string        |                                                                                                                                                                                                                                    |                                                                                                                           |
+| eori                       | YES             | string        |                                                                                                                                                                                                                                    |                                                                                                                           |
 
 AUTHORIZATIONBearer Token
 
@@ -12372,19 +12330,19 @@ https://apiv2.shiprocket.in/v1/external/international/orders/update/adhoc
 
 Use this API to update your orders. You have to pass all the required params at the minimum to create a quick custom order. You can add additional parameters as per your preference.
 
-You can update only the order\_items details before assigning the AWB (before Ready to Ship status). You can only update these key-value pairs i.e increase/decrease the quantity, update tax/discount, add/remove product items. Some params specific to international order are.
+You can update only the order_items details before assigning the AWB (before Ready to Ship status). You can only update these key-value pairs i.e increase/decrease the quantity, update tax/discount, add/remove product items. Some params specific to international order are.
 
 View More
 
-| PARAMS | REQUIRED | DATA TYPE | DESCRIPTION | EXAMPLE |
-| --- | --- | --- | --- | --- |
-| purpose\_of\_shipment | NO | interger | The purpose of the shipment. values are 0 - gift, 1- sample, commercial - 2. | 1 |
-| currency | YES | string | The currency of the order. Possible values are INR,USD,GBP, EUR, AUD, CAD, SAR, AED,SGD | USD |
-| reasonOfExport | No | integer | The reason for the export. Possible values are 0 - BONAFIDE\_SAMPLE, 1 - SAMPLE, 2 - GIFT, 3 - COMMERCIAL | 2 |
-| commodity | NO | boolean | Indicates if the order is a commodity or not | true |
-| mies | No | boolean |  | true |
-| igstPaymentStatus | YES | char | possible values are 'A'- not applicable, 'B'- LUT or Export under Bond, 'C'- Export Against Payment of IGST | A |
-| Terms\_Of\_Invoice | no | string | The term of invoice either FOB and CIF | FOB |
+| PARAMS              | REQUIRED | DATA TYPE | DESCRIPTION                                                                                                 | EXAMPLE |
+| ------------------- | -------- | --------- | ----------------------------------------------------------------------------------------------------------- | ------- |
+| purpose_of_shipment | NO       | interger  | The purpose of the shipment. values are 0 - gift, 1- sample, commercial - 2.                                | 1       |
+| currency            | YES      | string    | The currency of the order. Possible values are INR,USD,GBP, EUR, AUD, CAD, SAR, AED,SGD                     | USD     |
+| reasonOfExport      | No       | integer   | The reason for the export. Possible values are 0 - BONAFIDE_SAMPLE, 1 - SAMPLE, 2 - GIFT, 3 - COMMERCIAL    | 2       |
+| commodity           | NO       | boolean   | Indicates if the order is a commodity or not                                                                | true    |
+| mies                | No       | boolean   |                                                                                                             | true    |
+| igstPaymentStatus   | YES      | char      | possible values are 'A'- not applicable, 'B'- LUT or Export under Bond, 'C'- Export Against Payment of IGST | A       |
+| Terms_Of_Invoice    | no       | string    | The term of invoice either FOB and CIF                                                                      | FOB     |
 
 AUTHORIZATIONBearer Token
 
@@ -12836,13 +12794,13 @@ This API checks courier serviceability for international orders and displays the
 
 #### Parameters:
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `weight` | YES | _integer_ | The weight of the shipment. | 10 |
-| `cod` | YES | _integer_ | Cash on delivery status. Must be 0. | 0 |
-| `delivery_country` | YES | _string_ | The destination country ISO Alpha 2 code. | US |
-| `order_id` | NO | _integer_ | The Shiprocket order\_id of the shipment if available. | 1 |
-| `pickup_postcode` | NO | _integer_ | Use this field to select a different pickup postcode other than the primary pickup address. | 2 |
+| **PARAMS**         | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                                                                             | **EXAMPLE** |
+| ------------------ | ------------ | ------------- | ------------------------------------------------------------------------------------------- | ----------- |
+| `weight`           | YES          | _integer_     | The weight of the shipment.                                                                 | 10          |
+| `cod`              | YES          | _integer_     | Cash on delivery status. Must be 0.                                                         | 0           |
+| `delivery_country` | YES          | _string_      | The destination country ISO Alpha 2 code.                                                   | US          |
+| `order_id`         | NO           | _integer_     | The Shiprocket order_id of the shipment if available.                                       | 1           |
+| `pickup_postcode`  | NO           | _integer_     | Use this field to select a different pickup postcode other than the primary pickup address. | 2           |
 
 AUTHORIZATIONBearer Token
 
@@ -12852,7 +12810,7 @@ Token
 
 PARAMS
 
-order\_id
+order_id
 
 247825513
 
@@ -13196,12 +13154,12 @@ https://apiv2.shiprocket.in/v1/external/international/courier/assign/awb
 
 This API can be used to assign the AWB (Air Waybill Number) to your shipment. The AWB is a unique number that helps you track the shipment and get details about it.
 
-| PARAMS | REQUIRED | DATA TYPE | DESCRIPTION | EXAMPLE |
-| --- | --- | --- | --- | --- |
-| shipment\_id | yes | integer | The shipment id of the order you want to create the AWB for. | 1603434 |
-| courier\_id | no | integer | The courier id of the courier service you want to select. The default courier is selected in case no id is specified. | 35 |
-| status | no | string | Use this to change the courier of a shipment. Value: reassign. Note that this can be done only once in 24 hours. | reassign |
-|  |  |  |  |  |
+| PARAMS      | REQUIRED | DATA TYPE | DESCRIPTION                                                                                                           | EXAMPLE  |
+| ----------- | -------- | --------- | --------------------------------------------------------------------------------------------------------------------- | -------- |
+| shipment_id | yes      | integer   | The shipment id of the order you want to create the AWB for.                                                          | 1603434  |
+| courier_id  | no       | integer   | The courier id of the courier service you want to select. The default courier is selected in case no id is specified. | 35       |
+| status      | no       | string    | Use this to change the courier of a shipment. Value: reassign. Note that this can be done only once in 24 hours.      | reassign |
+|             |          |           |                                                                                                                       |          |
 
 HEADERS
 
@@ -13215,9 +13173,9 @@ json
 
 ```json
 {
-    "shipment_id": 160169474,
-    "courier_id": 332,
-    "status": "reassign"
+  "shipment_id": 160169474,
+  "courier_id": 332,
+  "status": "reassign"
 }
 ```
 
@@ -13314,12 +13272,12 @@ You will have to call the 'Generate Manifest' API after the successful response 
 **Note:**
 
 - The AWB must be already generated for the shipment id to generate the pickup request.
-- Only one shipment\_id can be passed at a time.
+- Only one shipment_id can be passed at a time.
 
-| PARAMS | REQUIRED | DATA TYPE | DESCRIPTION | EXAMPLE |
-| --- | --- | --- | --- | --- |
-| shipment\_id | yes | integer | The shipment id of the shipment which is requested for pickup. | 1603434 |
-| status | no | string | Use this field to retry if the pickup request fails. Value: retry | retry |
+| PARAMS      | REQUIRED | DATA TYPE | DESCRIPTION                                                       | EXAMPLE |
+| ----------- | -------- | --------- | ----------------------------------------------------------------- | ------- |
+| shipment_id | yes      | integer   | The shipment id of the shipment which is requested for pickup.    | 1603434 |
+| status      | no       | string    | Use this field to retry if the pickup request fails. Value: retry | retry   |
 
 Bodyraw (json)
 
@@ -13327,7 +13285,7 @@ json
 
 ```json
 {
-    "shipment_id": [12345]
+  "shipment_id": [12345]
 }
 ```
 
@@ -13425,12 +13383,12 @@ You will have to call the 'Generate Manifest' API after the successful response 
 **Note:**
 
 - The AWB must be already generated for the shipment id to generate the pickup request.
-- Only one shipment\_id can be passed at a time.
+- Only one shipment_id can be passed at a time.
 
-| PARAMS | REQUIRED | DATA TYPE | DESCRIPTION | EXAMPLE |
-| --- | --- | --- | --- | --- |
-| shipment\_id | yes | integer | The shipment id of the shipment which is requested for pickup. | 1603434 |
-| status | no | string | Use this field to retry if the pickup request fails. Value: retry | retry |
+| PARAMS      | REQUIRED | DATA TYPE | DESCRIPTION                                                       | EXAMPLE |
+| ----------- | -------- | --------- | ----------------------------------------------------------------- | ------- |
+| shipment_id | yes      | integer   | The shipment id of the shipment which is requested for pickup.    | 1603434 |
+| status      | no       | string    | Use this field to retry if the pickup request fails. Value: retry | retry   |
 
 AUTHORIZATIONBearer Token
 
@@ -13450,7 +13408,7 @@ json
 
 ```json
 {
-    "shipment_id": [12847483]
+  "shipment_id": [12847483]
 }
 ```
 
@@ -13624,14 +13582,14 @@ There are no required parameters to access this API. However, the displayed resu
 
 #### Parameters:
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `page` | NO | _integer_ | The page number you want to display. | 5 |
-| `per_page` | NO | _integer_ | The number of products to get per page. | 2 |
-| `sort` | NO | _string_ | The order to sort by. Value: _ASC_ or _DESC_ | ASC |
-| ` sort_by` | NO | _string_ | Allows you to choose the value field by which the items will be sorted. Could be sorted by id, by sku, time created etc. | sku |
-| `filter` | NO | _string_ | The data to be matched for the filter value. | 11223344 |
-| `filter_by` | NO | _string_ | The filter value field . Can be id, sku, etc. | id |
+| **PARAMS**  | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                                                                                                          | **EXAMPLE** |
+| ----------- | ------------ | ------------- | ------------------------------------------------------------------------------------------------------------------------ | ----------- |
+| `page`      | NO           | _integer_     | The page number you want to display.                                                                                     | 5           |
+| `per_page`  | NO           | _integer_     | The number of products to get per page.                                                                                  | 2           |
+| `sort`      | NO           | _string_      | The order to sort by. Value: _ASC_ or _DESC_                                                                             | ASC         |
+| ` sort_by`  | NO           | _string_      | Allows you to choose the value field by which the items will be sorted. Could be sorted by id, by sku, time created etc. | sku         |
+| `filter`    | NO           | _string_      | The data to be matched for the filter value.                                                                             | 11223344    |
+| `filter_by` | NO           | _string_      | The filter value field . Can be id, sku, etc.                                                                            | id          |
 
 HEADERS
 
@@ -13791,8 +13749,8 @@ You need to pass the product id in the endpoint URL for the successful call of t
 
 #### Path:
 
-| **EXAMPLE** |
-| --- |
+| **EXAMPLE**                                                                                                                      |
+| -------------------------------------------------------------------------------------------------------------------------------- |
 | [https://apiv2.shiprocket.in/v1/external/products/show/17484610](https://apiv2.shiprocket.in/v1/external/products/show/17484610) |
 
 HEADERS
@@ -13916,45 +13874,44 @@ Provide the required product details and any additional info to successfully add
 
 - 'type' field should be either 'single' or 'multiple.'
 
-
 #### Parameters:
 
 View More
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `sku` | YES | _string_ | Stock Keeping Unit or the identification unit of an individual product (generally alphanumeric). | bat123 |
-| `HSN` | NO | _string_ | Harmonised System Nomenclature. A code number is used to classify goods for taxation purposes. Done to determine which category of taxes do the goods come under. | 4412 |
-| `name` | YES | _string_ | Name of the product. | Batman Toy |
-| `tax_code` | NO | _string_ | The percentage of tax that is to be imposed. | 10 |
-| `type` | YES | _string_ | If there is only one product or multiple types of products. **Single** or **Multiple** | Single. |
-| `qty` | YES | _integer_ | Total Quantity of the products to be shipped. | 5 |
-| `low_stock` | NO | _string_ | Specifies when the low stock notification should come on | / |
-| `category_code` | YES | _string_ | You can add a category code to your ShipRocket account from “add category” | default |
-| `description` | NO | _string_ | Gives a description of the product. | Batman plastic toy. |
-| `brand` | NO | _string_ | The product brand name. | Bat |
-| `size` | NO | _integer_ | The size of the product. | 25 |
-| `weight` | NO | _integer_ | The weight of the product in kgs. | 0.5 |
-| `length` | NO | _integer_ | The length of the product in cms. | 10 |
-| `width` | NO | _integer_ | The width of the product in cms. | 5 |
-| `height` | NO | _integer_ | The height of the product in cms. | 15 |
-| `ean` | NO | _string_ | European Article Number - A barcode for product identification (which helps manufacturers identify how many products have been sold once a sale is made). It is 13 digits long and required for international selling. | / |
-| `upc` | NO | _string_ | Universal Product Code – Barcode for product identification which is used across the world. It is 12 digits long. | / |
-| `isbn` | NO | _string_ | International Standard Book Number – Identification barcode for books, magazines, e-books and other published media. It is 10 digits long. | / |
-| `color` | NO | _string_ | The colour of the product. | Black |
-| `imei_serialnumber` | NO | _string_ | The International Mobile Equipment Identity Number, which is used by a network to identify valid devices. E.g. if two iPhones have to be shipped, they will have 2 IMEI numbers | / |
-| `cost_price` | NO | _integer_ | The manufacture cost price of the product. | 500 |
-| `mrp` | NO | _string_ | Maximum Retail Price. How much is the maximum price which the product can be sold at. | 1000 |
-| `status` | NO | _boolean_ | In Boolean, if the product details have been successfully or unsuccessfully added. | 1 |
-| `image_url` | NO | _string_ | Shows the URL of the product images which have been uploaded. | / |
-| `qc_details` | NO | / | List of items and their relevant fields in the form of Array. | / |
-| `product_image` | CONDITIONAL YES | _string_ | Pickup agent will cross check theshared product with the actual product received from the buyer. Mandatory for all QC Products | [https://abc/xyz.jpg](https://abc/xyz.jpg) |
-| `brand` | CONDITIONAL YES | _string_ | The pickup agent will cross check the provided brand name visible on the item(s) or its packaging. | shiprocket |
-| `brand_tag` | CONDITIONAL YES | _string_ | The pickup agent will cross-check the provided brand name, which should match the brand tag affixed to the item(s) upon delivery. | shiprocket |
-| `color` | CONDITIONAL YES | _string_ | Pickup agent will cross check shared product color with the actual product received from the buyer. | green |
-| `size` | CONDITIONAL YES | _string_ | Pickup agent will cross check shared product size with the size on the label/tag. | L |
-| `product_imei` | CONDITIONAL YES | _string_ | It is a 15 digit unique number. It is displayed on the screen, on the box, or at the back of the appliance. This can be used to check production & garauntee of the appliance. | 0123456781234 |
-| `serial_no` | CONDITIONAL YES | _string_ | A serial number (SN) is a unique alphanumeric value assigned to each individual product. | 123456 |
+| **PARAMS**          | **REQUIRED**    | **DATA TYPE** | **DESCRIPTION**                                                                                                                                                                                                        | **EXAMPLE**                                |
+| ------------------- | --------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| `sku`               | YES             | _string_      | Stock Keeping Unit or the identification unit of an individual product (generally alphanumeric).                                                                                                                       | bat123                                     |
+| `HSN`               | NO              | _string_      | Harmonised System Nomenclature. A code number is used to classify goods for taxation purposes. Done to determine which category of taxes do the goods come under.                                                      | 4412                                       |
+| `name`              | YES             | _string_      | Name of the product.                                                                                                                                                                                                   | Batman Toy                                 |
+| `tax_code`          | NO              | _string_      | The percentage of tax that is to be imposed.                                                                                                                                                                           | 10                                         |
+| `type`              | YES             | _string_      | If there is only one product or multiple types of products. **Single** or **Multiple**                                                                                                                                 | Single.                                    |
+| `qty`               | YES             | _integer_     | Total Quantity of the products to be shipped.                                                                                                                                                                          | 5                                          |
+| `low_stock`         | NO              | _string_      | Specifies when the low stock notification should come on                                                                                                                                                               | /                                          |
+| `category_code`     | YES             | _string_      | You can add a category code to your ShipRocket account from “add category”                                                                                                                                             | default                                    |
+| `description`       | NO              | _string_      | Gives a description of the product.                                                                                                                                                                                    | Batman plastic toy.                        |
+| `brand`             | NO              | _string_      | The product brand name.                                                                                                                                                                                                | Bat                                        |
+| `size`              | NO              | _integer_     | The size of the product.                                                                                                                                                                                               | 25                                         |
+| `weight`            | NO              | _integer_     | The weight of the product in kgs.                                                                                                                                                                                      | 0.5                                        |
+| `length`            | NO              | _integer_     | The length of the product in cms.                                                                                                                                                                                      | 10                                         |
+| `width`             | NO              | _integer_     | The width of the product in cms.                                                                                                                                                                                       | 5                                          |
+| `height`            | NO              | _integer_     | The height of the product in cms.                                                                                                                                                                                      | 15                                         |
+| `ean`               | NO              | _string_      | European Article Number - A barcode for product identification (which helps manufacturers identify how many products have been sold once a sale is made). It is 13 digits long and required for international selling. | /                                          |
+| `upc`               | NO              | _string_      | Universal Product Code – Barcode for product identification which is used across the world. It is 12 digits long.                                                                                                      | /                                          |
+| `isbn`              | NO              | _string_      | International Standard Book Number – Identification barcode for books, magazines, e-books and other published media. It is 10 digits long.                                                                             | /                                          |
+| `color`             | NO              | _string_      | The colour of the product.                                                                                                                                                                                             | Black                                      |
+| `imei_serialnumber` | NO              | _string_      | The International Mobile Equipment Identity Number, which is used by a network to identify valid devices. E.g. if two iPhones have to be shipped, they will have 2 IMEI numbers                                        | /                                          |
+| `cost_price`        | NO              | _integer_     | The manufacture cost price of the product.                                                                                                                                                                             | 500                                        |
+| `mrp`               | NO              | _string_      | Maximum Retail Price. How much is the maximum price which the product can be sold at.                                                                                                                                  | 1000                                       |
+| `status`            | NO              | _boolean_     | In Boolean, if the product details have been successfully or unsuccessfully added.                                                                                                                                     | 1                                          |
+| `image_url`         | NO              | _string_      | Shows the URL of the product images which have been uploaded.                                                                                                                                                          | /                                          |
+| `qc_details`        | NO              | /             | List of items and their relevant fields in the form of Array.                                                                                                                                                          | /                                          |
+| `product_image`     | CONDITIONAL YES | _string_      | Pickup agent will cross check theshared product with the actual product received from the buyer. Mandatory for all QC Products                                                                                         | [https://abc/xyz.jpg](https://abc/xyz.jpg) |
+| `brand`             | CONDITIONAL YES | _string_      | The pickup agent will cross check the provided brand name visible on the item(s) or its packaging.                                                                                                                     | shiprocket                                 |
+| `brand_tag`         | CONDITIONAL YES | _string_      | The pickup agent will cross-check the provided brand name, which should match the brand tag affixed to the item(s) upon delivery.                                                                                      | shiprocket                                 |
+| `color`             | CONDITIONAL YES | _string_      | Pickup agent will cross check shared product color with the actual product received from the buyer.                                                                                                                    | green                                      |
+| `size`              | CONDITIONAL YES | _string_      | Pickup agent will cross check shared product size with the size on the label/tag.                                                                                                                                      | L                                          |
+| `product_imei`      | CONDITIONAL YES | _string_      | It is a 15 digit unique number. It is displayed on the screen, on the box, or at the back of the appliance. This can be used to check production & garauntee of the appliance.                                         | 0123456781234                              |
+| `serial_no`         | CONDITIONAL YES | _string_      | A serial number (SN) is a unique alphanumeric value assigned to each individual product.                                                                                                                               | 123456                                     |
 
 HEADERS
 
@@ -14061,16 +14018,16 @@ Use this API to convert an existing product to a QC product. The {productID} wil
 
 View More
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `sku` | YES | _string_ | Stock Keeping Unit or the identification unit of an individual product (generally alphanumeric). | bat123 |
-| `product_image` | YES | _string_ | Pickup agent will cross check shared product color with the actual product received from the buyer. Mandatory for all QC Products | [https://abc/xyz.jpg](https://abc/xyz.jpg) |
-| `serial_no` | NO | _string_ | A serial number (SN) is a unique alphanumeric value assigned to each individual product. | 12345 |
-| `size` | NO | _string_ | Pickup agent will cross check shared product size with the size on the label/tag. | L |
-| `color` | NO | _string_ | Pickup agent will cross check shared product color with the actual product received from the buyer. | Green |
-| `brand` | NO | _integer_ | The pickup agent will cross-check the provided brand name visible on the item(s) or its packaging. | shiprocket |
-| `brand_box` | NO | _string_ | The pickup agent will cross-check the provided brand name, which should match the brand tag affixed to the item(s) upon delivery | shiprocket |
-| `product_imei` | NO | _string_ | "It is a 15-digit unique number. It is displayed on the screen, on the box, or at the back of the appliance. This can be used to check production & guarantee of the appliance. | 1234567890 |
+| **PARAMS**      | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                                                                                                                                                                 | **EXAMPLE**                                |
+| --------------- | ------------ | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| `sku`           | YES          | _string_      | Stock Keeping Unit or the identification unit of an individual product (generally alphanumeric).                                                                                | bat123                                     |
+| `product_image` | YES          | _string_      | Pickup agent will cross check shared product color with the actual product received from the buyer. Mandatory for all QC Products                                               | [https://abc/xyz.jpg](https://abc/xyz.jpg) |
+| `serial_no`     | NO           | _string_      | A serial number (SN) is a unique alphanumeric value assigned to each individual product.                                                                                        | 12345                                      |
+| `size`          | NO           | _string_      | Pickup agent will cross check shared product size with the size on the label/tag.                                                                                               | L                                          |
+| `color`         | NO           | _string_      | Pickup agent will cross check shared product color with the actual product received from the buyer.                                                                             | Green                                      |
+| `brand`         | NO           | _integer_     | The pickup agent will cross-check the provided brand name visible on the item(s) or its packaging.                                                                              | shiprocket                                 |
+| `brand_box`     | NO           | _string_      | The pickup agent will cross-check the provided brand name, which should match the brand tag affixed to the item(s) upon delivery                                                | shiprocket                                 |
+| `product_imei`  | NO           | _string_      | "It is a 15-digit unique number. It is displayed on the screen, on the box, or at the back of the appliance. This can be used to check production & guarantee of the appliance. | 1234567890                                 |
 
 HEADERS
 
@@ -14327,14 +14284,14 @@ No parameters are required to access this API. However, the displayed data can b
 
 #### Parameters:
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `page` | NO | _integer_ | The page number you want to display. | 5 |
-| `per_page` | NO | _integer_ | The number of listings to get per page. | 2 |
-| `sort` | NO | _string_ | The order to sort by. _Value_: **ASC** or **DESC** | ASC |
-| `sort_by` | NO | _string_ | Allows you to choose the value field by which the listings will be sorted. Could be sorted by id, by sku, time created etc. | sku |
-| `filter` | NO | _string_ | The data to be matched for the filter value. | 11223344 |
-| `filter_by` | NO | _string_ | The filter value field . Can be id, sku, etc. | id |
+| **PARAMS**  | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                                                                                                             | **EXAMPLE** |
+| ----------- | ------------ | ------------- | --------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| `page`      | NO           | _integer_     | The page number you want to display.                                                                                        | 5           |
+| `per_page`  | NO           | _integer_     | The number of listings to get per page.                                                                                     | 2           |
+| `sort`      | NO           | _string_      | The order to sort by. _Value_: **ASC** or **DESC**                                                                          | ASC         |
+| `sort_by`   | NO           | _string_      | Allows you to choose the value field by which the listings will be sorted. Could be sorted by id, by sku, time created etc. | sku         |
+| `filter`    | NO           | _string_      | The data to be matched for the filter value.                                                                                | 11223344    |
+| `filter_by` | NO           | _string_      | The filter value field . Can be id, sku, etc.                                                                               | id          |
 
 HEADERS
 
@@ -14486,11 +14443,11 @@ Pass the product and listing id for the successful call of the API
 
 #### Parameters:
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `product_id` | YES | _integer_ | The id of item in the master catalog. | 17908342 |
-| `listing_id` | YES | _integer_ | The id of the product in the channel catalog. | 15897064 |
-| `ID` | NO | _integer_ | The id placed in the respective 'GET' codes. | 15897064 |
+| **PARAMS**   | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                               | **EXAMPLE** |
+| ------------ | ------------ | ------------- | --------------------------------------------- | ----------- |
+| `product_id` | YES          | _integer_     | The id of item in the master catalog.         | 17908342    |
+| `listing_id` | YES          | _integer_     | The id of the product in the channel catalog. | 15897064    |
+| `ID`         | NO           | _integer_     | The id placed in the respective 'GET' codes.  | 15897064    |
 
 HEADERS
 
@@ -15070,16 +15027,16 @@ Creates a new manual (custom) channel in the seller's Shiprocket account.
 
 ### Request body
 
-| Field | Type | Required | Description |
-| --- | --- | --- | --- |
-| name | string | Yes | Channel display name. Max 12 characters. Unique within your account. |
-| brand\_name | string | No | Brand label on invoices and shipping labels. Max 50 characters. |
+| Field      | Type   | Required | Description                                                          |
+| ---------- | ------ | -------- | -------------------------------------------------------------------- |
+| name       | string | Yes      | Channel display name. Max 12 characters. Unique within your account. |
+| brand_name | string | No       | Brand label on invoices and shipping labels. Max 50 characters.      |
 
 ### Error responses
 
 - **401 Unauthorized** — Missing or invalid bearer token.
 - **403 Forbidden** — "Channel Creation by API" flag is not enabled for your account, or channel limit reached.
-- **422 Unprocessable Entity** — Validation failure (name missing, name > 12 chars, name already exists, or brand\_name > 50 chars).
+- **422 Unprocessable Entity** — Validation failure (name missing, name > 12 chars, name already exists, or brand_name > 50 chars).
 
 ### Notes
 
@@ -15101,8 +15058,8 @@ json
 
 ```json
 {
-    "name": "MANUAL-25149",
-    "brand_name": "SIORA-12"
+  "name": "MANUAL-25149",
+  "brand_name": "SIORA-12"
 }
 ```
 
@@ -15166,12 +15123,12 @@ In case no filter conditions are passed, the details are displayed in the defaul
 
 #### Parameters:
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `page` | NO | _integer_ | The page number to be displayed. | 4 |
-| `per_page` | NO | _integer_ | The total products you want to diplay in each page. | 2 |
-| `sort` | NO | _string_ | Sort conditions if any. Value: ASC or DESC | ASC |
-| `sort_by` | NO | _integer_ | Allows you to choose the field by which the data will be sorted. Could be sorted by id, by sku, time created etc. | sku |
+| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                                                                                                   | **EXAMPLE** |
+| ---------- | ------------ | ------------- | ----------------------------------------------------------------------------------------------------------------- | ----------- |
+| `page`     | NO           | _integer_     | The page number to be displayed.                                                                                  | 4           |
+| `per_page` | NO           | _integer_     | The total products you want to diplay in each page.                                                               | 2           |
+| `sort`     | NO           | _string_      | Sort conditions if any. Value: ASC or DESC                                                                        | ASC         |
+| `sort_by`  | NO           | _integer_     | Allows you to choose the field by which the data will be sorted. Could be sorted by id, by sku, time created etc. | sku         |
 
 HEADERS
 
@@ -15299,26 +15256,26 @@ https://apiv2.shiprocket.in/v1/external/inventory/{product\_id}/update
 
 This API is used to update your product inventory details.
 
-First, you need to pass the product\_id of the product in the endpoint URL.
+First, you need to pass the product_id of the product in the endpoint URL.
 You can then set the quantity and action you want to perform on the existing inventory of the specified product.
 
 **Note:**
 
-- The product\_id can be found using the 'Get Inventory Details' API.
+- The product_id can be found using the 'Get Inventory Details' API.
 - The id is to be passed in the endpoint URL itself.
 
 #### Path:
 
-| **EXAMPLE** |
-| --- |
+| **EXAMPLE**                                                                                                                            |
+| -------------------------------------------------------------------------------------------------------------------------------------- |
 | [https://apiv2.shiprocket.in/v1/external/inventory/17454637/update](https://apiv2.shiprocket.in/v1/external/inventory/17454637/update) |
 
 #### Parameters:
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `quantity` | YES | _integer_ | The quantity of the product you want. | 2 |
-| `action` | YES | _integer_ | The action you want to perform. _Value_: \- **add** : Adds the specific quantity to the product inventory. - **replace** : Replaces the existing quantity with the specified number. - **remove** : Removes the specific number from the product inventory. | add |
+| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                                                                                                                                                                                                                                             | **EXAMPLE** |
+| ---------- | ------------ | ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| `quantity` | YES          | _integer_     | The quantity of the product you want.                                                                                                                                                                                                                       | 2           |
+| `action`   | YES          | _integer_     | The action you want to perform. _Value_: \- **add** : Adds the specific quantity to the product inventory. - **replace** : Replaces the existing quantity with the specified number. - **remove** : Removes the specific number from the product inventory. | add         |
 
 HEADERS
 
@@ -15574,8 +15531,8 @@ No other body parameters are required.
 
 #### Path:
 
-| **EXAMPLE** |
-| --- |
+| **EXAMPLE**                                                                                                          |
+| -------------------------------------------------------------------------------------------------------------------- |
 | [https://apiv2.shiprocket.in/v1/external/countries/show/4](https://apiv2.shiprocket.in/v1/external/countries/show/4) |
 
 HEADERS
@@ -15708,9 +15665,9 @@ Just pass the valid locality Pincode, and the details will be displayed in JSON 
 
 #### Parameters:
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| `postcode` | YES | _integer_ | The Pincode you want to get the locality details. | 110077 |
+| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                                   | **EXAMPLE** |
+| ---------- | ------------ | ------------- | ------------------------------------------------- | ----------- |
+| `postcode` | YES          | _integer_     | The Pincode you want to get the locality details. | 110077      |
 
 HEADERS
 
@@ -15819,12 +15776,12 @@ No parameters are required to access this API. However, you sort and filter the 
 
 #### Parameters:
 
-| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION** | **EXAMPLE** |
-| --- | --- | --- | --- | --- |
-| ` page` | NO | _integer_ | The page number you want to display. | 5 |
-| `per_page` | NO | _integer_ | The number of orders to get per request. | 2 |
-| `from` | NO | _string_ | From a specific date. | 2017-08-12 |
-| `to` | NO | _string_ | To a specific date. | 2017-09-12 |
+| **PARAMS** | **REQUIRED** | **DATA TYPE** | **DESCRIPTION**                          | **EXAMPLE** |
+| ---------- | ------------ | ------------- | ---------------------------------------- | ----------- |
+| ` page`    | NO           | _integer_     | The page number you want to display.     | 5           |
+| `per_page` | NO           | _integer_     | The number of orders to get per request. | 2           |
+| `from`     | NO           | _string_      | From a specific date.                    | 2017-08-12  |
+| `to`       | NO           | _string_      | To a specific date.                      | 2017-09-12  |
 
 HEADERS
 
@@ -16037,8 +15994,8 @@ No other body parameters are required.
 
 #### Path:
 
-| **EXAMPLE** |
-| --- |
+| **EXAMPLE**                                                                                                                    |
+| ------------------------------------------------------------------------------------------------------------------------------ |
 | [https://apiv2.shiprocket.in/v1/external/errors/20212061/check](https://apiv2.shiprocket.in/v1/external/errors/20212061/check) |
 
 HEADERS

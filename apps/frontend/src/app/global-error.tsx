@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 export default function GlobalError({
   error,
@@ -32,17 +32,17 @@ export default function GlobalError({
                 Something Went Wrong
               </h1>
             </div>
-            
+
             <p className="text-lg text-zinc-600 dark:text-zinc-400 mb-8">
               A critical error occurred. Please try again.
             </p>
-            
+
             {error.digest && (
               <p className="text-sm text-zinc-500 dark:text-zinc-500 mb-6 font-mono">
                 Error ID: {error.digest}
               </p>
             )}
-            
+
             <button
               onClick={() => reset()}
               className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-zinc-900 text-white font-medium hover:bg-zinc-800 transition-colors dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"

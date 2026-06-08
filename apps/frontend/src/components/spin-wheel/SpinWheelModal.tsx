@@ -32,7 +32,8 @@ export function SpinWheelModal() {
         <div
           className="flex flex-col items-center justify-center p-6 md:p-8 flex-shrink-0"
           style={{
-            background: "linear-gradient(160deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%)",
+            background:
+              "linear-gradient(160deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%)",
           }}
         >
           <p
@@ -45,7 +46,8 @@ export function SpinWheelModal() {
             <div
               className="absolute -inset-3 rounded-full pointer-events-none"
               style={{
-                background: "radial-gradient(circle, rgba(255,215,0,0.12) 0%, transparent 70%)",
+                background:
+                  "radial-gradient(circle, rgba(255,215,0,0.12) 0%, transparent 70%)",
               }}
             />
             <SpinWheelCanvas />

@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useReportWebVitals } from 'next/web-vitals';
-import { pushToDataLayer } from '@/lib/analytics/data-layer';
+import { useReportWebVitals } from "next/web-vitals";
+import { pushToDataLayer } from "@/lib/analytics/data-layer";
 
 /**
  * Streams Core Web Vitals to GA4 via the GTM dataLayer.
@@ -28,7 +28,7 @@ interface FullMetric {
   id: string;
   name: string;
   value: number;
-  rating?: 'good' | 'needs-improvement' | 'poor';
+  rating?: "good" | "needs-improvement" | "poor";
   delta?: number;
   navigationType?: string;
 }
@@ -36,15 +36,15 @@ interface FullMetric {
 export function WebVitalsTracker() {
   useReportWebVitals((metric) => {
     const m = metric as unknown as FullMetric;
-    const isCls = m.name === 'CLS';
+    const isCls = m.name === "CLS";
 
     pushToDataLayer({
-      event: 'web_vital',
+      event: "web_vital",
       metric_name: m.name,
       metric_value: Math.round(isCls ? m.value * 1000 : m.value),
       metric_rating: m.rating,
       metric_delta:
-        typeof m.delta === 'number'
+        typeof m.delta === "number"
           ? Math.round(isCls ? m.delta * 1000 : m.delta)
           : undefined,
       metric_id: m.id,

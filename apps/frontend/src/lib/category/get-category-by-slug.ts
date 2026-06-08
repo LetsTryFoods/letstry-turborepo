@@ -1,6 +1,6 @@
-import { createServerGraphQLClient } from '@/lib/graphql/server-client-factory';
-import { GET_CATEGORY_BY_SLUG } from '@/lib/queries/categories';
-import type { GetCategoryBySlugQuery } from '@/gql/graphql';
+import { createServerGraphQLClient } from "@/lib/graphql/server-client-factory";
+import { GET_CATEGORY_BY_SLUG } from "@/lib/queries/categories";
+import type { GetCategoryBySlugQuery } from "@/gql/graphql";
 
 /**
  * Fetch a category by slug.
@@ -12,7 +12,7 @@ import type { GetCategoryBySlugQuery } from '@/gql/graphql';
  */
 export async function getCategoryBySlug(
   slug: string,
-): Promise<GetCategoryBySlugQuery['categoryBySlug']> {
+): Promise<GetCategoryBySlugQuery["categoryBySlug"]> {
   const client = createServerGraphQLClient();
 
   let data: GetCategoryBySlugQuery | null = null;
@@ -25,7 +25,7 @@ export async function getCategoryBySlug(
       },
     );
   } catch (err) {
-    console.error('[getCategoryBySlug] GraphQL request failed', {
+    console.error("[getCategoryBySlug] GraphQL request failed", {
       slug,
       error: err instanceof Error ? err.message : err,
     });

@@ -15,7 +15,7 @@ export class CustomerEnrichmentService {
   constructor(
     @InjectModel(Order.name) private orderModel: Model<Order>,
     @InjectModel(Cart.name) private cartModel: Model<Cart>,
-  ) { }
+  ) {}
 
   async enrichCustomersWithOrderData(
     customers: IdentityDocument[],
@@ -54,12 +54,14 @@ export class CustomerEnrichmentService {
 
     if (cartStatus === CartStatusFilter.HAS_CART) {
       return customers.filter(
-        (c) => c.activeCartItemsCount !== undefined && c.activeCartItemsCount > 0,
+        (c) =>
+          c.activeCartItemsCount !== undefined && c.activeCartItemsCount > 0,
       );
     }
 
     return customers.filter(
-      (c) => c.activeCartItemsCount === undefined || c.activeCartItemsCount === 0,
+      (c) =>
+        c.activeCartItemsCount === undefined || c.activeCartItemsCount === 0,
     );
   }
 

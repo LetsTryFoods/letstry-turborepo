@@ -206,3 +206,12 @@ export const SEARCH_PRODUCTS = gql`
     }
   }
 `;
+
+export const GET_GLOBAL_SETTINGS = gql`
+  query GetGlobalSettings {
+    getGlobalSettings {
+      _id
+      isPackerScanBypassEnabled
+    }
+  }
+`;

@@ -349,8 +349,8 @@ export const GET_PRODUCTS_BY_CATEGORY = gql`
 `;
 
 export const SEARCH_PRODUCTS = gql`
-  query SearchProducts($searchTerm: String!, $pagination: PaginationInput) {
-    searchProducts(searchTerm: $searchTerm, pagination: $pagination) {
+  query SearchProducts($searchTerm: String!, $pagination: PaginationInput, $includeArchived: Boolean) {
+    searchProducts(searchTerm: $searchTerm, pagination: $pagination, includeArchived: $includeArchived) {
       items {
         _id
         name
@@ -440,5 +440,33 @@ export const UPDATE_PRODUCT_STOCK = gql`
       stockQuantity
       availabilityStatus
     }
+  }
+`;
+
+export const UPDATE_PRODUCT_VARIANT_STOCK = gql`
+  mutation UpdateProductVariantStock(
+    $productId: ID!
+    $variantId: ID!
+    $quantity: Int!
+  ) {
+    updateProductVariantStock(
+      productId: $productId
+      variantId: $variantId
+      quantity: $quantity
+    ) {
+      _id
+      variants {
+        _id
+        sku
+        stockQuantity
+        availabilityStatus
+      }
+    }
+  }
+`;
+
+export const ZERO_ALL_PRODUCT_STOCK = gql`
+  mutation ZeroAllProductStock {
+    zeroAllProductStock
   }
 `;

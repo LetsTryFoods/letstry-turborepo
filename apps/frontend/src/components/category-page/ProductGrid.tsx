@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import React, { useEffect, useRef } from 'react';
-import { ProductCard, Product } from './ProductCard';
-import { useAnalytics } from '@/hooks/use-analytics';
+import React, { useEffect, useRef } from "react";
+import { ProductCard, Product } from "./ProductCard";
+import { useAnalytics } from "@/hooks/use-analytics";
 
 interface ProductGridProps {
   products: Product[];
-  categoryType?: 'default' | 'special';
+  categoryType?: "default" | "special";
   slug?: string;
   listId?: string;
   listName?: string;
@@ -23,15 +23,16 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
   const { trackViewItemList } = useAnalytics();
   const hasFiredRef = useRef(false);
 
-  const resolvedListId = listId || (slug ? `category_${slug}` : 'product_grid');
-  const resolvedListName = listName || (slug ? `Category: ${slug}` : 'Product Grid');
+  const resolvedListId = listId || (slug ? `category_${slug}` : "product_grid");
+  const resolvedListName =
+    listName || (slug ? `Category: ${slug}` : "Product Grid");
 
   useEffect(() => {
     const el = containerRef.current;
     if (!el || products.length === 0 || hasFiredRef.current) return;
 
     const guardKey = `vil_fired:${resolvedListId}`;
-    if (typeof window !== 'undefined' && sessionStorage.getItem(guardKey)) {
+    if (typeof window !== "undefined" && sessionStorage.getItem(guardKey)) {
       hasFiredRef.current = true;
       return;
     }
@@ -42,8 +43,8 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
         if (!entry.isIntersecting || hasFiredRef.current) return;
 
         hasFiredRef.current = true;
-        if (typeof window !== 'undefined') {
-          sessionStorage.setItem(guardKey, '1');
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem(guardKey, "1");
         }
 
         trackViewItemList(

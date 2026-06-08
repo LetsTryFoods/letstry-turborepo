@@ -1,7 +1,10 @@
 import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
 import { LandingPageService } from './landing-page.service';
 import { LandingPage } from './landing-page.graphql';
-import { CreateLandingPageInput, UpdateLandingPageInput } from './landing-page.input';
+import {
+  CreateLandingPageInput,
+  UpdateLandingPageInput,
+} from './landing-page.input';
 import { Public } from '../common/decorators/public.decorator';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Role } from '../common/enums/role.enum';
@@ -48,7 +51,9 @@ export class LandingPageResolver {
 
   @Mutation(() => LandingPage, { name: 'createLandingPage' })
   @Roles(Role.ADMIN)
-  async createLandingPage(@Args('input') input: CreateLandingPageInput): Promise<LandingPage> {
+  async createLandingPage(
+    @Args('input') input: CreateLandingPageInput,
+  ): Promise<LandingPage> {
     return this.landingPageService.create(input);
   }
 

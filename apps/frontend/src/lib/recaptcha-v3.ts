@@ -2,7 +2,10 @@ declare global {
   interface Window {
     grecaptcha: {
       ready: (callback: () => void) => void;
-      execute: (siteKey: string, options: { action: string }) => Promise<string>;
+      execute: (
+        siteKey: string,
+        options: { action: string },
+      ) => Promise<string>;
     };
   }
 }
@@ -12,7 +15,7 @@ export class RecaptchaV3Service {
   private isLoaded = false;
 
   constructor() {
-    this.siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_V3_SITE_KEY || '';
+    this.siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_V3_SITE_KEY || "";
   }
 
   loadRecaptchaScript(): Promise<void> {
@@ -21,8 +24,8 @@ export class RecaptchaV3Service {
     }
 
     return new Promise((resolve, reject) => {
-      if (typeof window === 'undefined') {
-        reject(new Error('Window is not defined'));
+      if (typeof window === "undefined") {
+        reject(new Error("Window is not defined"));
         return;
       }
 
@@ -32,7 +35,7 @@ export class RecaptchaV3Service {
         return;
       }
 
-      const script = document.createElement('script');
+      const script = document.createElement("script");
       script.src = `https://www.google.com/recaptcha/api.js?render=${this.siteKey}`;
       script.async = true;
       script.defer = true;
@@ -43,7 +46,7 @@ export class RecaptchaV3Service {
       };
 
       script.onerror = () => {
-        reject(new Error('Failed to load reCAPTCHA script'));
+        reject(new Error("Failed to load reCAPTCHA script"));
       };
 
       document.head.appendChild(script);
@@ -52,8 +55,8 @@ export class RecaptchaV3Service {
 
   async executeRecaptcha(action: string): Promise<string> {
     if (!this.siteKey) {
-      console.warn('reCAPTCHA v3 site key not configured');
-      return '';
+      console.warn("reCAPTCHA v3 site key not configured");
+      return "";
     }
 
     try {
@@ -62,17 +65,19 @@ export class RecaptchaV3Service {
       return new Promise((resolve, reject) => {
         window.grecaptcha.ready(async () => {
           try {
-            const token = await window.grecaptcha.execute(this.siteKey, { action });
+            const token = await window.grecaptcha.execute(this.siteKey, {
+              action,
+            });
             resolve(token);
           } catch (error) {
-            console.error('reCAPTCHA execution error:', error);
+            console.error("reCAPTCHA execution error:", error);
             reject(error);
           }
         });
       });
     } catch (error) {
-      console.error('reCAPTCHA error:', error);
-      return '';
+      console.error("reCAPTCHA error:", error);
+      return "";
     }
   }
 
@@ -80,10 +85,10 @@ export class RecaptchaV3Service {
     if (!token) return false;
 
     try {
-      const response = await fetch('/api/verify-recaptcha', {
-        method: 'POST',
+      const response = await fetch("/api/verify-recaptcha", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ token }),
       });
@@ -91,7 +96,7 @@ export class RecaptchaV3Service {
       const data = await response.json();
       return data.success && data.score >= 0.5;
     } catch (error) {
-      console.error('Token verification error:', error);
+      console.error("Token verification error:", error);
       return false;
     }
   }

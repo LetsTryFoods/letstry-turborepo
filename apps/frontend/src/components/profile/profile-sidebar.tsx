@@ -18,13 +18,21 @@ interface SidebarItemProps {
   disabled?: boolean;
 }
 
-const SidebarItem = ({ icon: Icon, label, href, onClick, isActive, action, disabled }: SidebarItemProps) => {
+const SidebarItem = ({
+  icon: Icon,
+  label,
+  href,
+  onClick,
+  isActive,
+  action,
+  disabled,
+}: SidebarItemProps) => {
   const content = (
     <div
       className={cn(
         "flex items-center justify-between p-4 hover:bg-gray-50 transition-colors cursor-pointer",
         isActive && "bg-gray-50",
-        disabled && "opacity-50 cursor-not-allowed pointer-events-none"
+        disabled && "opacity-50 cursor-not-allowed pointer-events-none",
       )}
       onClick={onClick}
     >
@@ -59,9 +67,9 @@ export const ProfileSidebar = () => {
       setIsLoggingOut(true);
       await logout();
       setShowLogoutDialog(false);
-      router.push('/');
+      router.push("/");
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
       setIsLoggingOut(false);
     }
   };
@@ -73,8 +81,12 @@ export const ProfileSidebar = () => {
           <User className="w-6 h-6 text-gray-600" />
         </div>
         <div>
-          <h3 className="font-semibold text-gray-900">{user?.name || "Guest User"}</h3>
-          <p className="text-sm text-gray-500">{user?.phoneNumber || user?.email || "guest@example.com"}</p>
+          <h3 className="font-semibold text-gray-900">
+            {user?.name || "Guest User"}
+          </h3>
+          <p className="text-sm text-gray-500">
+            {user?.phoneNumber || user?.email || "guest@example.com"}
+          </p>
         </div>
       </div>
 

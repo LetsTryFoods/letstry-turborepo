@@ -29,10 +29,12 @@ export class ShipmentResolver {
     private readonly trackingService: TrackingService,
     private readonly dtdcApiService: DtdcApiService,
     private readonly trackingCronService: TrackingCronService,
-  ) { }
+  ) {}
 
   @Mutation(() => CreateShipmentResponse)
-  async createShipment(@Args('input') input: CreateShipmentInput): Promise<CreateShipmentResponse> {
+  async createShipment(
+    @Args('input') input: CreateShipmentInput,
+  ): Promise<CreateShipmentResponse> {
     const result = await this.shipmentService.createShipment({
       orderId: input.orderId,
       serviceType: input.serviceType,
@@ -100,7 +102,9 @@ export class ShipmentResolver {
   }
 
   @Query(() => ShipmentResponse, { nullable: true })
-  async getShipmentByAwb(@Args('awbNumber') awbNumber: string): Promise<ShipmentResponse | null> {
+  async getShipmentByAwb(
+    @Args('awbNumber') awbNumber: string,
+  ): Promise<ShipmentResponse | null> {
     const shipment = await this.shipmentService.findByAwbNumber(awbNumber);
 
     if (!shipment) {
@@ -116,7 +120,9 @@ export class ShipmentResolver {
   }
 
   @Query(() => ShipmentResponse, { nullable: true })
-  async getShipmentById(@Args('id', { type: () => ID }) id: string): Promise<ShipmentResponse | null> {
+  async getShipmentById(
+    @Args('id', { type: () => ID }) id: string,
+  ): Promise<ShipmentResponse | null> {
     const shipment = await this.shipmentService.findById(id);
 
     if (!shipment) {
@@ -132,7 +138,9 @@ export class ShipmentResolver {
   }
 
   @Query(() => ShipmentListResponse)
-  async listShipments(@Args('filters', { nullable: true }) filters?: ShipmentFiltersInput): Promise<ShipmentListResponse> {
+  async listShipments(
+    @Args('filters', { nullable: true }) filters?: ShipmentFiltersInput,
+  ): Promise<ShipmentListResponse> {
     const result = await this.shipmentService.listShipments({
       orderId: filters?.orderId,
       customerCode: filters?.customerCode,
@@ -141,7 +149,9 @@ export class ShipmentResolver {
       isCancelled: filters?.isCancelled,
       awbNumber: filters?.awbNumber,
       referenceNumber: filters?.referenceNumber,
-      bookedFrom: filters?.bookedFrom ? new Date(filters.bookedFrom) : undefined,
+      bookedFrom: filters?.bookedFrom
+        ? new Date(filters.bookedFrom)
+        : undefined,
       bookedTo: filters?.bookedTo ? new Date(filters.bookedTo) : undefined,
       page: filters?.page,
       limit: filters?.limit,
@@ -162,8 +172,11 @@ export class ShipmentResolver {
   }
 
   @Query(() => ShipmentWithTrackingResponse)
-  async getShipmentWithTracking(@Args('awbNumber') awbNumber: string): Promise<ShipmentWithTrackingResponse> {
-    const result = await this.shipmentService.getShipmentWithTracking(awbNumber);
+  async getShipmentWithTracking(
+    @Args('awbNumber') awbNumber: string,
+  ): Promise<ShipmentWithTrackingResponse> {
+    const result =
+      await this.shipmentService.getShipmentWithTracking(awbNumber);
 
     return {
       ...(result.shipment.toObject() as any),
@@ -178,7 +191,9 @@ export class ShipmentResolver {
   }
 
   @Mutation(() => ShipmentResponse)
-  async cancelShipment(@Args('input') input: CancelShipmentInput): Promise<ShipmentResponse> {
+  async cancelShipment(
+    @Args('input') input: CancelShipmentInput,
+  ): Promise<ShipmentResponse> {
     const shipment = await this.shipmentService.cancelShipment(input.awbNumber);
 
     const obj = shipment.toObject() as any;
@@ -191,19 +206,30 @@ export class ShipmentResolver {
   }
 
   @Query(() => String, { nullable: true })
-  async getShipmentLabel(@Args('awbNumber') awbNumber: string): Promise<string | null> {
+  async getShipmentLabel(
+    @Args('awbNumber') awbNumber: string,
+  ): Promise<string | null> {
     const shipment = await this.shipmentService.findByAwbNumber(awbNumber);
     if (!shipment) {
       return null;
     }
 
-    if (shipment.labelUrl && shipment.labelUrl.startsWith('data:application/pdf;base64,')) {
+    if (
+      shipment.labelUrl &&
+      shipment.labelUrl.startsWith('data:application/pdf;base64,')
+    ) {
       return shipment.labelUrl.replace('data:application/pdf;base64,', '');
     }
 
     try {
-      const liveLabelUrl = await this.dtdcApiService.getLabel(awbNumber, shipment._id.toString());
-      if (liveLabelUrl && liveLabelUrl.startsWith('data:application/pdf;base64,')) {
+      const liveLabelUrl = await this.dtdcApiService.getLabel(
+        awbNumber,
+        shipment._id.toString(),
+      );
+      if (
+        liveLabelUrl &&
+        liveLabelUrl.startsWith('data:application/pdf;base64,')
+      ) {
         shipment.labelUrl = liveLabelUrl;
         await shipment.save();
         return liveLabelUrl.replace('data:application/pdf;base64,', '');

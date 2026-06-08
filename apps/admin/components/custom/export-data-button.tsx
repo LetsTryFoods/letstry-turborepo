@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Download, Loader2 } from 'lucide-react';
-import { toast } from 'react-hot-toast';
-import api from '@/lib/axios';
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Download, Loader2 } from "lucide-react";
+import { toast } from "react-hot-toast";
+import api from "@/lib/axios";
 
 /**
  * Interface for column definitions
@@ -32,7 +32,7 @@ interface ExportDataButtonProps {
   /**
    * Format of the file ('xlsx' or 'csv')
    */
-  format?: 'xlsx' | 'csv';
+  format?: "xlsx" | "csv";
   /**
    * Text to display on the button
    */
@@ -40,7 +40,13 @@ interface ExportDataButtonProps {
   /**
    * Variant of the button (from shadcn UI)
    */
-  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
+  variant?:
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "link";
   /**
    * Size of the button
    */
@@ -55,59 +61,65 @@ export const ExportDataButton: React.FC<ExportDataButtonProps> = ({
   fetchData,
   data: staticData,
   columns,
-  fileName = 'export',
-  format = 'xlsx',
-  buttonText = 'Export Data',
-  variant = 'outline',
-  size = 'default',
-  className = '',
+  fileName = "export",
+  format = "xlsx",
+  buttonText = "Export Data",
+  variant = "outline",
+  size = "default",
+  className = "",
 }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleExport = async () => {
     try {
       setIsLoading(true);
-      
+
       let dataToExport = staticData;
-      
+
       if (fetchData) {
         dataToExport = await fetchData();
       }
-      
+
       if (!dataToExport || dataToExport.length === 0) {
-        toast.error('No data found to export');
+        toast.error("No data found to export");
         return;
       }
 
       // Call backend to generate the file
-      const response = await api.post(`/data-export/${format}`, {
-        data: dataToExport,
-        columns,
-        fileName,
-      }, {
-        responseType: 'blob',
-      });
+      const response = await api.post(
+        `/data-export/${format}`,
+        {
+          data: dataToExport,
+          columns,
+          fileName,
+        },
+        {
+          responseType: "blob",
+        },
+      );
 
       // Create a link and trigger download
       const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      
-      const extension = format === 'csv' ? 'csv' : 'xlsx';
+
+      const extension = format === "csv" ? "csv" : "xlsx";
       const timestamp = new Date().getTime();
-      link.setAttribute('download', `${fileName}_${timestamp}.${extension}`);
-      
+      link.setAttribute("download", `${fileName}_${timestamp}.${extension}`);
+
       document.body.appendChild(link);
       link.click();
-      
+
       // Cleanup
       link.parentNode?.removeChild(link);
       window.URL.revokeObjectURL(url);
 
       toast.success(`Data exported to ${format.toUpperCase()} successfully`);
     } catch (error) {
-      console.error('Export failed:', error);
-      toast.error('Failed to export data. Please ensure the backend is running and you are logged in.');
+      console.error("Export failed:", error);
+      toast.error(
+        "Failed to export data. Please ensure the backend is running and you are logged in.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -126,7 +138,7 @@ export const ExportDataButton: React.FC<ExportDataButtonProps> = ({
       ) : (
         <Download className="mr-2 h-4 w-4" />
       )}
-      {isLoading ? 'Exporting...' : buttonText}
+      {isLoading ? "Exporting..." : buttonText}
     </Button>
   );
 };

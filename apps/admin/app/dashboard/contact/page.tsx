@@ -1,125 +1,159 @@
-"use client"
+"use client";
 
-import { useState, useMemo, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+import { useState, useMemo, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { 
-  MessageSquare, 
-  Search, 
+} from "@/components/ui/select";
+import {
+  MessageSquare,
+  Search,
   Inbox,
   Clock,
   CheckCircle2,
   XCircle,
   AlertTriangle,
-  Loader2
-} from "lucide-react"
-import { 
-  useContactQueries, 
-  getContactStats, 
-  ContactQuery, 
-  ContactStatus, 
+  Loader2,
+} from "lucide-react";
+import {
+  useContactQueries,
+  getContactStats,
+  ContactQuery,
+  ContactStatus,
   ContactType,
   ContactPriority,
   statusLabels,
   typeLabels,
-  priorityLabels
-} from "@/lib/contact/useContact"
-import ContactTable from "./components/ContactTable"
-import ContactDetailsDialog from "./components/ContactDetailsDialog"
-import ContactReplyDialog from "./components/ContactReplyDialog"
+  priorityLabels,
+} from "@/lib/contact/useContact";
+import ContactTable from "./components/ContactTable";
+import ContactDetailsDialog from "./components/ContactDetailsDialog";
+import ContactReplyDialog from "./components/ContactReplyDialog";
 
-const statuses: (ContactStatus | "ALL")[] = ["ALL", "PENDING", "REVIEWED", "RESOLVED"]
-const types: (ContactType | "ALL")[] = ["ALL", "GENERAL", "ORDER_ISSUE", "PRODUCT_INQUIRY", "COMPLAINT", "FEEDBACK", "RETURN_REQUEST"]
-const priorities: (ContactPriority | "ALL")[] = ["ALL", "LOW", "MEDIUM", "HIGH", "URGENT"]
+const statuses: (ContactStatus | "ALL")[] = [
+  "ALL",
+  "PENDING",
+  "REVIEWED",
+  "RESOLVED",
+];
+const types: (ContactType | "ALL")[] = [
+  "ALL",
+  "GENERAL",
+  "ORDER_ISSUE",
+  "PRODUCT_INQUIRY",
+  "COMPLAINT",
+  "FEEDBACK",
+  "RETURN_REQUEST",
+];
+const priorities: (ContactPriority | "ALL")[] = [
+  "ALL",
+  "LOW",
+  "MEDIUM",
+  "HIGH",
+  "URGENT",
+];
 
 export default function ContactPage() {
-  const [page, setPage] = useState(1)
-  const [limit] = useState(50)
-  
-  const [searchQuery, setSearchQuery] = useState("")
-  const [statusFilter, setStatusFilter] = useState<ContactStatus | "ALL">("ALL")
-  const [typeFilter, setTypeFilter] = useState<ContactType | "ALL">("ALL")
-  const [priorityFilter, setPriorityFilter] = useState<ContactPriority | "ALL">("ALL")
+  const [page, setPage] = useState(1);
+  const [limit] = useState(50);
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<ContactStatus | "ALL">(
+    "ALL",
+  );
+  const [typeFilter, setTypeFilter] = useState<ContactType | "ALL">("ALL");
+  const [priorityFilter, setPriorityFilter] = useState<ContactPriority | "ALL">(
+    "ALL",
+  );
 
   // Reset page when filters change
   useEffect(() => {
-    setPage(1)
-  }, [statusFilter, typeFilter, priorityFilter, searchQuery])
+    setPage(1);
+  }, [statusFilter, typeFilter, priorityFilter, searchQuery]);
 
   const { queries, total, loading, refetch } = useContactQueries(
-    page, 
-    limit, 
-    typeFilter === "ALL" ? undefined : typeFilter
-  )
-  
-  const [selectedQuery, setSelectedQuery] = useState<ContactQuery | null>(null)
-  const [showDetailsDialog, setShowDetailsDialog] = useState(false)
-  const [showReplyDialog, setShowReplyDialog] = useState(false)
+    page,
+    limit,
+    typeFilter === "ALL" ? undefined : typeFilter,
+  );
+
+  const [selectedQuery, setSelectedQuery] = useState<ContactQuery | null>(null);
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+  const [showReplyDialog, setShowReplyDialog] = useState(false);
 
   const stats = useMemo(() => {
-    const s = getContactStats(queries)
-    return { ...s, totalServer: total }
-  }, [queries, total])
+    const s = getContactStats(queries);
+    return { ...s, totalServer: total };
+  }, [queries, total]);
 
   const filteredQueries = useMemo(() => {
-    return queries.filter(query => {
-      // Search filter
-      if (searchQuery) {
-        const search = searchQuery.toLowerCase()
-        if (
-          !query.name.toLowerCase().includes(search) &&
-          !query.email?.toLowerCase().includes(search) &&
-          !query.subject?.toLowerCase().includes(search) &&
-          !query.message.toLowerCase().includes(search) &&
-          !(query.orderId?.toLowerCase().includes(search))
-        ) {
-          return false
+    return queries
+      .filter((query) => {
+        // Search filter
+        if (searchQuery) {
+          const search = searchQuery.toLowerCase();
+          if (
+            !query.name.toLowerCase().includes(search) &&
+            !query.email?.toLowerCase().includes(search) &&
+            !query.subject?.toLowerCase().includes(search) &&
+            !query.message.toLowerCase().includes(search) &&
+            !query.orderId?.toLowerCase().includes(search)
+          ) {
+            return false;
+          }
         }
-      }
 
-      // Status filter
-      if (statusFilter !== "ALL" && query.status !== statusFilter) {
-        return false
-      }
+        // Status filter
+        if (statusFilter !== "ALL" && query.status !== statusFilter) {
+          return false;
+        }
 
-      // Priority filter
-      if (priorityFilter !== "ALL" && query.priority !== priorityFilter) {
-        return false
-      }
+        // Priority filter
+        if (priorityFilter !== "ALL" && query.priority !== priorityFilter) {
+          return false;
+        }
 
-      return true
-    }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-  }, [queries, searchQuery, statusFilter, priorityFilter])
+        return true;
+      })
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      );
+  }, [queries, searchQuery, statusFilter, priorityFilter]);
 
   const handleView = (query: ContactQuery) => {
-    setSelectedQuery(query)
-    setShowDetailsDialog(true)
-  }
+    setSelectedQuery(query);
+    setShowDetailsDialog(true);
+  };
 
   const handleReply = (query: ContactQuery) => {
-    setSelectedQuery(query)
-    setShowReplyDialog(true)
-  }
+    setSelectedQuery(query);
+    setShowReplyDialog(true);
+  };
 
   const handleSuccess = () => {
-    refetch()
-    setSelectedQuery(null)
-  }
+    refetch();
+    setSelectedQuery(null);
+  };
 
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
-    )
+    );
   }
 
   return (
@@ -141,9 +175,7 @@ export default function ContactPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalServer}</div>
-            <p className="text-xs text-muted-foreground">
-              All time queries
-            </p>
+            <p className="text-xs text-muted-foreground">All time queries</p>
           </CardContent>
         </Card>
         <Card>
@@ -153,9 +185,7 @@ export default function ContactPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">{stats.new}</div>
-            <p className="text-xs text-muted-foreground">
-              Awaiting response
-            </p>
+            <p className="text-xs text-muted-foreground">Awaiting response</p>
           </CardContent>
         </Card>
         <Card>
@@ -164,10 +194,10 @@ export default function ContactPage() {
             <Clock className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{stats.inProgress}</div>
-            <p className="text-xs text-muted-foreground">
-              Being handled
-            </p>
+            <div className="text-2xl font-bold text-blue-600">
+              {stats.inProgress}
+            </div>
+            <p className="text-xs text-muted-foreground">Being handled</p>
           </CardContent>
         </Card>
         <Card>
@@ -176,7 +206,9 @@ export default function ContactPage() {
             <CheckCircle2 className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.resolved}</div>
+            <div className="text-2xl font-bold text-green-600">
+              {stats.resolved}
+            </div>
             <p className="text-xs text-muted-foreground">
               Successfully resolved
             </p>
@@ -189,9 +221,7 @@ export default function ContactPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.avgResponseTime}</div>
-            <p className="text-xs text-muted-foreground">
-              Response time
-            </p>
+            <p className="text-xs text-muted-foreground">Response time</p>
           </CardContent>
         </Card>
       </div>
@@ -209,9 +239,9 @@ export default function ContactPage() {
               <h4 className="text-sm font-medium mb-3">By Type</h4>
               <div className="flex flex-wrap gap-2">
                 {(Object.keys(typeLabels) as ContactType[]).map((type) => {
-                  const count = stats.byType[type] || 0
+                  const count = stats.byType[type] || 0;
                   return (
-                    <div 
+                    <div
                       key={type}
                       className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-muted text-sm"
                     >
@@ -220,7 +250,7 @@ export default function ContactPage() {
                         {count}
                       </span>
                     </div>
-                  )
+                  );
                 })}
               </div>
             </div>
@@ -228,26 +258,28 @@ export default function ContactPage() {
             <div>
               <h4 className="text-sm font-medium mb-3">By Priority</h4>
               <div className="flex flex-wrap gap-2">
-                {(Object.keys(priorityLabels) as ContactPriority[]).map((priority) => {
-                  const count = stats.byPriority[priority] || 0
-                  const colors: Record<ContactPriority, string> = {
-                    LOW: "bg-gray-100",
-                    MEDIUM: "bg-blue-100",
-                    HIGH: "bg-orange-100",
-                    URGENT: "bg-red-100"
-                  }
-                  return (
-                    <div 
-                      key={priority}
-                      className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm ${colors[priority]}`}
-                    >
-                      <span>{priorityLabels[priority]}</span>
-                      <span className="px-1.5 py-0.5 rounded-full bg-white text-xs font-medium">
-                        {count}
-                      </span>
-                    </div>
-                  )
-                })}
+                {(Object.keys(priorityLabels) as ContactPriority[]).map(
+                  (priority) => {
+                    const count = stats.byPriority[priority] || 0;
+                    const colors: Record<ContactPriority, string> = {
+                      LOW: "bg-gray-100",
+                      MEDIUM: "bg-blue-100",
+                      HIGH: "bg-orange-100",
+                      URGENT: "bg-red-100",
+                    };
+                    return (
+                      <div
+                        key={priority}
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm ${colors[priority]}`}
+                      >
+                        <span>{priorityLabels[priority]}</span>
+                        <span className="px-1.5 py-0.5 rounded-full bg-white text-xs font-medium">
+                          {count}
+                        </span>
+                      </div>
+                    );
+                  },
+                )}
               </div>
             </div>
           </div>
@@ -275,7 +307,9 @@ export default function ContactPage() {
             </div>
             <Select
               value={statusFilter}
-              onValueChange={(value) => setStatusFilter(value as ContactStatus | "ALL")}
+              onValueChange={(value) =>
+                setStatusFilter(value as ContactStatus | "ALL")
+              }
             >
               <SelectTrigger className="w-[150px]">
                 <SelectValue placeholder="Status" />
@@ -290,7 +324,9 @@ export default function ContactPage() {
             </Select>
             <Select
               value={typeFilter}
-              onValueChange={(value) => setTypeFilter(value as ContactType | "ALL")}
+              onValueChange={(value) =>
+                setTypeFilter(value as ContactType | "ALL")
+              }
             >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Type" />
@@ -305,7 +341,9 @@ export default function ContactPage() {
             </Select>
             <Select
               value={priorityFilter}
-              onValueChange={(value) => setPriorityFilter(value as ContactPriority | "ALL")}
+              onValueChange={(value) =>
+                setPriorityFilter(value as ContactPriority | "ALL")
+              }
             >
               <SelectTrigger className="w-[140px]">
                 <SelectValue placeholder="Priority" />
@@ -313,7 +351,9 @@ export default function ContactPage() {
               <SelectContent>
                 {priorities.map((priority) => (
                   <SelectItem key={priority} value={priority}>
-                    {priority === "ALL" ? "All Priority" : priorityLabels[priority]}
+                    {priority === "ALL"
+                      ? "All Priority"
+                      : priorityLabels[priority]}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -321,8 +361,8 @@ export default function ContactPage() {
           </div>
 
           {/* Table */}
-          <ContactTable 
-            queries={filteredQueries} 
+          <ContactTable
+            queries={filteredQueries}
             onRefresh={refetch}
             onView={handleView}
             onReply={handleReply}
@@ -332,25 +372,28 @@ export default function ContactPage() {
           {total > limit && (
             <div className="flex items-center justify-between pt-4 border-t">
               <p className="text-sm text-muted-foreground">
-                Showing {Math.min((page - 1) * limit + 1, total)} to {Math.min(page * limit, total)} of {total} queries
+                Showing {Math.min((page - 1) * limit + 1, total)} to{" "}
+                {Math.min(page * limit, total)} of {total} queries
               </p>
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page === 1}
                 >
                   Previous
                 </Button>
                 <div className="flex items-center gap-1">
                   <span className="text-sm font-medium">Page {page}</span>
-                  <span className="text-sm text-muted-foreground">of {Math.ceil(total / limit)}</span>
+                  <span className="text-sm text-muted-foreground">
+                    of {Math.ceil(total / limit)}
+                  </span>
                 </div>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setPage(p => p + 1)}
+                  onClick={() => setPage((p) => p + 1)}
                   disabled={page >= Math.ceil(total / limit)}
                 >
                   Next
@@ -377,5 +420,5 @@ export default function ContactPage() {
         onSuccess={handleSuccess}
       />
     </div>
-  )
+  );
 }

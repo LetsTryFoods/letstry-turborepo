@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import React, { useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface ProductAccordionProps {
   title: string;
@@ -10,7 +10,11 @@ interface ProductAccordionProps {
   defaultOpen?: boolean;
 }
 
-export const ProductAccordion: React.FC<ProductAccordionProps> = ({ title, children, defaultOpen = true }) => {
+export const ProductAccordion: React.FC<ProductAccordionProps> = ({
+  title,
+  children,
+  defaultOpen = true,
+}) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
@@ -19,18 +23,20 @@ export const ProductAccordion: React.FC<ProductAccordionProps> = ({ title, child
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-between p-3 sm:p-4 md:p-5 lg:p-6 bg-white hover:bg-gray-50 transition-colors"
       >
-        <span className="text-base sm:text-lg font-bold text-gray-900">{title}</span>
+        <span className="text-base sm:text-lg font-bold text-gray-900">
+          {title}
+        </span>
         {isOpen ? (
           <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5 text-gray-900" />
         ) : (
           <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-gray-900" />
         )}
       </button>
-      
+
       <div
         className={cn(
           "transition-all duration-300 ease-in-out overflow-hidden",
-          isOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
+          isOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0",
         )}
       >
         {children}

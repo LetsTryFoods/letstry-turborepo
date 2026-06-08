@@ -153,20 +153,22 @@ export interface DtdcTrackingResponse {
     strExpectedDeliveryDate: string;
     strRevExpectedDeliveryDate: string;
   } | null;
-  trackDetails: {
-    strCode: string;
-    strAction: string;
-    strManifestNo: string;
-    strOrigin: string;
-    strDestination: string;
-    strOriginCode: string;
-    strDestinationCode: string;
-    strActionDate: string;
-    strActionTime: string;
-    sTrRemarks: string;
-    strLatitude: string;
-    strLongitude: string;
-    strNDCOTP: string;
-    strSCDOTP?: string;
-  }[] | null;
+  trackDetails:
+    | {
+        strCode: string;
+        strAction: string;
+        strManifestNo: string;
+        strOrigin: string;
+        strDestination: string;
+        strOriginCode: string;
+        strDestinationCode: string;
+        strActionDate: string;
+        strActionTime: string;
+        sTrRemarks: string;
+        strLatitude: string;
+        strLongitude: string;
+        strNDCOTP: string;
+        strSCDOTP?: string;
+      }[]
+    | null;
 }

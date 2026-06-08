@@ -13,7 +13,7 @@
  * be removed.
  */
 
-import { graphql } from '@/gql';
+import { graphql } from "@/gql";
 
 export const GET_PRODUCT_BY_SLUG_MINIMAL = graphql(`
   query GetProductBySlugMinimal($slug: String!) {

@@ -1,80 +1,80 @@
-import { SDUIScreen } from '../../types';
+import { SDUIScreen } from "../../types";
 
 export const profileScreen: SDUIScreen = {
-  screen: 'ProfileScreen',
+  screen: "ProfileScreen",
   components: [
     {
-      type: 'ProfileHeader',
+      type: "ProfileHeader",
       props: {
-        title: 'Profile',
-        textColor: '#1A1A1A'
-      }
+        title: "Profile",
+        textColor: "#1A1A1A",
+      },
     },
     {
-      type: 'AuthCard',
+      type: "AuthCard",
       props: {
-        accentColor: '#E8A020',
-        cardBackgroundColor: '#FFFFFF'
-      }
+        accentColor: "#E8A020",
+        cardBackgroundColor: "#FFFFFF",
+      },
     },
     {
-      type: 'LinkSection',
+      type: "LinkSection",
       props: {
-        title: 'Account',
-        iconColor: '#E8A020',
+        title: "Account",
+        iconColor: "#E8A020",
         labelFontSize: 18,
         sectionTitleFontSize: 14,
         links: [
           {
-            id: 'my_orders',
-            label: 'My Orders',
-            icon: 'receipt-outline',
+            id: "my_orders",
+            label: "My Orders",
+            icon: "receipt-outline",
             action: {
-              type: 'NAVIGATE',
-              destination: '/orders'
-            }
+              type: "NAVIGATE",
+              destination: "/orders",
+            },
           },
           {
-            id: 'my_addresses',
-            label: 'My Addresses',
-            icon: 'location-outline',
+            id: "my_addresses",
+            label: "My Addresses",
+            icon: "location-outline",
             requiresAuth: true,
             action: {
-              type: 'NAVIGATE',
-              destination: '/checkout/location'
-            }
-          }
-        ]
-      }
+              type: "NAVIGATE",
+              destination: "/checkout/location",
+            },
+          },
+        ],
+      },
     },
     {
-      type: 'LinkSection',
+      type: "LinkSection",
       props: {
-        title: 'Support & Queries',
-        iconColor: '#E8A020',
+        title: "Support & Queries",
+        iconColor: "#E8A020",
         labelFontSize: 18,
         sectionTitleFontSize: 14,
         links: [
           {
-            id: 'track_order',
-            label: 'Track Order',
-            icon: 'bus-outline',
+            id: "track_order",
+            label: "Track Order",
+            icon: "bus-outline",
             action: {
-              type: 'NAVIGATE',
-              destination: '/orders/track'
-            }
+              type: "NAVIGATE",
+              destination: "/orders/track",
+            },
           },
           {
-            id: 'contact_queries',
-            label: 'Contact Queries',
-            icon: 'help-circle-outline',
+            id: "contact_queries",
+            label: "Contact Queries",
+            icon: "help-circle-outline",
             action: {
-              type: 'NAVIGATE',
-              destination: '/support/contact'
-            }
-          }
-        ]
-      }
+              type: "NAVIGATE",
+              destination: "/support/contact",
+            },
+          },
+        ],
+      },
     },
     // ✅ EXAMPLE: Add a NEW section and screen entirely from the server.
     // The NAVIGATE action points to a screenId that the generic [screenId].tsx
@@ -96,12 +96,12 @@ export const profileScreen: SDUIScreen = {
     //   }
     // },
     {
-      type: 'LogoutButton',
+      type: "LogoutButton",
       props: {
-        label: 'Logout',
-        textColor: '#FF3B30',
-        iconColor: '#FF3B30'
-      }
-    }
-  ]
+        label: "Logout",
+        textColor: "#FF3B30",
+        iconColor: "#FF3B30",
+      },
+    },
+  ],
 };

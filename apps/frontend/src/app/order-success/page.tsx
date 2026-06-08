@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { Suspense, useEffect } from 'react';
-import { CheckCircle } from 'lucide-react';
-import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import { useGraphQLQuery } from '@/lib/graphql/use-graphql-query';
-import { GET_ORDER_BY_ID } from '@/lib/queries/orders';
-import { useAnalytics } from '@/hooks/use-analytics';
+import { Suspense, useEffect } from "react";
+import { CheckCircle } from "lucide-react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { useGraphQLQuery } from "@/lib/graphql/use-graphql-query";
+import { GET_ORDER_BY_ID } from "@/lib/queries/orders";
+import { useAnalytics } from "@/hooks/use-analytics";
 
 type OrderItem = {
   variantId: string;
@@ -38,11 +38,11 @@ type OrderPayload = {
 
 function OrderSuccess() {
   const searchParams = useSearchParams();
-  const orderId = searchParams.get('orderId');
+  const orderId = searchParams.get("orderId");
   const { trackPurchase } = useAnalytics();
 
   const { data } = useGraphQLQuery<OrderPayload>(
-    ['order', orderId],
+    ["order", orderId],
     GET_ORDER_BY_ID,
     orderId ? { orderId } : undefined,
     {
@@ -58,7 +58,7 @@ function OrderSuccess() {
     if (!order || !order.orderId) return;
 
     const guardKey = `ga4_purchase_fired:${order.orderId}`;
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
     if (sessionStorage.getItem(guardKey)) return;
 
     const value = Number(order.totalAmount) || 0;
@@ -77,7 +77,7 @@ function OrderSuccess() {
       })),
     });
 
-    sessionStorage.setItem(guardKey, '1');
+    sessionStorage.setItem(guardKey, "1");
   }, [order, trackPurchase]);
 
   return (
@@ -94,9 +94,7 @@ function OrderSuccess() {
         </h1>
 
         {orderId && (
-          <p className="text-sm text-gray-500 mb-4">
-            Order ID: {orderId}
-          </p>
+          <p className="text-sm text-gray-500 mb-4">Order ID: {orderId}</p>
         )}
 
         <p className="text-gray-600 mb-8">
@@ -125,20 +123,22 @@ function OrderSuccess() {
 
 export default function OrderSuccessPage() {
   return (
-    <Suspense fallback={
-      <main className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
-          <div className="flex justify-center mb-6">
-            <div className="rounded-full bg-green-100 p-6">
-              <CheckCircle className="h-16 w-16 text-green-600" />
+    <Suspense
+      fallback={
+        <main className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+          <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
+            <div className="flex justify-center mb-6">
+              <div className="rounded-full bg-green-100 p-6">
+                <CheckCircle className="h-16 w-16 text-green-600" />
+              </div>
             </div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              Order Confirmed
+            </h1>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            Order Confirmed
-          </h1>
-        </div>
-      </main>
-    }>
+        </main>
+      }
+    >
       <OrderSuccess />
     </Suspense>
   );

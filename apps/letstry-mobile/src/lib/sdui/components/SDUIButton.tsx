@@ -1,7 +1,12 @@
-import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import { useSDUIForm } from './SDUIForm';
-import { SDUIAction, ActionEngine } from '../ActionEngine';
+import React from "react";
+import {
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
+import { useSDUIForm } from "./SDUIForm";
+import { SDUIAction, ActionEngine } from "../ActionEngine";
 
 interface SDUIButtonProps {
   label: string;
@@ -14,8 +19,8 @@ interface SDUIButtonProps {
 export const SDUIButton: React.FC<SDUIButtonProps> = ({
   label,
   action,
-  backgroundColor = '#0C5273',
-  textColor = '#FFFFFF',
+  backgroundColor = "#0C5273",
+  textColor = "#FFFFFF",
   isSubmit = false,
 }) => {
   // We use optional chaining here because a standalone button might not be inside a form
@@ -52,18 +57,18 @@ export const SDUIButton: React.FC<SDUIButtonProps> = ({
 
 const styles = StyleSheet.create({
   button: {
-    width: '100%',
+    width: "100%",
     padding: 14,
     borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginTop: 8,
     marginBottom: 8,
   },
   text: {
     fontSize: 16,
-    fontWeight: '700',
-  }
+    fontWeight: "700",
+  },
 });
 
 export default SDUIButton;

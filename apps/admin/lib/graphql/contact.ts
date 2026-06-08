@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { gql } from "@apollo/client";
 
 export const GET_CONTACT_MESSAGES = gql`
   query GetContactMessages($skip: Int, $limit: Int, $queryType: String) {

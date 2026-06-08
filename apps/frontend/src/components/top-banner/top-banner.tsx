@@ -6,13 +6,17 @@ interface TopBannerProps {
   items?: string[];
 }
 
-export const TopBanner = ({ imageUrl, imageAlt = "Banner", items = [
-  "No Palm Oil",
-  "No Cholesterol",
-  "No Trans Fat",
-  "No White Sugar",
-  "High Fiber"
-] }: TopBannerProps) => {
+export const TopBanner = ({
+  imageUrl,
+  imageAlt = "Banner",
+  items = [
+    "No Palm Oil",
+    "No Cholesterol",
+    "No Trans Fat",
+    "No White Sugar",
+    "High Fiber",
+  ],
+}: TopBannerProps) => {
   if (imageUrl) {
     return (
       <div className="w-full bg-[#001f3f] py-2 relative z-30">
@@ -33,7 +37,10 @@ export const TopBanner = ({ imageUrl, imageAlt = "Banner", items = [
     <div className="w-full bg-[#001f3f] py-2 overflow-hidden relative z-30">
       <div className="flex items-center gap-4 md:gap-8 lg:gap-12 animate-marquee whitespace-nowrap">
         {[...items, ...items].map((item, index) => (
-          <div key={index} className="flex items-center gap-4 md:gap-8 lg:gap-12">
+          <div
+            key={index}
+            className="flex items-center gap-4 md:gap-8 lg:gap-12"
+          >
             <span className="text-yellow-400 font-bold text-sm md:text-base lg:text-lg">
               {item}
             </span>

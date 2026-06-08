@@ -1,21 +1,27 @@
-'use client'
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { ProductForm } from "./product-form"
-import { Product } from "@/types/product"
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { ProductForm } from "./product-form";
+import { Product } from "@/types/product";
 
 interface ProductHeaderProps {
-  includeOutOfStock: boolean
-  setIncludeOutOfStock: (checked: boolean) => void
-  isDialogOpen: boolean
-  setIsDialogOpen: (open: boolean) => void
-  handleAddProduct: () => void
-  editingProduct: Product | null
-  handleCloseDialog: () => void
-  createProduct: any
-  updateProduct: any
+  includeOutOfStock: boolean;
+  setIncludeOutOfStock: (checked: boolean) => void;
+  isDialogOpen: boolean;
+  setIsDialogOpen: (open: boolean) => void;
+  handleAddProduct: () => void;
+  editingProduct: Product | null;
+  handleCloseDialog: () => void;
+  createProduct: any;
+  updateProduct: any;
 }
 
 export function ProductHeader({
@@ -27,7 +33,7 @@ export function ProductHeader({
   editingProduct,
   handleCloseDialog,
   createProduct,
-  updateProduct
+  updateProduct,
 }: ProductHeaderProps) {
   return (
     <div className="flex items-center justify-between space-y-2">
@@ -37,7 +43,9 @@ export function ProductHeader({
           <Checkbox
             id="include-out-of-stock"
             checked={includeOutOfStock}
-            onCheckedChange={(checked) => setIncludeOutOfStock(checked as boolean)}
+            onCheckedChange={(checked) =>
+              setIncludeOutOfStock(checked as boolean)
+            }
           />
           <label
             htmlFor="include-out-of-stock"
@@ -52,10 +60,12 @@ export function ProductHeader({
           </DialogTrigger>
           <DialogContent className="max-w-7xl w-[95vw] max-h-[90vh] overflow-y-auto sm:max-w-7xl">
             <DialogHeader>
-              <DialogTitle>{editingProduct ? 'Edit Product' : 'Add New Product'}</DialogTitle>
+              <DialogTitle>
+                {editingProduct ? "Edit Product" : "Add New Product"}
+              </DialogTitle>
             </DialogHeader>
-            <ProductForm 
-              onClose={handleCloseDialog} 
+            <ProductForm
+              onClose={handleCloseDialog}
               initialData={editingProduct}
               createProduct={createProduct}
               updateProduct={updateProduct}
@@ -64,5 +74,5 @@ export function ProductHeader({
         </Dialog>
       </div>
     </div>
-  )
+  );
 }

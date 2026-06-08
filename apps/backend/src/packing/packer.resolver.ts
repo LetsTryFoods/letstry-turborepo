@@ -10,17 +10,24 @@ import { CreatePackerInput } from './dto/create-packer.input';
 import { UpdatePackerInput } from './dto/update-packer.input';
 import { PackerLoginInput } from './dto/packer-login.input';
 import { FlagErrorInput } from './dto/flag-error.input';
-import { Packer, PackerStats, PackerLoginResponse, CreatePackerResponse } from './types/packer.type';
+import {
+  Packer,
+  PackerStats,
+  PackerLoginResponse,
+  CreatePackerResponse,
+} from './types/packer.type';
 import { ScanLog } from './types/scan-log.type';
 
 @Resolver()
 export class PackerResolver {
-  constructor(private readonly packerService: PackerService) { }
+  constructor(private readonly packerService: PackerService) {}
 
   @Mutation(() => CreatePackerResponse)
   @Roles(Role.ADMIN)
   @UseGuards(RolesGuard)
-  async createPacker(@Args('input', { type: () => CreatePackerInput }) input: CreatePackerInput): Promise<any> {
+  async createPacker(
+    @Args('input', { type: () => CreatePackerInput }) input: CreatePackerInput,
+  ): Promise<any> {
     return this.packerService.createPacker(input);
   }
 
@@ -44,7 +51,9 @@ export class PackerResolver {
   @Query(() => [Packer])
   @Roles(Role.ADMIN)
   @UseGuards(RolesGuard)
-  async getAllPackers(@Args('isActive', { nullable: true }) isActive?: boolean): Promise<any[]> {
+  async getAllPackers(
+    @Args('isActive', { nullable: true }) isActive?: boolean,
+  ): Promise<any[]> {
     return this.packerService.getAllPackers({ isActive });
   }
 
@@ -75,14 +84,18 @@ export class PackerResolver {
 
   @Mutation(() => PackerLoginResponse)
   @Public()
-  async packerLogin(@Args('input', { type: () => PackerLoginInput }) input: PackerLoginInput): Promise<any> {
+  async packerLogin(
+    @Args('input', { type: () => PackerLoginInput }) input: PackerLoginInput,
+  ): Promise<any> {
     return this.packerService.login(input.employeeId, input.password);
   }
 
   @Mutation(() => ScanLog)
   @Roles(Role.ADMIN)
   @UseGuards(RolesGuard)
-  async flagPackingError(@Args('input', { type: () => FlagErrorInput }) input: FlagErrorInput): Promise<any> {
+  async flagPackingError(
+    @Args('input', { type: () => FlagErrorInput }) input: FlagErrorInput,
+  ): Promise<any> {
     return this.packerService.flagRetrospectiveError(input);
   }
 }

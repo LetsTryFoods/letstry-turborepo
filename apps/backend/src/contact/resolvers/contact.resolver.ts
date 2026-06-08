@@ -1,4 +1,12 @@
-import { Resolver, Mutation, Args, Query, Int, ObjectType, Field } from '@nestjs/graphql';
+import {
+  Resolver,
+  Mutation,
+  Args,
+  Query,
+  Int,
+  ObjectType,
+  Field,
+} from '@nestjs/graphql';
 import { Public } from '../../common/decorators/public.decorator';
 import { ContactService } from '../services/contact.service';
 import { SubmitContactInput } from '../dto/submit-contact.input';
@@ -35,7 +43,8 @@ export class ContactResolver {
       await this.contactService.create(input);
       return {
         success: true,
-        message: 'Your query has been submitted successfully. We will get back to you shortly.',
+        message:
+          'Your query has been submitted successfully. We will get back to you shortly.',
       };
     } catch (error) {
       return {
@@ -69,9 +78,7 @@ export class ContactResolver {
   }
 
   @Mutation(() => Boolean)
-  async deleteContactMessage(
-    @Args('id') id: string,
-  ): Promise<boolean> {
+  async deleteContactMessage(@Args('id') id: string): Promise<boolean> {
     return this.contactService.delete(id);
   }
 }

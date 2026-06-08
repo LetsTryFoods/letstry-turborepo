@@ -16,7 +16,8 @@ export class CreateAuthorInput {
   @Field({ nullable: true }) publicEmail?: string;
   @Field(() => [String], { nullable: true }) expertise?: string[];
   @Field(() => [String], { nullable: true }) credentials?: string[];
-  @Field(() => [AuthorSocialLinkInput], { nullable: true }) socialLinks?: AuthorSocialLinkInput[];
+  @Field(() => [AuthorSocialLinkInput], { nullable: true })
+  socialLinks?: AuthorSocialLinkInput[];
   @Field({ nullable: true }) isFounder?: boolean;
   @Field({ nullable: true }) isTeamMember?: boolean;
   @Field({ nullable: true }) isActive?: boolean;
@@ -33,7 +34,8 @@ export class UpdateAuthorInput {
   @Field({ nullable: true }) publicEmail?: string;
   @Field(() => [String], { nullable: true }) expertise?: string[];
   @Field(() => [String], { nullable: true }) credentials?: string[];
-  @Field(() => [AuthorSocialLinkInput], { nullable: true }) socialLinks?: AuthorSocialLinkInput[];
+  @Field(() => [AuthorSocialLinkInput], { nullable: true })
+  socialLinks?: AuthorSocialLinkInput[];
   @Field({ nullable: true }) isFounder?: boolean;
   @Field({ nullable: true }) isTeamMember?: boolean;
   @Field({ nullable: true }) isActive?: boolean;

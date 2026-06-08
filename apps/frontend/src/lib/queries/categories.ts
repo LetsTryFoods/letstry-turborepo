@@ -1,7 +1,10 @@
-import { graphql } from '@/gql';
+import { graphql } from "@/gql";
 
 export const GET_ROOT_CATEGORIES = graphql(`
-  query GetRootCategories($pagination: PaginationInput, $includeArchived: Boolean) {
+  query GetRootCategories(
+    $pagination: PaginationInput
+    $includeArchived: Boolean
+  ) {
     rootCategories(pagination: $pagination, includeArchived: $includeArchived) {
       items {
         id
@@ -125,4 +128,3 @@ export const GET_CATEGORY_WITH_CHILDREN = graphql(`
     }
   }
 `);
-

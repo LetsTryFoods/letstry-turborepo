@@ -14,8 +14,8 @@ import {
   Modal,
 } from 'react-native';
 
-import { useMutation, useLazyQuery } from '@apollo/client';
-import { BATCH_SCAN_ITEMS, COMPLETE_PACKING, UPLOAD_EVIDENCE, GET_DELIVERY_RECOMMENDATION } from '../graphql/queries';
+import { useMutation, useLazyQuery, useQuery } from '@apollo/client';
+import { BATCH_SCAN_ITEMS, COMPLETE_PACKING, UPLOAD_EVIDENCE, GET_DELIVERY_RECOMMENDATION, GET_GLOBAL_SETTINGS } from '../graphql/queries';
 import { COLORS } from '../constants/theme';
 
 const CameraScreen = ({ navigation, route }) => {
@@ -29,7 +29,7 @@ const CameraScreen = ({ navigation, route }) => {
   const pendingScans = useRef({});
   const [scanLocked, setScanLocked] = useState(false);
   const [allScanned, setAllScanned] = useState(false);
-  const [boxPhotoUri, setBoxPhotoUri] = useState(null);
+  const [boxPhotos, setBoxPhotos] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [lastScanned, setLastScanned] = useState(null);
 
@@ -41,18 +41,30 @@ const CameraScreen = ({ navigation, route }) => {
   const [showPartnerModal, setShowPartnerModal] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState('DTDC');
 
+  const { data: settingsData } = useQuery(GET_GLOBAL_SETTINGS);
+  const isBypassEnabled = settingsData?.getGlobalSettings?.isPackerScanBypassEnabled || false;
+
   useEffect(() => {
     if (!permission?.granted) requestPermission();
   }, []);
 
   useEffect(() => {
+    if (isBypassEnabled) {
+      if (!allScanned) {
+        setAllScanned(true);
+        getRecommendation({ variables: { orderId: order.orderId } });
+        Alert.alert('Scan Bypassed', 'Please take 5 photos of the packed items.');
+      }
+      return;
+    }
+
     const done = items.every(i => i.scannedQty >= i.quantity);
     if (done && items.length > 0 && !allScanned) {
       setAllScanned(true);
       getRecommendation({ variables: { orderId: order.orderId } });
       Alert.alert('✅ All Items Scanned!', 'Now take a photo of the packed box.');
     }
-  }, [items]);
+  }, [items, isBypassEnabled]);
 
   const handleBarcodeScan = async ({ data }) => {
     if (scanLocked || allScanned) return;
@@ -129,13 +141,17 @@ const CameraScreen = ({ navigation, route }) => {
   const takeBoxPhoto = async () => {
     if (!cameraRef.current) return;
     const photo = await cameraRef.current.takePictureAsync({ quality: 0.7 });
-    setBoxPhotoUri(photo.uri);
+    setBoxPhotos(prev => [...prev, photo.uri]);
   };
 
-  const retakePhoto = () => setBoxPhotoUri(null);
+  const retakePhoto = () => setBoxPhotos([]);
 
   const submitOrder = async () => {
-    if (!boxPhotoUri) {
+    if (isBypassEnabled && boxPhotos.length < 5) {
+      Alert.alert('Missing Photos', 'Please take 5 photos of the packed box and items.');
+      return;
+    }
+    if (!isBypassEnabled && boxPhotos.length === 0) {
       Alert.alert('Missing Photo', 'Please take a photo of the packed box.');
       return;
     }
@@ -146,13 +162,15 @@ const CameraScreen = ({ navigation, route }) => {
     setShowPartnerModal(false);
     setIsSubmitting(true);
     try {
-      const base64 = await FileSystem.readAsStringAsync(boxPhotoUri, { encoding: 'base64' });
+      const base64Images = await Promise.all(
+        boxPhotos.map(uri => FileSystem.readAsStringAsync(uri, { encoding: 'base64' }))
+      );
 
       await uploadEvidenceMutation({
         variables: {
           input: {
             packingOrderId: order.id,
-            prePackImages: [base64],
+            prePackImages: base64Images,
             postPackImages: [],
             actualBoxCode: null,
           },
@@ -190,18 +208,20 @@ const CameraScreen = ({ navigation, route }) => {
   }
 
   if (allScanned) {
+    const isPhotoComplete = isBypassEnabled ? boxPhotos.length >= 5 : boxPhotos.length >= 1;
+
     return (
       <View style={styles.container}>
         <StatusBar hidden />
-        {boxPhotoUri ? (
+        {isPhotoComplete ? (
           <View style={styles.container}>
             <View style={styles.photoHeader}>
               <Text style={styles.photoTitle}>Box Photo Preview</Text>
               <Text style={styles.photoSub}>Order #{order.orderNumber} — Packed by {user.name}</Text>
             </View>
             <View style={styles.photoPreview}>
-              <Ionicons name="image" size={80} color="#555" />
-              <Text style={styles.photoCapured}>Photo captured ✓</Text>
+              <Ionicons name="images" size={80} color="#555" />
+              <Text style={styles.photoCapured}>{boxPhotos.length} Photo(s) captured ✓</Text>
             </View>
             <View style={styles.photoActions}>
               <TouchableOpacity style={styles.retakeBtn} onPress={retakePhoto}>
@@ -225,8 +245,8 @@ const CameraScreen = ({ navigation, route }) => {
             <View style={styles.photoOverlay}>
               <View style={styles.photoPromptBox}>
                 <Ionicons name="camera" size={36} color="#fff" />
-                <Text style={styles.photoPromptTitle}>Take Box Photo</Text>
-                <Text style={styles.photoPromptSub}>Capture the sealed packed box with all items inside</Text>
+                <Text style={styles.photoPromptTitle}>{isBypassEnabled ? `Take Photos (${boxPhotos.length}/5)` : 'Take Box Photo'}</Text>
+                <Text style={styles.photoPromptSub}>{isBypassEnabled ? 'Capture 5 photos of the packed items.' : 'Capture the sealed packed box with all items inside'}</Text>
               </View>
               <TouchableOpacity style={styles.shutterBtn} onPress={takeBoxPhoto}>
                 <View style={styles.shutterInner} />

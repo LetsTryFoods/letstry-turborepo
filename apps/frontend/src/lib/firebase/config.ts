@@ -1,5 +1,5 @@
-import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
-import { getAuth, Auth } from 'firebase/auth';
+import { initializeApp, getApps, FirebaseApp } from "firebase/app";
+import { getAuth, Auth } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -12,12 +12,14 @@ const firebaseConfig = {
 };
 
 const validateFirebaseConfig = () => {
-  const requiredKeys = ['apiKey', 'authDomain', 'projectId', 'appId'];
-  const missing = requiredKeys.filter(key => !firebaseConfig[key as keyof typeof firebaseConfig]);
-  
+  const requiredKeys = ["apiKey", "authDomain", "projectId", "appId"];
+  const missing = requiredKeys.filter(
+    (key) => !firebaseConfig[key as keyof typeof firebaseConfig],
+  );
+
   if (missing.length > 0) {
-    console.error(`Missing Firebase config: ${missing.join(', ')}`);
-    console.error('Please add these to your .env.local file');
+    console.error(`Missing Firebase config: ${missing.join(", ")}`);
+    console.error("Please add these to your .env.local file");
     return false;
   }
   return true;
@@ -26,7 +28,7 @@ const validateFirebaseConfig = () => {
 let app: FirebaseApp;
 let auth: Auth;
 
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   if (validateFirebaseConfig()) {
     app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
     auth = getAuth(app);

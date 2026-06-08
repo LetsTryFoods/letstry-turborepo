@@ -1,97 +1,101 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { 
-  useAbandonedCarts, 
-  dummyAbandonedCarts, 
-  getAbandonedCartStats, 
-  AbandonedCart 
-} from "@/lib/abandoned-carts/useAbandonedCarts"
-import { CartTable } from "./components/CartTable"
-import { CartDetailsDialog } from "./components/CartDetailsDialog"
-import { WhatsAppDialog } from "./components/WhatsAppDialog"
-import { SMSDialog } from "./components/SMSDialog"
-import { 
-  Search, 
-  RefreshCw, 
-  ShoppingCart, 
-  Users, 
+} from "@/components/ui/select";
+import {
+  useAbandonedCarts,
+  dummyAbandonedCarts,
+  getAbandonedCartStats,
+  AbandonedCart,
+} from "@/lib/abandoned-carts/useAbandonedCarts";
+import { CartTable } from "./components/CartTable";
+import { CartDetailsDialog } from "./components/CartDetailsDialog";
+import { WhatsAppDialog } from "./components/WhatsAppDialog";
+import { SMSDialog } from "./components/SMSDialog";
+import {
+  Search,
+  RefreshCw,
+  ShoppingCart,
+  Users,
   IndianRupee,
   Clock,
   TrendingUp,
-  MessageCircle
-} from "lucide-react"
-import { Skeleton } from "@/components/ui/skeleton"
+  MessageCircle,
+} from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AbandonedCartsPage() {
-  const [activityFilter, setActivityFilter] = useState<string>("ALL")
-  const { data, loading, error, refetch } = useAbandonedCarts()
+  const [activityFilter, setActivityFilter] = useState<string>("ALL");
+  const { data, loading, error, refetch } = useAbandonedCarts();
 
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedCart, setSelectedCart] = useState<AbandonedCart | null>(null)
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false)
-  const [isWhatsAppOpen, setIsWhatsAppOpen] = useState(false)
-  const [isSMSOpen, setIsSMSOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCart, setSelectedCart] = useState<AbandonedCart | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [isWhatsAppOpen, setIsWhatsAppOpen] = useState(false);
+  const [isSMSOpen, setIsSMSOpen] = useState(false);
 
-  const carts: AbandonedCart[] = (data as any)?.abandonedCarts || []
-  const stats = getAbandonedCartStats(dummyAbandonedCarts)
+  const carts: AbandonedCart[] = (data as any)?.abandonedCarts || [];
+  const stats = getAbandonedCartStats(dummyAbandonedCarts);
 
   // Filter carts based on activity
   const filterByActivity = (cart: AbandonedCart) => {
-    if (activityFilter === "ALL") return true
-    
-    const now = new Date()
-    const activityDate = new Date(cart.lastActivity)
-    const hoursDiff = (now.getTime() - activityDate.getTime()) / (1000 * 60 * 60)
+    if (activityFilter === "ALL") return true;
+
+    const now = new Date();
+    const activityDate = new Date(cart.lastActivity);
+    const hoursDiff =
+      (now.getTime() - activityDate.getTime()) / (1000 * 60 * 60);
 
     switch (activityFilter) {
       case "TODAY":
-        return hoursDiff < 24
+        return hoursDiff < 24;
       case "3DAYS":
-        return hoursDiff < 72
+        return hoursDiff < 72;
       case "WEEK":
-        return hoursDiff < 168
+        return hoursDiff < 168;
       case "OLDER":
-        return hoursDiff >= 168
+        return hoursDiff >= 168;
       default:
-        return true
+        return true;
     }
-  }
+  };
 
   // Filter carts based on search and activity
   const filteredCarts = carts
     .filter(filterByActivity)
-    .filter(cart =>
-      cart.customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      cart.customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      cart.customer.phone.includes(searchTerm) ||
-      cart.items.some(item => item.product.name.toLowerCase().includes(searchTerm.toLowerCase()))
-    )
+    .filter(
+      (cart) =>
+        cart.customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        cart.customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        cart.customer.phone.includes(searchTerm) ||
+        cart.items.some((item) =>
+          item.product.name.toLowerCase().includes(searchTerm.toLowerCase()),
+        ),
+    );
 
   const handleViewDetails = (cart: AbandonedCart) => {
-    setSelectedCart(cart)
-    setIsDetailsOpen(true)
-  }
+    setSelectedCart(cart);
+    setIsDetailsOpen(true);
+  };
 
   const handleSendWhatsApp = (cart: AbandonedCart) => {
-    setSelectedCart(cart)
-    setIsWhatsAppOpen(true)
-  }
+    setSelectedCart(cart);
+    setIsWhatsAppOpen(true);
+  };
 
   const handleSendSMS = (cart: AbandonedCart) => {
-    setSelectedCart(cart)
-    setIsSMSOpen(true)
-  }
+    setSelectedCart(cart);
+    setIsSMSOpen(true);
+  };
 
   if (loading) {
     return (
@@ -111,7 +115,7 @@ export default function AbandonedCartsPage() {
         </div>
         <Skeleton className="h-96" />
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -119,14 +123,21 @@ export default function AbandonedCartsPage() {
       <div className="p-6">
         <Card className="border-destructive">
           <CardContent className="pt-6">
-            <p className="text-destructive">Error loading abandoned carts: {(error as Error)?.message || 'Unknown error'}</p>
-            <Button onClick={() => refetch()} variant="outline" className="mt-4">
+            <p className="text-destructive">
+              Error loading abandoned carts:{" "}
+              {(error as Error)?.message || "Unknown error"}
+            </p>
+            <Button
+              onClick={() => refetch()}
+              variant="outline"
+              className="mt-4"
+            >
               Try Again
             </Button>
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -149,22 +160,32 @@ export default function AbandonedCartsPage() {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Abandoned</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Abandoned
+            </CardTitle>
             <ShoppingCart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.total}</div>
-            <p className="text-xs text-muted-foreground">{stats.totalItems} items total</p>
+            <p className="text-xs text-muted-foreground">
+              {stats.totalItems} items total
+            </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Potential Revenue</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Potential Revenue
+            </CardTitle>
             <IndianRupee className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">₹{stats.totalValue.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">Avg: ₹{stats.averageCartValue.toLocaleString()}/cart</p>
+            <div className="text-2xl font-bold text-orange-600">
+              ₹{stats.totalValue.toLocaleString()}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Avg: ₹{stats.averageCartValue.toLocaleString()}/cart
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -173,7 +194,9 @@ export default function AbandonedCartsPage() {
             <Clock className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.last24Hours}</div>
+            <div className="text-2xl font-bold text-green-600">
+              {stats.last24Hours}
+            </div>
             <p className="text-xs text-muted-foreground">Last 24 hours</p>
           </CardContent>
         </Card>
@@ -183,7 +206,9 @@ export default function AbandonedCartsPage() {
             <TrendingUp className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{stats.last7Days}</div>
+            <div className="text-2xl font-bold text-blue-600">
+              {stats.last7Days}
+            </div>
             <p className="text-xs text-muted-foreground">Last 7 days</p>
           </CardContent>
         </Card>
@@ -198,12 +223,19 @@ export default function AbandonedCartsPage() {
                 <MessageCircle className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h3 className="font-semibold text-green-900">Recover Lost Sales</h3>
-                <p className="text-sm text-green-700">Send WhatsApp reminders to customers with abandoned carts</p>
+                <h3 className="font-semibold text-green-900">
+                  Recover Lost Sales
+                </h3>
+                <p className="text-sm text-green-700">
+                  Send WhatsApp reminders to customers with abandoned carts
+                </p>
               </div>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" className="border-green-600 text-green-700 hover:bg-green-100">
+              <Button
+                variant="outline"
+                className="border-green-600 text-green-700 hover:bg-green-100"
+              >
                 <Users className="h-4 w-4 mr-2" />
                 {filteredCarts.length} Customers
               </Button>
@@ -247,9 +279,9 @@ export default function AbandonedCartsPage() {
           <CardTitle className="flex items-center justify-between">
             <span>Abandoned Carts ({filteredCarts.length})</span>
             {searchTerm && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => setSearchTerm("")}
               >
                 Clear search
@@ -290,5 +322,5 @@ export default function AbandonedCartsPage() {
         onOpenChange={setIsSMSOpen}
       />
     </div>
-  )
+  );
 }

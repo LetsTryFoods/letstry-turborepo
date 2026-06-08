@@ -1,1 +1,1 @@
-export { LoginModal } from './login-modal';
+export { LoginModal } from "./login-modal";

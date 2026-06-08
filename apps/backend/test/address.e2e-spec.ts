@@ -59,10 +59,7 @@ describe('Address (e2e)', () => {
     userToken = userSignupResponse.body.data.verifyOtpAndLogin;
 
     // Get User ID
-    const user = await connection
-      .collection('users')
-      .findOne({ phoneNumber: '+919876543210' });
-    userId = user._id.toString();
+    userId = user?._id.toString() || '';
   });
 
   afterAll(async () => {
@@ -110,7 +107,7 @@ describe('Address (e2e)', () => {
     });
 
     it('should update an address', async () => {
-      const address = await connection.collection("addresses").insertOne({
+      const address = await connection.collection('addresses').insertOne({
         userId,
         name: 'Old Name',
         streetAddress: 'Old Address',
@@ -152,7 +149,7 @@ describe('Address (e2e)', () => {
           await connection
             .collection('users')
             .findOne({ phoneNumber: '+919876543210' })
-        )._id,
+        )?._id,
         name: 'To Delete',
         streetAddress: 'Address',
         addressLocality: 'City',
@@ -187,7 +184,7 @@ describe('Address (e2e)', () => {
 
   describe('Address Queries', () => {
     it('should get my addresses', async () => {
-      await connection.collection("addresses").insertOne({
+      await connection.collection('addresses').insertOne({
         userId,
         name: 'My Address',
         streetAddress: 'Address',
@@ -228,7 +225,7 @@ describe('Address (e2e)', () => {
           await connection
             .collection('users')
             .findOne({ phoneNumber: '+919876543210' })
-        )._id,
+        )?._id,
         name: 'Single Address',
         streetAddress: 'Address',
         addressLocality: 'City',

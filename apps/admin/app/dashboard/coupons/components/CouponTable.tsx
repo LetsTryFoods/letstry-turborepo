@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   Table,
@@ -7,31 +7,31 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Trash2, Copy } from "lucide-react"
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Trash2, Copy } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
-import { Coupon } from "@/lib/coupons/useCoupons"
-import { format } from "date-fns"
+} from "@/components/ui/tooltip";
+import { Coupon } from "@/lib/coupons/useCoupons";
+import { format } from "date-fns";
 
 interface CouponTableProps {
-  coupons: Coupon[]
-  onDelete: (coupon: Coupon) => void
+  coupons: Coupon[];
+  onDelete: (coupon: Coupon) => void;
 }
 
 export function CouponTable({ coupons, onDelete }: CouponTableProps) {
   const copyCode = (code: string) => {
-    navigator.clipboard.writeText(code)
-  }
+    navigator.clipboard.writeText(code);
+  };
 
-  const isExpired = (endDate: string) => new Date(endDate) < new Date()
-  const isUpcoming = (startDate: string) => new Date(startDate) > new Date()
+  const isExpired = (endDate: string) => new Date(endDate) < new Date();
+  const isUpcoming = (startDate: string) => new Date(startDate) > new Date();
 
   // const getStatusBadge = (coupon: Coupon) => {
   //   if (!coupon.isActive) {
@@ -47,11 +47,11 @@ export function CouponTable({ coupons, onDelete }: CouponTableProps) {
   // }
 
   const getDiscountDisplay = (coupon: Coupon) => {
-    if (coupon.discountType === 'PERCENTAGE') {
-      return `${coupon.discountValue}%`
+    if (coupon.discountType === "PERCENTAGE") {
+      return `${coupon.discountValue}%`;
     }
-    return `₹${coupon.discountValue}`
-  }
+    return `₹${coupon.discountValue}`;
+  };
 
   // const getEligibilityBadge = (type: string) => {
   //   switch (type) {
@@ -70,9 +70,11 @@ export function CouponTable({ coupons, onDelete }: CouponTableProps) {
     return (
       <div className="flex flex-col items-center justify-center h-48 text-center">
         <p className="text-muted-foreground">No coupons found</p>
-        <p className="text-sm text-muted-foreground">Create your first coupon to get started</p>
+        <p className="text-sm text-muted-foreground">
+          Create your first coupon to get started
+        </p>
       </div>
-    )
+    );
   }
 
   return (
@@ -126,26 +128,35 @@ export function CouponTable({ coupons, onDelete }: CouponTableProps) {
               </TableCell>
               <TableCell>
                 <div>
-                  <p className="font-semibold text-green-600">{getDiscountDisplay(coupon)}</p>
+                  <p className="font-semibold text-green-600">
+                    {getDiscountDisplay(coupon)}
+                  </p>
                   {coupon.minCartValue && (
                     <p className="text-xs text-muted-foreground">
                       Min: ₹{coupon.minCartValue}
                     </p>
                   )}
-                  {coupon.maxDiscountAmount && coupon.discountType === 'PERCENTAGE' && (
-                    <p className="text-xs text-muted-foreground">
-                      Max: ₹{coupon.maxDiscountAmount}
-                    </p>
-                  )}
+                  {coupon.maxDiscountAmount &&
+                    coupon.discountType === "PERCENTAGE" && (
+                      <p className="text-xs text-muted-foreground">
+                        Max: ₹{coupon.maxDiscountAmount}
+                      </p>
+                    )}
                 </div>
               </TableCell>
               <TableCell>
                 {coupon.isPublic ? (
-                  <Badge variant="outline" className="border-green-500 text-green-600 bg-green-50">
+                  <Badge
+                    variant="outline"
+                    className="border-green-500 text-green-600 bg-green-50"
+                  >
                     Public
                   </Badge>
                 ) : (
-                  <Badge variant="outline" className="border-amber-500 text-amber-600 bg-amber-50">
+                  <Badge
+                    variant="outline"
+                    className="border-amber-500 text-amber-600 bg-amber-50"
+                  >
                     Hidden
                   </Badge>
                 )}
@@ -163,9 +174,9 @@ export function CouponTable({ coupons, onDelete }: CouponTableProps) {
               </TableCell> */}
               <TableCell>
                 <div className="text-xs">
-                  <p>{format(new Date(coupon.startDate), 'dd MMM yyyy')}</p>
+                  <p>{format(new Date(coupon.startDate), "dd MMM yyyy")}</p>
                   <p className="text-muted-foreground">to</p>
-                  <p>{format(new Date(coupon.endDate), 'dd MMM yyyy')}</p>
+                  <p>{format(new Date(coupon.endDate), "dd MMM yyyy")}</p>
                 </div>
               </TableCell>
               {/* <TableCell>
@@ -195,5 +206,5 @@ export function CouponTable({ coupons, onDelete }: CouponTableProps) {
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }

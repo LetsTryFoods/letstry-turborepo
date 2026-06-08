@@ -1,16 +1,25 @@
-'use client'
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Search } from "lucide-react"
-import { ColumnSelector, ColumnDefinition } from "../components/column-selector"
-import { ImagePreviewDialog } from "../components/image-preview-dialog"
-import { useCategoryPage } from "@/hooks/useCategoryPage"
-import { CategoryForm } from "./components/CategoryForm"
-import { CategoryTable } from "./components/CategoryTable"
-import { ArchiveDialog } from "./components/ArchiveDialog"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Search } from "lucide-react";
+import {
+  ColumnSelector,
+  ColumnDefinition,
+} from "../components/column-selector";
+import { ImagePreviewDialog } from "../components/image-preview-dialog";
+import { useCategoryPage } from "@/hooks/useCategoryPage";
+import { CategoryForm } from "./components/CategoryForm";
+import { CategoryTable } from "./components/CategoryTable";
+import { ArchiveDialog } from "./components/ArchiveDialog";
 
 const allColumns: ColumnDefinition[] = [
   { key: "_id", label: "ID" },
@@ -28,10 +37,10 @@ const allColumns: ColumnDefinition[] = [
   { key: "mobileImageUrl", label: "Mobile Image" },
   { key: "createdAt", label: "Created At" },
   { key: "updatedAt", label: "Updated At" },
-]
+];
 
 export default function CategoriesPage() {
-  const { state, actions } = useCategoryPage()
+  const { state, actions } = useCategoryPage();
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -52,7 +61,9 @@ export default function CategoriesPage() {
             <Checkbox
               id="include-archived"
               checked={state.includeArchived}
-              onCheckedChange={(checked) => actions.setIncludeArchived(checked as boolean)}
+              onCheckedChange={(checked) =>
+                actions.setIncludeArchived(checked as boolean)
+              }
             />
             <label
               htmlFor="include-archived"
@@ -61,13 +72,18 @@ export default function CategoriesPage() {
               Show Archived
             </label>
           </div>
-          <Dialog open={state.isDialogOpen} onOpenChange={actions.setIsDialogOpen}>
+          <Dialog
+            open={state.isDialogOpen}
+            onOpenChange={actions.setIsDialogOpen}
+          >
             <DialogTrigger asChild>
               <Button onClick={actions.handleAddCategory}>Add Category</Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[1000px] w-[95vw] max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>{state.editingCategory ? 'Edit Category' : 'Add New Category'}</DialogTitle>
+                <DialogTitle>
+                  {state.editingCategory ? "Edit Category" : "Add New Category"}
+                </DialogTitle>
               </DialogHeader>
               <CategoryForm
                 onClose={actions.handleCloseDialog}
@@ -113,10 +129,10 @@ export default function CategoriesPage() {
 
       <ImagePreviewDialog
         imageUrl={state.imagePreview?.url || null}
-        title={state.imagePreview?.title || ''}
+        title={state.imagePreview?.title || ""}
         open={!!state.imagePreview}
         onOpenChange={() => actions.setImagePreview(null)}
       />
     </div>
-  )
+  );
 }

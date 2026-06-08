@@ -7,7 +7,7 @@
 export function getBackendApiUrl(): string {
   const graphqlUrl = process.env.NEXT_PUBLIC_GRAPHQL_URL;
   if (graphqlUrl) {
-    return graphqlUrl.replace(/\/graphql\/?$/, '');
+    return graphqlUrl.replace(/\/graphql\/?$/, "");
   }
-  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+  return process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 }

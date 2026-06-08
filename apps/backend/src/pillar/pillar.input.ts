@@ -29,10 +29,13 @@ export class CreatePillarInput {
   @Field() title: string;
   @Field() intro: string;
   @Field({ nullable: true }) heroImageUrl?: string;
-  @Field(() => [PillarCategoryTileInput], { nullable: true }) categoryTiles?: PillarCategoryTileInput[];
+  @Field(() => [PillarCategoryTileInput], { nullable: true })
+  categoryTiles?: PillarCategoryTileInput[];
   @Field(() => [String], { nullable: true }) featuredProductIds?: string[];
-  @Field(() => [PillarSectionInput], { nullable: true }) sections?: PillarSectionInput[];
-  @Field(() => [PillarFaqEntryInput], { nullable: true }) faqs?: PillarFaqEntryInput[];
+  @Field(() => [PillarSectionInput], { nullable: true })
+  sections?: PillarSectionInput[];
+  @Field(() => [PillarFaqEntryInput], { nullable: true })
+  faqs?: PillarFaqEntryInput[];
   @Field(() => [String], { nullable: true }) relatedPillarSlugs?: string[];
   @Field({ nullable: true }) isActive?: boolean;
   @Field(() => Int, { nullable: true }) position?: number;
@@ -46,10 +49,13 @@ export class UpdatePillarInput {
   @Field({ nullable: true }) title?: string;
   @Field({ nullable: true }) intro?: string;
   @Field({ nullable: true }) heroImageUrl?: string;
-  @Field(() => [PillarCategoryTileInput], { nullable: true }) categoryTiles?: PillarCategoryTileInput[];
+  @Field(() => [PillarCategoryTileInput], { nullable: true })
+  categoryTiles?: PillarCategoryTileInput[];
   @Field(() => [String], { nullable: true }) featuredProductIds?: string[];
-  @Field(() => [PillarSectionInput], { nullable: true }) sections?: PillarSectionInput[];
-  @Field(() => [PillarFaqEntryInput], { nullable: true }) faqs?: PillarFaqEntryInput[];
+  @Field(() => [PillarSectionInput], { nullable: true })
+  sections?: PillarSectionInput[];
+  @Field(() => [PillarFaqEntryInput], { nullable: true })
+  faqs?: PillarFaqEntryInput[];
   @Field(() => [String], { nullable: true }) relatedPillarSlugs?: string[];
   @Field({ nullable: true }) isActive?: boolean;
   @Field(() => Int, { nullable: true }) position?: number;

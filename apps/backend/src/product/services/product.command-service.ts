@@ -1,4 +1,5 @@
 import { NotFoundException, ConflictException } from '@nestjs/common';
+import { Model } from 'mongoose';
 import { Product } from '../product.schema';
 import { CreateProductInput, UpdateProductInput } from '../product.input';
 import { ProductRepository } from './product.repository';
@@ -8,6 +9,7 @@ import { WinstonLoggerService } from '../../logger/logger.service';
 import { ProductVariantValidator } from './product.validator';
 import { ProductQueryBuilder } from './product.query-builder';
 import { StockUpdateParams } from './product.types';
+import { DeletedProductDocument } from '../deleted-product.schema';
 
 export class ProductCommandService {
   constructor(
@@ -15,7 +17,8 @@ export class ProductCommandService {
     private readonly slugService: SlugService,
     private readonly cacheInvalidator: CacheInvalidatorService,
     private readonly logger: WinstonLoggerService,
-  ) { }
+    private readonly deletedProductModel: Model<DeletedProductDocument>,
+  ) {}
 
   async create(input: CreateProductInput): Promise<Product> {
     ProductVariantValidator.validateVariants(input.variants);
@@ -105,7 +108,26 @@ export class ProductCommandService {
   }
 
   async remove(id: string): Promise<Product> {
-    return this.archive(id);
+    const product = await this.repository.findById(id);
+    if (!product) {
+      throw new NotFoundException(`Product with ID ${id} not found`);
+    }
+
+    // 1. Save snapshot to deleted_products
+    const deletedProduct = new this.deletedProductModel({
+      productData: (product as any).toObject ? (product as any).toObject() : product,
+      deletedAt: new Date()
+    });
+    await deletedProduct.save();
+
+    // 2. Hard delete from main collection
+    await this.repository.delete(id);
+
+    // 3. Invalidate caches
+    await this.cacheInvalidator.invalidateProduct(product);
+    this.logger.log(`Product hard deleted and moved to deleted_products collection: ${id}`);
+    
+    return product;
   }
 
   async archive(id: string): Promise<Product> {
@@ -172,7 +194,9 @@ export class ProductCommandService {
       throw new NotFoundException(`Product with ID ${productId} not found`);
     }
 
-    const variantIndex = product.variants.findIndex((v) => v._id === variantId);
+    const variantIndex = product.variants.findIndex(
+      (v) => v._id.toString() === variantId,
+    );
     if (variantIndex === -1) {
       throw new NotFoundException(`Variant with ID ${variantId} not found`);
     }
@@ -188,12 +212,17 @@ export class ProductCommandService {
       );
     }
 
-    const updatedVariants = [...product.variants];
-    updatedVariants[variantIndex] = {
-      ...updatedVariants[variantIndex],
-      ...variantUpdate,
-      _id: variantId,
-    };
+    const updatedVariants = product.variants.map((v) => {
+      const vObj = (v as any).toObject ? (v as any).toObject() : v;
+      if (v._id.toString() === variantId) {
+        return {
+          ...vObj,
+          ...variantUpdate,
+          _id: variantId,
+        };
+      }
+      return vObj;
+    });
 
     ProductVariantValidator.validateVariants(updatedVariants);
 
@@ -222,7 +251,9 @@ export class ProductCommandService {
       );
     }
 
-    const variant = product.variants.find((v) => v._id === variantId);
+    const variant = product.variants.find(
+      (v) => v._id.toString() === variantId,
+    );
     if (!variant) {
       throw new NotFoundException(`Variant with ID ${variantId} not found`);
     }
@@ -255,15 +286,20 @@ export class ProductCommandService {
       throw new NotFoundException(`Product with ID ${productId} not found`);
     }
 
-    const variantExists = product.variants.some((v) => v._id === variantId);
+    const variantExists = product.variants.some(
+      (v) => v._id.toString() === variantId,
+    );
     if (!variantExists) {
       throw new NotFoundException(`Variant with ID ${variantId} not found`);
     }
 
-    const updatedVariants = product.variants.map((v) => ({
-      ...v,
-      isDefault: v._id === variantId,
-    }));
+    const updatedVariants = product.variants.map((v) => {
+      const vObj = (v as any).toObject ? (v as any).toObject() : v;
+      return {
+        ...vObj,
+        isDefault: v._id.toString() === variantId,
+      };
+    });
 
     const updatedProduct = await this.repository.findByIdAndUpdate(
       productId,
@@ -288,17 +324,24 @@ export class ProductCommandService {
       throw new NotFoundException(`Product with ID ${productId} not found`);
     }
 
-    const variantIndex = product.variants.findIndex((v) => v._id === variantId);
+    const variantIndex = product.variants.findIndex(
+      (v) => v._id.toString() === variantId,
+    );
     if (variantIndex === -1) {
       throw new NotFoundException(`Variant with ID ${variantId} not found`);
     }
 
-    const updatedVariants = [...product.variants];
-    updatedVariants[variantIndex] = {
-      ...updatedVariants[variantIndex],
-      stockQuantity: quantity,
-      availabilityStatus: quantity > 0 ? 'in_stock' : 'out_of_stock',
-    };
+    const updatedVariants = product.variants.map((v) => {
+      const vObj = (v as any).toObject ? (v as any).toObject() : v;
+      if (v._id.toString() === variantId) {
+        return {
+          ...vObj,
+          stockQuantity: quantity,
+          availabilityStatus: quantity > 0 ? 'in_stock' : 'out_of_stock',
+        };
+      }
+      return vObj;
+    });
 
     const updatedProduct = await this.repository.findByIdAndUpdate(
       productId,
@@ -363,5 +406,20 @@ export class ProductCommandService {
     await this.cacheInvalidator.invalidateProduct(product);
     this.logger.log(`Product ${isArchived ? 'archived' : 'unarchived'}: ${id}`);
     return product;
+  }
+
+  async zeroAllStock(): Promise<boolean> {
+    await this.repository.updateMany(
+      {},
+      {
+        $set: {
+          'variants.$[].stockQuantity': 0,
+          'variants.$[].availabilityStatus': 'out_of_stock',
+        },
+      },
+    );
+    await this.cacheInvalidator.invalidateProduct({} as any);
+    this.logger.log('All product variant stock quantities reset to 0');
+    return true;
   }
 }

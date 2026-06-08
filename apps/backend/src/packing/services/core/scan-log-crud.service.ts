@@ -7,7 +7,7 @@ import { ScanLog } from '../../entities/scan-log.entity';
 export class ScanLogCrudService {
   constructor(
     @InjectModel(ScanLog.name) private scanLogModel: Model<ScanLog>,
-  ) { }
+  ) {}
 
   async create(data: Partial<ScanLog>): Promise<ScanLog> {
     const log = new this.scanLogModel(data);

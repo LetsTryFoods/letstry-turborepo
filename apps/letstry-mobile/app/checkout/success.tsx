@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   View,
   Text,
@@ -6,43 +6,42 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter, Stack, useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { useQuery } from '@apollo/client';
-import { theme } from '../../src/styles/theme';
-import { RFValue, wp } from '../../src/lib/utils/ui-utils';
-import * as Haptics from 'expo-haptics';
-import { GET_MY_ORDERS, GET_GUEST_ORDERS } from '../../src/lib/graphql/order';
-import { useAuthStore } from '../../src/store/auth-store';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter, Stack, useLocalSearchParams } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { useQuery } from "@apollo/client";
+import { theme } from "../../src/styles/theme";
+import { RFValue, wp } from "../../src/lib/utils/ui-utils";
+import * as Haptics from "expo-haptics";
+import { GET_MY_ORDERS, GET_GUEST_ORDERS } from "../../src/lib/graphql/order";
+import { useAuthStore } from "../../src/store/auth-store";
 
 export default function OrderSuccessScreen() {
   const router = useRouter();
-  const { orderId: passedOrderId } = useLocalSearchParams<{ orderId: string }>();
+  const { orderId: passedOrderId } = useLocalSearchParams<{
+    orderId: string;
+  }>();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const query = isAuthenticated ? GET_MY_ORDERS : GET_GUEST_ORDERS;
 
   // Fetch the latest order to display the real Order ID (not the payment reference)
   const { data, loading, refetch } = useQuery(query, {
     variables: { input: { page: 1, limit: 1 } },
-    fetchPolicy: 'network-only',
+    fetchPolicy: "network-only",
     notifyOnNetworkStatusChange: true,
   });
 
-  const latestOrder = (
-    isAuthenticated
-      ? data?.getMyOrders?.orders?.[0]
-      : data?.getGuestOrders?.orders?.[0]
-  );
+  const latestOrder = isAuthenticated
+    ? data?.getMyOrders?.orders?.[0]
+    : data?.getGuestOrders?.orders?.[0];
 
   // If we have a passedOrderId (the paymentOrderId), we should verify that the latest order matches it.
   // If it doesn't match, it means the backend hasn't created the order yet from the payment webhook.
-  const isTargetOrderFound = (
+  const isTargetOrderFound =
     !passedOrderId ||
     latestOrder?.paymentOrderId === passedOrderId ||
-    latestOrder?.orderId === passedOrderId
-  );
+    latestOrder?.orderId === passedOrderId;
 
   // Poll for the order if it's not found yet
   React.useEffect(() => {
@@ -64,7 +63,10 @@ export default function OrderSuccessScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <Stack.Screen options={{ headerShown: false }} />
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.container}>
           {/* Success Icon */}
           <View style={styles.iconCircle}>
@@ -83,10 +85,13 @@ export default function OrderSuccessScreen() {
             <View style={styles.orderRow}>
               <Text style={styles.orderLabel}>Order ID</Text>
               <Text style={styles.orderValue}>
-                {(!isTargetOrderFound || loading) ? (
-                  <ActivityIndicator size="small" color={theme.colors.primary} />
+                {!isTargetOrderFound || loading ? (
+                  <ActivityIndicator
+                    size="small"
+                    color={theme.colors.primary}
+                  />
                 ) : (
-                  `#${latestOrder?.orderId || 'PENDING'}`
+                  `#${latestOrder?.orderId || "PENDING"}`
                 )}
               </Text>
             </View>
@@ -103,15 +108,26 @@ export default function OrderSuccessScreen() {
             {latestOrder && (
               <TouchableOpacity
                 style={styles.secondaryButton}
-                onPress={() => router.push({ pathname: '/orders/[orderId]', params: { orderId: latestOrder.orderId } })}
+                onPress={() =>
+                  router.push({
+                    pathname: "/orders/[orderId]",
+                    params: { orderId: latestOrder.orderId },
+                  })
+                }
               >
-                <Ionicons name="receipt-outline" size={18} color={theme.colors.primary} />
-                <Text style={styles.secondaryButtonText}>View Order Details</Text>
+                <Ionicons
+                  name="receipt-outline"
+                  size={18}
+                  color={theme.colors.primary}
+                />
+                <Text style={styles.secondaryButtonText}>
+                  View Order Details
+                </Text>
               </TouchableOpacity>
             )}
             <TouchableOpacity
               style={styles.primaryButton}
-              onPress={() => router.replace('/(tabs)')}
+              onPress={() => router.replace("/(tabs)")}
             >
               <Text style={styles.primaryButtonText}>Continue Shopping</Text>
             </TouchableOpacity>
@@ -123,12 +139,12 @@ export default function OrderSuccessScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#fff' },
+  safe: { flex: 1, backgroundColor: "#fff" },
   scrollContent: { flexGrow: 1 },
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     padding: 24,
     paddingTop: 40,
   },
@@ -136,19 +152,19 @@ const styles = StyleSheet.create({
     width: 90,
     height: 90,
     borderRadius: 45,
-    backgroundColor: '#E6FFFA',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#E6FFFA",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 20,
   },
   innerCircle: {
     width: 68,
     height: 68,
     borderRadius: 34,
-    backgroundColor: '#38A169',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#38A169',
+    backgroundColor: "#38A169",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#38A169",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 10,
@@ -158,30 +174,30 @@ const styles = StyleSheet.create({
     fontSize: RFValue(20),
     fontWeight: theme.fontWeight.bold,
     color: theme.colors.text.primary,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 8,
   },
   subtitle: {
     fontSize: RFValue(13),
     color: theme.colors.text.muted,
-    textAlign: 'center',
+    textAlign: "center",
     paddingHorizontal: 16,
     lineHeight: 20,
     marginBottom: 24,
   },
   orderCard: {
-    width: '100%',
-    backgroundColor: '#F8FAFC',
+    width: "100%",
+    backgroundColor: "#F8FAFC",
     borderRadius: 14,
     padding: 14,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: "#E2E8F0",
     marginBottom: 20,
   },
   orderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingVertical: 7,
   },
   orderLabel: {
@@ -195,7 +211,7 @@ const styles = StyleSheet.create({
     fontWeight: theme.fontWeight.bold,
   },
   statusBadge: {
-    backgroundColor: '#C6F6D5',
+    backgroundColor: "#C6F6D5",
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 6,
@@ -203,35 +219,35 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: RFValue(11),
     fontWeight: theme.fontWeight.bold,
-    color: '#22543D',
+    color: "#22543D",
   },
   tipCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F0F9FF',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F0F9FF",
     padding: 12,
     borderRadius: 12,
-    width: '100%',
+    width: "100%",
     marginBottom: 24,
   },
   tipText: {
     flex: 1,
     fontSize: RFValue(12),
-    color: '#075985',
+    color: "#075985",
     marginLeft: 10,
     lineHeight: 17,
   },
   actionContainer: {
-    width: '100%',
+    width: "100%",
     gap: 12,
   },
   primaryButton: {
     backgroundColor: theme.colors.primary,
     height: 56,
     borderRadius: 14,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     gap: 10,
     shadowColor: theme.colors.primary,
     shadowOffset: { width: 0, height: 4 },
@@ -241,7 +257,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     fontSize: RFValue(16),
-    color: '#fff',
+    color: "#fff",
     fontWeight: theme.fontWeight.bold,
   },
   secondaryButton: {
@@ -249,11 +265,11 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1.5,
     borderColor: theme.colors.primary,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     gap: 8,
-    backgroundColor: '#FFF',
+    backgroundColor: "#FFF",
   },
   secondaryButtonText: {
     fontSize: RFValue(15),

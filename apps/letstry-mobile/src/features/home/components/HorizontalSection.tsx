@@ -1,8 +1,14 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
-import { wp, hp, RFValue } from '../../../lib/utils/ui-utils';
-import ProductCard from '../../../components/common/ProductCard';
+import React from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+} from "react-native";
+import { useRouter } from "expo-router";
+import { wp, hp, RFValue } from "../../../lib/utils/ui-utils";
+import ProductCard from "../../../components/common/ProductCard";
 
 interface HorizontalSectionProps {
   title: string;
@@ -14,7 +20,7 @@ interface HorizontalSectionProps {
   marginBottom?: number;
 }
 
-const CARD_GAP = wp('2%');
+const CARD_GAP = wp("2%");
 
 const HorizontalSection: React.FC<HorizontalSectionProps> = ({
   title,
@@ -23,18 +29,20 @@ const HorizontalSection: React.FC<HorizontalSectionProps> = ({
   loading,
   cardStyles,
   marginTop,
-  marginBottom
+  marginBottom,
 }) => {
   const router = useRouter();
 
   if (!loading && products.length === 0) return null;
 
   return (
-    <View style={[
-      styles.container, 
-      marginTop !== undefined && { marginTop },
-      marginBottom !== undefined && { marginBottom }
-    ]}>
+    <View
+      style={[
+        styles.container,
+        marginTop !== undefined && { marginTop },
+        marginBottom !== undefined && { marginBottom },
+      ]}
+    >
       <View style={styles.header}>
         <Text style={styles.title}>{title}</Text>
         {seeAllPath && (
@@ -54,8 +62,8 @@ const HorizontalSection: React.FC<HorizontalSectionProps> = ({
           <View style={{ marginHorizontal: CARD_GAP / 2 }}>
             <ProductCard
               product={item}
-              style={{ width: wp('44%'), height: hp('38%') }}
-              imageStyle={{ height: hp('20%') }}
+              style={{ width: wp("44%"), height: hp("38%") }}
+              imageStyle={{ height: hp("20%") }}
               cardStyles={cardStyles}
               onPress={() => router.push(`/product/${item.slug}` as any)}
             />
@@ -68,29 +76,29 @@ const HorizontalSection: React.FC<HorizontalSectionProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: hp('1%'),
-    marginBottom: hp('2%'),
+    marginTop: hp("1%"),
+    marginBottom: hp("2%"),
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: wp('4.6%'),
-    marginBottom: hp('1.5%'),
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: wp("4.6%"),
+    marginBottom: hp("1.5%"),
   },
   title: {
     fontSize: RFValue(16),
-    fontWeight: 'bold',
-    color: '#222',
+    fontWeight: "bold",
+    color: "#222",
   },
   seeAll: {
     fontSize: RFValue(13),
-    color: '#0C5273',
-    fontWeight: '600',
+    color: "#0C5273",
+    fontWeight: "600",
   },
   listContent: {
-    paddingHorizontal: wp('4%') - CARD_GAP / 2,
-    paddingBottom: hp('1.5%'),
+    paddingHorizontal: wp("4%") - CARD_GAP / 2,
+    paddingBottom: hp("1.5%"),
   },
 });
 

@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import { Bell, Search, Settings, LogOut, User } from 'lucide-react'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
+import { Bell, Search, Settings, LogOut, User } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,13 +10,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { useState } from 'react'
-import { handleLogout } from '@/lib/auth/logout'
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useState } from "react";
+import { handleLogout } from "@/lib/auth/logout";
 
 export function AppNavbar() {
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery, setSearchQuery] = useState("");
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -51,7 +51,10 @@ export function AppNavbar() {
           {/* User Profile Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+              <Button
+                variant="ghost"
+                className="relative h-10 w-10 rounded-full"
+              >
                 <Avatar className="h-10 w-10">
                   <AvatarImage src="" alt="User" />
                   <AvatarFallback className="bg-primary text-primary-foreground">
@@ -79,7 +82,10 @@ export function AppNavbar() {
                 <span>Settings</span>
               </DropdownMenuItem> */}
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600">
+              <DropdownMenuItem
+                onClick={handleLogout}
+                className="text-red-600 focus:text-red-600"
+              >
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
               </DropdownMenuItem>
@@ -88,5 +94,5 @@ export function AppNavbar() {
         </div>
       </div>
     </header>
-  )
+  );
 }

@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from "next/link";
 
 export default function Unauthorized() {
   return (
@@ -20,18 +20,20 @@ export default function Unauthorized() {
               />
             </svg>
           </div>
-          <h1 className="text-9xl font-bold text-zinc-900 dark:text-zinc-100">401</h1>
+          <h1 className="text-9xl font-bold text-zinc-900 dark:text-zinc-100">
+            401
+          </h1>
           <div className="mt-4 h-1 w-24 mx-auto bg-gradient-to-r from-amber-500 to-yellow-600 rounded-full"></div>
         </div>
-        
+
         <h2 className="text-3xl font-semibold text-zinc-800 dark:text-zinc-200 mb-4">
           Unauthorized
         </h2>
-        
+
         <p className="text-lg text-zinc-600 dark:text-zinc-400 mb-8">
           Please log in to access this page.
         </p>
-        
+
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             href="/login"
@@ -39,7 +41,7 @@ export default function Unauthorized() {
           >
             Log In
           </Link>
-          
+
           <Link
             href="/"
             className="inline-flex items-center justify-center px-6 py-3 rounded-lg border border-zinc-300 text-zinc-700 font-medium hover:bg-zinc-100 transition-colors dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"

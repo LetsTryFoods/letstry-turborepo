@@ -46,12 +46,16 @@ export class PackingOrderCreatorService {
       order.items.map(async (item) => {
         try {
           if (!item.variantId) {
-            this.packingLogger.logError('Item missing variantId', new Error('Missing variantId'), {
-              orderId: order._id.toString(),
-              itemProductId: item.productId?.toString(),
-              itemName: item.name,
-              itemSku: item.sku,
-            });
+            this.packingLogger.logError(
+              'Item missing variantId',
+              new Error('Missing variantId'),
+              {
+                orderId: order._id.toString(),
+                itemProductId: item.productId?.toString(),
+                itemName: item.name,
+                itemSku: item.sku,
+              },
+            );
             return this.createUnknownItem(item, order._id.toString());
           }
 
@@ -60,10 +64,14 @@ export class PackingOrderCreatorService {
           );
 
           if (!product) {
-            this.packingLogger.logError('Product not found for variantId', new Error('Product not found'), {
-              orderId: order._id.toString(),
-              variantId: item.variantId.toString(),
-            });
+            this.packingLogger.logError(
+              'Product not found for variantId',
+              new Error('Product not found'),
+              {
+                orderId: order._id.toString(),
+                variantId: item.variantId.toString(),
+              },
+            );
             return this.createUnknownItem(item, order._id.toString());
           }
 
@@ -72,11 +80,15 @@ export class PackingOrderCreatorService {
           );
 
           if (!variant) {
-            this.packingLogger.logError('Variant not found in product', new Error('Variant not found'), {
-              orderId: order._id.toString(),
-              productId: product._id.toString(),
-              variantId: item.variantId.toString(),
-            });
+            this.packingLogger.logError(
+              'Variant not found in product',
+              new Error('Variant not found'),
+              {
+                orderId: order._id.toString(),
+                productId: product._id.toString(),
+                variantId: item.variantId.toString(),
+              },
+            );
             return this.createUnknownItem(item, order._id.toString());
           }
 
@@ -112,7 +124,8 @@ export class PackingOrderCreatorService {
 
   private createUnknownItem(item: any, orderId: string) {
     return {
-      productId: item.variantId?.toString() || item.productId?.toString() || 'UNKNOWN',
+      productId:
+        item.variantId?.toString() || item.productId?.toString() || 'UNKNOWN',
       sku: item.sku || 'UNKNOWN',
       ean: item.sku || 'UNKNOWN',
       name: item.name || 'Unknown Product',

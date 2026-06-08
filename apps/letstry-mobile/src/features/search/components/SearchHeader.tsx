@@ -1,8 +1,8 @@
-import React from 'react';
-import { View, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { wp, hp, RFValue } from '../../../lib/utils/ui-utils';
+import React from "react";
+import { View, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { wp, hp, RFValue } from "../../../lib/utils/ui-utils";
 
 interface SearchHeaderProps {
   query: string;
@@ -15,7 +15,7 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
   query,
   setQuery,
   onSubmit,
-  autoFocus = true
+  autoFocus = true,
 }) => {
   const router = useRouter();
 
@@ -30,7 +30,12 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
       </TouchableOpacity>
 
       <View style={styles.inputContainer}>
-        <Ionicons name="search-outline" size={RFValue(18)} color="#999" style={styles.searchIcon} />
+        <Ionicons
+          name="search-outline"
+          size={RFValue(18)}
+          color="#999"
+          style={styles.searchIcon}
+        />
         <TextInput
           style={styles.input}
           value={query}
@@ -43,7 +48,10 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
           allowFontScaling={false}
         />
         {query.length > 0 && (
-          <TouchableOpacity onPress={() => setQuery('')} style={styles.clearButton}>
+          <TouchableOpacity
+            onPress={() => setQuery("")}
+            style={styles.clearButton}
+          >
             <Ionicons name="close-circle" size={RFValue(18)} color="#999" />
           </TouchableOpacity>
         )}
@@ -54,35 +62,35 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
 
 const styles = StyleSheet.create({
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: wp('4%'),
-    paddingVertical: hp('1%'),
-    backgroundColor: '#FFFFFF',
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: wp("4%"),
+    paddingVertical: hp("1%"),
+    backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: "#F0F0F0",
   },
   backButton: {
-    marginRight: wp('2%'),
+    marginRight: wp("2%"),
   },
   inputContainer: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F5F5F5',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F5F5F5",
     borderRadius: 12,
-    paddingHorizontal: wp('3%'),
-    height: hp('5%'),
+    paddingHorizontal: wp("3%"),
+    height: hp("5%"),
   },
   searchIcon: {
-    marginRight: wp('2%'),
+    marginRight: wp("2%"),
   },
   input: {
     flex: 1,
     fontSize: RFValue(13),
-    color: '#333',
+    color: "#333",
     paddingVertical: 0,
-    height: '100%',
+    height: "100%",
   },
   clearButton: {
     padding: 4,

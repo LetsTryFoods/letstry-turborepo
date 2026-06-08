@@ -1,17 +1,38 @@
-'use client'
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal, Pencil, Trash2, Archive, ArchiveRestore } from "lucide-react"
-import { Product } from "@/types/product"
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+  Archive,
+  ArchiveRestore,
+} from "lucide-react";
+import { Product } from "@/types/product";
 
 interface ProductActionsProps {
-  product: Product
-  onEdit: (id: string) => void
-  onAction: (id: string, action: 'archive' | 'unarchive' | 'delete', isArchived?: boolean) => void
+  product: Product;
+  onEdit: (id: string) => void;
+  onAction: (
+    id: string,
+    action: "archive" | "unarchive" | "delete",
+    isArchived?: boolean,
+  ) => void;
 }
 
-export function ProductActions({ product, onEdit, onAction }: ProductActionsProps) {
+export function ProductActions({
+  product,
+  onEdit,
+  onAction,
+}: ProductActionsProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -27,8 +48,14 @@ export function ProductActions({ product, onEdit, onAction }: ProductActionsProp
           Edit
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem 
-          onClick={() => onAction(product._id, product.isArchived ? 'unarchive' : 'archive', product.isArchived)}
+        <DropdownMenuItem
+          onClick={() =>
+            onAction(
+              product._id,
+              product.isArchived ? "unarchive" : "archive",
+              product.isArchived,
+            )
+          }
           className={product.isArchived ? "text-green-600" : "text-orange-600"}
         >
           {product.isArchived ? (
@@ -43,8 +70,8 @@ export function ProductActions({ product, onEdit, onAction }: ProductActionsProp
             </>
           )}
         </DropdownMenuItem>
-        <DropdownMenuItem 
-          onClick={() => onAction(product._id, 'delete')}
+        <DropdownMenuItem
+          onClick={() => onAction(product._id, "delete")}
           className="text-destructive"
         >
           <Trash2 className="mr-2 h-4 w-4" />
@@ -52,5 +79,5 @@ export function ProductActions({ product, onEdit, onAction }: ProductActionsProp
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }

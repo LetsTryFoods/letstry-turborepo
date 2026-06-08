@@ -21,7 +21,11 @@ import {
   Smartphone,
 } from "lucide-react";
 import { format } from "date-fns";
-import { formatCurrency, getInitials, parseDeviceInfo } from "../utils/customerUtils";
+import {
+  formatCurrency,
+  getInitials,
+  parseDeviceInfo,
+} from "../utils/customerUtils";
 
 interface GetCustomerDetailsResponse {
   getCustomerDetails: any;
@@ -37,7 +41,7 @@ export default function CustomerDetailPage() {
     {
       variables: { id: customerId },
       fetchPolicy: "network-only",
-    }
+    },
   );
 
   if (loading) {
@@ -242,7 +246,7 @@ export default function CustomerDetailPage() {
                       <span className="text-muted-foreground">Subtotal</span>
                       <span className="font-medium">
                         {formatCurrency(
-                          customer.activeCart.totalsSummary.subtotal
+                          customer.activeCart.totalsSummary.subtotal,
                         )}
                       </span>
                     </div>
@@ -252,7 +256,7 @@ export default function CustomerDetailPage() {
                         <span>
                           -
                           {formatCurrency(
-                            customer.activeCart.totalsSummary.discountAmount
+                            customer.activeCart.totalsSummary.discountAmount,
                           )}
                         </span>
                       </div>
@@ -264,7 +268,7 @@ export default function CustomerDetailPage() {
                         </span>
                         <span>
                           {formatCurrency(
-                            customer.activeCart.totalsSummary.handlingCharge
+                            customer.activeCart.totalsSummary.handlingCharge,
                           )}
                         </span>
                       </div>
@@ -274,7 +278,7 @@ export default function CustomerDetailPage() {
                       <span>Grand Total</span>
                       <span className="text-lg">
                         {formatCurrency(
-                          customer.activeCart.totalsSummary.grandTotal
+                          customer.activeCart.totalsSummary.grandTotal,
                         )}
                       </span>
                     </div>
@@ -328,7 +332,8 @@ export default function CustomerDetailPage() {
                     </p>
                   )}
                   <p className="text-sm">
-                    {address.addressLocality}, {address.addressRegion} - {address.postalCode}
+                    {address.addressLocality}, {address.addressRegion} -{" "}
+                    {address.postalCode}
                   </p>
                   <p className="text-sm text-muted-foreground">
                     {address.addressCountry}

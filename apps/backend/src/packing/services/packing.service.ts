@@ -3,6 +3,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { OrderAssignmentService } from './domain/order-assignment.service';
 import { PackingQueueService } from './domain/packing-queue.service';
+import { SettingsService } from '../../settings/settings.service';
 
 import { ScanLogCrudService } from './core/scan-log-crud.service';
 import { EvidenceCrudService } from './core/evidence-crud.service';
@@ -23,10 +24,7 @@ import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Address } from '../../address/address.schema';
-import {
-  PackingOrder,
-  PackingStatus,
-} from '../entities/packing-order.entity';
+import { PackingOrder, PackingStatus } from '../entities/packing-order.entity';
 import { PackingEvidence } from '../entities/packing-evidence.entity';
 import { InventoryService } from '../../product/services/inventory.service';
 import { InventoryAction } from '../../product/inventory-log.schema';
@@ -55,7 +53,8 @@ export class PackingService {
     @InjectModel(PackingEvidence.name)
     private readonly packingEvidenceModel: Model<PackingEvidence>,
     private readonly inventoryService: InventoryService,
-  ) { }
+    private readonly settingsService: SettingsService,
+  ) {}
 
   async createPackingOrder(order: Order): Promise<void> {
     const packingOrder = await this.packingOrderCreator.createFromOrder(order);
@@ -72,7 +71,7 @@ export class PackingService {
   async getPackerAssignedOrders(packerId: string): Promise<any[]> {
     const orders = await this.packingOrderCrud.findByPacker(packerId);
     return orders.filter(
-      (order: any) => order.status === 'assigned' || order.status === 'packing'
+      (order: any) => order.status === 'assigned' || order.status === 'packing',
     );
   }
 
@@ -89,7 +88,6 @@ export class PackingService {
 
     return packingOrder;
   }
-
 
   async batchScanItems(
     packingOrderId: string,
@@ -175,7 +173,9 @@ export class PackingService {
         const scanned = items.find((s) => s.productId === i.productId);
         return scanned ? { ...i, scannedCount: scanned.eans.length } : i;
       });
-      await this.packingOrderCrud.update(packingOrderId, { items: updatedItems });
+      await this.packingOrderCrud.update(packingOrderId, {
+        items: updatedItems,
+      });
     }
 
     await this.scanLogCrud.create({
@@ -219,14 +219,17 @@ export class PackingService {
     };
   }
 
-
   async uploadEvidence(
     packingOrderId: string,
     imageUrls: string[],
     boxCode: string,
     packerId: string,
   ): Promise<any> {
-    this.scanLogger.logEvidenceRequest({ packingOrderId, imageCount: imageUrls.length, boxCode });
+    this.scanLogger.logEvidenceRequest({
+      packingOrderId,
+      imageCount: imageUrls.length,
+      boxCode,
+    });
 
     const packingOrder = await this.packingOrderCrud.findById(packingOrderId);
     if (!packingOrder) {
@@ -247,23 +250,39 @@ export class PackingService {
     });
 
     this.packingLogger.logEvidenceUploaded(packingOrderId, imageUrls.length);
-    this.scanLogger.logEvidenceResponse(packingOrderId, evidence._id?.toString());
+    this.scanLogger.logEvidenceResponse(
+      packingOrderId,
+      evidence._id?.toString(),
+    );
 
     return this.packingOrderCrud.findById(packingOrderId);
   }
 
-  async completePacking(packingOrderId: string, packerId: string, provider?: string, serviceType?: string): Promise<any> {
+  async completePacking(
+    packingOrderId: string,
+    packerId: string,
+    provider?: string,
+    serviceType?: string,
+  ): Promise<any> {
     this.scanLogger.logCompletePackingRequest(packingOrderId);
 
     const packingOrder = await this.packingOrderCrud.findById(packingOrderId);
 
     if (!packingOrder) {
-      this.scanLogger.logScanError('completePacking', packingOrderId, new Error('Packing order not found'));
+      this.scanLogger.logScanError(
+        'completePacking',
+        packingOrderId,
+        new Error('Packing order not found'),
+      );
       throw new Error('Packing order not found');
     }
 
     if (packingOrder.assignedTo !== packerId) {
-      this.scanLogger.logScanError('completePacking', packingOrderId, new Error('Order not assigned to this packer'));
+      this.scanLogger.logScanError(
+        'completePacking',
+        packingOrderId,
+        new Error('Order not assigned to this packer'),
+      );
       throw new Error('This order is no longer assigned to you');
     }
 
@@ -274,21 +293,38 @@ export class PackingService {
       status: packingOrder.status,
     });
 
-    const hasSuccessfulScan = await this.scanLogCrud.hasSuccessfulBatchScan(packingOrderId);
+    const settings = await this.settingsService.getGlobalSettings();
+    if (!settings.isPackerScanBypassEnabled) {
+      const hasSuccessfulScan =
+        await this.scanLogCrud.hasSuccessfulBatchScan(packingOrderId);
 
-    if (!hasSuccessfulScan) {
-      this.scanLogger.logScanError('completePacking', packingOrderId, new Error('No successful batch scan found'));
-      throw new Error('Cannot complete packing: No successful batch scan found for this order');
+      if (!hasSuccessfulScan) {
+        this.scanLogger.logScanError(
+          'completePacking',
+          packingOrderId,
+          new Error('No successful batch scan found'),
+        );
+        throw new Error(
+          'Cannot complete packing: No successful batch scan found for this order',
+        );
+      }
+
+      this.scanLogger.logCompletePackingStep('BATCH_SCAN_VERIFIED', {
+        packingOrderId,
+        hasSuccessfulScan: true,
+      });
+    } else {
+      this.scanLogger.logCompletePackingStep('BATCH_SCAN_BYPASSED', {
+        packingOrderId,
+        scanBypassEnabled: true,
+      });
     }
-
-    this.scanLogger.logCompletePackingStep('BATCH_SCAN_VERIFIED', {
-      packingOrderId,
-      hasSuccessfulScan: true,
-    });
 
     await this.packingLifecycle.completePacking(packingOrderId);
 
-    this.scanLogger.logCompletePackingStep('STATUS_COMPLETED', { packingOrderId });
+    this.scanLogger.logCompletePackingStep('STATUS_COMPLETED', {
+      packingOrderId,
+    });
 
     await this.orderRepository.updateOrderStatus(
       packingOrder.orderId,
@@ -300,7 +336,9 @@ export class PackingService {
       orderId: packingOrder.orderId,
     });
 
-    const duration = this.calculatePackingDuration(packingOrder.packingStartedAt);
+    const duration = this.calculatePackingDuration(
+      packingOrder.packingStartedAt,
+    );
 
     this.packingLogger.logPackingCompleted(
       packingOrderId,
@@ -311,7 +349,7 @@ export class PackingService {
     this.scanLogger.logCompletePackingStep('SHIPMENT_INITIATION', {
       orderId: packingOrder.orderId,
     });
-    
+
     // Subtract stock for each item packed
     try {
       for (const item of packingOrder.items) {
@@ -322,8 +360,8 @@ export class PackingService {
           {
             referenceId: packingOrder.orderId,
             performedBy: packerId,
-            notes: `Auto-subtracted during packing of order ${packingOrder.orderId}`
-          }
+            notes: `Auto-subtracted during packing of order ${packingOrder.orderId}`,
+          },
         );
       }
       this.scanLogger.logCompletePackingStep('STOCK_SUBTRACTED', {
@@ -331,12 +369,21 @@ export class PackingService {
         orderId: packingOrder.orderId,
       });
     } catch (stockError) {
-      this.scanLogger.logScanError('completePacking', packingOrderId, new Error(`Stock subtraction failed: ${stockError.message}`));
+      this.scanLogger.logScanError(
+        'completePacking',
+        packingOrderId,
+        new Error(`Stock subtraction failed: ${stockError.message}`),
+      );
       // We don't throw here to avoid blocking the shipment process, but we log the error
     }
 
     try {
-      await this.initiateShipmentCreation(packingOrder.orderId, packingOrderId, serviceType, provider);
+      await this.initiateShipmentCreation(
+        packingOrder.orderId,
+        packingOrderId,
+        serviceType,
+        provider,
+      );
     } catch (shipmentError) {
       this.scanLogger.logCompletePackingStep('SHIPMENT_SKIPPED', {
         packingOrderId,
@@ -357,25 +404,39 @@ export class PackingService {
   async adminPunchShipment(input: AdminPunchShipmentInput): Promise<any> {
     const { orderId, serviceType, provider, pickupLocationName } = input;
 
-    this.packingLogger.logInfo('Admin punch shipment initiated', { orderId, provider, pickupLocationName });
+    this.packingLogger.logInfo('Admin punch shipment initiated', {
+      orderId,
+      provider,
+      pickupLocationName,
+    });
 
     let packingOrder = await this.packingOrderCrud.findOne({ orderId });
 
     if (!packingOrder) {
-      this.packingLogger.logInfo('Packing order missing, attempting to create on the fly', { orderId });
+      this.packingLogger.logInfo(
+        'Packing order missing, attempting to create on the fly',
+        { orderId },
+      );
 
       const order = await this.orderRepository.findByInternalId(orderId);
 
       if (!order) {
-        this.packingLogger.logError('Order not found for admin punch', new Error('Order not found'), { orderId });
+        this.packingLogger.logError(
+          'Order not found for admin punch',
+          new Error('Order not found'),
+          { orderId },
+        );
         throw new Error('Order not found');
       }
 
       packingOrder = await this.packingOrderCreator.createFromOrder(order);
-      this.packingLogger.logInfo('Packing order created on the fly for admin punch', {
-        orderId: order._id.toString(),
-        packingOrderId: (packingOrder as any)._id.toString()
-      });
+      this.packingLogger.logInfo(
+        'Packing order created on the fly for admin punch',
+        {
+          orderId: order._id.toString(),
+          packingOrderId: (packingOrder as any)._id.toString(),
+        },
+      );
     }
 
     if (!packingOrder) {
@@ -385,7 +446,7 @@ export class PackingService {
     this.packingLogger.logInfo('Packing order found for admin punch', {
       orderId,
       packingOrderId: packingOrder._id?.toString(),
-      status: packingOrder.status
+      status: packingOrder.status,
     });
 
     const packingOrderId = packingOrder._id.toString();
@@ -400,7 +461,13 @@ export class PackingService {
       OrderStatus.PACKED,
     );
 
-    await this.initiateShipmentCreation(packingOrder.orderId, packingOrderId, serviceType, provider, pickupLocationName);
+    await this.initiateShipmentCreation(
+      packingOrder.orderId,
+      packingOrderId,
+      serviceType,
+      provider,
+      pickupLocationName,
+    );
 
     return this.packingOrderCrud.findById(packingOrderId);
   }
@@ -408,7 +475,8 @@ export class PackingService {
   private resolvePhone(order: any, address: any): string | null {
     const isValid = (p?: string) => p && p !== 'N/A';
     const raw =
-      (isValid(order?.recipientContact?.phone) && order.recipientContact.phone) ||
+      (isValid(order?.recipientContact?.phone) &&
+        order.recipientContact.phone) ||
       (isValid(address?.recipientPhone) && address.recipientPhone) ||
       null;
     if (!raw) return null;
@@ -422,14 +490,23 @@ export class PackingService {
       : 0;
   }
 
-  private async initiateShipmentCreation(orderId: string, packingOrderId: string, serviceType?: string, provider?: string, pickupLocationName?: string): Promise<any> {
+  private async initiateShipmentCreation(
+    orderId: string,
+    packingOrderId: string,
+    serviceType?: string,
+    provider?: string,
+    pickupLocationName?: string,
+  ): Promise<any> {
     try {
       const order = await this.orderRepository.findByInternalId(orderId);
 
-      let packingEvidence = await this.packingEvidenceModel.findOne({ packingOrderId }).exec();
+      let packingEvidence = await this.packingEvidenceModel
+        .findOne({ packingOrderId })
+        .exec();
 
       // Check if shipment already exists for this order
-      const existingShipments = await this.shipmentService.findByOrderId(orderId);
+      const existingShipments =
+        await this.shipmentService.findByOrderId(orderId);
       if (existingShipments && existingShipments.length > 0) {
         this.shipmentLogger.logInfo('Shipment already exists for order', {
           orderId,
@@ -442,7 +519,10 @@ export class PackingService {
           : null;
         const phoneNumber = this.resolvePhone(order, existingAddress);
         if (!phoneNumber || !order) {
-          this.shipmentLogger.logInfo('No phone number found for order, skipping WhatsApp notification', { orderId });
+          this.shipmentLogger.logInfo(
+            'No phone number found for order, skipping WhatsApp notification',
+            { orderId },
+          );
           return existingShipments[0];
         }
         const orderDate = new Date(order.createdAt).toLocaleDateString('en-IN');
@@ -455,11 +535,14 @@ export class PackingService {
           trackingUrl,
         });
 
-        this.shipmentLogger.logInfo('WhatsApp notification queued for order packed (existing shipment)', {
-          orderId,
-          awbNumber: existingShipments[0].dtdcAwbNumber,
-          phoneNumber,
-        });
+        this.shipmentLogger.logInfo(
+          'WhatsApp notification queued for order packed (existing shipment)',
+          {
+            orderId,
+            awbNumber: existingShipments[0].dtdcAwbNumber,
+            phoneNumber,
+          },
+        );
 
         return existingShipments[0];
       }
@@ -469,13 +552,17 @@ export class PackingService {
         : null;
 
       if (!order || !shippingAddress) {
-        this.shipmentLogger.logError('Missing data for shipment creation', new Error('Incomplete data'), {
-          orderId,
-          packingOrderId,
-          orderFound: !!order,
-          addressFound: !!shippingAddress,
-          shippingAddressId: order?.shippingAddressId,
-        });
+        this.shipmentLogger.logError(
+          'Missing data for shipment creation',
+          new Error('Incomplete data'),
+          {
+            orderId,
+            packingOrderId,
+            orderFound: !!order,
+            addressFound: !!shippingAddress,
+            shippingAddressId: order?.shippingAddressId,
+          },
+        );
         return;
       }
 
@@ -483,40 +570,69 @@ export class PackingService {
       let totalWeight = 0;
 
       if (packingEvidence) {
-        boxDimensions = packingEvidence.actualBox?.dimensions || packingEvidence.recommendedBox?.dimensions;
-        totalWeight = order.items.reduce(
-          (sum: number, item: any) => sum + (item.dimensions?.weight || 0) * item.quantity,
-          0,
-        ) / 1000;
-      } else {
-        const packingOrder = await this.packingOrderCrud.findById(packingOrderId);
-        if (packingOrder) {
-          const recommendedBox = await this.boxRecommendation.selectOptimalBox(packingOrder.items);
-          boxDimensions = recommendedBox?.internalDimensions;
-          totalWeight = packingOrder.items.reduce(
-            (sum: number, item: any) => sum + (item.dimensions?.weight || 0) * item.quantity,
+        boxDimensions =
+          packingEvidence.actualBox?.dimensions ||
+          packingEvidence.recommendedBox?.dimensions;
+        totalWeight =
+          order.items.reduce(
+            (sum: number, item: any) =>
+              sum + (item.dimensions?.weight || 0) * item.quantity,
             0,
           ) / 1000;
+      } else {
+        const packingOrder =
+          await this.packingOrderCrud.findById(packingOrderId);
+        if (packingOrder) {
+          const recommendedBox = await this.boxRecommendation.selectOptimalBox(
+            packingOrder.items,
+          );
+          boxDimensions = recommendedBox?.internalDimensions;
+          totalWeight =
+            packingOrder.items.reduce(
+              (sum: number, item: any) =>
+                sum + (item.dimensions?.weight || 0) * item.quantity,
+              0,
+            ) / 1000;
         }
       }
 
       if (!boxDimensions) {
-        this.shipmentLogger.logError('No box dimensions found', new Error('Missing dimensions'), {
+        this.shipmentLogger.logError(
+          'No box dimensions found',
+          new Error('Missing dimensions'),
+          {
+            orderId,
+            packingOrderId,
+          },
+        );
+        await this.orderRepository.updateStatusByInternalId(
           orderId,
-          packingOrderId,
-        });
-        await this.orderRepository.updateStatusByInternalId(orderId, OrderStatus.SHIPMENT_FAILED);
+          OrderStatus.SHIPMENT_FAILED,
+        );
         return;
       }
 
       totalWeight = Math.max(totalWeight, 0.5);
 
-      const shipmentPayload = this.buildShipmentPayload(orderId, order, boxDimensions, shippingAddress, totalWeight, serviceType, provider, pickupLocationName);
-      const shipmentResult = await this.shipmentService.createShipment(shipmentPayload);
+      const shipmentPayload = this.buildShipmentPayload(
+        orderId,
+        order,
+        boxDimensions,
+        shippingAddress,
+        totalWeight,
+        serviceType,
+        provider,
+        pickupLocationName,
+      );
+      const shipmentResult =
+        await this.shipmentService.createShipment(shipmentPayload);
 
       const phoneNumber = this.resolvePhone(order, shippingAddress);
       if (!phoneNumber) {
-        this.shipmentLogger.logInfo('No phone number found for order, skipping WhatsApp notification', { orderId });
+        this.shipmentLogger.logInfo(
+          'No phone number found for order, skipping WhatsApp notification',
+          { orderId },
+        );
         return shipmentResult;
       }
       const orderDate = new Date(order.createdAt).toLocaleDateString('en-IN');
@@ -529,11 +645,14 @@ export class PackingService {
         trackingUrl,
       });
 
-      this.shipmentLogger.logInfo('WhatsApp notification queued for order packed', {
-        orderId,
-        awbNumber: shipmentResult.awbNumber,
-        phoneNumber,
-      });
+      this.shipmentLogger.logInfo(
+        'WhatsApp notification queued for order packed',
+        {
+          orderId,
+          awbNumber: shipmentResult.awbNumber,
+          phoneNumber,
+        },
+      );
 
       return shipmentResult;
     } catch (error) {
@@ -542,20 +661,36 @@ export class PackingService {
         packingOrderId,
       });
       try {
-        await this.orderRepository.updateStatusByInternalId(orderId, OrderStatus.SHIPMENT_FAILED);
+        await this.orderRepository.updateStatusByInternalId(
+          orderId,
+          OrderStatus.SHIPMENT_FAILED,
+        );
       } catch (_) {}
       throw error;
     }
   }
 
-  private buildShipmentPayload(orderId: string, order: any, boxDimensions: any, shippingAddress: any, weight: number, serviceType?: string, provider?: string, pickupLocationName?: string) {
+  private buildShipmentPayload(
+    orderId: string,
+    order: any,
+    boxDimensions: any,
+    shippingAddress: any,
+    weight: number,
+    serviceType?: string,
+    provider?: string,
+    pickupLocationName?: string,
+  ) {
     return {
       orderId,
       provider,
       pickupLocationName,
       orderNumber: order.orderId,
-      serviceType: serviceType || this.configService.get('dtdc.defaults.serviceType') || 'GROUND EXPRESS',
-      loadType: this.configService.get('dtdc.defaults.loadType') || 'NON-DOCUMENT',
+      serviceType:
+        serviceType ||
+        this.configService.get('dtdc.defaults.serviceType') ||
+        'GROUND EXPRESS',
+      loadType:
+        this.configService.get('dtdc.defaults.loadType') || 'NON-DOCUMENT',
       weight,
       declaredValue: parseFloat(order.totalAmount) || 0,
       numPieces: 1,
@@ -580,16 +715,24 @@ export class PackingService {
         name: shippingAddress.recipientName,
         phone: shippingAddress.recipientPhone,
         alternatePhone: undefined,
-        addressLine1: shippingAddress.buildingName + (shippingAddress.floor ? `, Floor ${shippingAddress.floor}` : ''),
-        addressLine2: [shippingAddress.streetArea, shippingAddress.landmark].filter(Boolean).join(', '),
+        addressLine1:
+          shippingAddress.buildingName +
+          (shippingAddress.floor ? `, Floor ${shippingAddress.floor}` : ''),
+        addressLine2: [shippingAddress.streetArea, shippingAddress.landmark]
+          .filter(Boolean)
+          .join(', '),
         pincode: shippingAddress.postalCode,
         city: shippingAddress.addressLocality,
         state: shippingAddress.addressRegion,
         latitude: shippingAddress.latitude?.toString(),
         longitude: shippingAddress.longitude?.toString(),
       },
-      codAmount: order.metadata?.paymentMethod === 'COD' ? parseFloat(order.totalAmount) : undefined,
-      codCollectionMode: order.metadata?.paymentMethod === 'COD' ? 'CASH' : undefined,
+      codAmount:
+        order.metadata?.paymentMethod === 'COD'
+          ? parseFloat(order.totalAmount)
+          : undefined,
+      codCollectionMode:
+        order.metadata?.paymentMethod === 'COD' ? 'CASH' : undefined,
       invoiceNumber: order.orderId,
       invoiceDate: order.createdAt,
       commodityId: this.configService.get('dtdc.defaults.commodityId') || '10',
@@ -618,9 +761,12 @@ export class PackingService {
     for (const order of recentOrders) {
       if (!order.items || order.items.length === 0) continue;
       try {
-        const recommendedBox = await this.boxRecommendation.selectOptimalBox(order.items);
+        const recommendedBox = await this.boxRecommendation.selectOptimalBox(
+          order.items,
+        );
         if (recommendedBox?.code) {
-          boxCounts[recommendedBox.code] = (boxCounts[recommendedBox.code] || 0) + 1;
+          boxCounts[recommendedBox.code] =
+            (boxCounts[recommendedBox.code] || 0) + 1;
         }
       } catch {
         // ignore if optimal box cannot be calculated
@@ -639,7 +785,10 @@ export class PackingService {
     return mostUsed;
   }
 
-  async getAllPackingOrders(filters: { packerId?: string; status?: string }): Promise<any[]> {
+  async getAllPackingOrders(filters: {
+    packerId?: string;
+    status?: string;
+  }): Promise<any[]> {
     const dbFilters: any = {};
 
     if (filters.packerId) {
@@ -683,22 +832,32 @@ export class PackingService {
 
     return this.packingOrderCrud.findById(packingOrderId);
   }
-  async getPackingDetailsByOrderId(orderId: string): Promise<{ packingOrder: any; evidence: any } | null> {
+  async getPackingDetailsByOrderId(
+    orderId: string,
+  ): Promise<{ packingOrder: any; evidence: any } | null> {
     const packingOrder = await this.packingOrderCrud.findOne({ orderId });
     if (!packingOrder) return null;
 
-    const evidence = await this.evidenceCrud.findByOrder(packingOrder._id.toString());
+    const evidence = await this.evidenceCrud.findByOrder(
+      packingOrder._id.toString(),
+    );
     return { packingOrder, evidence };
   }
 
-  async calculateWeightAndBoxFromOrder(order: any): Promise<{ weight: number; boxDimensions: any } | null> {
+  async calculateWeightAndBoxFromOrder(
+    order: any,
+  ): Promise<{ weight: number; boxDimensions: any } | null> {
     try {
       const items = await this.packingOrderCreator.extractItemsForOrder(order);
       const totalWeight = Math.max(
-        items.reduce((sum, item) => sum + (item.dimensions?.weight || 0) * item.quantity, 0) / 1000,
+        items.reduce(
+          (sum, item) => sum + (item.dimensions?.weight || 0) * item.quantity,
+          0,
+        ) / 1000,
         0.5,
       );
-      const recommendedBox = await this.boxRecommendation.selectOptimalBox(items);
+      const recommendedBox =
+        await this.boxRecommendation.selectOptimalBox(items);
       const boxDimensions = recommendedBox?.internalDimensions || null;
       return { weight: totalWeight, boxDimensions };
     } catch {
@@ -706,24 +865,35 @@ export class PackingService {
     }
   }
 
-  async calculateShipmentWeight(order: any, packingOrder: any, evidence: any): Promise<{ weight: number; boxDimensions: any } | null> {
+  async calculateShipmentWeight(
+    order: any,
+    packingOrder: any,
+    evidence: any,
+  ): Promise<{ weight: number; boxDimensions: any } | null> {
     let boxDimensions: any;
     let totalWeight = 0;
 
     if (evidence) {
-      boxDimensions = evidence.actualBox?.dimensions || evidence.recommendedBox?.dimensions;
-      totalWeight = order.items.reduce(
-        (sum: number, item: any) => sum + (item.dimensions?.weight || 0) * item.quantity,
-        0,
-      ) / 1000;
+      boxDimensions =
+        evidence.actualBox?.dimensions || evidence.recommendedBox?.dimensions;
+      totalWeight =
+        order.items.reduce(
+          (sum: number, item: any) =>
+            sum + (item.dimensions?.weight || 0) * item.quantity,
+          0,
+        ) / 1000;
     } else if (packingOrder) {
-      totalWeight = packingOrder.items.reduce(
-        (sum: number, item: any) => sum + (item.dimensions?.weight || 0) * item.quantity,
-        0,
-      ) / 1000;
+      totalWeight =
+        packingOrder.items.reduce(
+          (sum: number, item: any) =>
+            sum + (item.dimensions?.weight || 0) * item.quantity,
+          0,
+        ) / 1000;
 
       try {
-        const recommendedBox = await this.boxRecommendation.selectOptimalBox(packingOrder.items);
+        const recommendedBox = await this.boxRecommendation.selectOptimalBox(
+          packingOrder.items,
+        );
         boxDimensions = recommendedBox?.internalDimensions || null;
       } catch {
         boxDimensions = null;
@@ -744,28 +914,39 @@ export class PackingService {
 
   isDelhiNCR(address: any): boolean {
     if (!address) return false;
-    const pincode = (address.postalCode || address.pincode || '').toString().trim();
-    
+    const pincode = (address.postalCode || address.pincode || '')
+      .toString()
+      .trim();
+
     // Delhi NCR Pincode Prefixes:
     // 11: Delhi
     // 121, 122: Faridabad, Gurgaon
     // 201: Noida, Ghaziabad
     const ncrPrefixes = ['11', '121', '122', '201'];
-    return ncrPrefixes.some(prefix => pincode.startsWith(prefix));
+    return ncrPrefixes.some((prefix) => pincode.startsWith(prefix));
   }
 
-  async getDeliveryRecommendation(orderId: string): Promise<{ recommendedProvider: string; reason: string }> {
+  async getDeliveryRecommendation(
+    orderId: string,
+  ): Promise<{ recommendedProvider: string; reason: string }> {
     const order = await this.orderRepository.findByInternalId(orderId);
-    if (!order) return { recommendedProvider: 'DTDC', reason: 'Order not found' };
-    
-    const address = order.shippingAddressId 
-      ? await this.addressModel.findById(order.shippingAddressId).exec() 
+    if (!order)
+      return { recommendedProvider: 'DTDC', reason: 'Order not found' };
+
+    const address = order.shippingAddressId
+      ? await this.addressModel.findById(order.shippingAddressId).exec()
       : null;
-      
+
     if (this.isDelhiNCR(address)) {
-      return { recommendedProvider: 'SHIPROCKET', reason: 'Local NCR region - Shiprocket is faster' };
+      return {
+        recommendedProvider: 'SHIPROCKET',
+        reason: 'Local NCR region - Shiprocket is faster',
+      };
     }
-    
-    return { recommendedProvider: 'DTDC', reason: 'Outside NCR region - DTDC has better reach' };
+
+    return {
+      recommendedProvider: 'DTDC',
+      reason: 'Outside NCR region - DTDC has better reach',
+    };
   }
 }

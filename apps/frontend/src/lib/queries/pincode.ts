@@ -1,4 +1,4 @@
-import { graphql } from '@/gql';
+import { graphql } from "@/gql";
 
 export const CHECK_PINCODE_SERVICEABILITY = graphql(`
   query CheckPincodeServiceability($pincode: String!) {

@@ -1,7 +1,7 @@
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
-import { ExpressCheckout } from './ExpressCheckout';
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
+import { ExpressCheckout } from "./ExpressCheckout";
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -43,7 +43,9 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
             className="relative w-full max-w-md mx-4 bg-white rounded-2xl shadow-2xl overflow-hidden"
           >
             <div className="flex items-center justify-between p-4 border-b border-gray-100">
-              <h2 className="text-xl font-bold text-[#0F4A6A]">Complete Payment</h2>
+              <h2 className="text-xl font-bold text-[#0F4A6A]">
+                Complete Payment
+              </h2>
               <button
                 onClick={onClose}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"

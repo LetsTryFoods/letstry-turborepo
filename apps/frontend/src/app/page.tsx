@@ -11,9 +11,12 @@ import CustomerTestimonials from "@/components/customer-testimonials/CustomerTes
 import BrandSlider from "@/components/brand-slider/BrandSlider";
 import { getWholesomeChoices } from "@/lib/category/get-wholesome-choices";
 
-const SITE_URL = (process.env.NEXT_PUBLIC_BASE_URL || 'https://letstryfoods.com').replace(/\/$/, '');
+const SITE_URL = (
+  process.env.NEXT_PUBLIC_BASE_URL || "https://letstryfoods.com"
+).replace(/\/$/, "");
 
-const HOME_TITLE = "Let's Try Foods | Healthy Indian Snacks — No Palm Oil, No Maida";
+const HOME_TITLE =
+  "Let's Try Foods | Healthy Indian Snacks — No Palm Oil, No Maida";
 const HOME_DESCRIPTION =
   "Let's Try Foods — healthy Indian snacks with no palm oil and no maida. Shop bhujia, makhana, cookies, chikki, murukku, rusk and more. Shipped across India from Delhi.";
 
@@ -29,11 +32,11 @@ export const metadata: Metadata = {
     title: HOME_TITLE,
     description: HOME_DESCRIPTION,
     url: SITE_URL,
-    type: 'website',
+    type: "website",
     siteName: "Let's Try Foods",
   },
   twitter: {
-    card: 'summary_large_image',
+    card: "summary_large_image",
     title: HOME_TITLE,
     description: HOME_DESCRIPTION,
   },
@@ -48,16 +51,15 @@ export default async function Home() {
     <main>
       <div
         style={{
-          background: "linear-gradient(180deg, #F5F6F5 0%, #FCF3E3 45%, #C3E0C5 100%)",
+          background:
+            "linear-gradient(180deg, #F5F6F5 0%, #FCF3E3 45%, #C3E0C5 100%)",
         }}
       >
         <HeroCarousel />
         <CategoryGrid />
         <BestsellerCombo />
-     
-
       </div>
-   <BestsellerCarousel />
+      <BestsellerCarousel />
       <WhyChooseUs />
       <HealthySnacking />
       <WholesomeChoices categories={wholesomeChoicesData?.children || []} />

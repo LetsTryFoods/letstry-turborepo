@@ -1,10 +1,18 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import { getBackendApiUrl } from '@/lib/utils/api';
-import { ShoppingBag, Loader2, XCircle, Package, Clock, User, MapPin } from 'lucide-react';
-import Link from 'next/link';
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { getBackendApiUrl } from "@/lib/utils/api";
+import {
+  ShoppingBag,
+  Loader2,
+  XCircle,
+  Package,
+  Clock,
+  User,
+  MapPin,
+} from "lucide-react";
+import Link from "next/link";
 
 interface OrderItem {
   name: string;
@@ -42,27 +50,25 @@ interface LookupResponse {
   order: OrderDetails | null;
 }
 
-
-
 function formatDateTime(iso: string): string {
-  return new Date(iso).toLocaleString('en-IN', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+  return new Date(iso).toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
     hour12: true,
-    timeZone: 'Asia/Kolkata',
+    timeZone: "Asia/Kolkata",
   });
 }
 
 const STATUS_LABELS: Record<string, string> = {
-  CONFIRMED: 'Order Confirmed',
-  PACKED: 'Packed',
-  SHIPPED: 'Shipped',
-  IN_TRANSIT: 'In Transit',
-  DELIVERED: 'Delivered',
-  SHIPMENT_FAILED: 'Shipment Issue',
+  CONFIRMED: "Order Confirmed",
+  PACKED: "Packed",
+  SHIPPED: "Shipped",
+  IN_TRANSIT: "In Transit",
+  DELIVERED: "Delivered",
+  SHIPMENT_FAILED: "Shipment Issue",
 };
 
 export default function OrderTrackPage() {
@@ -80,7 +86,7 @@ export default function OrderTrackPage() {
     // Re-lookup by orderId to get fresh order data
     fetch(`${baseUrl}/shipments/lookup?q=${encodeURIComponent(orderId)}`)
       .then((res) => {
-        if (!res.ok) throw new Error('not found');
+        if (!res.ok) throw new Error("not found");
         return res.json();
       })
       .then((json: LookupResponse) => {
@@ -108,7 +114,9 @@ export default function OrderTrackPage() {
       <main className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
         <div className="text-center">
           <XCircle className="h-12 w-12 text-red-400 mx-auto mb-4" />
-          <h1 className="text-xl font-semibold text-gray-900 mb-2">Order Not Found</h1>
+          <h1 className="text-xl font-semibold text-gray-900 mb-2">
+            Order Not Found
+          </h1>
           <p className="text-gray-500 text-sm mb-6">
             No order found for <span className="font-medium">{orderId}</span>
           </p>
@@ -132,21 +140,28 @@ export default function OrderTrackPage() {
         {/* ── Prominent "packing soon" notice ── */}
         <div
           className="rounded-2xl p-6 md:p-8 text-center shadow-md border-2"
-          style={{ background: 'linear-gradient(135deg, #001f3f 0%, #0c5273 100%)', borderColor: '#0c5273' }}
+          style={{
+            background: "linear-gradient(135deg, #001f3f 0%, #0c5273 100%)",
+            borderColor: "#0c5273",
+          }}
         >
           <div className="flex justify-center mb-4">
-            <div className="h-20 w-20 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgba(255,255,255,0.12)' }}>
+            <div
+              className="h-20 w-20 rounded-full flex items-center justify-center"
+              style={{ backgroundColor: "rgba(255,255,255,0.12)" }}
+            >
               <Package className="h-10 w-10 text-yellow-400" />
             </div>
           </div>
           <p
             className="font-extrabold text-white leading-tight mb-3"
-            style={{ fontSize: '1.45rem', lineHeight: '1.35' }}
+            style={{ fontSize: "1.45rem", lineHeight: "1.35" }}
           >
             🚚 You'll get tracking details as soon as your order gets packed!
           </p>
           <p className="text-blue-200 text-sm mt-2">
-            Your order is confirmed and being prepared. We'll update you with a tracking number once it's on its way.
+            Your order is confirmed and being prepared. We'll update you with a
+            tracking number once it's on its way.
           </p>
         </div>
 
@@ -158,7 +173,9 @@ export default function OrderTrackPage() {
             </div>
             <div>
               <p className="text-xs text-gray-400 mb-0.5">Order ID</p>
-              <p className="text-lg font-semibold text-gray-900">#{order.orderId}</p>
+              <p className="text-lg font-semibold text-gray-900">
+                #{order.orderId}
+              </p>
             </div>
             <span className="ml-auto inline-block text-xs font-medium px-3 py-1 rounded-full bg-yellow-100 text-yellow-700">
               {STATUS_LABELS[order.orderStatus] ?? order.orderStatus}
@@ -170,7 +187,9 @@ export default function OrderTrackPage() {
               <Clock className="h-4 w-4 text-gray-400 mt-0.5 shrink-0" />
               <div>
                 <p className="text-gray-400 text-xs">Order Placed</p>
-                <p className="font-medium text-gray-800">{formatDateTime(order.createdAt)}</p>
+                <p className="font-medium text-gray-800">
+                  {formatDateTime(order.createdAt)}
+                </p>
               </div>
             </div>
             {order.recipientContact?.phone && (
@@ -178,7 +197,9 @@ export default function OrderTrackPage() {
                 <User className="h-4 w-4 text-gray-400 mt-0.5 shrink-0" />
                 <div>
                   <p className="text-gray-400 text-xs">Contact</p>
-                  <p className="font-medium text-gray-800">{order.recipientContact.phone}</p>
+                  <p className="font-medium text-gray-800">
+                    {order.recipientContact.phone}
+                  </p>
                 </div>
               </div>
             )}
@@ -195,8 +216,10 @@ export default function OrderTrackPage() {
                       order.shippingAddressId.landmark,
                       order.shippingAddressId.addressLocality,
                       order.shippingAddressId.addressRegion,
-                      order.shippingAddressId.postalCode
-                    ].filter(Boolean).join(', ')}
+                      order.shippingAddressId.postalCode,
+                    ]
+                      .filter(Boolean)
+                      .join(", ")}
                   </p>
                 </div>
               </div>
@@ -222,17 +245,27 @@ export default function OrderTrackPage() {
                     />
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">{item.name}</p>
-                    {item.variant && <p className="text-xs text-gray-400">{item.variant}</p>}
-                    <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {item.name}
+                    </p>
+                    {item.variant && (
+                      <p className="text-xs text-gray-400">{item.variant}</p>
+                    )}
+                    <p className="text-xs text-gray-500">
+                      Qty: {item.quantity}
+                    </p>
                   </div>
-                  <p className="text-sm font-medium text-gray-800 shrink-0">₹{item.totalPrice}</p>
+                  <p className="text-sm font-medium text-gray-800 shrink-0">
+                    ₹{item.totalPrice}
+                  </p>
                 </div>
               ))}
             </div>
             <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between text-sm">
               <span className="text-gray-500">Total</span>
-              <span className="font-semibold text-gray-900">₹{order.totalAmount}</span>
+              <span className="font-semibold text-gray-900">
+                ₹{order.totalAmount}
+              </span>
             </div>
           </div>
         )}

@@ -269,7 +269,9 @@ describe('Cart (e2e)', () => {
         .expect(200)
         .expect((res) => {
           expect(res.body.errors).toBeDefined();
-          expect(res.body.errors[0].message).toBe('Cannot add more than 10 items of the same SKU');
+          expect(res.body.errors[0].message).toBe(
+            'Cannot add more than 10 items of the same SKU',
+          );
         });
     });
 
@@ -317,7 +319,9 @@ describe('Cart (e2e)', () => {
         .expect(200)
         .expect((res) => {
           expect(res.body.errors).toBeDefined();
-          expect(res.body.errors[0].message).toBe('Cannot add more than 10 items of the same SKU');
+          expect(res.body.errors[0].message).toBe(
+            'Cannot add more than 10 items of the same SKU',
+          );
         });
     });
   });

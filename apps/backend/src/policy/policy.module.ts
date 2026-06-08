@@ -20,4 +20,4 @@ import { LoggerModule } from '../logger/logger.module';
   providers: [PolicyService, PolicySeoService, PolicyResolver],
   exports: [PolicyService, PolicySeoService],
 })
-export class PolicyModule { }
+export class PolicyModule {}

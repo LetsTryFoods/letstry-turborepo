@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { format } from "date-fns"
+import { useState } from "react";
+import { format } from "date-fns";
 import {
   Table,
   TableBody,
@@ -9,18 +9,18 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { UserPlus, Mail, Calendar, Loader2 } from "lucide-react"
-import { useAdmins, Admin } from "@/lib/admin/queries"
-import CreateAdminDialog from "./components/CreateAdminDialog"
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { UserPlus, Mail, Calendar, Loader2 } from "lucide-react";
+import { useAdmins, Admin } from "@/lib/admin/queries";
+import CreateAdminDialog from "./components/CreateAdminDialog";
 
 export default function AdminsPage() {
-  const { data, loading, error, refetch } = useAdmins()
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const { data, loading, error, refetch } = useAdmins();
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
-  const admins = data?.admins || []
+  const admins = data?.admins || [];
 
   return (
     <div className="space-y-6 mx-6 auto mb-12">
@@ -45,7 +45,9 @@ export default function AdminsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{admins.length}</div>
-            <p className="text-xs text-muted-foreground">Active dashboard users</p>
+            <p className="text-xs text-muted-foreground">
+              Active dashboard users
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -93,13 +95,19 @@ export default function AdminsPage() {
                           <div className="flex items-center gap-2">
                             <Calendar className="h-4 w-4 text-muted-foreground" />
                             <span>
-                              {format(new Date(admin.createdAt), "dd MMM yyyy HH:mm")}
+                              {format(
+                                new Date(admin.createdAt),
+                                "dd MMM yyyy HH:mm",
+                              )}
                             </span>
                           </div>
                         </TableCell>
                         <TableCell>
                           <span>
-                            {format(new Date(admin.updatedAt), "dd MMM yyyy HH:mm")}
+                            {format(
+                              new Date(admin.updatedAt),
+                              "dd MMM yyyy HH:mm",
+                            )}
                           </span>
                         </TableCell>
                       </TableRow>
@@ -118,5 +126,5 @@ export default function AdminsPage() {
         onSuccess={refetch}
       />
     </div>
-  )
+  );
 }

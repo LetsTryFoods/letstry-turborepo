@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import {
   AlertDialog,
@@ -9,20 +9,20 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
 
 interface DeleteAddressDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  addressToDelete: { id: string; batchCode: string } | null
-  onConfirm: () => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  addressToDelete: { id: string; batchCode: string } | null;
+  onConfirm: () => void;
 }
 
 export function DeleteAddressDialog({
   open,
   onOpenChange,
   addressToDelete,
-  onConfirm
+  onConfirm,
 }: DeleteAddressDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -30,13 +30,14 @@ export function DeleteAddressDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>Are you sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This will permanently delete the manufacturing address with batch code{' '}
-            <strong>{addressToDelete?.batchCode}</strong>. This action cannot be undone.
+            This will permanently delete the manufacturing address with batch
+            code <strong>{addressToDelete?.batchCode}</strong>. This action
+            cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction 
+          <AlertDialogAction
             onClick={onConfirm}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
@@ -45,5 +46,5 @@ export function DeleteAddressDialog({
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  )
+  );
 }

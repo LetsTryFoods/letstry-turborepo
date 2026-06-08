@@ -7,7 +7,6 @@ interface Brand {
   img: string;
 }
 
-
 const brands: Brand[] = [
   { name: "Amazon", img: "amazon.webp" },
   { name: "BigBasket", img: "bigbasket.webp" },
@@ -27,7 +26,10 @@ interface LogoProps {
 }
 
 const Logo = ({ name, img, i }: LogoProps) => (
-  <div key={`${name}-${i}`} className="brand-slide relative h-[30px] sm:h-[40px] md:h-[70px] lg:h-[100px] w-[140px]">
+  <div
+    key={`${name}-${i}`}
+    className="brand-slide relative h-[30px] sm:h-[40px] md:h-[70px] lg:h-[100px] w-[140px]"
+  >
     <Image
       src={getCdnUrl(img)}
       alt={name}
@@ -48,7 +50,10 @@ const BrandSlider = () => (
     </div>
 
     {/* Control speed here; smaller = faster */}
-    <div className="marquee-outer mb-4 sm:mb-0" style={{ "--speed": "12s" } as React.CSSProperties}>
+    <div
+      className="marquee-outer mb-4 sm:mb-0"
+      style={{ "--speed": "12s" } as React.CSSProperties}
+    >
       {/* Lane A */}
       <div className="lane-wrap">
         <div className="lane-mover lane-a">

@@ -1,17 +1,17 @@
-"use client"
+"use client";
 
-import { format } from "date-fns"
+import { format } from "date-fns";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Card, CardContent } from "@/components/ui/card"
-import { 
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Card, CardContent } from "@/components/ui/card";
+import {
   Bell,
   Mail,
   MessageSquare,
@@ -21,49 +21,66 @@ import {
   BarChart3,
   MousePointer,
   Calendar,
-  User
-} from "lucide-react"
-import { 
-  Notification, 
-  NotificationStatus, 
-  NotificationType 
-} from "@/lib/notifications/useNotifications"
+  User,
+} from "lucide-react";
+import {
+  Notification,
+  NotificationStatus,
+  NotificationType,
+} from "@/lib/notifications/useNotifications";
 
 interface NotificationDetailsDialogProps {
-  notification: Notification
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  notification: Notification;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-const statusConfig: Record<NotificationStatus, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
+const statusConfig: Record<
+  NotificationStatus,
+  {
+    label: string;
+    variant: "default" | "secondary" | "destructive" | "outline";
+  }
+> = {
   DRAFT: { label: "Draft", variant: "outline" },
   SCHEDULED: { label: "Scheduled", variant: "secondary" },
   SENT: { label: "Sent", variant: "default" },
-  FAILED: { label: "Failed", variant: "destructive" }
-}
+  FAILED: { label: "Failed", variant: "destructive" },
+};
 
-const typeConfig: Record<NotificationType, { label: string; icon: typeof Bell; color: string }> = {
-  PUSH: { label: "Push Notification", icon: Bell, color: "text-purple-600 bg-purple-50" },
+const typeConfig: Record<
+  NotificationType,
+  { label: string; icon: typeof Bell; color: string }
+> = {
+  PUSH: {
+    label: "Push Notification",
+    icon: Bell,
+    color: "text-purple-600 bg-purple-50",
+  },
   EMAIL: { label: "Email", icon: Mail, color: "text-blue-600 bg-blue-50" },
-  SMS: { label: "SMS", icon: MessageSquare, color: "text-green-600 bg-green-50" }
-}
+  SMS: {
+    label: "SMS",
+    icon: MessageSquare,
+    color: "text-green-600 bg-green-50",
+  },
+};
 
 const audienceLabels: Record<string, string> = {
   ALL: "All Customers",
   ACTIVE_CUSTOMERS: "Active Customers",
   INACTIVE_CUSTOMERS: "Inactive Customers",
   NEW_CUSTOMERS: "New Customers",
-  CUSTOM: "Custom Selection"
-}
+  CUSTOM: "Custom Selection",
+};
 
 export default function NotificationDetailsDialog({
   notification,
   open,
-  onOpenChange
+  onOpenChange,
 }: NotificationDetailsDialogProps) {
-  const status = statusConfig[notification.status]
-  const type = typeConfig[notification.type]
-  const TypeIcon = type.icon
+  const status = statusConfig[notification.status];
+  const type = typeConfig[notification.type];
+  const TypeIcon = type.icon;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -78,7 +95,9 @@ export default function NotificationDetailsDialog({
         <div className="space-y-6">
           {/* Header with Type and Status */}
           <div className="flex items-center justify-between">
-            <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${type.color}`}>
+            <div
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg ${type.color}`}
+            >
               <TypeIcon className="h-5 w-5" />
               <span className="font-medium">{type.label}</span>
             </div>
@@ -110,7 +129,9 @@ export default function NotificationDetailsDialog({
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Target Audience</p>
-                <p className="font-medium">{audienceLabels[notification.audience]}</p>
+                <p className="font-medium">
+                  {audienceLabels[notification.audience]}
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -120,14 +141,17 @@ export default function NotificationDetailsDialog({
               <div>
                 <p className="text-sm text-muted-foreground">Created</p>
                 <p className="font-medium">
-                  {format(new Date(notification.createdAt), 'dd MMM yyyy, hh:mm a')}
+                  {format(
+                    new Date(notification.createdAt),
+                    "dd MMM yyyy, hh:mm a",
+                  )}
                 </p>
               </div>
             </div>
           </div>
 
           {/* Schedule/Sent Time */}
-          {notification.status === 'SCHEDULED' && notification.scheduledAt && (
+          {notification.status === "SCHEDULED" && notification.scheduledAt && (
             <Card className="border-orange-200 bg-orange-50">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
@@ -135,7 +159,10 @@ export default function NotificationDetailsDialog({
                   <div>
                     <p className="text-sm text-orange-600">Scheduled for</p>
                     <p className="font-semibold text-orange-700">
-                      {format(new Date(notification.scheduledAt), 'EEEE, dd MMMM yyyy at hh:mm a')}
+                      {format(
+                        new Date(notification.scheduledAt),
+                        "EEEE, dd MMMM yyyy at hh:mm a",
+                      )}
                     </p>
                   </div>
                 </div>
@@ -151,7 +178,10 @@ export default function NotificationDetailsDialog({
               <div>
                 <p className="text-sm text-muted-foreground">Sent at</p>
                 <p className="font-medium">
-                  {format(new Date(notification.sentAt), 'dd MMM yyyy, hh:mm a')}
+                  {format(
+                    new Date(notification.sentAt),
+                    "dd MMM yyyy, hh:mm a",
+                  )}
                 </p>
               </div>
             </div>
@@ -166,7 +196,9 @@ export default function NotificationDetailsDialog({
               <Card>
                 <CardContent className="p-4 text-center">
                   <Users className="h-5 w-5 text-muted-foreground mx-auto mb-1" />
-                  <p className="text-2xl font-bold">{notification.targetCount}</p>
+                  <p className="text-2xl font-bold">
+                    {notification.targetCount}
+                  </p>
                   <p className="text-xs text-muted-foreground">Target</p>
                 </CardContent>
               </Card>
@@ -181,7 +213,7 @@ export default function NotificationDetailsDialog({
                 <CardContent className="p-4 text-center">
                   <BarChart3 className="h-5 w-5 text-blue-600 mx-auto mb-1" />
                   <p className="text-2xl font-bold">
-                    {notification.openRate ? `${notification.openRate}%` : '-'}
+                    {notification.openRate ? `${notification.openRate}%` : "-"}
                   </p>
                   <p className="text-xs text-muted-foreground">Open Rate</p>
                 </CardContent>
@@ -190,7 +222,9 @@ export default function NotificationDetailsDialog({
                 <CardContent className="p-4 text-center">
                   <MousePointer className="h-5 w-5 text-purple-600 mx-auto mb-1" />
                   <p className="text-2xl font-bold">
-                    {notification.clickRate ? `${notification.clickRate}%` : '-'}
+                    {notification.clickRate
+                      ? `${notification.clickRate}%`
+                      : "-"}
                   </p>
                   <p className="text-xs text-muted-foreground">Click Rate</p>
                 </CardContent>
@@ -202,11 +236,14 @@ export default function NotificationDetailsDialog({
           <div className="flex items-center gap-3 pt-2">
             <User className="h-4 w-4 text-muted-foreground" />
             <p className="text-sm text-muted-foreground">
-              Created by <span className="font-medium text-foreground">{notification.createdBy}</span>
+              Created by{" "}
+              <span className="font-medium text-foreground">
+                {notification.createdBy}
+              </span>
             </p>
           </div>
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

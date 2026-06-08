@@ -33,7 +33,9 @@ export interface CreateProductSeoInput {
   ogImage?: string;
 }
 
-export interface UpdateProductSeoInput extends Partial<Omit<CreateProductSeoInput, 'productId'>> {}
+export interface UpdateProductSeoInput extends Partial<
+  Omit<CreateProductSeoInput, "productId">
+> {}
 
 // Get all product SEO entries - TEMPORARILY SKIPPED until backend is ready
 export function useProductSeoList() {
@@ -78,7 +80,9 @@ export function useCreateProductSeo() {
   const createProductSeo = async (input: CreateProductSeoInput) => {
     // TODO: Remove this when backend is ready
     console.log("Creating product SEO (backend not ready):", input);
-    return { data: { createProductSeo: { _id: "temp-" + Date.now(), ...input } } };
+    return {
+      data: { createProductSeo: { _id: "temp-" + Date.now(), ...input } },
+    };
     // return mutate({ variables: { input } });
   };
 

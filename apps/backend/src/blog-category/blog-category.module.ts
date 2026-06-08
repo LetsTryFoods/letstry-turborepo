@@ -6,13 +6,13 @@ import { BlogCategoryResolver } from './blog-category.resolver';
 import { AdminModule } from '../admin/admin.module';
 
 @Module({
-    imports: [
-        MongooseModule.forFeature([
-            { name: BlogCategory.name, schema: BlogCategorySchema },
-        ]),
-        AdminModule,
-    ],
-    providers: [BlogCategoryService, BlogCategoryResolver],
-    exports: [BlogCategoryService],
+  imports: [
+    MongooseModule.forFeature([
+      { name: BlogCategory.name, schema: BlogCategorySchema },
+    ]),
+    AdminModule,
+  ],
+  providers: [BlogCategoryService, BlogCategoryResolver],
+  exports: [BlogCategoryService],
 })
-export class BlogCategoryModule { }
+export class BlogCategoryModule {}

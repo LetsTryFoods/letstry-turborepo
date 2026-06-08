@@ -57,7 +57,7 @@ export default function CustomerTable({
 }: CustomerTableProps) {
   const router = useRouter();
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
-    null
+    null,
   );
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -124,7 +124,10 @@ export default function CustomerTable({
                       <div className="flex items-center gap-3">
                         <Avatar>
                           {customer.avatar ? (
-                            <img src={getCdnUrl(customer.avatar)} alt={customer.name} />
+                            <img
+                              src={getCdnUrl(customer.avatar)}
+                              alt={customer.name}
+                            />
                           ) : (
                             <AvatarFallback>
                               {getInitials(customer.name)}

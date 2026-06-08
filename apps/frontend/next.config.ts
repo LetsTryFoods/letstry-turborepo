@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  output: 'standalone',
+  output: "standalone",
   poweredByHeader: false,
 
   experimental: {
@@ -11,49 +11,49 @@ const nextConfig: NextConfig = {
 
   images: {
     unoptimized: false,
-    formats: ['image/avif', 'image/webp'],
+    formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 31536000,
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     dangerouslyAllowSVG: true,
-    contentDispositionType: 'attachment',
+    contentDispositionType: "attachment",
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'cdn.krishnaseth.xyz',
+        protocol: "https",
+        hostname: "cdn.krishnaseth.xyz",
       },
       {
-        protocol: 'https',
-        hostname: '**.example.com',
+        protocol: "https",
+        hostname: "**.example.com",
       },
       {
-        protocol: 'https',
-        hostname: 'd11a0m43ek7ap8.cloudfront.net',
+        protocol: "https",
+        hostname: "d11a0m43ek7ap8.cloudfront.net",
       },
       {
-        protocol: 'https',
-        hostname: 'd2tmwt8yl5m7qh.cloudfront.net',
+        protocol: "https",
+        hostname: "d2tmwt8yl5m7qh.cloudfront.net",
       },
       {
-        protocol: 'https',
-        hostname: 'cdn.shopify.com',
+        protocol: "https",
+        hostname: "cdn.shopify.com",
       },
       {
-        protocol: 'https',
-        hostname: 'img.youtube.com',
+        protocol: "https",
+        hostname: "img.youtube.com",
       },
       {
-        protocol: 'https',
-        hostname: 'pub-24bb8fd4da6246bf880d4f21d58670d8.r2.dev',
+        protocol: "https",
+        hostname: "pub-24bb8fd4da6246bf880d4f21d58670d8.r2.dev",
       },
       {
-        protocol: 'https',
-        hostname: 'pub-56a649c88d67403e867a9e00f3b37d78.r2.dev',
+        protocol: "https",
+        hostname: "pub-56a649c88d67403e867a9e00f3b37d78.r2.dev",
       },
       {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
+        protocol: "https",
+        hostname: "images.unsplash.com",
       },
     ],
   },
@@ -61,53 +61,53 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: '/_next/image(.*)',
+        source: "/_next/image(.*)",
         headers: [
           {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
           },
         ],
       },
       {
-        source: '/_next/static/(.*)',
+        source: "/_next/static/(.*)",
         headers: [
           {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
           },
         ],
       },
       {
-        source: '/:path*',
+        source: "/:path*",
         headers: [
           {
-            key: 'X-DNS-Prefetch-Control',
-            value: 'on',
+            key: "X-DNS-Prefetch-Control",
+            value: "on",
           },
           {
-            key: 'Strict-Transport-Security',
-            value: 'max-age=63072000; includeSubDomains; preload',
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
           },
           {
-            key: 'X-Frame-Options',
-            value: 'SAMEORIGIN',
+            key: "X-Frame-Options",
+            value: "SAMEORIGIN",
           },
           {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
+            key: "X-Content-Type-Options",
+            value: "nosniff",
           },
           {
-            key: 'X-XSS-Protection',
-            value: '1; mode=block',
+            key: "X-XSS-Protection",
+            value: "1; mode=block",
           },
           {
-            key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin',
+            key: "Referrer-Policy",
+            value: "origin-when-cross-origin",
           },
           {
-            key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=()',
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=()",
           },
         ],
       },
@@ -120,8 +120,6 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
-
-
 };
 
 export default nextConfig;

@@ -82,6 +82,7 @@ type Address {
   longitude: Float!
   formattedAddress: String!
   placeId: String
+  googlePostalCode: String
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -632,6 +633,13 @@ type Guest {
   convertedToUserId: ID
 }
 
+type GlobalSettings {
+  _id: ID!
+  isPackerScanBypassEnabled: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
 type PaymentOrderType {
   _id: String!
   paymentOrderId: String!
@@ -1010,6 +1018,7 @@ type OrderUserInfo {
   firstName: String
   lastName: String
   status: String!
+  deviceInfo: JSON
 }
 
 type BoxDimensionType {
@@ -1099,6 +1108,10 @@ type OrdersSummary {
   totalOrders: Int!
   totalRevenue: String!
   statusCounts: OrderStatusCount!
+  appOrdersCount: Int!
+  webOrdersCount: Int!
+  appRevenue: Float!
+  webRevenue: Float!
 }
 
 type PaginatedOrdersResponse {
@@ -1157,12 +1170,24 @@ type ReportSummaryType {
   customersGrowth: Float!
 }
 
+type PlatformOrderStatsType {
+  website: Int!
+  app: Int!
+}
+
+type StateSalesType {
+  state: String!
+  orders: Int!
+  revenue: Float!
+}
+
 type OrderReportResponse {
   summary: ReportSummaryType!
   dailySales: [DailySalesType!]!
   topProducts: [TopProductType!]!
   topCustomers: [TopCustomerType!]!
   categorySales: [CategorySalesType!]!
+  platformStats: PlatformOrderStatsType
 }
 
 type ProductValidation {
@@ -1734,7 +1759,7 @@ type Query {
   productBySlug(slug: String!): Product
   productsBySlugList(slugs: [String!]!): [Product!]!
   productsByCategory(categoryId: ID!, pagination: PaginationInput! = {page: 1, limit: 10}): PaginatedProducts!
-  searchProducts(searchTerm: String!, pagination: PaginationInput! = {page: 1, limit: 10}, nameOnly: Boolean! = false): PaginatedProducts!
+  searchProducts(searchTerm: String!, pagination: PaginationInput! = {page: 1, limit: 10}, nameOnly: Boolean! = false, includeArchived: Boolean! = false): PaginatedProducts!
   productVariant(productId: ID!, variantId: ID!): ProductVariant
   inventoryLogs(sku: String!): [InventoryLog!]!
   findProductByIdentifier(identifier: String!): Product
@@ -1777,6 +1802,7 @@ type Query {
   getAdminPaymentsByOrder(orderId: String!): [PaymentListItemType!]!
   getOrderReports(period: String! = "month"): OrderReportResponse!
   getShippingInsights: ShippingInsightsType!
+  getSalesByState(period: String! = "month"): [StateSalesType!]!
   getMyOrders(input: GetMyOrdersInput!): PaginatedOrdersResponse!
   getGuestOrders(input: GetMyOrdersInput!): PaginatedOrdersResponse!
   getGuestOrderById(orderId: String!): OrderType!
@@ -1794,6 +1820,7 @@ type Query {
   getPackerById(packerId: String!): Packer!
   getPackerStats(packerId: String!, startDate: DateTime!, endDate: DateTime!): PackerStats!
   getMyStats: PackerStats!
+  getGlobalSettings: GlobalSettings!
   getAllBoxSizes: [BoxSize!]!
   getActiveBoxSizes: [BoxSize!]!
   getShipmentByAwb(awbNumber: String!): ShipmentResponse
@@ -1972,6 +1999,7 @@ type Mutation {
   removeProductVariant(productId: ID!, variantId: ID!): Product!
   setDefaultProductVariant(productId: ID!, variantId: ID!): Product!
   updateProductVariantStock(productId: ID!, variantId: ID!, quantity: Int!): Product!
+  zeroAllProductStock: Boolean!
   adjustInventory(identifier: String!, incrementBy: Int!, reason: String, referenceId: String, performedBy: String): InventoryLog!
   setInventory(identifier: String!, newStockLevel: Int!, performedBy: String): InventoryLog!
   createCategory(input: CreateCategoryInput!): Category!
@@ -2027,6 +2055,7 @@ type Mutation {
   deletePacker(packerId: String!): Boolean!
   packerLogin(input: PackerLoginInput!): PackerLoginResponse!
   flagPackingError(input: FlagErrorInput!): ScanLog!
+  updateGlobalSettings(isPackerScanBypassEnabled: Boolean!): GlobalSettings!
   createBoxSize(input: CreateBoxSizeInput!): BoxSize!
   updateBoxSize(boxId: String!, input: UpdateBoxSizeInput!): BoxSize!
   deleteBoxSize(boxId: String!): Boolean!
@@ -2380,6 +2409,7 @@ input CreateAddressInput {
   longitude: Float!
   formattedAddress: String!
   placeId: String
+  googlePostalCode: String
 }
 
 input UpdateAddressInput {
@@ -2399,6 +2429,7 @@ input UpdateAddressInput {
   longitude: Float
   formattedAddress: String
   placeId: String
+  googlePostalCode: String
 }
 
 input CreateBannerInput {

@@ -1,15 +1,15 @@
-import { SDUIScreen } from '../../types';
+import { SDUIScreen } from "../../types";
 
 export const productDetailScreen: SDUIScreen = {
-  screen: 'ProductDetailScreen',
+  screen: "ProductDetailScreen",
   components: [
     {
-      type: 'ProductGallery',
-      props: {}
+      type: "ProductGallery",
+      props: {},
     },
     {
-      type: 'ProductInfo',
-      props: {}
+      type: "ProductInfo",
+      props: {},
     },
     // {
     //   type: 'FullWidthBanner',
@@ -20,10 +20,10 @@ export const productDetailScreen: SDUIScreen = {
     //   }
     // },
     {
-      type: 'RelatedProducts',
+      type: "RelatedProducts",
       props: {
-        title: 'Similar Products'
-      }
-    }
-  ]
+        title: "Similar Products",
+      },
+    },
+  ],
 };

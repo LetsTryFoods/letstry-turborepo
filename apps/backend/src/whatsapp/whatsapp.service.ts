@@ -108,7 +108,13 @@ export class WhatsAppService {
       recipients: [
         {
           phone: phoneNumber,
-          variables: [orderId, amountPaid, paymentMode, transactionId, orderDate],
+          variables: [
+            orderId,
+            amountPaid,
+            paymentMode,
+            transactionId,
+            orderDate,
+          ],
         },
       ],
     };

@@ -1,64 +1,69 @@
-"use client"
+"use client";
 
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { 
-  Mail, 
-  Phone, 
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Mail,
+  Phone,
   Calendar,
   User,
   Package,
   MessageSquare,
-  Clock
-} from "lucide-react"
-import { 
-  ContactQuery, 
+  Clock,
+} from "lucide-react";
+import {
+  ContactQuery,
   ContactStatus,
   ContactPriority,
   statusLabels,
   priorityLabels,
-  typeLabels
-} from "@/lib/contact/useContact"
-import { format } from "date-fns"
+  typeLabels,
+} from "@/lib/contact/useContact";
+import { format } from "date-fns";
 
 interface ContactDetailsDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  query: ContactQuery | null
-  onReply: (query: ContactQuery) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  query: ContactQuery | null;
+  onReply: (query: ContactQuery) => void;
 }
 
-const statusConfig: Record<ContactStatus | string, { variant: "default" | "secondary" | "destructive" | "outline" }> = {
+const statusConfig: Record<
+  ContactStatus | string,
+  { variant: "default" | "secondary" | "destructive" | "outline" }
+> = {
   PENDING: { variant: "destructive" },
   REVIEWED: { variant: "default" },
   RESOLVED: { variant: "secondary" },
-}
+};
 
 const priorityConfig: Record<ContactPriority, { className: string }> = {
   LOW: { className: "bg-gray-100 text-gray-800" },
   MEDIUM: { className: "bg-blue-100 text-blue-800" },
   HIGH: { className: "bg-orange-100 text-orange-800" },
-  URGENT: { className: "bg-red-100 text-red-800" }
-}
+  URGENT: { className: "bg-red-100 text-red-800" },
+};
 
-export default function ContactDetailsDialog({ 
-  open, 
-  onOpenChange, 
+export default function ContactDetailsDialog({
+  open,
+  onOpenChange,
   query,
-  onReply
+  onReply,
 }: ContactDetailsDialogProps) {
-  if (!query) return null
+  if (!query) return null;
 
-  const status = statusConfig[query.status] || statusConfig["PENDING"]
-  const priority = query.priority ? priorityConfig[query.priority] : priorityConfig["LOW"]
+  const status = statusConfig[query.status] || statusConfig["PENDING"];
+  const priority = query.priority
+    ? priorityConfig[query.priority]
+    : priorityConfig["LOW"];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -77,13 +82,14 @@ export default function ContactDetailsDialog({
               <Badge variant={status.variant}>
                 {statusLabels[query.status]}
               </Badge>
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${priority.className}`}>
-                {query.priority ? priorityLabels[query.priority] : "Low"} Priority
+              <span
+                className={`px-2 py-1 rounded-full text-xs font-medium ${priority.className}`}
+              >
+                {query.priority ? priorityLabels[query.priority] : "Low"}{" "}
+                Priority
               </span>
               {query.type && (
-                <Badge variant="outline">
-                  {typeLabels[query.type]}
-                </Badge>
+                <Badge variant="outline">{typeLabels[query.type]}</Badge>
               )}
             </div>
 
@@ -99,13 +105,19 @@ export default function ContactDetailsDialog({
                 </div>
                 <div className="flex items-center gap-2">
                   <Mail className="h-4 w-4 text-muted-foreground" />
-                  <a href={`mailto:${query.email}`} className="text-blue-600 hover:underline">
+                  <a
+                    href={`mailto:${query.email}`}
+                    className="text-blue-600 hover:underline"
+                  >
                     {query.email}
                   </a>
                 </div>
                 <div className="flex items-center gap-2">
                   <Phone className="h-4 w-4 text-muted-foreground" />
-                  <a href={`tel:${query.phone}`} className="text-blue-600 hover:underline">
+                  <a
+                    href={`tel:${query.phone}`}
+                    className="text-blue-600 hover:underline"
+                  >
                     {query.phone}
                   </a>
                 </div>
@@ -151,28 +163,34 @@ export default function ContactDetailsDialog({
                 <Separator />
                 <div className="space-y-3">
                   <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">
-                    Conversation ({query.replies.length} {query.replies.length === 1 ? 'reply' : 'replies'})
+                    Conversation ({query.replies.length}{" "}
+                    {query.replies.length === 1 ? "reply" : "replies"})
                   </h3>
                   <div className="space-y-4">
                     {query.replies.map((reply: any) => (
-                      <div 
+                      <div
                         key={reply._id}
                         className={`p-4 rounded-lg ${
-                          reply.isAdminReply 
-                            ? 'bg-primary/10 ml-8' 
-                            : 'bg-muted/50 mr-8'
+                          reply.isAdminReply
+                            ? "bg-primary/10 ml-8"
+                            : "bg-muted/50 mr-8"
                         }`}
                       >
                         <div className="flex items-center justify-between mb-2">
                           <span className="font-medium text-sm">
-                            {reply.isAdminReply ? '🛡️ Admin' : query.name}
+                            {reply.isAdminReply ? "🛡️ Admin" : query.name}
                           </span>
                           <div className="flex items-center gap-1 text-xs text-muted-foreground">
                             <Clock className="h-3 w-3" />
-                            {format(new Date(reply.createdAt), "MMM d, yyyy 'at' p")}
+                            {format(
+                              new Date(reply.createdAt),
+                              "MMM d, yyyy 'at' p",
+                            )}
                           </div>
                         </div>
-                        <p className="text-sm whitespace-pre-wrap">{reply.message}</p>
+                        <p className="text-sm whitespace-pre-wrap">
+                          {reply.message}
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -187,7 +205,8 @@ export default function ContactDetailsDialog({
                 <div className="flex items-center gap-2 text-sm text-green-600">
                   <Clock className="h-4 w-4" />
                   <span>
-                    Resolved on {format(new Date(query.resolvedAt), "PPP 'at' p")}
+                    Resolved on{" "}
+                    {format(new Date(query.resolvedAt), "PPP 'at' p")}
                   </span>
                 </div>
               </>
@@ -200,10 +219,12 @@ export default function ContactDetailsDialog({
             Close
           </Button>
           {query.status !== "RESOLVED" && (
-            <Button onClick={() => {
-              onOpenChange(false)
-              onReply(query)
-            }}>
+            <Button
+              onClick={() => {
+                onOpenChange(false);
+                onReply(query);
+              }}
+            >
               <MessageSquare className="mr-2 h-4 w-4" />
               Reply
             </Button>
@@ -211,5 +232,5 @@ export default function ContactDetailsDialog({
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

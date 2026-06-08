@@ -24,7 +24,10 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { seoContentSchema, SeoContentFormData } from "@/lib/validations/seo.schema";
+import {
+  seoContentSchema,
+  SeoContentFormData,
+} from "@/lib/validations/seo.schema";
 import { SeoContent } from "@/lib/seo/useSeo";
 import { SeoFields } from "@/components/seo/SeoFields";
 
@@ -53,7 +56,12 @@ const PAGE_OPTIONS = [
   { value: "address-details", label: "Address Details" },
 ];
 
-export function SeoForm({ initialData, onSubmit, onCancel, isLoading }: SeoFormProps) {
+export function SeoForm({
+  initialData,
+  onSubmit,
+  onCancel,
+  isLoading,
+}: SeoFormProps) {
   const methods = useForm<SeoContentFormData>({
     resolver: zodResolver(seoContentSchema),
     defaultValues: {
@@ -85,9 +93,14 @@ export function SeoForm({ initialData, onSubmit, onCancel, isLoading }: SeoFormP
 
   return (
     <Form {...methods}>
-      <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-6 max-h-[70vh] overflow-y-auto pr-2">
+      <form
+        onSubmit={methods.handleSubmit(onSubmit)}
+        className="space-y-6 max-h-[70vh] overflow-y-auto pr-2"
+      >
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-primary">Basic Information</h3>
+          <h3 className="text-lg font-semibold text-primary">
+            Basic Information
+          </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={methods.control}
@@ -95,7 +108,10 @@ export function SeoForm({ initialData, onSubmit, onCancel, isLoading }: SeoFormP
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Page Slug *</FormLabel>
-                  <Select onValueChange={handlePageSelect} defaultValue={field.value}>
+                  <Select
+                    onValueChange={handlePageSelect}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a page" />
@@ -114,7 +130,9 @@ export function SeoForm({ initialData, onSubmit, onCancel, isLoading }: SeoFormP
                     placeholder="Or enter custom slug"
                     className="mt-2"
                   />
-                  <FormDescription>URL identifier (lowercase, hyphens only)</FormDescription>
+                  <FormDescription>
+                    URL identifier (lowercase, hyphens only)
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -126,7 +144,10 @@ export function SeoForm({ initialData, onSubmit, onCancel, isLoading }: SeoFormP
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center space-x-2 space-y-0">
                   <FormControl>
-                    <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
                   </FormControl>
                   <FormLabel className="!mt-0">Active</FormLabel>
                 </FormItem>
@@ -138,7 +159,9 @@ export function SeoForm({ initialData, onSubmit, onCancel, isLoading }: SeoFormP
 
           {/* Meta Tags */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-green-600">Meta Tags (Search Engines)</h3>
+            <h3 className="text-lg font-semibold text-green-600">
+              Meta Tags (Search Engines)
+            </h3>
 
             <FormField
               control={methods.control}
@@ -147,14 +170,22 @@ export function SeoForm({ initialData, onSubmit, onCancel, isLoading }: SeoFormP
                 <FormItem>
                   <FormLabel className="flex items-center justify-between">
                     <span>Meta Title *</span>
-                    <Badge variant={metaTitleLength > 60 ? "destructive" : "default"}>
+                    <Badge
+                      variant={metaTitleLength > 60 ? "destructive" : "default"}
+                    >
                       {metaTitleLength}/70
                     </Badge>
                   </FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Page title for search engines" />
+                    <Input
+                      {...field}
+                      placeholder="Page title for search engines"
+                    />
                   </FormControl>
-                  <FormDescription>Recommended: 50-60 characters. This appears as the clickable title in Google search results.</FormDescription>
+                  <FormDescription>
+                    Recommended: 50-60 characters. This appears as the clickable
+                    title in Google search results.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -167,14 +198,23 @@ export function SeoForm({ initialData, onSubmit, onCancel, isLoading }: SeoFormP
                 <FormItem>
                   <FormLabel className="flex items-center justify-between">
                     <span>Meta Description *</span>
-                    <Badge variant={metaDescLength > 155 ? "destructive" : "default"}>
+                    <Badge
+                      variant={metaDescLength > 155 ? "destructive" : "default"}
+                    >
                       {metaDescLength}/160
                     </Badge>
                   </FormLabel>
                   <FormControl>
-                    <Textarea {...field} placeholder="Brief description of the page content" rows={3} />
+                    <Textarea
+                      {...field}
+                      placeholder="Brief description of the page content"
+                      rows={3}
+                    />
                   </FormControl>
-                  <FormDescription>Recommended: 140-155 characters. This appears below the title in Google search results.</FormDescription>
+                  <FormDescription>
+                    Recommended: 140-155 characters. This appears below the
+                    title in Google search results.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -187,9 +227,14 @@ export function SeoForm({ initialData, onSubmit, onCancel, isLoading }: SeoFormP
                 <FormItem>
                   <FormLabel>Meta Keywords (Optional)</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="organic food, healthy snacks, natural products" />
+                    <Input
+                      {...field}
+                      placeholder="organic food, healthy snacks, natural products"
+                    />
                   </FormControl>
-                  <FormDescription>Comma-separated keywords related to this page</FormDescription>
+                  <FormDescription>
+                    Comma-separated keywords related to this page
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -202,9 +247,15 @@ export function SeoForm({ initialData, onSubmit, onCancel, isLoading }: SeoFormP
                 <FormItem>
                   <FormLabel>Canonical URL (Optional)</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="https://letstryfoods.com/page" />
+                    <Input
+                      {...field}
+                      placeholder="https://letstryfoods.com/page"
+                    />
                   </FormControl>
-                  <FormDescription>The preferred URL for this page (to avoid duplicate content issues)</FormDescription>
+                  <FormDescription>
+                    The preferred URL for this page (to avoid duplicate content
+                    issues)
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -215,9 +266,12 @@ export function SeoForm({ initialData, onSubmit, onCancel, isLoading }: SeoFormP
 
           {/* Open Graph - Social Sharing */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-blue-600">Social Media Sharing</h3>
+            <h3 className="text-lg font-semibold text-blue-600">
+              Social Media Sharing
+            </h3>
             <p className="text-sm text-muted-foreground">
-              These settings control how your page looks when shared on WhatsApp, Facebook, LinkedIn, etc.
+              These settings control how your page looks when shared on
+              WhatsApp, Facebook, LinkedIn, etc.
             </p>
 
             <FormField
@@ -227,9 +281,14 @@ export function SeoForm({ initialData, onSubmit, onCancel, isLoading }: SeoFormP
                 <FormItem>
                   <FormLabel>Social Title (Optional)</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Title when shared on social media" />
+                    <Input
+                      {...field}
+                      placeholder="Title when shared on social media"
+                    />
                   </FormControl>
-                  <FormDescription>Leave empty to use Meta Title</FormDescription>
+                  <FormDescription>
+                    Leave empty to use Meta Title
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -242,9 +301,15 @@ export function SeoForm({ initialData, onSubmit, onCancel, isLoading }: SeoFormP
                 <FormItem>
                   <FormLabel>Social Description (Optional)</FormLabel>
                   <FormControl>
-                    <Textarea {...field} placeholder="Description when shared on social media" rows={2} />
+                    <Textarea
+                      {...field}
+                      placeholder="Description when shared on social media"
+                      rows={2}
+                    />
                   </FormControl>
-                  <FormDescription>Leave empty to use Meta Description</FormDescription>
+                  <FormDescription>
+                    Leave empty to use Meta Description
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -257,9 +322,15 @@ export function SeoForm({ initialData, onSubmit, onCancel, isLoading }: SeoFormP
                 <FormItem>
                   <FormLabel>Social Image URL</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="https://cdn.example.com/image.jpg" />
+                    <Input
+                      {...field}
+                      placeholder="https://cdn.example.com/image.jpg"
+                    />
                   </FormControl>
-                  <FormDescription>Image shown when page is shared. Recommended size: 1200x630 pixels</FormDescription>
+                  <FormDescription>
+                    Image shown when page is shared. Recommended size: 1200x630
+                    pixels
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -272,7 +343,11 @@ export function SeoForm({ initialData, onSubmit, onCancel, isLoading }: SeoFormP
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Saving..." : initialData ? "Update SEO" : "Create SEO"}
+              {isLoading
+                ? "Saving..."
+                : initialData
+                  ? "Update SEO"
+                  : "Create SEO"}
             </Button>
           </div>
         </div>

@@ -1,4 +1,16 @@
-import { Resolver, Query, Mutation, Args, Context, ResolveField, Parent, ObjectType, Field, Int, ID } from '@nestjs/graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  Context,
+  ResolveField,
+  Parent,
+  ObjectType,
+  Field,
+  Int,
+  ID,
+} from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { PackingService } from './services/packing.service';
 import { PackerService } from './services/packer.service';
@@ -58,7 +70,9 @@ export class PackingResolver {
     if (!packingOrder.assignedTo) {
       return null;
     }
-    const packer = await this.packerService.getPackerById(packingOrder.assignedTo);
+    const packer = await this.packerService.getPackerById(
+      packingOrder.assignedTo,
+    );
     return packer?.name || null;
   }
 
@@ -91,8 +105,6 @@ export class PackingResolver {
     return this.packingService.startPacking(packingOrderId);
   }
 
-
-
   @Mutation(() => BatchScanResult)
   @UseGuards(PackerAuthGuard, RolesGuard)
   @Roles(Role.PACKER)
@@ -111,7 +123,8 @@ export class PackingResolver {
   @UseGuards(PackerAuthGuard, RolesGuard)
   @Roles(Role.PACKER)
   async uploadEvidence(
-    @Args('input', { type: () => UploadEvidenceInput }) input: UploadEvidenceInput,
+    @Args('input', { type: () => UploadEvidenceInput })
+    input: UploadEvidenceInput,
     @Context() ctx,
   ): Promise<any> {
     return this.packingService.uploadEvidence(
@@ -131,7 +144,12 @@ export class PackingResolver {
     @Args('serviceType', { nullable: true }) serviceType: string,
     @Context() ctx,
   ): Promise<any> {
-    return this.packingService.completePacking(packingOrderId, ctx.req.user.packerId, provider, serviceType);
+    return this.packingService.completePacking(
+      packingOrderId,
+      ctx.req.user.packerId,
+      provider,
+      serviceType,
+    );
   }
 
   @Query(() => DeliveryRecommendation)

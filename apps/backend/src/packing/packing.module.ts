@@ -35,6 +35,7 @@ import { ReassignmentService } from './services/domain/reassignment.service';
 import { PackingSchedulerService } from './services/domain/packing-scheduler.service';
 import { UnassignedOrderProcessorService } from './services/domain/unassigned-order-processor.service';
 import { QueueCleanupService } from './services/domain/queue-cleanup.service';
+import { SettingsModule } from '../settings/settings.module';
 import { ScanLoggerService } from './services/domain/scan-logger.service';
 
 import { PackingService } from './services/packing.service';
@@ -91,6 +92,7 @@ import { ShipmentModule } from '../shipment/shipment.module';
       signOptions: { expiresIn: '7d' },
     }),
     ConfigModule,
+    SettingsModule,
     CommonModule,
     BoxSizeModule,
     WhatsAppModule,
@@ -128,4 +130,4 @@ import { ShipmentModule } from '../shipment/shipment.module';
   ],
   exports: [PackingService, PackerService],
 })
-export class PackingModule { }
+export class PackingModule {}

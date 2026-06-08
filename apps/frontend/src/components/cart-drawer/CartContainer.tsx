@@ -1,24 +1,24 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { useCartStore } from '@/stores/cart-store';
-import { useAuthStore } from '@/stores/auth-store';
-import { useCart } from '@/lib/cart/use-cart';
-import { useCoupons } from '@/lib/coupon/use-coupons';
-import { useAddresses } from '@/lib/address/use-addresses';
-import { CartService } from '@/lib/cart/cart-service';
-import { CouponService } from '@/lib/coupon/coupon-service';
-import { AddressService } from '@/lib/address/address-service';
+import React, { useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useCartStore } from "@/stores/cart-store";
+import { useAuthStore } from "@/stores/auth-store";
+import { useCart } from "@/lib/cart/use-cart";
+import { useCoupons } from "@/lib/coupon/use-coupons";
+import { useAddresses } from "@/lib/address/use-addresses";
+import { CartService } from "@/lib/cart/cart-service";
+import { CouponService } from "@/lib/coupon/coupon-service";
+import { AddressService } from "@/lib/address/address-service";
 
-import { CartDrawer } from './CartDrawer';
-import { AddressFormData } from './AddressDetailsModal';
-import { LoginModal } from '@/components/auth/login-modal';
-import { useAnalytics } from '@/hooks/use-analytics';
-import { pushToDataLayer } from '@/lib/analytics/data-layer';
-import { graphqlClient } from '@/lib/graphql/client-factory';
-import { CHECK_PINCODE_SERVICEABILITY } from '@/lib/queries/pincode';
-import toast from 'react-hot-toast';
+import { CartDrawer } from "./CartDrawer";
+import { AddressFormData } from "./AddressDetailsModal";
+import { LoginModal } from "@/components/auth/login-modal";
+import { useAnalytics } from "@/hooks/use-analytics";
+import { pushToDataLayer } from "@/lib/analytics/data-layer";
+import { graphqlClient } from "@/lib/graphql/client-factory";
+import { CHECK_PINCODE_SERVICEABILITY } from "@/lib/queries/pincode";
+import toast from "react-hot-toast";
 
 export const CartContainer = () => {
   const { isOpen, closeCart } = useCartStore();
@@ -42,20 +42,30 @@ export const CartContainer = () => {
   const [showAddressDetailsModal, setShowAddressDetailsModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [selectedPlaceData, setSelectedPlaceData] = useState<any>(null);
-  const [pendingAddressData, setPendingAddressData] = useState<AddressFormData | null>(null);
+  const [pendingAddressData, setPendingAddressData] =
+    useState<AddressFormData | null>(null);
   const [selectedAddress, setSelectedAddress] = useState<any>(null);
   const [updatingItems, setUpdatingItems] = useState<Set<string>>(new Set());
 
-  const items = (cartData as any)?.myCart?.items?.map((item: any) => ({
-    id: item.productId,
-    image: item.imageUrl || 'https://placehold.co/100x100/png',
-    title: item.name,
-    size: item.packageSize || item.attributes?.size || item.attributes?.weight || '',
-    price: item.unitPrice,
-    quantity: item.quantity,
-    variant: item.packageSize || item.attributes?.size || item.attributes?.weight || '',
-    isUpdating: updatingItems.has(item.productId),
-  })) || [];
+  const items =
+    (cartData as any)?.myCart?.items?.map((item: any) => ({
+      id: item.productId,
+      image: item.imageUrl || "https://placehold.co/100x100/png",
+      title: item.name,
+      size:
+        item.packageSize ||
+        item.attributes?.size ||
+        item.attributes?.weight ||
+        "",
+      price: item.unitPrice,
+      quantity: item.quantity,
+      variant:
+        item.packageSize ||
+        item.attributes?.size ||
+        item.attributes?.weight ||
+        "",
+      isUpdating: updatingItems.has(item.productId),
+    })) || [];
 
   const totalPrice = (cartData as any)?.myCart?.totalsSummary?.grandTotal || 0;
   const appliedCouponCode = (cartData as any)?.myCart?.couponCode || null;
@@ -65,10 +75,12 @@ export const CartContainer = () => {
 
   const priceBreakdown = {
     subtotal: (cartData as any)?.myCart?.totalsSummary?.subtotal || 0,
-    discountAmount: (cartData as any)?.myCart?.totalsSummary?.discountAmount || 0,
+    discountAmount:
+      (cartData as any)?.myCart?.totalsSummary?.discountAmount || 0,
     shippingCost: (cartData as any)?.myCart?.totalsSummary?.shippingCost || 0,
     estimatedTax: (cartData as any)?.myCart?.totalsSummary?.estimatedTax || 0,
-    handlingCharge: (cartData as any)?.myCart?.totalsSummary?.handlingCharge || 0,
+    handlingCharge:
+      (cartData as any)?.myCart?.totalsSummary?.handlingCharge || 0,
     grandTotal: totalPrice,
   };
 
@@ -98,7 +110,7 @@ export const CartContainer = () => {
   }, [shippingAddressId, addresses]);
 
   const handleUpdateQuantity = async (productId: string, quantity: number) => {
-    setUpdatingItems(prev => new Set(prev).add(productId));
+    setUpdatingItems((prev) => new Set(prev).add(productId));
 
     try {
       const item = items.find((i: any) => i.id === productId);
@@ -139,11 +151,11 @@ export const CartContainer = () => {
           }
         }
       }
-      await queryClient.invalidateQueries({ queryKey: ['cart'] });
+      await queryClient.invalidateQueries({ queryKey: ["cart"] });
     } catch (error) {
-      console.error('Failed to update cart:', error);
+      console.error("Failed to update cart:", error);
     } finally {
-      setUpdatingItems(prev => {
+      setUpdatingItems((prev) => {
         const next = new Set(prev);
         next.delete(productId);
         return next;
@@ -156,7 +168,7 @@ export const CartContainer = () => {
       const item = items.find((i: any) => i.id === productId);
 
       await CartService.removeFromCart(productId);
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
 
       if (item) {
         trackRemoveFromCart({
@@ -168,25 +180,25 @@ export const CartContainer = () => {
         });
       }
     } catch (error) {
-      console.error('Failed to remove item:', error);
+      console.error("Failed to remove item:", error);
     }
   };
 
   const handleAddSuggestion = async (productId: string) => {
     try {
       await CartService.addToCart(productId, 1);
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
     } catch (error) {
-      console.error('Failed to add item:', error);
+      console.error("Failed to add item:", error);
     }
   };
 
   const handleApplyCoupon = async (code: string) => {
     await CouponService.applyCoupon(code);
-    queryClient.invalidateQueries({ queryKey: ['cart'] });
+    queryClient.invalidateQueries({ queryKey: ["cart"] });
 
     pushToDataLayer({
-      event: 'apply_coupon',
+      event: "apply_coupon",
       coupon_code: code,
       cart_value: totalPrice,
     });
@@ -195,11 +207,11 @@ export const CartContainer = () => {
   const handleRemoveCoupon = async () => {
     const removedCouponCode = appliedCouponCode;
     await CouponService.removeCoupon();
-    queryClient.invalidateQueries({ queryKey: ['cart'] });
+    queryClient.invalidateQueries({ queryKey: ["cart"] });
 
     if (removedCouponCode) {
       pushToDataLayer({
-        event: 'remove_coupon',
+        event: "remove_coupon",
         coupon_code: removedCouponCode,
         cart_value: totalPrice,
       });
@@ -210,7 +222,7 @@ export const CartContainer = () => {
     if (items.length === 0) return;
     trackAddShippingInfo({
       value: totalPrice,
-      shippingTier: address?.city || address?.addressType || 'default',
+      shippingTier: address?.city || address?.addressType || "default",
       items: items.map((item: any) => ({
         id: item.id,
         name: item.title,
@@ -226,13 +238,13 @@ export const CartContainer = () => {
     if (address) {
       try {
         await CartService.setShippingAddress(addressId);
-        await queryClient.invalidateQueries({ queryKey: ['cart'] });
+        await queryClient.invalidateQueries({ queryKey: ["cart"] });
 
         setSelectedAddress(address);
         setShowAddressModal(false);
         fireAddShippingInfo(address);
       } catch (error) {
-        console.error('Failed to set shipping address:', error);
+        console.error("Failed to set shipping address:", error);
       }
     }
   };
@@ -243,7 +255,7 @@ export const CartContainer = () => {
       setSelectedPlaceData(placeDetails);
       setShowAddressDetailsModal(true);
     } catch (error) {
-      console.error('Failed to get place details:', error);
+      console.error("Failed to get place details:", error);
     }
   };
 
@@ -259,15 +271,19 @@ export const CartContainer = () => {
         floor: details.floor,
         streetArea: details.streetArea,
         landmark: details.landmark,
-        addressLocality: placeDetails?.locality || '',
-        addressRegion: placeDetails?.region || '',
-        postalCode: (details.postalCode || placeDetails?.postalCode || '').trim(),
-        googlePostalCode: (placeDetails?.postalCode || '').trim(),   // Google-detected pincode kept separately
-        addressCountry: placeDetails?.country || 'India',
+        addressLocality: placeDetails?.locality || "",
+        addressRegion: placeDetails?.region || "",
+        postalCode: (
+          details.postalCode ||
+          placeDetails?.postalCode ||
+          ""
+        ).trim(),
+        googlePostalCode: (placeDetails?.postalCode || "").trim(), // Google-detected pincode kept separately
+        addressCountry: placeDetails?.country || "India",
         isDefault: false,
         latitude: placeDetails?.latitude || 0,
         longitude: placeDetails?.longitude || 0,
-        formattedAddress: placeDetails?.formattedAddress || '',
+        formattedAddress: placeDetails?.formattedAddress || "",
         placeId: placeDetails?.placeId,
       };
 
@@ -299,8 +315,8 @@ export const CartContainer = () => {
         fireAddShippingInfo(immediateAddress);
 
         // Refresh the cache in the background so the address list stays up to date.
-        queryClient.invalidateQueries({ queryKey: ['addresses'] });
-        queryClient.invalidateQueries({ queryKey: ['cart'] });
+        queryClient.invalidateQueries({ queryKey: ["addresses"] });
+        queryClient.invalidateQueries({ queryKey: ["cart"] });
       }
 
       setSelectedPlaceData(null);
@@ -308,7 +324,7 @@ export const CartContainer = () => {
       setShowAddressDetailsModal(false);
       setPendingAddressData(null);
     } catch (error) {
-      console.error('Failed to save address:', error);
+      console.error("Failed to save address:", error);
     }
   };
 
@@ -323,7 +339,7 @@ export const CartContainer = () => {
 
   const handlePayNow = async () => {
     if (!cartData || !(cartData as any)?.myCart?._id) {
-      console.error('Cart not found');
+      console.error("Cart not found");
       return;
     }
 
@@ -332,8 +348,8 @@ export const CartContainer = () => {
     const pincodesToCheck = [
       ...new Set(
         [selectedAddress?.postalCode, selectedAddress?.googlePostalCode]
-          .map((p) => (p || '').trim())
-          .filter((p) => /^\d{6}$/.test(p))
+          .map((p) => (p || "").trim())
+          .filter((p) => /^\d{6}$/.test(p)),
       ),
     ];
 
@@ -342,19 +358,26 @@ export const CartContainer = () => {
         // Check each pincode against B2C Smart Express — allow if ANY ONE is deliverable.
         let isAnyDeliverable = false;
         for (const pincode of pincodesToCheck) {
-          const result: any = await graphqlClient.request(CHECK_PINCODE_SERVICEABILITY, { pincode });
+          const result: any = await graphqlClient.request(
+            CHECK_PINCODE_SERVICEABILITY,
+            { pincode },
+          );
           if (result?.checkPincodeServiceability?.isDeliverable) {
             isAnyDeliverable = true;
             break;
           }
         }
         if (!isAnyDeliverable) {
-          toast.error('Sorry, we currently do not deliver to your selected PIN code.');
+          toast.error(
+            "Sorry, we currently do not deliver to your selected PIN code.",
+          );
           return;
         }
       } catch (err: any) {
-        console.error('Failed to check pincode serviceability:', err);
-        const errorMsg = err?.response?.errors?.[0]?.message || 'Failed to verify delivery location. Please try again.';
+        console.error("Failed to check pincode serviceability:", err);
+        const errorMsg =
+          err?.response?.errors?.[0]?.message ||
+          "Failed to verify delivery location. Please try again.";
         toast.error(errorMsg);
         return;
       }
@@ -387,9 +410,9 @@ export const CartContainer = () => {
 
   // Extract user details from cart or address
   const userDetails = {
-    email: (cartData as any)?.myCart?.userId?.email || 'guest@example.com', // Fallback or fetch from user profile
-    name: selectedAddress?.recipientName || 'Guest',
-    phone: selectedAddress?.recipientPhone || '9999999999',
+    email: (cartData as any)?.myCart?.userId?.email || "guest@example.com", // Fallback or fetch from user profile
+    name: selectedAddress?.recipientName || "Guest",
+    phone: selectedAddress?.recipientPhone || "9999999999",
   };
 
   return (
@@ -408,7 +431,9 @@ export const CartContainer = () => {
         showAddressModal={showAddressModal}
         onToggleAddressModal={() => setShowAddressModal(!showAddressModal)}
         showAddressDetailsModal={showAddressDetailsModal}
-        onToggleAddressDetailsModal={() => setShowAddressDetailsModal(!showAddressDetailsModal)}
+        onToggleAddressDetailsModal={() =>
+          setShowAddressDetailsModal(!showAddressDetailsModal)
+        }
         addresses={addresses}
         onSelectAddress={handleSelectAddress}
         onSelectPlace={handleSelectPlace}
@@ -434,10 +459,9 @@ export const CartContainer = () => {
       <LoginModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
-        backendUrl={process.env.NEXT_PUBLIC_BACKEND_URL || ''}
+        backendUrl={process.env.NEXT_PUBLIC_BACKEND_URL || ""}
         onSuccess={handleLoginSuccess}
       />
     </>
   );
 };
-

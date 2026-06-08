@@ -1,7 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { PressMentionDocument, PRESS_MENTION_MODEL } from './press-mention.schema';
+import {
+  PressMentionDocument,
+  PRESS_MENTION_MODEL,
+} from './press-mention.schema';
 import { PressMention } from './press-mention.graphql';
 import {
   CreatePressMentionInput,

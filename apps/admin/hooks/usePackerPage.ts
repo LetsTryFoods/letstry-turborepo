@@ -1,91 +1,113 @@
-import { useState, useEffect } from "react"
-import { usePackers, useCreatePacker, useUpdatePacker, useDeletePacker } from "@/lib/packers/usePackers"
+import { useState, useEffect } from "react";
+import {
+  usePackers,
+  useCreatePacker,
+  useUpdatePacker,
+  useDeletePacker,
+} from "@/lib/packers/usePackers";
 
 export function usePackerPage() {
   const [selectedColumns, setSelectedColumns] = useState([
-    "employeeId", "name", "phone", "email", "totalOrdersPacked", "accuracyRate", "isActive", "assignedOrders", "inProgressOrders", "completedOrders"
-  ])
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [editingPacker, setEditingPacker] = useState<any | null>(null)
-  const [deleteAlertOpen, setDeleteAlertOpen] = useState(false)
-  const [packerToDelete, setPackerToDelete] = useState<string | null>(null)
-  const [statsDialogOpen, setStatsDialogOpen] = useState(false)
-  const [selectedPackerId, setSelectedPackerId] = useState<string | null>(null)
-  const [showInactive, setShowInactive] = useState(false)
+    "employeeId",
+    "name",
+    "phone",
+    "email",
+    "totalOrdersPacked",
+    "accuracyRate",
+    "isActive",
+    "assignedOrders",
+    "inProgressOrders",
+    "completedOrders",
+  ]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingPacker, setEditingPacker] = useState<any | null>(null);
+  const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
+  const [packerToDelete, setPackerToDelete] = useState<string | null>(null);
+  const [statsDialogOpen, setStatsDialogOpen] = useState(false);
+  const [selectedPackerId, setSelectedPackerId] = useState<string | null>(null);
+  const [showInactive, setShowInactive] = useState(false);
 
-  const { data: packersData, loading: packersLoading, error: packersError, refetch: refetchPackers } = usePackers(showInactive ? false : undefined)
-  const { mutate: createPacker } = useCreatePacker()
-  const { mutate: updatePacker } = useUpdatePacker()
-  const { mutate: deletePacker } = useDeletePacker()
+  const {
+    data: packersData,
+    loading: packersLoading,
+    error: packersError,
+    refetch: refetchPackers,
+  } = usePackers(showInactive ? false : undefined);
+  const { mutate: createPacker } = useCreatePacker();
+  const { mutate: updatePacker } = useUpdatePacker();
+  const { mutate: deletePacker } = useDeletePacker();
 
-  const packers = (packersData as any)?.getAllPackers || []
+  const packers = (packersData as any)?.getAllPackers || [];
 
   useEffect(() => {
-    refetchPackers()
-  }, [showInactive, refetchPackers])
+    refetchPackers();
+  }, [showInactive, refetchPackers]);
 
   const handleColumnToggle = (columnKey: string) => {
-    setSelectedColumns(prev =>
+    setSelectedColumns((prev) =>
       prev.includes(columnKey)
-        ? prev.filter(key => key !== columnKey)
-        : [...prev, columnKey]
-    )
-  }
+        ? prev.filter((key) => key !== columnKey)
+        : [...prev, columnKey],
+    );
+  };
 
   const handleAddPacker = () => {
-    setEditingPacker(null)
-    setIsDialogOpen(true)
-  }
+    setEditingPacker(null);
+    setIsDialogOpen(true);
+  };
 
   const handleEdit = (packer: any) => {
-    setEditingPacker(packer)
-    setIsDialogOpen(true)
-  }
+    setEditingPacker(packer);
+    setIsDialogOpen(true);
+  };
 
   const handleCloseDialog = () => {
-    setIsDialogOpen(false)
-    setEditingPacker(null)
-  }
+    setIsDialogOpen(false);
+    setEditingPacker(null);
+  };
 
   const handleDelete = (packerId: string) => {
-    setPackerToDelete(packerId)
-    setDeleteAlertOpen(true)
-  }
+    setPackerToDelete(packerId);
+    setDeleteAlertOpen(true);
+  };
 
   const handleDeleteConfirm = async () => {
     if (packerToDelete) {
       try {
         await deletePacker({
-          variables: { packerId: packerToDelete }
-        })
-        await refetchPackers()
-        setPackerToDelete(null)
+          variables: { packerId: packerToDelete },
+        });
+        await refetchPackers();
+        setPackerToDelete(null);
       } catch (error) {
-        console.error('Failed to delete packer:', error)
+        console.error("Failed to delete packer:", error);
       }
     }
-    setDeleteAlertOpen(false)
-  }
+    setDeleteAlertOpen(false);
+  };
 
-  const handleToggleActive = async (packerId: string, currentActive: boolean) => {
+  const handleToggleActive = async (
+    packerId: string,
+    currentActive: boolean,
+  ) => {
     try {
       await updatePacker({
         variables: {
           packerId: packerId,
           input: {
-            isActive: !currentActive
-          }
-        }
-      })
+            isActive: !currentActive,
+          },
+        },
+      });
     } catch (error) {
-      console.error('Failed to toggle packer status:', error)
+      console.error("Failed to toggle packer status:", error);
     }
-  }
+  };
 
   const handleViewStats = (packerId: string) => {
-    setSelectedPackerId(packerId)
-    setStatsDialogOpen(true)
-  }
+    setSelectedPackerId(packerId);
+    setStatsDialogOpen(true);
+  };
 
   return {
     state: {
@@ -117,6 +139,6 @@ export function usePackerPage() {
       createPacker,
       updatePacker,
       refetchPackers,
-    }
-  }
+    },
+  };
 }

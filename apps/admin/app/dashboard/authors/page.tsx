@@ -1,12 +1,18 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { toast } from 'react-hot-toast';
-import { useAuthors, useCreateAuthor, useUpdateAuthor, useRemoveAuthor, type Author } from '@/lib/authors/useAuthors';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState } from "react";
+import { toast } from "react-hot-toast";
+import {
+  useAuthors,
+  useCreateAuthor,
+  useUpdateAuthor,
+  useRemoveAuthor,
+  type Author,
+} from "@/lib/authors/useAuthors";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 /**
  * Sprint 4 — Author / team-member CRUD admin page.
@@ -26,7 +32,8 @@ export default function AuthorsAdminPage() {
   const { update } = useUpdateAuthor();
   const { remove } = useRemoveAuthor();
 
-  const authors: Author[] = (data as { authors?: Author[] } | undefined)?.authors || [];
+  const authors: Author[] =
+    (data as { authors?: Author[] } | undefined)?.authors || [];
   const [editing, setEditing] = useState<Author | null>(null);
 
   return (
@@ -35,7 +42,8 @@ export default function AuthorsAdminPage() {
         <div>
           <h1 className="text-2xl font-bold">Authors / team</h1>
           <p className="text-sm text-gray-500">
-            Person profiles for E-E-A-T. Drives <code>/team</code>, <code>/author/&lt;slug&gt;</code>, and blog bylines.
+            Person profiles for E-E-A-T. Drives <code>/team</code>,{" "}
+            <code>/author/&lt;slug&gt;</code>, and blog bylines.
           </p>
         </div>
         <Button onClick={() => setEditing(emptyAuthor())}>+ New person</Button>
@@ -48,16 +56,20 @@ export default function AuthorsAdminPage() {
           <Card key={a._id}>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-base">
-                {a.name}{' '}
+                {a.name}{" "}
                 <span className="text-xs text-gray-500">
                   {a.jobTitle && `· ${a.jobTitle} `}
-                  {a.isFounder && '· founder '}
-                  {a.isTeamMember && '· team '}
-                  {a.isActive ? '· active' : '· draft'}
+                  {a.isFounder && "· founder "}
+                  {a.isTeamMember && "· team "}
+                  {a.isActive ? "· active" : "· draft"}
                 </span>
               </CardTitle>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => setEditing(a)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setEditing(a)}
+                >
                   Edit
                 </Button>
                 <Button
@@ -75,13 +87,16 @@ export default function AuthorsAdminPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-700 line-clamp-2">{a.bio || '—'}</p>
+              <p className="text-sm text-gray-700 line-clamp-2">
+                {a.bio || "—"}
+              </p>
             </CardContent>
           </Card>
         ))}
         {!loading && authors.length === 0 && (
           <p className="text-sm text-gray-500">
-            No authors yet. Start with the founder — set <em>isFounder</em> + <em>isTeamMember</em> + <em>isActive</em>.
+            No authors yet. Start with the founder — set <em>isFounder</em> +{" "}
+            <em>isTeamMember</em> + <em>isActive</em>.
           </p>
         )}
       </div>
@@ -123,9 +138,9 @@ function stripServerFields(a: Author) {
 
 function emptyAuthor(): Author {
   return {
-    _id: '',
-    slug: '',
-    name: '',
+    _id: "",
+    slug: "",
+    name: "",
     expertise: [],
     credentials: [],
     socialLinks: [],
@@ -133,8 +148,8 @@ function emptyAuthor(): Author {
     isTeamMember: false,
     isActive: true,
     position: 0,
-    createdAt: '',
-    updatedAt: '',
+    createdAt: "",
+    updatedAt: "",
   };
 }
 
@@ -162,42 +177,82 @@ function AuthorForm({
   return (
     <Card className="border-amber-200 bg-amber-50/40">
       <CardHeader>
-        <CardTitle>{author._id ? 'Edit person' : 'New person'}</CardTitle>
+        <CardTitle>{author._id ? "Edit person" : "New person"}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <Field label="Slug (URL path under /author/)" hint="lowercase-with-dashes, e.g. krishna-seth">
-          <Input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} />
-        </Field>
-        <Field label="Full name">
-          <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-        </Field>
-        <Field label="Job title / role">
-          <Input value={form.jobTitle || ''} onChange={(e) => setForm({ ...form, jobTitle: e.target.value })} />
-        </Field>
-        <Field label="Bio (HTML)" hint="3-5 paragraphs. Mention domain expertise, years in food / nutrition / parenting.">
-          <Textarea rows={6} value={form.bio || ''} onChange={(e) => setForm({ ...form, bio: e.target.value })} />
-        </Field>
-        <Field label="Photo URL">
-          <Input value={form.photoUrl || ''} onChange={(e) => setForm({ ...form, photoUrl: e.target.value })} />
-        </Field>
-        <Field label="Public email (optional)">
-          <Input value={form.publicEmail || ''} onChange={(e) => setForm({ ...form, publicEmail: e.target.value })} />
-        </Field>
-        <Field label="Areas of expertise (comma-separated)" hint='Drives Schema.org "knowsAbout"'>
+        <Field
+          label="Slug (URL path under /author/)"
+          hint="lowercase-with-dashes, e.g. krishna-seth"
+        >
           <Input
-            value={form.expertise.join(', ')}
-            onChange={(e) =>
-              setForm({ ...form, expertise: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) })
-            }
+            value={form.slug}
+            onChange={(e) => setForm({ ...form, slug: e.target.value })}
           />
         </Field>
-        <Field label="Credentials (comma-separated)" hint="e.g. RD, MSc Nutrition, journalist">
+        <Field label="Full name">
           <Input
-            value={form.credentials.join(', ')}
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+          />
+        </Field>
+        <Field label="Job title / role">
+          <Input
+            value={form.jobTitle || ""}
+            onChange={(e) => setForm({ ...form, jobTitle: e.target.value })}
+          />
+        </Field>
+        <Field
+          label="Bio (HTML)"
+          hint="3-5 paragraphs. Mention domain expertise, years in food / nutrition / parenting."
+        >
+          <Textarea
+            rows={6}
+            value={form.bio || ""}
+            onChange={(e) => setForm({ ...form, bio: e.target.value })}
+          />
+        </Field>
+        <Field label="Photo URL">
+          <Input
+            value={form.photoUrl || ""}
+            onChange={(e) => setForm({ ...form, photoUrl: e.target.value })}
+          />
+        </Field>
+        <Field label="Public email (optional)">
+          <Input
+            value={form.publicEmail || ""}
+            onChange={(e) => setForm({ ...form, publicEmail: e.target.value })}
+          />
+        </Field>
+        <Field
+          label="Areas of expertise (comma-separated)"
+          hint='Drives Schema.org "knowsAbout"'
+        >
+          <Input
+            value={form.expertise.join(", ")}
             onChange={(e) =>
               setForm({
                 ...form,
-                credentials: e.target.value.split(',').map((s) => s.trim()).filter(Boolean),
+                expertise: e.target.value
+                  .split(",")
+                  .map((s) => s.trim())
+                  .filter(Boolean),
+              })
+            }
+          />
+        </Field>
+        <Field
+          label="Credentials (comma-separated)"
+          hint="e.g. RD, MSc Nutrition, journalist"
+        >
+          <Input
+            value={form.credentials.join(", ")}
+            onChange={(e) =>
+              setForm({
+                ...form,
+                credentials: e.target.value
+                  .split(",")
+                  .map((s) => s.trim())
+                  .filter(Boolean),
               })
             }
           />
@@ -213,14 +268,16 @@ function AuthorForm({
           <Textarea
             rows={4}
             value={socialLinksText}
-            className={socialLinksError ? 'border-red-400' : ''}
+            className={socialLinksError ? "border-red-400" : ""}
             onChange={(e) => {
               const next = e.target.value;
               setSocialLinksText(next);
               try {
-                const parsed = JSON.parse(next || '[]');
+                const parsed = JSON.parse(next || "[]");
                 if (!Array.isArray(parsed)) {
-                  setSocialLinksError('Must be a JSON array of {platform, url} objects');
+                  setSocialLinksError(
+                    "Must be a JSON array of {platform, url} objects",
+                  );
                   return;
                 }
                 setSocialLinksError(null);
@@ -236,7 +293,9 @@ function AuthorForm({
             <input
               type="checkbox"
               checked={form.isFounder}
-              onChange={(e) => setForm({ ...form, isFounder: e.target.checked })}
+              onChange={(e) =>
+                setForm({ ...form, isFounder: e.target.checked })
+              }
             />
             <span className="text-sm">Founder</span>
           </label>
@@ -244,7 +303,9 @@ function AuthorForm({
             <input
               type="checkbox"
               checked={form.isTeamMember}
-              onChange={(e) => setForm({ ...form, isTeamMember: e.target.checked })}
+              onChange={(e) =>
+                setForm({ ...form, isTeamMember: e.target.checked })
+              }
             />
             <span className="text-sm">Show on /team</span>
           </label>

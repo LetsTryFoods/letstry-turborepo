@@ -1,8 +1,8 @@
-import Link from 'next/link';
-import Image from 'next/image';
-import { Breadcrumbs } from '@/components/Breadcrumbs';
-import { getCdnUrl } from '@/lib/image-utils';
-import type { Pillar } from '@/lib/pillar';
+import Link from "next/link";
+import Image from "next/image";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { getCdnUrl } from "@/lib/image-utils";
+import type { Pillar } from "@/lib/pillar";
 
 interface PillarRendererProps {
   pillar: Pillar;
@@ -23,35 +23,41 @@ interface PillarRendererProps {
  */
 export function PillarRenderer({ pillar, url }: PillarRendererProps) {
   const breadcrumbSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: url.split('/').slice(0, 3).join('/') },
-      { '@type': 'ListItem', position: 2, name: pillar.title, item: url },
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: url.split("/").slice(0, 3).join("/"),
+      },
+      { "@type": "ListItem", position: 2, name: pillar.title, item: url },
     ],
   };
 
-  const faqSchema = pillar.faqs.length > 0
-    ? {
-        '@context': 'https://schema.org',
-        '@type': 'FAQPage',
-        '@id': `${url}#faq`,
-        mainEntity: pillar.faqs.map((f) => ({
-          '@type': 'Question',
-          name: f.question,
-          acceptedAnswer: { '@type': 'Answer', text: f.answer },
-        })),
-      }
-    : null;
+  const faqSchema =
+    pillar.faqs.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "@id": `${url}#faq`,
+          mainEntity: pillar.faqs.map((f) => ({
+            "@type": "Question",
+            name: f.question,
+            acceptedAnswer: { "@type": "Answer", text: f.answer },
+          })),
+        }
+      : null;
 
   const speakableSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'WebPage',
-    '@id': `${url}#speakable`,
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `${url}#speakable`,
     url,
     speakable: {
-      '@type': 'SpeakableSpecification',
-      cssSelector: ['h1', '[data-speakable="true"]'],
+      "@type": "SpeakableSpecification",
+      cssSelector: ["h1", '[data-speakable="true"]'],
     },
   };
 
@@ -73,7 +79,9 @@ export function PillarRenderer({ pillar, url }: PillarRendererProps) {
       />
       <main className="min-h-screen bg-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
-          <Breadcrumbs crumbs={[{ label: 'Home', href: '/' }, { label: pillar.title }]} />
+          <Breadcrumbs
+            crumbs={[{ label: "Home", href: "/" }, { label: pillar.title }]}
+          />
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             {pillar.title}
           </h1>
@@ -111,8 +119,12 @@ export function PillarRenderer({ pillar, url }: PillarRendererProps) {
                     href={`/${t.categorySlug}`}
                     className="block rounded-2xl border border-gray-200 p-5 hover:border-gray-400 hover:shadow-sm transition"
                   >
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{t.name}</h3>
-                    <p className="text-sm text-gray-600 leading-relaxed">{t.blurb}</p>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      {t.name}
+                    </h3>
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      {t.blurb}
+                    </p>
                     <span className="inline-block mt-3 text-sm font-medium text-[#0C5273]">
                       Shop {t.name} →
                     </span>
@@ -131,7 +143,7 @@ export function PillarRenderer({ pillar, url }: PillarRendererProps) {
                 {s.heading}
               </h2>
               <div
-                {...(s.speakable ? { 'data-speakable': 'true' } : {})}
+                {...(s.speakable ? { "data-speakable": "true" } : {})}
                 className="prose prose-lg max-w-none text-gray-700 leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: s.body }}
               />
@@ -148,7 +160,10 @@ export function PillarRenderer({ pillar, url }: PillarRendererProps) {
               </h2>
               <div className="space-y-5">
                 {pillar.faqs.map((f, i) => (
-                  <div key={i} className="border-b border-gray-200 pb-5 last:border-b-0">
+                  <div
+                    key={i}
+                    className="border-b border-gray-200 pb-5 last:border-b-0"
+                  >
                     <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
                       {f.question}
                     </h3>
@@ -169,7 +184,10 @@ export function PillarRenderer({ pillar, url }: PillarRendererProps) {
               aria-labelledby="related-heading"
               className="mt-12 pt-10 border-t border-gray-200"
             >
-              <h2 id="related-heading" className="text-xl font-semibold text-gray-900 mb-4">
+              <h2
+                id="related-heading"
+                className="text-xl font-semibold text-gray-900 mb-4"
+              >
                 Related pillars
               </h2>
               <div className="flex flex-wrap gap-3">
@@ -179,7 +197,7 @@ export function PillarRenderer({ pillar, url }: PillarRendererProps) {
                     href={`/p/${s}`}
                     className="px-4 py-2 rounded-full border border-gray-200 hover:border-gray-400 text-sm text-gray-800"
                   >
-                    {s.replace(/-/g, ' ')}
+                    {s.replace(/-/g, " ")}
                   </Link>
                 ))}
               </div>

@@ -17,7 +17,7 @@ export class PackerService {
     private readonly packingOrderCrud: PackingOrderCrudService,
     private readonly whatsAppService: WhatsAppService,
     private readonly packingQueueService: PackingQueueService,
-  ) { }
+  ) {}
 
   async createPacker(input: any): Promise<any> {
     const password = this.generateRandomPassword();
@@ -48,7 +48,11 @@ export class PackerService {
   async updatePacker(packerId: string, input: any): Promise<any> {
     const updatedPacker = await this.packerCrud.update(packerId, input);
 
-    if (input.isActive === true || input.status === 'online' || input.status === 'idle') {
+    if (
+      input.isActive === true ||
+      input.status === 'online' ||
+      input.status === 'idle'
+    ) {
       await this.packingQueueService.processReassignment();
     }
 
@@ -65,13 +69,25 @@ export class PackerService {
 
     const packersWithStats = await Promise.all(
       packers.map(async (packer: any) => {
-        const accuracyRate = await this.packerStats.calculateAccuracyRate(packer._id.toString());
-        const averagePackTime = await this.packerStats.calculateAveragePackTime(packer._id.toString());
+        const accuracyRate = await this.packerStats.calculateAccuracyRate(
+          packer._id.toString(),
+        );
+        const averagePackTime = await this.packerStats.calculateAveragePackTime(
+          packer._id.toString(),
+        );
 
-        const orders = await this.packingOrderCrud.findByPacker(packer._id.toString());
-        const assignedOrders = orders.filter((o: any) => o.status === 'assigned').length;
-        const inProgressOrders = orders.filter((o: any) => o.status === 'packing').length;
-        const completedOrders = orders.filter((o: any) => o.status === 'completed').length;
+        const orders = await this.packingOrderCrud.findByPacker(
+          packer._id.toString(),
+        );
+        const assignedOrders = orders.filter(
+          (o: any) => o.status === 'assigned',
+        ).length;
+        const inProgressOrders = orders.filter(
+          (o: any) => o.status === 'packing',
+        ).length;
+        const completedOrders = orders.filter(
+          (o: any) => o.status === 'completed',
+        ).length;
 
         return {
           ...packer.toObject(),
@@ -81,7 +97,7 @@ export class PackerService {
           inProgressOrders,
           completedOrders,
         };
-      })
+      }),
     );
 
     return packersWithStats;
@@ -153,7 +169,8 @@ export class PackerService {
 
   private generateRandomPassword(): string {
     const length = 8;
-    const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const charset =
+      'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let password = '';
     for (let i = 0; i < length; i++) {
       password += charset.charAt(Math.floor(Math.random() * charset.length));

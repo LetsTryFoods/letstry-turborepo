@@ -1,4 +1,14 @@
-import { Resolver, Query, Mutation, Args, ID, Int, ResolveField, Parent, Float } from '@nestjs/graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  ID,
+  Int,
+  ResolveField,
+  Parent,
+  Float,
+} from '@nestjs/graphql';
 import { SkuMasterService } from './sku-master.service';
 import { SkuMaster } from './sku-master.schema';
 import { Roles } from '../common/decorators/roles.decorator';
@@ -65,21 +75,30 @@ export class SkuMasterResolver {
   ) {}
 
   @ResolveField(() => Float, { name: 'sellingPrice', nullable: true })
-  async getSellingPrice(@Parent() skuMaster: SkuMaster): Promise<number | null> {
+  async getSellingPrice(
+    @Parent() skuMaster: SkuMaster,
+  ): Promise<number | null> {
     if (!skuMaster.skuName) return null;
 
     const cleanedSkuName = skuMaster.skuName.trim();
-    const escapedSkuName = cleanedSkuName.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    const escapedSkuName = cleanedSkuName.replace(
+      /[-\/\\^$*+?.()|[\]{}]/g,
+      '\\$&',
+    );
 
     // 1. Exact case-insensitive match on variant name
     try {
-      const product = await this.productModel.findOne({
-        'variants.name': { $regex: new RegExp('^' + escapedSkuName + '$', 'i') }
-      }).exec();
+      const product = await this.productModel
+        .findOne({
+          'variants.name': {
+            $regex: new RegExp('^' + escapedSkuName + '$', 'i'),
+          },
+        })
+        .exec();
 
       if (product) {
         const variant = product.variants.find(
-          (v) => v.name.toLowerCase() === cleanedSkuName.toLowerCase()
+          (v) => v.name.toLowerCase() === cleanedSkuName.toLowerCase(),
         );
         if (variant) return variant.price;
       }
@@ -89,13 +108,19 @@ export class SkuMasterResolver {
 
     // 2. Exact match or includes on SKU code using masterSku numeric ID
     try {
-      const productBySku = await this.productModel.findOne({
-        'variants.sku': { $regex: new RegExp(String(skuMaster.masterSku), 'i') }
-      }).exec();
+      const productBySku = await this.productModel
+        .findOne({
+          'variants.sku': {
+            $regex: new RegExp(String(skuMaster.masterSku), 'i'),
+          },
+        })
+        .exec();
 
       if (productBySku) {
         const variant = productBySku.variants.find((v) =>
-          v.sku.toLowerCase().includes(String(skuMaster.masterSku).toLowerCase())
+          v.sku
+            .toLowerCase()
+            .includes(String(skuMaster.masterSku).toLowerCase()),
         );
         if (variant) return variant.price;
       }
@@ -105,14 +130,17 @@ export class SkuMasterResolver {
 
     // 3. Looser substring matching on variant name
     try {
-      const looserProduct = await this.productModel.findOne({
-        'variants.name': { $regex: new RegExp(escapedSkuName, 'i') }
-      }).exec();
+      const looserProduct = await this.productModel
+        .findOne({
+          'variants.name': { $regex: new RegExp(escapedSkuName, 'i') },
+        })
+        .exec();
 
       if (looserProduct) {
-        const variant = looserProduct.variants.find((v) =>
-          v.name.toLowerCase().includes(cleanedSkuName.toLowerCase()) ||
-          cleanedSkuName.toLowerCase().includes(v.name.toLowerCase())
+        const variant = looserProduct.variants.find(
+          (v) =>
+            v.name.toLowerCase().includes(cleanedSkuName.toLowerCase()) ||
+            cleanedSkuName.toLowerCase().includes(v.name.toLowerCase()),
         );
         if (variant) return variant.price;
       }
@@ -163,7 +191,8 @@ export class SkuMasterResolver {
   @Mutation(() => Int, { name: 'bulkUpsertSkuMasters' })
   @Roles(Role.ADMIN)
   async bulkUpsertSkuMasters(
-    @Args('rows', { type: () => [SkuMasterRowInput] }) rows: SkuMasterRowInput[],
+    @Args('rows', { type: () => [SkuMasterRowInput] })
+    rows: SkuMasterRowInput[],
   ): Promise<number> {
     return this.skuMasterService.bulkUpsert(rows);
   }

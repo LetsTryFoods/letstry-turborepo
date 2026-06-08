@@ -11,17 +11,23 @@ export class ShiprocketMapper {
   mapBookingPayload(data: CreateShipmentData): any {
     const originNameParts = (data.originDetails.name || '').split(' ');
     const originFirstName = originNameParts[0] || '';
-    const originLastName = originNameParts.slice(1).join(' ') || originFirstName;
+    const originLastName =
+      originNameParts.slice(1).join(' ') || originFirstName;
 
     const destNameParts = (data.destinationDetails.name || '').split(' ');
     const destFirstName = destNameParts[0] || '';
     const destLastName = destNameParts.slice(1).join(' ') || destFirstName;
 
     return {
-      order_id: data.orderId || data.orderNumber || Date.now().toString().substring(0, 50),
+      order_id:
+        data.orderId ||
+        data.orderNumber ||
+        Date.now().toString().substring(0, 50),
       order_date: new Date().toISOString().split('T')[0],
-      pickup_location: (data as any).pickupLocationName || this.configService.get<string>('shiprocket.defaultPickupLocation'),
-      
+      pickup_location:
+        (data as any).pickupLocationName ||
+        this.configService.get<string>('shiprocket.defaultPickupLocation'),
+
       billing_customer_name: destFirstName,
       billing_last_name: destLastName,
       billing_address: data.destinationDetails.addressLine1,
@@ -55,7 +61,7 @@ export class ShiprocketMapper {
         },
       ],
 
-      payment_method: (data.codAmount && data.codAmount > 0) ? 'COD' : 'Prepaid',
+      payment_method: data.codAmount && data.codAmount > 0 ? 'COD' : 'Prepaid',
       shipping_charges: 0,
       giftwrap_charges: 0,
       transaction_charges: 0,
@@ -84,7 +90,10 @@ export class ShiprocketMapper {
 
     return {
       statusCode: SHIPROCKET_STATUS_MAP[statusId] || 'ITM',
-      statusDescription: latestActivity?.['sr-status-label'] || trackingData.shipment_status_label || 'In Transit',
+      statusDescription:
+        latestActivity?.['sr-status-label'] ||
+        trackingData.shipment_status_label ||
+        'In Transit',
       location: latestActivity?.location || '',
       timestamp,
       rawActivities: activities,

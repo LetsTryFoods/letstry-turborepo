@@ -1,13 +1,23 @@
-import React, { useState, useRef } from 'react';
-import { View, StyleSheet, Dimensions, TouchableOpacity, Modal, Text } from 'react-native';
-import Carousel from 'react-native-reanimated-carousel';
-import { Image } from 'expo-image';
-import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import ImageViewer from 'react-native-image-zoom-viewer';
-import { wp, hp, getImageUrl, RFValue } from '../../../lib/utils/ui-utils';
+import React, { useState, useRef } from "react";
+import {
+  View,
+  StyleSheet,
+  Dimensions,
+  TouchableOpacity,
+  Modal,
+  Text,
+} from "react-native";
+import Carousel from "react-native-reanimated-carousel";
+import { Image } from "expo-image";
+import {
+  useSafeAreaInsets,
+  SafeAreaView,
+} from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import ImageViewer from "react-native-image-zoom-viewer";
+import { wp, hp, getImageUrl, RFValue } from "../../../lib/utils/ui-utils";
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 interface Props {
   images: { url: string; alt: string }[];
@@ -32,11 +42,11 @@ const ProductImageCarousel: React.FC<Props> = ({ images, onShare }) => {
 
   if (!images || images.length === 0) return null;
 
-  const viewerImages = images.map(img => ({
+  const viewerImages = images.map((img) => ({
     url: getImageUrl(img.url),
     props: {
       // Use Expo Image for caching if possible, or leave default
-    }
+    },
   }));
 
   return (
@@ -44,7 +54,7 @@ const ProductImageCarousel: React.FC<Props> = ({ images, onShare }) => {
       <Carousel
         loop
         width={SCREEN_WIDTH}
-        height={hp('45%')}
+        height={hp("45%")}
         autoPlay={true}
         autoPlayInterval={6000}
         data={images}
@@ -71,7 +81,7 @@ const ProductImageCarousel: React.FC<Props> = ({ images, onShare }) => {
               key={index}
               style={[
                 styles.dot,
-                index === activeIndex ? styles.activeDot : null
+                index === activeIndex ? styles.activeDot : null,
               ]}
             />
           ))}
@@ -126,30 +136,30 @@ const ProductImageCarousel: React.FC<Props> = ({ images, onShare }) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     paddingBottom: 25,
   },
   imageWrapper: {
     width: SCREEN_WIDTH,
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
   },
   image: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
   },
   pagination: {
-    flexDirection: 'row',
-    position: 'absolute',
+    flexDirection: "row",
+    position: "absolute",
     bottom: 5,
-    alignSelf: 'center',
+    alignSelf: "center",
   },
   dot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#0C5273',
+    backgroundColor: "#0C5273",
     marginHorizontal: 4,
     opacity: 0.3,
   },
@@ -158,52 +168,52 @@ const styles = StyleSheet.create({
     width: 14,
   },
   modalHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     height: 50,
-    position: 'absolute',
+    position: "absolute",
     top: 50, // Added top margin to account for translucent status bar
     left: 0,
     right: 0,
     zIndex: 10,
   },
   modalCounter: {
-    color: '#000',
+    color: "#000",
     fontSize: RFValue(14),
-    fontWeight: '700',
+    fontWeight: "700",
   },
   closeButtonWrapper: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 50, // Position at the bottom
     left: 0,
     right: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     zIndex: 100, // Ensure it's above the image viewer
     elevation: 10,
   },
   closeButton: {
     width: 50,
     height: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.1)', // Slightly darker for visibility
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.1)", // Slightly darker for visibility
     borderRadius: 25,
   },
   shareButton: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 25,
     right: 20,
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#FFFFFF',
-    borderColor: '#EEEEEE',
+    backgroundColor: "#FFFFFF",
+    borderColor: "#EEEEEE",
     borderWidth: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 6,

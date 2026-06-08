@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { gql } from "@apollo/client";
 
 export const INITIATE_PAYMENT = gql`
   mutation InitiatePayment($input: InitiatePaymentInput!) {

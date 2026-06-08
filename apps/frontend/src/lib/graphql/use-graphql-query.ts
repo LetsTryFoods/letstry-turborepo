@@ -1,14 +1,18 @@
 "use client";
 
-import { useQuery, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
-import { graphqlClient } from './client-factory';
-import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
+import {
+  useQuery,
+  UseQueryOptions,
+  UseQueryResult,
+} from "@tanstack/react-query";
+import { graphqlClient } from "./client-factory";
+import type { TypedDocumentNode } from "@graphql-typed-document-node/core";
 
 export function useGraphQLQuery<TResult, TVariables extends object = object>(
   queryKey: unknown[],
   document: TypedDocumentNode<TResult, TVariables> | string,
   variables?: TVariables,
-  options?: Omit<UseQueryOptions<TResult, Error>, 'queryKey' | 'queryFn'>
+  options?: Omit<UseQueryOptions<TResult, Error>, "queryKey" | "queryFn">,
 ): UseQueryResult<TResult, Error> {
   const fullQueryKey = [...queryKey, variables];
 

@@ -5,7 +5,7 @@ import { Public } from '../common/decorators/public.decorator';
 
 @Resolver()
 export class PincodeResolver {
-  constructor(private readonly pincodeService: PincodeService) { }
+  constructor(private readonly pincodeService: PincodeService) {}
 
   @Public()
   @Query(() => PincodeServiceabilityResult)

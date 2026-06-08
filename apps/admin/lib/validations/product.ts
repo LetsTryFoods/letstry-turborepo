@@ -20,20 +20,12 @@ export const variantFormSchema = z
       .max(100, "Discount cannot exceed 100%")
       .default(0),
     discountSource: z.string().default("product"),
-    weight: z.coerce
-      .number()
-      .min(0, "Weight cannot be negative"),
+    weight: z.coerce.number().min(0, "Weight cannot be negative"),
     weightUnit: z.string().default("g"),
     packageSize: z.string().min(1, "Package size is required"),
-    length: z.coerce
-      .number()
-      .min(0, "Length cannot be negative"),
-    height: z.coerce
-      .number()
-      .min(0, "Height cannot be negative"),
-    breadth: z.coerce
-      .number()
-      .min(0, "Breadth cannot be negative"),
+    length: z.coerce.number().min(0, "Length cannot be negative"),
+    height: z.coerce.number().min(0, "Height cannot be negative"),
+    breadth: z.coerce.number().min(0, "Breadth cannot be negative"),
     stockQuantity: z.coerce
       .number()
       .int("Stock must be a whole number")
@@ -48,7 +40,7 @@ export const variantFormSchema = z
           preview: z.string(),
           url: z.string().optional(),
           finalUrl: z.string().optional(),
-        })
+        }),
       )
       .default([]),
     thumbnailUrl: z.string().default(""),
@@ -89,7 +81,7 @@ export type ProductFormValues = z.infer<typeof productFormSchema>;
 
 // Default variant template
 export const getDefaultVariant = (
-  productName: string = ""
+  productName: string = "",
 ): VariantFormValues => ({
   sku: "",
   name: productName ? `${productName} - Default` : "Default Variant",

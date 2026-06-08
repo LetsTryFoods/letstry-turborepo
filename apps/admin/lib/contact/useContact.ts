@@ -1,29 +1,39 @@
-import { useQuery, useMutation } from "@apollo/client/react"
-import { GET_CONTACT_MESSAGES, UPDATE_CONTACT_STATUS, DELETE_CONTACT_MESSAGE } from "../graphql/contact"
+import { useQuery, useMutation } from "@apollo/client/react";
+import {
+  GET_CONTACT_MESSAGES,
+  UPDATE_CONTACT_STATUS,
+  DELETE_CONTACT_MESSAGE,
+} from "../graphql/contact";
 
 // Types
-export type ContactStatus = "PENDING" | "REVIEWED" | "RESOLVED"
-export type ContactType = "GENERAL" | "ORDER_ISSUE" | "PRODUCT_INQUIRY" | "COMPLAINT" | "FEEDBACK" | "RETURN_REQUEST"
-export type ContactPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT"
+export type ContactStatus = "PENDING" | "REVIEWED" | "RESOLVED";
+export type ContactType =
+  | "GENERAL"
+  | "ORDER_ISSUE"
+  | "PRODUCT_INQUIRY"
+  | "COMPLAINT"
+  | "FEEDBACK"
+  | "RETURN_REQUEST";
+export type ContactPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
 export interface ContactQuery {
-  _id: string
-  name: string
-  phone: string
-  message: string
-  status: ContactStatus
-  createdAt: string
-  updatedAt: string
+  _id: string;
+  name: string;
+  phone: string;
+  message: string;
+  status: ContactStatus;
+  createdAt: string;
+  updatedAt: string;
 
   // Optional fields just for type safety from the UI
-  email?: string
-  subject?: string
-  type?: ContactType
-  queryType?: string
-  priority?: ContactPriority
-  orderId?: string
-  replies?: any[]
-  assignedTo?: string
-  resolvedAt?: string
+  email?: string;
+  subject?: string;
+  type?: ContactType;
+  queryType?: string;
+  priority?: ContactPriority;
+  orderId?: string;
+  replies?: any[];
+  assignedTo?: string;
+  resolvedAt?: string;
 }
 
 interface GetContactMessagesResponse {
@@ -38,14 +48,14 @@ export const statusLabels: Record<ContactStatus | string, string> = {
   PENDING: "Pending",
   REVIEWED: "Reviewed",
   RESOLVED: "Resolved",
-}
+};
 
 export const priorityLabels: Record<string, string> = {
   LOW: "Low",
   MEDIUM: "Medium",
   HIGH: "High",
-  URGENT: "Urgent"
-}
+  URGENT: "Urgent",
+};
 
 export const typeLabels: Record<string, string> = {
   GENERAL: "General Inquiry",
@@ -53,8 +63,8 @@ export const typeLabels: Record<string, string> = {
   PRODUCT_INQUIRY: "Product Inquiry",
   COMPLAINT: "Complaint",
   FEEDBACK: "Feedback",
-  RETURN_REQUEST: "Return Request"
-}
+  RETURN_REQUEST: "Return Request",
+};
 
 // Stats helper
 export function getContactStats(queries: ContactQuery[]) {
@@ -66,92 +76,98 @@ export function getContactStats(queries: ContactQuery[]) {
     closed: 0,
     byType: {} as Record<string, number>,
     byPriority: {} as Record<string, number>,
-    avgResponseTime: "N/A"
-  }
+    avgResponseTime: "N/A",
+  };
 
-  queries.forEach(query => {
+  queries.forEach((query) => {
     // Status counts
-    if (query.status === "PENDING") stats.new++
-    else if (query.status === "REVIEWED") stats.inProgress++
-    else if (query.status === "RESOLVED") stats.resolved++
+    if (query.status === "PENDING") stats.new++;
+    else if (query.status === "REVIEWED") stats.inProgress++;
+    else if (query.status === "RESOLVED") stats.resolved++;
 
     // Type counts
-    const type = query.queryType || query.type
+    const type = query.queryType || query.type;
     if (type) {
-      stats.byType[type] = (stats.byType[type] || 0) + 1
+      stats.byType[type] = (stats.byType[type] || 0) + 1;
     }
-  })
+  });
 
-  return stats
+  return stats;
 }
 
 // Hooks
-export function useContactQueries(page: number = 1, limit: number = 50, queryType?: string) {
+export function useContactQueries(
+  page: number = 1,
+  limit: number = 50,
+  queryType?: string,
+) {
   const skip = (page - 1) * limit;
-  const { data, loading, error, refetch } = useQuery<GetContactMessagesResponse>(
-    GET_CONTACT_MESSAGES,
-    { 
-      variables: { skip, limit, queryType }, 
-      fetchPolicy: 'network-only',
-      notifyOnNetworkStatusChange: true 
-    }
-  );
+  const { data, loading, error, refetch } =
+    useQuery<GetContactMessagesResponse>(GET_CONTACT_MESSAGES, {
+      variables: { skip, limit, queryType },
+      fetchPolicy: "network-only",
+      notifyOnNetworkStatusChange: true,
+    });
 
-  return { 
-    queries: data?.getContactMessages?.data || [], 
+  return {
+    queries: data?.getContactMessages?.data || [],
     total: data?.getContactMessages?.total || 0,
-    loading, 
-    refetch 
-  }
+    loading,
+    refetch,
+  };
 }
 
 export function useUpdateContactStatus() {
-  const [updateContactStatusMutation, { loading }] = useMutation(UPDATE_CONTACT_STATUS)
+  const [updateContactStatusMutation, { loading }] = useMutation(
+    UPDATE_CONTACT_STATUS,
+  );
 
   const updateStatus = async (id: string, status: ContactStatus | string) => {
     try {
-      await updateContactStatusMutation({ variables: { id, status } })
-      return true
+      await updateContactStatusMutation({ variables: { id, status } });
+      return true;
     } catch (e) {
-      console.error(e)
-      return false
+      console.error(e);
+      return false;
     }
-  }
-  return { updateStatus, loading }
+  };
+  return { updateStatus, loading };
 }
 
 export function useUpdateContactPriority() {
   const updatePriority = async (id: string, priority: ContactPriority) => {
-    return true
-  }
-  return { updatePriority, loading: false }
+    return true;
+  };
+  return { updatePriority, loading: false };
 }
 
 export function useReplyToContact() {
   const reply = async (id: string, data: any) => {
-    return true
-  }
-  return { reply, loading: false }
+    return true;
+  };
+  return { reply, loading: false };
 }
 
 export function useAssignContact() {
   const assign = async (id: string, assignedTo: string) => {
-    return true
-  }
-  return { assign, loading: false }
+    return true;
+  };
+  return { assign, loading: false };
 }
 
 export function useDeleteContact() {
-  const [deleteContactMutation, { loading }] = useMutation(DELETE_CONTACT_MESSAGE)
+  const [deleteContactMutation, { loading }] = useMutation(
+    DELETE_CONTACT_MESSAGE,
+  );
 
   const deleteContact = async (id: string) => {
     try {
-      await deleteContactMutation({ variables: { id } })
-      return true
+      await deleteContactMutation({ variables: { id } });
+      return true;
     } catch (e) {
-      console.error(e)
-      return false
+      console.error(e);
+      return false;
     }
-  }
-  return { deleteContact, loading }
+  };
+  return { deleteContact, loading };
 }

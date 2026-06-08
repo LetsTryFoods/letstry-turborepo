@@ -13,6 +13,8 @@ import {
   ARCHIVE_PRODUCT,
   UNARCHIVE_PRODUCT,
   UPDATE_PRODUCT_STOCK,
+  UPDATE_PRODUCT_VARIANT_STOCK,
+  ZERO_ALL_PRODUCT_STOCK,
 } from "@/lib/graphql/products";
 
 export interface ProductImage {
@@ -75,10 +77,23 @@ export interface ProductSeo {
 }
 
 // Sprint 4 — rich content sub-types.
-export interface ProductHighlight { text: string; }
-export interface ProductCertification { name: string; number?: string; iconUrl?: string; }
-export interface LifestyleImage { url: string; alt: string; caption?: string; }
-export interface ProductFaqEntry { question: string; answer: string; }
+export interface ProductHighlight {
+  text: string;
+}
+export interface ProductCertification {
+  name: string;
+  number?: string;
+  iconUrl?: string;
+}
+export interface LifestyleImage {
+  url: string;
+  alt: string;
+  caption?: string;
+}
+export interface ProductFaqEntry {
+  question: string;
+  answer: string;
+}
 export interface ProductNutrition {
   servingSize?: string;
   servingsPerPack?: string;
@@ -261,7 +276,7 @@ export interface UpdateProductInput {
 export const useProducts = (
   pagination: PaginationInput = { page: 1, limit: 10 },
   includeOutOfStock: boolean = false,
-  includeArchived: boolean = false
+  includeArchived: boolean = false,
 ) => {
   return useQuery(GET_PRODUCTS, {
     variables: { pagination, includeOutOfStock, includeArchived },
@@ -272,7 +287,7 @@ export const useProducts = (
 // Products query for SEO page - includes SEO field embedded in product
 export const useProductsForSeo = (
   pagination: PaginationInput = { page: 1, limit: 10 },
-  includeOutOfStock: boolean = false
+  includeOutOfStock: boolean = false,
 ) => {
   return useQuery(GET_PRODUCTS_FOR_SEO, {
     variables: { pagination, includeOutOfStock },
@@ -316,7 +331,7 @@ export const useUpdateProductSeo = () => {
 
   const updateProductSeo = async (
     productId: string,
-    seoInput: ProductSeoInput
+    seoInput: ProductSeoInput,
   ) => {
     return mutate({
       variables: {
@@ -347,7 +362,7 @@ export const useProductBySlug = (slug: string) => {
 
 export const useProductsByCategory = (
   categoryId: string,
-  pagination: PaginationInput = { page: 1, limit: 10 }
+  pagination: PaginationInput = { page: 1, limit: 10 },
 ) => {
   return useQuery(GET_PRODUCTS_BY_CATEGORY, {
     variables: { categoryId, pagination },
@@ -358,10 +373,10 @@ export const useProductsByCategory = (
 
 export const useSearchProducts = (
   searchTerm: string,
-  pagination: PaginationInput = { page: 1, limit: 10 }
+  pagination: PaginationInput = { page: 1, limit: 10 },
 ) => {
   return useQuery(SEARCH_PRODUCTS, {
-    variables: { searchTerm, pagination },
+    variables: { searchTerm, pagination, includeArchived: true },
     skip: !searchTerm,
     fetchPolicy: "cache-and-network",
   });
@@ -485,4 +500,43 @@ export const useUpdateProductStock = () => {
   });
 
   return { mutate, loading, error };
+};
+
+export const useUpdateProductVariantStock = () => {
+  const [mutate, { loading, error }] = useMutation(
+    UPDATE_PRODUCT_VARIANT_STOCK,
+    {
+      refetchQueries: ["GetProducts"],
+      onError: (error: any) => {
+        console.error("Update product variant stock error:", error);
+      },
+    },
+  );
+
+  const updateVariantStock = async (
+    productId: string,
+    variantId: string,
+    quantity: number,
+  ) => {
+    return mutate({
+      variables: { productId, variantId, quantity },
+    });
+  };
+
+  return { updateVariantStock, loading, error };
+};
+
+export const useZeroAllProductStock = () => {
+  const [mutate, { loading, error }] = useMutation(ZERO_ALL_PRODUCT_STOCK, {
+    refetchQueries: ["GetProducts", "GetAllProductsStock"],
+    onError: (error: any) => {
+      console.error("Zero all product stock error:", error);
+    },
+  });
+
+  const zeroAllStock = async () => {
+    return mutate();
+  };
+
+  return { zeroAllStock, loading, error };
 };

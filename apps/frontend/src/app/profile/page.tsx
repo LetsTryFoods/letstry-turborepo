@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { ProfileSidebar } from "@/components/profile/profile-sidebar";
 import { ProfileInfo } from "@/components/profile/profile-info";
-import { useAuth } from '@/providers/auth-provider';
+import { useAuth } from "@/providers/auth-provider";
 
 export default function ProfilePage() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -12,7 +12,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.push('/');
+      router.push("/");
     }
   }, [isAuthenticated, isLoading, router]);
 

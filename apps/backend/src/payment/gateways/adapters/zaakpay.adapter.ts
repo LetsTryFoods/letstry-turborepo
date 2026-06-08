@@ -16,7 +16,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class ZaakpayAdapter implements PaymentGatewayProvider {
-  constructor(private readonly zaakpayGateway: ZaakpayGatewayService) { }
+  constructor(private readonly zaakpayGateway: ZaakpayGatewayService) {}
 
   async initiatePayment(
     params: InitiatePaymentParams,

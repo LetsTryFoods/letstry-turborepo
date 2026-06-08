@@ -1,6 +1,8 @@
-import type { Metadata } from 'next';
+import type { Metadata } from "next";
 
-const SITE_URL = (process.env.NEXT_PUBLIC_BASE_URL || 'https://letstryfoods.com').replace(/\/$/, '');
+const SITE_URL = (
+  process.env.NEXT_PUBLIC_BASE_URL || "https://letstryfoods.com"
+).replace(/\/$/, "");
 
 const TITLE = "Contact Let's Try Foods – Customer Care, Delhi";
 const DESCRIPTION =
@@ -14,16 +16,20 @@ export const metadata: Metadata = {
     title: TITLE,
     description: DESCRIPTION,
     url: `${SITE_URL}/contact-us`,
-    type: 'website',
+    type: "website",
     siteName: "Let's Try Foods",
   },
   twitter: {
-    card: 'summary_large_image',
+    card: "summary_large_image",
     title: TITLE,
     description: DESCRIPTION,
   },
 };
 
-export default function ContactUsLayout({ children }: { children: React.ReactNode }) {
+export default function ContactUsLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return <>{children}</>;
 }

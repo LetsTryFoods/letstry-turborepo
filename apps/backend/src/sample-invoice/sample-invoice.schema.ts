@@ -97,6 +97,10 @@ export class SampleInvoice {
 
   @Field()
   updatedAt: Date;
+
+  @Prop({ type: Boolean, default: true })
+  @Field(() => Boolean, { defaultValue: true })
+  isComplimentary: boolean;
 }
 
 export const SampleInvoiceSchema = SchemaFactory.createForClass(SampleInvoice);

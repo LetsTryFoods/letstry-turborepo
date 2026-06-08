@@ -22,34 +22,31 @@ const VERIFY_OTP_AND_LOGIN_MUTATION = `
 
 export async function verifyOtpAndLogin(
   idToken: string,
-  userInput?: Partial<CreateUserInput>
+  userInput?: Partial<CreateUserInput>,
 ): Promise<{ success: boolean; token?: string; error?: string }> {
   try {
     const input: CreateUserInput | undefined = userInput
       ? {
-        phoneNumber: userInput.phoneNumber || "",
-        firebaseUid: userInput.firebaseUid || "",
-        firstName: userInput.firstName,
-        lastName: userInput.lastName,
-        email: userInput.email,
-        marketingSmsOptIn: userInput.marketingSmsOptIn,
-        signupSource: userInput.signupSource,
-        lastIp: userInput.lastIp,
-      }
+          phoneNumber: userInput.phoneNumber || "",
+          firebaseUid: userInput.firebaseUid || "",
+          firstName: userInput.firstName,
+          lastName: userInput.lastName,
+          email: userInput.email,
+          marketingSmsOptIn: userInput.marketingSmsOptIn,
+          signupSource: userInput.signupSource,
+          lastIp: userInput.lastIp,
+        }
       : undefined;
 
-    const data = await graphqlClient.request(
-      VERIFY_OTP_AND_LOGIN_MUTATION,
-      {
-        idToken,
-        input,
-      }
-    ) as { verifyOtpAndLogin: string };
+    const data = (await graphqlClient.request(VERIFY_OTP_AND_LOGIN_MUTATION, {
+      idToken,
+      input,
+    })) as { verifyOtpAndLogin: string };
 
-    StorageService.removeStorageItem('guestId');
-    StorageService.removeStorageItem('guestDbId');
-    StorageService.removeStorageItem('sessionId');
-    StorageService.removeStorageItem('lastActiveUpdate');
+    StorageService.removeStorageItem("guestId");
+    StorageService.removeStorageItem("guestDbId");
+    StorageService.removeStorageItem("sessionId");
+    StorageService.removeStorageItem("lastActiveUpdate");
 
     return {
       success: true,
@@ -59,7 +56,10 @@ export async function verifyOtpAndLogin(
     console.error("GraphQL verifyOtpAndLogin error:", error);
     return {
       success: false,
-      error: error.response?.errors?.[0]?.message || error.message || "Failed to verify OTP with backend",
+      error:
+        error.response?.errors?.[0]?.message ||
+        error.message ||
+        "Failed to verify OTP with backend",
     };
   }
 }

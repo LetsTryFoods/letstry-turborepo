@@ -5,6 +5,7 @@ import { ProductSeoService } from './product-seo.service';
 import { ProductResolver } from './product.resolver';
 import { Product, ProductSchema } from './product.schema';
 import { ProductSeo, ProductSeoSchema } from './product-seo.schema';
+import { DeletedProduct, DeletedProductSchema } from './deleted-product.schema';
 import { LoggerModule } from '../logger/logger.module';
 import { CategoryModule } from '../category/category.module';
 import { InventoryLog, InventoryLogSchema } from './inventory-log.schema';
@@ -15,19 +16,23 @@ import { InventoryService } from './services/inventory.service';
     MongooseModule.forFeature([
       { name: Product.name, schema: ProductSchema },
       { name: ProductSeo.name, schema: ProductSeoSchema },
+      { name: DeletedProduct.name, schema: DeletedProductSchema },
       { name: InventoryLog.name, schema: InventoryLogSchema },
     ]),
     LoggerModule,
     forwardRef(() => CategoryModule),
   ],
-  providers: [ProductService, ProductSeoService, ProductResolver, InventoryService],
+  providers: [
+    ProductService,
+    ProductSeoService,
+    ProductResolver,
+    InventoryService,
+  ],
   exports: [
     ProductService,
     ProductSeoService,
     InventoryService,
-    MongooseModule.forFeature([
-      { name: Product.name, schema: ProductSchema },
-    ]),
+    MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
   ],
 })
-export class ProductModule { }
+export class ProductModule {}

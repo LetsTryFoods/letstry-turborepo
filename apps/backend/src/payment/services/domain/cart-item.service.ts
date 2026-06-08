@@ -69,7 +69,8 @@ export class CartItemService {
       unitPrice: variant.price,
       totalPrice: variant.price * quantity,
       mrp: variant.mrp,
-      imageUrl: variant.images?.[0]?.url || product.variants?.[0]?.images?.[0]?.url,
+      imageUrl:
+        variant.images?.[0]?.url || product.variants?.[0]?.images?.[0]?.url,
     };
   }
 }

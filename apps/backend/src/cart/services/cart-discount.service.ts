@@ -34,7 +34,12 @@ export class CartDiscountService {
     }
 
     try {
-      return await this.calculateDiscount(subtotal, items, couponCode, userAgent);
+      return await this.calculateDiscount(
+        subtotal,
+        items,
+        couponCode,
+        userAgent,
+      );
     } catch (error) {
       this.logger.warn(
         `Coupon ${couponCode} became invalid: ${error.message}`,

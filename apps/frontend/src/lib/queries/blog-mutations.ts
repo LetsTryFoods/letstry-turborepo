@@ -1,4 +1,4 @@
-import { graphql } from '@/gql';
+import { graphql } from "@/gql";
 
 export const CREATE_BLOG = graphql(`
   mutation CreateBlog($input: CreateBlogInput!) {
@@ -6,7 +6,7 @@ export const CREATE_BLOG = graphql(`
       _id
       slug
       title
-      excerpt 
+      excerpt
       content
       image
       date

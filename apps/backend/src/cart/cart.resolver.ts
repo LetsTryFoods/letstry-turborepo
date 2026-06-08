@@ -2,7 +2,11 @@ import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { Cart } from './cart.schema';
-import { AddToCartInput, UpdateCartItemInput, SetShippingAddressInput } from './cart.input';
+import {
+  AddToCartInput,
+  UpdateCartItemInput,
+  SetShippingAddressInput,
+} from './cart.input';
 import { Public } from '../common/decorators/public.decorator';
 import { DualAuthGuard } from '../authentication/common/dual-auth.guard';
 import { OptionalUser } from '../common/decorators/optional-user.decorator';

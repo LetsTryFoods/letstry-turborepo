@@ -16,7 +16,8 @@ import { ShipmentLoggerService } from './shipment-logger.service';
 export class DtdcApiService {
   private readonly logger = new Logger(DtdcApiService.name);
   private readonly axiosInstance: AxiosInstance;
-  private trackingTokenCache: { token: string; expiresAt: number } | null = null;
+  private trackingTokenCache: { token: string; expiresAt: number } | null =
+    null;
 
   constructor(
     @InjectModel(DtdcApiLog.name)
@@ -42,7 +43,8 @@ export class DtdcApiService {
 
   private getBaseUrl(): string {
     const env = this.getEnv();
-    const baseUrls = this.configService.get<Record<string, string>>('dtdc.baseUrls') || {};
+    const baseUrls =
+      this.configService.get<Record<string, string>>('dtdc.baseUrls') || {};
     return baseUrls[env] || baseUrls['staging'];
   }
 
@@ -55,20 +57,27 @@ export class DtdcApiService {
   }
 
   private getEndpoint(endpoint: string): string {
-    const endpoints = this.configService.get<Record<string, string>>('dtdc.endpoints') || {};
+    const endpoints =
+      this.configService.get<Record<string, string>>('dtdc.endpoints') || {};
     return endpoints[endpoint] || '';
   }
 
-  async bookShipment(payload: DtdcBookingPayload): Promise<DtdcBookingResponse> {
+  async bookShipment(
+    payload: DtdcBookingPayload,
+  ): Promise<DtdcBookingResponse> {
     const url = this.getFullUrl('bookingApi');
     const startTime = Date.now();
 
     try {
-      const response = await this.axiosInstance.post<DtdcBookingResponse>(url, payload, {
-        headers: {
-          'api-key': this.getApiKey(),
+      const response = await this.axiosInstance.post<DtdcBookingResponse>(
+        url,
+        payload,
+        {
+          headers: {
+            'api-key': this.getApiKey(),
+          },
         },
-      });
+      );
 
       await this.logApiCall({
         apiType: 'BOOKING',
@@ -109,7 +118,9 @@ export class DtdcApiService {
         responseType: 'arraybuffer',
       });
 
-      const base64Label = Buffer.from(response.data, 'binary').toString('base64');
+      const base64Label = Buffer.from(response.data, 'binary').toString(
+        'base64',
+      );
       const labelUrl = `data:application/pdf;base64,${base64Label}`;
 
       await this.logApiCall({
@@ -141,9 +152,13 @@ export class DtdcApiService {
     }
   }
 
-  async cancelShipment(awbNumbers: string[], shipmentId?: string): Promise<any> {
+  async cancelShipment(
+    awbNumbers: string[],
+    shipmentId?: string,
+  ): Promise<any> {
     const url = this.getFullUrl('cancelApi');
-    const customerCode = this.configService.get<string>('DTDC_CUSTOMER_CODE') || '';
+    const customerCode =
+      this.configService.get<string>('DTDC_CUSTOMER_CODE') || '';
     const startTime = Date.now();
 
     const payload: DtdcCancelPayload = {
@@ -187,7 +202,10 @@ export class DtdcApiService {
     }
   }
 
-  async checkPincode(originPincode: string, destinationPincode: string): Promise<boolean> {
+  async checkPincode(
+    originPincode: string,
+    destinationPincode: string,
+  ): Promise<boolean> {
     const url = this.getFullUrl('pincodeApi');
     const startTime = Date.now();
 
@@ -236,18 +254,26 @@ export class DtdcApiService {
 
   async trackShipment(awbNumber: string): Promise<DtdcTrackingResponse | null> {
     const token = await this.getTrackingToken();
-    const trackingBase = this.configService.get<string>('dtdc.tracking.baseUrl') || 'https://blktracksvc.dtdc.com/dtdc-api';
-    const trackPath = this.configService.get<string>('dtdc.tracking.trackPath') || '/rest/JSONCnTrk/getTrackDetails';
+    const trackingBase =
+      this.configService.get<string>('dtdc.tracking.baseUrl') ||
+      'https://blktracksvc.dtdc.com/dtdc-api';
+    const trackPath =
+      this.configService.get<string>('dtdc.tracking.trackPath') ||
+      '/rest/JSONCnTrk/getTrackDetails';
     const url = trackingBase + trackPath;
     const startTime = Date.now();
     const payload = { trkType: 'cnno', strcnno: awbNumber, addtnlDtl: 'Y' };
 
     try {
-      const response = await this.axiosInstance.post<DtdcTrackingResponse>(url, payload, {
-        headers: {
-          'x-access-token': token,
+      const response = await this.axiosInstance.post<DtdcTrackingResponse>(
+        url,
+        payload,
+        {
+          headers: {
+            'x-access-token': token,
+          },
         },
-      });
+      );
 
       await this.logApiCall({
         apiType: 'TRACKING',
@@ -282,14 +308,23 @@ export class DtdcApiService {
       return staticToken;
     }
 
-    if (this.trackingTokenCache && this.trackingTokenCache.expiresAt > Date.now()) {
+    if (
+      this.trackingTokenCache &&
+      this.trackingTokenCache.expiresAt > Date.now()
+    ) {
       return this.trackingTokenCache.token;
     }
 
-    const trackingBase = this.configService.get<string>('dtdc.tracking.baseUrl') || 'https://blktracksvc.dtdc.com/dtdc-api';
-    const tokenPath = this.configService.get<string>('dtdc.tracking.tokenPath') || '/api/dtdc/authenticate';
-    const username = this.configService.get<string>('DTDC_TRACKING_USERNAME') || '';
-    const password = this.configService.get<string>('DTDC_TRACKING_PASSWORD') || '';
+    const trackingBase =
+      this.configService.get<string>('dtdc.tracking.baseUrl') ||
+      'https://blktracksvc.dtdc.com/dtdc-api';
+    const tokenPath =
+      this.configService.get<string>('dtdc.tracking.tokenPath') ||
+      '/api/dtdc/authenticate';
+    const username =
+      this.configService.get<string>('DTDC_TRACKING_USERNAME') || '';
+    const password =
+      this.configService.get<string>('DTDC_TRACKING_PASSWORD') || '';
     const url = `${trackingBase}${tokenPath}?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
 
     try {
@@ -324,9 +359,23 @@ export class DtdcApiService {
       const logMessage = `DTDC API call | URL: ${data.url || 'N/A'} | Request: ${requestStr}`;
 
       if (!data.success) {
-        this.shipmentLogger.logApiError(logMessage, 'POST', data.error || 'Unknown Error', data.duration, 'DTDC', data.response);
+        this.shipmentLogger.logApiError(
+          logMessage,
+          'POST',
+          data.error || 'Unknown Error',
+          data.duration,
+          'DTDC',
+          data.response,
+        );
       } else {
-        this.shipmentLogger.logApiCall(logMessage, 'POST', data.statusCode || 200, data.duration, 'DTDC', data.response);
+        this.shipmentLogger.logApiCall(
+          logMessage,
+          'POST',
+          data.statusCode || 200,
+          data.duration,
+          'DTDC',
+          data.response,
+        );
       }
 
       await this.apiLogModel.create({

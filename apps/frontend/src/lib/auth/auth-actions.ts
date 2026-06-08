@@ -28,11 +28,9 @@ export async function setAuthTokens(
   userData?: {
     phoneNumber: string;
     firebaseUid: string;
-  }
+  },
 ): Promise<BackendAuthResponse> {
   try {
- 
-
     return {
       success: true,
       data: {
@@ -53,12 +51,13 @@ export async function setAuthTokens(
 export async function refreshAuthToken(): Promise<BackendAuthResponse> {
   try {
     const refreshToken = await getRefreshCookie();
-    
+
     if (!refreshToken) {
       throw new Error("No refresh token available");
     }
 
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || process.env.BACKEND_API_URL;
+    const backendUrl =
+      process.env.NEXT_PUBLIC_API_URL || process.env.BACKEND_API_URL;
 
     const response = await fetch(`${backendUrl}/auth/refresh`, {
       method: "POST",
@@ -114,7 +113,7 @@ export async function setGuestModeAction() {
 
 export async function getCurrentUser() {
   const token = await getAuthCookie();
-  
+
   if (!token) {
     return null;
   }

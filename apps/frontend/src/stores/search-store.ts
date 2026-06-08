@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
 interface SearchStore {
   // --- Overlay open/close ---
@@ -20,6 +20,6 @@ export const useSearchStore = create<SearchStore>((set) => ({
   toggleSearch: () => set((state) => ({ isOpen: !state.isOpen })),
 
   // Search term — starts empty; initialised from URL on first mount by SearchContent
-  searchTerm: '',
+  searchTerm: "",
   setSearchTerm: (term) => set({ searchTerm: term }),
 }));

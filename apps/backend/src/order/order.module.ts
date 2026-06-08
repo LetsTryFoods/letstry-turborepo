@@ -10,8 +10,14 @@ import { OrderRepository } from './services/order.repository';
 import { OrderQueryService } from './services/order.query-service';
 import { OrderCommandService } from './services/order.command-service';
 import { OrderItemService } from './services/order.item-service';
-import { PaymentOrder, PaymentOrderSchema, PaymentEvent, PaymentEventSchema } from '../payment/entities/payment.schema';
-import { Address, AddressSchema } from '../address/address.schema'; import { PackingModule } from '../packing/packing.module';
+import {
+  PaymentOrder,
+  PaymentOrderSchema,
+  PaymentEvent,
+  PaymentEventSchema,
+} from '../payment/entities/payment.schema';
+import { Address, AddressSchema } from '../address/address.schema';
+import { PackingModule } from '../packing/packing.module';
 import { OrderController } from './order.controller';
 import { InvoiceService } from './services/invoice.service';
 import { ShipmentModule } from '../shipment/shipment.module';
@@ -42,4 +48,4 @@ import { ShipmentModule } from '../shipment/shipment.module';
   ],
   exports: [OrderService, OrderCartLoggerService, OrderRepository],
 })
-export class OrderModule { }
+export class OrderModule {}

@@ -35,7 +35,9 @@ export const CategoryProductSection: React.FC<CategoryProductSectionProps> = ({
     return null;
   }
 
-  const sanitizedBase = categoryName.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+  const sanitizedBase = categoryName
+    .replace(/[^a-zA-Z0-9]/g, "-")
+    .toLowerCase();
   const prevId = `swiper-prev-${sanitizedBase}`;
   const nextId = `swiper-next-${sanitizedBase}`;
 
@@ -71,7 +73,10 @@ export const CategoryProductSection: React.FC<CategoryProductSectionProps> = ({
         >
           {products.slice(0, 10).map((product) => (
             <SwiperSlide key={product._id} className="h-auto">
-              <CategoryProductCard product={product} categorySlug={categorySlug} />
+              <CategoryProductCard
+                product={product}
+                categorySlug={categorySlug}
+              />
             </SwiperSlide>
           ))}
         </Swiper>

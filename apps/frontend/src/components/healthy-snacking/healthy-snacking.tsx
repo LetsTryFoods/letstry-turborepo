@@ -24,7 +24,7 @@ export const HealthySnacking = () => {
       stopOnInteraction: false,
       stopOnMouseEnter: true,
       playOnInit: true,
-    })
+    }),
   );
 
   const onSelect = useCallback((api: CarouselApi) => {
@@ -32,17 +32,21 @@ export const HealthySnacking = () => {
     setCurrentIndex(api.selectedScrollSnap());
   }, []);
 
-  const setApi = useCallback((api: CarouselApi) => {
-    if (!api) return;
-    api.on("select", () => onSelect(api));
-    onSelect(api);
-  }, [onSelect]);
+  const setApi = useCallback(
+    (api: CarouselApi) => {
+      if (!api) return;
+      api.on("select", () => onSelect(api));
+      onSelect(api);
+    },
+    [onSelect],
+  );
 
   return (
     <section
       className="w-full py-8 md:py-10 lg:py-12"
       style={{
-        background: "linear-gradient(180deg, #FFFFFF, #FAEFEB, #FFF0EA, #FFFFFF)",
+        background:
+          "linear-gradient(180deg, #FFFFFF, #FAEFEB, #FFF0EA, #FFFFFF)",
       }}
     >
       <div className="container mx-auto px-4 md:px-6 lg:px-8">
@@ -99,7 +103,7 @@ export const HealthySnacking = () => {
                   className="h-full bg-[#FF5400] absolute top-0 left-0"
                   style={{
                     width: `${(currentIndex / (healthySnackingSlides.length - 1)) * 100}%`,
-                    transition: "width 0s"
+                    transition: "width 0s",
                   }}
                 />
                 {currentIndex < healthySnackingSlides.length - 1 && (
@@ -117,12 +121,16 @@ export const HealthySnacking = () => {
                 {healthySnackingSlides.map((slide, index) => (
                   <div key={index} className="flex flex-col items-center">
                     <div
-                      className={`w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5 rounded-full cursor-pointer ${index <= currentIndex ? "bg-[#FF5400]" : "bg-gray-300"
-                        }`}
+                      className={`w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5 rounded-full cursor-pointer ${
+                        index <= currentIndex ? "bg-[#FF5400]" : "bg-gray-300"
+                      }`}
                     />
                     <span
-                      className={`text-[10px] md:text-xs lg:text-sm text-center mt-2 font-normal transition-all duration-200 whitespace-nowrap ${index === currentIndex ? "text-orange-600 font-bold" : "text-gray-700"
-                        }`}
+                      className={`text-[10px] md:text-xs lg:text-sm text-center mt-2 font-normal transition-all duration-200 whitespace-nowrap ${
+                        index === currentIndex
+                          ? "text-orange-600 font-bold"
+                          : "text-gray-700"
+                      }`}
                     >
                       {slide.tag}
                     </span>

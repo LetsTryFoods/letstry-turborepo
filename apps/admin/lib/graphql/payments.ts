@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 export const GET_ADMIN_PAYMENTS_LIST = gql`
   query GetAdminPaymentsList($input: GetPaymentsListInput!) {
@@ -30,7 +30,7 @@ export const GET_ADMIN_PAYMENTS_LIST = gql`
       }
     }
   }
-`
+`;
 
 export const GET_ADMIN_PAYMENT_DETAIL = gql`
   query GetAdminPaymentDetail($paymentOrderId: String!) {
@@ -117,7 +117,7 @@ export const GET_ADMIN_PAYMENT_DETAIL = gql`
       }
     }
   }
-`
+`;
 
 export const INITIATE_ADMIN_REFUND = gql`
   mutation InitiateAdminRefund($input: InitiateAdminRefundInput!) {
@@ -127,7 +127,7 @@ export const INITIATE_ADMIN_REFUND = gql`
       message
     }
   }
-`
+`;
 
 export const GET_ADMIN_PAYMENTS_BY_IDENTITY = gql`
   query GetAdminPaymentsByIdentity($identityId: String!) {
@@ -145,7 +145,7 @@ export const GET_ADMIN_PAYMENTS_BY_IDENTITY = gql`
       pspTxnId
     }
   }
-`
+`;
 
 export const GET_ADMIN_PAYMENTS_BY_ORDER = gql`
   query GetAdminPaymentsByOrder($orderId: String!) {
@@ -163,4 +163,4 @@ export const GET_ADMIN_PAYMENTS_BY_ORDER = gql`
       pspTxnId
     }
   }
-`
+`;

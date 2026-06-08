@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 export const GET_BLOGS = gql`
   query GetBlogs {
@@ -27,7 +27,7 @@ export const GET_BLOGS = gql`
       updatedAt
     }
   }
-`
+`;
 
 export const GET_ACTIVE_BLOGS = gql`
   query GetActiveBlogs {
@@ -56,7 +56,7 @@ export const GET_ACTIVE_BLOGS = gql`
       updatedAt
     }
   }
-`
+`;
 
 export const GET_BLOG = gql`
   query GetBlog($id: ID!) {
@@ -85,7 +85,7 @@ export const GET_BLOG = gql`
       updatedAt
     }
   }
-`
+`;
 
 export const CREATE_BLOG = gql`
   mutation CreateBlog($input: CreateBlogInput!) {
@@ -114,7 +114,7 @@ export const CREATE_BLOG = gql`
       updatedAt
     }
   }
-`
+`;
 
 export const UPDATE_BLOG = gql`
   mutation UpdateBlog($id: ID!, $input: UpdateBlogInput!) {
@@ -143,7 +143,7 @@ export const UPDATE_BLOG = gql`
       updatedAt
     }
   }
-`
+`;
 
 export const DELETE_BLOG = gql`
   mutation DeleteBlog($id: ID!) {
@@ -151,4 +151,4 @@ export const DELETE_BLOG = gql`
       _id
     }
   }
-`
+`;

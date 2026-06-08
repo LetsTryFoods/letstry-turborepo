@@ -1,4 +1,11 @@
-import { ObjectType, InputType, Field, ID, Int, GraphQLISODateTime } from '@nestjs/graphql';
+import {
+  ObjectType,
+  InputType,
+  Field,
+  ID,
+  Int,
+  GraphQLISODateTime,
+} from '@nestjs/graphql';
 import { SeoBase } from '../seo-core/seo-base.schema';
 
 // ─── Output types ────────────────────────────────────────────────────────────

@@ -31,7 +31,7 @@ export class CategoryResolver {
     private readonly categoryService: CategoryService,
     private readonly categorySeoService: CategorySeoService,
     private readonly productService: ProductService,
-  ) { }
+  ) {}
 
   @Query(() => PaginatedCategories, { name: 'categories' })
   @Public()
@@ -237,7 +237,9 @@ export class CategoryResolver {
   @Public()
   async getSeo(@Parent() category: Category): Promise<CategorySeo | null> {
     if (!category.seo || !category.seo.metaTitle) {
-      const seoFromCollection = await this.categorySeoService.findByCategoryId(category._id);
+      const seoFromCollection = await this.categorySeoService.findByCategoryId(
+        category._id,
+      );
       if (seoFromCollection) return seoFromCollection;
       return null;
     }

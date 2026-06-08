@@ -1,4 +1,4 @@
-import { z } from "zod"
+import { z } from "zod";
 
 export const categoryFormSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
@@ -12,6 +12,6 @@ export const categoryFormSchema = z.object({
   favourite: z.boolean().optional(),
   mobile: z.boolean().optional(),
   isArchived: z.boolean(),
-})
+});
 
-export type CategoryFormValues = z.infer<typeof categoryFormSchema>
+export type CategoryFormValues = z.infer<typeof categoryFormSchema>;

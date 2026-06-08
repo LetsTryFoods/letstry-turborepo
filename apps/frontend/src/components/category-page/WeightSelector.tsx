@@ -1,5 +1,5 @@
-import React from 'react';
-import { ChevronDown } from 'lucide-react';
+import React from "react";
+import { ChevronDown } from "lucide-react";
 
 interface WeightSelectorProps {
   weights: string[];
@@ -14,8 +14,12 @@ export const WeightSelector: React.FC<WeightSelectorProps> = ({
 }) => {
   const formatWeight = (w: string) => {
     // If it ends with 'g' but not 'mg' or 'kg', change to ' gm'
-    if (w.toLowerCase().endsWith('g') && !w.toLowerCase().endsWith('mg') && !w.toLowerCase().endsWith('kg')) {
-      return w.slice(0, -1).trim() + ' gm';
+    if (
+      w.toLowerCase().endsWith("g") &&
+      !w.toLowerCase().endsWith("mg") &&
+      !w.toLowerCase().endsWith("kg")
+    ) {
+      return w.slice(0, -1).trim() + " gm";
     }
     return w;
   };
@@ -37,7 +41,10 @@ export const WeightSelector: React.FC<WeightSelectorProps> = ({
                 </option>
               ))}
             </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-black pointer-events-none" strokeWidth={2.5} />
+            <ChevronDown
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-black pointer-events-none"
+              strokeWidth={2.5}
+            />
           </>
         ) : (
           <div className="w-full bg-[#fdfbf7] border border-[#f5e6d3] rounded-lg text-sm sm:text-base md:text-lg font-bold text-black py-2.5 px-4">

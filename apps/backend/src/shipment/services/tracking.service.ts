@@ -3,7 +3,10 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { ShipmentTrackingHistory } from '../entities/shipment-tracking-history.entity';
 import { ShipmentStatusMapperService } from './shipment-status-mapper.service';
-import { DtdcWebhookPayload, DtdcTrackingResponse } from '../interfaces/dtdc-payload.interface';
+import {
+  DtdcWebhookPayload,
+  DtdcTrackingResponse,
+} from '../interfaces/dtdc-payload.interface';
 
 @Injectable()
 export class TrackingService {
@@ -13,7 +16,7 @@ export class TrackingService {
     @InjectModel(ShipmentTrackingHistory.name)
     private readonly trackingHistoryModel: Model<ShipmentTrackingHistory>,
     private readonly statusMapper: ShipmentStatusMapperService,
-  ) { }
+  ) {}
 
   async addTrackingEvent(
     shipmentId: string,
@@ -101,18 +104,14 @@ export class TrackingService {
     return newEvents;
   }
 
-  async getShipmentTimeline(
-    shipmentId: string,
-  ): Promise<any[]> {
+  async getShipmentTimeline(shipmentId: string): Promise<any[]> {
     return this.trackingHistoryModel
       .find({ shipmentId: new Types.ObjectId(shipmentId) })
       .sort({ actionDatetime: -1 })
       .exec();
   }
 
-  async getLatestStatus(
-    shipmentId: string,
-  ): Promise<any | null> {
+  async getLatestStatus(shipmentId: string): Promise<any | null> {
     return this.trackingHistoryModel
       .findOne({ shipmentId: new Types.ObjectId(shipmentId) })
       .sort({ actionDatetime: -1 })

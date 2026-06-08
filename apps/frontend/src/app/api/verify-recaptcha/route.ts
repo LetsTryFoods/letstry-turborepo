@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
@@ -6,25 +6,25 @@ export async function POST(request: NextRequest) {
 
     if (!token) {
       return NextResponse.json(
-        { success: false, error: 'Token is required' },
-        { status: 400 }
+        { success: false, error: "Token is required" },
+        { status: 400 },
       );
     }
 
     const secretKey = process.env.RECAPTCHA_V3_SECRET_KEY;
 
     if (!secretKey) {
-      console.error('reCAPTCHA secret key not configured');
+      console.error("reCAPTCHA secret key not configured");
       return NextResponse.json(
-        { success: false, error: 'Server configuration error' },
-        { status: 500 }
+        { success: false, error: "Server configuration error" },
+        { status: 500 },
       );
     }
 
     const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${token}`;
 
     const response = await fetch(verifyUrl, {
-      method: 'POST',
+      method: "POST",
     });
 
     const data = await response.json();
@@ -37,10 +37,10 @@ export async function POST(request: NextRequest) {
       hostname: data.hostname,
     });
   } catch (error) {
-    console.error('reCAPTCHA verification error:', error);
+    console.error("reCAPTCHA verification error:", error);
     return NextResponse.json(
-      { success: false, error: 'Verification failed' },
-      { status: 500 }
+      { success: false, error: "Verification failed" },
+      { status: 500 },
     );
   }
 }

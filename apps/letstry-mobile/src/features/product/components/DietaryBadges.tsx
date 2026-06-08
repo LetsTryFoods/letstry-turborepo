@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { RFValue, wp } from '../../../lib/utils/ui-utils';
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { RFValue, wp } from "../../../lib/utils/ui-utils";
 
 interface Props {
   isVegetarian: boolean;
@@ -31,14 +31,14 @@ const DietaryBadges: React.FC<Props> = ({ isVegetarian, isGlutenFree }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginTop: 10,
     gap: 10,
   },
   badge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F5F5F5',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F5F5F5",
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 6,
@@ -47,21 +47,21 @@ const styles = StyleSheet.create({
     width: 14,
     height: 14,
     borderWidth: 1,
-    borderColor: '#4CAF50',
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderColor: "#4CAF50",
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: 6,
   },
   vegDot: {
     width: 7,
     height: 7,
     borderRadius: 3.5,
-    backgroundColor: '#4CAF50',
+    backgroundColor: "#4CAF50",
   },
   text: {
     fontSize: RFValue(10),
-    color: '#666',
-    fontWeight: '600',
+    color: "#666",
+    fontWeight: "600",
   },
 });
 

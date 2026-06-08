@@ -2,7 +2,9 @@ import { useState, useEffect } from "react";
 import { getHomeCategories } from "@/lib/home";
 
 export const useCategoryNavigation = () => {
-  const [categories, setCategories] = useState<Array<{ href: string; label: string }>>([]);
+  const [categories, setCategories] = useState<
+    Array<{ href: string; label: string }>
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {

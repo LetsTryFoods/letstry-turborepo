@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { format } from "date-fns"
+import { useState } from "react";
+import { format } from "date-fns";
 import {
   Table,
   TableBody,
@@ -9,9 +9,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,7 +19,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,10 +29,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { 
-  Eye, 
-  MoreHorizontal, 
+} from "@/components/ui/alert-dialog";
+import {
+  Eye,
+  MoreHorizontal,
   Trash2,
   Bell,
   Mail,
@@ -40,59 +40,72 @@ import {
   Send,
   Clock,
   Users,
-  BarChart3
-} from "lucide-react"
-import { 
-  Notification, 
-  NotificationStatus, 
+  BarChart3,
+} from "lucide-react";
+import {
+  Notification,
+  NotificationStatus,
   NotificationType,
-  useDeleteNotification 
-} from "@/lib/notifications/useNotifications"
-import NotificationDetailsDialog from "./NotificationDetailsDialog" 
+  useDeleteNotification,
+} from "@/lib/notifications/useNotifications";
+import NotificationDetailsDialog from "./NotificationDetailsDialog";
 
 interface NotificationTableProps {
-  notifications: Notification[]
-  onRefresh: () => void
+  notifications: Notification[];
+  onRefresh: () => void;
 }
 
-const statusConfig: Record<NotificationStatus, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
+const statusConfig: Record<
+  NotificationStatus,
+  {
+    label: string;
+    variant: "default" | "secondary" | "destructive" | "outline";
+  }
+> = {
   DRAFT: { label: "Draft", variant: "outline" },
   SCHEDULED: { label: "Scheduled", variant: "secondary" },
   SENT: { label: "Sent", variant: "default" },
-  FAILED: { label: "Failed", variant: "destructive" }
-}
+  FAILED: { label: "Failed", variant: "destructive" },
+};
 
-const typeConfig: Record<NotificationType, { label: string; icon: typeof Bell }> = {
+const typeConfig: Record<
+  NotificationType,
+  { label: string; icon: typeof Bell }
+> = {
   PUSH: { label: "Push", icon: Bell },
   EMAIL: { label: "Email", icon: Mail },
-  SMS: { label: "SMS", icon: MessageSquare }
-}
+  SMS: { label: "SMS", icon: MessageSquare },
+};
 
-export default function NotificationTable({ notifications, onRefresh }: NotificationTableProps) {
-  const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null)
-  const [showDetailsDialog, setShowDetailsDialog] = useState(false)
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+export default function NotificationTable({
+  notifications,
+  onRefresh,
+}: NotificationTableProps) {
+  const [selectedNotification, setSelectedNotification] =
+    useState<Notification | null>(null);
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  const { deleteNotification } = useDeleteNotification()
+  const { deleteNotification } = useDeleteNotification();
 
   const handleViewDetails = (notification: Notification) => {
-    setSelectedNotification(notification)
-    setShowDetailsDialog(true)
-  }
+    setSelectedNotification(notification);
+    setShowDetailsDialog(true);
+  };
 
   const handleDeleteNotification = (notification: Notification) => {
-    setSelectedNotification(notification)
-    setShowDeleteDialog(true)
-  }
+    setSelectedNotification(notification);
+    setShowDeleteDialog(true);
+  };
 
   const confirmDelete = async () => {
     if (selectedNotification) {
-      await deleteNotification(selectedNotification._id)
-      onRefresh()
+      await deleteNotification(selectedNotification._id);
+      onRefresh();
     }
-    setShowDeleteDialog(false)
-    setSelectedNotification(null)
-  }
+    setShowDeleteDialog(false);
+    setSelectedNotification(null);
+  };
 
   return (
     <>
@@ -113,15 +126,18 @@ export default function NotificationTable({ notifications, onRefresh }: Notifica
           <TableBody>
             {notifications.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                <TableCell
+                  colSpan={8}
+                  className="text-center py-8 text-muted-foreground"
+                >
                   No notifications found
                 </TableCell>
               </TableRow>
             ) : (
               notifications.map((notification) => {
-                const status = statusConfig[notification.status]
-                const type = typeConfig[notification.type]
-                const TypeIcon = type.icon
+                const status = statusConfig[notification.status];
+                const type = typeConfig[notification.type];
+                const TypeIcon = type.icon;
                 return (
                   <TableRow key={notification._id}>
                     <TableCell>
@@ -132,7 +148,9 @@ export default function NotificationTable({ notifications, onRefresh }: Notifica
                     </TableCell>
                     <TableCell>
                       <div className="max-w-[200px]">
-                        <p className="font-medium text-sm truncate">{notification.title}</p>
+                        <p className="font-medium text-sm truncate">
+                          {notification.title}
+                        </p>
                         <p className="text-xs text-muted-foreground truncate">
                           {notification.message}
                         </p>
@@ -142,14 +160,14 @@ export default function NotificationTable({ notifications, onRefresh }: Notifica
                       <div className="flex items-center gap-1">
                         <Users className="h-3 w-3 text-muted-foreground" />
                         <span className="text-sm capitalize">
-                          {notification.audience.replace('_', ' ').toLowerCase()}
+                          {notification.audience
+                            .replace("_", " ")
+                            .toLowerCase()}
                         </span>
                       </div>
                     </TableCell>
                     <TableCell className="text-center">
-                      <Badge variant={status.variant}>
-                        {status.label}
-                      </Badge>
+                      <Badge variant={status.variant}>{status.label}</Badge>
                     </TableCell>
                     <TableCell className="text-center">
                       <span className="text-sm">
@@ -160,7 +178,9 @@ export default function NotificationTable({ notifications, onRefresh }: Notifica
                       {notification.openRate ? (
                         <div className="flex items-center justify-center gap-1">
                           <BarChart3 className="h-3 w-3 text-muted-foreground" />
-                          <span className="text-sm">{notification.openRate}%</span>
+                          <span className="text-sm">
+                            {notification.openRate}%
+                          </span>
                         </div>
                       ) : (
                         <span className="text-sm text-muted-foreground">-</span>
@@ -168,18 +188,28 @@ export default function NotificationTable({ notifications, onRefresh }: Notifica
                     </TableCell>
                     <TableCell>
                       <div className="text-sm">
-                        {notification.status === 'SCHEDULED' && notification.scheduledAt ? (
+                        {notification.status === "SCHEDULED" &&
+                        notification.scheduledAt ? (
                           <div className="flex items-center gap-1 text-orange-600">
                             <Clock className="h-3 w-3" />
-                            {format(new Date(notification.scheduledAt), 'dd MMM, HH:mm')}
+                            {format(
+                              new Date(notification.scheduledAt),
+                              "dd MMM, HH:mm",
+                            )}
                           </div>
                         ) : notification.sentAt ? (
                           <div className="flex items-center gap-1">
                             <Send className="h-3 w-3 text-muted-foreground" />
-                            {format(new Date(notification.sentAt), 'dd MMM yyyy')}
+                            {format(
+                              new Date(notification.sentAt),
+                              "dd MMM yyyy",
+                            )}
                           </div>
                         ) : (
-                          format(new Date(notification.createdAt), 'dd MMM yyyy')
+                          format(
+                            new Date(notification.createdAt),
+                            "dd MMM yyyy",
+                          )
                         )}
                       </div>
                     </TableCell>
@@ -192,13 +222,17 @@ export default function NotificationTable({ notifications, onRefresh }: Notifica
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem onClick={() => handleViewDetails(notification)}>
+                          <DropdownMenuItem
+                            onClick={() => handleViewDetails(notification)}
+                          >
                             <Eye className="mr-2 h-4 w-4" />
                             View Details
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem 
-                            onClick={() => handleDeleteNotification(notification)}
+                          <DropdownMenuItem
+                            onClick={() =>
+                              handleDeleteNotification(notification)
+                            }
                             className="text-red-600"
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
@@ -208,7 +242,7 @@ export default function NotificationTable({ notifications, onRefresh }: Notifica
                       </DropdownMenu>
                     </TableCell>
                   </TableRow>
-                )
+                );
               })
             )}
           </TableBody>
@@ -231,7 +265,9 @@ export default function NotificationTable({ notifications, onRefresh }: Notifica
             <AlertDialogTitle>Delete Notification</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to delete this notification?
-              <span className="block mt-2 font-medium">&quot;{selectedNotification?.title}&quot;</span>
+              <span className="block mt-2 font-medium">
+                &quot;{selectedNotification?.title}&quot;
+              </span>
               <span className="block mt-2 text-red-600">
                 This action cannot be undone.
               </span>
@@ -239,7 +275,7 @@ export default function NotificationTable({ notifications, onRefresh }: Notifica
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={confirmDelete}
               className="bg-red-600 hover:bg-red-700"
             >
@@ -249,5 +285,5 @@ export default function NotificationTable({ notifications, onRefresh }: Notifica
         </AlertDialogContent>
       </AlertDialog>
     </>
-  )
+  );
 }

@@ -22,8 +22,9 @@ export interface OrderPackedJobData {
   trackingUrl: string;
 }
 
-export type WhatsAppNotificationJobData = PaymentConfirmationJobData | OrderPackedJobData;
-
+export type WhatsAppNotificationJobData =
+  | PaymentConfirmationJobData
+  | OrderPackedJobData;
 
 @Processor('whatsapp-notification-queue')
 @Injectable()
@@ -65,8 +66,11 @@ export class WhatsAppNotificationProcessor extends WorkerHost {
           data.trackingUrl,
         );
       } else {
-         this.logger.warn(`Unknown job name: ${job.name}`, 'WhatsAppNotificationProcessor');
-         return;
+        this.logger.warn(
+          `Unknown job name: ${job.name}`,
+          'WhatsAppNotificationProcessor',
+        );
+        return;
       }
 
       if (success) {

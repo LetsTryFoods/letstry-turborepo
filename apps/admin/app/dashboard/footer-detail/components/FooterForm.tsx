@@ -1,25 +1,39 @@
-'use client'
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Checkbox } from "@/components/ui/checkbox"
-import { useForm, useFieldArray } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { footerFormSchema, FooterFormValues } from "@/lib/validations/footer.schema"
-import { Plus, Trash2 } from "lucide-react"
-import { Separator } from "@/components/ui/separator"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useForm, useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  footerFormSchema,
+  FooterFormValues,
+} from "@/lib/validations/footer.schema";
+import { Plus, Trash2 } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 interface FooterFormProps {
-  onClose: () => void
-  initialData?: any | null
-  createFooter: any
-  updateFooter: any
+  onClose: () => void;
+  initialData?: any | null;
+  createFooter: any;
+  updateFooter: any;
 }
 
-
-export function FooterForm({ onClose, initialData, createFooter, updateFooter }: FooterFormProps) {
+export function FooterForm({
+  onClose,
+  initialData,
+  createFooter,
+  updateFooter,
+}: FooterFormProps) {
   const form = useForm<FooterFormValues>({
     resolver: zodResolver(footerFormSchema),
     defaultValues: {
@@ -34,12 +48,12 @@ export function FooterForm({ onClose, initialData, createFooter, updateFooter }:
       socialMediaLinks: initialData?.socialMediaLinks || [],
       isActive: initialData?.isActive ?? true,
     },
-  })
+  });
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "socialMediaLinks",
-  })
+  });
 
   const onSubmit = async (data: FooterFormValues) => {
     try {
@@ -49,32 +63,37 @@ export function FooterForm({ onClose, initialData, createFooter, updateFooter }:
         logoUrl: data.logoUrl || undefined,
         exportEmail: data.exportEmail || undefined,
         socialMediaTitle: data.socialMediaTitle || undefined,
-        socialMediaLinks: data.socialMediaLinks?.length ? data.socialMediaLinks : undefined,
-      }
+        socialMediaLinks: data.socialMediaLinks?.length
+          ? data.socialMediaLinks
+          : undefined,
+      };
 
       if (initialData) {
         await updateFooter({
           variables: {
             id: initialData._id,
-            input: cleanedData
-          }
-        })
+            input: cleanedData,
+          },
+        });
       } else {
         await createFooter({
           variables: {
-            input: cleanedData
-          }
-        })
+            input: cleanedData,
+          },
+        });
       }
-      onClose()
+      onClose();
     } catch (error) {
-      console.error("Failed to save footer detail:", error)
+      console.error("Failed to save footer detail:", error);
     }
-  }
+  };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-4 max-h-[70vh] overflow-y-auto pr-2"
+      >
         {/* Logo Section */}
         <FormField
           control={form.control}
@@ -83,7 +102,10 @@ export function FooterForm({ onClose, initialData, createFooter, updateFooter }:
             <FormItem>
               <FormLabel>Logo URL</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="e.g., https://example.com/logo.png" />
+                <Input
+                  {...field}
+                  placeholder="e.g., https://example.com/logo.png"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -126,9 +148,9 @@ export function FooterForm({ onClose, initialData, createFooter, updateFooter }:
             <FormItem>
               <FormLabel>Address *</FormLabel>
               <FormControl>
-                <Textarea 
-                  {...field} 
-                  placeholder="e.g., 329, 1st Floor, Indra Vihar, Delhi-110009" 
+                <Textarea
+                  {...field}
+                  placeholder="e.g., 329, 1st Floor, Indra Vihar, Delhi-110009"
                   rows={2}
                 />
               </FormControl>
@@ -145,7 +167,11 @@ export function FooterForm({ onClose, initialData, createFooter, updateFooter }:
               <FormItem>
                 <FormLabel>Email *</FormLabel>
                 <FormControl>
-                  <Input {...field} type="email" placeholder="e.g., ecom@earthcrust.co.in" />
+                  <Input
+                    {...field}
+                    type="email"
+                    placeholder="e.g., ecom@earthcrust.co.in"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -173,7 +199,11 @@ export function FooterForm({ onClose, initialData, createFooter, updateFooter }:
             <FormItem>
               <FormLabel>Export Email</FormLabel>
               <FormControl>
-                <Input {...field} type="email" placeholder="e.g., export@earthcrust.co.in" />
+                <Input
+                  {...field}
+                  type="email"
+                  placeholder="e.g., export@earthcrust.co.in"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -212,7 +242,10 @@ export function FooterForm({ onClose, initialData, createFooter, updateFooter }:
             </div>
 
             {fields.map((field, index) => (
-              <div key={field.id} className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 items-start p-3 border rounded-lg">
+              <div
+                key={field.id}
+                className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 items-start p-3 border rounded-lg"
+              >
                 <FormField
                   control={form.control}
                   name={`socialMediaLinks.${index}.platform`}
@@ -233,7 +266,10 @@ export function FooterForm({ onClose, initialData, createFooter, updateFooter }:
                     <FormItem>
                       <FormLabel className="text-xs">URL</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="e.g., https://facebook.com/..." />
+                        <Input
+                          {...field}
+                          placeholder="e.g., https://facebook.com/..."
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -266,7 +302,8 @@ export function FooterForm({ onClose, initialData, createFooter, updateFooter }:
 
             {fields.length === 0 && (
               <p className="text-sm text-muted-foreground text-center py-4 border rounded-lg">
-                No social media links added. Click &quot;Add Link&quot; to add one.
+                No social media links added. Click &quot;Add Link&quot; to add
+                one.
               </p>
             )}
           </div>
@@ -295,10 +332,10 @@ export function FooterForm({ onClose, initialData, createFooter, updateFooter }:
             Cancel
           </Button>
           <Button type="submit">
-            {initialData ? 'Update' : 'Create'} Footer Detail
+            {initialData ? "Update" : "Create"} Footer Detail
           </Button>
         </div>
       </form>
     </Form>
-  )
+  );
 }

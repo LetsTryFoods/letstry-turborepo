@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 export const GET_CATEGORIES = gql`
   query GetCategories($pagination: PaginationInput, $includeArchived: Boolean) {
@@ -39,10 +39,13 @@ export const GET_CATEGORIES = gql`
       }
     }
   }
-`
+`;
 
 export const GET_ROOT_CATEGORIES = gql`
-  query GetRootCategories($pagination: PaginationInput, $includeArchived: Boolean) {
+  query GetRootCategories(
+    $pagination: PaginationInput
+    $includeArchived: Boolean
+  ) {
     rootCategories(pagination: $pagination, includeArchived: $includeArchived) {
       items {
         _id
@@ -80,11 +83,19 @@ export const GET_ROOT_CATEGORIES = gql`
       }
     }
   }
-`
+`;
 
 export const GET_CATEGORY_CHILDREN = gql`
-  query GetCategoryChildren($parentId: ID!, $pagination: PaginationInput, $includeArchived: Boolean) {
-    categoryChildren(parentId: $parentId, pagination: $pagination, includeArchived: $includeArchived) {
+  query GetCategoryChildren(
+    $parentId: ID!
+    $pagination: PaginationInput
+    $includeArchived: Boolean
+  ) {
+    categoryChildren(
+      parentId: $parentId
+      pagination: $pagination
+      includeArchived: $includeArchived
+    ) {
       items {
         _id
         name
@@ -121,7 +132,7 @@ export const GET_CATEGORY_CHILDREN = gql`
       }
     }
   }
-`
+`;
 
 export const GET_CATEGORY = gql`
   query GetCategory($_id: ID!, $includeArchived: Boolean) {
@@ -152,7 +163,7 @@ export const GET_CATEGORY = gql`
       updatedAt
     }
   }
-`
+`;
 
 export const GET_CATEGORY_BY_SLUG = gql`
   query GetCategoryBySlug($slug: String!, $includeArchived: Boolean) {
@@ -183,7 +194,7 @@ export const GET_CATEGORY_BY_SLUG = gql`
       updatedAt
     }
   }
-`
+`;
 
 export const CREATE_CATEGORY = gql`
   mutation CreateCategory($input: CreateCategoryInput!) {
@@ -214,7 +225,7 @@ export const CREATE_CATEGORY = gql`
       updatedAt
     }
   }
-`
+`;
 
 export const UPDATE_CATEGORY = gql`
   mutation UpdateCategory($id: ID!, $input: UpdateCategoryInput!) {
@@ -245,7 +256,7 @@ export const UPDATE_CATEGORY = gql`
       updatedAt
     }
   }
-`
+`;
 
 export const ARCHIVE_CATEGORY = gql`
   mutation ArchiveCategory($id: ID!) {
@@ -255,7 +266,7 @@ export const ARCHIVE_CATEGORY = gql`
       isArchived
     }
   }
-`
+`;
 
 export const UNARCHIVE_CATEGORY = gql`
   mutation UnarchiveCategory($id: ID!) {
@@ -265,44 +276,52 @@ export const UNARCHIVE_CATEGORY = gql`
       isArchived
     }
   }
-`
+`;
 export const SEARCH_CATEGORIES = gql`
-  query SearchCategories($searchTerm: String!, $pagination: PaginationInput, $includeArchived: Boolean) {
-  searchCategories(searchTerm: $searchTerm, pagination: $pagination, includeArchived: $includeArchived) {
+  query SearchCategories(
+    $searchTerm: String!
+    $pagination: PaginationInput
+    $includeArchived: Boolean
+  ) {
+    searchCategories(
+      searchTerm: $searchTerm
+      pagination: $pagination
+      includeArchived: $includeArchived
+    ) {
       items {
-      _id
-      name
-      slug
-      description
-      parentId
-      imageUrl
-      mobileImageUrl
-      codeValue
-      inCodeSet
-      productCount
-      favourite
-      mobile
-      isArchived
+        _id
+        name
+        slug
+        description
+        parentId
+        imageUrl
+        mobileImageUrl
+        codeValue
+        inCodeSet
+        productCount
+        favourite
+        mobile
+        isArchived
         seo {
-        metaTitle
-        metaDescription
-        metaKeywords
-        canonicalUrl
-        ogTitle
-        ogDescription
-        ogImage
+          metaTitle
+          metaDescription
+          metaKeywords
+          canonicalUrl
+          ogTitle
+          ogDescription
+          ogImage
+        }
+        createdAt
+        updatedAt
       }
-      createdAt
-      updatedAt
-    }
       meta {
-      totalCount
-      page
-      limit
-      totalPages
-      hasNextPage
-      hasPreviousPage
+        totalCount
+        page
+        limit
+        totalPages
+        hasNextPage
+        hasPreviousPage
+      }
     }
   }
-}
-`
+`;

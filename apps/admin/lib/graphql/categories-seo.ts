@@ -1,7 +1,10 @@
 import { gql } from "@apollo/client";
 
 export const GET_CATEGORIES_WITH_SEO = gql`
-  query GetCategoriesWithSeo($pagination: PaginationInput, $includeArchived: Boolean) {
+  query GetCategoriesWithSeo(
+    $pagination: PaginationInput
+    $includeArchived: Boolean
+  ) {
     categories(pagination: $pagination, includeArchived: $includeArchived) {
       items {
         _id

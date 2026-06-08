@@ -17,7 +17,8 @@ const videos = [
 const getYouTubeId = (url: any) => {
   try {
     const u = new URL(url);
-    if (u.hostname.includes("youtube.com")) return u.searchParams.get("v") || "";
+    if (u.hostname.includes("youtube.com"))
+      return u.searchParams.get("v") || "";
     if (u.hostname.includes("youtu.be")) return u.pathname.replace("/", "");
     return "";
   } catch {
@@ -41,7 +42,7 @@ const JourneyVideos = () => {
         ...v,
         thumbnail: getYouTubeThumb(v.videoUrl),
       })),
-    []
+    [],
   );
 
   const handleClick = (index: number, videoUrl: string) => {
@@ -56,7 +57,9 @@ const JourneyVideos = () => {
   return (
     <section className="w-full flex flex-col items-center px-4 sm:px-6">
       <h2 className="text-lg md:text-2xl lg:text-3xl font-bold text-black text-center lg:mb-8">
-        From dreams to deals:<br />our journey!
+        From dreams to deals:
+        <br />
+        our journey!
       </h2>
 
       <div className="relative w-full max-w-6xl">
@@ -80,8 +83,9 @@ const JourneyVideos = () => {
               {({ isActive }) => (
                 <div
                   onClick={() => handleClick(i, video.videoUrl)}
-                  className={`relative cursor-pointer transition-transform duration-300 ${isActive ? "scale-100" : "scale-75"
-                    }`}
+                  className={`relative cursor-pointer transition-transform duration-300 ${
+                    isActive ? "scale-100" : "scale-75"
+                  }`}
                 >
                   <div className="relative w-full h-[160px] lg:h-[250px]">
                     <Image

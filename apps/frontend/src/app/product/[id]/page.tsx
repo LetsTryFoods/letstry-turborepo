@@ -17,24 +17,33 @@ import { ProductDetailFAQ } from "@/components/product-page/ProductDetailFAQ";
 
 export const revalidate = 1800;
 
-const SITE_URL = (process.env.NEXT_PUBLIC_BASE_URL || 'https://letstryfoods.com').replace(/\/$/, '');
+const SITE_URL = (
+  process.env.NEXT_PUBLIC_BASE_URL || "https://letstryfoods.com"
+).replace(/\/$/, "");
 
 // Map pillar slugs to friendly names for breadcrumbs. As more pillars
 // are added in the CMS the storefront should fetch this map at build
 // time; this hardcoded fallback covers the cluster currently planned.
 const PILLAR_NAMES: Record<string, string> = {
-  'no-palm-oil-snacks': 'No Palm Oil Snacks',
-  'palm-oil-free-namkeen': 'Palm-Oil-Free Namkeen',
-  'no-maida-snacks': 'No Maida Snacks',
-  'no-refined-sugar-cookies': 'No Refined Sugar Cookies',
-  'healthy-vrat-snacks': 'Healthy Vrat Snacks',
-  'healthy-snacks-for-kids': 'Healthy Snacks for Kids',
+  "no-palm-oil-snacks": "No Palm Oil Snacks",
+  "palm-oil-free-namkeen": "Palm-Oil-Free Namkeen",
+  "no-maida-snacks": "No Maida Snacks",
+  "no-refined-sugar-cookies": "No Refined Sugar Cookies",
+  "healthy-vrat-snacks": "Healthy Vrat Snacks",
+  "healthy-snacks-for-kids": "Healthy Snacks for Kids",
 };
 
 interface OfferBuildArgs {
   productUrl: string;
   currency: string;
-  defaultVariant: { price?: number; mrp?: number; stockQuantity?: number; availabilityStatus?: string } | undefined;
+  defaultVariant:
+    | {
+        price?: number;
+        mrp?: number;
+        stockQuantity?: number;
+        availabilityStatus?: string;
+      }
+    | undefined;
   availableVariants?: { price?: number; sku?: string }[];
   availability: string;
   priceValidUntil: string;
@@ -51,17 +60,19 @@ interface OfferBuildArgs {
  * Google rewards AggregateOffer with "from ₹X" rich result placement.
  */
 function buildOfferSchema(args: OfferBuildArgs) {
-  const variants = (args.availableVariants || []).filter((v) => typeof v.price === 'number');
+  const variants = (args.availableVariants || []).filter(
+    (v) => typeof v.price === "number",
+  );
   const seller = {
-    '@type': 'Organization',
-    '@id': `${args.siteUrl}#organization`,
+    "@type": "Organization",
+    "@id": `${args.siteUrl}#organization`,
     name: "Let's Try Foods",
   };
 
   if (variants.length > 1) {
     const prices = variants.map((v) => v.price as number);
     return {
-      '@type': 'AggregateOffer',
+      "@type": "AggregateOffer",
       priceCurrency: args.currency,
       lowPrice: Math.min(...prices),
       highPrice: Math.max(...prices),
@@ -71,7 +82,7 @@ function buildOfferSchema(args: OfferBuildArgs) {
       priceValidUntil: args.priceValidUntil,
       seller,
       offers: variants.map((v) => ({
-        '@type': 'Offer',
+        "@type": "Offer",
         priceCurrency: args.currency,
         price: v.price,
         sku: v.sku,
@@ -84,30 +95,39 @@ function buildOfferSchema(args: OfferBuildArgs) {
   }
 
   return {
-    '@type': 'Offer',
+    "@type": "Offer",
     url: args.productUrl,
     priceCurrency: args.currency,
     price: args.defaultVariant?.price ?? 0,
     priceValidUntil: args.priceValidUntil,
     availability: args.availability,
-    itemCondition: 'https://schema.org/NewCondition',
+    itemCondition: "https://schema.org/NewCondition",
     ...(args.deliveryLeadTime
       ? {
           shippingDetails: {
-            '@type': 'OfferShippingDetails',
+            "@type": "OfferShippingDetails",
             deliveryTime: {
-              '@type': 'ShippingDeliveryTime',
-              transitTime: { '@type': 'QuantitativeValue', minValue: 1, maxValue: 7, unitCode: 'd' },
+              "@type": "ShippingDeliveryTime",
+              transitTime: {
+                "@type": "QuantitativeValue",
+                minValue: 1,
+                maxValue: 7,
+                unitCode: "d",
+              },
             },
-            shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'IN' },
+            shippingDestination: {
+              "@type": "DefinedRegion",
+              addressCountry: "IN",
+            },
           },
           hasMerchantReturnPolicy: {
-            '@type': 'MerchantReturnPolicy',
-            applicableCountry: 'IN',
-            returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+            "@type": "MerchantReturnPolicy",
+            applicableCountry: "IN",
+            returnPolicyCategory:
+              "https://schema.org/MerchantReturnFiniteReturnWindow",
             merchantReturnDays: 7,
-            returnMethod: 'https://schema.org/ReturnByMail',
-            returnFees: 'https://schema.org/FreeReturn',
+            returnMethod: "https://schema.org/ReturnByMail",
+            returnFees: "https://schema.org/FreeReturn",
           },
         }
       : {}),
@@ -141,33 +161,36 @@ export async function generateMetadata({
   // product title so non-CMS-edited products still rank for the highest-
   // intent keywords. Brand-claim matrix is honoured by suppressing
   // "No Maida" mentions for the rusk / Purani Delhi range.
-  const titleClaims: string[] = ['No Palm Oil'];
+  const titleClaims: string[] = ["No Palm Oil"];
   // Note: caller doesn't have category here so we keep the title generic;
   // category-aware claims live in the per-product CMS metaTitle override.
   const titleParts = [
     product.name,
     pack ? pack : null,
-    `– ${titleClaims.join(', ')}`,
+    `– ${titleClaims.join(", ")}`,
   ].filter(Boolean);
-  const defaultTitle = `${titleParts.join(' ')} | Let's Try Foods`;
+  const defaultTitle = `${titleParts.join(" ")} | Let's Try Foods`;
 
   const descParts: string[] = [];
   if (product.description) {
     descParts.push(product.description);
   } else {
-    descParts.push(`Buy ${product.name}${pack ? ` (${pack})` : ''} online from Let's Try Foods.`);
+    descParts.push(
+      `Buy ${product.name}${pack ? ` (${pack})` : ""} online from Let's Try Foods.`,
+    );
   }
   // USP keywords always present in the default fallback so non-CMS-edited
   // products still surface them in SERP / rich results.
-  descParts.push('Made without palm oil. 100% groundnut oil.');
-  if (product.isVegetarian) descParts.push('100% vegetarian.');
+  descParts.push("Made without palm oil. 100% groundnut oil.");
+  if (product.isVegetarian) descParts.push("100% vegetarian.");
   if (product.shelfLife) descParts.push(`Shelf life: ${product.shelfLife}.`);
-  descParts.push('Shipped across India.');
-  const defaultDescription = descParts.join(' ').slice(0, 300);
+  descParts.push("Shipped across India.");
+  const defaultDescription = descParts.join(" ").slice(0, 300);
 
   const override = getProductOverride(slug);
   const finalTitle = seo?.metaTitle || override?.title || defaultTitle;
-  const finalDescription = seo?.metaDescription || override?.description || defaultDescription;
+  const finalDescription =
+    seo?.metaDescription || override?.description || defaultDescription;
   const canonical = seo?.canonicalUrl || `${SITE_URL}/product/${slug}`;
 
   return {
@@ -252,24 +275,26 @@ export default async function ProductDetailPage({
 
   const breadcrumbItems = primaryCategory
     ? [
-      { label: primaryCategory.name, href: `/${primaryCategory.slug}` },
-      { label: product.name },
-    ]
+        { label: primaryCategory.name, href: `/${primaryCategory.slug}` },
+        { label: product.name },
+      ]
     : [{ label: product.name }];
 
   const productUrl = `${SITE_URL}/product/${slug}`;
   const defaultVariant = product.defaultVariant;
-  const productImageEntries = (defaultVariant?.images && defaultVariant.images.length > 0
-    ? defaultVariant.images
-    : product.variants?.[0]?.images || []
+  const productImageEntries = (
+    defaultVariant?.images && defaultVariant.images.length > 0
+      ? defaultVariant.images
+      : product.variants?.[0]?.images || []
   )
     .map((img) => ({ url: getCdnUrl(img.url), alt: img.alt || product.name }))
     .filter((entry) => Boolean(entry.url));
 
   const availability =
-    defaultVariant?.availabilityStatus === 'in_stock' && (defaultVariant?.stockQuantity ?? 0) > 0
-      ? 'https://schema.org/InStock'
-      : 'https://schema.org/OutOfStock';
+    defaultVariant?.availabilityStatus === "in_stock" &&
+    (defaultVariant?.stockQuantity ?? 0) > 0
+      ? "https://schema.org/InStock"
+      : "https://schema.org/OutOfStock";
 
   // priceValidUntil is required by Google for product rich results.
   // Default to one year from the product's last update.
@@ -282,24 +307,40 @@ export default async function ProductDetailPage({
 
   const additionalProperty = [
     product.isVegetarian
-      ? { '@type': 'PropertyValue', name: 'Diet', value: 'Vegetarian' }
+      ? { "@type": "PropertyValue", name: "Diet", value: "Vegetarian" }
       : null,
     product.isGlutenFree
-      ? { '@type': 'PropertyValue', name: 'Gluten-Free', value: 'Yes' }
+      ? { "@type": "PropertyValue", name: "Gluten-Free", value: "Yes" }
       : null,
     product.allergens
-      ? { '@type': 'PropertyValue', name: 'Allergens', value: product.allergens }
+      ? {
+          "@type": "PropertyValue",
+          name: "Allergens",
+          value: product.allergens,
+        }
       : null,
     product.shelfLife
-      ? { '@type': 'PropertyValue', name: 'Shelf life', value: product.shelfLife }
+      ? {
+          "@type": "PropertyValue",
+          name: "Shelf life",
+          value: product.shelfLife,
+        }
       : null,
     // Sprint 4: surface "Country of origin" / "FSSAI" so they appear in
     // shopping rich results.
     (product as { countryOfOrigin?: string }).countryOfOrigin
-      ? { '@type': 'PropertyValue', name: 'Country of origin', value: (product as { countryOfOrigin?: string }).countryOfOrigin }
+      ? {
+          "@type": "PropertyValue",
+          name: "Country of origin",
+          value: (product as { countryOfOrigin?: string }).countryOfOrigin,
+        }
       : null,
     (product as { fssaiLicense?: string }).fssaiLicense
-      ? { '@type': 'PropertyValue', name: 'FSSAI licence', value: (product as { fssaiLicense?: string }).fssaiLicense }
+      ? {
+          "@type": "PropertyValue",
+          name: "FSSAI licence",
+          value: (product as { fssaiLicense?: string }).fssaiLicense,
+        }
       : null,
   ].filter(Boolean);
 
@@ -309,7 +350,11 @@ export default async function ProductDetailPage({
     audience?: string[];
     pros?: { text: string }[];
     cons?: { text: string }[];
-    certifications?: { name: string; number?: string | null; iconUrl?: string | null }[];
+    certifications?: {
+      name: string;
+      number?: string | null;
+      iconUrl?: string | null;
+    }[];
     videoUrl?: string;
     videoTitle?: string;
     videoDescription?: string;
@@ -319,7 +364,7 @@ export default async function ProductDetailPage({
   };
 
   const productImageObjects = productImageEntries.map((entry) => ({
-    '@type': 'ImageObject',
+    "@type": "ImageObject",
     url: entry.url,
     caption: entry.alt,
   }));
@@ -327,9 +372,11 @@ export default async function ProductDetailPage({
   const nutritionInformation = richProduct.nutrition
     ? Object.fromEntries(
         Object.entries({
-          '@type': 'NutritionInformation',
+          "@type": "NutritionInformation",
           servingSize: richProduct.nutrition.servingSize,
-          calories: richProduct.nutrition.caloriesPerServing || richProduct.nutrition.calories,
+          calories:
+            richProduct.nutrition.caloriesPerServing ||
+            richProduct.nutrition.calories,
           fatContent: richProduct.nutrition.fatContent,
           saturatedFatContent: richProduct.nutrition.saturatedFatContent,
           transFatContent: richProduct.nutrition.transFatContent,
@@ -339,47 +386,58 @@ export default async function ProductDetailPage({
           fiberContent: richProduct.nutrition.fiberContent,
           sugarContent: richProduct.nutrition.sugarContent,
           proteinContent: richProduct.nutrition.proteinContent,
-        }).filter(([, v]) => v !== undefined && v !== null && v !== ''),
+        }).filter(([, v]) => v !== undefined && v !== null && v !== ""),
       )
     : undefined;
 
-  const positiveNotes = richProduct.pros && richProduct.pros.length > 0
-    ? {
-        '@type': 'ItemList',
-        itemListElement: richProduct.pros.map((p, i) => ({
-          '@type': 'ListItem',
-          position: i + 1,
-          name: p.text,
-        })),
-      }
-    : undefined;
+  const positiveNotes =
+    richProduct.pros && richProduct.pros.length > 0
+      ? {
+          "@type": "ItemList",
+          itemListElement: richProduct.pros.map((p, i) => ({
+            "@type": "ListItem",
+            position: i + 1,
+            name: p.text,
+          })),
+        }
+      : undefined;
 
-  const negativeNotes = richProduct.cons && richProduct.cons.length > 0
-    ? {
-        '@type': 'ItemList',
-        itemListElement: richProduct.cons.map((p, i) => ({
-          '@type': 'ListItem',
-          position: i + 1,
-          name: p.text,
-        })),
-      }
-    : undefined;
+  const negativeNotes =
+    richProduct.cons && richProduct.cons.length > 0
+      ? {
+          "@type": "ItemList",
+          itemListElement: richProduct.cons.map((p, i) => ({
+            "@type": "ListItem",
+            position: i + 1,
+            name: p.text,
+          })),
+        }
+      : undefined;
 
-  const audienceSchema = richProduct.audience && richProduct.audience.length > 0
-    ? richProduct.audience.map((a) => ({ '@type': 'PeopleAudience', audienceType: a }))
-    : undefined;
+  const audienceSchema =
+    richProduct.audience && richProduct.audience.length > 0
+      ? richProduct.audience.map((a) => ({
+          "@type": "PeopleAudience",
+          audienceType: a,
+        }))
+      : undefined;
 
-  const awardSchema = richProduct.certifications && richProduct.certifications.length > 0
-    ? richProduct.certifications.map((c) => (c.number ? `${c.name} (${c.number})` : c.name))
-    : undefined;
+  const awardSchema =
+    richProduct.certifications && richProduct.certifications.length > 0
+      ? richProduct.certifications.map((c) =>
+          c.number ? `${c.name} (${c.number})` : c.name,
+        )
+      : undefined;
 
   const videoSchema = richProduct.videoUrl
     ? {
-        '@context': 'https://schema.org',
-        '@type': 'VideoObject',
-        '@id': `${productUrl}#video`,
+        "@context": "https://schema.org",
+        "@type": "VideoObject",
+        "@id": `${productUrl}#video`,
         name: richProduct.videoTitle || product.name,
-        description: richProduct.videoDescription || `Watch ${product.name} from Let's Try Foods.`,
+        description:
+          richProduct.videoDescription ||
+          `Watch ${product.name} from Let's Try Foods.`,
         thumbnailUrl: richProduct.videoThumbnailUrl
           ? getCdnUrl(richProduct.videoThumbnailUrl)
           : productImageObjects[0]?.url,
@@ -390,9 +448,9 @@ export default async function ProductDetailPage({
     : null;
 
   const productSchema: Record<string, unknown> = {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    '@id': `${productUrl}#product`,
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "@id": `${productUrl}#product`,
     name: product.name,
     description:
       product.description ||
@@ -403,25 +461,26 @@ export default async function ProductDetailPage({
     mpn: product.mpn || undefined,
     productID: product._id,
     brand: {
-      '@type': 'Brand',
+      "@type": "Brand",
       name: product.brand || "Let's Try",
     },
-    manufacturer: { '@id': `${SITE_URL}#organization` },
+    manufacturer: { "@id": `${SITE_URL}#organization` },
     category: primaryCategory?.name || undefined,
     keywords:
       product.keywords && product.keywords.length > 0
-        ? product.keywords.join(', ')
+        ? product.keywords.join(", ")
         : undefined,
-    countryOfOrigin: 'IN',
+    countryOfOrigin: "IN",
     weight:
       defaultVariant?.weight && defaultVariant?.weightUnit
         ? {
-            '@type': 'QuantitativeValue',
+            "@type": "QuantitativeValue",
             value: defaultVariant.weight,
             unitText: defaultVariant.weightUnit,
           }
         : undefined,
-    additionalProperty: additionalProperty.length > 0 ? additionalProperty : undefined,
+    additionalProperty:
+      additionalProperty.length > 0 ? additionalProperty : undefined,
     nutrition: nutritionInformation,
     audience: audienceSchema,
     award: awardSchema,
@@ -433,7 +492,7 @@ export default async function ProductDetailPage({
     ...(product.rating && product.ratingCount && product.ratingCount > 0
       ? {
           aggregateRating: {
-            '@type': 'AggregateRating',
+            "@type": "AggregateRating",
             ratingValue: product.rating,
             reviewCount: product.ratingCount,
             bestRating: 5,
@@ -443,14 +502,22 @@ export default async function ProductDetailPage({
       : {}),
     offers: buildOfferSchema({
       productUrl,
-      currency: product.currency || 'INR',
-      defaultVariant: defaultVariant ? {
-        price: defaultVariant.price,
-        mrp: defaultVariant.mrp,
-        stockQuantity: defaultVariant.stockQuantity,
-        availabilityStatus: defaultVariant.availabilityStatus,
-      } : undefined,
-      availableVariants: ((product as { availableVariants?: typeof defaultVariant[] }).availableVariants?.filter(Boolean)?.map(v => v && typeof v === 'object' ? { price: v.price, sku: v.sku } : v) ?? []) as { price?: number; sku?: string }[],
+      currency: product.currency || "INR",
+      defaultVariant: defaultVariant
+        ? {
+            price: defaultVariant.price,
+            mrp: defaultVariant.mrp,
+            stockQuantity: defaultVariant.stockQuantity,
+            availabilityStatus: defaultVariant.availabilityStatus,
+          }
+        : undefined,
+      availableVariants: ((
+        product as { availableVariants?: (typeof defaultVariant)[] }
+      ).availableVariants
+        ?.filter(Boolean)
+        ?.map((v) =>
+          v && typeof v === "object" ? { price: v.price, sku: v.sku } : v,
+        ) ?? []) as { price?: number; sku?: string }[],
       availability,
       priceValidUntil,
       deliveryLeadTime: richProduct.deliveryLeadTime,
@@ -465,24 +532,32 @@ export default async function ProductDetailPage({
   // search engines understand the topic hierarchy.
   // Home > Pillar > Category > Product
   const primaryPillarSlug = (richProduct.pillarSlugs || [])[0];
-  const primaryPillarName = primaryPillarSlug ? PILLAR_NAMES[primaryPillarSlug] : null;
+  const primaryPillarName = primaryPillarSlug
+    ? PILLAR_NAMES[primaryPillarSlug]
+    : null;
 
   const breadcrumbSchemaItems: { name: string; item: string }[] = [
-    { name: 'Home', item: SITE_URL },
+    { name: "Home", item: SITE_URL },
   ];
   if (primaryPillarSlug && primaryPillarName) {
-    breadcrumbSchemaItems.push({ name: primaryPillarName, item: `${SITE_URL}/${primaryPillarSlug}` });
+    breadcrumbSchemaItems.push({
+      name: primaryPillarName,
+      item: `${SITE_URL}/${primaryPillarSlug}`,
+    });
   }
   if (primaryCategory) {
-    breadcrumbSchemaItems.push({ name: primaryCategory.name, item: `${SITE_URL}/${primaryCategory.slug}` });
+    breadcrumbSchemaItems.push({
+      name: primaryCategory.name,
+      item: `${SITE_URL}/${primaryCategory.slug}`,
+    });
   }
   breadcrumbSchemaItems.push({ name: product.name, item: productUrl });
 
   const breadcrumbSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
     itemListElement: breadcrumbSchemaItems.map((bc, idx) => ({
-      '@type': 'ListItem',
+      "@type": "ListItem",
       position: idx + 1,
       name: bc.name,
       item: bc.item,
@@ -512,21 +587,22 @@ export default async function ProductDetailPage({
     cmsFaqs: richProductForFaq.productFaqs,
   });
 
-  const faqSchema = productFaqs.length > 0
-    ? {
-        '@context': 'https://schema.org',
-        '@type': 'FAQPage',
-        '@id': `${productUrl}#faq`,
-        mainEntity: productFaqs.map((f) => ({
-          '@type': 'Question',
-          name: f.q,
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: f.a,
-          },
-        })),
-      }
-    : null;
+  const faqSchema =
+    productFaqs.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "@id": `${productUrl}#faq`,
+          mainEntity: productFaqs.map((f) => ({
+            "@type": "Question",
+            name: f.q,
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: f.a,
+            },
+          })),
+        }
+      : null;
 
   return (
     <>
@@ -552,9 +628,13 @@ export default async function ProductDetailPage({
       )}
       <ProductPageContainer variant={variant}>
         <ProductDetails product={product} breadcrumbItems={breadcrumbItems} />
-    
+
         <div className="mt-8">
-          <ProductRichContent product={product as Parameters<typeof ProductRichContent>[0]['product']} />
+          <ProductRichContent
+            product={
+              product as Parameters<typeof ProductRichContent>[0]["product"]
+            }
+          />
         </div>
         <ProductAccordion title="Product Info">
           <InfoTable data={productInfo} />

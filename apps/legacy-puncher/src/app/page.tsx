@@ -19,8 +19,12 @@ export default function Dashboard() {
       <div className="mx-auto max-w-7xl space-y-8">
         <header className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900">Legacy Order Puncher</h1>
-            <p className="text-slate-500">Import, punch shipments, and generate invoices from legacy data.</p>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+              Legacy Order Puncher
+            </h1>
+            <p className="text-slate-500">
+              Import, punch shipments, and generate invoices from legacy data.
+            </p>
           </div>
         </header>
 

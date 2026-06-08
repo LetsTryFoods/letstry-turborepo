@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 
 interface ProductTabsProps {
   description: string;
@@ -17,17 +17,17 @@ export function ProductTabs({
   flavor,
   shelfLife,
   dietPreference,
-  disclaimer
+  disclaimer,
 }: ProductTabsProps) {
-  const [activeTab, setActiveTab] = useState('info');
+  const [activeTab, setActiveTab] = useState("info");
 
   const tabs = [
-    { id: 'info', label: 'Product Info' },
-    { id: 'unit', label: 'Unit' },
-    { id: 'flavor', label: 'Flavour' },
-    { id: 'shelf-life', label: 'Shelf life' },
-    { id: 'diet', label: 'Diet preference' },
-    { id: 'disclaimer', label: 'Disclaimer' }
+    { id: "info", label: "Product Info" },
+    { id: "unit", label: "Unit" },
+    { id: "flavor", label: "Flavour" },
+    { id: "shelf-life", label: "Shelf life" },
+    { id: "diet", label: "Diet preference" },
+    { id: "disclaimer", label: "Disclaimer" },
   ];
 
   return (
@@ -41,8 +41,8 @@ export function ProductTabs({
                 onClick={() => setActiveTab(tab.id)}
                 className={`inline-flex items-center justify-center whitespace-nowrap rounded-none border-b-2 px-4 py-3 text-sm font-medium flex-shrink-0 transition-all ${
                   activeTab === tab.id
-                    ? 'border-teal-600 text-gray-900'
-                    : 'border-transparent text-gray-600 hover:text-gray-900'
+                    ? "border-teal-600 text-gray-900"
+                    : "border-transparent text-gray-600 hover:text-gray-900"
                 }`}
               >
                 {tab.label}
@@ -52,42 +52,44 @@ export function ProductTabs({
         </div>
 
         <div className="p-6">
-          {activeTab === 'info' && (
+          {activeTab === "info" && (
             <div>
               <h3 className="font-semibold text-gray-900 mb-2">Description</h3>
               <p className="text-gray-700 leading-relaxed">{description}</p>
             </div>
           )}
 
-          {activeTab === 'unit' && (
+          {activeTab === "unit" && (
             <div>
               <h3 className="font-semibold text-gray-900 mb-2">Unit</h3>
               <p className="text-gray-700">{unit}</p>
             </div>
           )}
 
-          {activeTab === 'flavor' && (
+          {activeTab === "flavor" && (
             <div>
               <h3 className="font-semibold text-gray-900 mb-2">Flavour</h3>
               <p className="text-gray-700">{flavor}</p>
             </div>
           )}
 
-          {activeTab === 'shelf-life' && (
+          {activeTab === "shelf-life" && (
             <div>
               <h3 className="font-semibold text-gray-900 mb-2">Shelf life</h3>
               <p className="text-gray-700">{shelfLife}</p>
             </div>
           )}
 
-          {activeTab === 'diet' && (
+          {activeTab === "diet" && (
             <div>
-              <h3 className="font-semibold text-gray-900 mb-2">Diet preference</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">
+                Diet preference
+              </h3>
               <p className="text-gray-700">{dietPreference}</p>
             </div>
           )}
 
-          {activeTab === 'disclaimer' && (
+          {activeTab === "disclaimer" && (
             <div>
               <h3 className="font-semibold text-gray-900 mb-2">Disclaimer</h3>
               <p className="text-gray-700 text-sm">{disclaimer}</p>

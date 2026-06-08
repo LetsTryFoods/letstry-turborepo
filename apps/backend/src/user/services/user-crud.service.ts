@@ -25,7 +25,7 @@ export interface CreateUserData {
 export class UserCrudService {
   constructor(
     @InjectModel(Identity.name) private identityModel: Model<IdentityDocument>,
-  ) { }
+  ) {}
 
   async createUser(data: CreateUserData): Promise<User> {
     const identityId = uuidv4();
@@ -88,8 +88,10 @@ export class UserCrudService {
     if (input.firstName !== undefined) updateData.firstName = input.firstName;
     if (input.lastName !== undefined) updateData.lastName = input.lastName;
     if (input.email !== undefined) updateData.email = input.email;
-    if (input.phoneNumber !== undefined) updateData.phoneNumber = input.phoneNumber;
-    if (input.dateOfBirth !== undefined) updateData.dateOfBirth = input.dateOfBirth;
+    if (input.phoneNumber !== undefined)
+      updateData.phoneNumber = input.phoneNumber;
+    if (input.dateOfBirth !== undefined)
+      updateData.dateOfBirth = input.dateOfBirth;
 
     const identity = await this.identityModel
       .findByIdAndUpdate(userId, updateData, { new: true })

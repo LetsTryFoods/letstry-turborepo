@@ -21,7 +21,11 @@ export class PillarService {
   }
 
   async findAll(): Promise<Pillar[]> {
-    return (await this.pillarModel.find().sort({ position: 1 }).lean().exec()) as any as Pillar[];
+    return (await this.pillarModel
+      .find()
+      .sort({ position: 1 })
+      .lean()
+      .exec()) as any as Pillar[];
   }
 
   async findActive(): Promise<Pillar[]> {
@@ -48,7 +52,7 @@ export class PillarService {
       .findOne({ customRoute: route, isActive: true })
       .lean()
       .exec();
-    return pillar ? ((pillar as any) as Pillar) : null;
+    return pillar ? (pillar as any as Pillar) : null;
   }
 
   async findOne(id: string): Promise<Pillar> {

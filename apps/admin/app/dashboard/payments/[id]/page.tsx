@@ -1,25 +1,25 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { usePaymentDetail, useInitiateRefund } from '@/lib/payment/usePayments';
+import { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { usePaymentDetail, useInitiateRefund } from "@/lib/payment/usePayments";
 import {
   getStatusBadgeColor,
   formatCurrency,
   formatDateTime,
   maskCardNumber,
-} from '@/lib/payment/utils';
-import { useOrderById } from '@/lib/orders/queries';
-import { useCustomerDetails } from '@/lib/customers/useCustomers';
-import { getCdnUrl } from '@/lib/utils/image-utils';
+} from "@/lib/payment/utils";
+import { useOrderById } from "@/lib/orders/queries";
+import { useCustomerDetails } from "@/lib/customers/useCustomers";
+import { getCdnUrl } from "@/lib/utils/image-utils";
 
 export default function PaymentDetailPage() {
   const params = useParams();
   const router = useRouter();
   const paymentOrderId = params.id as string;
   const [showRefundModal, setShowRefundModal] = useState(false);
-  const [refundAmount, setRefundAmount] = useState('');
-  const [refundReason, setRefundReason] = useState('');
+  const [refundAmount, setRefundAmount] = useState("");
+  const [refundReason, setRefundReason] = useState("");
   const [showOrderDialog, setShowOrderDialog] = useState(false);
   const [showCustomerDialog, setShowCustomerDialog] = useState(false);
 
@@ -27,18 +27,17 @@ export default function PaymentDetailPage() {
   const payment = (data as any)?.getAdminPaymentDetail;
 
   const { order: orderData, loading: orderLoading } = useOrderById(
-    showOrderDialog ? payment?.orderId : ''
+    showOrderDialog ? payment?.orderId : "",
   );
 
-  const { customer: customerData, loading: customerLoading } = useCustomerDetails(
-    showCustomerDialog ? payment?.identityId : ''
-  );
+  const { customer: customerData, loading: customerLoading } =
+    useCustomerDetails(showCustomerDialog ? payment?.identityId : "");
 
   const refundMutation = useInitiateRefund();
 
   const handleRefundSubmit = async () => {
     if (!refundAmount || parseFloat(refundAmount) <= 0) {
-      alert('Invalid refund amount');
+      alert("Invalid refund amount");
       return;
     }
 
@@ -48,27 +47,29 @@ export default function PaymentDetailPage() {
           input: {
             paymentOrderId,
             refundAmount,
-            reason: refundReason || 'Admin refund',
+            reason: refundReason || "Admin refund",
           },
         },
       });
       setShowRefundModal(false);
-      setRefundAmount('');
-      setRefundReason('');
+      setRefundAmount("");
+      setRefundReason("");
       refetch();
     } catch (err) {
-      console.error('Refund failed:', err);
+      console.error("Refund failed:", err);
     }
   };
 
   if (loading) return <div className="p-6">Loading payment details...</div>;
-  if (error) return <div className="p-6 text-red-600">Error loading payment</div>;
+  if (error)
+    return <div className="p-6 text-red-600">Error loading payment</div>;
   if (!payment) return <div className="p-6">Payment not found</div>;
 
-  const totalRefunded = payment.refunds?.reduce(
-    (sum: number, r: any) => sum + parseFloat(r.refundAmount),
-    0
-  ) || 0;
+  const totalRefunded =
+    payment.refunds?.reduce(
+      (sum: number, r: any) => sum + parseFloat(r.refundAmount),
+      0,
+    ) || 0;
   const remainingAmount = parseFloat(payment.amount) - totalRefunded;
 
   return (
@@ -84,7 +85,7 @@ export default function PaymentDetailPage() {
           <h1 className="text-3xl font-bold">Payment Details</h1>
           <p className="text-gray-600">{payment.paymentOrderId}</p>
         </div>
-        {payment.paymentOrderStatus === 'SUCCESS' && remainingAmount > 0 && (
+        {payment.paymentOrderStatus === "SUCCESS" && remainingAmount > 0 && (
           <button
             onClick={() => setShowRefundModal(true)}
             className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
@@ -96,22 +97,28 @@ export default function PaymentDetailPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-lg shadow p-6 space-y-4">
-          <h2 className="text-xl font-semibold border-b pb-2">Payment Summary</h2>
+          <h2 className="text-xl font-semibold border-b pb-2">
+            Payment Summary
+          </h2>
 
           <div className="space-y-2">
             <div className="flex justify-between">
               <span className="text-gray-600">Status:</span>
-              <span className={`px-2 py-1 rounded text-sm font-medium ${getStatusBadgeColor(payment.paymentOrderStatus)}`}>
+              <span
+                className={`px-2 py-1 rounded text-sm font-medium ${getStatusBadgeColor(payment.paymentOrderStatus)}`}
+              >
                 {payment.paymentOrderStatus}
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Amount:</span>
-              <span className="font-semibold">{formatCurrency(payment.amount, payment.currency)}</span>
+              <span className="font-semibold">
+                {formatCurrency(payment.amount, payment.currency)}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Payment Method:</span>
-              <span>{payment.paymentMethod || '-'}</span>
+              <span>{payment.paymentMethod || "-"}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Created At:</span>
@@ -147,20 +154,26 @@ export default function PaymentDetailPage() {
         </div>
 
         <div className="bg-white rounded-lg shadow p-6 space-y-4">
-          <h2 className="text-xl font-semibold border-b pb-2">Gateway Details</h2>
+          <h2 className="text-xl font-semibold border-b pb-2">
+            Gateway Details
+          </h2>
 
           <div className="space-y-2">
             <div className="flex justify-between">
               <span className="text-gray-600">PSP Transaction ID:</span>
-              <span className="font-mono text-sm">{payment.pspTxnId || '-'}</span>
+              <span className="font-mono text-sm">
+                {payment.pspTxnId || "-"}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">PSP Order ID:</span>
-              <span className="font-mono text-sm">{payment.pspOrderId || '-'}</span>
+              <span className="font-mono text-sm">
+                {payment.pspOrderId || "-"}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Response Code:</span>
-              <span>{payment.pspResponseCode || '-'}</span>
+              <span>{payment.pspResponseCode || "-"}</span>
             </div>
             {payment.pspResponseMessage && (
               <div className="flex justify-between">
@@ -170,8 +183,12 @@ export default function PaymentDetailPage() {
             )}
             {payment.failureReason && (
               <div className="flex justify-between">
-                <span className="text-gray-600 text-red-600">Failure Reason:</span>
-                <span className="text-sm text-red-600">{payment.failureReason}</span>
+                <span className="text-gray-600 text-red-600">
+                  Failure Reason:
+                </span>
+                <span className="text-sm text-red-600">
+                  {payment.failureReason}
+                </span>
               </div>
             )}
             {payment.retryCount > 0 && (
@@ -185,20 +202,24 @@ export default function PaymentDetailPage() {
 
         {payment.cardToken && (
           <div className="bg-white rounded-lg shadow p-6 space-y-4">
-            <h2 className="text-xl font-semibold border-b pb-2">Payment Instrument</h2>
+            <h2 className="text-xl font-semibold border-b pb-2">
+              Payment Instrument
+            </h2>
 
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span className="text-gray-600">Payment Mode:</span>
-                <span>{payment.paymentMode || '-'}</span>
+                <span>{payment.paymentMode || "-"}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Card Scheme:</span>
-                <span>{payment.cardScheme || '-'}</span>
+                <span>{payment.cardScheme || "-"}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Card Number:</span>
-                <span className="font-mono">{maskCardNumber(payment.cardToken)}</span>
+                <span className="font-mono">
+                  {maskCardNumber(payment.cardToken)}
+                </span>
               </div>
               {payment.bankName && (
                 <div className="flex justify-between">
@@ -216,17 +237,25 @@ export default function PaymentDetailPage() {
           <div className="space-y-2">
             <div className="flex justify-between">
               <span className="text-gray-600">Ledger Updated:</span>
-              <span className={payment.ledgerUpdated ? 'text-green-600' : 'text-gray-400'}>
-                {payment.ledgerUpdated ? 'Yes' : 'No'}
+              <span
+                className={
+                  payment.ledgerUpdated ? "text-green-600" : "text-gray-400"
+                }
+              >
+                {payment.ledgerUpdated ? "Yes" : "No"}
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Total Refunded:</span>
-              <span className="font-semibold">{formatCurrency(totalRefunded.toString(), payment.currency)}</span>
+              <span className="font-semibold">
+                {formatCurrency(totalRefunded.toString(), payment.currency)}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Remaining:</span>
-              <span className="font-semibold">{formatCurrency(remainingAmount.toString(), payment.currency)}</span>
+              <span className="font-semibold">
+                {formatCurrency(remainingAmount.toString(), payment.currency)}
+              </span>
             </div>
           </div>
         </div>
@@ -234,35 +263,50 @@ export default function PaymentDetailPage() {
 
       {payment.cartSnapshot && (
         <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold border-b pb-2 mb-4">Cart Details</h2>
+          <h2 className="text-xl font-semibold border-b pb-2 mb-4">
+            Cart Details
+          </h2>
 
-          {payment.cartSnapshot.items && payment.cartSnapshot.items.length > 0 && (
-            <div className="mb-6">
-              <h3 className="font-semibold mb-3">Items</h3>
-              <div className="space-y-3">
-                {payment.cartSnapshot.items.map((item: any, idx: number) => (
-                  <div key={idx} className="flex items-center gap-4 border rounded p-3">
-                    {item.imageUrl && (
-                      <img
-                        src={getCdnUrl(item.imageUrl)}
-                        alt={item.name}
-                        className="w-16 h-16 object-cover rounded"
-                      />
-                    )}
-                    <div className="flex-1">
-                      <p className="font-medium">{item.name}</p>
-                      <p className="text-sm text-gray-600">SKU: {item.sku}</p>
-                      <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+          {payment.cartSnapshot.items &&
+            payment.cartSnapshot.items.length > 0 && (
+              <div className="mb-6">
+                <h3 className="font-semibold mb-3">Items</h3>
+                <div className="space-y-3">
+                  {payment.cartSnapshot.items.map((item: any, idx: number) => (
+                    <div
+                      key={idx}
+                      className="flex items-center gap-4 border rounded p-3"
+                    >
+                      {item.imageUrl && (
+                        <img
+                          src={getCdnUrl(item.imageUrl)}
+                          alt={item.name}
+                          className="w-16 h-16 object-cover rounded"
+                        />
+                      )}
+                      <div className="flex-1">
+                        <p className="font-medium">{item.name}</p>
+                        <p className="text-sm text-gray-600">SKU: {item.sku}</p>
+                        <p className="text-sm text-gray-600">
+                          Quantity: {item.quantity}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold">
+                          {formatCurrency(
+                            item.totalPrice.toString(),
+                            payment.currency,
+                          )}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          ₹{item.unitPrice} each
+                        </p>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-semibold">{formatCurrency(item.totalPrice.toString(), payment.currency)}</p>
-                      <p className="text-sm text-gray-600">₹{item.unitPrice} each</p>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           {payment.cartSnapshot.totals && (
             <div>
@@ -270,35 +314,66 @@ export default function PaymentDetailPage() {
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Subtotal:</span>
-                  <span>{formatCurrency(payment.cartSnapshot.totals.subtotal.toString(), payment.currency)}</span>
+                  <span>
+                    {formatCurrency(
+                      payment.cartSnapshot.totals.subtotal.toString(),
+                      payment.currency,
+                    )}
+                  </span>
                 </div>
                 {payment.cartSnapshot.totals.discountAmount > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Discount:</span>
-                    <span className="text-green-600">-{formatCurrency(payment.cartSnapshot.totals.discountAmount.toString(), payment.currency)}</span>
+                    <span className="text-green-600">
+                      -
+                      {formatCurrency(
+                        payment.cartSnapshot.totals.discountAmount.toString(),
+                        payment.currency,
+                      )}
+                    </span>
                   </div>
                 )}
                 {payment.cartSnapshot.totals.shippingCost > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Shipping:</span>
-                    <span>{formatCurrency(payment.cartSnapshot.totals.shippingCost.toString(), payment.currency)}</span>
+                    <span>
+                      {formatCurrency(
+                        payment.cartSnapshot.totals.shippingCost.toString(),
+                        payment.currency,
+                      )}
+                    </span>
                   </div>
                 )}
                 {payment.cartSnapshot.totals.estimatedTax > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Tax:</span>
-                    <span>{formatCurrency(payment.cartSnapshot.totals.estimatedTax.toString(), payment.currency)}</span>
+                    <span>
+                      {formatCurrency(
+                        payment.cartSnapshot.totals.estimatedTax.toString(),
+                        payment.currency,
+                      )}
+                    </span>
                   </div>
                 )}
                 {payment.cartSnapshot.totals.handlingCharge > 0 && (
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Handling:</span>
-                    <span>{formatCurrency(payment.cartSnapshot.totals.handlingCharge.toString(), payment.currency)}</span>
+                    <span>
+                      {formatCurrency(
+                        payment.cartSnapshot.totals.handlingCharge.toString(),
+                        payment.currency,
+                      )}
+                    </span>
                   </div>
                 )}
                 <div className="flex justify-between font-semibold text-lg border-t pt-2">
                   <span>Grand Total:</span>
-                  <span>{formatCurrency(payment.cartSnapshot.totals.grandTotal.toString(), payment.currency)}</span>
+                  <span>
+                    {formatCurrency(
+                      payment.cartSnapshot.totals.grandTotal.toString(),
+                      payment.currency,
+                    )}
+                  </span>
                 </div>
               </div>
             </div>
@@ -308,33 +383,51 @@ export default function PaymentDetailPage() {
             <div>
               <h3 className="font-semibold mb-3">Shipping Address</h3>
               <div className="border rounded p-4 space-y-2">
-                <p className="font-medium">{payment.cartSnapshot.shippingAddress.recipientName}</p>
-                <p className="text-sm text-gray-600">{payment.cartSnapshot.shippingAddress.recipientPhone}</p>
+                <p className="font-medium">
+                  {payment.cartSnapshot.shippingAddress.recipientName}
+                </p>
+                <p className="text-sm text-gray-600">
+                  {payment.cartSnapshot.shippingAddress.recipientPhone}
+                </p>
 
                 {payment.cartSnapshot.shippingAddress.buildingName && (
-                  <p className="text-sm text-gray-700">{payment.cartSnapshot.shippingAddress.buildingName}</p>
+                  <p className="text-sm text-gray-700">
+                    {payment.cartSnapshot.shippingAddress.buildingName}
+                  </p>
                 )}
 
                 {payment.cartSnapshot.shippingAddress.floor && (
-                  <p className="text-sm text-gray-700">Floor: {payment.cartSnapshot.shippingAddress.floor}</p>
+                  <p className="text-sm text-gray-700">
+                    Floor: {payment.cartSnapshot.shippingAddress.floor}
+                  </p>
                 )}
 
                 {payment.cartSnapshot.shippingAddress.streetArea && (
-                  <p className="text-sm text-gray-700">{payment.cartSnapshot.shippingAddress.streetArea}</p>
+                  <p className="text-sm text-gray-700">
+                    {payment.cartSnapshot.shippingAddress.streetArea}
+                  </p>
                 )}
 
                 <p className="text-sm text-gray-700">
-                  {payment.cartSnapshot.shippingAddress.addressLocality}, {payment.cartSnapshot.shippingAddress.addressRegion} - {payment.cartSnapshot.shippingAddress.postalCode}
+                  {payment.cartSnapshot.shippingAddress.addressLocality},{" "}
+                  {payment.cartSnapshot.shippingAddress.addressRegion} -{" "}
+                  {payment.cartSnapshot.shippingAddress.postalCode}
                 </p>
 
                 {payment.cartSnapshot.shippingAddress.landmark && (
-                  <p className="text-sm text-gray-600">Landmark: {payment.cartSnapshot.shippingAddress.landmark}</p>
+                  <p className="text-sm text-gray-600">
+                    Landmark: {payment.cartSnapshot.shippingAddress.landmark}
+                  </p>
                 )}
 
                 {payment.cartSnapshot.shippingAddress.formattedAddress && (
                   <div className="mt-3 pt-3 border-t">
-                    <p className="text-xs text-gray-500 font-medium mb-1">Complete Address:</p>
-                    <p className="text-sm text-gray-700">{payment.cartSnapshot.shippingAddress.formattedAddress}</p>
+                    <p className="text-xs text-gray-500 font-medium mb-1">
+                      Complete Address:
+                    </p>
+                    <p className="text-sm text-gray-700">
+                      {payment.cartSnapshot.shippingAddress.formattedAddress}
+                    </p>
                   </div>
                 )}
               </div>
@@ -351,13 +444,17 @@ export default function PaymentDetailPage() {
               <div key={refund._id} className="border rounded p-4 space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="font-mono text-sm">{refund.refundId}</span>
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusBadgeColor(refund.refundStatus)}`}>
+                  <span
+                    className={`px-2 py-1 rounded text-xs font-medium ${getStatusBadgeColor(refund.refundStatus)}`}
+                  >
                     {refund.refundStatus}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Amount:</span>
-                  <span className="font-semibold">{formatCurrency(refund.refundAmount, refund.currency)}</span>
+                  <span className="font-semibold">
+                    {formatCurrency(refund.refundAmount, refund.currency)}
+                  </span>
                 </div>
                 {refund.reason && (
                   <div className="flex justify-between text-sm">
@@ -381,7 +478,9 @@ export default function PaymentDetailPage() {
             <h2 className="text-xl font-semibold">Initiate Refund</h2>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Refund Amount</label>
+              <label className="block text-sm font-medium mb-1">
+                Refund Amount
+              </label>
               <input
                 type="number"
                 id="refund-amount"
@@ -394,12 +493,15 @@ export default function PaymentDetailPage() {
                 placeholder={`Max: ${remainingAmount}`}
               />
               <p className="text-xs text-gray-500 mt-1">
-                Remaining refundable amount: {formatCurrency(remainingAmount.toString(), payment.currency)}
+                Remaining refundable amount:{" "}
+                {formatCurrency(remainingAmount.toString(), payment.currency)}
               </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Reason (optional)</label>
+              <label className="block text-sm font-medium mb-1">
+                Reason (optional)
+              </label>
               <textarea
                 id="refund-reason"
                 name="refundReason"
@@ -424,7 +526,7 @@ export default function PaymentDetailPage() {
                 className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
                 disabled={refundMutation.loading}
               >
-                {refundMutation.loading ? 'Processing...' : 'Submit Refund'}
+                {refundMutation.loading ? "Processing..." : "Submit Refund"}
               </button>
             </div>
 
@@ -464,11 +566,18 @@ export default function PaymentDetailPage() {
                   </div>
                   <div>
                     <span className="text-gray-600 text-sm">Total Amount:</span>
-                    <p className="font-medium">{formatCurrency(orderData.totalAmount, orderData.currency || 'INR')}</p>
+                    <p className="font-medium">
+                      {formatCurrency(
+                        orderData.totalAmount,
+                        orderData.currency || "INR",
+                      )}
+                    </p>
                   </div>
                   <div>
                     <span className="text-gray-600 text-sm">Created:</span>
-                    <p className="font-medium">{formatDateTime(orderData.createdAt)}</p>
+                    <p className="font-medium">
+                      {formatDateTime(orderData.createdAt)}
+                    </p>
                   </div>
                 </div>
                 {orderData.items && orderData.items.length > 0 && (
@@ -476,7 +585,10 @@ export default function PaymentDetailPage() {
                     <h3 className="font-semibold mb-2">Items:</h3>
                     <div className="space-y-2">
                       {orderData.items.map((item: any, idx: number) => (
-                        <div key={idx} className="flex justify-between border-b pb-2">
+                        <div
+                          key={idx}
+                          className="flex justify-between border-b pb-2"
+                        >
                           <span>{item.name || item.sku}</span>
                           <span>Qty: {item.quantity}</span>
                         </div>
@@ -486,7 +598,9 @@ export default function PaymentDetailPage() {
                 )}
               </div>
             ) : (
-              <div className="text-center py-8 text-gray-500">Order not found</div>
+              <div className="text-center py-8 text-gray-500">
+                Order not found
+              </div>
             )}
           </div>
         </div>
@@ -505,21 +619,27 @@ export default function PaymentDetailPage() {
               </button>
             </div>
             {customerLoading ? (
-              <div className="text-center py-8">Loading customer details...</div>
+              <div className="text-center py-8">
+                Loading customer details...
+              </div>
             ) : customerData ? (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <span className="text-gray-600 text-sm">Name:</span>
-                    <p className="font-medium">{customerData.firstName} {customerData.lastName}</p>
+                    <p className="font-medium">
+                      {customerData.firstName} {customerData.lastName}
+                    </p>
                   </div>
                   <div>
                     <span className="text-gray-600 text-sm">Email:</span>
-                    <p className="font-medium">{customerData.email || '-'}</p>
+                    <p className="font-medium">{customerData.email || "-"}</p>
                   </div>
                   <div>
                     <span className="text-gray-600 text-sm">Phone:</span>
-                    <p className="font-medium">{customerData.phoneNumber || '-'}</p>
+                    <p className="font-medium">
+                      {customerData.phoneNumber || "-"}
+                    </p>
                   </div>
                   <div>
                     <span className="text-gray-600 text-sm">Status:</span>
@@ -527,24 +647,36 @@ export default function PaymentDetailPage() {
                   </div>
                   <div>
                     <span className="text-gray-600 text-sm">Total Orders:</span>
-                    <p className="font-medium">{customerData.totalOrders || 0}</p>
+                    <p className="font-medium">
+                      {customerData.totalOrders || 0}
+                    </p>
                   </div>
                   <div>
                     <span className="text-gray-600 text-sm">Total Spent:</span>
-                    <p className="font-medium">₹{customerData.totalSpent || 0}</p>
+                    <p className="font-medium">
+                      ₹{customerData.totalSpent || 0}
+                    </p>
                   </div>
                   <div>
                     <span className="text-gray-600 text-sm">Registered:</span>
-                    <p className="font-medium">{customerData.registeredAt ? formatDateTime(customerData.registeredAt) : '-'}</p>
+                    <p className="font-medium">
+                      {customerData.registeredAt
+                        ? formatDateTime(customerData.registeredAt)
+                        : "-"}
+                    </p>
                   </div>
                   <div>
                     <span className="text-gray-600 text-sm">Guest:</span>
-                    <p className="font-medium">{customerData.isGuest ? 'Yes' : 'No'}</p>
+                    <p className="font-medium">
+                      {customerData.isGuest ? "Yes" : "No"}
+                    </p>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="text-center py-8 text-gray-500">Customer not found</div>
+              <div className="text-center py-8 text-gray-500">
+                Customer not found
+              </div>
             )}
           </div>
         </div>

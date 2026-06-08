@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { getBackendApiUrl } from '@/lib/utils/api';
+import { useEffect, useRef, useState } from "react";
+import { getBackendApiUrl } from "@/lib/utils/api";
 
 interface PaymentStatusEvent {
   paymentOrderId: string;
@@ -40,14 +40,14 @@ export const usePaymentSse = ({
         const data: PaymentStatusEvent = JSON.parse(event.data);
         onStatusChange(data);
       } catch (error) {
-        console.error('[SSE] Failed to parse message:', error);
-        onError?.(new Error('Failed to parse SSE message'));
+        console.error("[SSE] Failed to parse message:", error);
+        onError?.(new Error("Failed to parse SSE message"));
       }
     };
 
     eventSource.onerror = () => {
       setIsConnected(false);
-      onError?.(new Error('SSE connection error'));
+      onError?.(new Error("SSE connection error"));
       eventSource.close();
     };
 

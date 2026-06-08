@@ -1,4 +1,4 @@
-import { gql } from 'graphql-request';
+import { gql } from "graphql-request";
 
 export const GET_ALL_PRODUCTS_FOR_SITEMAP = gql`
   query GetAllProductsForSitemap {

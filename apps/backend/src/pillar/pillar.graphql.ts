@@ -1,4 +1,10 @@
-import { ObjectType, Field, ID, Int, GraphQLISODateTime } from '@nestjs/graphql';
+import {
+  ObjectType,
+  Field,
+  ID,
+  Int,
+  GraphQLISODateTime,
+} from '@nestjs/graphql';
 import { SeoBase } from '../seo-core/seo-base.schema';
 
 @ObjectType()
@@ -30,7 +36,8 @@ export class Pillar {
   @Field() title: string;
   @Field() intro: string;
   @Field({ nullable: true }) heroImageUrl?: string;
-  @Field(() => [PillarCategoryTileType]) categoryTiles: PillarCategoryTileType[];
+  @Field(() => [PillarCategoryTileType])
+  categoryTiles: PillarCategoryTileType[];
   @Field(() => [String]) featuredProductIds: string[];
   @Field(() => [PillarSectionType]) sections: PillarSectionType[];
   @Field(() => [PillarFaqEntryType]) faqs: PillarFaqEntryType[];

@@ -6,11 +6,11 @@ import { BlogSchema, BLOG_MODEL } from './blog.schema';
 import { AdminModule } from '../admin/admin.module';
 
 @Module({
-    imports: [
-        MongooseModule.forFeature([{ name: BLOG_MODEL, schema: BlogSchema }]),
-        AdminModule,
-    ],
-    providers: [BlogService, BlogResolver],
-    exports: [BlogService],
+  imports: [
+    MongooseModule.forFeature([{ name: BLOG_MODEL, schema: BlogSchema }]),
+    AdminModule,
+  ],
+  providers: [BlogService, BlogResolver],
+  exports: [BlogService],
 })
-export class BlogModule { }
+export class BlogModule {}

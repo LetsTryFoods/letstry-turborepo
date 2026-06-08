@@ -82,7 +82,11 @@ export class PackingLoggerService {
     });
   }
 
-  logPackingCompleted(packingOrderId: string, packerId: string, duration: number) {
+  logPackingCompleted(
+    packingOrderId: string,
+    packerId: string,
+    duration: number,
+  ) {
     this.logger.info('Packing completed', {
       event: 'PACKING_COMPLETED',
       packingOrderId,
@@ -98,7 +102,12 @@ export class PackingLoggerService {
     });
   }
 
-  logReassignment(packingOrderId: string, oldPackerId: string, newPackerId: string, reason: string) {
+  logReassignment(
+    packingOrderId: string,
+    oldPackerId: string,
+    newPackerId: string,
+    reason: string,
+  ) {
     this.logger.info('Order reassigned', {
       event: 'ORDER_REASSIGNED',
       packingOrderId,

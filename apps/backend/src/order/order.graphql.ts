@@ -241,8 +241,6 @@ export class OrderType {
   updatedAt: Date;
 }
 
-
-
 @ObjectType()
 export class OrderWithUserInfo extends OrderType {
   @Field(() => OrderUserInfo, { nullable: true })

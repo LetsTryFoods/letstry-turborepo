@@ -1,66 +1,78 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Separator } from '@/components/ui/separator'
-import { toast } from 'react-hot-toast'
-import { Camera, Save, User as UserIcon } from 'lucide-react'
-import { ComingSoonBanner } from '@/components/ComingSoonBanner'
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "react-hot-toast";
+import { Camera, Save, User as UserIcon } from "lucide-react";
+import { ComingSoonBanner } from "@/components/ComingSoonBanner";
 
 interface ProfileFormData {
-  fullName: string
-  email: string
-  phone: string
-  bio: string
+  fullName: string;
+  email: string;
+  phone: string;
+  bio: string;
 }
 
 export default function ProfilePage() {
-  const [isEditing, setIsEditing] = useState(false)
-  const [avatarUrl, setAvatarUrl] = useState('')
-  
-  const { register, handleSubmit, formState: { errors } } = useForm<ProfileFormData>({
+  const [isEditing, setIsEditing] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState("");
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ProfileFormData>({
     defaultValues: {
-      fullName: 'Admin User',
-      email: 'admin@letstry.com',
-      phone: '+91 1234567890',
-      bio: 'Admin at Let\'s Try Foods'
-    }
-  })
+      fullName: "Admin User",
+      email: "admin@letstry.com",
+      phone: "+91 1234567890",
+      bio: "Admin at Let's Try Foods",
+    },
+  });
 
   const onSubmit = async (data: ProfileFormData) => {
     try {
       // TODO: Implement API call to update profile
-      console.log('Profile data:', data)
-      toast.success('Profile updated successfully!')
-      setIsEditing(false)
+      console.log("Profile data:", data);
+      toast.success("Profile updated successfully!");
+      setIsEditing(false);
     } catch (error) {
-      toast.error('Failed to update profile')
+      toast.error("Failed to update profile");
     }
-  }
+  };
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+    const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onloadend = () => {
-        setAvatarUrl(reader.result as string)
-        toast.success('Avatar updated!')
-      }
-      reader.readAsDataURL(file)
+        setAvatarUrl(reader.result as string);
+        toast.success("Avatar updated!");
+      };
+      reader.readAsDataURL(file);
     }
-  }
+  };
 
   return (
     <div className="container max-w-4xl py-6 space-y-6 mx-auto">
       <ComingSoonBanner feature="Profile backend" />
       <div>
         <h1 className="text-3xl font-bold">Profile</h1>
-        <p className="text-muted-foreground">Manage your account profile and personal information</p>
+        <p className="text-muted-foreground">
+          Manage your account profile and personal information
+        </p>
       </div>
 
       <Separator />
@@ -68,7 +80,9 @@ export default function ProfilePage() {
       <Card>
         <CardHeader>
           <CardTitle>Personal Information</CardTitle>
-          <CardDescription>Update your personal details and profile picture</CardDescription>
+          <CardDescription>
+            Update your personal details and profile picture
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Avatar Section */}
@@ -110,10 +124,14 @@ export default function ProfilePage() {
                   id="fullName"
                   placeholder="Enter your full name"
                   disabled={!isEditing}
-                  {...register('fullName', { required: 'Full name is required' })}
+                  {...register("fullName", {
+                    required: "Full name is required",
+                  })}
                 />
                 {errors.fullName && (
-                  <p className="text-sm text-red-600">{errors.fullName.message}</p>
+                  <p className="text-sm text-red-600">
+                    {errors.fullName.message}
+                  </p>
                 )}
               </div>
 
@@ -124,7 +142,7 @@ export default function ProfilePage() {
                   type="email"
                   placeholder="Enter your email"
                   disabled={!isEditing}
-                  {...register('email', { required: 'Email is required' })}
+                  {...register("email", { required: "Email is required" })}
                 />
                 {errors.email && (
                   <p className="text-sm text-red-600">{errors.email.message}</p>
@@ -138,7 +156,7 @@ export default function ProfilePage() {
                   type="tel"
                   placeholder="Enter your phone number"
                   disabled={!isEditing}
-                  {...register('phone')}
+                  {...register("phone")}
                 />
               </div>
 
@@ -148,7 +166,7 @@ export default function ProfilePage() {
                   id="bio"
                   placeholder="Tell us about yourself"
                   disabled={!isEditing}
-                  {...register('bio')}
+                  {...register("bio")}
                 />
               </div>
             </div>
@@ -207,5 +225,5 @@ export default function ProfilePage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

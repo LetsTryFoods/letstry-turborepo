@@ -52,6 +52,6 @@ export class BoxRecommendationService {
 
   async getBoxByCode(code: string): Promise<any> {
     const boxes = await this.boxSizeCrud.findActive();
-    return boxes.find(b => b.code === code) || null;
+    return boxes.find((b) => b.code === code) || null;
   }
 }

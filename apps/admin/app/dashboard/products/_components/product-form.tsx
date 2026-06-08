@@ -55,7 +55,7 @@ export function ProductForm({
 
   const { data: categoriesData, loading: categoriesLoading } = useCategories(
     { page: 1, limit: 100 },
-    false
+    false,
   );
   const categories = (categoriesData as any)?.categories?.items || [];
 
@@ -114,7 +114,7 @@ export function ProductForm({
 
   const toggleVariantExpand = (index: number) => {
     setExpandedVariants((prev) =>
-      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index],
     );
   };
 
@@ -143,7 +143,7 @@ export function ProductForm({
     }
 
     setExpandedVariants((prev) =>
-      prev.filter((i) => i !== index).map((i) => (i > index ? i - 1 : i))
+      prev.filter((i) => i !== index).map((i) => (i > index ? i - 1 : i)),
     );
   };
 
@@ -158,7 +158,7 @@ export function ProductForm({
       if (mrp > 0 && price > 0 && price <= mrp) {
         const discount = Math.round(((mrp - price) / mrp) * 100);
         const currentDiscount = form.getValues(
-          `variants.${index}.discountPercent`
+          `variants.${index}.discountPercent`,
         );
         if (currentDiscount !== discount) {
           form.setValue(`variants.${index}.discountPercent`, discount, {
@@ -167,7 +167,7 @@ export function ProductForm({
         }
       } else if (mrp > 0 && price === mrp) {
         const currentDiscount = form.getValues(
-          `variants.${index}.discountPercent`
+          `variants.${index}.discountPercent`,
         );
         if (currentDiscount !== 0) {
           form.setValue(`variants.${index}.discountPercent`, 0, {
@@ -286,8 +286,9 @@ export function ProductForm({
     } catch (error) {
       console.error("Failed to save product:", error);
       alert(
-        `Failed to save product: ${error instanceof Error ? error.message : "Unknown error"
-        }`
+        `Failed to save product: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
       );
     }
   };
@@ -298,7 +299,7 @@ export function ProductForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit, (errors) =>
-          console.error("Validation errors:", errors)
+          console.error("Validation errors:", errors),
         )}
         className="space-y-6"
       >
@@ -360,8 +361,9 @@ export function ProductForm({
                           <SelectTrigger>
                             <SelectValue placeholder="Select categories">
                               {field.value?.length > 0
-                                ? `${field.value.length} categor${field.value.length === 1 ? "y" : "ies"
-                                } selected`
+                                ? `${field.value.length} categor${
+                                    field.value.length === 1 ? "y" : "ies"
+                                  } selected`
                                 : categoriesLoading
                                   ? "Loading categories..."
                                   : "Select categories"}
@@ -379,7 +381,7 @@ export function ProductForm({
                             ) : (
                               categories.map((category: any) => {
                                 const isSelected = field.value?.includes(
-                                  category._id
+                                  category._id,
                                 );
                                 return (
                                   <div
@@ -389,9 +391,12 @@ export function ProductForm({
                                       e.preventDefault();
                                       const newValue = isSelected
                                         ? field.value.filter(
-                                          (id: string) => id !== category._id
-                                        )
-                                        : [...(field.value || []), category._id];
+                                            (id: string) => id !== category._id,
+                                          )
+                                        : [
+                                            ...(field.value || []),
+                                            category._id,
+                                          ];
                                       field.onChange(newValue);
                                     }}
                                   >
@@ -400,12 +405,13 @@ export function ProductForm({
                                       onCheckedChange={(checked) => {
                                         const newValue = checked
                                           ? [
-                                            ...(field.value || []),
-                                            category._id,
-                                          ]
+                                              ...(field.value || []),
+                                              category._id,
+                                            ]
                                           : field.value.filter(
-                                            (id: string) => id !== category._id
-                                          );
+                                              (id: string) =>
+                                                id !== category._id,
+                                            );
                                         field.onChange(newValue);
                                       }}
                                     />
@@ -422,7 +428,7 @@ export function ProductForm({
                           <div className="flex flex-wrap gap-1">
                             {field.value.map((categoryId: string) => {
                               const category = categories.find(
-                                (c: any) => c._id === categoryId
+                                (c: any) => c._id === categoryId,
                               );
                               return category ? (
                                 <Badge
@@ -436,7 +442,7 @@ export function ProductForm({
                                     className="ml-1 hover:bg-secondary-foreground/20 rounded-full"
                                     onClick={() => {
                                       const newValue = field.value.filter(
-                                        (id: string) => id !== categoryId
+                                        (id: string) => id !== categoryId,
                                       );
                                       field.onChange(newValue);
                                     }}
@@ -796,15 +802,15 @@ export function ProductForm({
                                     field.onChange(mrp);
                                     // Calculate discount percentage
                                     const price = form.getValues(
-                                      `variants.${index}.price`
+                                      `variants.${index}.price`,
                                     );
                                     if (mrp > 0 && price > 0) {
                                       const discount = Math.round(
-                                        ((mrp - price) / mrp) * 100
+                                        ((mrp - price) / mrp) * 100,
                                       );
                                       form.setValue(
                                         `variants.${index}.discountPercent`,
-                                        Math.max(0, discount)
+                                        Math.max(0, discount),
                                       );
                                     }
                                   }}
@@ -840,16 +846,16 @@ export function ProductForm({
                                       field.onChange(price);
                                       // Calculate discount percentage
                                       const currentMrp = form.getValues(
-                                        `variants.${index}.mrp`
+                                        `variants.${index}.mrp`,
                                       );
                                       if (currentMrp > 0 && price > 0) {
                                         const discount = Math.round(
                                           ((currentMrp - price) / currentMrp) *
-                                          100
+                                            100,
                                         );
                                         form.setValue(
                                           `variants.${index}.discountPercent`,
-                                          Math.max(0, discount)
+                                          Math.max(0, discount),
                                         );
                                       }
                                     }}
@@ -978,7 +984,6 @@ export function ProductForm({
                             </FormItem>
                           )}
                         />
-
 
                         <FormField
                           control={form.control}
@@ -1165,7 +1170,7 @@ function VariantImageUpload({
       preview: img.url ? getCdnUrl(img.url) : "",
       finalUrl: img.url ? getCdnUrl(img.url) : "",
       key: extractKeyFromUrl(img.url),
-    })) || []
+    })) || [],
   );
 
   const handleImagesChange = useCallback(
@@ -1176,7 +1181,7 @@ function VariantImageUpload({
         preview: string;
         finalUrl?: string;
         key?: string;
-      }>
+      }>,
     ) => {
       setImages(newImages);
       form.setValue(
@@ -1188,17 +1193,21 @@ function VariantImageUpload({
           finalUrl: img.finalUrl,
           key: img.key,
         })),
-        { shouldValidate: false, shouldDirty: true }
+        { shouldValidate: false, shouldDirty: true },
       );
 
       // Set thumbnail URL to first image (prefer key)
       if (newImages.length > 0) {
         const firstImage = newImages[0];
-        const thumbnail = firstImage.key || extractKeyFromUrl(firstImage.finalUrl) || extractKeyFromUrl(firstImage.preview) || "";
+        const thumbnail =
+          firstImage.key ||
+          extractKeyFromUrl(firstImage.finalUrl) ||
+          extractKeyFromUrl(firstImage.preview) ||
+          "";
         form.setValue(`variants.${index}.thumbnailUrl`, thumbnail);
       }
     },
-    [form, index]
+    [form, index],
   );
 
   return (

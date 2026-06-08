@@ -1,10 +1,10 @@
-import { notFound } from 'next/navigation';
-import Image from 'next/image';
-import Link from 'next/link';
-import { getBlogBySlug, getActiveBlogs } from '@/lib/blog';
-import type { Metadata } from 'next';
-import { getCdnUrl } from '@/lib/image-utils';
-import { Breadcrumbs } from '@/components/Breadcrumbs';
+import { notFound } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
+import { getBlogBySlug, getActiveBlogs } from "@/lib/blog";
+import type { Metadata } from "next";
+import { getCdnUrl } from "@/lib/image-utils";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 
 // ISR: re-render blog posts every 30 minutes so CMS edits propagate
 // without a redeploy. Aligns with category and product templates.
@@ -14,18 +14,22 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const blog = await getBlogBySlug(slug);
 
   if (!blog) {
     return {
-      title: 'Blog Not Found | Let\'s Try',
+      title: "Blog Not Found | Let's Try",
     };
   }
 
   const seo = blog.seo;
-  const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'https://letstryfoods.com').replace(/\/$/, '');
+  const baseUrl = (
+    process.env.NEXT_PUBLIC_BASE_URL || "https://letstryfoods.com"
+  ).replace(/\/$/, "");
   const blogUrl = `${baseUrl}/blog/${blog.slug}`;
   const defaultTitle = `${blog.title} | Let's Try Foods Blog`;
 
@@ -40,23 +44,29 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title: seo?.ogTitle || seo?.metaTitle || blog.title,
       description: seo?.ogDescription || seo?.metaDescription || blog.excerpt,
       url: blogUrl,
-      type: 'article',
-      images: (seo?.ogImage || blog.image) ? [
-        {
-          url: (seo?.ogImage || blog.image) as string,
-          width: 1200,
-          height: 630,
-          alt: blog.title,
-        },
-      ] : [],
+      type: "article",
+      images:
+        seo?.ogImage || blog.image
+          ? [
+              {
+                url: (seo?.ogImage || blog.image) as string,
+                width: 1200,
+                height: 630,
+                alt: blog.title,
+              },
+            ]
+          : [],
       publishedTime: blog.date || undefined,
       authors: [blog.author],
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title: seo?.ogTitle || seo?.metaTitle || blog.title,
       description: seo?.ogDescription || seo?.metaDescription || blog.excerpt,
-      images: (seo?.ogImage || blog.image) ? [(seo?.ogImage || blog.image) as string] : [],
+      images:
+        seo?.ogImage || blog.image
+          ? [(seo?.ogImage || blog.image) as string]
+          : [],
     },
   };
 }
@@ -70,18 +80,18 @@ export default async function BlogDetailPage({ params }: PageProps) {
   }
 
   const allBlogs = await getActiveBlogs();
-  const relatedBlogs = allBlogs
-    .filter((b) => b._id !== blog._id)
-    .slice(0, 3);
+  const relatedBlogs = allBlogs.filter((b) => b._id !== blog._id).slice(0, 3);
 
-  const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'https://letstryfoods.com').replace(/\/$/, '');
+  const baseUrl = (
+    process.env.NEXT_PUBLIC_BASE_URL || "https://letstryfoods.com"
+  ).replace(/\/$/, "");
   const blogUrl = `${baseUrl}/blog/${blog.slug}`;
   const blogImage = blog.seo?.ogImage || blog.image;
 
   // If the author looks like a brand / org name, emit Organization. Otherwise
   // assume it's a Person — Person authorship is a stronger E-E-A-T signal for
   // AI / search engines.
-  const rawAuthor = (blog.author || '').trim();
+  const rawAuthor = (blog.author || "").trim();
   const looksLikeOrg =
     !rawAuthor ||
     /\b(team|foods?|brand|inc\.?|llc|ltd\.?|pvt|co\.?)\b/i.test(rawAuthor) ||
@@ -90,53 +100,58 @@ export default async function BlogDetailPage({ params }: PageProps) {
 
   const authorSchema = looksLikeOrg
     ? {
-        '@type': 'Organization',
-        '@id': `${baseUrl}#organization`,
+        "@type": "Organization",
+        "@id": `${baseUrl}#organization`,
         name: rawAuthor || "Let's Try Foods",
       }
     : {
-        '@type': 'Person',
+        "@type": "Person",
         name: rawAuthor,
-        worksFor: { '@id': `${baseUrl}#organization` },
+        worksFor: { "@id": `${baseUrl}#organization` },
       };
 
   const articleSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'BlogPosting',
-    '@id': `${blogUrl}#article`,
-    mainEntityOfPage: { '@type': 'WebPage', '@id': blogUrl },
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "@id": `${blogUrl}#article`,
+    mainEntityOfPage: { "@type": "WebPage", "@id": blogUrl },
     headline: blog.title,
     description: blog.excerpt,
     image: blogImage ? [getCdnUrl(blogImage)] : undefined,
     author: authorSchema,
-    publisher: { '@id': `${baseUrl}#organization` },
+    publisher: { "@id": `${baseUrl}#organization` },
     datePublished: blog.date || blog.createdAt,
     dateModified: blog.updatedAt || blog.date || blog.createdAt,
     articleSection: blog.category || undefined,
-    inLanguage: 'en-IN',
-    isPartOf: { '@id': `${baseUrl}#website` },
+    inLanguage: "en-IN",
+    isPartOf: { "@id": `${baseUrl}#website` },
   };
 
   // Speakable: mark headline + intro/excerpt area as candidates for voice / AI
   // quoting on the article page.
   const speakableSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'WebPage',
-    '@id': `${blogUrl}#speakable`,
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `${blogUrl}#speakable`,
     url: blogUrl,
     speakable: {
-      '@type': 'SpeakableSpecification',
-      cssSelector: ['h1', '[data-speakable="true"]'],
+      "@type": "SpeakableSpecification",
+      cssSelector: ["h1", '[data-speakable="true"]'],
     },
   };
 
   const breadcrumbSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: baseUrl },
-      { '@type': 'ListItem', position: 2, name: 'Blog', item: `${baseUrl}/blog` },
-      { '@type': 'ListItem', position: 3, name: blog.title, item: blogUrl },
+      { "@type": "ListItem", position: 1, name: "Home", item: baseUrl },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Blog",
+        item: `${baseUrl}/blog`,
+      },
+      { "@type": "ListItem", position: 3, name: blog.title, item: blogUrl },
     ],
   };
 
@@ -157,8 +172,8 @@ export default async function BlogDetailPage({ params }: PageProps) {
       <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <Breadcrumbs
           crumbs={[
-            { label: 'Home', href: '/' },
-            { label: 'Blog', href: '/blog' },
+            { label: "Home", href: "/" },
+            { label: "Blog", href: "/blog" },
             { label: blog.title },
           ]}
         />
@@ -215,8 +230,18 @@ export default async function BlogDetailPage({ params }: PageProps) {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-400">
-                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        <svg
+                          className="w-8 h-8"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={1}
+                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                          />
                         </svg>
                       </div>
                     )}

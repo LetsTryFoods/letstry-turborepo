@@ -18,7 +18,11 @@ export class AuthorService {
   }
 
   async findAll(): Promise<Author[]> {
-    return (await this.authorModel.find().sort({ position: 1 }).lean().exec()) as any as Author[];
+    return (await this.authorModel
+      .find()
+      .sort({ position: 1 })
+      .lean()
+      .exec()) as any as Author[];
   }
 
   async findActive(): Promise<Author[]> {

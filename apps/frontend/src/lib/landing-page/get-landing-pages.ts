@@ -1,9 +1,9 @@
-import { createServerGraphQLClient } from '@/lib/graphql/server-client-factory';
+import { createServerGraphQLClient } from "@/lib/graphql/server-client-factory";
 import {
   GET_ACTIVE_LANDING_PAGES_QUERY,
   GET_LANDING_PAGE_BY_SLUG_QUERY,
   GET_PRODUCTS_BY_SLUG_LIST_QUERY,
-} from '@/lib/queries/landing-pages';
+} from "@/lib/queries/landing-pages";
 
 export interface SectionPlatformLink {
   platform: string;
@@ -76,7 +76,7 @@ export async function getActiveLandingPages(): Promise<LandingPage[]> {
   const client = createServerGraphQLClient();
   try {
     const data = await client.request<GetActiveLandingPagesResponse>(
-      GET_ACTIVE_LANDING_PAGES_QUERY
+      GET_ACTIVE_LANDING_PAGES_QUERY,
     );
     return data.activeLandingPages;
   } catch {
@@ -84,12 +84,14 @@ export async function getActiveLandingPages(): Promise<LandingPage[]> {
   }
 }
 
-export async function getLandingPageBySlug(slug: string): Promise<LandingPage | null> {
+export async function getLandingPageBySlug(
+  slug: string,
+): Promise<LandingPage | null> {
   const client = createServerGraphQLClient();
   try {
     const data = await client.request<GetLandingPageBySlugResponse>(
       GET_LANDING_PAGE_BY_SLUG_QUERY,
-      { slug }
+      { slug },
     );
     return data.landingPageBySlug;
   } catch {
@@ -97,13 +99,15 @@ export async function getLandingPageBySlug(slug: string): Promise<LandingPage | 
   }
 }
 
-export async function getProductsBySlugList(slugs: string[]): Promise<LandingProduct[]> {
+export async function getProductsBySlugList(
+  slugs: string[],
+): Promise<LandingProduct[]> {
   if (!slugs.length) return [];
   const client = createServerGraphQLClient();
   try {
     const data = await client.request<GetProductsBySlugListResponse>(
       GET_PRODUCTS_BY_SLUG_LIST_QUERY,
-      { slugs }
+      { slugs },
     );
     return data.productsBySlugList;
   } catch {

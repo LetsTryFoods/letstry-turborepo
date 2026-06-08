@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface CategoryAnswerBoxProps {
   intro: string;
@@ -12,7 +12,9 @@ interface CategoryAnswerBoxProps {
 // data-speakable="true" hints to voice / AI engines that this paragraph is a
 // good candidate for spoken answers. The matching Speakable schema is emitted
 // from the page-level JSON-LD using the [data-speakable="true"] CSS selector.
-export const CategoryAnswerBox: React.FC<CategoryAnswerBoxProps> = ({ intro }) => {
+export const CategoryAnswerBox: React.FC<CategoryAnswerBoxProps> = ({
+  intro,
+}) => {
   return (
     <p
       data-speakable="true"

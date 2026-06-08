@@ -80,18 +80,31 @@ export interface CreatePillarInput {
 
 export type UpdatePillarInput = Partial<CreatePillarInput>;
 
-export const usePillars = () => useQuery(GET_PILLARS, { fetchPolicy: "cache-and-network" });
-export const useActivePillars = () => useQuery(GET_ACTIVE_PILLARS, { fetchPolicy: "cache-and-network" });
+export const usePillars = () =>
+  useQuery(GET_PILLARS, { fetchPolicy: "cache-and-network" });
+export const useActivePillars = () =>
+  useQuery(GET_ACTIVE_PILLARS, { fetchPolicy: "cache-and-network" });
 export const usePillar = (id: string) =>
-  useQuery(GET_PILLAR, { variables: { id }, skip: !id, fetchPolicy: "cache-and-network" });
+  useQuery(GET_PILLAR, {
+    variables: { id },
+    skip: !id,
+    fetchPolicy: "cache-and-network",
+  });
 export const usePillarBySlug = (slug: string) =>
-  useQuery(GET_PILLAR_BY_SLUG, { variables: { slug }, skip: !slug, fetchPolicy: "cache-and-network" });
+  useQuery(GET_PILLAR_BY_SLUG, {
+    variables: { slug },
+    skip: !slug,
+    fetchPolicy: "cache-and-network",
+  });
 
 export const useCreatePillar = () => {
   const [mutate, state] = useMutation(CREATE_PILLAR, {
     refetchQueries: [{ query: GET_PILLARS }],
   });
-  return { create: (input: CreatePillarInput) => mutate({ variables: { input } }), ...state };
+  return {
+    create: (input: CreatePillarInput) => mutate({ variables: { input } }),
+    ...state,
+  };
 };
 
 export const useUpdatePillar = () => {
@@ -99,7 +112,8 @@ export const useUpdatePillar = () => {
     refetchQueries: [{ query: GET_PILLARS }],
   });
   return {
-    update: (id: string, input: UpdatePillarInput) => mutate({ variables: { id, input } }),
+    update: (id: string, input: UpdatePillarInput) =>
+      mutate({ variables: { id, input } }),
     ...state,
   };
 };

@@ -1,57 +1,75 @@
-import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { redirectFormSchema } from '@/lib/validations/redirect.schema'
-import { z } from 'zod'
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { redirectFormSchema } from "@/lib/validations/redirect.schema";
+import { z } from "zod";
 
-type RedirectFormValues = z.infer<typeof redirectFormSchema>
+type RedirectFormValues = z.infer<typeof redirectFormSchema>;
 
 interface RedirectFormProps {
-  onClose: () => void
-  initialData?: any | null
-  createRedirect: any
-  updateRedirect: any
+  onClose: () => void;
+  initialData?: any | null;
+  createRedirect: any;
+  updateRedirect: any;
 }
 
-export function RedirectForm({ onClose, initialData, createRedirect, updateRedirect }: RedirectFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false)
+export function RedirectForm({
+  onClose,
+  initialData,
+  createRedirect,
+  updateRedirect,
+}: RedirectFormProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<RedirectFormValues>({
     resolver: zodResolver(redirectFormSchema),
     defaultValues: {
-      fromPath: initialData?.fromPath || '',
-      toPath: initialData?.toPath || '',
+      fromPath: initialData?.fromPath || "",
+      toPath: initialData?.toPath || "",
       statusCode: initialData?.statusCode || 301,
-      description: initialData?.description || '',
-      source: initialData?.source || 'shopify',
+      description: initialData?.description || "",
+      source: initialData?.source || "shopify",
       isActive: initialData?.isActive ?? true,
     },
-  })
+  });
 
   const onSubmit = async (data: RedirectFormValues) => {
     try {
-      setIsSubmitting(true)
+      setIsSubmitting(true);
 
       if (initialData) {
-        await updateRedirect(initialData._id, data)
+        await updateRedirect(initialData._id, data);
       } else {
-        await createRedirect(data)
+        await createRedirect(data);
       }
 
-      form.reset()
-      onClose()
+      form.reset();
+      onClose();
     } catch (error) {
-      console.error(error)
+      console.error(error);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <Form {...form}>
@@ -64,10 +82,7 @@ export function RedirectForm({ onClose, initialData, createRedirect, updateRedir
               <FormItem>
                 <FormLabel>From Path *</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="/old-url"
-                    {...field}
-                  />
+                  <Input placeholder="/old-url" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -81,10 +96,7 @@ export function RedirectForm({ onClose, initialData, createRedirect, updateRedir
               <FormItem>
                 <FormLabel>To Path *</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="/new-url"
-                    {...field}
-                  />
+                  <Input placeholder="/new-url" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -109,8 +121,12 @@ export function RedirectForm({ onClose, initialData, createRedirect, updateRedir
                   <SelectContent>
                     <SelectItem value="301">301 - Permanent</SelectItem>
                     <SelectItem value="302">302 - Temporary</SelectItem>
-                    <SelectItem value="307">307 - Temporary (Preserve Method)</SelectItem>
-                    <SelectItem value="308">308 - Permanent (Preserve Method)</SelectItem>
+                    <SelectItem value="307">
+                      307 - Temporary (Preserve Method)
+                    </SelectItem>
+                    <SelectItem value="308">
+                      308 - Permanent (Preserve Method)
+                    </SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -183,10 +199,10 @@ export function RedirectForm({ onClose, initialData, createRedirect, updateRedir
             Cancel
           </Button>
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Saving...' : (initialData ? 'Update' : 'Create')}
+            {isSubmitting ? "Saving..." : initialData ? "Update" : "Create"}
           </Button>
         </div>
       </form>
     </Form>
-  )
+  );
 }

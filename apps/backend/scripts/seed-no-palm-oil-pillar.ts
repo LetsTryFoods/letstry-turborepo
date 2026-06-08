@@ -43,12 +43,14 @@ const PILLAR_SEED = {
     {
       categorySlug: 'makhana',
       name: 'Flavoured Makhana',
-      blurb: 'Peri peri, pudina, Himalayan salt — roasted foxnuts, not fried. No palm oil.',
+      blurb:
+        'Peri peri, pudina, Himalayan salt — roasted foxnuts, not fried. No palm oil.',
     },
     {
       categorySlug: 'cookies',
       name: 'Healthy Cookies',
-      blurb: 'Ragi, oats, jowar and millet cookies with no palm oil and no refined sugar.',
+      blurb:
+        'Ragi, oats, jowar and millet cookies with no palm oil and no refined sugar.',
     },
     {
       categorySlug: 'healthy-snacks',
@@ -101,7 +103,8 @@ const PILLAR_SEED = {
   isActive: true,
   position: 0,
   seo: {
-    metaTitle: "No Palm Oil Snacks – Healthy Indian Namkeen & Chips | Let's Try Foods",
+    metaTitle:
+      "No Palm Oil Snacks – Healthy Indian Namkeen & Chips | Let's Try Foods",
     metaDescription:
       "Buy Indian snacks without palm oil — bhujia, chips, cookies, makhana and more. Let's Try Foods uses 100% groundnut oil instead of palm oil. Shipped across India.",
     metaKeywords: [
@@ -121,7 +124,7 @@ const PILLAR_SEED = {
     twitterImage: null,
     robots: null,
     internalNote:
-      "Seeded by scripts/seed-no-palm-oil-pillar.ts during Sprint 5b. Mirrors the legacy /no-palm-oil-snacks page content. Content team can edit freely via /dashboard/pillars.",
+      'Seeded by scripts/seed-no-palm-oil-pillar.ts during Sprint 5b. Mirrors the legacy /no-palm-oil-snacks page content. Content team can edit freely via /dashboard/pillars.',
   },
 };
 
@@ -172,10 +175,14 @@ async function seed() {
   console.log('');
   console.log('Next steps:');
   console.log(`  1. Open the storefront: ${TARGET_CUSTOM_ROUTE}`);
-  console.log('     → page should now render from Pillar CMS (verify schema is intact)');
+  console.log(
+    '     → page should now render from Pillar CMS (verify schema is intact)',
+  );
   console.log('  2. Open admin → Pillars → "No Palm Oil Snacks" → Edit');
   console.log('     → confirm content matches what was on the page before');
-  console.log('  3. Make a small edit (e.g. tweak a typo) → verify it appears live');
+  console.log(
+    '  3. Make a small edit (e.g. tweak a typo) → verify it appears live',
+  );
 
   await conn.disconnect();
   process.exit(0);

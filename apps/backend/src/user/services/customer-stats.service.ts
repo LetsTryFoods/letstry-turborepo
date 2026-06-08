@@ -15,7 +15,7 @@ export class CustomerStatsService {
   constructor(
     @InjectModel(Identity.name) private identityModel: Model<IdentityDocument>,
     @InjectModel(Order.name) private orderModel: Model<Order>,
-  ) { }
+  ) {}
 
   async getCustomerSummary(): Promise<CustomerSummary> {
     const [platformStats, statusStats, totalCounts, revenue, newUsers] =
@@ -45,38 +45,50 @@ export class CustomerStatsService {
     };
 
     const [ios, android, windows, macos, linux] = await Promise.all([
-      this.identityModel.countDocuments({
-        ...baseFilter,
-        deviceInfo: { $regex: /iphone|ipad|ipod/i },
-      }).exec(),
-      this.identityModel.countDocuments({
-        ...baseFilter,
-        deviceInfo: { $regex: /android/i },
-      }).exec(),
-      this.identityModel.countDocuments({
-        ...baseFilter,
-        deviceInfo: { $regex: /windows/i },
-      }).exec(),
-      this.identityModel.countDocuments({
-        ...baseFilter,
-        deviceInfo: {
-          $regex: /macintosh|mac os x/i,
-          $not: { $regex: /iphone|ipad|ipod/i },
-        },
-      }).exec(),
-      this.identityModel.countDocuments({
-        ...baseFilter,
-        deviceInfo: {
-          $regex: /linux/i,
-          $not: { $regex: /android/i },
-        },
-      }).exec(),
+      this.identityModel
+        .countDocuments({
+          ...baseFilter,
+          deviceInfo: { $regex: /iphone|ipad|ipod/i },
+        })
+        .exec(),
+      this.identityModel
+        .countDocuments({
+          ...baseFilter,
+          deviceInfo: { $regex: /android/i },
+        })
+        .exec(),
+      this.identityModel
+        .countDocuments({
+          ...baseFilter,
+          deviceInfo: { $regex: /windows/i },
+        })
+        .exec(),
+      this.identityModel
+        .countDocuments({
+          ...baseFilter,
+          deviceInfo: {
+            $regex: /macintosh|mac os x/i,
+            $not: { $regex: /iphone|ipad|ipod/i },
+          },
+        })
+        .exec(),
+      this.identityModel
+        .countDocuments({
+          ...baseFilter,
+          deviceInfo: {
+            $regex: /linux/i,
+            $not: { $regex: /android/i },
+          },
+        })
+        .exec(),
     ]);
 
-    const total = await this.identityModel.countDocuments({
-      role: { $in: [Role.USER, Role.GUEST] },
-      deviceInfo: { $ne: null },
-    }).exec();
+    const total = await this.identityModel
+      .countDocuments({
+        role: { $in: [Role.USER, Role.GUEST] },
+        deviceInfo: { $ne: null },
+      })
+      .exec();
 
     const web = Math.max(0, total - ios - android - windows - macos - linux);
 

@@ -34,4 +34,5 @@ export class PickupLocation extends Document {
   provider: string;
 }
 
-export const PickupLocationSchema = SchemaFactory.createForClass(PickupLocation);
+export const PickupLocationSchema =
+  SchemaFactory.createForClass(PickupLocation);

@@ -21,9 +21,7 @@ export class PickupLocationResolver {
 
   @Mutation(() => PickupLocationType)
   @Roles(Role.ADMIN)
-  async createPickupLocation(
-    @Args('input') input: CreatePickupLocationInput,
-  ) {
+  async createPickupLocation(@Args('input') input: CreatePickupLocationInput) {
     return this.pickupLocationService.create(input);
   }
 

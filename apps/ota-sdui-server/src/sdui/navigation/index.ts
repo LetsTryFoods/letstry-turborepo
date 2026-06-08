@@ -1,6 +1,9 @@
-import { FastifyRequest, FastifyReply } from 'fastify';
+import { FastifyRequest, FastifyReply } from "fastify";
 
-export const navigationHandler = async (req: FastifyRequest, reply: FastifyReply) => {
+export const navigationHandler = async (
+  req: FastifyRequest,
+  reply: FastifyReply,
+) => {
   return {
     version: "1.0",
     activeColor: "#000000",
@@ -13,7 +16,7 @@ export const navigationHandler = async (req: FastifyRequest, reply: FastifyReply
         label: "Home",
         icon: "home",
         screenId: "home",
-        order: 1
+        order: 1,
       },
       {
         id: "tab_categories",
@@ -21,7 +24,7 @@ export const navigationHandler = async (req: FastifyRequest, reply: FastifyReply
         label: "Categories",
         icon: "grid",
         screenId: "categories_screen",
-        order: 2
+        order: 2,
       },
       // {
       //   id: "tab_loyalty",
@@ -37,8 +40,8 @@ export const navigationHandler = async (req: FastifyRequest, reply: FastifyReply
         label: "Profile",
         icon: "person",
         screenId: "profile_screen",
-        order: 4
-      }
-    ]
+        order: 4,
+      },
+    ],
   };
 };

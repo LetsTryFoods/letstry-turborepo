@@ -1,17 +1,17 @@
-import React from 'react';
+import React from "react";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter, useLocalSearchParams, Stack } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { theme } from '../../src/styles/theme';
-import { RFValue } from '../../src/lib/utils/ui-utils';
-import * as Haptics from 'expo-haptics';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter, useLocalSearchParams, Stack } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { theme } from "../../src/styles/theme";
+import { RFValue } from "../../src/lib/utils/ui-utils";
+import * as Haptics from "expo-haptics";
 
 export default function PaymentFailedScreen() {
   const router = useRouter();
@@ -24,7 +24,10 @@ export default function PaymentFailedScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <Stack.Screen options={{ headerShown: false }} />
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.container}>
           {/* Error Icon */}
           <View style={styles.iconCircle}>
@@ -35,14 +38,15 @@ export default function PaymentFailedScreen() {
 
           <Text style={styles.title}>Payment Failed</Text>
           <Text style={styles.subtitle}>
-            {error || "We couldn't process your payment. Please check your details and try again."}
+            {error ||
+              "We couldn't process your payment. Please check your details and try again."}
           </Text>
 
           {/* Details Card */}
           <View style={styles.detailsCard}>
             <View style={styles.row}>
               <Text style={styles.label}>Identifier</Text>
-              <Text style={styles.value}>#{paymentOrderId || 'N/A'}</Text>
+              <Text style={styles.value}>#{paymentOrderId || "N/A"}</Text>
             </View>
             <View style={styles.row}>
               <Text style={styles.label}>Reason</Text>
@@ -54,13 +58,14 @@ export default function PaymentFailedScreen() {
           <View style={styles.tipCard}>
             <Ionicons name="alert-circle-outline" size={24} color="#C53030" />
             <Text style={styles.tipText}>
-              Ensure your card balance is sufficient and international transactions are enabled.
+              Ensure your card balance is sufficient and international
+              transactions are enabled.
             </Text>
           </View>
 
           {/* Actions */}
           <View style={styles.actionContainer}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.primaryButton}
               onPress={() => router.back()}
             >
@@ -68,9 +73,9 @@ export default function PaymentFailedScreen() {
               <Ionicons name="refresh" size={18} color="#fff" />
             </TouchableOpacity>
 
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.secondaryButton}
-              onPress={() => router.replace('/(tabs)')}
+              onPress={() => router.replace("/(tabs)")}
             >
               <Text style={styles.secondaryButtonText}>Return to Home</Text>
             </TouchableOpacity>
@@ -82,32 +87,32 @@ export default function PaymentFailedScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#fff' },
+  safe: { flex: 1, backgroundColor: "#fff" },
   scrollContent: { flexGrow: 1 },
-  container: { 
-    flex: 1, 
-    alignItems: 'center', 
-    justifyContent: 'center', 
+  container: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
     padding: 24,
-    paddingTop: 60 
+    paddingTop: 60,
   },
   iconCircle: {
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: '#FFE5E5',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#FFE5E5",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 32,
   },
   innerCircle: {
     width: 90,
     height: 90,
     borderRadius: 45,
-    backgroundColor: '#E53E3E',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#E53E3E',
+    backgroundColor: "#E53E3E",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#E53E3E",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 10,
@@ -117,83 +122,83 @@ const styles = StyleSheet.create({
     fontSize: RFValue(24),
     fontWeight: theme.fontWeight.bold,
     color: theme.colors.text.primary,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 12,
   },
   subtitle: {
     fontSize: RFValue(14),
     color: theme.colors.text.muted,
-    textAlign: 'center',
+    textAlign: "center",
     paddingHorizontal: 16,
     lineHeight: 22,
     marginBottom: 40,
   },
   detailsCard: {
-    width: '100%',
-    backgroundColor: '#FFF5F5',
+    width: "100%",
+    backgroundColor: "#FFF5F5",
     borderRadius: 20,
     padding: 20,
     borderWidth: 1,
-    borderColor: '#FED7D7',
+    borderColor: "#FED7D7",
     marginBottom: 24,
   },
   row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingVertical: 10,
   },
   label: {
     fontSize: RFValue(14),
-    color: '#9B2C2C',
+    color: "#9B2C2C",
     fontWeight: theme.fontWeight.medium,
   },
   value: {
     fontSize: RFValue(14),
-    color: '#742A2A',
+    color: "#742A2A",
     fontWeight: theme.fontWeight.bold,
   },
   tipCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFF5F5',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FFF5F5",
     padding: 16,
     borderRadius: 16,
-    width: '100%',
+    width: "100%",
     marginBottom: 40,
   },
   tipText: {
     flex: 1,
     fontSize: RFValue(12),
-    color: '#9B2C2C',
+    color: "#9B2C2C",
     marginLeft: 12,
     lineHeight: 18,
   },
   actionContainer: {
-    width: '100%',
+    width: "100%",
     gap: 12,
   },
   primaryButton: {
-    backgroundColor: '#2D3748',
+    backgroundColor: "#2D3748",
     height: 56,
     borderRadius: 14,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     gap: 10,
   },
   primaryButtonText: {
     fontSize: RFValue(16),
-    color: '#fff',
+    color: "#fff",
     fontWeight: theme.fontWeight.bold,
   },
   secondaryButton: {
     height: 56,
     borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     borderWidth: 1.5,
-    borderColor: '#E2E8F0',
+    borderColor: "#E2E8F0",
   },
   secondaryButtonText: {
     fontSize: RFValue(16),

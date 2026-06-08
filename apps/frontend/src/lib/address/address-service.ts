@@ -1,5 +1,5 @@
-import { graphqlClient } from '@/lib/graphql/client-factory';
-import { GET_PLACE_DETAILS, CREATE_ADDRESS } from '@/lib/queries/address';
+import { graphqlClient } from "@/lib/graphql/client-factory";
+import { GET_PLACE_DETAILS, CREATE_ADDRESS } from "@/lib/queries/address";
 
 export class AddressService {
   static async getPlaceDetails(placeId: string, sessionToken?: string) {

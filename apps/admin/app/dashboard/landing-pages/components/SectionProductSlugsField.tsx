@@ -1,38 +1,45 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { UseFormReturn } from 'react-hook-form'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { FormLabel } from '@/components/ui/form'
-import { Plus, X } from 'lucide-react'
-import { LandingPageFormValues } from '@/lib/validations/landing-page.schema'
+import { useState } from "react";
+import { UseFormReturn } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { FormLabel } from "@/components/ui/form";
+import { Plus, X } from "lucide-react";
+import { LandingPageFormValues } from "@/lib/validations/landing-page.schema";
 
 interface SectionProductSlugsFieldProps {
-  form: UseFormReturn<LandingPageFormValues>
-  sectionIndex: number
+  form: UseFormReturn<LandingPageFormValues>;
+  sectionIndex: number;
 }
 
-export function SectionProductSlugsField({ form, sectionIndex }: SectionProductSlugsFieldProps) {
-  const [input, setInput] = useState('')
+export function SectionProductSlugsField({
+  form,
+  sectionIndex,
+}: SectionProductSlugsFieldProps) {
+  const [input, setInput] = useState("");
 
-  const slugs: string[] = form.watch(`sections.${sectionIndex}.productSlugs`) || []
+  const slugs: string[] =
+    form.watch(`sections.${sectionIndex}.productSlugs`) || [];
 
   const addSlug = () => {
-    const trimmed = input.trim()
+    const trimmed = input.trim();
     if (trimmed && !slugs.includes(trimmed)) {
-      form.setValue(`sections.${sectionIndex}.productSlugs`, [...slugs, trimmed])
-      setInput('')
+      form.setValue(`sections.${sectionIndex}.productSlugs`, [
+        ...slugs,
+        trimmed,
+      ]);
+      setInput("");
     }
-  }
+  };
 
   const removeSlug = (slug: string) => {
     form.setValue(
       `sections.${sectionIndex}.productSlugs`,
-      slugs.filter((s) => s !== slug)
-    )
-  }
+      slugs.filter((s) => s !== slug),
+    );
+  };
 
   return (
     <div className="space-y-2">
@@ -42,7 +49,12 @@ export function SectionProductSlugsField({ form, sectionIndex }: SectionProductS
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Enter product slug"
-          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addSlug() } }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              addSlug();
+            }
+          }}
         />
         <Button type="button" variant="outline" size="sm" onClick={addSlug}>
           <Plus className="h-4 w-4" />
@@ -59,5 +71,5 @@ export function SectionProductSlugsField({ form, sectionIndex }: SectionProductS
         ))}
       </div>
     </div>
-  )
+  );
 }

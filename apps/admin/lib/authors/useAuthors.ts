@@ -52,19 +52,33 @@ export interface CreateAuthorInput {
 
 export type UpdateAuthorInput = Partial<CreateAuthorInput>;
 
-export const useAuthors = () => useQuery(GET_AUTHORS, { fetchPolicy: "cache-and-network" });
-export const useActiveAuthors = () => useQuery(GET_ACTIVE_AUTHORS, { fetchPolicy: "cache-and-network" });
-export const useTeamMembers = () => useQuery(GET_TEAM_MEMBERS, { fetchPolicy: "cache-and-network" });
+export const useAuthors = () =>
+  useQuery(GET_AUTHORS, { fetchPolicy: "cache-and-network" });
+export const useActiveAuthors = () =>
+  useQuery(GET_ACTIVE_AUTHORS, { fetchPolicy: "cache-and-network" });
+export const useTeamMembers = () =>
+  useQuery(GET_TEAM_MEMBERS, { fetchPolicy: "cache-and-network" });
 export const useAuthor = (id: string) =>
-  useQuery(GET_AUTHOR, { variables: { id }, skip: !id, fetchPolicy: "cache-and-network" });
+  useQuery(GET_AUTHOR, {
+    variables: { id },
+    skip: !id,
+    fetchPolicy: "cache-and-network",
+  });
 export const useAuthorBySlug = (slug: string) =>
-  useQuery(GET_AUTHOR_BY_SLUG, { variables: { slug }, skip: !slug, fetchPolicy: "cache-and-network" });
+  useQuery(GET_AUTHOR_BY_SLUG, {
+    variables: { slug },
+    skip: !slug,
+    fetchPolicy: "cache-and-network",
+  });
 
 export const useCreateAuthor = () => {
   const [mutate, state] = useMutation(CREATE_AUTHOR, {
     refetchQueries: [{ query: GET_AUTHORS }],
   });
-  return { create: (input: CreateAuthorInput) => mutate({ variables: { input } }), ...state };
+  return {
+    create: (input: CreateAuthorInput) => mutate({ variables: { input } }),
+    ...state,
+  };
 };
 
 export const useUpdateAuthor = () => {
@@ -72,7 +86,8 @@ export const useUpdateAuthor = () => {
     refetchQueries: [{ query: GET_AUTHORS }],
   });
   return {
-    update: (id: string, input: UpdateAuthorInput) => mutate({ variables: { id, input } }),
+    update: (id: string, input: UpdateAuthorInput) =>
+      mutate({ variables: { id, input } }),
     ...state,
   };
 };

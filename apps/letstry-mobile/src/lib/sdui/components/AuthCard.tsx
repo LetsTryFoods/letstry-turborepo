@@ -1,8 +1,8 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import { useAuthStore } from '../../../store/auth-store';
+import React from "react";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import { useAuthStore } from "../../../store/auth-store";
 
 interface AuthCardProps {
   accentColor?: string;
@@ -16,8 +16,8 @@ interface AuthCardProps {
  * The server only controls cosmetic aspects (colors).
  */
 const AuthCard: React.FC<AuthCardProps> = ({
-  accentColor = '#E8A020',
-  cardBackgroundColor = '#FFFFFF',
+  accentColor = "#E8A020",
+  cardBackgroundColor = "#FFFFFF",
   titleFontSize = 15,
   subtitleFontSize = 12,
 }) => {
@@ -26,7 +26,7 @@ const AuthCard: React.FC<AuthCardProps> = ({
 
   const handlePress = () => {
     if (!isAuthenticated) {
-      router.push('/auth/login');
+      router.push("/auth/login");
     }
   };
 
@@ -38,19 +38,21 @@ const AuthCard: React.FC<AuthCardProps> = ({
     >
       <View style={[styles.authIconWrap, { backgroundColor: accentColor }]}>
         <Ionicons
-          name={isAuthenticated ? 'person' : 'person-add'}
+          name={isAuthenticated ? "person" : "person-add"}
           size={24}
           color="#fff"
         />
       </View>
       <View style={styles.authInfo}>
         <Text style={[styles.authTitle, { fontSize: titleFontSize }]}>
-          {isAuthenticated ? (user?.firstName || 'Welcome Back!') : 'Login / Sign Up'}
+          {isAuthenticated
+            ? user?.firstName || "Welcome Back!"
+            : "Login / Sign Up"}
         </Text>
         <Text style={[styles.authSubtitle, { fontSize: subtitleFontSize }]}>
           {isAuthenticated
-            ? user?.phoneNumber || 'Manage your account'
-            : 'Get personalized experience & track orders'}
+            ? user?.phoneNumber || "Manage your account"
+            : "Get personalized experience & track orders"}
         </Text>
       </View>
       {!isAuthenticated && (
@@ -62,13 +64,13 @@ const AuthCard: React.FC<AuthCardProps> = ({
 
 const styles = StyleSheet.create({
   authCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 16,
     borderRadius: 16,
     marginHorizontal: 16,
     marginBottom: 16,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 8,
@@ -78,18 +80,18 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: 16,
   },
   authInfo: { flex: 1 },
   authTitle: {
-    fontWeight: '700',
-    color: '#1A1A1A',
+    fontWeight: "700",
+    color: "#1A1A1A",
     marginBottom: 2,
   },
   authSubtitle: {
-    color: '#888',
+    color: "#888",
   },
 });
 

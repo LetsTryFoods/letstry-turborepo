@@ -1,25 +1,29 @@
-'use client';
+"use client";
 
-import { useState, useMemo, useEffect } from 'react';
-import Link from 'next/link';
-import { usePaymentsList } from '@/lib/payment/usePayments';
-import { getStatusBadgeColor, formatCurrency, formatDateTime } from '@/lib/payment/utils';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Search, Calendar, DollarSign } from 'lucide-react';
+import { useState, useMemo, useEffect } from "react";
+import Link from "next/link";
+import { usePaymentsList } from "@/lib/payment/usePayments";
+import {
+  getStatusBadgeColor,
+  formatCurrency,
+  formatDateTime,
+} from "@/lib/payment/utils";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Search, Calendar, DollarSign } from "lucide-react";
 
 export default function PaymentsPage() {
   const [page, setPage] = useState(1);
-  const [searchInput, setSearchInput] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [minAmountInput, setMinAmountInput] = useState('');
-  const [minAmount, setMinAmount] = useState('');
-  const [maxAmountInput, setMaxAmountInput] = useState('');
-  const [maxAmount, setMaxAmount] = useState('');
+  const [searchInput, setSearchInput] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [minAmountInput, setMinAmountInput] = useState("");
+  const [minAmount, setMinAmount] = useState("");
+  const [maxAmountInput, setMaxAmountInput] = useState("");
+  const [maxAmount, setMaxAmount] = useState("");
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
 
   useEffect(() => {
@@ -43,18 +47,29 @@ export default function PaymentsPage() {
     return () => clearTimeout(timer);
   }, [maxAmountInput]);
 
-  const queryInput = useMemo(() => ({
-    page,
-    limit: 50,
-    filters: {
-      searchQuery: searchTerm || undefined,
-      statuses: selectedStatuses.length > 0 ? selectedStatuses : undefined,
-      startDate: startDate || undefined,
-      endDate: endDate || undefined,
-      minAmount: minAmount || undefined,
-      maxAmount: maxAmount || undefined,
-    },
-  }), [page, searchTerm, selectedStatuses, startDate, endDate, minAmount, maxAmount]);
+  const queryInput = useMemo(
+    () => ({
+      page,
+      limit: 50,
+      filters: {
+        searchQuery: searchTerm || undefined,
+        statuses: selectedStatuses.length > 0 ? selectedStatuses : undefined,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
+        minAmount: minAmount || undefined,
+        maxAmount: maxAmount || undefined,
+      },
+    }),
+    [
+      page,
+      searchTerm,
+      selectedStatuses,
+      startDate,
+      endDate,
+      minAmount,
+      maxAmount,
+    ],
+  );
 
   const { data, loading, error } = usePaymentsList(queryInput);
 
@@ -63,22 +78,25 @@ export default function PaymentsPage() {
   const totalPages = (data as any)?.getAdminPaymentsList?.totalPages || 1;
   const summary = (data as any)?.getAdminPaymentsList?.summary || {
     totalPayments: 0,
-    totalAmount: '0',
-    totalRefunded: '0',
+    totalAmount: "0",
+    totalRefunded: "0",
     successCount: 0,
     failedCount: 0,
     pendingCount: 0,
   };
 
   const toggleStatus = (status: string) => {
-    setSelectedStatuses(prev =>
-      prev.includes(status) ? prev.filter(s => s !== status) : [...prev, status]
+    setSelectedStatuses((prev) =>
+      prev.includes(status)
+        ? prev.filter((s) => s !== status)
+        : [...prev, status],
     );
     setPage(1);
   };
 
   if (loading) return <div className="p-6">Loading payments...</div>;
-  if (error) return <div className="p-6 text-red-600">Error loading payments</div>;
+  if (error)
+    return <div className="p-6 text-red-600">Error loading payments</div>;
 
   return (
     <div className="p-6 space-y-6">
@@ -92,7 +110,9 @@ export default function PaymentsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Revenue</p>
-                <p className="text-2xl font-bold">{formatCurrency(summary.totalAmount, 'INR')}</p>
+                <p className="text-2xl font-bold">
+                  {formatCurrency(summary.totalAmount, "INR")}
+                </p>
               </div>
               <DollarSign className="h-8 w-8 text-green-500" />
             </div>
@@ -104,7 +124,9 @@ export default function PaymentsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Refunded</p>
-                <p className="text-2xl font-bold">{formatCurrency(summary.totalRefunded, 'INR')}</p>
+                <p className="text-2xl font-bold">
+                  {formatCurrency(summary.totalRefunded, "INR")}
+                </p>
               </div>
               <DollarSign className="h-8 w-8 text-red-500" />
             </div>
@@ -118,7 +140,9 @@ export default function PaymentsPage() {
                 <p className="text-sm text-muted-foreground">Successful</p>
                 <p className="text-2xl font-bold">{summary.successCount}</p>
               </div>
-              <Badge variant="default" className="h-8 px-3">Success</Badge>
+              <Badge variant="default" className="h-8 px-3">
+                Success
+              </Badge>
             </div>
           </CardContent>
         </Card>
@@ -128,9 +152,13 @@ export default function PaymentsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Failed/Pending</p>
-                <p className="text-2xl font-bold">{summary.failedCount + summary.pendingCount}</p>
+                <p className="text-2xl font-bold">
+                  {summary.failedCount + summary.pendingCount}
+                </p>
               </div>
-              <Badge variant="secondary" className="h-8 px-3">Failed</Badge>
+              <Badge variant="secondary" className="h-8 px-3">
+                Failed
+              </Badge>
             </div>
           </CardContent>
         </Card>
@@ -196,10 +224,12 @@ export default function PaymentsPage() {
             </div>
 
             <div className="flex gap-2 flex-wrap">
-              {['SUCCESS', 'FAILED', 'PENDING', 'REFUNDED'].map(status => (
+              {["SUCCESS", "FAILED", "PENDING", "REFUNDED"].map((status) => (
                 <Button
                   key={status}
-                  variant={selectedStatuses.includes(status) ? 'default' : 'outline'}
+                  variant={
+                    selectedStatuses.includes(status) ? "default" : "outline"
+                  }
                   size="sm"
                   onClick={() => toggleStatus(status)}
                 >
@@ -213,8 +243,8 @@ export default function PaymentsPage() {
                 variant="ghost"
                 size="sm"
                 onClick={() => {
-                  setSearchInput('');
-                  setSearchTerm('');
+                  setSearchInput("");
+                  setSearchTerm("");
                 }}
                 className="w-fit"
               >
@@ -238,35 +268,65 @@ export default function PaymentsPage() {
                 <table className="w-full">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-4 py-3 text-left text-sm font-semibold">Payment ID</th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold">Order ID</th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold">Amount</th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold">Status</th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold">Method</th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold">Date</th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold">Actions</th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold">
+                        Payment ID
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold">
+                        Order ID
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold">
+                        Amount
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold">
+                        Status
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold">
+                        Method
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold">
+                        Date
+                      </th>
+                      <th className="px-4 py-3 text-left text-sm font-semibold">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
                     {payments.map((payment: any) => (
                       <tr key={payment._id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 text-sm font-mono">{payment.paymentOrderId}</td>
                         <td className="px-4 py-3 text-sm font-mono">
-                          {payment.orderId || '-'}
+                          {payment.paymentOrderId}
+                        </td>
+                        <td className="px-4 py-3 text-sm font-mono">
+                          {payment.orderId || "-"}
                         </td>
                         <td className="px-4 py-3 text-sm font-semibold">
                           {formatCurrency(payment.amount, payment.currency)}
                         </td>
                         <td className="px-4 py-3">
-                          <Badge variant={payment.paymentOrderStatus === 'SUCCESS' ? 'default' : 'secondary'}>
+                          <Badge
+                            variant={
+                              payment.paymentOrderStatus === "SUCCESS"
+                                ? "default"
+                                : "secondary"
+                            }
+                          >
                             {payment.paymentOrderStatus}
                           </Badge>
                         </td>
-                        <td className="px-4 py-3 text-sm">{payment.paymentMethod || '-'}</td>
-                        <td className="px-4 py-3 text-sm">{formatDateTime(payment.createdAt)}</td>
+                        <td className="px-4 py-3 text-sm">
+                          {payment.paymentMethod || "-"}
+                        </td>
+                        <td className="px-4 py-3 text-sm">
+                          {formatDateTime(payment.createdAt)}
+                        </td>
                         <td className="px-4 py-3">
-                          <Link href={`/dashboard/payments/${payment.paymentOrderId}`}>
-                            <Button variant="link" size="sm">View</Button>
+                          <Link
+                            href={`/dashboard/payments/${payment.paymentOrderId}`}
+                          >
+                            <Button variant="link" size="sm">
+                              View
+                            </Button>
                           </Link>
                         </td>
                       </tr>
@@ -287,7 +347,7 @@ export default function PaymentsPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setPage(prev => Math.max(1, prev - 1))}
+                    onClick={() => setPage((prev) => Math.max(1, prev - 1))}
                     disabled={page === 1}
                   >
                     Previous
@@ -298,7 +358,9 @@ export default function PaymentsPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setPage(prev => Math.min(totalPages, prev + 1))}
+                    onClick={() =>
+                      setPage((prev) => Math.min(totalPages, prev + 1))
+                    }
                     disabled={page === totalPages}
                   >
                     Next
@@ -312,4 +374,3 @@ export default function PaymentsPage() {
     </div>
   );
 }
-

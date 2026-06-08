@@ -49,7 +49,7 @@ export interface SeoOverride {
 }
 
 export const categoryOverrides: Record<string, SeoOverride> = {
-  'bhujia': {
+  bhujia: {
     title: "Bhujia Online – No Palm Oil, No Maida | Let's Try Foods",
     description:
       "Buy authentic Indian bhujia online with no palm oil and no maida. Garlic, sev, khatta meetha and more — shipped across India from Delhi.",
@@ -79,7 +79,7 @@ export const categoryOverrides: Record<string, SeoOverride> = {
       },
     ],
   },
-  'cookies': {
+  cookies: {
     title: "Healthy Cookies – No Palm Oil, No White Sugar | Let's Try",
     description:
       "Shop healthy Indian cookies with no palm oil and no white sugar. Ragi, oats, jowar and millet cookies from Let's Try Foods. Shipped across India.",
@@ -110,7 +110,7 @@ export const categoryOverrides: Record<string, SeoOverride> = {
       },
     ],
   },
-  'rusk': {
+  rusk: {
     title: "Buy Rusk Online – No Palm Oil, No Maida | Let's Try Foods",
     description:
       "Buy Indian rusk and cake rusks online with no palm oil and no maida — made with 100% atta. Fruit cake rusk, almond-kaju cake rusk, classic cake rusk — shipped across India.",
@@ -140,7 +140,7 @@ export const categoryOverrides: Record<string, SeoOverride> = {
       },
     ],
   },
-  'makhana': {
+  makhana: {
     title: "Flavoured Makhana Online – No Palm Oil, Roasted | Let's Try",
     description:
       "Buy roasted flavoured makhana with no palm oil and no maida. Peri peri, pudina, Himalayan salt, lime chilli — shipped across India from Let's Try.",
@@ -170,12 +170,13 @@ export const categoryOverrides: Record<string, SeoOverride> = {
       },
     ],
   },
-  'healthy-snacks': {
+  "healthy-snacks": {
     title: "Healthy Indian Snacks Online – No Palm Oil, No Maida | Let's Try",
     description:
       "Shop healthy Indian snacks with no palm oil and no maida. Ragi, jowar, makhana, roasted chana, millet-based namkeen — shipped across India.",
     // Sprint 1c on-page content (user-approved 2026-04-25)
-    tagline: "Healthy Indian snacks with no palm oil — roasted chana, sattu, makhana, kettle-cooked chips and more.",
+    tagline:
+      "Healthy Indian snacks with no palm oil — roasted chana, sattu, makhana, kettle-cooked chips and more.",
     aboutHeading: "About our healthy snacks",
     about: [
       "Healthy snacking in India usually comes down to one question: what's the snack actually fried in? Most mass-market namkeen, chips and bhujia are fried in palm oil. Ours aren't.",
@@ -183,7 +184,7 @@ export const categoryOverrides: Record<string, SeoOverride> = {
     ],
     faqs: [
       {
-        q: "What makes these snacks \"healthy\"?",
+        q: 'What makes these snacks "healthy"?',
         a: "Mainly that they're made without palm oil. Several products in the range — like roasted chana and roasted makhana — aren't fried at all. The line-up is also light on heavy fried namkeen and leans towards roasted, baked or kettle-cooked options.",
       },
       {
@@ -200,12 +201,13 @@ export const categoryOverrides: Record<string, SeoOverride> = {
       },
     ],
   },
-  'fasting-special': {
+  "fasting-special": {
     title: "Vrat / Fasting Snacks – No Palm Oil, No Maida | Let's Try Foods",
     description:
       "Shop vrat / fasting snacks online. Sabudana, makhana, kuttu, singhara, vrat chips — no palm oil, no maida, Navratri-approved. From Let's Try Foods.",
     // Sprint 1c on-page content (user-approved 2026-04-25)
-    tagline: "Vrat snacks, vrat chips and vrat namkeen — made with sendha namak, no palm oil.",
+    tagline:
+      "Vrat snacks, vrat chips and vrat namkeen — made with sendha namak, no palm oil.",
     aboutHeading: "About our vrat snacks",
     about: [
       "Most vrat-friendly chips and namkeen in the market are fried in palm oil and salted with regular table salt — both disqualifiers if you're observing a traditional fast. Our vrat range is made with rock salt (sendha namak) and contains no palm oil.",
@@ -230,7 +232,7 @@ export const categoryOverrides: Record<string, SeoOverride> = {
       },
     ],
   },
-  'purani-delhi': {
+  "purani-delhi": {
     title: "Purani Delhi Snacks – Authentic Recipes, No Palm Oil | Let's Try",
     description:
       "Traditional Purani Delhi snacks from Let's Try Foods — soan papdi, khari, methi mathri, kaju katli. Authentic recipes with no palm oil. Delivered across India.",
@@ -238,103 +240,103 @@ export const categoryOverrides: Record<string, SeoOverride> = {
 };
 
 export const productOverrides: Record<string, SeoOverride> = {
-  'roasted-chana': {
+  "roasted-chana": {
     title: "Roasted Chana – High Protein Snack, No Palm Oil | Let's Try Foods",
     description:
       "Buy roasted chana (bhuna chana) online — high protein, no oil, no palm oil. Crunchy Indian snack from Let's Try Foods. Shipped across India.",
   },
-  'garlic-bhujia': {
+  "garlic-bhujia": {
     title: "Garlic Bhujia Online – No Palm Oil, No Maida | Let's Try Foods",
     description:
       "Buy authentic garlic bhujia with no palm oil and no maida. Crunchy, spicy Indian namkeen from Let's Try Foods. Shipped across India.",
   },
-  'lets-try-garlic-bhujia': {
+  "lets-try-garlic-bhujia": {
     title: "Garlic Bhujia Online – No Palm Oil, No Maida | Let's Try Foods",
     description:
       "Buy authentic garlic bhujia with no palm oil and no maida. Crunchy, spicy Indian namkeen from Let's Try Foods. Shipped across India.",
   },
-  'lets-try-sev-bhujia': {
+  "lets-try-sev-bhujia": {
     title: "Sev Bhujia – Thin Crispy Bhujia, No Palm Oil | Let's Try Foods",
     description:
       "Buy thin, crispy sev bhujia online with no palm oil and no maida. Authentic Indian namkeen from Let's Try Foods. Shipped across India.",
   },
-  'sattu': {
+  sattu: {
     title: "Sattu Online – Roasted Gram Flour, High Protein | Let's Try Foods",
     description:
       "Buy authentic roasted sattu (chana sattu) online — high protein, no additives. Energy-rich summer drink base from Let's Try Foods. Shipped across India.",
   },
-  'kettle-cooked-pudina-potato-wafers': {
+  "kettle-cooked-pudina-potato-wafers": {
     title: "Kettle-Cooked Pudina Wafers – No Palm Oil | Let's Try Foods",
     description:
       "Buy kettle-cooked pudina potato wafers online — no palm oil, no maida. Tangy, refreshing Indian potato chips from Let's Try Foods. Shipped across India.",
   },
-  'lets-try-ragi-kaju-pista-cookies': {
+  "lets-try-ragi-kaju-pista-cookies": {
     title: "Ragi Kaju Pista Cookies – No White Sugar | Let's Try Foods",
     description:
       "Healthy ragi cookies with kaju and pista — no palm oil, no white sugar, no maida. Millet-based biscuits from Let's Try Foods. Shipped across India.",
   },
-  'lets-try-oats-coconut-cookies': {
+  "lets-try-oats-coconut-cookies": {
     title: "Oats Coconut Cookies – No Palm Oil, No White Sugar | Let's Try",
     description:
       "Healthy oats and coconut cookies — no palm oil, no white sugar. Wholesome Indian biscuits from Let's Try Foods. Shipped across India.",
   },
-  'lets-try-oats-choco-chip-cookies': {
+  "lets-try-oats-choco-chip-cookies": {
     title: "Oats Choco Chip Cookies – No Palm Oil | Let's Try Foods",
     description:
       "Healthy oats choco chip cookies — no palm oil, no white sugar. Chocolate indulgence made better from Let's Try Foods. Shipped across India.",
   },
-  'kerala-garlic-mixture': {
+  "kerala-garlic-mixture": {
     title: "Kerala Garlic Mixture – No Palm Oil | Let's Try Foods",
     description:
       "Authentic Kerala garlic mixture namkeen — no palm oil, no maida. Crunchy, spicy south-Indian snack from Let's Try Foods. Shipped across India.",
   },
-  'navratan-mixture': {
+  "navratan-mixture": {
     title: "Navratan Mixture – Premium Namkeen, No Palm Oil | Let's Try",
     description:
       "Buy Navratan mixture online — 9-nut-seed premium namkeen with no palm oil, no maida. From Let's Try Foods. Shipped across India.",
   },
-  'sabudana-mixture': {
+  "sabudana-mixture": {
     title: "Sabudana Mixture – Vrat-Friendly Namkeen, No Palm Oil | Let's Try",
     description:
       "Sabudana mixture namkeen — fasting-friendly, no palm oil, no maida. Crunchy Indian vrat snack from Let's Try Foods. Shipped across India.",
   },
-  'peri-peri-makhana': {
+  "peri-peri-makhana": {
     title: "Peri Peri Makhana – Roasted Foxnuts, No Palm Oil | Let's Try Foods",
     description:
       "Roasted peri peri makhana — high protein, no palm oil, no maida. Spicy, crunchy foxnut snack from Let's Try Foods. Shipped across India.",
   },
-  'pudina-makhana': {
+  "pudina-makhana": {
     title: "Pudina Makhana – Roasted Foxnuts, No Palm Oil | Let's Try Foods",
     description:
       "Roasted pudina makhana — tangy mint flavour, no palm oil, no maida. Healthy foxnut snack from Let's Try Foods. Shipped across India.",
   },
-  'lite-chips': {
+  "lite-chips": {
     title: "Lite Chips – No Palm Oil, Kettle-Cooked Potato Chips | Let's Try",
     description:
       "Lite kettle-cooked potato chips — no palm oil, no maida. Crunchy, guilt-free Indian wafers from Let's Try Foods. Shipped across India.",
   },
-  'khatta-meetha': {
+  "khatta-meetha": {
     title: "Khatta Meetha Mixture – Classic Namkeen, No Palm Oil | Let's Try",
     description:
       "Buy khatta meetha mixture online — tangy-sweet Indian namkeen with no palm oil, no maida. Classic crunchy snack from Let's Try Foods. Shipped across India.",
   },
   // Purani Delhi range: DO NOT claim "No Maida" — products contain maida.
-  'lets-try-purani-delhi-methi-mathri-200g': {
+  "lets-try-purani-delhi-methi-mathri-200g": {
     title: "Purani Delhi Methi Mathri – No Palm Oil | Let's Try Foods",
     description:
       "Authentic Purani Delhi methi mathri — traditional recipe, no palm oil. Crispy savoury Indian snack from Let's Try Foods. Shipped across India.",
   },
-  'butter-murukku': {
+  "butter-murukku": {
     title: "Butter Murukku – South Indian Snack, No Palm Oil | Let's Try Foods",
     description:
       "Authentic south-Indian butter murukku — no palm oil, no maida. Crunchy, buttery rice-flour snack from Let's Try Foods. Shipped across India.",
   },
-  'masala-boondi': {
+  "masala-boondi": {
     title: "Masala Boondi – Spicy Indian Namkeen, No Palm Oil | Let's Try",
     description:
       "Classic masala boondi — spicy gram-flour namkeen with no palm oil, no maida. Traditional Indian snack from Let's Try Foods. Shipped across India.",
   },
-  'vrat-mota-chips': {
+  "vrat-mota-chips": {
     title: "Vrat Mota Chips – Fasting-Friendly, No Palm Oil | Let's Try Foods",
     description:
       "Vrat-friendly thick-cut potato chips — no palm oil, no maida. Perfect for Navratri fasting from Let's Try Foods. Shipped across India.",

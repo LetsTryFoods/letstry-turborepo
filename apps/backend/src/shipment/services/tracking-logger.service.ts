@@ -5,98 +5,111 @@ import * as path from 'path';
 
 @Injectable()
 export class TrackingLoggerService {
-    private logger: winston.Logger;
+  private logger: winston.Logger;
 
-    constructor(private configService: ConfigService) {
-        const logConfig = this.configService.get('logger');
+  constructor(private configService: ConfigService) {
+    const logConfig = this.configService.get('logger');
 
-        this.logger = winston.createLogger({
-            level: 'info',
-            format: winston.format.combine(
-                winston.format.timestamp(),
-                winston.format.errors({ stack: true }),
-                winston.format.json(),
-            ),
-            transports: [
-                new winston.transports.File({
-                    filename: path.resolve(logConfig.trackingFile),
-                    format: winston.format.combine(
-                        winston.format.timestamp(),
-                        winston.format.json(),
-                    ),
-                }),
-            ],
-        });
-    }
+    this.logger = winston.createLogger({
+      level: 'info',
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.errors({ stack: true }),
+        winston.format.json(),
+      ),
+      transports: [
+        new winston.transports.File({
+          filename: path.resolve(logConfig.trackingFile),
+          format: winston.format.combine(
+            winston.format.timestamp(),
+            winston.format.json(),
+          ),
+        }),
+      ],
+    });
+  }
 
-    logCronRun(intervalHours: number) {
-        this.logger.info(`Scheduled tracking sync to run every ${intervalHours} hour(s)`, {
-            event: 'CRON_SCHEDULED',
-            intervalHours,
-        });
-    }
+  logCronRun(intervalHours: number) {
+    this.logger.info(
+      `Scheduled tracking sync to run every ${intervalHours} hour(s)`,
+      {
+        event: 'CRON_SCHEDULED',
+        intervalHours,
+      },
+    );
+  }
 
-    logSyncStarted(activeShipmentsCount: number) {
-        this.logger.info(`Starting sync for all active shipments... Found ${activeShipmentsCount} active shipments for tracking sync.`, {
-            event: 'SYNC_ALL_STARTED',
-            activeShipmentsCount,
-        });
-    }
+  logSyncStarted(activeShipmentsCount: number) {
+    this.logger.info(
+      `Starting sync for all active shipments... Found ${activeShipmentsCount} active shipments for tracking sync.`,
+      {
+        event: 'SYNC_ALL_STARTED',
+        activeShipmentsCount,
+      },
+    );
+  }
 
-    logJobEnqueued(awbNumber: string, shipmentId: string) {
-        this.logger.info('Tracking sync job enqueued for shipment', {
-            event: 'SYNC_JOB_ENQUEUED',
-            awbNumber,
-            shipmentId,
-        });
-    }
+  logJobEnqueued(awbNumber: string, shipmentId: string) {
+    this.logger.info('Tracking sync job enqueued for shipment', {
+      event: 'SYNC_JOB_ENQUEUED',
+      awbNumber,
+      shipmentId,
+    });
+  }
 
-    logSyncShipment(awbNumber: string, shipmentId: string) {
-        this.logger.info(`Processing tracking sync for shipment`, {
-            event: 'SYNC_SHIPMENT_STARTED',
-            awbNumber,
-            shipmentId,
-        });
-    }
+  logSyncShipment(awbNumber: string, shipmentId: string) {
+    this.logger.info(`Processing tracking sync for shipment`, {
+      event: 'SYNC_SHIPMENT_STARTED',
+      awbNumber,
+      shipmentId,
+    });
+  }
 
-    logDtdcApiResponse(awbNumber: string, response: any) {
-        this.logger.info('DTDC API response received', {
-            event: 'DTDC_API_RESPONSE',
-            awbNumber,
-            statusFlag: response?.statusFlag,
-            status: response?.status,
-            trackDetailsCount: response?.trackDetails?.length ?? null,
-            errorDetails: response?.errorDetails ?? null,
-            rawResponse: response,
-        });
-    }
+  logDtdcApiResponse(awbNumber: string, response: any) {
+    this.logger.info('DTDC API response received', {
+      event: 'DTDC_API_RESPONSE',
+      awbNumber,
+      statusFlag: response?.statusFlag,
+      status: response?.status,
+      trackDetailsCount: response?.trackDetails?.length ?? null,
+      errorDetails: response?.errorDetails ?? null,
+      rawResponse: response,
+    });
+  }
 
-    logNoValidTrackingDetails(awbNumber: string) {
-        this.logger.warn(`No valid tracking details found for AWB`, {
-            event: 'NO_TRACKING_DETAILS',
-            awbNumber,
-        });
-    }
+  logNoValidTrackingDetails(awbNumber: string) {
+    this.logger.warn(`No valid tracking details found for AWB`, {
+      event: 'NO_TRACKING_DETAILS',
+      awbNumber,
+    });
+  }
 
-    logShipmentSyncSuccess(awbNumber: string, shipmentId: string, newEventsCount: number) {
-        this.logger.info(`Successfully synced tracking for shipment. Inserted ${newEventsCount} new events.`, {
-            event: 'SYNC_SHIPMENT_SUCCESS',
-            awbNumber,
-            shipmentId,
-            newEventsCount,
-        });
-    }
+  logShipmentSyncSuccess(
+    awbNumber: string,
+    shipmentId: string,
+    newEventsCount: number,
+  ) {
+    this.logger.info(
+      `Successfully synced tracking for shipment. Inserted ${newEventsCount} new events.`,
+      {
+        event: 'SYNC_SHIPMENT_SUCCESS',
+        awbNumber,
+        shipmentId,
+        newEventsCount,
+      },
+    );
+  }
 
-    logError(message: string, error: any, context?: Record<string, any>) {
-        this.logger.error(message, {
-            event: 'TRACKING_ERROR',
-            error: error.message || error,
-            stack: error.stack,
-            ...context,
-        });
-    }
+  logError(message: string, error: any, context?: Record<string, any>) {
+    this.logger.error(message, {
+      event: 'TRACKING_ERROR',
+      error: error.message || error,
+      stack: error.stack,
+      ...context,
+    });
+  }
 
-    logInfo(message: string, context?: Record<string, any>) {
-        this.logger.info(message, context);
-    }
+  logInfo(message: string, context?: Record<string, any>) {
+    this.logger.info(message, context);
+  }
 }

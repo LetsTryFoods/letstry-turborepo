@@ -68,7 +68,6 @@ import { ImagePreviewDialog } from "@/app/dashboard/components/image-preview-dia
 import { Pagination } from "@/app/dashboard/components/pagination";
 import { ProductForm } from "./_components/product-form";
 
-
 const allColumns: ColumnDefinition[] = [
   { key: "_id", label: "ID" },
   { key: "name", label: "Name" },
@@ -85,7 +84,7 @@ const allColumns: ColumnDefinition[] = [
 
 function ProductsPageContent() {
   const searchParams = useSearchParams();
-  const categoryId = searchParams.get('categoryId');
+  const categoryId = searchParams.get("categoryId");
 
   const [selectedColumns, setSelectedColumns] = useState([
     "name",
@@ -100,7 +99,9 @@ function ProductsPageContent() {
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
 
-  const { data: fullProductData, loading: loadingFullProduct } = useProduct(editingProductId || '') as { data: any; loading: boolean };
+  const { data: fullProductData, loading: loadingFullProduct } = useProduct(
+    editingProductId || "",
+  ) as { data: any; loading: boolean };
   const [productToAction, setProductToAction] = useState<{
     _id: string;
     action: "archive" | "unarchive" | "delete";
@@ -111,7 +112,7 @@ function ProductsPageContent() {
     title: string;
   } | null>(null);
 
-  const [showArchived, setShowArchived] = useState(false);
+  const [showArchived, setShowArchived] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
@@ -123,19 +124,25 @@ function ProductsPageContent() {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  const allProductsQuery = useProducts({ page: currentPage, limit: pageSize }, false, showArchived);
-  const categoryProductsQuery = useProductsByCategory(
-    categoryId || '',
-    { page: currentPage, limit: pageSize }
+  const allProductsQuery = useProducts(
+    { page: currentPage, limit: pageSize },
+    true,
+    showArchived,
   );
-  const searchProductsQuery = useSearchProducts(
-    debouncedSearchTerm,
-    { page: currentPage, limit: pageSize }
-  );
+  const categoryProductsQuery = useProductsByCategory(categoryId || "", {
+    page: currentPage,
+    limit: pageSize,
+  });
+  const searchProductsQuery = useSearchProducts(debouncedSearchTerm, {
+    page: currentPage,
+    limit: pageSize,
+  });
 
   const productsQuery = debouncedSearchTerm
     ? searchProductsQuery
-    : (categoryId ? categoryProductsQuery : allProductsQuery);
+    : categoryId
+      ? categoryProductsQuery
+      : allProductsQuery;
   const {
     data: productsData,
     loading: productsLoading,
@@ -197,7 +204,7 @@ function ProductsPageContent() {
     setSelectedColumns((prev) =>
       prev.includes(columnKey)
         ? prev.filter((key) => key !== columnKey)
-        : [...prev, columnKey]
+        : [...prev, columnKey],
     );
   };
 
@@ -208,7 +215,7 @@ function ProductsPageContent() {
   const handleAction = async (
     productId: string,
     action: "archive" | "unarchive" | "delete",
-    isArchived?: boolean
+    isArchived?: boolean,
   ) => {
     setProductToAction({ _id: productId, action, isArchived });
     setDeleteAlertOpen(true);
@@ -234,7 +241,7 @@ function ProductsPageContent() {
 
   const handleFavouriteToggle = async (
     productId: string,
-    currentFavourite: boolean
+    currentFavourite: boolean,
   ) => {
     try {
       await updateProduct({
@@ -252,7 +259,7 @@ function ProductsPageContent() {
 
   const handleArchiveToggle = async (
     productId: string,
-    currentArchived: boolean
+    currentArchived: boolean,
   ) => {
     try {
       if (currentArchived) {
@@ -290,14 +297,22 @@ function ProductsPageContent() {
       <div className="flex items-center justify-between space-y-2">
         <div>
           {categoryId && (
-            <Link href="/dashboard/products" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-2">
+            <Link
+              href="/dashboard/products"
+              className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-2"
+            >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to All Products
             </Link>
           )}
-          <h2 className="text-3xl font-bold tracking-tight">
-            {categoryId ? 'Category Products' : 'Products'}
-          </h2>
+          <div className="flex items-baseline gap-2">
+            <h2 className="text-3xl font-bold tracking-tight">
+              {categoryId ? "Category Products" : "Products"}
+            </h2>
+            <span className="text-sm text-muted-foreground">
+              ({meta.totalCount} total)
+            </span>
+          </div>
           {categoryId && (
             <p className="text-sm text-muted-foreground mt-1">
               Showing products for selected category
@@ -320,7 +335,9 @@ function ProductsPageContent() {
               <Checkbox
                 id="show-archived"
                 checked={showArchived}
-                onCheckedChange={(checked) => setShowArchived(checked as boolean)}
+                onCheckedChange={(checked) =>
+                  setShowArchived(checked as boolean)
+                }
               />
               <label
                 htmlFor="show-archived"
@@ -376,7 +393,7 @@ function ProductsPageContent() {
                   <TableRow>
                     {selectedColumns.map((columnKey) => {
                       const column = allColumns.find(
-                        (c) => c.key === columnKey
+                        (c) => c.key === columnKey,
                       );
                       return (
                         <TableHead key={columnKey}>{column?.label}</TableHead>
@@ -414,13 +431,15 @@ function ProductsPageContent() {
                                 onCheckedChange={() =>
                                   handleArchiveToggle(
                                     product._id,
-                                    product.isArchived
+                                    product.isArchived,
                                   )
                                 }
                               />
                             ) : columnKey === "categoryName" ? (
                               product?.categories?.[0]?.name && (
-                                <span className="text-muted-foreground">{product.categories[0].name}</span>
+                                <span className="text-muted-foreground">
+                                  {product.categories[0].name}
+                                </span>
                               )
                             ) : columnKey === "isVegetarian" ||
                               columnKey === "isGlutenFree" ? (
@@ -435,7 +454,7 @@ function ProductsPageContent() {
                                 onCheckedChange={() =>
                                   handleFavouriteToggle(
                                     product._id,
-                                    product.favourite
+                                    product.favourite,
                                   )
                                 }
                               />
@@ -443,7 +462,7 @@ function ProductsPageContent() {
                               <div className="max-w-[200px] truncate">
                                 {String(
                                   product[columnKey as keyof typeof product] ||
-                                  "-"
+                                  "-",
                                 )}
                               </div>
                             )}
@@ -473,7 +492,7 @@ function ProductsPageContent() {
                                     product.isArchived
                                       ? "unarchive"
                                       : "archive",
-                                    product.isArchived
+                                    product.isArchived,
                                   )
                                 }
                                 className={
@@ -571,7 +590,13 @@ function ProductsPageContent() {
 
 export default function ProductsPage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center h-screen">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center h-screen">
+          Loading...
+        </div>
+      }
+    >
       <ProductsPageContent />
     </Suspense>
   );

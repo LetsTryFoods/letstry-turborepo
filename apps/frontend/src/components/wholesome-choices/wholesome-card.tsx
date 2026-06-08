@@ -24,8 +24,9 @@ export function WholesomeCard({
 }: WholesomeCardProps) {
   const content = (
     <div
-      className={`group rounded-2xl overflow-hidden flex flex-col h-[220px] md:h-[280px] lg:h-[400px] w-full transition-transform duration-300 ${hasRange ? "hover:scale-105 cursor-pointer" : "opacity-70"
-        }`}
+      className={`group rounded-2xl overflow-hidden flex flex-col h-[220px] md:h-[280px] lg:h-[400px] w-full transition-transform duration-300 ${
+        hasRange ? "hover:scale-105 cursor-pointer" : "opacity-70"
+      }`}
       style={{
         background: gradient,
         backgroundSize: "cover",
@@ -45,10 +46,11 @@ export function WholesomeCard({
             alt={name}
             width={280}
             height={260}
-            className={`transition-transform duration-300 ${["Muffins & Cakes", "No Maida Range"].includes(title)
+            className={`transition-transform duration-300 ${
+              ["Muffins & Cakes", "No Maida Range"].includes(title)
                 ? "object-contain w-auto max-w-[120px] sm:max-w-[120px] md:max-w-[200px] lg:max-w-[280px]"
                 : "w-full h-full object-contain"
-              }`}
+            }`}
             priority={false}
             loading="lazy"
           />

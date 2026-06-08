@@ -16,7 +16,7 @@ export class AdminPaymentService {
     @InjectModel(PaymentRefund.name)
     private paymentRefundModel: Model<PaymentRefund>,
     private readonly refundService: RefundService,
-  ) { }
+  ) {}
 
   async getPaymentsList(input: GetPaymentsListInput) {
     const { page, limit, filters } = input;
@@ -102,9 +102,14 @@ export class AdminPaymentService {
         .reduce((sum, p) => sum + parseFloat(p.amount), 0)
         .toFixed(2),
       totalRefunded: '0',
-      successCount: allPayments.filter((p) => p.paymentOrderStatus === 'SUCCESS').length,
-      failedCount: allPayments.filter((p) => p.paymentOrderStatus === 'FAILED').length,
-      pendingCount: allPayments.filter((p) => p.paymentOrderStatus === 'PENDING').length,
+      successCount: allPayments.filter(
+        (p) => p.paymentOrderStatus === 'SUCCESS',
+      ).length,
+      failedCount: allPayments.filter((p) => p.paymentOrderStatus === 'FAILED')
+        .length,
+      pendingCount: allPayments.filter(
+        (p) => p.paymentOrderStatus === 'PENDING',
+      ).length,
     };
 
     const refunds = await this.paymentRefundModel
@@ -150,7 +155,9 @@ export class AdminPaymentService {
       .exec();
 
     const PaymentEvent = this.paymentOrderModel.db.model('PaymentEvent');
-    const paymentEvent = await PaymentEvent.findById(payment.paymentEventId).lean().exec();
+    const paymentEvent = await PaymentEvent.findById(payment.paymentEventId)
+      .lean()
+      .exec();
 
     return {
       ...payment,

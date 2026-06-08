@@ -17,8 +17,17 @@ export class ContactService {
     return contact.save();
   }
 
-  async findAll(skip: number = 0, limit: number = 50, filter: Record<string, any> = {}): Promise<Contact[]> {
-    return this.contactModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).exec();
+  async findAll(
+    skip: number = 0,
+    limit: number = 50,
+    filter: Record<string, any> = {},
+  ): Promise<Contact[]> {
+    return this.contactModel
+      .find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .exec();
   }
 
   async countAll(filter: Record<string, any> = {}): Promise<number> {
@@ -26,11 +35,9 @@ export class ContactService {
   }
 
   async updateStatus(id: string, status: string): Promise<Contact> {
-    const contact = await this.contactModel.findByIdAndUpdate(
-      id,
-      { status },
-      { new: true }
-    ).exec();
+    const contact = await this.contactModel
+      .findByIdAndUpdate(id, { status }, { new: true })
+      .exec();
     if (!contact) throw new Error('Contact not found');
     return contact;
   }

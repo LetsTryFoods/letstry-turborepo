@@ -1,14 +1,14 @@
 "use client";
 import { useState } from "react";
-import { useQueryClient } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
+import { useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 import Image from "next/image";
 import Link from "next/link";
-import { CartService } from '@/lib/cart/cart-service';
-import { useCart } from '@/lib/cart/use-cart';
-import { useAnalytics } from '@/hooks/use-analytics';
-import { DiscountBadge } from '@/components/ui/discount-badge';
-import { getCdnUrl } from '@/lib/image-utils';
+import { CartService } from "@/lib/cart/cart-service";
+import { useCart } from "@/lib/cart/use-cart";
+import { useAnalytics } from "@/hooks/use-analytics";
+import { DiscountBadge } from "@/components/ui/discount-badge";
+import { getCdnUrl } from "@/lib/image-utils";
 
 type ProductVariant = {
   _id: string;
@@ -46,13 +46,16 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
   const { trackAddToCart, trackRemoveFromCart } = useAnalytics();
 
   const cart = cartData?.myCart;
-  const cartItem = cart?.items?.find((item: any) => item.productId === product._id);
+  const cartItem = cart?.items?.find(
+    (item: any) => item.productId === product._id,
+  );
   const quantityInCart = cartItem?.quantity || 0;
 
-
-
   const images = variant.images?.slice(0, 4) || [];
-  const displayImages = images.length > 0 ? images : [{ url: variant.thumbnailUrl, alt: product.name }];
+  const displayImages =
+    images.length > 0
+      ? images
+      : [{ url: variant.thumbnailUrl, alt: product.name }];
 
   const handleAddToCart = async () => {
     if (isLoading) return;
@@ -67,10 +70,10 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
         quantity: 1,
         variant: variant.packageSize,
       });
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
       toast.success(`${product.name} added to cart`);
     } catch (error) {
-      toast.error('Failed to add to cart');
+      toast.error("Failed to add to cart");
     } finally {
       setIsLoading(false);
     }
@@ -89,9 +92,9 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
         quantity: 1,
         variant: variant.packageSize,
       });
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
     } catch (error) {
-      toast.error('Failed to update cart');
+      toast.error("Failed to update cart");
     } finally {
       setIsLoading(false);
     }
@@ -114,9 +117,9 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
         quantity: 1,
         variant: variant.packageSize,
       });
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
     } catch (error) {
-      toast.error('Failed to update cart');
+      toast.error("Failed to update cart");
     } finally {
       setIsLoading(false);
     }
@@ -124,7 +127,9 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
 
   return (
     <article className="relative flex flex-col border border-gray-300 rounded-lg bg-gray-50 hover:shadow-lg transition-shadow">
-      {variant.discountPercent > 0 && <DiscountBadge discountPercent={variant.discountPercent} />}
+      {variant.discountPercent > 0 && (
+        <DiscountBadge discountPercent={variant.discountPercent} />
+      )}
       <Link href={`/product/${product.slug}`}>
         <div className="relative w-full aspect-square mb-2 sm:mb-4 rounded overflow-hidden">
           <Image
@@ -138,7 +143,9 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
         <h3 className="text-sm bg-[#F3EEEA] sm:text-base font-semibold text-center text-gray-900 line-clamp-2 min-h-[48px] p-1 sm:p-2">
           {product.name}
         </h3>
-        <h4 className="text-sm pb-1 text-center bg-[#F3EEEA] text-gray-600">{variant.packageSize}</h4>
+        <h4 className="text-sm pb-1 text-center bg-[#F3EEEA] text-gray-600">
+          {variant.packageSize}
+        </h4>
       </Link>
       <div className="flex flex-col items-center justify-center bg-[#F3EEEA] py-2 gap-1">
         <div className="flex items-center bg-[#F3EEEA] gap-2">
@@ -164,7 +171,7 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
             onClick={handleAddToCart}
             disabled={isLoading}
           >
-            {isLoading ? 'Adding...' : 'Add to cart'}
+            {isLoading ? "Adding..." : "Add to cart"}
           </button>
         ) : (
           <div className="w-full flex items-center justify-between border sm:border-2 border-[#0C5273] rounded-md overflow-hidden">
@@ -176,7 +183,7 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
               −
             </button>
             <span className="flex-1 text-center py-1 text-[#0C5273] font-semibold text-base">
-              {isLoading ? '...' : quantityInCart}
+              {isLoading ? "..." : quantityInCart}
             </span>
             <button
               className="flex-1 py-1 text-[#0C5273 bg-[#D1E9F2] font-bold text-xl transition-all duration-200 active:scale-90 disabled:opacity-50 disabled:cursor-not-allowed"

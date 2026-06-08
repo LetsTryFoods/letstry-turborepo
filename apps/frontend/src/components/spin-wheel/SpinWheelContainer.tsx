@@ -18,7 +18,9 @@ export function SpinWheelContainer() {
       const timer = setTimeout(() => {
         setEligible(true);
         setOpen(true);
-        Cookies.set(SPIN_COOKIE_KEY, String(Date.now()), { expires: SPIN_COOLDOWN_DAYS });
+        Cookies.set(SPIN_COOKIE_KEY, String(Date.now()), {
+          expires: SPIN_COOLDOWN_DAYS,
+        });
       }, 5000);
       return () => clearTimeout(timer);
     }
@@ -35,12 +37,15 @@ export function SpinWheelContainer() {
           style={{
             background: "linear-gradient(135deg, #1a6b5a, #0e4d3c)",
             border: "2px solid rgba(255,215,0,0.6)",
-            boxShadow: "0 4px 20px rgba(0,0,0,0.4), 0 0 12px rgba(255,215,0,0.3)",
+            boxShadow:
+              "0 4px 20px rgba(0,0,0,0.4), 0 0 12px rgba(255,215,0,0.3)",
           }}
           aria-label="Open Spin & Win"
         >
           <span className="text-xl">🎡</span>
-          <span className="text-[8px] font-bold text-[#FFD700] leading-none mt-0.5">WIN</span>
+          <span className="text-[8px] font-bold text-[#FFD700] leading-none mt-0.5">
+            WIN
+          </span>
         </button>
       )}
       <SpinWheelPortal />

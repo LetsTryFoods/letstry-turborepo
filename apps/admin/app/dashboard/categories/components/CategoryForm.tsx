@@ -1,44 +1,80 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useCallback } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Checkbox } from "@/components/ui/checkbox"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { categoryFormSchema } from "@/lib/validations/category.schema"
-import { ImageUpload } from "@/components/custom/image-upload"
-import { getCdnUrl, extractKeyFromUrl } from "@/lib/image-utils"
+import { useState, useEffect, useCallback } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { categoryFormSchema } from "@/lib/validations/category.schema";
+import { ImageUpload } from "@/components/custom/image-upload";
+import { getCdnUrl, extractKeyFromUrl } from "@/lib/image-utils";
 
 interface CategoryFormProps {
-  onClose: () => void
-  initialData?: any | null
-  createCategory?: any
-  updateCategory?: any
+  onClose: () => void;
+  initialData?: any | null;
+  createCategory?: any;
+  updateCategory?: any;
 }
 
-export function CategoryForm({ onClose, initialData, createCategory, updateCategory }: CategoryFormProps) {
-  const [uploadedImages, setUploadedImages] = useState<Array<{ file: File | null; alt: string; preview: string; finalUrl?: string; key?: string }>>(
-    initialData?.imageUrl ? [{
-      file: null,
-      alt: initialData.name || "Category Image",
-      preview: getCdnUrl(initialData.imageUrl),
-      finalUrl: getCdnUrl(initialData.imageUrl),
-      key: extractKeyFromUrl(initialData.imageUrl)
-    }] : []
-  )
+export function CategoryForm({
+  onClose,
+  initialData,
+  createCategory,
+  updateCategory,
+}: CategoryFormProps) {
+  const [uploadedImages, setUploadedImages] = useState<
+    Array<{
+      file: File | null;
+      alt: string;
+      preview: string;
+      finalUrl?: string;
+      key?: string;
+    }>
+  >(
+    initialData?.imageUrl
+      ? [
+          {
+            file: null,
+            alt: initialData.name || "Category Image",
+            preview: getCdnUrl(initialData.imageUrl),
+            finalUrl: getCdnUrl(initialData.imageUrl),
+            key: extractKeyFromUrl(initialData.imageUrl),
+          },
+        ]
+      : [],
+  );
 
-  const [uploadedMobileImages, setUploadedMobileImages] = useState<Array<{ file: File | null; alt: string; preview: string; finalUrl?: string; key?: string }>>(
-    initialData?.mobileImageUrl ? [{
-      file: null,
-      alt: initialData.name || "Mobile Category Image",
-      preview: getCdnUrl(initialData.mobileImageUrl),
-      finalUrl: getCdnUrl(initialData.mobileImageUrl),
-      key: extractKeyFromUrl(initialData.mobileImageUrl)
-    }] : []
-  )
+  const [uploadedMobileImages, setUploadedMobileImages] = useState<
+    Array<{
+      file: File | null;
+      alt: string;
+      preview: string;
+      finalUrl?: string;
+      key?: string;
+    }>
+  >(
+    initialData?.mobileImageUrl
+      ? [
+          {
+            file: null,
+            alt: initialData.name || "Mobile Category Image",
+            preview: getCdnUrl(initialData.mobileImageUrl),
+            finalUrl: getCdnUrl(initialData.mobileImageUrl),
+            key: extractKeyFromUrl(initialData.mobileImageUrl),
+          },
+        ]
+      : [],
+  );
 
   const form = useForm({
     resolver: zodResolver(categoryFormSchema as any),
@@ -55,15 +91,37 @@ export function CategoryForm({ onClose, initialData, createCategory, updateCateg
       mobile: initialData?.mobile ?? false,
       isArchived: initialData?.isArchived ?? false,
     },
-  })
+  });
 
-  const handleImagesChange = useCallback((images: Array<{ file: File | null; alt: string; preview: string; finalUrl?: string; key?: string }>) => {
-    setUploadedImages(images)
-  }, [])
+  const handleImagesChange = useCallback(
+    (
+      images: Array<{
+        file: File | null;
+        alt: string;
+        preview: string;
+        finalUrl?: string;
+        key?: string;
+      }>,
+    ) => {
+      setUploadedImages(images);
+    },
+    [],
+  );
 
-  const handleMobileImagesChange = useCallback((images: Array<{ file: File | null; alt: string; preview: string; finalUrl?: string; key?: string }>) => {
-    setUploadedMobileImages(images)
-  }, [])
+  const handleMobileImagesChange = useCallback(
+    (
+      images: Array<{
+        file: File | null;
+        alt: string;
+        preview: string;
+        finalUrl?: string;
+        key?: string;
+      }>,
+    ) => {
+      setUploadedMobileImages(images);
+    },
+    [],
+  );
 
   useEffect(() => {
     if (initialData) {
@@ -79,23 +137,35 @@ export function CategoryForm({ onClose, initialData, createCategory, updateCateg
         favourite: initialData.favourite ?? false,
         mobile: initialData.mobile ?? false,
         isArchived: initialData.isArchived ?? false,
-      })
+      });
 
-      setUploadedImages(initialData.imageUrl ? [{
-        file: null,
-        alt: initialData.name || "Category Image",
-        preview: getCdnUrl(initialData.imageUrl),
-        finalUrl: getCdnUrl(initialData.imageUrl),
-        key: extractKeyFromUrl(initialData.imageUrl)
-      }] : [])
+      setUploadedImages(
+        initialData.imageUrl
+          ? [
+              {
+                file: null,
+                alt: initialData.name || "Category Image",
+                preview: getCdnUrl(initialData.imageUrl),
+                finalUrl: getCdnUrl(initialData.imageUrl),
+                key: extractKeyFromUrl(initialData.imageUrl),
+              },
+            ]
+          : [],
+      );
 
-      setUploadedMobileImages(initialData.mobileImageUrl ? [{
-        file: null,
-        alt: initialData.name || "Mobile Category Image",
-        preview: getCdnUrl(initialData.mobileImageUrl),
-        finalUrl: getCdnUrl(initialData.mobileImageUrl),
-        key: extractKeyFromUrl(initialData.mobileImageUrl)
-      }] : [])
+      setUploadedMobileImages(
+        initialData.mobileImageUrl
+          ? [
+              {
+                file: null,
+                alt: initialData.name || "Mobile Category Image",
+                preview: getCdnUrl(initialData.mobileImageUrl),
+                finalUrl: getCdnUrl(initialData.mobileImageUrl),
+                key: extractKeyFromUrl(initialData.mobileImageUrl),
+              },
+            ]
+          : [],
+      );
     } else {
       form.reset({
         name: "",
@@ -109,21 +179,27 @@ export function CategoryForm({ onClose, initialData, createCategory, updateCateg
         favourite: false,
         mobile: false,
         isArchived: false,
-      })
-      setUploadedImages([])
-      setUploadedMobileImages([])
+      });
+      setUploadedImages([]);
+      setUploadedMobileImages([]);
     }
-  }, [initialData, form])
+  }, [initialData, form]);
 
   useEffect(() => {
-    const imageUrl = uploadedImages[0]?.key || ''
-    form.setValue('imageUrl', imageUrl, { shouldValidate: true, shouldDirty: true })
-  }, [uploadedImages, form])
+    const imageUrl = uploadedImages[0]?.key || "";
+    form.setValue("imageUrl", imageUrl, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  }, [uploadedImages, form]);
 
   useEffect(() => {
-    const mobileImageUrl = uploadedMobileImages[0]?.key || ''
-    form.setValue('mobileImageUrl', mobileImageUrl, { shouldValidate: true, shouldDirty: true })
-  }, [uploadedMobileImages, form])
+    const mobileImageUrl = uploadedMobileImages[0]?.key || "";
+    form.setValue("mobileImageUrl", mobileImageUrl, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  }, [uploadedMobileImages, form]);
 
   const onSubmit = async (data: any) => {
     try {
@@ -132,29 +208,29 @@ export function CategoryForm({ onClose, initialData, createCategory, updateCateg
         slug: data.slug || undefined,
         description: data.description || undefined,
         parentId: data.parentId || undefined,
-        imageUrl: uploadedImages[0]?.key || '',
-        mobileImageUrl: uploadedMobileImages[0]?.key || '',
-      }
+        imageUrl: uploadedImages[0]?.key || "",
+        mobileImageUrl: uploadedMobileImages[0]?.key || "",
+      };
 
       if (initialData) {
         await updateCategory({
           variables: {
             id: initialData._id,
-            input: formattedData
-          }
-        })
+            input: formattedData,
+          },
+        });
       } else {
         await createCategory({
           variables: {
-            input: formattedData
-          }
-        })
+            input: formattedData,
+          },
+        });
       }
-      onClose()
+      onClose();
     } catch (error) {
-      console.error("Failed to save category:", error)
+      console.error("Failed to save category:", error);
     }
-  }
+  };
 
   return (
     <Form {...form}>
@@ -180,7 +256,10 @@ export function CategoryForm({ onClose, initialData, createCategory, updateCateg
               <FormItem>
                 <FormLabel>Slug</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="e.g., snacks (auto-generated if empty)" />
+                  <Input
+                    {...field}
+                    placeholder="e.g., snacks (auto-generated if empty)"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -193,7 +272,10 @@ export function CategoryForm({ onClose, initialData, createCategory, updateCateg
               <FormItem>
                 <FormLabel>Code Value (Optional)</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="e.g., SNACKS - Leave empty if not needed" />
+                  <Input
+                    {...field}
+                    placeholder="e.g., SNACKS - Leave empty if not needed"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -206,7 +288,10 @@ export function CategoryForm({ onClose, initialData, createCategory, updateCateg
               <FormItem>
                 <FormLabel>In Code Set (Optional)</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="e.g., FOOD_CATEGORY - Leave empty if not needed" />
+                  <Input
+                    {...field}
+                    placeholder="e.g., FOOD_CATEGORY - Leave empty if not needed"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -219,7 +304,10 @@ export function CategoryForm({ onClose, initialData, createCategory, updateCateg
               <FormItem>
                 <FormLabel>Parent ID</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Leave empty for root category" />
+                  <Input
+                    {...field}
+                    placeholder="Leave empty for root category"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -232,32 +320,52 @@ export function CategoryForm({ onClose, initialData, createCategory, updateCateg
             <FormLabel>Category Image</FormLabel>
             <ImageUpload
               onImagesChange={handleImagesChange}
-              initialImages={initialData?.imageUrl ? [{ url: getCdnUrl(initialData.imageUrl), alt: initialData.name }] : []}
+              initialImages={
+                initialData?.imageUrl
+                  ? [
+                      {
+                        url: getCdnUrl(initialData.imageUrl),
+                        alt: initialData.name,
+                      },
+                    ]
+                  : []
+              }
               maxFiles={1}
-              allowedFileTypes={['image/webp']}
+              allowedFileTypes={["image/webp"]}
             />
-            <input type="hidden" {...form.register('imageUrl')} />
+            <input type="hidden" {...form.register("imageUrl")} />
           </div>
 
           <div className="space-y-2">
             <FormLabel>Mobile Category Image</FormLabel>
-            <div 
+            <div
               onClickCapture={(e) => {
-                if (!form.getValues('mobile')) {
+                if (!form.getValues("mobile")) {
                   e.stopPropagation();
                   e.preventDefault();
-                  alert("Please enable the 'Mobile' option before uploading a mobile category image.");
+                  alert(
+                    "Please enable the 'Mobile' option before uploading a mobile category image.",
+                  );
                 }
               }}
             >
               <ImageUpload
                 onImagesChange={handleMobileImagesChange}
-                initialImages={initialData?.mobileImageUrl ? [{ url: getCdnUrl(initialData.mobileImageUrl), alt: initialData.name }] : []}
+                initialImages={
+                  initialData?.mobileImageUrl
+                    ? [
+                        {
+                          url: getCdnUrl(initialData.mobileImageUrl),
+                          alt: initialData.name,
+                        },
+                      ]
+                    : []
+                }
                 maxFiles={1}
-                allowedFileTypes={['image/webp']}
+                allowedFileTypes={["image/webp"]}
               />
             </div>
-            <input type="hidden" {...form.register('mobileImageUrl')} />
+            <input type="hidden" {...form.register("mobileImageUrl")} />
           </div>
         </div>
 
@@ -268,7 +376,11 @@ export function CategoryForm({ onClose, initialData, createCategory, updateCateg
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Textarea {...field} placeholder="Category description..." rows={3} />
+                <Textarea
+                  {...field}
+                  placeholder="Category description..."
+                  rows={3}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -327,10 +439,10 @@ export function CategoryForm({ onClose, initialData, createCategory, updateCateg
             Cancel
           </Button>
           <Button type="submit">
-            {initialData ? 'Update' : 'Create'} Category
+            {initialData ? "Update" : "Create"} Category
           </Button>
         </div>
       </form>
     </Form>
-  )
+  );
 }

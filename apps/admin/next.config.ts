@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
-  output: 'standalone',
+  output: "standalone",
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     NEXT_PUBLIC_API_BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL,
@@ -11,20 +11,20 @@ const nextConfig: NextConfig = {
     unoptimized: false,
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'd2tmwt8yl5m7qh.cloudfront.net',
+        protocol: "https",
+        hostname: "d2tmwt8yl5m7qh.cloudfront.net",
       },
       {
-        protocol: 'https',
-        hostname: 'd11a0m43ek7ap8.cloudfront.net',
+        protocol: "https",
+        hostname: "d11a0m43ek7ap8.cloudfront.net",
       },
       {
-        protocol: 'https',
-        hostname: 'cdn.krishnaseth.xyz',
+        protocol: "https",
+        hostname: "cdn.krishnaseth.xyz",
       },
       {
-        protocol: 'https',
-        hostname: 'pub-56a649c88d67403e867a9e00f3b37d78.r2.dev',
+        protocol: "https",
+        hostname: "pub-56a649c88d67403e867a9e00f3b37d78.r2.dev",
       },
     ],
   },

@@ -8,7 +8,7 @@ export class PackingSchedulerService implements OnModuleInit {
   constructor(
     @InjectQueue('packing-queue') private queue: Queue,
     private configService: ConfigService,
-  ) { }
+  ) {}
 
   async onModuleInit() {
     const packingConfig = this.configService.get('packing');

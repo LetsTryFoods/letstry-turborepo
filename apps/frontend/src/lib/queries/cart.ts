@@ -1,5 +1,5 @@
-import { graphql } from '@/gql';
-import { gql } from 'graphql-request';
+import { graphql } from "@/gql";
+import { gql } from "graphql-request";
 
 export const GET_MY_CART = graphql(`
   query GetMyCart {

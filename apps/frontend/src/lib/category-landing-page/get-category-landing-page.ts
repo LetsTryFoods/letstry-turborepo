@@ -1,5 +1,5 @@
-import { createServerGraphQLClient } from '@/lib/graphql/server-client-factory';
-import { GET_CATEGORY_LANDING_PAGE_BY_SLUG } from '@/lib/queries/category-landing-pages';
+import { createServerGraphQLClient } from "@/lib/graphql/server-client-factory";
+import { GET_CATEGORY_LANDING_PAGE_BY_SLUG } from "@/lib/queries/category-landing-pages";
 
 export interface CategoryTile {
   name: string;

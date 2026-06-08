@@ -11,17 +11,17 @@
 
 PR-A adds these dataLayer events on the website:
 
-| Event | When it fires |
-|---|---|
-| `purchase` | Order success page loads (with valid order data) |
-| `view_item_list` | A list of products enters the viewport (category page, no-palm-oil pillar, bestseller carousel, search) |
-| `select_item` | A product card is clicked — fires before navigation |
-| `view_cart` | Cart drawer opens with items in it |
-| `add_shipping_info` | User explicitly confirms a shipping address in cart drawer |
-| `add_payment_info` | User clicks "Pay ₹X" — fires just before payment-gateway redirect |
-| `search` | User completes a search query on `/search` (debounced 500 ms) |
-| `view_promotion` | Hero carousel banner enters viewport (and on each slide change) |
-| `select_promotion` | Hero carousel banner is clicked |
+| Event               | When it fires                                                                                           |
+| ------------------- | ------------------------------------------------------------------------------------------------------- |
+| `purchase`          | Order success page loads (with valid order data)                                                        |
+| `view_item_list`    | A list of products enters the viewport (category page, no-palm-oil pillar, bestseller carousel, search) |
+| `select_item`       | A product card is clicked — fires before navigation                                                     |
+| `view_cart`         | Cart drawer opens with items in it                                                                      |
+| `add_shipping_info` | User explicitly confirms a shipping address in cart drawer                                              |
+| `add_payment_info`  | User clicks "Pay ₹X" — fires just before payment-gateway redirect                                       |
+| `search`            | User completes a search query on `/search` (debounced 500 ms)                                           |
+| `view_promotion`    | Hero carousel banner enters viewport (and on each slide change)                                         |
+| `select_promotion`  | Hero carousel banner is clicked                                                                         |
 
 All events also include the `ecommerce: null` reset pattern, so GTM's items variable doesn't carry stale data between events. This is a defensive fix for `view_item`, `add_to_cart`, `begin_checkout` (already firing) — they should still work, but verify in DebugView.
 
@@ -102,26 +102,26 @@ Once tech lead deploys PR-A and you've published the GTM trigger update, walk th
 
 Place a real test order, watching DebugView between each step:
 
-| Step | Action | Event you should see in DebugView |
-|---|---|---|
-| 1 | Land on homepage | `page_view` · `view_promotion` (for hero banner) |
-| 2 | Click a hero banner | `select_promotion` then a `page_view` for the destination |
-| 3 | Scroll to bestseller carousel | `view_item_list` with `item_list_name: "Homepage Bestsellers"` |
-| 4 | Click a bestseller product | `select_item` then `view_item` on the PDP |
-| 5 | Add to cart on the PDP | `add_to_cart` |
-| 6 | Open cart drawer | `view_cart` |
-| 7 | Click "Continue to Payment" | `begin_checkout` |
-| 8 | Pick or save a shipping address | `add_shipping_info` |
-| 9 | Click "Pay ₹X" | `add_payment_info` then redirect to gateway |
-| 10 | Complete payment on gateway | (returns to website) |
-| 11 | Land on `/order-success` page | **`purchase`** ← the event we've been chasing |
+| Step | Action                          | Event you should see in DebugView                              |
+| ---- | ------------------------------- | -------------------------------------------------------------- |
+| 1    | Land on homepage                | `page_view` · `view_promotion` (for hero banner)               |
+| 2    | Click a hero banner             | `select_promotion` then a `page_view` for the destination      |
+| 3    | Scroll to bestseller carousel   | `view_item_list` with `item_list_name: "Homepage Bestsellers"` |
+| 4    | Click a bestseller product      | `select_item` then `view_item` on the PDP                      |
+| 5    | Add to cart on the PDP          | `add_to_cart`                                                  |
+| 6    | Open cart drawer                | `view_cart`                                                    |
+| 7    | Click "Continue to Payment"     | `begin_checkout`                                               |
+| 8    | Pick or save a shipping address | `add_shipping_info`                                            |
+| 9    | Click "Pay ₹X"                  | `add_payment_info` then redirect to gateway                    |
+| 10   | Complete payment on gateway     | (returns to website)                                           |
+| 11   | Land on `/order-success` page   | **`purchase`** ← the event we've been chasing                  |
 
 Bonus check:
 
-| Step | Action | Event |
-|---|---|---|
-| A | Visit a category page like `/healthy-snacks` | `view_item_list` with `item_list_name: "Category: healthy-snacks"` |
-| B | Use the search bar to search "bhujia" (wait 500 ms after typing) | `search` with `search_term: "bhujia"` |
+| Step | Action                                                           | Event                                                              |
+| ---- | ---------------------------------------------------------------- | ------------------------------------------------------------------ |
+| A    | Visit a category page like `/healthy-snacks`                     | `view_item_list` with `item_list_name: "Category: healthy-snacks"` |
+| B    | Use the search bar to search "bhujia" (wait 500 ms after typing) | `search` with `search_term: "bhujia"`                              |
 
 ### What "right" looks like in DebugView
 
@@ -161,6 +161,7 @@ So you're not surprised when these don't appear:
 
 **`purchase` doesn't fire on order-success page**
 → Two known causes:
+
 - (a) The `getOrderById` GraphQL call returns null/error. Check the browser network tab. Usually means the user is in guest mode (auth required). Phase 5 will add guest support; for now, authenticated orders will fire correctly.
 - (b) `value < 1` — the order's `totalAmount` came back as 0 or invalid. Code intentionally skips the event in this case to avoid recording bogus revenue.
 

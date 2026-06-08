@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { X, Tag } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { toast } from 'react-hot-toast';
+import React, { useState, useEffect } from "react";
+import { X, Tag } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "react-hot-toast";
 
 interface Coupon {
   _id: string;
@@ -33,41 +33,45 @@ export const CouponsModal: React.FC<CouponsModalProps> = ({
   onRemoveCoupon,
   isLoading,
 }) => {
-  const [couponCode, setCouponCode] = useState('');
+  const [couponCode, setCouponCode] = useState("");
   const [applying, setApplying] = useState<string | null>(null);
 
-  const ANDROID_APP_URL = "https://play.google.com/store/apps/details?id=com.letstryapp";
+  const ANDROID_APP_URL =
+    "https://play.google.com/store/apps/details?id=com.letstryapp";
   const IOS_APP_URL = "https://apps.apple.com/in/app/lets-try/id6749929023";
 
   const redirectToAppStore = () => {
     const userAgent = navigator.userAgent || navigator.vendor;
 
     if (/android/i.test(userAgent)) {
-      window.open(ANDROID_APP_URL, '_blank');
+      window.open(ANDROID_APP_URL, "_blank");
       return;
     }
 
     if (/iPad|iPhone|iPod/.test(userAgent)) {
-      window.open(IOS_APP_URL, '_blank');
+      window.open(IOS_APP_URL, "_blank");
       return;
     }
 
-    window.open(ANDROID_APP_URL, '_blank');
+    window.open(ANDROID_APP_URL, "_blank");
   };
 
   const handleApplyManual = async () => {
     if (!couponCode.trim()) {
-      toast.error('Please enter a coupon code');
+      toast.error("Please enter a coupon code");
       return;
     }
 
     setApplying(couponCode);
     try {
       await onApplyCoupon(couponCode.toUpperCase());
-      setCouponCode('');
-      toast.success('Coupon applied successfully!');
+      setCouponCode("");
+      toast.success("Coupon applied successfully!");
     } catch (error: any) {
-      const errorMessage = error?.response?.errors?.[0]?.message || error.message || 'Failed to apply coupon';
+      const errorMessage =
+        error?.response?.errors?.[0]?.message ||
+        error.message ||
+        "Failed to apply coupon";
       toast.error(errorMessage);
     } finally {
       setApplying(null);
@@ -78,9 +82,12 @@ export const CouponsModal: React.FC<CouponsModalProps> = ({
     setApplying(code);
     try {
       await onApplyCoupon(code);
-      toast.success('Coupon applied successfully!');
+      toast.success("Coupon applied successfully!");
     } catch (error: any) {
-      const errorMessage = error?.response?.errors?.[0]?.message || error.message || 'Failed to apply coupon';
+      const errorMessage =
+        error?.response?.errors?.[0]?.message ||
+        error.message ||
+        "Failed to apply coupon";
       toast.error(errorMessage);
     } finally {
       setApplying(null);
@@ -90,22 +97,22 @@ export const CouponsModal: React.FC<CouponsModalProps> = ({
   const handleRemoveCoupon = async () => {
     try {
       await onRemoveCoupon();
-      toast.success('Coupon removed');
+      toast.success("Coupon removed");
     } catch (error: any) {
-      toast.error(error.message || 'Failed to remove coupon');
+      toast.error(error.message || "Failed to remove coupon");
     }
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-IN', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
+    return new Date(dateString).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
     });
   };
 
   const formatDiscount = (type: string, value: number) => {
-    if (type === 'PERCENTAGE') {
+    if (type === "PERCENTAGE") {
       return `${value}% OFF`;
     }
     return `₹${value} OFF`;
@@ -124,14 +131,16 @@ export const CouponsModal: React.FC<CouponsModalProps> = ({
           />
 
           <motion.div
-            initial={{ y: '100%', opacity: 0 }}
+            initial={{ y: "100%", opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            exit={{ y: '100%', opacity: 0 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            exit={{ y: "100%", opacity: 0 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
             className="relative bg-white rounded-t-3xl sm:rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl"
           >
             <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-3xl sm:rounded-t-2xl">
-              <h2 className="text-xl font-bold text-gray-900">Coupon & Offers</h2>
+              <h2 className="text-xl font-bold text-gray-900">
+                Coupon & Offers
+              </h2>
               <button
                 onClick={onClose}
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -147,17 +156,19 @@ export const CouponsModal: React.FC<CouponsModalProps> = ({
                   <input
                     type="text"
                     value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    onChange={(e) =>
+                      setCouponCode(e.target.value.toUpperCase())
+                    }
                     placeholder="Enter Coupon Code"
                     className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0F4A6A] focus:border-transparent"
-                    onKeyPress={(e) => e.key === 'Enter' && handleApplyManual()}
+                    onKeyPress={(e) => e.key === "Enter" && handleApplyManual()}
                   />
                   <button
                     onClick={handleApplyManual}
                     disabled={applying === couponCode || !couponCode.trim()}
                     className="px-6 py-3 bg-[#0F4A6A] text-white font-semibold rounded-lg hover:bg-[#09354F] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {applying === couponCode ? 'APPLYING...' : 'APPLY'}
+                    {applying === couponCode ? "APPLYING..." : "APPLY"}
                   </button>
                 </div>
               </div>
@@ -189,10 +200,11 @@ export const CouponsModal: React.FC<CouponsModalProps> = ({
                     return (
                       <div
                         key={coupon._id}
-                        className={`border rounded-lg p-4 transition-all ${isApplied
-                          ? 'bg-green-50 border-green-500'
-                          : 'bg-orange-50 border-orange-200'
-                          }`}
+                        className={`border rounded-lg p-4 transition-all ${
+                          isApplied
+                            ? "bg-green-50 border-green-500"
+                            : "bg-orange-50 border-orange-200"
+                        }`}
                       >
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex-1">
@@ -206,7 +218,10 @@ export const CouponsModal: React.FC<CouponsModalProps> = ({
                                 </span>
                               </div>
                               <span className="text-sm font-semibold text-green-600">
-                                {formatDiscount(coupon.discountType, coupon.discountValue)}
+                                {formatDiscount(
+                                  coupon.discountType,
+                                  coupon.discountValue,
+                                )}
                               </span>
                             </div>
                             {coupon.minCartValue && coupon.minCartValue > 0 && (
@@ -230,10 +245,14 @@ export const CouponsModal: React.FC<CouponsModalProps> = ({
                           ) : (
                             <button
                               onClick={() => handleApplyCoupon(coupon.code)}
-                              disabled={applying === coupon.code || !!appliedCouponCode}
+                              disabled={
+                                applying === coupon.code || !!appliedCouponCode
+                              }
                               className="px-6 py-2 bg-[#0F4A6A] text-white font-semibold rounded-lg hover:bg-[#09354F] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                              {applying === coupon.code ? 'APPLYING...' : 'APPLY'}
+                              {applying === coupon.code
+                                ? "APPLYING..."
+                                : "APPLY"}
                             </button>
                           )}
                         </div>

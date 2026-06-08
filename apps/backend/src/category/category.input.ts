@@ -48,7 +48,8 @@ export class CreateCategoryInput {
   // ---- Sprint 4 rich content ---------------------------------------------
   @Field({ nullable: true }) longDescription?: string;
   @Field({ nullable: true }) editorialIntro?: string;
-  @Field(() => [CategoryFaqEntryInput], { nullable: true }) categoryFaqs?: CategoryFaqEntryInput[];
+  @Field(() => [CategoryFaqEntryInput], { nullable: true })
+  categoryFaqs?: CategoryFaqEntryInput[];
   @Field(() => [String], { nullable: true }) featuredProductIds?: string[];
   @Field(() => [String], { nullable: true }) pillarSlugs?: string[];
   @Field(() => [String], { nullable: true }) editorialHighlights?: string[];
@@ -95,7 +96,8 @@ export class UpdateCategoryInput {
   // ---- Sprint 4 rich content (all optional on update) --------------------
   @Field({ nullable: true }) longDescription?: string;
   @Field({ nullable: true }) editorialIntro?: string;
-  @Field(() => [CategoryFaqEntryInput], { nullable: true }) categoryFaqs?: CategoryFaqEntryInput[];
+  @Field(() => [CategoryFaqEntryInput], { nullable: true })
+  categoryFaqs?: CategoryFaqEntryInput[];
   @Field(() => [String], { nullable: true }) featuredProductIds?: string[];
   @Field(() => [String], { nullable: true }) pillarSlugs?: string[];
   @Field(() => [String], { nullable: true }) editorialHighlights?: string[];

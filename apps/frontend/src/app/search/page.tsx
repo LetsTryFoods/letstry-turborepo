@@ -1,30 +1,34 @@
-'use client';
+"use client";
 
-import { Suspense, useCallback, useState, useEffect, useRef } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { ChevronLeft, Search } from 'lucide-react';
-import { useSearchProducts } from '@/lib/search/use-search';
-import { ProductCard, type Product } from '@/components/category-page/ProductCard';
-import { useDebounce } from 'use-debounce';
-import { useAnalytics } from '@/hooks/use-analytics';
-import { useSearchStore } from '@/stores/search-store';
-import { plog } from '@/lib/debug-logger';
+import { Suspense, useCallback, useState, useEffect, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ChevronLeft, Search } from "lucide-react";
+import { useSearchProducts } from "@/lib/search/use-search";
+import {
+  ProductCard,
+  type Product,
+} from "@/components/category-page/ProductCard";
+import { useDebounce } from "use-debounce";
+import { useAnalytics } from "@/hooks/use-analytics";
+import { useSearchStore } from "@/stores/search-store";
+import { plog } from "@/lib/debug-logger";
 
-const POPULAR_SEARCHES = ['Bhujia', 'Murukku'];
+const POPULAR_SEARCHES = ["Bhujia", "Murukku"];
 
 function mapProductData(apiProduct: any): Product {
   const defaultVariant = apiProduct?.defaultVariant;
-  const variants = apiProduct?.availableVariants?.map((v: any) => ({
-    id: v._id,
-    weight: v.packageSize || `${v.weight}${v.weightUnit}`,
-    price: v.price,
-    mrp: v.mrp,
-  })) || [];
+  const variants =
+    apiProduct?.availableVariants?.map((v: any) => ({
+      id: v._id,
+      weight: v.packageSize || `${v.weight}${v.weightUnit}`,
+      price: v.price,
+      mrp: v.mrp,
+    })) || [];
 
   if (variants.length === 0 && defaultVariant) {
     variants.push({
       id: defaultVariant._id || apiProduct?._id,
-      weight: defaultVariant.packageSize || 'Standard',
+      weight: defaultVariant.packageSize || "Standard",
       price: defaultVariant.price,
       mrp: defaultVariant.mrp,
     });
@@ -33,17 +37,20 @@ function mapProductData(apiProduct: any): Product {
   const tags = apiProduct?.tags || [];
   let badge = undefined;
 
-  if (tags.includes('trending')) {
-    badge = { label: 'Trending', variant: 'trending' as const };
-  } else if (tags.includes('bestseller')) {
-    badge = { label: 'Bestseller', variant: 'bestseller' as const };
+  if (tags.includes("trending")) {
+    badge = { label: "Trending", variant: "trending" as const };
+  } else if (tags.includes("bestseller")) {
+    badge = { label: "Bestseller", variant: "bestseller" as const };
   }
 
   return {
     id: apiProduct?._id,
-    name: apiProduct?.name || 'Unknown Product',
-    slug: apiProduct?.slug || '',
-    image: defaultVariant?.thumbnailUrl || apiProduct?.thumbnailUrl || '/placeholder-image.svg',
+    name: apiProduct?.name || "Unknown Product",
+    slug: apiProduct?.slug || "",
+    image:
+      defaultVariant?.thumbnailUrl ||
+      apiProduct?.thumbnailUrl ||
+      "/placeholder-image.svg",
     price: defaultVariant?.price || 0,
     mrp: defaultVariant?.mrp,
     variants,
@@ -64,13 +71,27 @@ function SearchContent() {
   // seeding is complete). Prevents store→URL from clearing a pre-existing ?q= on mount.
   const hasTyped = useRef(false);
 
-  plog('[SearchContent] RENDER - searchTerm (store):', JSON.stringify(searchTerm), '| debouncedSearchTerm:', JSON.stringify(debouncedSearchTerm), '| searchParams q:', searchParams.get('q'), '| hasTyped:', hasTyped.current);
+  plog(
+    "[SearchContent] RENDER - searchTerm (store):",
+    JSON.stringify(searchTerm),
+    "| debouncedSearchTerm:",
+    JSON.stringify(debouncedSearchTerm),
+    "| searchParams q:",
+    searchParams.get("q"),
+    "| hasTyped:",
+    hasTyped.current,
+  );
 
   // On mount: initialise the store from the URL ?q= param.
   // This handles direct navigation, page refresh, and back/forward nav.
   useEffect(() => {
-    const q = searchParams.get('q') || '';
-    plog('[SearchContent] URL→store effect. q:', JSON.stringify(q), '| store searchTerm:', JSON.stringify(searchTerm));
+    const q = searchParams.get("q") || "";
+    plog(
+      "[SearchContent] URL→store effect. q:",
+      JSON.stringify(q),
+      "| store searchTerm:",
+      JSON.stringify(searchTerm),
+    );
     // Only update the store if the URL has a different value.
     // Using window.location.search instead of searchParams to avoid stale closure.
     const currentStoreMatchesUrl = searchTerm === q;
@@ -85,39 +106,45 @@ function SearchContent() {
   // One-way: store → URL. Update the URL whenever the debounced term changes.
   // This is the ONLY place that writes to the URL.
   useEffect(() => {
-    plog('[SearchContent] EFFECT (store→URL) - debouncedSearchTerm:', JSON.stringify(debouncedSearchTerm), '| hasTyped:', hasTyped.current);
+    plog(
+      "[SearchContent] EFFECT (store→URL) - debouncedSearchTerm:",
+      JSON.stringify(debouncedSearchTerm),
+      "| hasTyped:",
+      hasTyped.current,
+    );
     // Don't push URL until we've seeded the store from the URL first.
     // This prevents clearing a pre-existing ?q= param on mount.
     if (!hasTyped.current) {
-      plog('[SearchContent] EFFECT - hasTyped=false, bailing to protect URL on mount.');
+      plog(
+        "[SearchContent] EFFECT - hasTyped=false, bailing to protect URL on mount.",
+      );
       return;
     }
-    const currentQ = new URLSearchParams(window.location.search).get('q') || '';
+    const currentQ = new URLSearchParams(window.location.search).get("q") || "";
     if (debouncedSearchTerm === currentQ) {
-      plog('[SearchContent] EFFECT - already matches URL. No router.replace needed.');
+      plog(
+        "[SearchContent] EFFECT - already matches URL. No router.replace needed.",
+      );
       return;
     }
-    const url = debouncedSearchTerm ? `/search?q=${encodeURIComponent(debouncedSearchTerm)}` : '/search';
-    plog('[SearchContent] EFFECT - replacing URL to:', url);
+    const url = debouncedSearchTerm
+      ? `/search?q=${encodeURIComponent(debouncedSearchTerm)}`
+      : "/search";
+    plog("[SearchContent] EFFECT - replacing URL to:", url);
     router.replace(url, { scroll: false });
     if (debouncedSearchTerm) {
-      trackEvent('search', { search_term: debouncedSearchTerm });
+      trackEvent("search", { search_term: debouncedSearchTerm });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearchTerm]);
 
-  const {
-    data,
-    isLoading,
-    isFetchingNextPage,
-    hasNextPage,
-    fetchNextPage,
-  } = useSearchProducts(debouncedSearchTerm);
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } =
+    useSearchProducts(debouncedSearchTerm);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
@@ -127,49 +154,67 @@ function SearchContent() {
           fetchNextPage();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
     if (loaderRef.current) observer.observe(loaderRef.current);
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const handlePopularSearch = useCallback((term: string) => {
-    setSearchTerm(term);
-  }, [setSearchTerm]);
+  const handlePopularSearch = useCallback(
+    (term: string) => {
+      setSearchTerm(term);
+    },
+    [setSearchTerm],
+  );
 
-  const products = data?.pages.flatMap(
-    (page) => page?.searchProducts?.items?.map(mapProductData) ?? []
-  ) ?? [];
+  const products =
+    data?.pages.flatMap(
+      (page) => page?.searchProducts?.items?.map(mapProductData) ?? [],
+    ) ?? [];
   const meta = data?.pages[data.pages.length - 1]?.searchProducts?.meta;
   const hasSearched = debouncedSearchTerm.trim().length > 0;
 
   const totalResultCount = meta?.totalCount ?? 0;
   useEffect(() => {
     if (!hasSearched || isLoading) return;
-    trackEvent('view_search_results', {
+    trackEvent("view_search_results", {
       search_term: debouncedSearchTerm,
       number_of_results: totalResultCount,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearchTerm, isLoading, totalResultCount]);
 
-
   return (
     <div className="min-h-screen bg-white">
-      <div className={`md:hidden sticky top-0 z-10 border-b transition-all duration-200 ${isScrolled ? 'bg-gray-50/95 backdrop-blur-sm border-gray-200 shadow-sm' : 'bg-white border-gray-100'
-        }`}>
+      <div
+        className={`md:hidden sticky top-0 z-10 border-b transition-all duration-200 ${
+          isScrolled
+            ? "bg-gray-50/95 backdrop-blur-sm border-gray-200 shadow-sm"
+            : "bg-white border-gray-100"
+        }`}
+      >
         <div className="flex items-center gap-3 p-4">
-          <button onClick={() => router.back()} className="p-1" aria-label="Go back">
+          <button
+            onClick={() => router.back()}
+            className="p-1"
+            aria-label="Go back"
+          >
             <ChevronLeft size={24} className="text-black" />
           </button>
           <div className="flex-1 relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+            <Search
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+              size={20}
+            />
             <input
               type="text"
               placeholder="Bhujia"
               value={searchTerm}
               onChange={(e) => {
-                plog('[SearchContent] Mobile input onChange - new value:', JSON.stringify(e.target.value));
+                plog(
+                  "[SearchContent] Mobile input onChange - new value:",
+                  JSON.stringify(e.target.value),
+                );
                 hasTyped.current = true;
                 setSearchTerm(e.target.value);
               }}
@@ -221,10 +266,11 @@ function SearchContent() {
           <div>
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-black">
-                {hasSearched ? 'Search Results' : 'All Products'}
+                {hasSearched ? "Search Results" : "All Products"}
               </h3>
               <p className="text-sm md:text-base text-gray-600">
-                {meta?.totalCount || 0} {meta?.totalCount === 1 ? 'product' : 'products'}
+                {meta?.totalCount || 0}{" "}
+                {meta?.totalCount === 1 ? "product" : "products"}
               </p>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8 lg:gap-10">
@@ -252,16 +298,18 @@ function SearchContent() {
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-white">
-        <div className="max-w-7xl mx-auto p-4 md:p-6">
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500"></div>
-            <p className="mt-4 text-gray-600">Loading...</p>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-white">
+          <div className="max-w-7xl mx-auto p-4 md:p-6">
+            <div className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500"></div>
+              <p className="mt-4 text-gray-600">Loading...</p>
+            </div>
           </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <SearchContent />
     </Suspense>
   );

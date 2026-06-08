@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 export const GET_BANNERS = gql`
   query GetBanners {
@@ -23,7 +23,7 @@ export const GET_BANNERS = gql`
       updatedAt
     }
   }
-`
+`;
 
 export const GET_ACTIVE_BANNERS = gql`
   query GetActiveBanners {
@@ -48,7 +48,7 @@ export const GET_ACTIVE_BANNERS = gql`
       updatedAt
     }
   }
-`
+`;
 
 export const GET_BANNER = gql`
   query GetBanner($id: ID!) {
@@ -73,7 +73,7 @@ export const GET_BANNER = gql`
       updatedAt
     }
   }
-`
+`;
 
 export const CREATE_BANNER = gql`
   mutation CreateBanner($input: CreateBannerInput!) {
@@ -98,7 +98,7 @@ export const CREATE_BANNER = gql`
       updatedAt
     }
   }
-`
+`;
 
 export const UPDATE_BANNER = gql`
   mutation UpdateBanner($id: ID!, $input: UpdateBannerInput!) {
@@ -106,7 +106,7 @@ export const UPDATE_BANNER = gql`
       _id
     }
   }
-`
+`;
 
 export const UPDATE_BANNER_ACTIVE = gql`
   mutation UpdateBannerActive($id: ID!, $isActive: Boolean!) {
@@ -115,7 +115,7 @@ export const UPDATE_BANNER_ACTIVE = gql`
       isActive
     }
   }
-`
+`;
 
 export const DELETE_BANNER = gql`
   mutation DeleteBanner($id: ID!) {
@@ -124,4 +124,4 @@ export const DELETE_BANNER = gql`
       name
     }
   }
-`
+`;

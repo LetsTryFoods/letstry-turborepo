@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,92 +8,85 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import {
-  Bell,
-  Mail,
-  MessageSquare,
-  Send,
-  Clock,
-  FileText
-} from "lucide-react"
+} from "@/components/ui/select";
+import { Bell, Mail, MessageSquare, Send, Clock, FileText } from "lucide-react";
 import {
   NotificationType,
   NotificationAudience,
   useSendNotification,
-  useNotificationTemplates
-} from "@/lib/notifications/useNotifications"
+  useNotificationTemplates,
+} from "@/lib/notifications/useNotifications";
 
 interface SendNotificationDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onSuccess: () => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSuccess: () => void;
 }
 
 export default function SendNotificationDialog({
   open,
   onOpenChange,
-  onSuccess
+  onSuccess,
 }: SendNotificationDialogProps) {
-  const [title, setTitle] = useState("")
-  const [message, setMessage] = useState("")
-  const [type, setType] = useState<NotificationType>("PUSH")
-  const [audience, setAudience] = useState<NotificationAudience>("ALL")
-  const [scheduledAt, setScheduledAt] = useState("")
-  const [isScheduled, setIsScheduled] = useState(false)
+  const [title, setTitle] = useState("");
+  const [message, setMessage] = useState("");
+  const [type, setType] = useState<NotificationType>("PUSH");
+  const [audience, setAudience] = useState<NotificationAudience>("ALL");
+  const [scheduledAt, setScheduledAt] = useState("");
+  const [isScheduled, setIsScheduled] = useState(false);
 
-  const { sendNotification, loading } = useSendNotification()
-  const { data: templatesData } = useNotificationTemplates()
-  const templates = templatesData?.templates || []
+  const { sendNotification, loading } = useSendNotification();
+  const { data: templatesData } = useNotificationTemplates();
+  const templates = templatesData?.templates || [];
 
   const handleTemplateSelect = (templateId: string) => {
-    const template = templates.find(t => t._id === templateId)
+    const template = templates.find((t) => t._id === templateId);
     if (template) {
-      setTitle(template.title)
-      setMessage(template.message)
-      setType(template.type)
+      setTitle(template.title);
+      setMessage(template.message);
+      setType(template.type);
     }
-  }
+  };
 
   const handleSubmit = async () => {
-    if (!title.trim() || !message.trim()) return
+    if (!title.trim() || !message.trim()) return;
 
     await sendNotification({
       title,
       message,
       type,
       audience,
-      scheduledAt: isScheduled ? scheduledAt : undefined
-    })
+      scheduledAt: isScheduled ? scheduledAt : undefined,
+    });
 
     // Reset form
-    setTitle("")
-    setMessage("")
-    setType("PUSH")
-    setAudience("ALL")
-    setScheduledAt("")
-    setIsScheduled(false)
+    setTitle("");
+    setMessage("");
+    setType("PUSH");
+    setAudience("ALL");
+    setScheduledAt("");
+    setIsScheduled(false);
 
-    onSuccess()
-    onOpenChange(false)
-  }
+    onSuccess();
+    onOpenChange(false);
+  };
 
   const typeIcons = {
     PUSH: Bell,
     EMAIL: Mail,
-    SMS: MessageSquare
-  }
+    SMS: MessageSquare,
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -131,7 +124,7 @@ export default function SendNotificationDialog({
             <Label>Notification Type</Label>
             <div className="grid grid-cols-3 gap-2">
               {(["PUSH", "EMAIL", "SMS"] as NotificationType[]).map((t) => {
-                const Icon = typeIcons[t]
+                const Icon = typeIcons[t];
                 return (
                   <Button
                     key={t}
@@ -143,7 +136,7 @@ export default function SendNotificationDialog({
                     <Icon className="h-4 w-4" />
                     {t}
                   </Button>
-                )
+                );
               })}
             </div>
           </div>
@@ -179,16 +172,24 @@ export default function SendNotificationDialog({
             <Label>Target Audience</Label>
             <Select
               value={audience}
-              onValueChange={(value) => setAudience(value as NotificationAudience)}
+              onValueChange={(value) =>
+                setAudience(value as NotificationAudience)
+              }
             >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="ALL">All Customers</SelectItem>
-                <SelectItem value="ACTIVE_CUSTOMERS">Active Customers</SelectItem>
-                <SelectItem value="INACTIVE_CUSTOMERS">Inactive Customers</SelectItem>
-                <SelectItem value="NEW_CUSTOMERS">New Customers (Last 30 days)</SelectItem>
+                <SelectItem value="ACTIVE_CUSTOMERS">
+                  Active Customers
+                </SelectItem>
+                <SelectItem value="INACTIVE_CUSTOMERS">
+                  Inactive Customers
+                </SelectItem>
+                <SelectItem value="NEW_CUSTOMERS">
+                  New Customers (Last 30 days)
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -203,7 +204,10 @@ export default function SendNotificationDialog({
                 onChange={(e) => setIsScheduled(e.target.checked)}
                 className="rounded"
               />
-              <Label htmlFor="schedule" className="flex items-center gap-2 cursor-pointer">
+              <Label
+                htmlFor="schedule"
+                className="flex items-center gap-2 cursor-pointer"
+              >
                 <Clock className="h-4 w-4" />
                 Schedule for later
               </Label>
@@ -244,5 +248,5 @@ export default function SendNotificationDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

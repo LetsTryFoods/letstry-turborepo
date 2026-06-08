@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from "next/link";
 
 export default function Forbidden() {
   return (
@@ -20,18 +20,20 @@ export default function Forbidden() {
               />
             </svg>
           </div>
-          <h1 className="text-9xl font-bold text-zinc-900 dark:text-zinc-100">403</h1>
+          <h1 className="text-9xl font-bold text-zinc-900 dark:text-zinc-100">
+            403
+          </h1>
           <div className="mt-4 h-1 w-24 mx-auto bg-gradient-to-r from-rose-500 to-pink-600 rounded-full"></div>
         </div>
-        
+
         <h2 className="text-3xl font-semibold text-zinc-800 dark:text-zinc-200 mb-4">
           Forbidden
         </h2>
-        
+
         <p className="text-lg text-zinc-600 dark:text-zinc-400 mb-8">
           You are not authorized to access this resource.
         </p>
-        
+
         <Link
           href="/"
           className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-zinc-900 text-white font-medium hover:bg-zinc-800 transition-colors dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"

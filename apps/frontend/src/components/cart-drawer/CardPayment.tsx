@@ -1,12 +1,15 @@
-import React, { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { motion } from 'framer-motion';
-import { Loader2, Lock } from 'lucide-react';
-import { useMutation } from '@tanstack/react-query';
-import { graphqlClient } from '@/lib/graphql/client-factory';
-import { INITIATE_PAYMENT } from '@/lib/queries/payment';
-import { FormInput } from './FormInput';
-import { getOrCreateIdempotencyKey, clearIdempotencyKey } from '@/lib/utils/idempotency';
+import React, { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { motion } from "framer-motion";
+import { Loader2, Lock } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { graphqlClient } from "@/lib/graphql/client-factory";
+import { INITIATE_PAYMENT } from "@/lib/queries/payment";
+import { FormInput } from "./FormInput";
+import {
+  getOrCreateIdempotencyKey,
+  clearIdempotencyKey,
+} from "@/lib/utils/idempotency";
 
 interface CardPaymentProps {
   cartId: string;
@@ -56,14 +59,16 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
       }
     },
     onError: (error: any) => {
-      const errorMessage = error.response?.errors?.[0]?.message || 'Payment failed. Please try again.';
-      
-      if (errorMessage.includes('Cart has changed')) {
+      const errorMessage =
+        error.response?.errors?.[0]?.message ||
+        "Payment failed. Please try again.";
+
+      if (errorMessage.includes("Cart has changed")) {
         clearIdempotencyKey();
       }
-      
-      console.error('Payment failed:', error);
-      setError('root', {
+
+      console.error("Payment failed:", error);
+      setError("root", {
         message: errorMessage,
       });
     },
@@ -80,10 +85,7 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-    >
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <FormInput
           label="Card Number"
@@ -92,15 +94,17 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
           required
           placeholder="0000 0000 0000 0000"
           validation={{
-            required: 'Card number is required',
+            required: "Card number is required",
             pattern: {
               value: /^[0-9\s]{16,19}$/,
-              message: 'Invalid card number',
+              message: "Invalid card number",
             },
           }}
         />
         {errors.cardNumber && (
-          <p className="text-xs text-red-500 mt-1">{errors.cardNumber.message}</p>
+          <p className="text-xs text-red-500 mt-1">
+            {errors.cardNumber.message}
+          </p>
         )}
 
         <FormInput
@@ -109,10 +113,12 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
           register={register}
           required
           placeholder="JOHN DOE"
-          validation={{ required: 'Name on card is required' }}
+          validation={{ required: "Name on card is required" }}
         />
         {errors.nameOnCard && (
-          <p className="text-xs text-red-500 mt-1">{errors.nameOnCard.message}</p>
+          <p className="text-xs text-red-500 mt-1">
+            {errors.nameOnCard.message}
+          </p>
         )}
 
         <div className="grid grid-cols-3 gap-4">
@@ -124,12 +130,14 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
               required
               placeholder="MM"
               validation={{
-                required: 'Required',
-                pattern: { value: /^(0[1-9]|1[0-2])$/, message: 'Invalid' },
+                required: "Required",
+                pattern: { value: /^(0[1-9]|1[0-2])$/, message: "Invalid" },
               }}
             />
             {errors.expiryMonth && (
-              <p className="text-xs text-red-500 mt-1">{errors.expiryMonth.message}</p>
+              <p className="text-xs text-red-500 mt-1">
+                {errors.expiryMonth.message}
+              </p>
             )}
           </div>
           <div>
@@ -140,12 +148,14 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
               required
               placeholder="YYYY"
               validation={{
-                required: 'Required',
-                pattern: { value: /^[2-9][0-9]{3}$/, message: 'Invalid' },
+                required: "Required",
+                pattern: { value: /^[2-9][0-9]{3}$/, message: "Invalid" },
               }}
             />
             {errors.expiryYear && (
-              <p className="text-xs text-red-500 mt-1">{errors.expiryYear.message}</p>
+              <p className="text-xs text-red-500 mt-1">
+                {errors.expiryYear.message}
+              </p>
             )}
           </div>
           <div>
@@ -157,8 +167,8 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
               type="password"
               placeholder="123"
               validation={{
-                required: 'Required',
-                pattern: { value: /^[0-9]{3,4}$/, message: 'Invalid' },
+                required: "Required",
+                pattern: { value: /^[0-9]{3,4}$/, message: "Invalid" },
               }}
             />
             {errors.cvv && (

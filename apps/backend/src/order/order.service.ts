@@ -21,10 +21,7 @@ import { OrderCommandService } from './services/order.command-service';
 import { OrderItemService } from './services/order.item-service';
 import { PaymentOrder, PaymentEvent } from '../payment/entities/payment.schema';
 import { Address, AddressDocument } from '../address/address.schema';
-import {
-  Identity,
-  IdentityDocument,
-} from '../common/schemas/identity.schema';
+import { Identity, IdentityDocument } from '../common/schemas/identity.schema';
 
 @Injectable()
 export class OrderService {
@@ -63,6 +60,12 @@ export class OrderService {
     avgDeliveryDays: number;
   }> {
     return this.queryService.getShippingInsights();
+  }
+
+  async getSalesByState(
+    period: string,
+  ): Promise<{ state: string; orders: number; revenue: number }[]> {
+    return this.queryService.getSalesByState(period);
   }
 
   async createOrder(params: {
@@ -191,7 +194,9 @@ export class OrderService {
 
     let handlingCharge: number | undefined;
     if (payment.paymentEventId) {
-      const paymentEvent = await this.paymentEventModel.findById(payment.paymentEventId).exec();
+      const paymentEvent = await this.paymentEventModel
+        .findById(payment.paymentEventId)
+        .exec();
       handlingCharge = paymentEvent?.cartSnapshot?.totals?.handlingCharge;
     }
 
@@ -291,5 +296,4 @@ export class OrderService {
     }
     return this.itemService.populateItemsOnly(order.items);
   }
-
 }

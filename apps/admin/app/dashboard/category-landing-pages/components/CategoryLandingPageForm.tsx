@@ -1,16 +1,16 @@
-'use client'
+"use client";
 
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   categoryLandingPageFormSchema,
   CategoryLandingPageFormValues,
-} from '@/lib/validations/category-landing-page.schema'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Separator } from '@/components/ui/separator'
+} from "@/lib/validations/category-landing-page.schema";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Separator } from "@/components/ui/separator";
 import {
   Form,
   FormControl,
@@ -18,21 +18,21 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
+} from "@/components/ui/form";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from '@/components/ui/collapsible'
-import { ChevronDown } from 'lucide-react'
-import { CategoryTilesField } from './CategoryTilesField'
-import { FaqsField } from './FaqsField'
+} from "@/components/ui/collapsible";
+import { ChevronDown } from "lucide-react";
+import { CategoryTilesField } from "./CategoryTilesField";
+import { FaqsField } from "./FaqsField";
 
 interface CategoryLandingPageFormProps {
-  onClose: () => void
-  initialData?: any | null
-  createPage: any
-  updatePage: any
+  onClose: () => void;
+  initialData?: any | null;
+  createPage: any;
+  updatePage: any;
 }
 
 export function CategoryLandingPageForm({
@@ -44,50 +44,49 @@ export function CategoryLandingPageForm({
   const form = useForm<CategoryLandingPageFormValues>({
     resolver: zodResolver(categoryLandingPageFormSchema),
     defaultValues: {
-      slug: initialData?.slug || '',
-      pageTitle: initialData?.pageTitle || '',
-      description: initialData?.description || '',
-      tilesHeading: initialData?.tilesHeading || '',
-      faqHeading: initialData?.faqHeading || '',
+      slug: initialData?.slug || "",
+      pageTitle: initialData?.pageTitle || "",
+      description: initialData?.description || "",
+      tilesHeading: initialData?.tilesHeading || "",
+      faqHeading: initialData?.faqHeading || "",
       tiles: (initialData?.tiles || []).map((t: any) => ({
-        name: t.name || '',
-        blurb: t.blurb || '',
-        imageUrl: t.imageUrl || '',
-        shopNowUrl: t.shopNowUrl || '',
+        name: t.name || "",
+        blurb: t.blurb || "",
+        imageUrl: t.imageUrl || "",
+        shopNowUrl: t.shopNowUrl || "",
         position: t.position ?? 0,
       })),
       faqs: (initialData?.faqs || []).map((f: any) => ({
-        question: f.question || '',
-        answer: f.answer || '',
+        question: f.question || "",
+        answer: f.answer || "",
         position: f.position ?? 0,
       })),
       seo: {
-        metaTitle: initialData?.seo?.metaTitle || '',
-        metaDescription: initialData?.seo?.metaDescription || '',
-        canonicalUrl: initialData?.seo?.canonicalUrl || '',
-        ogTitle: initialData?.seo?.ogTitle || '',
-        ogDescription: initialData?.seo?.ogDescription || '',
-        ogImage: initialData?.seo?.ogImage || '',
+        metaTitle: initialData?.seo?.metaTitle || "",
+        metaDescription: initialData?.seo?.metaDescription || "",
+        canonicalUrl: initialData?.seo?.canonicalUrl || "",
+        ogTitle: initialData?.seo?.ogTitle || "",
+        ogDescription: initialData?.seo?.ogDescription || "",
+        ogImage: initialData?.seo?.ogImage || "",
       },
       isActive: initialData?.isActive ?? true,
     },
-  })
+  });
 
   const onSubmit = async (data: CategoryLandingPageFormValues) => {
     try {
       if (initialData) {
-        await updatePage({ variables: { id: initialData._id, input: data } })
+        await updatePage({ variables: { id: initialData._id, input: data } });
       } else {
-        await createPage({ variables: { input: data } })
+        await createPage({ variables: { input: data } });
       }
-      onClose()
+      onClose();
     } catch {}
-  }
+  };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-
         {/* ── Page Details ── */}
         <div className="space-y-4">
           <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
@@ -102,7 +101,10 @@ export function CategoryLandingPageForm({
                 <FormItem>
                   <FormLabel>Page Title (H1) *</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="No Palm Oil Snacks — Healthy Indian Namkeen" />
+                    <Input
+                      {...field}
+                      placeholder="No Palm Oil Snacks — Healthy Indian Namkeen"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -118,7 +120,7 @@ export function CategoryLandingPageForm({
                     <Input {...field} placeholder="bhujia" />
                   </FormControl>
                   <p className="text-xs text-muted-foreground">
-                    Must match a category slug to show products at{' '}
+                    Must match a category slug to show products at{" "}
                     <span className="font-mono">/category/[slug]</span>
                   </p>
                   <FormMessage />
@@ -137,7 +139,7 @@ export function CategoryLandingPageForm({
                   <Textarea
                     {...field}
                     className="h-28 resize-none"
-                    placeholder={'Paragraph one...\n\nParagraph two...'}
+                    placeholder={"Paragraph one...\n\nParagraph two..."}
                   />
                 </FormControl>
                 <p className="text-xs text-muted-foreground">
@@ -169,7 +171,10 @@ export function CategoryLandingPageForm({
                 <FormItem>
                   <FormLabel>FAQ Section Heading</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Frequently Asked Questions" />
+                    <Input
+                      {...field}
+                      placeholder="Frequently Asked Questions"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -183,9 +188,14 @@ export function CategoryLandingPageForm({
             render={({ field }) => (
               <FormItem className="flex items-center gap-2">
                 <FormControl>
-                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
                 </FormControl>
-                <FormLabel className="!mt-0">Active (visible on website)</FormLabel>
+                <FormLabel className="!mt-0">
+                  Active (visible on website)
+                </FormLabel>
               </FormItem>
             )}
           />
@@ -217,7 +227,9 @@ export function CategoryLandingPageForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Meta Title</FormLabel>
-                    <FormControl><Input {...field} /></FormControl>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -228,7 +240,9 @@ export function CategoryLandingPageForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Canonical URL</FormLabel>
-                    <FormControl><Input {...field} placeholder="https://..." /></FormControl>
+                    <FormControl>
+                      <Input {...field} placeholder="https://..." />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -240,7 +254,9 @@ export function CategoryLandingPageForm({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Meta Description</FormLabel>
-                  <FormControl><Textarea {...field} className="h-16 resize-none" /></FormControl>
+                  <FormControl>
+                    <Textarea {...field} className="h-16 resize-none" />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -252,7 +268,9 @@ export function CategoryLandingPageForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>OG Title</FormLabel>
-                    <FormControl><Input {...field} /></FormControl>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -263,7 +281,9 @@ export function CategoryLandingPageForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>OG Image URL</FormLabel>
-                    <FormControl><Input {...field} placeholder="https://..." /></FormControl>
+                    <FormControl>
+                      <Input {...field} placeholder="https://..." />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -275,7 +295,9 @@ export function CategoryLandingPageForm({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>OG Description</FormLabel>
-                  <FormControl><Textarea {...field} className="h-16 resize-none" /></FormControl>
+                  <FormControl>
+                    <Textarea {...field} className="h-16 resize-none" />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -288,10 +310,10 @@ export function CategoryLandingPageForm({
             Cancel
           </Button>
           <Button type="submit">
-            {initialData ? 'Update Page' : 'Create Page'}
+            {initialData ? "Update Page" : "Create Page"}
           </Button>
         </div>
       </form>
     </Form>
-  )
+  );
 }

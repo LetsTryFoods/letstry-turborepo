@@ -1,4 +1,4 @@
-import { gql } from 'graphql-request';
+import { gql } from "graphql-request";
 
 export const SEARCH_PRODUCTS_QUERY = gql`
   query SearchProducts($searchTerm: String!, $page: Int!, $limit: Int!) {

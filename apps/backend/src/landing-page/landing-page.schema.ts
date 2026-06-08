@@ -15,7 +15,8 @@ export class SectionPlatformLink {
   url: string;
 }
 
-export const SectionPlatformLinkSchema = SchemaFactory.createForClass(SectionPlatformLink);
+export const SectionPlatformLinkSchema =
+  SchemaFactory.createForClass(SectionPlatformLink);
 
 @Schema({ _id: false })
 export class LandingPageSection {
@@ -56,7 +57,8 @@ export class LandingPageSection {
   isActive: boolean;
 }
 
-export const LandingPageSectionSchema = SchemaFactory.createForClass(LandingPageSection);
+export const LandingPageSectionSchema =
+  SchemaFactory.createForClass(LandingPageSection);
 
 @Schema({ timestamps: true })
 export class LandingPage {

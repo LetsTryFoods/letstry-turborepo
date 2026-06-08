@@ -1,64 +1,122 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback } from "react";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Checkbox } from "@/components/ui/checkbox"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { bannerFormSchema } from "@/lib/validations/banner.schema"
-import { z } from "zod"
-import { ImageUpload } from "@/components/custom/image-upload"
-import { getCdnUrl, extractKeyFromUrl } from "@/lib/image-utils"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { bannerFormSchema } from "@/lib/validations/banner.schema";
+import { z } from "zod";
+import { ImageUpload } from "@/components/custom/image-upload";
+import { getCdnUrl, extractKeyFromUrl } from "@/lib/image-utils";
 
-type BannerFormValues = z.infer<typeof bannerFormSchema>
+type BannerFormValues = z.infer<typeof bannerFormSchema>;
 
 interface BannerFormProps {
-  onClose: () => void
-  initialData?: any | null
-  createBanner: any
-  updateBanner: any
+  onClose: () => void;
+  initialData?: any | null;
+  createBanner: any;
+  updateBanner: any;
 }
 
-export function BannerForm({ onClose, initialData, createBanner, updateBanner }: BannerFormProps) {
+export function BannerForm({
+  onClose,
+  initialData,
+  createBanner,
+  updateBanner,
+}: BannerFormProps) {
   // Helper function to format ISO date to datetime-local format
   const formatDateForInput = (isoDate: string | null | undefined) => {
-    if (!isoDate) return ""
-    const date = new Date(isoDate)
+    if (!isoDate) return "";
+    const date = new Date(isoDate);
     // Format as YYYY-MM-DDTHH:MM for datetime-local input
-    return date.toISOString().slice(0, 16)
-  }
+    return date.toISOString().slice(0, 16);
+  };
 
-  const [uploadedImages, setUploadedImages] = useState<Array<{ file: File | null; alt: string; preview: string; finalUrl?: string; key?: string }>>(
-    initialData?.imageUrl ? [{
-      file: null,
-      alt: initialData.name || "Banner Image",
-      preview: getCdnUrl(initialData.imageUrl),
-      finalUrl: getCdnUrl(initialData.imageUrl),
-      key: extractKeyFromUrl(initialData.imageUrl)
-    }] : []
-  )
+  const [uploadedImages, setUploadedImages] = useState<
+    Array<{
+      file: File | null;
+      alt: string;
+      preview: string;
+      finalUrl?: string;
+      key?: string;
+    }>
+  >(
+    initialData?.imageUrl
+      ? [
+          {
+            file: null,
+            alt: initialData.name || "Banner Image",
+            preview: getCdnUrl(initialData.imageUrl),
+            finalUrl: getCdnUrl(initialData.imageUrl),
+            key: extractKeyFromUrl(initialData.imageUrl),
+          },
+        ]
+      : [],
+  );
 
-  const [uploadedMobileImages, setUploadedMobileImages] = useState<Array<{ file: File | null; alt: string; preview: string; finalUrl?: string; key?: string }>>(
-    initialData?.mobileImageUrl ? [{
-      file: null,
-      alt: initialData.name || "Banner Mobile Image",
-      preview: getCdnUrl(initialData.mobileImageUrl),
-      finalUrl: getCdnUrl(initialData.mobileImageUrl),
-      key: extractKeyFromUrl(initialData.mobileImageUrl)
-    }] : []
-  )
+  const [uploadedMobileImages, setUploadedMobileImages] = useState<
+    Array<{
+      file: File | null;
+      alt: string;
+      preview: string;
+      finalUrl?: string;
+      key?: string;
+    }>
+  >(
+    initialData?.mobileImageUrl
+      ? [
+          {
+            file: null,
+            alt: initialData.name || "Banner Mobile Image",
+            preview: getCdnUrl(initialData.mobileImageUrl),
+            finalUrl: getCdnUrl(initialData.mobileImageUrl),
+            key: extractKeyFromUrl(initialData.mobileImageUrl),
+          },
+        ]
+      : [],
+  );
 
-  const handleImagesChange = useCallback((images: Array<{ file: File | null; alt: string; preview: string; finalUrl?: string; key?: string }>) => {
-    setUploadedImages(images)
-  }, [])
+  const handleImagesChange = useCallback(
+    (
+      images: Array<{
+        file: File | null;
+        alt: string;
+        preview: string;
+        finalUrl?: string;
+        key?: string;
+      }>,
+    ) => {
+      setUploadedImages(images);
+    },
+    [],
+  );
 
-  const handleMobileImagesChange = useCallback((images: Array<{ file: File | null; alt: string; preview: string; finalUrl?: string; key?: string }>) => {
-    setUploadedMobileImages(images)
-  }, [])
+  const handleMobileImagesChange = useCallback(
+    (
+      images: Array<{
+        file: File | null;
+        alt: string;
+        preview: string;
+        finalUrl?: string;
+        key?: string;
+      }>,
+    ) => {
+      setUploadedMobileImages(images);
+    },
+    [],
+  );
 
   const form = useForm<BannerFormValues>({
     resolver: zodResolver(bannerFormSchema),
@@ -79,7 +137,7 @@ export function BannerForm({ onClose, initialData, createBanner, updateBanner }:
       backgroundColor: initialData?.backgroundColor || "",
       textColor: initialData?.textColor || "",
     },
-  })
+  });
 
   useEffect(() => {
     if (initialData) {
@@ -99,23 +157,35 @@ export function BannerForm({ onClose, initialData, createBanner, updateBanner }:
         endDate: formatDateForInput(initialData.endDate),
         backgroundColor: initialData.backgroundColor || "",
         textColor: initialData.textColor || "",
-      })
+      });
 
-      setUploadedImages(initialData.imageUrl ? [{
-        file: null,
-        alt: initialData.name || "Banner Image",
-        preview: getCdnUrl(initialData.imageUrl),
-        finalUrl: getCdnUrl(initialData.imageUrl),
-        key: extractKeyFromUrl(initialData.imageUrl)
-      }] : [])
+      setUploadedImages(
+        initialData.imageUrl
+          ? [
+              {
+                file: null,
+                alt: initialData.name || "Banner Image",
+                preview: getCdnUrl(initialData.imageUrl),
+                finalUrl: getCdnUrl(initialData.imageUrl),
+                key: extractKeyFromUrl(initialData.imageUrl),
+              },
+            ]
+          : [],
+      );
 
-      setUploadedMobileImages(initialData.mobileImageUrl ? [{
-        file: null,
-        alt: initialData.name || "Banner Mobile Image",
-        preview: getCdnUrl(initialData.mobileImageUrl),
-        finalUrl: getCdnUrl(initialData.mobileImageUrl),
-        key: extractKeyFromUrl(initialData.mobileImageUrl)
-      }] : [])
+      setUploadedMobileImages(
+        initialData.mobileImageUrl
+          ? [
+              {
+                file: null,
+                alt: initialData.name || "Banner Mobile Image",
+                preview: getCdnUrl(initialData.mobileImageUrl),
+                finalUrl: getCdnUrl(initialData.mobileImageUrl),
+                key: extractKeyFromUrl(initialData.mobileImageUrl),
+              },
+            ]
+          : [],
+      );
     } else {
       form.reset({
         name: "",
@@ -133,50 +203,59 @@ export function BannerForm({ onClose, initialData, createBanner, updateBanner }:
         endDate: "",
         backgroundColor: "",
         textColor: "",
-      })
-      setUploadedImages([])
-      setUploadedMobileImages([])
+      });
+      setUploadedImages([]);
+      setUploadedMobileImages([]);
     }
-  }, [initialData, form])
+  }, [initialData, form]);
 
   useEffect(() => {
-    const imageUrl = uploadedImages[0]?.key || ''
-    form.setValue('imageUrl', imageUrl, { shouldValidate: true, shouldDirty: true })
-  }, [uploadedImages, form])
+    const imageUrl = uploadedImages[0]?.key || "";
+    form.setValue("imageUrl", imageUrl, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  }, [uploadedImages, form]);
 
   useEffect(() => {
-    const mobileImageUrl = uploadedMobileImages[0]?.key || ''
-    form.setValue('mobileImageUrl', mobileImageUrl, { shouldValidate: true, shouldDirty: true })
-  }, [uploadedMobileImages, form])
+    const mobileImageUrl = uploadedMobileImages[0]?.key || "";
+    form.setValue("mobileImageUrl", mobileImageUrl, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  }, [uploadedMobileImages, form]);
 
   const onSubmit = async (data: BannerFormValues) => {
     try {
-
       const formattedData = {
         ...data,
-        startDate: data.startDate ? new Date(data.startDate).toISOString() : undefined,
-        endDate: data.endDate ? new Date(data.endDate).toISOString() : undefined,
-      }
+        startDate: data.startDate
+          ? new Date(data.startDate).toISOString()
+          : undefined,
+        endDate: data.endDate
+          ? new Date(data.endDate).toISOString()
+          : undefined,
+      };
 
       if (initialData) {
         await updateBanner({
           variables: {
             id: initialData._id,
-            input: formattedData
-          }
-        })
+            input: formattedData,
+          },
+        });
       } else {
         await createBanner({
           variables: {
-            input: formattedData
-          }
-        })
+            input: formattedData,
+          },
+        });
       }
-      onClose()
+      onClose();
     } catch (error) {
-      console.error("Failed to save banner:", error)
+      console.error("Failed to save banner:", error);
     }
-  }
+  };
 
   return (
     <Form {...form}>
@@ -225,23 +304,41 @@ export function BannerForm({ onClose, initialData, createBanner, updateBanner }:
             <FormLabel>Banner Image *</FormLabel>
             <ImageUpload
               onImagesChange={handleImagesChange}
-              initialImages={initialData?.imageUrl ? [{ url: getCdnUrl(initialData.imageUrl), alt: initialData.name }] : []}
+              initialImages={
+                initialData?.imageUrl
+                  ? [
+                      {
+                        url: getCdnUrl(initialData.imageUrl),
+                        alt: initialData.name,
+                      },
+                    ]
+                  : []
+              }
               maxFiles={1}
-              allowedFileTypes={['image/webp', 'image/gif']}
+              allowedFileTypes={["image/webp", "image/gif"]}
               disableCompression={true}
             />
-            <input type="hidden" {...form.register('imageUrl')} />
+            <input type="hidden" {...form.register("imageUrl")} />
           </div>
           <div className="space-y-2 col-span-2">
             <FormLabel>Mobile Image *</FormLabel>
             <ImageUpload
               onImagesChange={handleMobileImagesChange}
-              initialImages={initialData?.mobileImageUrl ? [{ url: getCdnUrl(initialData.mobileImageUrl), alt: initialData.name }] : []}
+              initialImages={
+                initialData?.mobileImageUrl
+                  ? [
+                      {
+                        url: getCdnUrl(initialData.mobileImageUrl),
+                        alt: initialData.name,
+                      },
+                    ]
+                  : []
+              }
               maxFiles={1}
-              allowedFileTypes={['image/webp', 'image/gif']}
+              allowedFileTypes={["image/webp", "image/gif"]}
               disableCompression={true}
             />
-            <input type="hidden" {...form.register('mobileImageUrl')} />
+            <input type="hidden" {...form.register("mobileImageUrl")} />
           </div>
           <FormField
             control={form.control}
@@ -280,7 +377,9 @@ export function BannerForm({ onClose, initialData, createBanner, updateBanner }:
                     type="number"
                     step="0.01"
                     value={field.value as number}
-                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                    onChange={(e) =>
+                      field.onChange(parseFloat(e.target.value) || 0)
+                    }
                   />
                 </FormControl>
                 <FormMessage />
@@ -294,7 +393,7 @@ export function BannerForm({ onClose, initialData, createBanner, updateBanner }:
               <FormItem>
                 <FormLabel>Thumbnail URL</FormLabel>
                 <FormControl>
-                  <Input {...field} value={field.value || ''} />
+                  <Input {...field} value={field.value || ""} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -307,7 +406,11 @@ export function BannerForm({ onClose, initialData, createBanner, updateBanner }:
               <FormItem>
                 <FormLabel>Start Date</FormLabel>
                 <FormControl>
-                  <Input type="datetime-local" {...field} value={field.value || ''} />
+                  <Input
+                    type="datetime-local"
+                    {...field}
+                    value={field.value || ""}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -320,7 +423,11 @@ export function BannerForm({ onClose, initialData, createBanner, updateBanner }:
               <FormItem>
                 <FormLabel>End Date</FormLabel>
                 <FormControl>
-                  <Input type="datetime-local" {...field} value={field.value || ''} />
+                  <Input
+                    type="datetime-local"
+                    {...field}
+                    value={field.value || ""}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -337,7 +444,7 @@ export function BannerForm({ onClose, initialData, createBanner, updateBanner }:
                     <Input
                       type="color"
                       {...field}
-                      value={field.value || '#000000'}
+                      value={field.value || "#000000"}
                       className="w-20 h-10 cursor-pointer"
                     />
                   </FormControl>
@@ -345,7 +452,7 @@ export function BannerForm({ onClose, initialData, createBanner, updateBanner }:
                     <Input
                       {...field}
                       placeholder="#000000"
-                      value={field.value || ''}
+                      value={field.value || ""}
                       className="flex-1"
                     />
                   </FormControl>
@@ -365,7 +472,7 @@ export function BannerForm({ onClose, initialData, createBanner, updateBanner }:
                     <Input
                       type="color"
                       {...field}
-                      value={field.value || '#FFFFFF'}
+                      value={field.value || "#FFFFFF"}
                       className="w-20 h-10 cursor-pointer"
                     />
                   </FormControl>
@@ -373,7 +480,7 @@ export function BannerForm({ onClose, initialData, createBanner, updateBanner }:
                     <Input
                       {...field}
                       placeholder="#FFFFFF"
-                      value={field.value || ''}
+                      value={field.value || ""}
                       className="flex-1"
                     />
                   </FormControl>
@@ -390,7 +497,7 @@ export function BannerForm({ onClose, initialData, createBanner, updateBanner }:
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Textarea {...field} value={field.value || ''} />
+                <Textarea {...field} value={field.value || ""} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -415,9 +522,11 @@ export function BannerForm({ onClose, initialData, createBanner, updateBanner }:
           <Button type="button" variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button type="submit">{initialData ? 'Update Banner' : 'Create Banner'}</Button>
+          <Button type="submit">
+            {initialData ? "Update Banner" : "Create Banner"}
+          </Button>
         </div>
       </form>
     </Form>
-  )
+  );
 }

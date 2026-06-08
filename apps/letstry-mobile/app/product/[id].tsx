@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState } from "react";
 import {
   View,
   Text,
@@ -9,65 +9,71 @@ import {
   Animated,
   StatusBar,
   Share,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { useProductDetails } from '../../src/features/product/hooks/use-product-details';
-import ProductImageCarousel from '../../src/features/product/components/ProductImageCarousel';
-import ProductDetailsContent from '../../src/features/product/components/ProductDetailsContent';
-import { RFValue, wp, hp } from '../../src/lib/utils/ui-utils';
-import { useCartStore } from '../../src/features/cart/store/cart-store';
-import { useCart } from '../../src/features/cart/hooks/use-cart';
-import { useCartMutations } from '../../src/features/cart/hooks/use-cart-mutations';
-import * as Haptics from 'expo-haptics';
-import HorizontalSection from '../../src/features/home/components/HorizontalSection';
-import { useQuery } from '@apollo/client';
-import { useQuery as useRestQuery } from '@tanstack/react-query';
-import { GET_PRODUCTS_BY_CATEGORY } from '../../src/lib/graphql/home';
-import { SDUIService } from '../../src/features/home/services/sdui.service';
-import BannerCarousel from '../../src/features/home/components/BannerCarousel';
-import EventsHero from '../../src/features/home/components/EventsHero';
-import Spacer from '../../src/features/home/components/Spacer';
-import FullWidthBanner from '../../src/features/home/components/FullWidthBanner';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { useProductDetails } from "../../src/features/product/hooks/use-product-details";
+import ProductImageCarousel from "../../src/features/product/components/ProductImageCarousel";
+import ProductDetailsContent from "../../src/features/product/components/ProductDetailsContent";
+import { RFValue, wp, hp } from "../../src/lib/utils/ui-utils";
+import { useCartStore } from "../../src/features/cart/store/cart-store";
+import { useCart } from "../../src/features/cart/hooks/use-cart";
+import { useCartMutations } from "../../src/features/cart/hooks/use-cart-mutations";
+import * as Haptics from "expo-haptics";
+import HorizontalSection from "../../src/features/home/components/HorizontalSection";
+import { useQuery } from "@apollo/client";
+import { useQuery as useRestQuery } from "@tanstack/react-query";
+import { GET_PRODUCTS_BY_CATEGORY } from "../../src/lib/graphql/home";
+import { SDUIService } from "../../src/features/home/services/sdui.service";
+import BannerCarousel from "../../src/features/home/components/BannerCarousel";
+import EventsHero from "../../src/features/home/components/EventsHero";
+import Spacer from "../../src/features/home/components/Spacer";
+import FullWidthBanner from "../../src/features/home/components/FullWidthBanner";
 
 export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
-  const productId = Array.isArray(id) ? id[0] : (id || '');
+  const productId = Array.isArray(id) ? id[0] : id || "";
   const isId = /^[0-9a-fA-F]{24}$/.test(productId);
 
-  const { product, loading, error, selectedVariant, setSelectedVariant } = useProductDetails(productId, isId);
+  const { product, loading, error, selectedVariant, setSelectedVariant } =
+    useProductDetails(productId, isId);
 
   // Fetch Related Products from the same category
   const primaryCategoryId = product?.categoryIds?.[0];
-  const { data: relatedData, loading: relatedLoading } = useQuery(GET_PRODUCTS_BY_CATEGORY, {
-    variables: { 
-      categoryId: primaryCategoryId, 
-      pagination: { limit: 10, page: 1 } 
+  const { data: relatedData, loading: relatedLoading } = useQuery(
+    GET_PRODUCTS_BY_CATEGORY,
+    {
+      variables: {
+        categoryId: primaryCategoryId,
+        pagination: { limit: 10, page: 1 },
+      },
+      skip: !primaryCategoryId,
     },
-    skip: !primaryCategoryId,
-  });
+  );
 
-  const relatedProducts = (relatedData?.productsByCategory?.items || [])
-    .filter((p: any) => p._id !== product?._id);
+  const relatedProducts = (relatedData?.productsByCategory?.items || []).filter(
+    (p: any) => p._id !== product?._id,
+  );
 
   // Real Global Cart State & Mutations
   const { openCart } = useCartStore();
   const { data: cartData } = useCart();
-  const { addToCart, updateCartItem, isAdding, isUpdating } = useCartMutations();
+  const { addToCart, updateCartItem, isAdding, isUpdating } =
+    useCartMutations();
 
   const scrollY = useRef(new Animated.Value(0)).current;
 
   const { data: sduiData } = useRestQuery({
-    queryKey: ['sdui', 'product_detail_screen'],
-    queryFn: () => SDUIService.getScreenConfig('product_detail_screen'),
+    queryKey: ["sdui", "product_detail_screen"],
+    queryFn: () => SDUIService.getScreenConfig("product_detail_screen"),
   });
 
   const sduiComponents = sduiData?.components || [
-    { type: 'ProductGallery', props: {} },
-    { type: 'ProductInfo', props: {} },
-    { type: 'RelatedProducts', props: {} }
+    { type: "ProductGallery", props: {} },
+    { type: "ProductInfo", props: {} },
+    { type: "RelatedProducts", props: {} },
   ];
 
   if (loading) {
@@ -82,7 +88,10 @@ export default function ProductDetailScreen() {
     return (
       <View style={styles.centerContainer}>
         <Text style={styles.errorText}>Oops! Failed to load product.</Text>
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
           <Text style={styles.backButtonText}>Go Back</Text>
         </TouchableOpacity>
       </View>
@@ -91,11 +100,17 @@ export default function ProductDetailScreen() {
 
   // Get current quantity of the selected variant in the cart
   const cartItems = (cartData as any)?.myCart?.items || [];
-  const currentCartItem = cartItems.find((item: any) => item.productId === product._id && item.variantId === selectedVariant._id);
+  const currentCartItem = cartItems.find(
+    (item: any) =>
+      item.productId === product._id && item.variantId === selectedVariant._id,
+  );
   const cartQuantity = currentCartItem ? currentCartItem.quantity : 0;
   const isUpdatingCart = isAdding || isUpdating;
 
-  const totalItems = cartItems.reduce((acc: number, item: any) => acc + item.quantity, 0);
+  const totalItems = cartItems.reduce(
+    (acc: number, item: any) => acc + item.quantity,
+    0,
+  );
 
   const handleUpdateQuantity = (newQty: number) => {
     if (newQty < 0) return;
@@ -111,8 +126,8 @@ export default function ProductDetailScreen() {
             quantity: 1,
             // The backend AddToCartInput schema strictly restricts passing variantId explicitly.
             // variantId is resolved by the backend Cart Service from the productId payload.
-          }
-        }
+          },
+        },
       });
     } else {
       updateCartItem({
@@ -120,8 +135,8 @@ export default function ProductDetailScreen() {
           input: {
             productId: selectedVariant._id,
             quantity: newQty,
-          }
-        }
+          },
+        },
       });
     }
   };
@@ -136,7 +151,7 @@ export default function ProductDetailScreen() {
         title: product.name,
       });
     } catch (error) {
-      console.error('Error sharing product:', error);
+      console.error("Error sharing product:", error);
     }
   };
 
@@ -144,26 +159,26 @@ export default function ProductDetailScreen() {
   const headerOpacity = scrollY.interpolate({
     inputRange: [100, 150],
     outputRange: [0, 1],
-    extrapolate: 'clamp',
+    extrapolate: "clamp",
   });
 
   const headerTranslateY = scrollY.interpolate({
     inputRange: [100, 150],
     outputRange: [10, 0],
-    extrapolate: 'clamp',
+    extrapolate: "clamp",
   });
 
   const renderComponent = (item: any, index: number) => {
     switch (item.type) {
-      case 'ProductGallery':
+      case "ProductGallery":
         return (
-          <ProductImageCarousel 
+          <ProductImageCarousel
             key={index}
-            images={selectedVariant.images} 
+            images={selectedVariant.images}
             onShare={handleShare}
           />
         );
-      case 'ProductInfo':
+      case "ProductInfo":
         return (
           <ProductDetailsContent
             key={index}
@@ -172,19 +187,19 @@ export default function ProductDetailScreen() {
             setSelectedVariant={setSelectedVariant}
           />
         );
-      case 'BannerCarousel':
+      case "BannerCarousel":
         return <BannerCarousel key={index} {...item.props} />;
-      case 'FullWidthBanner':
+      case "FullWidthBanner":
         return <FullWidthBanner key={index} {...item.props} />;
-      case 'EventsHero':
+      case "EventsHero":
         return <EventsHero key={index} {...item.props} />;
-      case 'Spacer':
+      case "Spacer":
         return <Spacer key={index} height={item.props?.height} />;
-      case 'RelatedProducts':
+      case "RelatedProducts":
         return (
           <View key={index} style={styles.relatedSection}>
-            <HorizontalSection 
-              title={item.props?.title || "Related Products"} 
+            <HorizontalSection
+              title={item.props?.title || "Related Products"}
               products={relatedProducts}
               loading={relatedLoading}
             />
@@ -202,28 +217,36 @@ export default function ProductDetailScreen() {
       {/* Static Header (Buttons only) */}
       <SafeAreaView style={styles.absoluteHeader}>
         <View style={styles.headerContent}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.iconButton}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={styles.iconButton}
+          >
             <Ionicons name="chevron-back" size={24} color="#333" />
           </TouchableOpacity>
         </View>
       </SafeAreaView>
 
       {/* Animated Sticky Header (Background and Title) */}
-      <Animated.View style={[
-        styles.stickyHeader,
-        {
-          opacity: headerOpacity,
-        }
-      ]}>
+      <Animated.View
+        style={[
+          styles.stickyHeader,
+          {
+            opacity: headerOpacity,
+          },
+        ]}
+      >
         <SafeAreaView>
           <View style={styles.headerContent}>
-            <TouchableOpacity onPress={() => router.back()} style={styles.stickyBackButton}>
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={styles.stickyBackButton}
+            >
               <Ionicons name="chevron-back" size={24} color="#333" />
             </TouchableOpacity>
             <Animated.Text
               style={[
                 styles.headerTitle,
-                { transform: [{ translateY: headerTranslateY }] }
+                { transform: [{ translateY: headerTranslateY }] },
               ]}
               numberOfLines={1}
             >
@@ -239,11 +262,13 @@ export default function ProductDetailScreen() {
         contentContainerStyle={styles.scrollContent}
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-          { useNativeDriver: true }
+          { useNativeDriver: true },
         )}
         scrollEventThrottle={16}
       >
-        {sduiComponents.map((item: any, index: number) => renderComponent(item, index))}
+        {sduiComponents.map((item: any, index: number) =>
+          renderComponent(item, index),
+        )}
 
         <View style={styles.bottomSpacer} />
       </Animated.ScrollView>
@@ -254,7 +279,10 @@ export default function ProductDetailScreen() {
       <View style={styles.bottomBar}>
         <View style={styles.bottomPriceInfo}>
           <Text style={styles.bottomPrice}>₹{selectedVariant.price}</Text>
-          <Text style={styles.bottomWeight}>{selectedVariant.weight}{selectedVariant.weightUnit}</Text>
+          <Text style={styles.bottomWeight}>
+            {selectedVariant.weight}
+            {selectedVariant.weightUnit}
+          </Text>
         </View>
 
         <View style={styles.actionContainer}>
@@ -263,16 +291,26 @@ export default function ProductDetailScreen() {
               <ActivityIndicator size="small" color="#FFF" />
             </View>
           ) : cartQuantity === 0 ? (
-            <TouchableOpacity style={styles.addToCartBtn} activeOpacity={0.8} onPress={() => handleUpdateQuantity(1)}>
+            <TouchableOpacity
+              style={styles.addToCartBtn}
+              activeOpacity={0.8}
+              onPress={() => handleUpdateQuantity(1)}
+            >
               <Text style={styles.addToCartText}>Add to Cart</Text>
             </TouchableOpacity>
           ) : (
             <View style={styles.qtyController}>
-              <TouchableOpacity style={styles.qtyBtn} onPress={() => handleUpdateQuantity(cartQuantity - 1)}>
+              <TouchableOpacity
+                style={styles.qtyBtn}
+                onPress={() => handleUpdateQuantity(cartQuantity - 1)}
+              >
                 <Ionicons name="remove" size={18} color="#0C5273" />
               </TouchableOpacity>
               <Text style={styles.qtyText}>{cartQuantity}</Text>
-              <TouchableOpacity style={styles.qtyBtn} onPress={() => handleUpdateQuantity(cartQuantity + 1)}>
+              <TouchableOpacity
+                style={styles.qtyBtn}
+                onPress={() => handleUpdateQuantity(cartQuantity + 1)}
+              >
                 <Ionicons name="add" size={18} color="#0C5273" />
               </TouchableOpacity>
             </View>
@@ -286,100 +324,100 @@ export default function ProductDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
   },
   absoluteHeader: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     zIndex: 10,
   },
   stickyHeader: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     zIndex: 9,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: "#F0F0F0",
   },
   headerContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: wp('3%'),
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: wp("3%"),
     height: 56,
   },
   headerTitle: {
     fontSize: RFValue(13.5),
-    fontWeight: '700',
-    color: '#333',
+    fontWeight: "700",
+    color: "#333",
     flex: 1,
-    textAlign: 'center',
+    textAlign: "center",
   },
   headerPlaceholder: {
     width: 40,
   },
   stickyBackButton: {
     width: 40,
-    justifyContent: 'center',
-    alignItems: 'flex-start',
+    justifyContent: "center",
+    alignItems: "flex-start",
   },
   iconButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
   },
   scrollContent: {
-    paddingBottom: hp('22%'),
-    width: '100%',
+    paddingBottom: hp("22%"),
+    width: "100%",
   },
   centerContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
   },
   errorText: {
     fontSize: RFValue(14),
-    color: '#E53935',
+    color: "#E53935",
     marginBottom: 20,
   },
   backButton: {
-    backgroundColor: '#0C5273',
+    backgroundColor: "#0C5273",
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 8,
   },
   backButtonText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
+    color: "#FFFFFF",
+    fontWeight: "bold",
   },
   bottomBar: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#FFFFFF',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: wp('5%'),
+    backgroundColor: "#FFFFFF",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: wp("5%"),
     paddingVertical: 15,
     borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
-    paddingBottom: hp('5%'),
+    borderTopColor: "#F0F0F0",
+    paddingBottom: hp("5%"),
     elevation: 10,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: -3 },
     shadowOpacity: 0.05,
     shadowRadius: 5,
@@ -389,52 +427,52 @@ const styles = StyleSheet.create({
   },
   bottomPrice: {
     fontSize: RFValue(18),
-    fontWeight: '900',
-    color: '#000',
+    fontWeight: "900",
+    color: "#000",
   },
   bottomWeight: {
     fontSize: RFValue(11),
-    color: '#666',
-    fontWeight: '600',
+    color: "#666",
+    fontWeight: "600",
   },
   actionContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: wp('3%'),
+    flexDirection: "row",
+    alignItems: "center",
+    gap: wp("3%"),
   },
   addToCartBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#0C5273',
-    paddingHorizontal: wp('5%'),
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#0C5273",
+    paddingHorizontal: wp("5%"),
     paddingVertical: 12,
     borderRadius: 12,
-    minWidth: wp('35%'),
-    justifyContent: 'center',
+    minWidth: wp("35%"),
+    justifyContent: "center",
   },
   btnIcon: {
     marginRight: 6,
   },
   addToCartText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: RFValue(14),
-    fontWeight: '800',
+    fontWeight: "800",
   },
   qtyController: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F0F0F0',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F0F0F0",
     borderRadius: 12,
-    minWidth: wp('35%'),
-    justifyContent: 'space-between',
+    minWidth: wp("35%"),
+    justifyContent: "space-between",
     paddingVertical: 4,
     paddingHorizontal: 4,
   },
   qtyBtn: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     padding: 6,
     borderRadius: 8,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
@@ -442,48 +480,48 @@ const styles = StyleSheet.create({
   },
   qtyText: {
     fontSize: RFValue(15),
-    color: '#0C5273',
-    fontWeight: '800',
-    textAlign: 'center',
+    color: "#0C5273",
+    fontWeight: "800",
+    textAlign: "center",
     minWidth: 24,
   },
   headerRightActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
     width: 80,
-    justifyContent: 'flex-end',
+    justifyContent: "flex-end",
   },
   headerBadge: {
-    position: 'absolute',
+    position: "absolute",
     top: -4,
     right: -4,
-    backgroundColor: '#E53935',
+    backgroundColor: "#E53935",
     borderRadius: 10,
     minWidth: 20,
     height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 4,
   },
   headerBadgeText: {
-    color: '#FFF',
+    color: "#FFF",
     fontSize: 10,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   viewCartBanner: {
-    position: 'absolute',
-    bottom: hp('10%') + 20,
-    left: wp('5%'),
-    right: wp('5%'),
-    backgroundColor: '#0C5273',
+    position: "absolute",
+    bottom: hp("10%") + 20,
+    left: wp("5%"),
+    right: wp("5%"),
+    backgroundColor: "#0C5273",
     borderRadius: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingVertical: 14,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
@@ -491,36 +529,36 @@ const styles = StyleSheet.create({
     zIndex: 20,
   },
   viewCartBannerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 12,
   },
   viewCartBannerIconWrap: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     width: 28,
     height: 28,
     borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   viewCartBannerItems: {
-    color: '#fff',
-    fontWeight: '800',
+    color: "#fff",
+    fontWeight: "800",
     fontSize: RFValue(13),
   },
   viewCartBannerSub: {
-    color: '#E0F2E9',
+    color: "#E0F2E9",
     fontSize: RFValue(10),
-    fontWeight: '600',
+    fontWeight: "600",
   },
   viewCartBannerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 4,
   },
   viewCartBannerText: {
-    color: '#fff',
-    fontWeight: '800',
+    color: "#fff",
+    fontWeight: "800",
     fontSize: RFValue(14),
   },
   bottomSpacer: {
@@ -528,6 +566,6 @@ const styles = StyleSheet.create({
   },
   relatedSection: {
     marginTop: 10,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
 });

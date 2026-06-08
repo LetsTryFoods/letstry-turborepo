@@ -1,33 +1,47 @@
-'use client'
+"use client";
 
-import { useFieldArray, UseFormReturn } from 'react-hook-form'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Plus, Trash2 } from 'lucide-react'
-import { CategoryLandingPageFormValues } from '@/lib/validations/category-landing-page.schema'
+import { useFieldArray, UseFormReturn } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Plus, Trash2 } from "lucide-react";
+import { CategoryLandingPageFormValues } from "@/lib/validations/category-landing-page.schema";
 
 interface CategoryTilesFieldProps {
-  form: UseFormReturn<CategoryLandingPageFormValues>
+  form: UseFormReturn<CategoryLandingPageFormValues>;
 }
 
 export function CategoryTilesField({ form }: CategoryTilesFieldProps) {
   const { fields, append, remove } = useFieldArray({
     control: form.control,
-    name: 'tiles',
-  })
+    name: "tiles",
+  });
 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <FormLabel className="text-base font-semibold">Category Tiles</FormLabel>
+        <FormLabel className="text-base font-semibold">
+          Category Tiles
+        </FormLabel>
         <Button
           type="button"
           variant="outline"
           size="sm"
           onClick={() =>
-            append({ name: '', blurb: '', imageUrl: '', shopNowUrl: '', position: fields.length })
+            append({
+              name: "",
+              blurb: "",
+              imageUrl: "",
+              shopNowUrl: "",
+              position: fields.length,
+            })
           }
         >
           <Plus className="mr-1 h-3.5 w-3.5" />
@@ -42,9 +56,14 @@ export function CategoryTilesField({ form }: CategoryTilesFieldProps) {
       )}
 
       {fields.map((field, index) => (
-        <div key={field.id} className="border rounded-lg p-4 space-y-3 bg-gray-50/50">
+        <div
+          key={field.id}
+          className="border rounded-lg p-4 space-y-3 bg-gray-50/50"
+        >
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-muted-foreground">Tile {index + 1}</span>
+            <span className="text-sm font-medium text-muted-foreground">
+              Tile {index + 1}
+            </span>
             <Button
               type="button"
               variant="ghost"
@@ -92,7 +111,11 @@ export function CategoryTilesField({ form }: CategoryTilesFieldProps) {
               <FormItem>
                 <FormLabel>Short Description</FormLabel>
                 <FormControl>
-                  <Textarea {...field} className="h-16 resize-none" placeholder="Brief description of this category..." />
+                  <Textarea
+                    {...field}
+                    className="h-16 resize-none"
+                    placeholder="Brief description of this category..."
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -120,7 +143,10 @@ export function CategoryTilesField({ form }: CategoryTilesFieldProps) {
               <FormItem>
                 <FormLabel>Shop Now URL *</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="/bhujia  or  https://external-site.com/..." />
+                  <Input
+                    {...field}
+                    placeholder="/bhujia  or  https://external-site.com/..."
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -129,5 +155,5 @@ export function CategoryTilesField({ form }: CategoryTilesFieldProps) {
         </div>
       ))}
     </div>
-  )
+  );
 }

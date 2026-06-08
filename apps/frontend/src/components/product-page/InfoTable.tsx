@@ -1,5 +1,5 @@
-import React from 'react';
-import { InfoTableRow } from './InfoTableRow';
+import React from "react";
+import { InfoTableRow } from "./InfoTableRow";
 
 interface InfoTableProps {
   data: { label: string; value: string }[];

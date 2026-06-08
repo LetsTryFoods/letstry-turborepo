@@ -1,4 +1,4 @@
-import { getBackendApiUrl } from '@/lib/utils/api';
+import { getBackendApiUrl } from "@/lib/utils/api";
 
 export interface TrackingLookupResult {
   awbNumber: string | null;
@@ -32,21 +32,25 @@ export interface TrackingLookupResult {
   } | null;
 }
 
-export const fetchTrackingLookup = async (query: string): Promise<TrackingLookupResult> => {
+export const fetchTrackingLookup = async (
+  query: string,
+): Promise<TrackingLookupResult> => {
   const baseUrl = getBackendApiUrl();
-  const response = await fetch(`${baseUrl}/shipments/lookup?q=${encodeURIComponent(query.trim())}`);
+  const response = await fetch(
+    `${baseUrl}/shipments/lookup?q=${encodeURIComponent(query.trim())}`,
+  );
 
   if (!response.ok) {
     if (response.status === 404) {
-      throw new Error('No order found for the provided details.');
+      throw new Error("No order found for the provided details.");
     } else {
-      throw new Error('Something went wrong. Please try again.');
+      throw new Error("Something went wrong. Please try again.");
     }
   }
 
   const data = await response.json();
   if (!data.awbNumber && !data.orderId) {
-    throw new Error('Invalid response from tracking service.');
+    throw new Error("Invalid response from tracking service.");
   }
   return data as TrackingLookupResult;
 };

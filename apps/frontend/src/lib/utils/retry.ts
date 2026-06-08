@@ -14,7 +14,7 @@ const defaultOptions: Required<RetryOptions> = {
 
 export async function retryWithBackoff<T>(
   fn: () => Promise<T>,
-  options: RetryOptions = {}
+  options: RetryOptions = {},
 ): Promise<T> {
   const opts = { ...defaultOptions, ...options };
   let lastError: Error | null = null;
@@ -31,7 +31,7 @@ export async function retryWithBackoff<T>(
 
       const delay = Math.min(
         opts.baseDelay * Math.pow(opts.backoffMultiplier, attempt),
-        opts.maxDelay
+        opts.maxDelay,
       );
 
       await sleep(delay);
@@ -45,10 +45,9 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export function createRetryableFunction<T extends (...args: any[]) => Promise<any>>(
-  fn: T,
-  options: RetryOptions = {}
-): T {
+export function createRetryableFunction<
+  T extends (...args: any[]) => Promise<any>,
+>(fn: T, options: RetryOptions = {}): T {
   return ((...args: Parameters<T>) => {
     return retryWithBackoff(() => fn(...args), options);
   }) as T;

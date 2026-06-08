@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useAuthStore } from '../../../store/auth-store';
+import React from "react";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useAuthStore } from "../../../store/auth-store";
 
 interface LogoutButtonProps {
   label?: string;
@@ -15,9 +15,9 @@ interface LogoutButtonProps {
  * its own visibility logic internally.
  */
 const LogoutButton: React.FC<LogoutButtonProps> = ({
-  label = 'Logout',
-  textColor = '#FF3B30',
-  iconColor = '#FF3B30',
+  label = "Logout",
+  textColor = "#FF3B30",
+  iconColor = "#FF3B30",
 }) => {
   const { isAuthenticated, logout } = useAuthStore();
 
@@ -25,7 +25,11 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.button} onPress={() => logout()} activeOpacity={0.8}>
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => logout()}
+        activeOpacity={0.8}
+      >
         <View style={styles.content}>
           <Ionicons name="log-out-outline" size={22} color={iconColor} />
           <Text style={[styles.label, { color: textColor }]}>{label}</Text>
@@ -42,19 +46,19 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   button: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 16,
     paddingHorizontal: 12,
     paddingVertical: 16,
   },
   content: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 14,
   },
   label: {
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });
 

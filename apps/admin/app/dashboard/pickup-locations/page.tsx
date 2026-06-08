@@ -1,14 +1,31 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { usePickupLocations, useCreatePickupLocation, useRemovePickupLocation } from "@/lib/shipments/pickup-location-queries"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Trash2, Plus, Building2 } from "lucide-react"
-import { toast } from "react-hot-toast"
+import { useState } from "react";
+import {
+  usePickupLocations,
+  useCreatePickupLocation,
+  useRemovePickupLocation,
+} from "@/lib/shipments/pickup-location-queries";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Trash2, Plus, Building2 } from "lucide-react";
+import { toast } from "react-hot-toast";
 import {
   Dialog,
   DialogContent,
@@ -17,14 +34,14 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 
 export default function PickupLocationsPage() {
-  const { pickupLocations, loading, refetch } = usePickupLocations()
-  const { createPickupLocation, loading: creating } = useCreatePickupLocation()
-  const { removePickupLocation, loading: removing } = useRemovePickupLocation()
+  const { pickupLocations, loading, refetch } = usePickupLocations();
+  const { createPickupLocation, loading: creating } = useCreatePickupLocation();
+  const { removePickupLocation, loading: removing } = useRemovePickupLocation();
 
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -32,18 +49,18 @@ export default function PickupLocationsPage() {
     city: "",
     state: "",
     pincode: "",
-  })
+  });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (!formData.name) {
-      toast.error("Location Nickname is required")
-      return
+      toast.error("Location Nickname is required");
+      return;
     }
 
     try {
@@ -56,35 +73,48 @@ export default function PickupLocationsPage() {
         pincode: formData.pincode,
         provider: "SHIPROCKET",
         country: "India",
-      })
-      toast.success("Pickup location added successfully")
-      setIsDialogOpen(false)
-      setFormData({ name: "", phone: "", addressLine1: "", city: "", state: "", pincode: "" })
-      refetch()
+      });
+      toast.success("Pickup location added successfully");
+      setIsDialogOpen(false);
+      setFormData({
+        name: "",
+        phone: "",
+        addressLine1: "",
+        city: "",
+        state: "",
+        pincode: "",
+      });
+      refetch();
     } catch (error: any) {
-      toast.error(error.message || "Failed to add pickup location")
+      toast.error(error.message || "Failed to add pickup location");
     }
-  }
+  };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this pickup location?")) return
+    if (
+      !window.confirm("Are you sure you want to delete this pickup location?")
+    )
+      return;
 
     try {
-      await removePickupLocation(id)
-      toast.success("Pickup location removed")
-      refetch()
+      await removePickupLocation(id);
+      toast.success("Pickup location removed");
+      refetch();
     } catch (error: any) {
-      toast.error(error.message || "Failed to remove pickup location")
+      toast.error(error.message || "Failed to remove pickup location");
     }
-  }
+  };
 
   return (
     <div className="container mx-auto py-10 space-y-8">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Pickup Locations</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Pickup Locations
+          </h1>
           <p className="text-muted-foreground">
-            Manage your Shiprocket pickup addresses to streamline order dispatch.
+            Manage your Shiprocket pickup addresses to streamline order
+            dispatch.
           </p>
         </div>
 
@@ -100,7 +130,8 @@ export default function PickupLocationsPage() {
               <DialogHeader>
                 <DialogTitle>Add New Pickup Location</DialogTitle>
                 <DialogDescription>
-                  Enter the nickname of the pickup location exactly as it is saved in your Shiprocket dashboard.
+                  Enter the nickname of the pickup location exactly as it is
+                  saved in your Shiprocket dashboard.
                 </DialogDescription>
               </DialogHeader>
               <div className="grid gap-4 py-4">
@@ -180,7 +211,9 @@ export default function PickupLocationsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Saved Locations</CardTitle>
-          <CardDescription>A list of all pickup locations available for order dispatch.</CardDescription>
+          <CardDescription>
+            A list of all pickup locations available for order dispatch.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -188,8 +221,12 @@ export default function PickupLocationsPage() {
           ) : pickupLocations.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-8 text-center border border-dashed rounded-lg">
               <Building2 className="h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">No pickup locations found.</p>
-              <p className="text-sm text-muted-foreground">Add a new location to use it for Shiprocket dispatch.</p>
+              <p className="text-muted-foreground">
+                No pickup locations found.
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Add a new location to use it for Shiprocket dispatch.
+              </p>
             </div>
           ) : (
             <Table>
@@ -205,7 +242,9 @@ export default function PickupLocationsPage() {
               <TableBody>
                 {pickupLocations.map((location) => (
                   <TableRow key={location._id}>
-                    <TableCell className="font-medium">{location.name}</TableCell>
+                    <TableCell className="font-medium">
+                      {location.name}
+                    </TableCell>
                     <TableCell>{location.city || "-"}</TableCell>
                     <TableCell>{location.state || "-"}</TableCell>
                     <TableCell>{location.pincode || "-"}</TableCell>
@@ -228,5 +267,5 @@ export default function PickupLocationsPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

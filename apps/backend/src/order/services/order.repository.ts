@@ -14,12 +14,12 @@ function writeTrackingLog(msg: string) {
     }
     fs.appendFileSync(logPath, logMsg);
     console.log(`[TRACKING_DEBUG] ${msg}`);
-  } catch (e) { }
+  } catch (e) {}
 }
 
 @Injectable()
 export class OrderRepository {
-  constructor(@InjectModel(Order.name) private orderModel: Model<Order>) { }
+  constructor(@InjectModel(Order.name) private orderModel: Model<Order>) {}
 
   async create(orderData: Partial<Order>): Promise<Order> {
     const order = new this.orderModel(orderData);
@@ -27,7 +27,10 @@ export class OrderRepository {
   }
 
   async findById(orderId: string): Promise<Order | null> {
-    return this.orderModel.findOne({ orderId }).populate('shippingAddressId').exec();
+    return this.orderModel
+      .findOne({ orderId })
+      .populate('shippingAddressId')
+      .exec();
   }
 
   async findByInternalId(id: string): Promise<Order | null> {
@@ -49,8 +52,8 @@ export class OrderRepository {
     limit?: number,
   ): Promise<Order[]> {
     const objectIds = identityIds
-      .filter(id => Types.ObjectId.isValid(id))
-      .map(id => new Types.ObjectId(id));
+      .filter((id) => Types.ObjectId.isValid(id))
+      .map((id) => new Types.ObjectId(id));
     const query: any = { identityId: { $in: objectIds } };
     if (status) {
       query.orderStatus = status;
@@ -68,8 +71,8 @@ export class OrderRepository {
     status?: OrderStatus,
   ): Promise<number> {
     const objectIds = identityIds
-      .filter(id => Types.ObjectId.isValid(id))
-      .map(id => new Types.ObjectId(id));
+      .filter((id) => Types.ObjectId.isValid(id))
+      .map((id) => new Types.ObjectId(id));
     const query: any = { identityId: { $in: objectIds } };
     if (status) {
       query.orderStatus = status;
@@ -77,16 +80,21 @@ export class OrderRepository {
     return this.orderModel.countDocuments(query).exec();
   }
 
-  async findAll(filter: any, skip: number, limit: number, userSearch?: string): Promise<Order[]> {
+  async findAll(
+    filter: any,
+    skip: number,
+    limit: number,
+    userSearch?: string,
+  ): Promise<Order[]> {
     if (userSearch) {
       const pipeline = this.buildSearchPipeline(filter, userSearch);
       pipeline.push(
         { $sort: { createdAt: -1 } as any },
         { $skip: skip },
-        { $limit: limit }
+        { $limit: limit },
       );
       const results = await this.orderModel.aggregate(pipeline).exec();
-      return results.map(r => this.orderModel.hydrate(r));
+      return results.map((r) => this.orderModel.hydrate(r));
     }
 
     return this.orderModel
@@ -165,7 +173,9 @@ export class OrderRepository {
   }
 
   async countByStatus(status: OrderStatus, filter: any = {}): Promise<number> {
-    return this.orderModel.countDocuments({ ...filter, orderStatus: status }).exec();
+    return this.orderModel
+      .countDocuments({ ...filter, orderStatus: status })
+      .exec();
   }
 
   async findByStatus(status: OrderStatus): Promise<Order[]> {
@@ -191,10 +201,13 @@ export class OrderRepository {
 
   async findByPhone(phone: string): Promise<Order | null> {
     const cleanPhone = phone.replace(/\D/g, '');
-    const searchPhone = cleanPhone.length >= 10 ? cleanPhone.slice(-10) : cleanPhone;
+    const searchPhone =
+      cleanPhone.length >= 10 ? cleanPhone.slice(-10) : cleanPhone;
     const regex = new RegExp(searchPhone, 'i');
 
-    writeTrackingLog(`findByPhone START - input: ${phone}, searchPhone: ${searchPhone}, regex: ${regex}`);
+    writeTrackingLog(
+      `findByPhone START - input: ${phone}, searchPhone: ${searchPhone}, regex: ${regex}`,
+    );
 
     try {
       const orders = await this.orderModel
@@ -230,7 +243,9 @@ export class OrderRepository {
         ])
         .exec();
 
-      writeTrackingLog(`findByPhone query complete - returned ${orders?.length || 0} results`);
+      writeTrackingLog(
+        `findByPhone query complete - returned ${orders?.length || 0} results`,
+      );
 
       if (orders && orders.length > 0) {
         writeTrackingLog(`findByPhone found order: ${orders[0].orderId}`);
@@ -245,20 +260,29 @@ export class OrderRepository {
       return null;
     }
   }
-  async getTopProducts(startDate: Date, endDate: Date, limit = 50): Promise<any[]> {
+  async getTopProducts(
+    startDate: Date,
+    endDate: Date,
+    limit = 50,
+  ): Promise<any[]> {
     const pipeline: any[] = [
-      { $match: { createdAt: { $gte: startDate, $lte: endDate }, orderStatus: { $ne: OrderStatus.SHIPMENT_FAILED } } },
-      { $unwind: "$items" },
+      {
+        $match: {
+          createdAt: { $gte: startDate, $lte: endDate },
+          orderStatus: { $ne: OrderStatus.SHIPMENT_FAILED },
+        },
+      },
+      { $unwind: '$items' },
       {
         $group: {
-          _id: "$items.productId",
-          name: { $first: { $ifNull: ["$items.name", "Unknown Product"] } },
-          image: { $first: "$items.image" },
-          soldQuantity: { $sum: "$items.quantity" },
-          revenue: { $sum: { $toDouble: "$items.totalPrice" } }
-        }
+          _id: '$items.productId',
+          name: { $first: { $ifNull: ['$items.name', 'Unknown Product'] } },
+          image: { $first: '$items.image' },
+          soldQuantity: { $sum: '$items.quantity' },
+          revenue: { $sum: { $toDouble: '$items.totalPrice' } },
+        },
       },
-      { $sort: { soldQuantity: -1 } }
+      { $sort: { soldQuantity: -1 } },
     ];
 
     if (limit > 0) {
@@ -269,160 +293,197 @@ export class OrderRepository {
   }
 
   async getDailySales(startDate: Date, endDate: Date): Promise<any[]> {
-    return this.orderModel.aggregate([
-      { $match: { createdAt: { $gte: startDate, $lte: endDate }, orderStatus: { $ne: OrderStatus.SHIPMENT_FAILED } } },
-      {
-        $group: {
-          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
-          orders: { $sum: 1 },
-          revenue: { $sum: { $toDouble: "$totalAmount" } }
-        }
-      },
-      { $sort: { _id: 1 } },
-      {
-        $project: {
-          _id: 0,
-          date: "$_id",
-          orders: 1,
-          revenue: 1
-        }
-      }
-    ]).exec();
+    return this.orderModel
+      .aggregate([
+        {
+          $match: {
+            createdAt: { $gte: startDate, $lte: endDate },
+            orderStatus: { $ne: OrderStatus.SHIPMENT_FAILED },
+          },
+        },
+        {
+          $group: {
+            _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+            orders: { $sum: 1 },
+            revenue: { $sum: { $toDouble: '$totalAmount' } },
+          },
+        },
+        { $sort: { _id: 1 } },
+        {
+          $project: {
+            _id: 0,
+            date: '$_id',
+            orders: 1,
+            revenue: 1,
+          },
+        },
+      ])
+      .exec();
   }
 
   async getCategorySales(startDate: Date, endDate: Date): Promise<any[]> {
     // This is tricky because items don't have categoryId directly in the Order schema.
     // We might need to join with products.
-    return this.orderModel.aggregate([
-      { $match: { createdAt: { $gte: startDate, $lte: endDate }, orderStatus: { $ne: OrderStatus.SHIPMENT_FAILED } } },
-      { $unwind: "$items" },
-      {
-        $lookup: {
-          from: "products",
-          localField: "items.productId",
-          foreignField: "_id",
-          as: "product"
-        }
-      },
-      { $unwind: { path: "$product", preserveNullAndEmptyArrays: true } },
-      {
-        $addFields: {
-          firstCategoryId: {
-            $cond: [
-              { $gt: [{ $size: { $ifNull: ["$product.categoryIds", []] } }, 0] },
-              { $arrayElemAt: ["$product.categoryIds", 0] },
-              null
-            ]
-          }
-        }
-      },
-      {
-        $lookup: {
-          from: "categories",
-          let: { catId: "$firstCategoryId" },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $eq: [{ $toString: "$_id" }, "$$catId"]
-                }
-              }
-            }
-          ],
-          as: "category"
-        }
-      },
-      { $unwind: { path: "$category", preserveNullAndEmptyArrays: true } },
-      {
-        $group: {
-          _id: { $ifNull: ["$category.name", "Uncategorized"] },
-          revenue: { $sum: { $toDouble: "$items.totalPrice" } }
-        }
-      },
-      { $sort: { revenue: -1 } },
-      {
-        $project: {
-          _id: 0,
-          category: "$_id",
-          revenue: 1
-        }
-      }
-    ]).exec();
+    return this.orderModel
+      .aggregate([
+        {
+          $match: {
+            createdAt: { $gte: startDate, $lte: endDate },
+            orderStatus: { $ne: OrderStatus.SHIPMENT_FAILED },
+          },
+        },
+        { $unwind: '$items' },
+        {
+          $lookup: {
+            from: 'products',
+            localField: 'items.productId',
+            foreignField: '_id',
+            as: 'product',
+          },
+        },
+        { $unwind: { path: '$product', preserveNullAndEmptyArrays: true } },
+        {
+          $addFields: {
+            firstCategoryId: {
+              $cond: [
+                {
+                  $gt: [
+                    { $size: { $ifNull: ['$product.categoryIds', []] } },
+                    0,
+                  ],
+                },
+                { $arrayElemAt: ['$product.categoryIds', 0] },
+                null,
+              ],
+            },
+          },
+        },
+        {
+          $lookup: {
+            from: 'categories',
+            let: { catId: '$firstCategoryId' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: [{ $toString: '$_id' }, '$$catId'],
+                  },
+                },
+              },
+            ],
+            as: 'category',
+          },
+        },
+        { $unwind: { path: '$category', preserveNullAndEmptyArrays: true } },
+        {
+          $group: {
+            _id: { $ifNull: ['$category.name', 'Uncategorized'] },
+            revenue: { $sum: { $toDouble: '$items.totalPrice' } },
+          },
+        },
+        { $sort: { revenue: -1 } },
+        {
+          $project: {
+            _id: 0,
+            category: '$_id',
+            revenue: 1,
+          },
+        },
+      ])
+      .exec();
   }
 
-  async getTopCustomers(startDate: Date, endDate: Date, limit = 5): Promise<any[]> {
-    return this.orderModel.aggregate([
-      { $match: { createdAt: { $gte: startDate, $lte: endDate }, orderStatus: { $ne: OrderStatus.SHIPMENT_FAILED } } },
-      {
-        $group: {
-          _id: "$identityId",
-          totalOrders: { $sum: 1 },
-          totalSpent: { $sum: { $toDouble: "$totalAmount" } }
-        }
-      },
-      { $match: { _id: { $ne: null } } },
-      {
-        $lookup: {
-          from: "identities",
-          localField: "_id",
-          foreignField: "_id",
-          as: "identity"
-        }
-      },
-      { $unwind: "$identity" },
-      {
-        $project: {
-          _id: 1,
-          name: {
-            $trim: {
-              input: {
-                $concat: [
-                  { $ifNull: ["$identity.firstName", ""] },
-                  " ",
-                  { $ifNull: ["$identity.lastName", ""] }
-                ]
-              }
-            }
+  async getTopCustomers(
+    startDate: Date,
+    endDate: Date,
+    limit = 5,
+  ): Promise<any[]> {
+    return this.orderModel
+      .aggregate([
+        {
+          $match: {
+            createdAt: { $gte: startDate, $lte: endDate },
+            orderStatus: { $ne: OrderStatus.SHIPMENT_FAILED },
           },
-          email: { $ifNull: ["$identity.email", "N/A"] },
-          totalOrders: 1,
-          totalSpent: 1
-        }
-      },
-      {
-        $project: {
-          _id: 1,
-          name: { $cond: [{ $eq: ["$name", ""] }, "Customer", "$name"] },
-          email: 1,
-          totalOrders: 1,
-          totalSpent: 1
-        }
-      },
-      { $sort: { totalSpent: -1 } },
-      { $limit: limit }
-    ]).exec();
+        },
+        {
+          $group: {
+            _id: '$identityId',
+            totalOrders: { $sum: 1 },
+            totalSpent: { $sum: { $toDouble: '$totalAmount' } },
+          },
+        },
+        { $match: { _id: { $ne: null } } },
+        {
+          $lookup: {
+            from: 'identities',
+            localField: '_id',
+            foreignField: '_id',
+            as: 'identity',
+          },
+        },
+        { $unwind: '$identity' },
+        {
+          $project: {
+            _id: 1,
+            name: {
+              $trim: {
+                input: {
+                  $concat: [
+                    { $ifNull: ['$identity.firstName', ''] },
+                    ' ',
+                    { $ifNull: ['$identity.lastName', ''] },
+                  ],
+                },
+              },
+            },
+            email: { $ifNull: ['$identity.email', 'N/A'] },
+            totalOrders: 1,
+            totalSpent: 1,
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            name: { $cond: [{ $eq: ['$name', ''] }, 'Customer', '$name'] },
+            email: 1,
+            totalOrders: 1,
+            totalSpent: 1,
+          },
+        },
+        { $sort: { totalSpent: -1 } },
+        { $limit: limit },
+      ])
+      .exec();
   }
 
   async getSummaryStats(startDate: Date, endDate: Date): Promise<any> {
-    const result = await this.orderModel.aggregate([
-      { $match: { createdAt: { $gte: startDate, $lte: endDate }, orderStatus: { $ne: OrderStatus.SHIPMENT_FAILED } } },
-      {
-        $group: {
-          _id: null,
-          totalRevenue: { $sum: { $toDouble: "$totalAmount" } },
-          totalOrders: { $sum: 1 },
-          uniqueCustomers: { $addToSet: "$identityId" }
-        }
-      },
-      {
-        $project: {
-          _id: 0,
-          totalRevenue: 1,
-          totalOrders: 1,
-          totalCustomers: { $size: "$uniqueCustomers" }
-        }
-      }
-    ]).exec();
+    const result = await this.orderModel
+      .aggregate([
+        {
+          $match: {
+            createdAt: { $gte: startDate, $lte: endDate },
+            orderStatus: { $ne: OrderStatus.SHIPMENT_FAILED },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalRevenue: { $sum: { $toDouble: '$totalAmount' } },
+            totalOrders: { $sum: 1 },
+            uniqueCustomers: { $addToSet: '$identityId' },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            totalRevenue: 1,
+            totalOrders: 1,
+            totalCustomers: { $size: '$uniqueCustomers' },
+          },
+        },
+      ])
+      .exec();
 
     return result[0] || { totalRevenue: 0, totalOrders: 0, totalCustomers: 0 };
   }
@@ -441,141 +502,173 @@ export class OrderRepository {
   }> {
     const [weightResult, boxResult, deliveryResult] = await Promise.all([
       // 1. Average weight: sum item weight*quantity per packing order, then average
-      this.orderModel.aggregate([
-        {
-          $lookup: {
-            from: 'packingorders',
-            localField: 'orderId',
-            foreignField: 'orderNumber',
-            as: 'packingOrder',
+      this.orderModel
+        .aggregate([
+          {
+            $lookup: {
+              from: 'packingorders',
+              localField: 'orderId',
+              foreignField: 'orderNumber',
+              as: 'packingOrder',
+            },
           },
-        },
-        { $unwind: { path: '$packingOrder', preserveNullAndEmptyArrays: false } },
-        { $unwind: '$packingOrder.items' },
-        {
-          $group: {
-            _id: '$packingOrder._id',
-            orderWeight: {
-              $sum: {
-                $multiply: [
-                  { $ifNull: ['$packingOrder.items.dimensions.weight', 0] },
-                  { $ifNull: ['$packingOrder.items.quantity', 1] },
+          {
+            $unwind: {
+              path: '$packingOrder',
+              preserveNullAndEmptyArrays: false,
+            },
+          },
+          { $unwind: '$packingOrder.items' },
+          {
+            $group: {
+              _id: '$packingOrder._id',
+              orderWeight: {
+                $sum: {
+                  $multiply: [
+                    { $ifNull: ['$packingOrder.items.dimensions.weight', 0] },
+                    { $ifNull: ['$packingOrder.items.quantity', 1] },
+                  ],
+                },
+              },
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              avgWeight: { $avg: '$orderWeight' },
+            },
+          },
+        ])
+        .exec(),
+
+      // 2. Most used box: group actualBox.code from packingevidences
+      this.orderModel
+        .aggregate([
+          {
+            $lookup: {
+              from: 'packingorders',
+              localField: 'orderId',
+              foreignField: 'orderNumber',
+              as: 'packingOrder',
+            },
+          },
+          {
+            $unwind: {
+              path: '$packingOrder',
+              preserveNullAndEmptyArrays: false,
+            },
+          },
+          {
+            $lookup: {
+              from: 'packingevidences',
+              localField: 'packingOrder._id',
+              foreignField: 'packingOrderId',
+              as: 'evidence',
+            },
+          },
+          { $unwind: { path: '$evidence', preserveNullAndEmptyArrays: false } },
+          {
+            $addFields: {
+              usedBox: {
+                $ifNull: [
+                  '$evidence.actualBox.code',
+                  '$evidence.recommendedBox.code',
                 ],
               },
             },
           },
-        },
-        {
-          $group: {
-            _id: null,
-            avgWeight: { $avg: '$orderWeight' },
-          },
-        },
-      ]).exec(),
-
-      // 2. Most used box: group actualBox.code from packingevidences
-      this.orderModel.aggregate([
-        {
-          $lookup: {
-            from: 'packingorders',
-            localField: 'orderId',
-            foreignField: 'orderNumber',
-            as: 'packingOrder',
-          },
-        },
-        { $unwind: { path: '$packingOrder', preserveNullAndEmptyArrays: false } },
-        {
-          $lookup: {
-            from: 'packingevidences',
-            localField: 'packingOrder._id',
-            foreignField: 'packingOrderId',
-            as: 'evidence',
-          },
-        },
-        { $unwind: { path: '$evidence', preserveNullAndEmptyArrays: false } },
-        {
-          $addFields: {
-            usedBox: {
-              $ifNull: ['$evidence.actualBox.code', '$evidence.recommendedBox.code'],
+          { $match: { usedBox: { $ne: null } } },
+          {
+            $group: {
+              _id: '$usedBox',
+              count: { $sum: 1 },
             },
           },
-        },
-        { $match: { usedBox: { $ne: null } } },
-        {
-          $group: {
-            _id: '$usedBox',
-            count: { $sum: 1 },
-          },
-        },
-        { $sort: { count: -1 } },
-        { $limit: 1 },
-      ]).exec(),
+          { $sort: { count: -1 } },
+          { $limit: 1 },
+        ])
+        .exec(),
 
       // 3. Delivery time: days from shipments.bookedOn to shipments.deliveredAt
-      this.orderModel.aggregate([
-        {
-          $lookup: {
-            from: 'shipments',
-            localField: '_id',
-            foreignField: 'orderId',
-            as: 'shipment',
-          },
-        },
-        { $unwind: { path: '$shipment', preserveNullAndEmptyArrays: false } },
-        {
-          $match: {
-            'shipment.isDelivered': true,
-            'shipment.deliveredAt': { $exists: true, $ne: null },
-            'shipment.bookedOn': { $exists: true, $ne: null },
-          },
-        },
-        {
-          $addFields: {
-            deliveryDays: {
-              $divide: [
-                { $subtract: ['$shipment.deliveredAt', '$shipment.bookedOn'] },
-                1000 * 60 * 60 * 24, // ms → days
-              ],
+      this.orderModel
+        .aggregate([
+          {
+            $lookup: {
+              from: 'shipments',
+              localField: '_id',
+              foreignField: 'orderId',
+              as: 'shipment',
             },
           },
-        },
-        {
-          $group: {
-            _id: null,
-            maxDeliveryDays: { $max: '$deliveryDays' },
-            avgDeliveryDays: { $avg: '$deliveryDays' },
+          { $unwind: { path: '$shipment', preserveNullAndEmptyArrays: false } },
+          {
+            $match: {
+              'shipment.isDelivered': true,
+              'shipment.deliveredAt': { $exists: true, $ne: null },
+              'shipment.bookedOn': { $exists: true, $ne: null },
+            },
           },
-        },
-      ]).exec(),
+          {
+            $addFields: {
+              deliveryDays: {
+                $divide: [
+                  {
+                    $subtract: ['$shipment.deliveredAt', '$shipment.bookedOn'],
+                  },
+                  1000 * 60 * 60 * 24, // ms → days
+                ],
+              },
+            },
+          },
+          {
+            $group: {
+              _id: null,
+              maxDeliveryDays: { $max: '$deliveryDays' },
+              avgDeliveryDays: { $avg: '$deliveryDays' },
+            },
+          },
+        ])
+        .exec(),
     ]);
 
     return {
       avgWeight: (weightResult[0]?.avgWeight ?? 0) / 1000,
       mostUsedBox: boxResult[0]?._id ?? undefined,
       maxDeliveryDays: Math.ceil(deliveryResult[0]?.maxDeliveryDays ?? 0),
-      avgDeliveryDays: Math.round((deliveryResult[0]?.avgDeliveryDays ?? 0) * 10) / 10,
+      avgDeliveryDays:
+        Math.round((deliveryResult[0]?.avgDeliveryDays ?? 0) * 10) / 10,
     };
   }
 
-  async getPlatformOrderStats(startDate: Date, endDate: Date): Promise<{ website: number; app: number }> {
-    const orders = await this.orderModel.aggregate([
-      { $match: { createdAt: { $gte: startDate, $lte: endDate }, orderStatus: { $ne: OrderStatus.SHIPMENT_FAILED } } },
-      {
-        $lookup: {
-          from: 'identities',
-          localField: 'identityId',
-          foreignField: '_id',
-          as: 'identity',
+  async getPlatformOrderStats(
+    startDate: Date,
+    endDate: Date,
+  ): Promise<{ website: number; app: number }> {
+    const orders = await this.orderModel
+      .aggregate([
+        {
+          $match: {
+            createdAt: { $gte: startDate, $lte: endDate },
+            orderStatus: { $ne: OrderStatus.SHIPMENT_FAILED },
+          },
         },
-      },
-      { $unwind: { path: '$identity', preserveNullAndEmptyArrays: true } },
-      {
-        $project: {
-          _id: 1,
-          deviceInfo: '$identity.deviceInfo',
+        {
+          $lookup: {
+            from: 'identities',
+            localField: 'identityId',
+            foreignField: '_id',
+            as: 'identity',
+          },
         },
-      },
-    ]).exec();
+        { $unwind: { path: '$identity', preserveNullAndEmptyArrays: true } },
+        {
+          $project: {
+            _id: 1,
+            deviceInfo: '$identity.deviceInfo',
+          },
+        },
+      ])
+      .exec();
 
     let website = 0;
     let app = 0;
@@ -616,24 +709,26 @@ export class OrderRepository {
     appRevenue: number;
     webRevenue: number;
   }> {
-    const orders = await this.orderModel.aggregate([
-      { $match: filter },
-      {
-        $lookup: {
-          from: 'identities',
-          localField: 'identityId',
-          foreignField: '_id',
-          as: 'identity',
+    const orders = await this.orderModel
+      .aggregate([
+        { $match: filter },
+        {
+          $lookup: {
+            from: 'identities',
+            localField: 'identityId',
+            foreignField: '_id',
+            as: 'identity',
+          },
         },
-      },
-      { $unwind: { path: '$identity', preserveNullAndEmptyArrays: true } },
-      {
-        $project: {
-          totalAmount: 1,
-          deviceInfo: '$identity.deviceInfo',
+        { $unwind: { path: '$identity', preserveNullAndEmptyArrays: true } },
+        {
+          $project: {
+            totalAmount: 1,
+            deviceInfo: '$identity.deviceInfo',
+          },
         },
-      },
-    ]).exec();
+      ])
+      .exec();
 
     let appOrdersCount = 0;
     let webOrdersCount = 0;
@@ -646,7 +741,8 @@ export class OrderRepository {
       let isApp = false;
 
       if (deviceInfo) {
-        const ua = typeof deviceInfo === 'string' ? deviceInfo.toLowerCase() : '';
+        const ua =
+          typeof deviceInfo === 'string' ? deviceInfo.toLowerCase() : '';
         const isWebBrowser =
           ua.includes('mozilla') ||
           ua.includes('webkit') ||
@@ -680,5 +776,59 @@ export class OrderRepository {
       appRevenue: Math.round(appRevenue * 100) / 100,
       webRevenue: Math.round(webRevenue * 100) / 100,
     };
+  }
+
+  /**
+   * Aggregates orders by Indian state (addressRegion) for a given date range.
+   * Joins each order to its shipping address to extract the state name.
+   */
+  async getSalesByState(
+    startDate: Date,
+    endDate: Date,
+  ): Promise<{ state: string; orders: number; revenue: number }[]> {
+    return this.orderModel
+      .aggregate([
+        {
+          $match: {
+            createdAt: { $gte: startDate, $lte: endDate },
+            orderStatus: { $ne: OrderStatus.SHIPMENT_FAILED },
+            shippingAddressId: { $exists: true, $ne: null },
+          },
+        },
+        {
+          $lookup: {
+            from: 'addresses',
+            localField: 'shippingAddressId',
+            foreignField: '_id',
+            as: 'address',
+          },
+        },
+        { $unwind: { path: '$address', preserveNullAndEmptyArrays: false } },
+        {
+          $match: {
+            'address.addressRegion': {
+              $exists: true,
+              $nin: [null, '', 'N/A'],
+            },
+          },
+        },
+        {
+          $group: {
+            _id: '$address.addressRegion',
+            orders: { $sum: 1 },
+            revenue: { $sum: { $toDouble: '$totalAmount' } },
+          },
+        },
+        { $sort: { orders: -1 } },
+        {
+          $project: {
+            _id: 0,
+            state: '$_id',
+            orders: 1,
+            revenue: 1,
+          },
+        },
+      ])
+      .exec();
   }
 }

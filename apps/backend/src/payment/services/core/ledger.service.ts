@@ -10,7 +10,7 @@ export class LedgerService {
   constructor(
     @InjectModel(Ledger.name) private ledgerModel: Model<Ledger>,
     private paymentLogger: PaymentLoggerService,
-  ) { }
+  ) {}
 
   async createLedgerEntry(params: {
     paymentOrderId: string;

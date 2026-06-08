@@ -1,6 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { ObjectType, Field, ID, GraphQLISODateTime, Int } from '@nestjs/graphql';
+import {
+  ObjectType,
+  Field,
+  ID,
+  GraphQLISODateTime,
+  Int,
+} from '@nestjs/graphql';
 
 export type PincodeDocument = Pincode & Document;
 

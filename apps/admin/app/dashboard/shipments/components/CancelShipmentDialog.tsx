@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -6,15 +6,15 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Loader2, AlertTriangle } from 'lucide-react'
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Loader2, AlertTriangle } from "lucide-react";
 
 interface CancelShipmentDialogProps {
-  isOpen: boolean
-  onClose: () => void
-  onConfirm: () => Promise<void>
-  awbNumber: string
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => Promise<void>;
+  awbNumber: string;
 }
 
 export function CancelShipmentDialog({
@@ -23,17 +23,17 @@ export function CancelShipmentDialog({
   onConfirm,
   awbNumber,
 }: CancelShipmentDialogProps) {
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
 
   const handleConfirm = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      await onConfirm()
-      onClose()
+      await onConfirm();
+      onClose();
     } catch (error) {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -44,20 +44,24 @@ export function CancelShipmentDialog({
             <DialogTitle>Cancel Shipment</DialogTitle>
           </div>
           <DialogDescription>
-            Are you sure you want to cancel shipment <strong>{awbNumber}</strong>? This action
-            cannot be undone.
+            Are you sure you want to cancel shipment{" "}
+            <strong>{awbNumber}</strong>? This action cannot be undone.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={loading}>
             No, Keep it
           </Button>
-          <Button variant="destructive" onClick={handleConfirm} disabled={loading}>
+          <Button
+            variant="destructive"
+            onClick={handleConfirm}
+            disabled={loading}
+          >
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Yes, Cancel Shipment
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

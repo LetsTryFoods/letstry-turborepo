@@ -1,77 +1,111 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import { toast } from 'react-hot-toast'
-import { Save, Shield, Bell, Moon, Sun, Globe } from 'lucide-react'
-import { ComingSoonBanner } from '@/components/ComingSoonBanner'
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "react-hot-toast";
+import { Save, Shield, Bell, Moon, Sun, Globe, Settings as SettingsIcon } from "lucide-react";
+import { ComingSoonBanner } from "@/components/ComingSoonBanner";
+import { useQuery, useMutation } from "@apollo/client/react";
+import { GET_GLOBAL_SETTINGS, UPDATE_GLOBAL_SETTINGS } from "@/lib/graphql/settings";
+import { Switch } from "@/components/ui/switch";
 
 interface PasswordFormData {
-  currentPassword: string
-  newPassword: string
-  confirmPassword: string
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
 }
 
 interface NotificationSettings {
-  emailNotifications: boolean
-  pushNotifications: boolean
-  orderUpdates: boolean
-  productUpdates: boolean
+  emailNotifications: boolean;
+  pushNotifications: boolean;
+  orderUpdates: boolean;
+  productUpdates: boolean;
 }
 
 export default function SettingsPage() {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light')
-  const [language, setLanguage] = useState('en')
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [language, setLanguage] = useState("en");
   const [notifications, setNotifications] = useState<NotificationSettings>({
     emailNotifications: true,
     pushNotifications: true,
     orderUpdates: true,
-    productUpdates: false
-  })
+    productUpdates: false,
+  });
 
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<PasswordFormData>()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<PasswordFormData>();
 
   const onPasswordSubmit = async (data: PasswordFormData) => {
     if (data.newPassword !== data.confirmPassword) {
-      toast.error('Passwords do not match')
-      return
+      toast.error("Passwords do not match");
+      return;
     }
 
     try {
       // TODO: Implement API call to change password
-      console.log('Password change:', data)
-      toast.success('Password changed successfully!')
-      reset()
+      console.log("Password change:", data);
+      toast.success("Password changed successfully!");
+      reset();
     } catch (error) {
-      toast.error('Failed to change password')
+      toast.error("Failed to change password");
     }
-  }
+  };
 
   const handleThemeChange = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light'
-    setTheme(newTheme)
-    toast.success(`Theme changed to ${newTheme} mode`)
-  }
+    const newTheme = theme === "light" ? "dark" : "light";
+    setTheme(newTheme);
+    toast.success(`Theme changed to ${newTheme} mode`);
+  };
 
   const handleNotificationToggle = (key: keyof NotificationSettings) => {
-    setNotifications(prev => ({
+    setNotifications((prev) => ({
       ...prev,
-      [key]: !prev[key]
-    }))
-    toast.success('Notification settings updated')
-  }
+      [key]: !prev[key],
+    }));
+    toast.success("Notification settings updated");
+  };
+
+  const { data, loading } = useQuery<any>(GET_GLOBAL_SETTINGS);
+  const [updateGlobalSettings] = useMutation<any>(UPDATE_GLOBAL_SETTINGS);
+
+  const handleScanBypassToggle = async (checked: boolean) => {
+    try {
+      await updateGlobalSettings({
+        variables: {
+          isPackerScanBypassEnabled: checked,
+        },
+        refetchQueries: [{ query: GET_GLOBAL_SETTINGS }],
+      });
+      toast.success(
+        `Packer scan bypass ${checked ? "enabled" : "disabled"} successfully`
+      );
+    } catch (error) {
+      toast.error("Failed to update scan bypass setting");
+    }
+  };
 
   return (
     <div className="container max-w-4xl py-6 space-y-6 mx-auto">
-      <ComingSoonBanner feature="App Settings backend" />
       <div>
         <h1 className="text-3xl font-bold">Settings</h1>
-        <p className="text-muted-foreground">Manage your account settings and preferences</p>
+        <p className="text-muted-foreground">
+          Manage your account settings and preferences
+        </p>
       </div>
 
       <Separator />
@@ -83,7 +117,9 @@ export default function SettingsPage() {
             <Shield className="h-5 w-5" />
             Security
           </CardTitle>
-          <CardDescription>Update your password and security settings</CardDescription>
+          <CardDescription>
+            Update your password and security settings
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onPasswordSubmit)} className="space-y-4">
@@ -93,10 +129,14 @@ export default function SettingsPage() {
                 id="currentPassword"
                 type="password"
                 placeholder="Enter current password"
-                {...register('currentPassword', { required: 'Current password is required' })}
+                {...register("currentPassword", {
+                  required: "Current password is required",
+                })}
               />
               {errors.currentPassword && (
-                <p className="text-sm text-red-600">{errors.currentPassword.message}</p>
+                <p className="text-sm text-red-600">
+                  {errors.currentPassword.message}
+                </p>
               )}
             </div>
 
@@ -106,13 +146,18 @@ export default function SettingsPage() {
                 id="newPassword"
                 type="password"
                 placeholder="Enter new password"
-                {...register('newPassword', {
-                  required: 'New password is required',
-                  minLength: { value: 8, message: 'Password must be at least 8 characters' }
+                {...register("newPassword", {
+                  required: "New password is required",
+                  minLength: {
+                    value: 8,
+                    message: "Password must be at least 8 characters",
+                  },
                 })}
               />
               {errors.newPassword && (
-                <p className="text-sm text-red-600">{errors.newPassword.message}</p>
+                <p className="text-sm text-red-600">
+                  {errors.newPassword.message}
+                </p>
               )}
             </div>
 
@@ -122,10 +167,14 @@ export default function SettingsPage() {
                 id="confirmPassword"
                 type="password"
                 placeholder="Confirm new password"
-                {...register('confirmPassword', { required: 'Please confirm your password' })}
+                {...register("confirmPassword", {
+                  required: "Please confirm your password",
+                })}
               />
               {errors.confirmPassword && (
-                <p className="text-sm text-red-600">{errors.confirmPassword.message}</p>
+                <p className="text-sm text-red-600">
+                  {errors.confirmPassword.message}
+                </p>
               )}
             </div>
 
@@ -137,6 +186,34 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
+      {/* Store Operations Settings */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <SettingsIcon className="h-5 w-5" />
+            Store Operations
+          </CardTitle>
+          <CardDescription>
+            Manage global operational settings
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label>Bypass Packer Scanning</Label>
+              <p className="text-sm text-muted-foreground">
+                If enabled, packers won't need to scan items individually. They will take 5 photos instead.
+              </p>
+            </div>
+            <Switch
+              checked={data?.getGlobalSettings?.isPackerScanBypassEnabled || false}
+              onCheckedChange={handleScanBypassToggle}
+              disabled={loading}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Notification Settings */}
       <Card>
         <CardHeader>
@@ -144,7 +221,9 @@ export default function SettingsPage() {
             <Bell className="h-5 w-5" />
             Notifications
           </CardTitle>
-          <CardDescription>Configure how you receive notifications</CardDescription>
+          <CardDescription>
+            Configure how you receive notifications
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
@@ -155,11 +234,11 @@ export default function SettingsPage() {
               </p>
             </div>
             <Button
-              variant={notifications.emailNotifications ? 'default' : 'outline'}
+              variant={notifications.emailNotifications ? "default" : "outline"}
               size="sm"
-              onClick={() => handleNotificationToggle('emailNotifications')}
+              onClick={() => handleNotificationToggle("emailNotifications")}
             >
-              {notifications.emailNotifications ? 'Enabled' : 'Disabled'}
+              {notifications.emailNotifications ? "Enabled" : "Disabled"}
             </Button>
           </div>
 
@@ -173,11 +252,11 @@ export default function SettingsPage() {
               </p>
             </div>
             <Button
-              variant={notifications.pushNotifications ? 'default' : 'outline'}
+              variant={notifications.pushNotifications ? "default" : "outline"}
               size="sm"
-              onClick={() => handleNotificationToggle('pushNotifications')}
+              onClick={() => handleNotificationToggle("pushNotifications")}
             >
-              {notifications.pushNotifications ? 'Enabled' : 'Disabled'}
+              {notifications.pushNotifications ? "Enabled" : "Disabled"}
             </Button>
           </div>
 
@@ -191,11 +270,11 @@ export default function SettingsPage() {
               </p>
             </div>
             <Button
-              variant={notifications.orderUpdates ? 'default' : 'outline'}
+              variant={notifications.orderUpdates ? "default" : "outline"}
               size="sm"
-              onClick={() => handleNotificationToggle('orderUpdates')}
+              onClick={() => handleNotificationToggle("orderUpdates")}
             >
-              {notifications.orderUpdates ? 'Enabled' : 'Disabled'}
+              {notifications.orderUpdates ? "Enabled" : "Disabled"}
             </Button>
           </div>
 
@@ -209,11 +288,11 @@ export default function SettingsPage() {
               </p>
             </div>
             <Button
-              variant={notifications.productUpdates ? 'default' : 'outline'}
+              variant={notifications.productUpdates ? "default" : "outline"}
               size="sm"
-              onClick={() => handleNotificationToggle('productUpdates')}
+              onClick={() => handleNotificationToggle("productUpdates")}
             >
-              {notifications.productUpdates ? 'Enabled' : 'Disabled'}
+              {notifications.productUpdates ? "Enabled" : "Disabled"}
             </Button>
           </div>
         </CardContent>
@@ -223,10 +302,16 @@ export default function SettingsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            {theme === 'light' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            {theme === "light" ? (
+              <Sun className="h-5 w-5" />
+            ) : (
+              <Moon className="h-5 w-5" />
+            )}
             Appearance
           </CardTitle>
-          <CardDescription>Customize the look and feel of your dashboard</CardDescription>
+          <CardDescription>
+            Customize the look and feel of your dashboard
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
@@ -236,12 +321,8 @@ export default function SettingsPage() {
                 Choose between light and dark mode
               </p>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleThemeChange}
-            >
-              {theme === 'light' ? (
+            <Button variant="outline" size="sm" onClick={handleThemeChange}>
+              {theme === "light" ? (
                 <>
                   <Moon className="h-4 w-4 mr-2" />
                   Dark Mode
@@ -270,8 +351,8 @@ export default function SettingsPage() {
                 id="language"
                 value={language}
                 onChange={(e) => {
-                  setLanguage(e.target.value)
-                  toast.success('Language updated')
+                  setLanguage(e.target.value);
+                  toast.success("Language updated");
                 }}
                 className="border rounded-md px-3 py-2 text-sm"
               >
@@ -289,7 +370,9 @@ export default function SettingsPage() {
       <Card className="border-red-200">
         <CardHeader>
           <CardTitle className="text-red-600">Danger Zone</CardTitle>
-          <CardDescription>Irreversible actions for your account</CardDescription>
+          <CardDescription>
+            Irreversible actions for your account
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between">
@@ -302,7 +385,7 @@ export default function SettingsPage() {
             <Button
               variant="destructive"
               size="sm"
-              onClick={() => toast.error('This feature is disabled in demo')}
+              onClick={() => toast.error("This feature is disabled in demo")}
             >
               Delete Account
             </Button>
@@ -310,5 +393,5 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

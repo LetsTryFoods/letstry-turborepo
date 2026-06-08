@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -7,17 +7,20 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import { useLazyQuery } from '@apollo/client';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { SEARCH_PLACES, GET_PLACE_DETAILS } from '../../src/lib/graphql/address';
-import { wp, RFValue } from '../../src/lib/utils/ui-utils';
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import { useLazyQuery } from "@apollo/client";
+import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SEARCH_PLACES,
+  GET_PLACE_DETAILS,
+} from "../../src/lib/graphql/address";
+import { wp, RFValue } from "../../src/lib/utils/ui-utils";
 
 export default function PlaceSearchScreen() {
   const router = useRouter();
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
 
   const [searchPlaces, { data, loading }] = useLazyQuery(SEARCH_PLACES);
   const [getPlaceDetails] = useLazyQuery(GET_PLACE_DETAILS);
@@ -31,19 +34,20 @@ export default function PlaceSearchScreen() {
 
   const handleSelectPlace = async (placeId: string) => {
     const { data: detailsData } = await getPlaceDetails({
-      variables: { input: { placeId } }
+      variables: { input: { placeId } },
     });
 
     if (detailsData?.getPlaceDetails) {
-      const { latitude, longitude, formattedAddress } = detailsData.getPlaceDetails;
+      const { latitude, longitude, formattedAddress } =
+        detailsData.getPlaceDetails;
       // Navigate back to location with selected coordinates
       router.replace({
-        pathname: '/checkout/location',
+        pathname: "/checkout/location",
         params: {
           latitude,
           longitude,
           address: formattedAddress,
-        }
+        },
       });
     }
   };
@@ -72,7 +76,7 @@ export default function PlaceSearchScreen() {
           data={data?.searchPlaces || []}
           keyExtractor={(item) => item.placeId}
           renderItem={({ item }) => (
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.placeItem}
               onPress={() => handleSelectPlace(item.placeId)}
             >
@@ -97,14 +101,14 @@ export default function PlaceSearchScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: wp('4%'),
+    flexDirection: "row",
+    alignItems: "center",
+    padding: wp("4%"),
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: "#f0f0f0",
   },
   backBtn: {
     marginRight: 10,
@@ -112,19 +116,19 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: RFValue(15),
-    fontFamily: 'Inter_400Regular',
-    color: '#222',
+    fontFamily: "Inter_400Regular",
+    color: "#222",
   },
   loading: {
     marginTop: 20,
-    alignItems: 'center',
+    alignItems: "center",
   },
   placeItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: wp('4%'),
+    flexDirection: "row",
+    alignItems: "center",
+    padding: wp("4%"),
     borderBottomWidth: 1,
-    borderBottomColor: '#f9f9f9',
+    borderBottomColor: "#f9f9f9",
   },
   placeText: {
     marginLeft: 12,
@@ -132,19 +136,19 @@ const styles = StyleSheet.create({
   },
   placeMain: {
     fontSize: RFValue(14),
-    fontFamily: 'Inter_600SemiBold',
-    color: '#222',
+    fontFamily: "Inter_600SemiBold",
+    color: "#222",
   },
   placeSecondary: {
     fontSize: RFValue(12),
-    fontFamily: 'Inter_400Regular',
-    color: '#888',
+    fontFamily: "Inter_400Regular",
+    color: "#888",
     marginTop: 2,
   },
   emptyText: {
-    textAlign: 'center',
+    textAlign: "center",
     marginTop: 40,
-    color: '#888',
+    color: "#888",
     fontSize: RFValue(13),
   },
 });

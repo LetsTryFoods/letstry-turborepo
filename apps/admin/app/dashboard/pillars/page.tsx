@@ -1,13 +1,19 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { toast } from 'react-hot-toast';
-import { usePillars, useCreatePillar, useUpdatePillar, useRemovePillar, type Pillar } from '@/lib/pillars/usePillars';
-import { useCategories, type Category } from '@/lib/categories/useCategories';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState } from "react";
+import { toast } from "react-hot-toast";
+import {
+  usePillars,
+  useCreatePillar,
+  useUpdatePillar,
+  useRemovePillar,
+  type Pillar,
+} from "@/lib/pillars/usePillars";
+import { useCategories, type Category } from "@/lib/categories/useCategories";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 /**
  * Sprint 4 — minimal-viable Pillar CRUD admin page.
@@ -35,7 +41,8 @@ export default function PillarsAdminPage() {
       ?.categories?.items || []
   ).map((c) => c.slug);
 
-  const pillars: Pillar[] = (data as { pillars?: Pillar[] } | undefined)?.pillars || [];
+  const pillars: Pillar[] =
+    (data as { pillars?: Pillar[] } | undefined)?.pillars || [];
   const [editing, setEditing] = useState<Pillar | null>(null);
 
   return (
@@ -44,7 +51,8 @@ export default function PillarsAdminPage() {
         <div>
           <h1 className="text-2xl font-bold">Pillar pages</h1>
           <p className="text-sm text-gray-500">
-            CMS-driven landing pages for non-branded keyword clusters. Publishes to <code>/p/&lt;slug&gt;</code>.
+            CMS-driven landing pages for non-branded keyword clusters. Publishes
+            to <code>/p/&lt;slug&gt;</code>.
           </p>
         </div>
         <Button onClick={() => setEditing(emptyPillar())}>+ New pillar</Button>
@@ -57,13 +65,18 @@ export default function PillarsAdminPage() {
           <Card key={p._id}>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-base">
-                {p.title}{' '}
+                {p.title}{" "}
                 <span className="text-xs text-gray-500">
-                  {p.customRoute || `/p/${p.slug}`} · {p.isActive ? 'active' : 'draft'}
+                  {p.customRoute || `/p/${p.slug}`} ·{" "}
+                  {p.isActive ? "active" : "draft"}
                 </span>
               </CardTitle>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => setEditing(p)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setEditing(p)}
+                >
                   Edit
                 </Button>
                 <Button
@@ -87,8 +100,8 @@ export default function PillarsAdminPage() {
         ))}
         {!loading && pillars.length === 0 && (
           <p className="text-sm text-gray-500">
-            No pillars yet. Click &ldquo;New pillar&rdquo; to create the first one — start with{' '}
-            <strong>palm-oil-free-namkeen</strong>.
+            No pillars yet. Click &ldquo;New pillar&rdquo; to create the first
+            one — start with <strong>palm-oil-free-namkeen</strong>.
           </p>
         )}
       </div>
@@ -113,7 +126,9 @@ export default function PillarsAdminPage() {
             // category page.
             if (payload.customRoute) {
               // Strip leading slash for comparison
-              const routeSlug = payload.customRoute.replace(/^\//, '').toLowerCase();
+              const routeSlug = payload.customRoute
+                .replace(/^\//, "")
+                .toLowerCase();
               if (categorySlugs.includes(routeSlug)) {
                 toast.error(
                   `Custom URL ${payload.customRoute} conflicts with the existing /${routeSlug} category. Pick a different URL or leave the field blank to use /p/${payload.slug}.`,
@@ -150,12 +165,12 @@ function stripServerFields(p: Pillar) {
 
 function emptyPillar(): Pillar {
   return {
-    _id: '',
-    slug: '',
-    customRoute: '',
-    title: '',
-    intro: '',
-    heroImageUrl: '',
+    _id: "",
+    slug: "",
+    customRoute: "",
+    title: "",
+    intro: "",
+    heroImageUrl: "",
     categoryTiles: [],
     featuredProductIds: [],
     sections: [],
@@ -168,8 +183,8 @@ function emptyPillar(): Pillar {
     // because activePillars / customRoute lookups filter on isActive=true.
     isActive: true,
     position: 0,
-    createdAt: '',
-    updatedAt: '',
+    createdAt: "",
+    updatedAt: "",
   };
 }
 
@@ -188,20 +203,25 @@ function PillarForm({
 
   // Live conflict check for the customRoute field — gives the content team
   // an inline warning while typing, not just at save time.
-  const customRouteSlug = (form.customRoute || '').replace(/^\//, '').toLowerCase();
+  const customRouteSlug = (form.customRoute || "")
+    .replace(/^\//, "")
+    .toLowerCase();
   const customRouteConflict =
     customRouteSlug && categorySlugs.includes(customRouteSlug);
 
   // Helper to suggest a clean URL based on slug.
-  const suggestedCleanUrl = form.slug ? `/${form.slug}` : '';
+  const suggestedCleanUrl = form.slug ? `/${form.slug}` : "";
 
   return (
     <Card className="border-amber-200 bg-amber-50/40">
       <CardHeader>
-        <CardTitle>{pillar._id ? 'Edit pillar' : 'New pillar'}</CardTitle>
+        <CardTitle>{pillar._id ? "Edit pillar" : "New pillar"}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <Field label="Slug" hint="lowercase-with-dashes, e.g. palm-oil-free-namkeen. Drives the default /p/<slug> route.">
+        <Field
+          label="Slug"
+          hint="lowercase-with-dashes, e.g. palm-oil-free-namkeen. Drives the default /p/<slug> route."
+        >
           <Input
             value={form.slug}
             onChange={(e) => {
@@ -210,11 +230,12 @@ function PillarForm({
               // slug, keep it tracking the new slug. If the user typed a
               // custom value, leave it alone.
               const wasAutoFilled =
-                form.customRoute === `/${form.slug}` || form.customRoute === '';
+                form.customRoute === `/${form.slug}` || form.customRoute === "";
               setForm({
                 ...form,
                 slug: newSlug,
-                customRoute: wasAutoFilled && newSlug ? `/${newSlug}` : form.customRoute,
+                customRoute:
+                  wasAutoFilled && newSlug ? `/${newSlug}` : form.customRoute,
               });
             }}
           />
@@ -224,24 +245,44 @@ function PillarForm({
           hint={
             customRouteConflict
               ? `⚠️ Conflicts with existing /${customRouteSlug} category. Save will be blocked. Either rename the slug, or clear this field to fall back to /p/${form.slug}.`
-              : `Defaults to /<slug> for clean URLs (better SEO). Leave blank to publish at /p/${form.slug || '<slug>'} instead. Suggested: ${suggestedCleanUrl}`
+              : `Defaults to /<slug> for clean URLs (better SEO). Leave blank to publish at /p/${form.slug || "<slug>"} instead. Suggested: ${suggestedCleanUrl}`
           }
         >
           <Input
-            value={form.customRoute || ''}
-            placeholder={suggestedCleanUrl ? `e.g. ${suggestedCleanUrl}` : '/your-pillar-url'}
+            value={form.customRoute || ""}
+            placeholder={
+              suggestedCleanUrl
+                ? `e.g. ${suggestedCleanUrl}`
+                : "/your-pillar-url"
+            }
             onChange={(e) => setForm({ ...form, customRoute: e.target.value })}
-            className={customRouteConflict ? 'border-red-400' : ''}
+            className={customRouteConflict ? "border-red-400" : ""}
           />
         </Field>
         <Field label="Title" hint="The H1 on the live page">
-          <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
+          <Input
+            value={form.title}
+            onChange={(e) => setForm({ ...form, title: e.target.value })}
+          />
         </Field>
-        <Field label="Intro paragraph" hint="40-60 words. This is what AI engines quote — write it as a direct answer.">
-          <Textarea rows={4} value={form.intro} onChange={(e) => setForm({ ...form, intro: e.target.value })} />
+        <Field
+          label="Intro paragraph"
+          hint="40-60 words. This is what AI engines quote — write it as a direct answer."
+        >
+          <Textarea
+            rows={4}
+            value={form.intro}
+            onChange={(e) => setForm({ ...form, intro: e.target.value })}
+          />
         </Field>
-        <Field label="Hero image URL" hint="Optional. CDN URL of the hero image.">
-          <Input value={form.heroImageUrl || ''} onChange={(e) => setForm({ ...form, heroImageUrl: e.target.value })} />
+        <Field
+          label="Hero image URL"
+          hint="Optional. CDN URL of the hero image."
+        >
+          <Input
+            value={form.heroImageUrl || ""}
+            onChange={(e) => setForm({ ...form, heroImageUrl: e.target.value })}
+          />
         </Field>
         <Field
           label="Category tiles (JSON)"
@@ -252,7 +293,10 @@ function PillarForm({
             value={JSON.stringify(form.categoryTiles, null, 2)}
             onChange={(e) => {
               try {
-                setForm({ ...form, categoryTiles: JSON.parse(e.target.value || '[]') });
+                setForm({
+                  ...form,
+                  categoryTiles: JSON.parse(e.target.value || "[]"),
+                });
               } catch {
                 // ignore parse errors mid-typing
               }
@@ -268,7 +312,10 @@ function PillarForm({
             value={JSON.stringify(form.sections, null, 2)}
             onChange={(e) => {
               try {
-                setForm({ ...form, sections: JSON.parse(e.target.value || '[]') });
+                setForm({
+                  ...form,
+                  sections: JSON.parse(e.target.value || "[]"),
+                });
               } catch {}
             }}
           />
@@ -279,19 +326,19 @@ function PillarForm({
             value={JSON.stringify(form.faqs, null, 2)}
             onChange={(e) => {
               try {
-                setForm({ ...form, faqs: JSON.parse(e.target.value || '[]') });
+                setForm({ ...form, faqs: JSON.parse(e.target.value || "[]") });
               } catch {}
             }}
           />
         </Field>
         <Field label="Related pillar slugs (comma-separated)">
           <Input
-            value={form.relatedPillarSlugs.join(', ')}
+            value={form.relatedPillarSlugs.join(", ")}
             onChange={(e) =>
               setForm({
                 ...form,
                 relatedPillarSlugs: e.target.value
-                  .split(',')
+                  .split(",")
                   .map((s) => s.trim())
                   .filter(Boolean),
               })

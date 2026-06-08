@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -8,80 +8,89 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { AbandonedCart, smsTemplates, useSendSMSNotification } from "@/lib/abandoned-carts/useAbandonedCarts"
-import { MessageSquare, Send, Loader2, CheckCircle, Phone } from "lucide-react"
-import { toast } from "react-hot-toast"
+} from "@/components/ui/select";
+import {
+  AbandonedCart,
+  smsTemplates,
+  useSendSMSNotification,
+} from "@/lib/abandoned-carts/useAbandonedCarts";
+import { MessageSquare, Send, Loader2, CheckCircle, Phone } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 interface SMSDialogProps {
-  cart: AbandonedCart | null
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  cart: AbandonedCart | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 export function SMSDialog({ cart, open, onOpenChange }: SMSDialogProps) {
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('')
-  const [message, setMessage] = useState<string>('')
-  const [isSending, setIsSending] = useState(false)
-  const [isSent, setIsSent] = useState(false)
-  const { sendSMS } = useSendSMSNotification()
+  const [selectedTemplate, setSelectedTemplate] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
+  const [isSending, setIsSending] = useState(false);
+  const [isSent, setIsSent] = useState(false);
+  const { sendSMS } = useSendSMSNotification();
 
-  if (!cart) return null
+  if (!cart) return null;
 
   const handleTemplateChange = (templateId: string) => {
-    setSelectedTemplate(templateId)
-    const template = smsTemplates.find(t => t.id === templateId)
+    setSelectedTemplate(templateId);
+    const template = smsTemplates.find((t) => t.id === templateId);
     if (template) {
       // Replace placeholders with actual values
       const personalizedMessage = template.message
-        .replace('{{name}}', cart.customer.name.split(' ')[0])
-        .replace('{{value}}', cart.subtotal.toLocaleString())
-      setMessage(personalizedMessage)
+        .replace("{{name}}", cart.customer.name.split(" ")[0])
+        .replace("{{value}}", cart.subtotal.toLocaleString());
+      setMessage(personalizedMessage);
     }
-    setIsSent(false)
-  }
+    setIsSent(false);
+  };
 
   const handleSend = async () => {
     if (!message.trim()) {
-      toast.error('Please select a template or enter a message')
-      return
+      toast.error("Please select a template or enter a message");
+      return;
     }
 
-    setIsSending(true)
+    setIsSending(true);
     try {
       // Call backend API to send SMS (dummy for now)
-      await sendSMS(cart.customer.phone, cart.customer.name, cart.subtotal, message)
-      
-      setIsSent(true)
-      toast.success('SMS notification sent successfully!')
+      await sendSMS(
+        cart.customer.phone,
+        cart.customer.name,
+        cart.subtotal,
+        message,
+      );
+
+      setIsSent(true);
+      toast.success("SMS notification sent successfully!");
     } catch (error) {
-      toast.error('Failed to send SMS notification')
-      console.error(error)
+      toast.error("Failed to send SMS notification");
+      console.error(error);
     } finally {
-      setIsSending(false)
+      setIsSending(false);
     }
-  }
+  };
 
   const handleClose = () => {
-    setSelectedTemplate('')
-    setMessage('')
-    setIsSent(false)
-    onOpenChange(false)
-  }
+    setSelectedTemplate("");
+    setMessage("");
+    setIsSent(false);
+    onOpenChange(false);
+  };
 
   // SMS character limit info
-  const charCount = message.length
-  const smsCount = Math.ceil(charCount / 160) || 1
+  const charCount = message.length;
+  const smsCount = Math.ceil(charCount / 160) || 1;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -92,7 +101,8 @@ export function SMSDialog({ cart, open, onOpenChange }: SMSDialogProps) {
             Send SMS Notification
           </DialogTitle>
           <DialogDescription>
-            Send an SMS reminder to {cart.customer.name} about their abandoned cart worth ₹{cart.subtotal.toLocaleString()}
+            Send an SMS reminder to {cart.customer.name} about their abandoned
+            cart worth ₹{cart.subtotal.toLocaleString()}
           </DialogDescription>
         </DialogHeader>
 
@@ -104,14 +114,19 @@ export function SMSDialog({ cart, open, onOpenChange }: SMSDialogProps) {
             </div>
             <div>
               <p className="font-medium">{cart.customer.name}</p>
-              <p className="text-sm text-muted-foreground font-mono">{cart.customer.phone}</p>
+              <p className="text-sm text-muted-foreground font-mono">
+                {cart.customer.phone}
+              </p>
             </div>
           </div>
 
           {/* Template Selection */}
           <div className="space-y-2">
             <Label htmlFor="template">Select Message Template</Label>
-            <Select value={selectedTemplate} onValueChange={handleTemplateChange}>
+            <Select
+              value={selectedTemplate}
+              onValueChange={handleTemplateChange}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Choose a template..." />
               </SelectTrigger>
@@ -139,14 +154,18 @@ export function SMSDialog({ cart, open, onOpenChange }: SMSDialogProps) {
             />
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>{charCount}/320 characters</span>
-              <span>{smsCount} SMS message{smsCount > 1 ? 's' : ''}</span>
+              <span>
+                {smsCount} SMS message{smsCount > 1 ? "s" : ""}
+              </span>
             </div>
           </div>
 
           {isSent && (
             <div className="flex items-center gap-2 p-3 bg-blue-50 text-blue-700 rounded-lg">
               <CheckCircle className="h-5 w-5" />
-              <span className="text-sm">SMS notification sent successfully!</span>
+              <span className="text-sm">
+                SMS notification sent successfully!
+              </span>
             </div>
           )}
         </div>
@@ -155,8 +174,8 @@ export function SMSDialog({ cart, open, onOpenChange }: SMSDialogProps) {
           <Button variant="outline" onClick={handleClose}>
             Cancel
           </Button>
-          <Button 
-            onClick={handleSend} 
+          <Button
+            onClick={handleSend}
             disabled={isSending || !message.trim()}
             className="bg-blue-600 hover:bg-blue-700"
           >
@@ -175,5 +194,5 @@ export function SMSDialog({ cart, open, onOpenChange }: SMSDialogProps) {
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

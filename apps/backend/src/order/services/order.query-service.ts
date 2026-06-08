@@ -25,10 +25,11 @@ export class OrderQueryService {
   constructor(
     private orderRepository: OrderRepository,
     @InjectModel(Identity.name) private identityModel: Model<IdentityDocument>,
-  ) { }
+  ) {}
 
   async getOrderReports(period: string): Promise<OrderReportResponse> {
-    const { startDate, endDate, prevStartDate, prevEndDate } = this.getDateRange(period);
+    const { startDate, endDate, prevStartDate, prevEndDate } =
+      this.getDateRange(period);
 
     const [
       summary,
@@ -37,12 +38,16 @@ export class OrderQueryService {
       topProducts,
       topCustomers,
       categorySales,
-      platformStats
+      platformStats,
     ] = await Promise.all([
       this.orderRepository.getSummaryStats(startDate, endDate),
       this.orderRepository.getSummaryStats(prevStartDate, prevEndDate),
       this.orderRepository.getDailySales(startDate, endDate),
-      this.orderRepository.getTopProducts(startDate, endDate, period === 'all' ? 0 : 50),
+      this.orderRepository.getTopProducts(
+        startDate,
+        endDate,
+        period === 'all' ? 0 : 50,
+      ),
       this.orderRepository.getTopCustomers(startDate, endDate),
       this.orderRepository.getCategorySales(startDate, endDate),
       this.orderRepository.getPlatformOrderStats(startDate, endDate),
@@ -57,14 +62,23 @@ export class OrderQueryService {
     const prevOrders = prevSummary.totalOrders || 0;
     const prevCustomers = prevSummary.totalCustomers || 0;
 
-    const revenueGrowth = prevRevenue > 0 ? ((totalRevenue - prevRevenue) / prevRevenue) * 100 : 0;
-    const ordersGrowth = prevOrders > 0 ? ((totalOrders - prevOrders) / prevOrders) * 100 : 0;
-    const customersGrowth = prevCustomers > 0 ? ((totalCustomers - prevCustomers) / prevCustomers) * 100 : 0;
+    const revenueGrowth =
+      prevRevenue > 0 ? ((totalRevenue - prevRevenue) / prevRevenue) * 100 : 0;
+    const ordersGrowth =
+      prevOrders > 0 ? ((totalOrders - prevOrders) / prevOrders) * 100 : 0;
+    const customersGrowth =
+      prevCustomers > 0
+        ? ((totalCustomers - prevCustomers) / prevCustomers) * 100
+        : 0;
 
-    const totalCategoryRevenue = categorySales.reduce((sum, c) => sum + c.revenue, 0);
-    const categorySalesWithPercentage = categorySales.map(c => ({
+    const totalCategoryRevenue = categorySales.reduce(
+      (sum, c) => sum + c.revenue,
+      0,
+    );
+    const categorySalesWithPercentage = categorySales.map((c) => ({
       ...c,
-      percentage: totalCategoryRevenue > 0 ? (c.revenue / totalCategoryRevenue) * 100 : 0
+      percentage:
+        totalCategoryRevenue > 0 ? (c.revenue / totalCategoryRevenue) * 100 : 0,
     }));
 
     return {
@@ -151,7 +165,7 @@ export class OrderQueryService {
     const allIdentityIds = [
       params.identityId,
       ...(params.mergedGuestIds || []),
-    ].filter(id => id && id.trim() !== '');
+    ].filter((id) => id && id.trim() !== '');
 
     const [orders, total] = await Promise.all([
       this.orderRepository.findByIdentityIds(
@@ -216,7 +230,7 @@ export class OrderQueryService {
       ...new Set(
         orders
           .filter((order) => order.identityId)
-          .map((order) => order.identityId.toString())
+          .map((order) => order.identityId.toString()),
       ),
     ];
     const identities = await this.fetchIdentitiesByIds(identityIds);
@@ -267,18 +281,19 @@ export class OrderQueryService {
   }
 
   private async getOrdersSummary(filter: any = {}): Promise<OrdersSummary> {
-    const [totalOrders, statusCounts, totalRevenue, platformStats] = await Promise.all([
-      this.orderRepository.countTotal(filter),
-      this.getStatusCounts(filter),
-      this.calculateTotalRevenue(filter),
-      this.orderRepository.getPlatformStatsForFilter(filter),
-    ]);
+    const [totalOrders, statusCounts, totalRevenue, platformStats] =
+      await Promise.all([
+        this.orderRepository.countTotal(filter),
+        this.getStatusCounts(filter),
+        this.calculateTotalRevenue(filter),
+        this.orderRepository.getPlatformStatsForFilter(filter),
+      ]);
 
-    return { 
-      totalOrders, 
-      statusCounts, 
+    return {
+      totalOrders,
+      statusCounts,
       totalRevenue,
-      ...platformStats
+      ...platformStats,
     };
   }
 
@@ -287,14 +302,15 @@ export class OrderQueryService {
   }
 
   private async getStatusCounts(filter: any = {}): Promise<OrderStatusCount> {
-    const [confirmed, packed, shipped, inTransit, delivered, shipmentFailed] = await Promise.all([
-      this.orderRepository.countByStatus(OrderStatus.CONFIRMED, filter),
-      this.orderRepository.countByStatus(OrderStatus.PACKED, filter),
-      this.orderRepository.countByStatus(OrderStatus.SHIPPED, filter),
-      this.orderRepository.countByStatus(OrderStatus.IN_TRANSIT, filter),
-      this.orderRepository.countByStatus(OrderStatus.DELIVERED, filter),
-      this.orderRepository.countByStatus(OrderStatus.SHIPMENT_FAILED, filter),
-    ]);
+    const [confirmed, packed, shipped, inTransit, delivered, shipmentFailed] =
+      await Promise.all([
+        this.orderRepository.countByStatus(OrderStatus.CONFIRMED, filter),
+        this.orderRepository.countByStatus(OrderStatus.PACKED, filter),
+        this.orderRepository.countByStatus(OrderStatus.SHIPPED, filter),
+        this.orderRepository.countByStatus(OrderStatus.IN_TRANSIT, filter),
+        this.orderRepository.countByStatus(OrderStatus.DELIVERED, filter),
+        this.orderRepository.countByStatus(OrderStatus.SHIPMENT_FAILED, filter),
+      ]);
 
     return {
       confirmed,
@@ -320,6 +336,13 @@ export class OrderQueryService {
       hasNextPage: page < totalPages,
       hasPreviousPage: page > 1,
     };
+  }
+
+  async getSalesByState(
+    period: string,
+  ): Promise<{ state: string; orders: number; revenue: number }[]> {
+    const { startDate, endDate } = this.getDateRange(period);
+    return this.orderRepository.getSalesByState(startDate, endDate);
   }
 
   async getShippingInsights(): Promise<{

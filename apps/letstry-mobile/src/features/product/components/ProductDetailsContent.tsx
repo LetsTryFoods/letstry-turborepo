@@ -1,13 +1,25 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, useWindowDimensions, TouchableOpacity, LayoutAnimation, Platform, UIManager } from 'react-native';
-import RenderHtml from 'react-native-render-html';
-import { ProductDetails, ProductVariant } from '../types';
-import { RFValue, wp } from '../../../lib/utils/ui-utils';
-import DietaryBadges from './DietaryBadges';
-import VariantSelector from './VariantSelector';
-import { Ionicons } from '@expo/vector-icons';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  useWindowDimensions,
+  TouchableOpacity,
+  LayoutAnimation,
+  Platform,
+  UIManager,
+} from "react-native";
+import RenderHtml from "react-native-render-html";
+import { ProductDetails, ProductVariant } from "../types";
+import { RFValue, wp } from "../../../lib/utils/ui-utils";
+import DietaryBadges from "./DietaryBadges";
+import VariantSelector from "./VariantSelector";
+import { Ionicons } from "@expo/vector-icons";
 
-if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
@@ -17,7 +29,11 @@ interface Props {
   setSelectedVariant: (variant: ProductVariant) => void;
 }
 
-const ProductDetailsContent: React.FC<Props> = ({ product, selectedVariant, setSelectedVariant }) => {
+const ProductDetailsContent: React.FC<Props> = ({
+  product,
+  selectedVariant,
+  setSelectedVariant,
+}) => {
   const { width } = useWindowDimensions();
   const [isDescExpanded, setIsDescExpanded] = useState(false);
 
@@ -28,7 +44,7 @@ const ProductDetailsContent: React.FC<Props> = ({ product, selectedVariant, setS
 
   const tagsStyles = {
     body: {
-      color: '#444',
+      color: "#444",
       fontSize: RFValue(12.5),
       lineHeight: RFValue(19),
     },
@@ -43,8 +59,8 @@ const ProductDetailsContent: React.FC<Props> = ({ product, selectedVariant, setS
       marginBottom: 5,
     },
     strong: {
-      fontWeight: 'bold',
-      color: '#222',
+      fontWeight: "bold",
+      color: "#222",
     },
   };
 
@@ -55,12 +71,15 @@ const ProductDetailsContent: React.FC<Props> = ({ product, selectedVariant, setS
         <Text style={styles.brand}>{product.brand}</Text>
         <Text style={styles.name}>{product.name}</Text>
         <View style={styles.weightRow}>
-          <Text style={styles.weight}>{selectedVariant.weight}{selectedVariant.weightUnit}</Text>
+          <Text style={styles.weight}>
+            {selectedVariant.weight}
+            {selectedVariant.weightUnit}
+          </Text>
         </View>
 
-        <DietaryBadges 
-          isVegetarian={product.isVegetarian} 
-          isGlutenFree={product.isGlutenFree} 
+        <DietaryBadges
+          isVegetarian={product.isVegetarian}
+          isGlutenFree={product.isGlutenFree}
         />
 
         <View style={styles.priceSection}>
@@ -72,7 +91,9 @@ const ProductDetailsContent: React.FC<Props> = ({ product, selectedVariant, setS
           </View>
           {selectedVariant.discountPercent > 0 && (
             <View style={styles.discountBadge}>
-              <Text style={styles.discountText}>{selectedVariant.discountPercent}% OFF</Text>
+              <Text style={styles.discountText}>
+                {selectedVariant.discountPercent}% OFF
+              </Text>
             </View>
           )}
         </View>
@@ -82,31 +103,33 @@ const ProductDetailsContent: React.FC<Props> = ({ product, selectedVariant, setS
 
       {/* Variant Selector */}
       <View style={styles.section}>
-        <VariantSelector 
-          variants={product.variants} 
-          selectedVariant={selectedVariant} 
-          onSelect={setSelectedVariant} 
+        <VariantSelector
+          variants={product.variants}
+          selectedVariant={selectedVariant}
+          onSelect={setSelectedVariant}
         />
       </View>
 
       <View style={styles.sectionDivider} />
 
       {/* Collapsible Description - Blinkit Style */}
-      <TouchableOpacity 
-        style={styles.collapsibleHeader} 
+      <TouchableOpacity
+        style={styles.collapsibleHeader}
         onPress={toggleDescription}
         activeOpacity={0.7}
       >
         <View>
           <Text style={styles.sectionTitle}>Product Details</Text>
           {!isDescExpanded && (
-            <Text style={styles.seeMoreText}>View description, ingredients & more</Text>
+            <Text style={styles.seeMoreText}>
+              View description, ingredients & more
+            </Text>
           )}
         </View>
-        <Ionicons 
-          name={isDescExpanded ? "chevron-up" : "chevron-down"} 
-          size={20} 
-          color="#666" 
+        <Ionicons
+          name={isDescExpanded ? "chevron-up" : "chevron-down"}
+          size={20}
+          color="#666"
         />
       </TouchableOpacity>
 
@@ -116,13 +139,15 @@ const ProductDetailsContent: React.FC<Props> = ({ product, selectedVariant, setS
             <Text style={styles.subTitle}>Description</Text>
             {product.description ? (
               <RenderHtml
-                contentWidth={width - wp('12%')}
+                contentWidth={width - wp("12%")}
                 source={{ html: product.description }}
                 tagsStyles={tagsStyles as any}
                 baseStyle={tagsStyles.body as any}
               />
             ) : (
-              <Text style={styles.bodyText}>Healthy and delicious snack from Let's Try.</Text>
+              <Text style={styles.bodyText}>
+                Healthy and delicious snack from Let's Try.
+              </Text>
             )}
           </View>
 
@@ -158,24 +183,24 @@ const ProductDetailsContent: React.FC<Props> = ({ product, selectedVariant, setS
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
   },
   mainInfo: {
-    padding: wp('5%'),
+    padding: wp("5%"),
     paddingTop: 10,
   },
   brand: {
     fontSize: RFValue(11),
-    color: '#888',
-    fontWeight: '600',
-    textTransform: 'uppercase',
+    color: "#888",
+    fontWeight: "600",
+    textTransform: "uppercase",
     letterSpacing: 0.5,
     marginBottom: 4,
   },
   name: {
     fontSize: RFValue(17),
-    fontWeight: '800',
-    color: '#111',
+    fontWeight: "800",
+    color: "#111",
     lineHeight: RFValue(22),
   },
   weightRow: {
@@ -183,69 +208,69 @@ const styles = StyleSheet.create({
   },
   weight: {
     fontSize: RFValue(12),
-    color: '#666',
-    fontWeight: '500',
+    color: "#666",
+    fontWeight: "500",
   },
   priceSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: 15,
     gap: 12,
   },
   priceContainer: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
+    flexDirection: "row",
+    alignItems: "baseline",
     gap: 6,
   },
   price: {
     fontSize: RFValue(18),
-    fontWeight: '800',
-    color: '#000',
+    fontWeight: "800",
+    color: "#000",
   },
   mrp: {
     fontSize: RFValue(13),
-    color: '#999',
-    textDecorationLine: 'line-through',
-    fontWeight: '500',
+    color: "#999",
+    textDecorationLine: "line-through",
+    fontWeight: "500",
   },
   discountBadge: {
-    backgroundColor: '#3A86FF',
+    backgroundColor: "#3A86FF",
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 4,
   },
   discountText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: RFValue(9),
-    fontWeight: '800',
+    fontWeight: "800",
   },
   sectionDivider: {
     height: 8,
-    backgroundColor: '#F4F4F4',
+    backgroundColor: "#F4F4F4",
   },
   section: {
-    paddingHorizontal: wp('5%'),
+    paddingHorizontal: wp("5%"),
   },
   collapsibleHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: wp('5%'),
-    backgroundColor: '#FFF',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: wp("5%"),
+    backgroundColor: "#FFF",
   },
   sectionTitle: {
     fontSize: RFValue(14),
-    fontWeight: '700',
-    color: '#222',
+    fontWeight: "700",
+    color: "#222",
   },
   seeMoreText: {
     fontSize: RFValue(11),
-    color: '#3A86FF',
+    color: "#3A86FF",
     marginTop: 2,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   expandedContent: {
-    paddingHorizontal: wp('6%'),
+    paddingHorizontal: wp("6%"),
     paddingBottom: 20,
   },
   subSection: {
@@ -253,37 +278,37 @@ const styles = StyleSheet.create({
   },
   subTitle: {
     fontSize: RFValue(12),
-    fontWeight: '700',
-    color: '#444',
+    fontWeight: "700",
+    color: "#444",
     marginBottom: 6,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
     letterSpacing: 0.3,
   },
   bodyText: {
     fontSize: RFValue(12),
-    color: '#555',
+    color: "#555",
     lineHeight: RFValue(18),
   },
   footerInfo: {
     marginTop: 10,
     borderTopWidth: 1,
-    borderTopColor: '#EEE',
+    borderTopColor: "#EEE",
     paddingTop: 15,
     gap: 10,
   },
   infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   infoLabel: {
     fontSize: RFValue(11),
-    color: '#999',
-    fontWeight: '500',
+    color: "#999",
+    fontWeight: "500",
   },
   infoValue: {
     fontSize: RFValue(11),
-    color: '#333',
-    fontWeight: '600',
+    color: "#333",
+    fontWeight: "600",
   },
 });
 

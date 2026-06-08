@@ -15,14 +15,14 @@ After rebuilding the baseline from the correct GA4 property (see companion doc),
 
 ### Phase priority — revised
 
-| Phase | Original priority | Updated priority | Reason for change |
-|---|---|---|---|
-| 1 — Purchase event (client) | High | **Critical** | Confirmed zero `purchase` data ever; key event configured but starved |
-| 2 — List/discovery events | High | **High** | Needed to measure category-page work and `/about-us` CTR optimisation |
-| 3 — Checkout step events | Medium | Medium | The 1,565 → 259 cart drop (83% abandonment) needs visibility |
-| 4 — Search + promo | Medium | Low (but cheap) | Site search is 0.5% of traffic; tracking confirms whether to invest in it |
-| 5 — Auth identity + first-party | High | **Critical** | `form_start` (1,358) vs `form_submit` (3) is meaningless — login completion is a 100% blind spot |
-| 6 — Server-side purchase | Medium | High | India ad-blocker / tab-close rates make client-only unreliable |
+| Phase                           | Original priority | Updated priority | Reason for change                                                                                |
+| ------------------------------- | ----------------- | ---------------- | ------------------------------------------------------------------------------------------------ |
+| 1 — Purchase event (client)     | High              | **Critical**     | Confirmed zero `purchase` data ever; key event configured but starved                            |
+| 2 — List/discovery events       | High              | **High**         | Needed to measure category-page work and `/about-us` CTR optimisation                            |
+| 3 — Checkout step events        | Medium            | Medium           | The 1,565 → 259 cart drop (83% abandonment) needs visibility                                     |
+| 4 — Search + promo              | Medium            | Low (but cheap)  | Site search is 0.5% of traffic; tracking confirms whether to invest in it                        |
+| 5 — Auth identity + first-party | High              | **Critical**     | `form_start` (1,358) vs `form_submit` (3) is meaningless — login completion is a 100% blind spot |
+| 6 — Server-side purchase        | Medium            | High             | India ad-blocker / tab-close rates make client-only unreliable                                   |
 
 ### New phases added
 
@@ -67,17 +67,17 @@ See [Section 13](#13-out-of-scope-explicit) for the full list. Briefly: no Meta 
 
 ## 2. Decisions locked
 
-| # | Decision | Choice |
-|---|---|---|
-| Q1 | GA4 property strategy | **Keep both properties separate.** Mobile (when added) → Firebase-auto. Web → `lets Try Next` (`G-9EQ61GXMN3`) |
-| Q2 | Event coverage scope | **All three tiers** — full ecom funnel + first-party data/auth + search/promo |
-| Q3 | Server-side purchase tracking | **Yes**, included in scope (Phase 6) |
-| Q4 | Firebase Analytics web cleanup | **Included in this rebuild** (Phase 5) |
-| Q5 | Phasing approach | **Many small PRs (6 phases)** with verification gates |
-| Q6 | Phase order | **1 → 2 → 3 → 4 → 5 → 6** (risk-ascending, value-first) |
-| Q7 | GTM-side change ownership | **SEO owner does Phases 1–4. Tech lead does Phase 5** (PII hashing) |
-| Q8 | Spec location | **Markdown in repo, GitHub PR review** |
-| Q9 | Defaults | Microsoft Clarity untouched · Conversion Linker added in Phase 5 · `ecommerce: null` reset added in Phase 1 · Past SEO baseline flagged as follow-up |
+| #   | Decision                       | Choice                                                                                                                                               |
+| --- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Q1  | GA4 property strategy          | **Keep both properties separate.** Mobile (when added) → Firebase-auto. Web → `lets Try Next` (`G-9EQ61GXMN3`)                                       |
+| Q2  | Event coverage scope           | **All three tiers** — full ecom funnel + first-party data/auth + search/promo                                                                        |
+| Q3  | Server-side purchase tracking  | **Yes**, included in scope (Phase 6)                                                                                                                 |
+| Q4  | Firebase Analytics web cleanup | **Included in this rebuild** (Phase 5)                                                                                                               |
+| Q5  | Phasing approach               | **Many small PRs (6 phases)** with verification gates                                                                                                |
+| Q6  | Phase order                    | **1 → 2 → 3 → 4 → 5 → 6** (risk-ascending, value-first)                                                                                              |
+| Q7  | GTM-side change ownership      | **SEO owner does Phases 1–4. Tech lead does Phase 5** (PII hashing)                                                                                  |
+| Q8  | Spec location                  | **Markdown in repo, GitHub PR review**                                                                                                               |
+| Q9  | Defaults                       | Microsoft Clarity untouched · Conversion Linker added in Phase 5 · `ecommerce: null` reset added in Phase 1 · Past SEO baseline flagged as follow-up |
 
 ---
 
@@ -86,12 +86,14 @@ See [Section 13](#13-out-of-scope-explicit) for the full list. Briefly: no Meta 
 ### 3.1 GA4 properties
 
 **`lets-try-app-22e0a`** (Property ID 487992388, in account "Default Account for Firebase")
+
 - Auto-created by Firebase project setup
 - Currently receives only Firebase Analytics login/logout events from the web frontend
 - The `letstry-mobile` app does not yet integrate Firebase Analytics; `let-stry-app` is an empty placeholder folder
 - After Phase 5 ships: this property goes effectively empty until/unless mobile apps add Firebase Analytics in future
 
 **Property in account "lets Try Next"** with Measurement ID **`G-9EQ61GXMN3`**
+
 - Canonical website property
 - Currently receives: `page_view`, `view_item`, `add_to_cart`, `remove_from_cart`, `begin_checkout`
 - Does not currently receive: `purchase` (the bug), `view_item_list`, `select_item`, `view_cart`, `add_shipping_info`, `add_payment_info`, `search`, `login`, `sign_up`, `view_promotion`, `select_promotion`
@@ -99,12 +101,12 @@ See [Section 13](#13-out-of-scope-explicit) for the full list. Briefly: no Meta 
 
 ### 3.2 GTM container
 
-| Tag | Type | Trigger | Purpose |
-|---|---|---|---|
-| Google Tag G-9EQ61GXMN3 | Google Tag | Initialization - All Pages | Base GA4 config |
-| GA4 Event page view | GA4 Event | Page View | Manual page_view forwarding |
-| GA4 Event - E-commerce Events | GA4 Event | E-commerce Events (custom) | Forwards ecommerce events |
-| Microsoft Clarity - Official | Microsoft Clarity | All Pages | Heatmap/session replay |
+| Tag                           | Type              | Trigger                    | Purpose                     |
+| ----------------------------- | ----------------- | -------------------------- | --------------------------- |
+| Google Tag G-9EQ61GXMN3       | Google Tag        | Initialization - All Pages | Base GA4 config             |
+| GA4 Event page view           | GA4 Event         | Page View                  | Manual page_view forwarding |
+| GA4 Event - E-commerce Events | GA4 Event         | E-commerce Events (custom) | Forwards ecommerce events   |
+| Microsoft Clarity - Official  | Microsoft Clarity | All Pages                  | Heatmap/session replay      |
 
 Container last meaningfully edited ~Jan 2026. No active GTM owner before SEO owner gained access on 2026-05-04. **No Conversion Linker tag yet** — needs to be added in Phase 5 for future Enhanced Conversions support.
 
@@ -112,13 +114,13 @@ Container last meaningfully edited ~Jan 2026. No active GTM owner before SEO own
 
 **Working dataLayer pushes (already wired in `apps/frontend/src/hooks/use-analytics.ts` and called from components):**
 
-| Event | Where it fires |
-|---|---|
-| `page_view` | `apps/frontend/src/components/analytics/page-view-tracker.tsx` (every route change) |
-| `view_item` | `apps/frontend/src/components/product-page/ProductDetails.tsx` |
-| `add_to_cart` | PDP `ActionButtons.tsx`, category `ProductCard.tsx`, `bestseller-card.tsx`, cart drawer `CartContainer.tsx` |
-| `remove_from_cart` | `apps/frontend/src/components/cart-drawer/CartContainer.tsx` |
-| `begin_checkout` | `apps/frontend/src/components/cart-drawer/CartContainer.tsx` (Proceed button) |
+| Event              | Where it fires                                                                                              |
+| ------------------ | ----------------------------------------------------------------------------------------------------------- |
+| `page_view`        | `apps/frontend/src/components/analytics/page-view-tracker.tsx` (every route change)                         |
+| `view_item`        | `apps/frontend/src/components/product-page/ProductDetails.tsx`                                              |
+| `add_to_cart`      | PDP `ActionButtons.tsx`, category `ProductCard.tsx`, `bestseller-card.tsx`, cart drawer `CartContainer.tsx` |
+| `remove_from_cart` | `apps/frontend/src/components/cart-drawer/CartContainer.tsx`                                                |
+| `begin_checkout`   | `apps/frontend/src/components/cart-drawer/CartContainer.tsx` (Proceed button)                               |
 
 **Defined-but-never-called dead code in `use-analytics.ts`:** `trackViewItemList`, `trackSelectItem`, `setUser`. These will be repurposed/replaced through this rebuild.
 
@@ -132,25 +134,25 @@ After Phase 6 ships, the analytics stack looks like this.
 
 ### 4.1 Event coverage matrix
 
-| Event | Source | Phase added | Notes |
-|---|---|---|---|
-| `page_view` | client (existing) | — | Already firing |
-| `view_item_list` | client | Phase 2 | Category, search results, no-palm-oil-snacks landing, bestseller carousel |
-| `select_item` | client | Phase 2 | Product card click |
-| `view_item` | client (existing) | — | Already firing |
-| `add_to_cart` | client (existing) | — | Already firing |
-| `view_cart` | client | Phase 2 | Cart drawer open |
-| `remove_from_cart` | client (existing) | — | Already firing |
-| `begin_checkout` | client (existing) | — | Already firing |
-| `add_shipping_info` | client | Phase 3 | Address confirmation in cart drawer |
-| `add_payment_info` | client | Phase 3 | Payment method selection |
-| `purchase` (client) | client | Phase 1 | Order success page |
-| `purchase` (server) | server | Phase 6 | Backend order-creation handler — dedupes with client by `transaction_id` |
-| `search` | client | Phase 4 | Search bar submit |
-| `view_promotion` | client | Phase 4 | Banner viewport entry |
-| `select_promotion` | client | Phase 4 | Banner click |
-| `login` | client | Phase 5 | Successful phone auth callback |
-| `sign_up` | client | Phase 5 | First-time auth — requires backend `isNewUser` flag |
+| Event               | Source            | Phase added | Notes                                                                     |
+| ------------------- | ----------------- | ----------- | ------------------------------------------------------------------------- |
+| `page_view`         | client (existing) | —           | Already firing                                                            |
+| `view_item_list`    | client            | Phase 2     | Category, search results, no-palm-oil-snacks landing, bestseller carousel |
+| `select_item`       | client            | Phase 2     | Product card click                                                        |
+| `view_item`         | client (existing) | —           | Already firing                                                            |
+| `add_to_cart`       | client (existing) | —           | Already firing                                                            |
+| `view_cart`         | client            | Phase 2     | Cart drawer open                                                          |
+| `remove_from_cart`  | client (existing) | —           | Already firing                                                            |
+| `begin_checkout`    | client (existing) | —           | Already firing                                                            |
+| `add_shipping_info` | client            | Phase 3     | Address confirmation in cart drawer                                       |
+| `add_payment_info`  | client            | Phase 3     | Payment method selection                                                  |
+| `purchase` (client) | client            | Phase 1     | Order success page                                                        |
+| `purchase` (server) | server            | Phase 6     | Backend order-creation handler — dedupes with client by `transaction_id`  |
+| `search`            | client            | Phase 4     | Search bar submit                                                         |
+| `view_promotion`    | client            | Phase 4     | Banner viewport entry                                                     |
+| `select_promotion`  | client            | Phase 4     | Banner click                                                              |
+| `login`             | client            | Phase 5     | Successful phone auth callback                                            |
+| `sign_up`           | client            | Phase 5     | First-time auth — requires backend `isNewUser` flag                       |
 
 ### 4.2 First-party data flow (after Phase 5)
 
@@ -189,15 +191,15 @@ Cheap, high-value config hygiene that does not need a code deploy. Should ship b
 
 ### 4.5.2 Tasks (all done in GA4 / GTM / GSC UIs)
 
-| # | Task | Where | Owner | Effort |
-|---|---|---|---|---|
-| 1 | Add internal traffic filter (team IPs / dev devices) | GA4 → Admin → Data Streams → Web → Configure tag settings → Define internal traffic | Tech lead | 10 min |
-| 2 | Set GA4 default date range to "Last 90 days" | GA4 → top-right date picker → set as default | SEO owner | 1 min |
-| 3 | Submit GSC URL Removal request for `/search?*` | Search Console → Indexing → Removals → New request → URLs containing `/search?` | SEO owner | 5 min |
-| 4 | Verify `purchase` is starred as a key event | GA4 → Admin → Events → Key events tab | SEO owner | 1 min |
-| 5 | Disable / delete the `GA_HOME_VIEW` legacy event in GTM (5 users / 42 events — looks like dev-test pollution) | GTM → find tag firing `GA_HOME_VIEW` → pause or delete | Tech lead | 5 min |
-| 6 | Star the `next-demo-property` property as default in GA4 | GA4 → property switcher → star icon | SEO owner | 1 min |
-| 7 | Investigate which form `form_start` is firing on most often (likely OTP modal) and document for Phase 5 | GA4 → Events → `form_start` → check `form_id` parameter | SEO owner | 5 min |
+| #   | Task                                                                                                          | Where                                                                               | Owner     | Effort |
+| --- | ------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | --------- | ------ |
+| 1   | Add internal traffic filter (team IPs / dev devices)                                                          | GA4 → Admin → Data Streams → Web → Configure tag settings → Define internal traffic | Tech lead | 10 min |
+| 2   | Set GA4 default date range to "Last 90 days"                                                                  | GA4 → top-right date picker → set as default                                        | SEO owner | 1 min  |
+| 3   | Submit GSC URL Removal request for `/search?*`                                                                | Search Console → Indexing → Removals → New request → URLs containing `/search?`     | SEO owner | 5 min  |
+| 4   | Verify `purchase` is starred as a key event                                                                   | GA4 → Admin → Events → Key events tab                                               | SEO owner | 1 min  |
+| 5   | Disable / delete the `GA_HOME_VIEW` legacy event in GTM (5 users / 42 events — looks like dev-test pollution) | GTM → find tag firing `GA_HOME_VIEW` → pause or delete                              | Tech lead | 5 min  |
+| 6   | Star the `next-demo-property` property as default in GA4                                                      | GA4 → property switcher → star icon                                                 | SEO owner | 1 min  |
+| 7   | Investigate which form `form_start` is firing on most often (likely OTP modal) and document for Phase 5       | GA4 → Events → `form_start` → check `form_id` parameter                             | SEO owner | 5 min  |
 
 ### 4.5.3 Verification
 
@@ -223,11 +225,13 @@ Re-add the client-side `purchase` event to fire on the order-success page. Also 
 Add a new `GET_ORDER_BY_ID` GraphQL query selecting `_id`, `orderId`, `orderStatus`, `totalAmount`, `subtotal`, `discount`, `deliveryCharge`, `currency`, `createdAt`, `items { variantId, quantity, price, totalPrice, name, sku, variant }`, `payment { status, method, transactionId, amount }`.
 
 **File: `apps/frontend/src/app/order-success/page.tsx`**
+
 - Convert to use `useQuery` with `GET_ORDER_BY_ID`, keyed on `orderId` from URL params
 - On query success, push a `purchase` event with the order's items, `totalAmount`, `deliveryCharge`, `transaction_id = orderId`
 - Guard re-fires using `sessionStorage` key `ga4_purchase_fired:<orderId>` so a page reload doesn't double-fire (GA4 dedupes on transaction_id anyway, but this keeps the dataLayer clean)
 
 **File: `apps/frontend/src/lib/analytics/data-layer.ts`**
+
 - In `pushToDataLayer`, if the payload contains an `ecommerce` object, push `{ ecommerce: null }` immediately before the actual payload. This forces GTM's `ecommerce.items` variable to refresh between events.
 
 ### 5.3 DataLayer payload (purchase)
@@ -272,11 +276,11 @@ If the trigger does NOT include `purchase`, SEO owner adds it (Triggers → clic
 
 ### 5.6 Phase-1-specific risks
 
-| Risk | Mitigation |
-|---|---|
-| `getOrderById` requires authentication; guest users fail | Most users complete login in OTP flow before checkout; if guest checkout exists, verify backend resolver allows order owner OR session-bound retrieval |
-| `parseFloat` on `totalAmount: "0"` returns 0, looks like free order | Add validation: skip event if `value < 1` and log a warning |
-| `ecommerce: null` reset breaks an existing GTM tag relying on stale data | Verify in GTM Preview: existing `add_to_cart`, `view_item`, etc. still fire correctly after the change |
+| Risk                                                                     | Mitigation                                                                                                                                             |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `getOrderById` requires authentication; guest users fail                 | Most users complete login in OTP flow before checkout; if guest checkout exists, verify backend resolver allows order owner OR session-bound retrieval |
+| `parseFloat` on `totalAmount: "0"` returns 0, looks like free order      | Add validation: skip event if `value < 1` and log a warning                                                                                            |
+| `ecommerce: null` reset breaks an existing GTM tag relying on stale data | Verify in GTM Preview: existing `add_to_cart`, `view_item`, etc. still fire correctly after the change                                                 |
 
 ### 5.7 Rollback
 
@@ -299,30 +303,34 @@ Track which product lists users see, which product cards they click, and when th
 ### 6.3 Code changes
 
 **File: `apps/frontend/src/hooks/use-analytics.ts`**
+
 - The `trackViewItemList` and `trackSelectItem` functions already exist; verify their payload shapes match GA4 spec (item_list_id, item_list_name, items[]).
 - Add new `trackViewCart` function (does not exist yet).
 
 **File: `apps/frontend/src/components/category-page/ProductGrid.tsx`** (and equivalent landing-page grids)
+
 - Wrap each product card in an `IntersectionObserver` to fire `view_item_list` once per (list, item) pair per page view
 - Use `sessionStorage` key `vil_fired:<list_id>:<item_id>` to prevent re-firing on scroll-back-up
 
 **File: `apps/frontend/src/components/category-page/ProductCard.tsx`** (and `bestseller-card.tsx`, `CategoryProductSection.tsx`)
-- On click of the product link, call `trackSelectItem` *before* navigation. Use a microtask delay (`Promise.resolve().then(() => navigate)`) so the dataLayer push completes.
+
+- On click of the product link, call `trackSelectItem` _before_ navigation. Use a microtask delay (`Promise.resolve().then(() => navigate)`) so the dataLayer push completes.
 
 **File: `apps/frontend/src/components/cart-drawer/CartDrawer.tsx`**
+
 - On `open` state transition (false → true), call `trackViewCart` with current cart contents.
 
 ### 6.4 List naming convention
 
 Each list location must have a stable `item_list_id` and `item_list_name` so GA4 reports are interpretable:
 
-| Location | item_list_id | item_list_name |
-|---|---|---|
-| Category page `/category/[slug]` | `category_<slug>` | `Category: <slug>` |
-| Search results | `search_results` | `Search Results` |
+| Location                                  | item_list_id          | item_list_name                |
+| ----------------------------------------- | --------------------- | ----------------------------- |
+| Category page `/category/[slug]`          | `category_<slug>`     | `Category: <slug>`            |
+| Search results                            | `search_results`      | `Search Results`              |
 | No-palm-oil landing `/no-palm-oil-snacks` | `landing_no_palm_oil` | `Landing: No Palm Oil Snacks` |
-| Bestseller carousel (homepage) | `home_bestsellers` | `Homepage Bestsellers` |
-| Related products on PDP | `pdp_related` | `PDP Related` |
+| Bestseller carousel (homepage)            | `home_bestsellers`    | `Homepage Bestsellers`        |
+| Related products on PDP                   | `pdp_related`         | `PDP Related`                 |
 
 ### 6.5 GTM-side changes (SEO owner does these)
 
@@ -338,11 +346,11 @@ Confirm "GA4 Event - E-commerce Events" trigger picks up `view_item_list`, `sele
 
 ### 6.7 Phase-2-specific risks
 
-| Risk | Mitigation |
-|---|---|
-| `view_item_list` fires hundreds of times on infinite scroll | IntersectionObserver + sessionStorage dedup per (list_id, item_id) |
-| `select_item` push lost when navigation happens too fast | Microtask delay before `router.push`; alternatively use `sendBeacon` |
-| Multiple lists on same page (e.g. PDP shows "Related" and "Bestsellers") | Each list has its own `item_list_id`; no conflict |
+| Risk                                                                     | Mitigation                                                           |
+| ------------------------------------------------------------------------ | -------------------------------------------------------------------- |
+| `view_item_list` fires hundreds of times on infinite scroll              | IntersectionObserver + sessionStorage dedup per (list_id, item_id)   |
+| `select_item` push lost when navigation happens too fast                 | Microtask delay before `router.push`; alternatively use `sendBeacon` |
+| Multiple lists on same page (e.g. PDP shows "Related" and "Bestsellers") | Each list has its own `item_list_id`; no conflict                    |
 
 ---
 
@@ -357,12 +365,15 @@ Add `add_shipping_info` and `add_payment_info` so GA4 can answer "where do users
 The checkout flow lives inside the cart drawer (no separate `/checkout` route).
 
 **File: `apps/frontend/src/components/cart-drawer/AddressModal.tsx`** (or wherever the user confirms an address)
+
 - On the explicit "Save / Confirm address" user action (not on auto-select on mount), call `trackAddShippingInfo` with the cart items + shipping value
 
 **File: `apps/frontend/src/components/cart-drawer/PaymentModal.tsx`**
+
 - On payment method selection (user clicks a payment option), call `trackAddPaymentInfo` with the cart items + payment_type
 
 **File: `apps/frontend/src/hooks/use-analytics.ts`**
+
 - Add `trackAddShippingInfo` and `trackAddPaymentInfo` functions following GA4 spec
 
 ### 7.3 DataLayer payloads
@@ -402,10 +413,10 @@ Same trigger extension as Phases 1 and 2.
 
 ### 7.6 Phase-3-specific risks
 
-| Risk | Mitigation |
-|---|---|
-| Auto-selected address (default) fires `add_shipping_info` on mount | Only fire on explicit user-initiated confirm action, not on `useEffect` watching `selectedAddress` |
-| Multiple payment-method clicks fire multiple `add_payment_info` events | Acceptable per GA4 spec (each is a real selection event); no dedup needed |
+| Risk                                                                   | Mitigation                                                                                         |
+| ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Auto-selected address (default) fires `add_shipping_info` on mount     | Only fire on explicit user-initiated confirm action, not on `useEffect` watching `selectedAddress` |
+| Multiple payment-method clicks fire multiple `add_payment_info` events | Acceptable per GA4 spec (each is a real selection event); no dedup needed                          |
 
 ---
 
@@ -424,10 +435,12 @@ Track site search queries (huge SEO insight value) and homepage promo banners.
 ### 8.3 Code changes
 
 **File: `apps/frontend/src/components/navbar/components/search-bar.tsx`**
-- On form submit (Enter key or icon click), call `trackEvent('search', { search_term: <value> })` *before* navigation to search results page
+
+- On form submit (Enter key or icon click), call `trackEvent('search', { search_term: <value> })` _before_ navigation to search results page
 - Debounce/dedup: do not fire on every keystroke. Submit only.
 
 **File(s): wherever promo banners render** (homepage hero, alert banners, etc. — needs identification by tech lead)
+
 - On viewport entry, fire `view_promotion` with `promotion_id`, `promotion_name`, `creative_name`, `creative_slot`
 - On click, fire `select_promotion` with the same fields
 
@@ -465,10 +478,10 @@ Trigger extension as before. `search` is a standard GA4 event and forwards autom
 
 ### 8.7 Phase-4-specific risks
 
-| Risk | Mitigation |
-|---|---|
-| `search` fires on every keystroke if attached to onChange | Bind to form `onSubmit`, not `onChange` |
-| Promo viewport detection counts background banners | IntersectionObserver with `threshold: 0.5` (50% visible) |
+| Risk                                                      | Mitigation                                               |
+| --------------------------------------------------------- | -------------------------------------------------------- |
+| `search` fires on every keystroke if attached to onChange | Bind to form `onSubmit`, not `onChange`                  |
+| Promo viewport detection counts background banners        | IntersectionObserver with `threshold: 0.5` (50% visible) |
 
 ---
 
@@ -493,6 +506,7 @@ The current login response from `auth-service.ts:160` does not distinguish first
 ### 9.3 Code changes
 
 **File: `apps/frontend/src/lib/firebase/auth-service.ts`**
+
 - After the backend authentication call succeeds (line ~160), instead of `logEvent(analytics, 'login', ...)`:
   - If `data.isNewUser === true`, push `sign_up` to dataLayer
   - Otherwise, push `login`
@@ -502,18 +516,21 @@ The current login response from `auth-service.ts:160` does not distinguish first
 - Keep `setUserId` in Firebase Analytics off — we don't want any data going to the Firebase-auto property from web
 
 **File: `apps/frontend/src/lib/analytics/hashing.ts`** (new file)
+
 - Implement `sha256Hash(input: string): Promise<string>` using browser-native `crypto.subtle.digest('SHA-256', ...)`
 - Implement `normalizePhone(raw: string): string` — convert to E.164 (e.g. `+919999999999`) — strip whitespace, prefix `+91` if missing
 - Implement `normalizeEmail(raw: string): string` — lowercase, trim
 - All hashing happens client-side. Raw PII never enters the dataLayer.
 
 **File: `apps/frontend/src/hooks/use-analytics.ts`**
+
 - Replace the dead `setUser` function with `setUserData(userId, phoneE164)` that:
   - Hashes the phone (and email if available)
   - Pushes a `user_data` payload (no `event` field — pure user properties) once per session, guarded by `sessionStorage`
 - Add `trackLogin({ method, isNewUser, userId, phoneE164 })` and `trackSignUp(...)` functions
 
 **File: `apps/frontend/src/app/order-success/page.tsx`** (Phase 1 update)
+
 - When firing `purchase`, also include `user_id` and `user_data: { sha256_phone_number }` in the payload (pulled from cookie/auth state)
 
 ### 9.4 DataLayer payloads
@@ -574,14 +591,14 @@ This phase requires GTM container changes that go beyond simple click-and-save. 
 
 ### 9.7 Phase-5-specific risks (highest of all phases)
 
-| Risk | Mitigation |
-|---|---|
-| Bug in auth code change breaks login | Thorough staging env testing; manual regression check before deploy |
-| Unhashed phone leaks into dataLayer | Unit test `sha256Hash` output is 64 hex chars; integration test that `user_data` contains only `sha256_*` keys |
-| GA4 rejects events containing PII | Using `sha256_phone_number` as the field name — this is GA4's recognized hashed field; raw phone never enters dataLayer |
-| `sign_up` event misfires as `login` (or vice versa) for existing users | Backend `isNewUser` flag must be reliable — tech lead reviews backend logic |
-| Removing Firebase logEvent calls accidentally removes auth code | Code review focus: only `logEvent(analytics, ...)` calls are deleted; nothing else in auth-service.ts changes |
-| User logs in on multiple devices — user_id stable? | Backend must use a persistent user-record ID (Mongo `_id` or similar), not session ID |
+| Risk                                                                   | Mitigation                                                                                                              |
+| ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Bug in auth code change breaks login                                   | Thorough staging env testing; manual regression check before deploy                                                     |
+| Unhashed phone leaks into dataLayer                                    | Unit test `sha256Hash` output is 64 hex chars; integration test that `user_data` contains only `sha256_*` keys          |
+| GA4 rejects events containing PII                                      | Using `sha256_phone_number` as the field name — this is GA4's recognized hashed field; raw phone never enters dataLayer |
+| `sign_up` event misfires as `login` (or vice versa) for existing users | Backend `isNewUser` flag must be reliable — tech lead reviews backend logic                                             |
+| Removing Firebase logEvent calls accidentally removes auth code        | Code review focus: only `logEvent(analytics, ...)` calls are deleted; nothing else in auth-service.ts changes           |
+| User logs in on multiple devices — user_id stable?                     | Backend must use a persistent user-record ID (Mongo `_id` or similar), not session ID                                   |
 
 ### 9.8 Rollback
 
@@ -648,12 +665,12 @@ Make purchase tracking immune to ad-blockers, browser tab closures, and any othe
 
 ### 10.8 Phase-6-specific risks
 
-| Risk | Mitigation |
-|---|---|
-| Network call to GA4 blocks/slows order creation | Fire-and-forget pattern; bounded timeout; non-critical-path |
+| Risk                                                                                                    | Mitigation                                                                                |
+| ------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Network call to GA4 blocks/slows order creation                                                         | Fire-and-forget pattern; bounded timeout; non-critical-path                               |
 | `transaction_id` mismatch between client and server (e.g. one uses MongoDB `_id`, other uses `orderId`) | Both must use the same human-readable `orderId` field; document in spec; integration test |
-| Missing `client_id` from frontend leads to attribution split | Backend falls back to a hashed user_id-derived client_id; consistent per user |
-| API secret leaked in logs or error messages | Environment variable; explicit redaction in error handlers; .env in gitignore |
+| Missing `client_id` from frontend leads to attribution split                                            | Backend falls back to a hashed user_id-derived client_id; consistent per user             |
+| API secret leaked in logs or error messages                                                             | Environment variable; explicit redaction in error handlers; .env in gitignore             |
 
 ---
 
@@ -667,14 +684,14 @@ This phase is **SEO hygiene, not analytics.** It can ship independently of Phase
 
 ### 10.5.2 Duplicates active as of 2026-05-08 (90-day data)
 
-| Clean URL (clicks) | Duplicate still indexed (clicks) | Likely root cause |
-|---|---|---|
-| `/healthy-snacks` (349) | `/category/Healthy%20Snacks` (85) | Sprint 1a redirect doesn't match `%20`-encoded variant |
-| `/bhujia` (234) | `/category/Bhujia` (55) | Same as above |
-| `/cookies` (195) | `/category/Cookies` (48) | Same as above |
-| — | `/category/Purani%20Delhi` (48) | No clean URL exists; needs redirect target chosen |
-| `/about-us` (514) | `/about` (132) | Two separate routes serving similar content |
-| `/product/lets-try-purani-delhi-papdi` (46) | `/product/let-s-try-purani-delhi-papdi` (45) | Typo duplicate slug — likely two product records |
+| Clean URL (clicks)                          | Duplicate still indexed (clicks)             | Likely root cause                                      |
+| ------------------------------------------- | -------------------------------------------- | ------------------------------------------------------ |
+| `/healthy-snacks` (349)                     | `/category/Healthy%20Snacks` (85)            | Sprint 1a redirect doesn't match `%20`-encoded variant |
+| `/bhujia` (234)                             | `/category/Bhujia` (55)                      | Same as above                                          |
+| `/cookies` (195)                            | `/category/Cookies` (48)                     | Same as above                                          |
+| —                                           | `/category/Purani%20Delhi` (48)              | No clean URL exists; needs redirect target chosen      |
+| `/about-us` (514)                           | `/about` (132)                               | Two separate routes serving similar content            |
+| `/product/lets-try-purani-delhi-papdi` (46) | `/product/let-s-try-purani-delhi-papdi` (45) | Typo duplicate slug — likely two product records       |
 
 ### 10.5.3 Investigation tasks (before any code change)
 
@@ -699,11 +716,11 @@ Pending the investigation above. Most likely:
 
 ### 10.5.6 Risks
 
-| Risk | Mitigation |
-|---|---|
+| Risk                                                                                    | Mitigation                                                                                  |
+| --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
 | 301 to a non-existent canonical (e.g. for `/category/Purani%20Delhi`) returns 404 chain | Pick a canonical first (probably `/purani-delhi`); confirm it exists before adding redirect |
-| Merging typo product records destroys order history references | Don't delete; soft-redirect at the slug level only, keep both DB records |
-| Redirect rule too greedy (e.g. catches `/category` itself or unrelated paths) | Use exact-match patterns, not wildcards; manually test each pattern |
+| Merging typo product records destroys order history references                          | Don't delete; soft-redirect at the slug level only, keep both DB records                    |
+| Redirect rule too greedy (e.g. catches `/category` itself or unrelated paths)           | Use exact-match patterns, not wildcards; manually test each pattern                         |
 
 ---
 
@@ -711,14 +728,14 @@ Pending the investigation above. Most likely:
 
 These apply across multiple phases. Listed once here, referenced from individual phase risk tables.
 
-| Risk | Mitigation |
-|---|---|
-| New events not forwarded by GTM container | SEO owner / tech lead extends "E-commerce Events" trigger or adds new triggers per phase. Verification gate at each phase confirms events appear in GA4 Realtime. |
-| `user_id` mismatch between client and server | Always source from the same backend user record `_id`. Document field name in this spec. |
-| Existing analytics break when adding `ecommerce: null` reset | Verify in GTM Preview during Phase 1 deploy that `view_item`, `add_to_cart`, etc. still fire and carry correct items |
-| Microsoft Clarity tag conflicts with new tracking | Microsoft Clarity is independent of GA4 — no conflict possible at the tag level. Confirmed. |
-| Two GA4 properties cause confusion in reporting | Documentation in this spec; SEO owner stars correct property as default; Firebase property goes empty after Phase 5 |
-| Tech-lead review bandwidth strains rollout pace | Phases sized small intentionally; each PR independently reviewable in 30–60 min |
+| Risk                                                         | Mitigation                                                                                                                                                        |
+| ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| New events not forwarded by GTM container                    | SEO owner / tech lead extends "E-commerce Events" trigger or adds new triggers per phase. Verification gate at each phase confirms events appear in GA4 Realtime. |
+| `user_id` mismatch between client and server                 | Always source from the same backend user record `_id`. Document field name in this spec.                                                                          |
+| Existing analytics break when adding `ecommerce: null` reset | Verify in GTM Preview during Phase 1 deploy that `view_item`, `add_to_cart`, etc. still fire and carry correct items                                              |
+| Microsoft Clarity tag conflicts with new tracking            | Microsoft Clarity is independent of GA4 — no conflict possible at the tag level. Confirmed.                                                                       |
+| Two GA4 properties cause confusion in reporting              | Documentation in this spec; SEO owner stars correct property as default; Firebase property goes empty after Phase 5                                               |
+| Tech-lead review bandwidth strains rollout pace              | Phases sized small intentionally; each PR independently reviewable in 30–60 min                                                                                   |
 
 ---
 
@@ -764,25 +781,25 @@ Items flagged during scoping but deferred:
 
 ## Appendix A — File reference summary
 
-| File | Touched by phases | Purpose |
-|---|---|---|
-| `apps/frontend/src/lib/analytics/data-layer.ts` | 1 | DataLayer push helper; ecommerce reset added |
-| `apps/frontend/src/lib/analytics/hashing.ts` | 5 (new) | SHA-256 hashing + phone/email normalization |
-| `apps/frontend/src/hooks/use-analytics.ts` | 1, 2, 3, 4, 5 | Central tracking hook |
-| `apps/frontend/src/lib/queries/orders.ts` | 1 | Add GET_ORDER_BY_ID |
-| `apps/frontend/src/app/order-success/page.tsx` | 1, 5 | Fire purchase event with user_data |
-| `apps/frontend/src/components/category-page/ProductGrid.tsx` | 2 | view_item_list |
-| `apps/frontend/src/components/category-page/ProductCard.tsx` | 2 | select_item |
-| `apps/frontend/src/components/bestseller/bestseller-card.tsx` | 2 | view_item_list, select_item |
-| `apps/frontend/src/components/cart-drawer/CartDrawer.tsx` | 2 | view_cart |
-| `apps/frontend/src/components/cart-drawer/AddressModal.tsx` | 3 | add_shipping_info |
-| `apps/frontend/src/components/cart-drawer/PaymentModal.tsx` | 3 | add_payment_info |
-| `apps/frontend/src/components/navbar/components/search-bar.tsx` | 4 | search |
-| (Banner components — TBD by tech lead) | 4 | view_promotion, select_promotion |
-| `apps/frontend/src/lib/firebase/auth-service.ts` | 5 | Login/sign_up dataLayer push; remove Firebase logEvent |
-| `apps/backend/src/order/services/order.command-service.ts` | 6 | Trigger server-side GA4 event |
-| `apps/backend/src/analytics/ga4-measurement-protocol.service.ts` | 6 (new) | Server-side GA4 sender |
-| `apps/frontend/src/lib/cart/cart-service.ts` | 6 | Pass `_ga` cookie's client_id to backend |
+| File                                                             | Touched by phases | Purpose                                                |
+| ---------------------------------------------------------------- | ----------------- | ------------------------------------------------------ |
+| `apps/frontend/src/lib/analytics/data-layer.ts`                  | 1                 | DataLayer push helper; ecommerce reset added           |
+| `apps/frontend/src/lib/analytics/hashing.ts`                     | 5 (new)           | SHA-256 hashing + phone/email normalization            |
+| `apps/frontend/src/hooks/use-analytics.ts`                       | 1, 2, 3, 4, 5     | Central tracking hook                                  |
+| `apps/frontend/src/lib/queries/orders.ts`                        | 1                 | Add GET_ORDER_BY_ID                                    |
+| `apps/frontend/src/app/order-success/page.tsx`                   | 1, 5              | Fire purchase event with user_data                     |
+| `apps/frontend/src/components/category-page/ProductGrid.tsx`     | 2                 | view_item_list                                         |
+| `apps/frontend/src/components/category-page/ProductCard.tsx`     | 2                 | select_item                                            |
+| `apps/frontend/src/components/bestseller/bestseller-card.tsx`    | 2                 | view_item_list, select_item                            |
+| `apps/frontend/src/components/cart-drawer/CartDrawer.tsx`        | 2                 | view_cart                                              |
+| `apps/frontend/src/components/cart-drawer/AddressModal.tsx`      | 3                 | add_shipping_info                                      |
+| `apps/frontend/src/components/cart-drawer/PaymentModal.tsx`      | 3                 | add_payment_info                                       |
+| `apps/frontend/src/components/navbar/components/search-bar.tsx`  | 4                 | search                                                 |
+| (Banner components — TBD by tech lead)                           | 4                 | view_promotion, select_promotion                       |
+| `apps/frontend/src/lib/firebase/auth-service.ts`                 | 5                 | Login/sign_up dataLayer push; remove Firebase logEvent |
+| `apps/backend/src/order/services/order.command-service.ts`       | 6                 | Trigger server-side GA4 event                          |
+| `apps/backend/src/analytics/ga4-measurement-protocol.service.ts` | 6 (new)           | Server-side GA4 sender                                 |
+| `apps/frontend/src/lib/cart/cart-service.ts`                     | 6                 | Pass `_ga` cookie's client_id to backend               |
 
 ---
 

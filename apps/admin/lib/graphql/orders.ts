@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 export const GET_ALL_ORDERS = gql`
   query GetAllOrders($input: GetAllOrdersInput!) {
@@ -78,7 +78,7 @@ export const GET_ALL_ORDERS = gql`
       }
     }
   }
-`
+`;
 
 export const GET_ORDER_BY_ID = gql`
   query GetOrderById($orderId: String!) {
@@ -146,7 +146,7 @@ export const GET_ORDER_BY_ID = gql`
       updatedAt
     }
   }
-`
+`;
 
 export const UPDATE_ORDER_STATUS = gql`
   mutation UpdateOrderStatus($input: UpdateOrderStatusInput!) {
@@ -158,7 +158,7 @@ export const UPDATE_ORDER_STATUS = gql`
       updatedAt
     }
   }
-`
+`;
 
 export const ADMIN_PUNCH_SHIPMENT = gql`
   mutation AdminPunchShipment($input: AdminPunchShipmentInput!) {
@@ -168,4 +168,4 @@ export const ADMIN_PUNCH_SHIPMENT = gql`
       status
     }
   }
-`
+`;

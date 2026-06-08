@@ -57,7 +57,11 @@ export class Shipment extends Document {
   @Prop({ required: true, enum: Object.values(ServiceType) })
   serviceType: string;
 
-  @Prop({ required: true, default: LoadType.NON_DOCUMENT, enum: Object.values(LoadType) })
+  @Prop({
+    required: true,
+    default: LoadType.NON_DOCUMENT,
+    enum: Object.values(LoadType),
+  })
   loadType: string;
 
   @Prop({ required: true })

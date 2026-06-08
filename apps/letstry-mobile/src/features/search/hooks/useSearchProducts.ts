@@ -1,6 +1,6 @@
-import { useQuery } from '@apollo/client';
-import { SEARCH_PRODUCTS } from '../../../lib/graphql/search';
-import { SearchProduct } from '../types';
+import { useQuery } from "@apollo/client";
+import { SEARCH_PRODUCTS } from "../../../lib/graphql/search";
+import { SearchProduct } from "../types";
 
 export function useSearchProducts(searchTerm: string, page = 1, limit = 20) {
   const { data, loading, error, refetch } = useQuery(SEARCH_PRODUCTS, {
@@ -9,7 +9,7 @@ export function useSearchProducts(searchTerm: string, page = 1, limit = 20) {
       pagination: { page, limit },
       nameOnly: false,
     },
-    fetchPolicy: 'cache-and-network',
+    fetchPolicy: "cache-and-network",
   });
 
   const products: SearchProduct[] = data?.searchProducts?.items || [];

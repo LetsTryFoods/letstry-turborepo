@@ -61,7 +61,7 @@ const AnimatedCurvedArrow = () => {
           animateArrow();
         }
       },
-      { threshold: 0.3 }
+      { threshold: 0.3 },
     );
 
     if (containerRef.current) {
@@ -77,7 +77,10 @@ const AnimatedCurvedArrow = () => {
 
   return (
     <div ref={containerRef}>
-      <svg viewBox="0 0 400 150" className="lg:w-[430px] md:w-[300px] w-[150px]">
+      <svg
+        viewBox="0 0 400 150"
+        className="lg:w-[430px] md:w-[300px] w-[150px]"
+      >
         <style>{`
           .dash {
             stroke: black;
@@ -113,26 +116,27 @@ const AnimatedCurvedArrow = () => {
             />
           ))}
 
-          {dashes.length > 0 && (() => {
-            const last = dashes[dashes.length - 1];
-            return (
-              <g
-                transform={`translate(${last.x}, ${last.y}) rotate(${last.angle})`}
-                style={{
-                  opacity: 0,
-                  animation: 'appear 0.08s forwards',
-                  animationDelay: `${dashes.length * 0.08}s`,
-                }}
-              >
-                <polyline
-                  points="0,-5 10,0 0,5"
-                  fill="none"
-                  stroke="black"
-                  strokeWidth="3"
-                />
-              </g>
-            );
-          })()}
+          {dashes.length > 0 &&
+            (() => {
+              const last = dashes[dashes.length - 1];
+              return (
+                <g
+                  transform={`translate(${last.x}, ${last.y}) rotate(${last.angle})`}
+                  style={{
+                    opacity: 0,
+                    animation: "appear 0.08s forwards",
+                    animationDelay: `${dashes.length * 0.08}s`,
+                  }}
+                >
+                  <polyline
+                    points="0,-5 10,0 0,5"
+                    fill="none"
+                    stroke="black"
+                    strokeWidth="3"
+                  />
+                </g>
+              );
+            })()}
         </g>
       </svg>
     </div>

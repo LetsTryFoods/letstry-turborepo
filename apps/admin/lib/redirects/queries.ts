@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client'
+import { gql } from "@apollo/client";
 
 export const GET_REDIRECTS = gql`
   query GetRedirects($page: Int!, $limit: Int!, $search: String) {
@@ -19,7 +19,7 @@ export const GET_REDIRECTS = gql`
       limit
     }
   }
-`
+`;
 
 export const GET_REDIRECT = gql`
   query GetRedirect($id: String!) {
@@ -35,7 +35,7 @@ export const GET_REDIRECT = gql`
       updatedAt
     }
   }
-`
+`;
 
 export const CREATE_REDIRECT = gql`
   mutation CreateRedirect($input: CreateRedirectInput!) {
@@ -49,7 +49,7 @@ export const CREATE_REDIRECT = gql`
       source
     }
   }
-`
+`;
 
 export const UPDATE_REDIRECT = gql`
   mutation UpdateRedirect($id: String!, $input: UpdateRedirectInput!) {
@@ -63,13 +63,13 @@ export const UPDATE_REDIRECT = gql`
       source
     }
   }
-`
+`;
 
 export const DELETE_REDIRECT = gql`
   mutation DeleteRedirect($id: String!) {
     deleteRedirect(id: $id)
   }
-`
+`;
 
 export const GET_ALL_ACTIVE_REDIRECTS = gql`
   query GetAllActiveRedirects {
@@ -80,4 +80,4 @@ export const GET_ALL_ACTIVE_REDIRECTS = gql`
       statusCode
     }
   }
-`
+`;

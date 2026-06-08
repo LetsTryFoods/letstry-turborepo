@@ -1,40 +1,44 @@
-import * as React from "react"
-import { X } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+import * as React from "react";
+import { X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 interface TagInputProps {
-  placeholder?: string
-  value: string[]
-  onChange: (value: string[]) => void
+  placeholder?: string;
+  value: string[];
+  onChange: (value: string[]) => void;
 }
 
 export function TagInput({ placeholder, value = [], onChange }: TagInputProps) {
-  const [inputValue, setInputValue] = React.useState("")
+  const [inputValue, setInputValue] = React.useState("");
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      e.preventDefault()
+      e.preventDefault();
       if (inputValue.trim()) {
         if (!value.includes(inputValue.trim())) {
-          onChange([...value, inputValue.trim()])
+          onChange([...value, inputValue.trim()]);
         }
-        setInputValue("")
+        setInputValue("");
       }
     } else if (e.key === "Backspace" && !inputValue && value.length > 0) {
-      onChange(value.slice(0, -1))
+      onChange(value.slice(0, -1));
     }
-  }
+  };
 
   const removeTag = (tagToRemove: string) => {
-    onChange(value.filter((tag) => tag !== tagToRemove))
-  }
+    onChange(value.filter((tag) => tag !== tagToRemove));
+  };
 
   return (
     <div className="flex flex-wrap gap-2 p-2 border rounded-md bg-background focus-within:ring-1 focus-within:ring-ring">
       {value.map((tag, index) => (
-        <Badge key={index} variant="secondary" className="flex items-center gap-1 px-2 py-1">
+        <Badge
+          key={index}
+          variant="secondary"
+          className="flex items-center gap-1 px-2 py-1"
+        >
           {tag}
           <button
             type="button"
@@ -54,5 +58,5 @@ export function TagInput({ placeholder, value = [], onChange }: TagInputProps) {
         onKeyDown={handleKeyDown}
       />
     </div>
-  )
+  );
 }

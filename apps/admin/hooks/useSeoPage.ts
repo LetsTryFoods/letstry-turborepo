@@ -34,19 +34,27 @@ export function useSeoPage() {
   // State
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
-  const [selectedColumns, setSelectedColumns] = useState<string[]>(DEFAULT_COLUMNS);
+  const [selectedColumns, setSelectedColumns] =
+    useState<string[]>(DEFAULT_COLUMNS);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingSeo, setEditingSeo] = useState<SeoContent | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [seoToDelete, setSeoToDelete] = useState<SeoContent | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState<"all" | "active" | "inactive">("all");
+  const [filterStatus, setFilterStatus] = useState<
+    "all" | "active" | "inactive"
+  >("all");
 
   // API Hooks
   const { data, loading, error, refetch } = useSeoContents({
     page: currentPage,
     limit: pageSize,
-  }) as { data: { seoContents?: { items?: SeoContent[]; meta?: any } } | undefined; loading: boolean; error: any; refetch: () => void };
+  }) as {
+    data: { seoContents?: { items?: SeoContent[]; meta?: any } } | undefined;
+    loading: boolean;
+    error: any;
+    refetch: () => void;
+  };
   const [createSeoContent, { loading: creating }] = useCreateSeoContent();
   const [updateSeoContent, { loading: updating }] = useUpdateSeoContent();
   const [deleteSeoContent, { loading: deleting }] = useDeleteSeoContent();
@@ -75,7 +83,7 @@ export function useSeoPage() {
     setSelectedColumns((prev) =>
       prev.includes(columnKey)
         ? prev.filter((key) => key !== columnKey)
-        : [...prev, columnKey]
+        : [...prev, columnKey],
     );
   }, []);
 
@@ -83,28 +91,34 @@ export function useSeoPage() {
     setCurrentPage(page);
   }, []);
 
-  const handleCreate = useCallback(async (input: CreateSeoContentInput) => {
-    try {
-      await createSeoContent({ variables: { input } });
-      setIsFormOpen(false);
-      refetch();
-    } catch (error) {
-      console.error("Error creating SEO content:", error);
-      throw error;
-    }
-  }, [createSeoContent, refetch]);
+  const handleCreate = useCallback(
+    async (input: CreateSeoContentInput) => {
+      try {
+        await createSeoContent({ variables: { input } });
+        setIsFormOpen(false);
+        refetch();
+      } catch (error) {
+        console.error("Error creating SEO content:", error);
+        throw error;
+      }
+    },
+    [createSeoContent, refetch],
+  );
 
-  const handleUpdate = useCallback(async (id: string, input: UpdateSeoContentInput) => {
-    try {
-      await updateSeoContent({ variables: { id, input } });
-      setIsFormOpen(false);
-      setEditingSeo(null);
-      refetch();
-    } catch (error) {
-      console.error("Error updating SEO content:", error);
-      throw error;
-    }
-  }, [updateSeoContent, refetch]);
+  const handleUpdate = useCallback(
+    async (id: string, input: UpdateSeoContentInput) => {
+      try {
+        await updateSeoContent({ variables: { id, input } });
+        setIsFormOpen(false);
+        setEditingSeo(null);
+        refetch();
+      } catch (error) {
+        console.error("Error updating SEO content:", error);
+        throw error;
+      }
+    },
+    [updateSeoContent, refetch],
+  );
 
   const handleDelete = useCallback(async () => {
     if (!seoToDelete) return;
@@ -134,19 +148,22 @@ export function useSeoPage() {
     setEditingSeo(null);
   }, []);
 
-  const handleActiveToggle = useCallback(async (seo: SeoContent) => {
-    try {
-      await updateSeoContent({
-        variables: {
-          id: seo._id,
-          input: { isActive: !seo.isActive },
-        },
-      });
-      refetch();
-    } catch (error) {
-      console.error("Error toggling active status:", error);
-    }
-  }, [updateSeoContent, refetch]);
+  const handleActiveToggle = useCallback(
+    async (seo: SeoContent) => {
+      try {
+        await updateSeoContent({
+          variables: {
+            id: seo._id,
+            input: { isActive: !seo.isActive },
+          },
+        });
+        refetch();
+      } catch (error) {
+        console.error("Error toggling active status:", error);
+      }
+    },
+    [updateSeoContent, refetch],
+  );
 
   return {
     // State

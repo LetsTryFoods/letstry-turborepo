@@ -1,10 +1,10 @@
-import { SDUIScreen } from '../../types';
+import { SDUIScreen } from "../../types";
 
 export const homeScreen: SDUIScreen = {
-  screen: 'HomeScreen',
+  screen: "HomeScreen",
   components: [
     {
-      type: 'EventsHero',
+      type: "EventsHero",
       props: {
         // marginTop: -25,
         marginBottom: 4,
@@ -31,14 +31,14 @@ export const homeScreen: SDUIScreen = {
     //   },
     // },
     {
-      type: 'Combos',
+      type: "Combos",
       props: {
-        title: 'Bestselling Combos',
+        title: "Bestselling Combos",
         cardStyles: {
           // borderColor: '#F44336',
           borderWidth: 1.5,
           borderRadius: 8,
-        }
+        },
       },
     },
 
@@ -51,30 +51,30 @@ export const homeScreen: SDUIScreen = {
     //   },
     // },
     {
-      type: 'Categories',
+      type: "Categories",
       props: {
-        title: 'Explore Categories',
+        title: "Explore Categories",
         numColumns: 4,
         showSeeAll: true,
       },
     },
     {
-      type: 'HeroCarousel',
+      type: "HeroCarousel",
       props: {},
     },
     {
-      type: 'Bestsellers',
+      type: "Bestsellers",
       props: {
-        title: 'Best Sellers',
+        title: "Best Sellers",
         cardStyles: {
           // borderColor: '#4CAF50',
           borderWidth: 2,
           borderRadius: 16,
-        }
+        },
       },
     },
     {
-      type: 'HomeFooter',
+      type: "HomeFooter",
       props: {
         mainText: "Tasty, healthy snacks crafted with care. ❤️",
         brandText: "Let's Try",

@@ -3,7 +3,11 @@
 import { toast } from "react-hot-toast";
 import { GenericSeoForm } from "@/components/seo/GenericSeoForm";
 import { LiveProductSeoPreview } from "@/components/seo/LiveProductSeoPreview";
-import { Product, ProductSeo, useUpdateProductSeo } from "@/lib/products/useProducts";
+import {
+  Product,
+  ProductSeo,
+  useUpdateProductSeo,
+} from "@/lib/products/useProducts";
 import { SeoFormData } from "@/lib/validations/seo.schema";
 
 interface ProductSeoFormProps {
@@ -13,7 +17,12 @@ interface ProductSeoFormProps {
   onCancel: () => void;
 }
 
-export function ProductSeoForm({ product, existingSeo, onSuccess, onCancel }: ProductSeoFormProps) {
+export function ProductSeoForm({
+  product,
+  existingSeo,
+  onSuccess,
+  onCancel,
+}: ProductSeoFormProps) {
   const { updateProductSeo, loading: isLoading } = useUpdateProductSeo();
 
   const handleSubmit = async (data: SeoFormData) => {
@@ -36,9 +45,15 @@ export function ProductSeoForm({ product, existingSeo, onSuccess, onCancel }: Pr
         product={{
           name: product.name,
           slug: product.slug,
-          description: (product as Product & { description?: string | null }).description ?? null,
-          isVegetarian: (product as Product & { isVegetarian?: boolean | null }).isVegetarian ?? null,
-          shelfLife: (product as Product & { shelfLife?: string | null }).shelfLife ?? null,
+          description:
+            (product as Product & { description?: string | null })
+              .description ?? null,
+          isVegetarian:
+            (product as Product & { isVegetarian?: boolean | null })
+              .isVegetarian ?? null,
+          shelfLife:
+            (product as Product & { shelfLife?: string | null }).shelfLife ??
+            null,
           variants: product.variants?.map((v) => ({
             packageSize: v.packageSize ?? null,
             weight: v.weight ?? null,

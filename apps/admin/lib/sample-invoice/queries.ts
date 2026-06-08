@@ -1,5 +1,5 @@
-import { gql } from '@apollo/client';
-import { useMutation, useQuery } from '@apollo/client/react';
+import { gql } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client/react";
 
 // ── Mutation: save a new invoice ──────────────────────────────────────────────
 export const CREATE_SAMPLE_INVOICE = gql`
@@ -9,6 +9,7 @@ export const CREATE_SAMPLE_INVOICE = gql`
       invoiceNumber
       totalPcs
       totalMrpValue
+      isComplimentary
       createdAt
     }
   }
@@ -36,6 +37,7 @@ export const GET_SAMPLE_INVOICES = gql`
       }
       totalPcs
       totalMrpValue
+      isComplimentary
       createdAt
     }
   }
@@ -75,6 +77,7 @@ export const UPDATE_SAMPLE_INVOICE = gql`
       invoiceNumber
       totalPcs
       totalMrpValue
+      isComplimentary
       createdAt
     }
   }
@@ -93,4 +96,3 @@ export function useSampleInvoices() {
 export function useSampleInvoiceProducts() {
   return useQuery(GET_SAMPLE_INVOICE_PRODUCTS);
 }
-

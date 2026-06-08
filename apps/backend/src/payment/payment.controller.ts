@@ -1,4 +1,13 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, Get, Query, Res } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpCode,
+  HttpStatus,
+  Get,
+  Query,
+  Res,
+} from '@nestjs/common';
 import type { Response } from 'express';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { PaymentExecutorService } from './services/domain/payment-executor.service';
@@ -15,7 +24,7 @@ export class PaymentController {
     private readonly paymentLogger: PaymentLoggerService,
     private readonly eventEmitter: EventEmitter2,
     private readonly webhookLogger: WebhookLoggerService,
-  ) { }
+  ) {}
 
   @Post('webhook')
   @Public()
@@ -180,10 +189,7 @@ export class PaymentController {
     await this.handleCallbackCommon(body, res);
   }
 
-  private async handleCallbackCommon(
-    data: any,
-    res: Response,
-  ): Promise<void> {
+  private async handleCallbackCommon(data: any, res: Response): Promise<void> {
     try {
       this.paymentLogger.log('Payment callback received', data);
 
@@ -191,19 +197,36 @@ export class PaymentController {
       const orderId = data.orderId || data.orderid;
       const paymentOrderId = data.paymentOrderId || orderId;
 
-      const successUrl = process.env.ZAAKPAY_SUCCESS_URL || 'https://letstryfoods.com/payment-callback?status=success';
-      const failureUrl = process.env.ZAAKPAY_FAILURE_URL || 'https://letstryfoods.com/payment-failed';
+      const successUrl =
+        process.env.ZAAKPAY_SUCCESS_URL ||
+        'https://letstryfoods.com/payment-callback?status=success';
+      const failureUrl =
+        process.env.ZAAKPAY_FAILURE_URL ||
+        'https://letstryfoods.com/payment-failed';
 
       if (responseCode === '100' || responseCode === 'success') {
-        this.paymentLogger.log('Redirecting to success page', { orderId, paymentOrderId });
-        return res.redirect(`${successUrl}&orderId=${orderId || ''}&paymentOrderId=${paymentOrderId || ''}`);
+        this.paymentLogger.log('Redirecting to success page', {
+          orderId,
+          paymentOrderId,
+        });
+        return res.redirect(
+          `${successUrl}&orderId=${orderId || ''}&paymentOrderId=${paymentOrderId || ''}`,
+        );
       } else {
-        this.paymentLogger.log('Redirecting to failure page', { orderId, paymentOrderId, responseCode });
-        return res.redirect(`${failureUrl}?paymentOrderId=${paymentOrderId || ''}&code=${responseCode || ''}`);
+        this.paymentLogger.log('Redirecting to failure page', {
+          orderId,
+          paymentOrderId,
+          responseCode,
+        });
+        return res.redirect(
+          `${failureUrl}?paymentOrderId=${paymentOrderId || ''}&code=${responseCode || ''}`,
+        );
       }
     } catch (error) {
       this.paymentLogger.error('Callback processing error', error.stack, data);
-      const failureUrl = process.env.ZAAKPAY_FAILURE_URL || 'https://letstryfoods.com/payment-failed';
+      const failureUrl =
+        process.env.ZAAKPAY_FAILURE_URL ||
+        'https://letstryfoods.com/payment-failed';
       return res.redirect(`${failureUrl}?error=callback_error`);
     }
   }

@@ -113,6 +113,21 @@ export class PlatformOrderStatsType {
 }
 
 @ObjectType()
+export class StateSalesType {
+  /** State name (addressRegion from Address schema) */
+  @Field()
+  state: string;
+
+  /** Number of orders from this state */
+  @Field(() => Int)
+  orders: number;
+
+  /** Total revenue from this state */
+  @Field(() => Float)
+  revenue: number;
+}
+
+@ObjectType()
 export class OrderReportResponse {
   @Field(() => ReportSummaryType)
   summary: ReportSummaryType;

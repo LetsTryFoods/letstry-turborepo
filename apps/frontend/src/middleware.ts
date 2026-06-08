@@ -1,21 +1,25 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { routeConfig, isRouteMatch } from './lib/route-config';
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { routeConfig, isRouteMatch } from "./lib/route-config";
 
 const REDIRECTS_CACHE_DURATION = 5 * 60 * 1000;
 
 let redirectsCache: { data: any[]; timestamp: number } | null = null;
 
 async function fetchRedirects() {
-  if (redirectsCache && Date.now() - redirectsCache.timestamp < REDIRECTS_CACHE_DURATION) {
+  if (
+    redirectsCache &&
+    Date.now() - redirectsCache.timestamp < REDIRECTS_CACHE_DURATION
+  ) {
     return redirectsCache.data;
   }
 
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:5000/graphql';
+    const backendUrl =
+      process.env.NEXT_PUBLIC_GRAPHQL_URL || "http://localhost:5000/graphql";
     const response = await fetch(backendUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         query: `
           query GetAllActiveRedirects {
@@ -36,7 +40,7 @@ async function fetchRedirects() {
       return redirects;
     }
   } catch (error) {
-    console.error('Error fetching redirects:', error);
+    console.error("Error fetching redirects:", error);
   }
 
   return [];
@@ -46,8 +50,8 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (
-    pathname.startsWith('/_next') ||
-    pathname.startsWith('/api') ||
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/api") ||
     pathname.match(/\.(ico|png|jpg|jpeg|svg|gif|webp|css|js)$/)
   ) {
     return NextResponse.next();
@@ -73,21 +77,34 @@ export async function middleware(request: NextRequest) {
   let needsRedirect = false;
 
   // Trailing slash (root '/' is intentionally exempt)
-  if (url.pathname.length > 1 && url.pathname.endsWith('/')) {
-    url.pathname = url.pathname.replace(/\/+$/, '');
+  if (url.pathname.length > 1 && url.pathname.endsWith("/")) {
+    url.pathname = url.pathname.replace(/\/+$/, "");
     needsRedirect = true;
   }
 
   // Lowercase path (exempting /track/ routes since order IDs and AWBs are case-sensitive)
-  if (url.pathname !== url.pathname.toLowerCase() && !url.pathname.toLowerCase().startsWith('/track/')) {
+  if (
+    url.pathname !== url.pathname.toLowerCase() &&
+    !url.pathname.toLowerCase().startsWith("/track/")
+  ) {
     url.pathname = url.pathname.toLowerCase();
     needsRedirect = true;
   }
 
   // Strip tracking params
   const TRACKING_PARAMS = [
-    'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
-    'utm_id', 'gclid', 'fbclid', 'mc_eid', 'mc_cid', 'msclkid', '_ga',
+    "utm_source",
+    "utm_medium",
+    "utm_campaign",
+    "utm_term",
+    "utm_content",
+    "utm_id",
+    "gclid",
+    "fbclid",
+    "mc_eid",
+    "mc_cid",
+    "msclkid",
+    "_ga",
   ];
   let strippedAny = false;
   TRACKING_PARAMS.forEach((p) => {
@@ -103,14 +120,17 @@ export async function middleware(request: NextRequest) {
   }
 
   const redirects = await fetchRedirects();
-  
+
   const redirect = redirects.find((r: any) => {
-    const storedPath = r.fromPath.split('?')[0];
+    const storedPath = r.fromPath.split("?")[0];
     return storedPath === pathname;
   });
 
   if (redirect) {
-    if (redirect.toPath.startsWith('http://') || redirect.toPath.startsWith('https://')) {
+    if (
+      redirect.toPath.startsWith("http://") ||
+      redirect.toPath.startsWith("https://")
+    ) {
       return NextResponse.redirect(redirect.toPath, redirect.statusCode || 301);
     }
 
@@ -121,57 +141,58 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl, redirect.statusCode || 301);
   }
 
-  const token = request.cookies.get('auth_token')?.value;
-  const refreshToken = request.cookies.get('refresh_token')?.value;
+  const token = request.cookies.get("auth_token")?.value;
+  const refreshToken = request.cookies.get("refresh_token")?.value;
   const isProtectedRoute = isRouteMatch(pathname, routeConfig.protected);
   const isPublicRoute = isRouteMatch(pathname, routeConfig.public);
 
   if (isProtectedRoute && !token) {
     if (refreshToken) {
       try {
-        const backendUrl = process.env.NEXT_PUBLIC_API_URL || process.env.BACKEND_API_URL;
+        const backendUrl =
+          process.env.NEXT_PUBLIC_API_URL || process.env.BACKEND_API_URL;
         const response = await fetch(`${backendUrl}/auth/refresh`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ refreshToken }),
         });
 
         if (response.ok) {
           const data = await response.json();
           const res = NextResponse.next();
-          
-          res.cookies.set('auth_token', data.accessToken, {
+
+          res.cookies.set("auth_token", data.accessToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
             maxAge: 60 * 60 * 24 * 7,
-            path: '/',
+            path: "/",
           });
 
           if (data.refreshToken) {
-            res.cookies.set('refresh_token', data.refreshToken, {
+            res.cookies.set("refresh_token", data.refreshToken, {
               httpOnly: true,
-              secure: process.env.NODE_ENV === 'production',
-              sameSite: 'strict',
+              secure: process.env.NODE_ENV === "production",
+              sameSite: "strict",
               maxAge: 60 * 60 * 24 * 30,
-              path: '/',
+              path: "/",
             });
           }
 
           return res;
         }
       } catch (error) {
-        console.error('Token refresh failed:', error);
+        console.error("Token refresh failed:", error);
       }
     }
 
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('redirect', pathname);
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  if (isPublicRoute && token && pathname === '/login') {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+  if (isPublicRoute && token && pathname === "/login") {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   return NextResponse.next();
@@ -179,6 +200,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:ico|png|jpg|jpeg|svg|gif|webp|css|js)$).*)',
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:ico|png|jpg|jpeg|svg|gif|webp|css|js)$).*)",
   ],
 };

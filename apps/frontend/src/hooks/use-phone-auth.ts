@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useCallback, useEffect } from 'react';
-import { useAuthStore } from '@/stores/auth-store';
-import type { ConfirmationResult } from 'firebase/auth';
+import { useState, useCallback, useEffect } from "react";
+import { useAuthStore } from "@/stores/auth-store";
+import type { ConfirmationResult } from "firebase/auth";
 
 interface UsePhoneAuthReturn {
   phoneNumber: string;
@@ -26,14 +26,15 @@ export function usePhoneAuth(backendUrl: string): UsePhoneAuthReturn {
     verifyOTP: verifyOTPStore,
     isLoading: authLoading,
     error: authError,
-    clearError
+    clearError,
   } = useAuthStore();
 
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [otp, setOtp] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [otpProvider, setOtpProvider] = useState<string | null>(null);
-  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+  const [confirmationResult, setConfirmationResult] =
+    useState<ConfirmationResult | null>(null);
   const [localError, setLocalError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -51,23 +52,23 @@ export function usePhoneAuth(backendUrl: string): UsePhoneAuthReturn {
       clearError();
 
       if (!/^[6-9]\d{9}$/.test(phoneNumber)) {
-        throw new Error('Enter a valid 10-digit phone number');
+        throw new Error("Enter a valid 10-digit phone number");
       }
 
       setIsLoading(true);
 
       const result = await loginWithPhone(phoneNumber);
 
-      if (result.provider === 'whatsapp') {
-        setOtpProvider('whatsapp');
+      if (result.provider === "whatsapp") {
+        setOtpProvider("whatsapp");
       } else {
-        setOtpProvider('firebase');
+        setOtpProvider("firebase");
         setConfirmationResult(result.confirmationResult);
       }
 
       setOtpSent(true);
     } catch (error: any) {
-      setLocalError(error.message || 'Failed to send OTP');
+      setLocalError(error.message || "Failed to send OTP");
       setOtpSent(false);
       throw error;
     } finally {
@@ -81,17 +82,17 @@ export function usePhoneAuth(backendUrl: string): UsePhoneAuthReturn {
       clearError();
 
       if (!/^[6-9]\d{9}$/.test(phoneNumber)) {
-        throw new Error('Enter a valid 10-digit phone number');
+        throw new Error("Enter a valid 10-digit phone number");
       }
 
       setIsLoading(true);
 
       const result = await sendFirebaseOTP(phoneNumber);
-      setOtpProvider('firebase');
+      setOtpProvider("firebase");
       setConfirmationResult(result.confirmationResult);
       setOtpSent(true);
     } catch (error: any) {
-      setLocalError(error.message || 'Failed to send OTP');
+      setLocalError(error.message || "Failed to send OTP");
       setOtpSent(false);
       throw error;
     } finally {
@@ -105,27 +106,34 @@ export function usePhoneAuth(backendUrl: string): UsePhoneAuthReturn {
       clearError();
 
       if (!otp || otp.length !== 6) {
-        throw new Error('Enter a valid 6-digit OTP');
+        throw new Error("Enter a valid 6-digit OTP");
       }
 
-      if (otpProvider === 'whatsapp') {
+      if (otpProvider === "whatsapp") {
         const { verifyWhatsAppOTP } = useAuthStore.getState();
         await verifyWhatsAppOTP(phoneNumber, otp);
       } else {
         if (!confirmationResult) {
-          throw new Error('Session expired. Please request a new OTP');
+          throw new Error("Session expired. Please request a new OTP");
         }
         await verifyOTPStore(confirmationResult, otp);
       }
     } catch (error: any) {
-      setLocalError(error.message || 'Failed to verify OTP');
+      setLocalError(error.message || "Failed to verify OTP");
       throw error;
     }
-  }, [otp, otpProvider, phoneNumber, confirmationResult, verifyOTPStore, clearError]);
+  }, [
+    otp,
+    otpProvider,
+    phoneNumber,
+    confirmationResult,
+    verifyOTPStore,
+    clearError,
+  ]);
 
   const resetAuth = useCallback(() => {
-    setPhoneNumber('');
-    setOtp('');
+    setPhoneNumber("");
+    setOtp("");
     setOtpSent(false);
     setOtpProvider(null);
     setConfirmationResult(null);

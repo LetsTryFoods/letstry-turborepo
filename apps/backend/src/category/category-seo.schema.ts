@@ -6,32 +6,30 @@ import { SeoBase } from '../seo-core/seo-base.schema';
 export type CategorySeoDocument = CategorySeo & Document;
 
 @Schema({
-    timestamps: true,
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true },
 })
 @ObjectType()
 export class CategorySeo extends SeoBase {
-    @Field(() => ID)
-    _id: string;
+  @Field(() => ID)
+  _id: string;
 
-    @Prop({ required: true })
-    @Field()
-    categoryId: string;
+  @Prop({ required: true })
+  @Field()
+  categoryId: string;
 
+  @Field(() => GraphQLISODateTime)
+  createdAt: Date;
 
-
-    @Field(() => GraphQLISODateTime)
-    createdAt: Date;
-
-    @Field(() => GraphQLISODateTime)
-    updatedAt: Date;
+  @Field(() => GraphQLISODateTime)
+  updatedAt: Date;
 }
 
 export const CategorySeoSchema = SchemaFactory.createForClass(CategorySeo);
 
 CategorySeoSchema.virtual('id').get(function (this: any) {
-    return this._id.toString();
+  return this._id.toString();
 });
 
 CategorySeoSchema.index({ categoryId: 1 }, { unique: true });

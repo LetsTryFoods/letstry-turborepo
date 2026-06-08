@@ -1,5 +1,5 @@
-import React from 'react';
-import { MapPin, CreditCard } from 'lucide-react';
+import React from "react";
+import { MapPin, CreditCard } from "lucide-react";
 
 interface CartFooterProps {
   totalPrice: number;
@@ -31,18 +31,25 @@ export const CartFooter: React.FC<CartFooterProps> = ({
             <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0 text-[#003B65]" />
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between gap-2">
-                <span className="text-xs font-semibold text-gray-900">{selectedAddress.addressType}</span>
-                <span className="text-xs text-[#003B65] font-medium">Change</span>
+                <span className="text-xs font-semibold text-gray-900">
+                  {selectedAddress.addressType}
+                </span>
+                <span className="text-xs text-[#003B65] font-medium">
+                  Change
+                </span>
               </div>
               <p className="text-xs text-gray-600 line-clamp-2 mt-0.5">
-                {selectedAddress.buildingName || selectedAddress.formattedAddress}
+                {selectedAddress.buildingName ||
+                  selectedAddress.formattedAddress}
               </p>
             </div>
           </button>
           <div className="flex items-center justify-between gap-3">
             <div className="flex flex-col">
               <span className="text-sm text-gray-600">Total Amount</span>
-              <span className="text-2xl font-bold text-[#003B65]">₹ {totalPrice}</span>
+              <span className="text-2xl font-bold text-[#003B65]">
+                ₹ {totalPrice}
+              </span>
             </div>
 
             <button
@@ -57,7 +64,9 @@ export const CartFooter: React.FC<CartFooterProps> = ({
       ) : (
         <div className="flex items-center justify-between gap-3">
           <div className="flex flex-col">
-            <span className="text-xl font-bold text-[#003B65]">₹ {totalPrice}</span>
+            <span className="text-xl font-bold text-[#003B65]">
+              ₹ {totalPrice}
+            </span>
           </div>
 
           <button

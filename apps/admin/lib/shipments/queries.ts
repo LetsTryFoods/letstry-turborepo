@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useLazyQuery } from '@apollo/client/react'
+import { useQuery, useMutation, useLazyQuery } from "@apollo/client/react";
 import {
   GET_ALL_SHIPMENTS,
   GET_SHIPMENT_BY_ID,
@@ -7,7 +7,7 @@ import {
   CANCEL_SHIPMENT,
   GET_SHIPMENT_LABEL,
   SYNC_ACTIVE_SHIPMENTS,
-} from '../graphql/shipments'
+} from "../graphql/shipments";
 import {
   ShipmentFilters,
   ShipmentListData,
@@ -16,7 +16,7 @@ import {
   ShipmentWithTrackingData,
   CancelShipmentData,
   CancelShipmentInput,
-} from './types'
+} from "./types";
 
 export const useAllShipments = (filters: ShipmentFilters = {}) => {
   const { data, loading, error, refetch } = useQuery<ShipmentListData>(
@@ -29,9 +29,9 @@ export const useAllShipments = (filters: ShipmentFilters = {}) => {
           ...filters,
         },
       },
-      fetchPolicy: 'cache-and-network',
-    }
-  )
+      fetchPolicy: "cache-and-network",
+    },
+  );
 
   return {
     shipments: data?.listShipments?.shipments || [],
@@ -41,8 +41,8 @@ export const useAllShipments = (filters: ShipmentFilters = {}) => {
     loading,
     error,
     refetch,
-  }
-}
+  };
+};
 
 export const useShipmentById = (id: string) => {
   const { data, loading, error, refetch } = useQuery<ShipmentByIdData>(
@@ -50,17 +50,17 @@ export const useShipmentById = (id: string) => {
     {
       variables: { id },
       skip: !id,
-      fetchPolicy: 'cache-and-network',
-    }
-  )
+      fetchPolicy: "cache-and-network",
+    },
+  );
 
   return {
     shipment: data?.getShipmentById,
     loading,
     error,
     refetch,
-  }
-}
+  };
+};
 
 export const useShipmentByAwb = (awbNumber: string) => {
   const { data, loading, error, refetch } = useQuery<ShipmentByAwbData>(
@@ -68,17 +68,17 @@ export const useShipmentByAwb = (awbNumber: string) => {
     {
       variables: { awbNumber },
       skip: !awbNumber,
-      fetchPolicy: 'cache-and-network',
-    }
-  )
+      fetchPolicy: "cache-and-network",
+    },
+  );
 
   return {
     shipment: data?.getShipmentByAwb,
     loading,
     error,
     refetch,
-  }
-}
+  };
+};
 
 export const useShipmentWithTracking = (awbNumber: string) => {
   const { data, loading, error, refetch } = useQuery<ShipmentWithTrackingData>(
@@ -86,9 +86,9 @@ export const useShipmentWithTracking = (awbNumber: string) => {
     {
       variables: { awbNumber },
       skip: !awbNumber,
-      fetchPolicy: 'cache-and-network',
-    }
-  )
+      fetchPolicy: "cache-and-network",
+    },
+  );
 
   return {
     shipment: data?.getShipmentWithTracking,
@@ -96,86 +96,90 @@ export const useShipmentWithTracking = (awbNumber: string) => {
     loading,
     error,
     refetch,
-  }
-}
+  };
+};
 
 export const useCancelShipment = () => {
   const [cancelShipmentMutation, { loading, error }] =
-    useMutation<CancelShipmentData>(CANCEL_SHIPMENT)
+    useMutation<CancelShipmentData>(CANCEL_SHIPMENT);
 
   const cancelShipment = async (input: CancelShipmentInput) => {
     const result = await cancelShipmentMutation({
       variables: { input },
-      refetchQueries: ['ListShipments'],
-    })
-    return result.data?.cancelShipment
-  }
+      refetchQueries: ["ListShipments"],
+    });
+    return result.data?.cancelShipment;
+  };
 
   return {
     cancelShipment,
     loading,
     error,
-  }
-}
+  };
+};
 
 export const useShipmentLabel = () => {
-  const [getLabel, { loading, error }] = useLazyQuery<{ getShipmentLabel: string }>(GET_SHIPMENT_LABEL, {
-    fetchPolicy: 'network-only',
-  })
+  const [getLabel, { loading, error }] = useLazyQuery<{
+    getShipmentLabel: string;
+  }>(GET_SHIPMENT_LABEL, {
+    fetchPolicy: "network-only",
+  });
 
   const downloadLabel = async (awbNumber: string) => {
     try {
-      const response = await getLabel({ variables: { awbNumber } })
-      const base64 = response.data?.getShipmentLabel
+      const response = await getLabel({ variables: { awbNumber } });
+      const base64 = response.data?.getShipmentLabel;
 
       if (!base64) {
-        throw new Error('Label not found')
+        throw new Error("Label not found");
       }
 
       // Convert base64 to Blob and trigger download
-      const binaryData = atob(base64)
-      const arrayBuffer = new ArrayBuffer(binaryData.length)
-      const uint8Array = new Uint8Array(arrayBuffer)
+      const binaryData = atob(base64);
+      const arrayBuffer = new ArrayBuffer(binaryData.length);
+      const uint8Array = new Uint8Array(arrayBuffer);
 
       for (let i = 0; i < binaryData.length; i++) {
-        uint8Array[i] = binaryData.charCodeAt(i)
+        uint8Array[i] = binaryData.charCodeAt(i);
       }
 
-      const blob = new Blob([uint8Array], { type: 'application/pdf' })
-      const url = window.URL.createObjectURL(blob)
+      const blob = new Blob([uint8Array], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
 
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `label-${awbNumber}.pdf`
-      document.body.appendChild(link)
-      link.click()
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `label-${awbNumber}.pdf`;
+      document.body.appendChild(link);
+      link.click();
 
       // Cleanup
-      document.body.removeChild(link)
-      window.URL.revokeObjectURL(url)
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
 
-      return true
+      return true;
     } catch (e) {
-      console.error('Download failed', e)
-      return false
+      console.error("Download failed", e);
+      return false;
     }
-  }
+  };
 
-  return { downloadLabel, loading, error }
-}
+  return { downloadLabel, loading, error };
+};
 
 export const useSyncActiveShipments = () => {
-  const [syncShipments, { loading, error }] = useMutation<{ syncActiveShipments: boolean }>(SYNC_ACTIVE_SHIPMENTS)
+  const [syncShipments, { loading, error }] = useMutation<{
+    syncActiveShipments: boolean;
+  }>(SYNC_ACTIVE_SHIPMENTS);
 
   const sync = async (): Promise<boolean> => {
     try {
-      const response = await syncShipments()
-      return !!response?.data?.syncActiveShipments
+      const response = await syncShipments();
+      return !!response?.data?.syncActiveShipments;
     } catch (e) {
-      console.error('Sync failed', e)
-      return false
+      console.error("Sync failed", e);
+      return false;
     }
-  }
+  };
 
-  return { sync, loading, error }
-}
+  return { sync, loading, error };
+};

@@ -1,5 +1,10 @@
-import React from 'react';
-import { UseFormRegister, FieldValues, Path, RegisterOptions } from 'react-hook-form';
+import React from "react";
+import {
+  UseFormRegister,
+  FieldValues,
+  Path,
+  RegisterOptions,
+} from "react-hook-form";
 
 interface FormInputProps<T extends FieldValues> {
   label: string;
@@ -16,7 +21,7 @@ export const FormInput = <T extends FieldValues>({
   name,
   register,
   required = false,
-  type = 'text',
+  type = "text",
   placeholder,
   validation,
 }: FormInputProps<T>) => {

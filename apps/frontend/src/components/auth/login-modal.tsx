@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect, useRef } from 'react';
-import { X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { usePhoneAuth } from '@/hooks/use-phone-auth';
-import { useAuth } from '@/providers/auth-provider';
-import { toast } from 'react-hot-toast';
-import OtpInput from 'react-otp-input';
-import { useQueryClient } from '@tanstack/react-query';
+import { useEffect, useRef } from "react";
+import { X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { usePhoneAuth } from "@/hooks/use-phone-auth";
+import { useAuth } from "@/providers/auth-provider";
+import { toast } from "react-hot-toast";
+import OtpInput from "react-otp-input";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -17,7 +17,12 @@ interface LoginModalProps {
   onSuccess?: () => void;
 }
 
-export function LoginModal({ isOpen, onClose, backendUrl, onSuccess }: LoginModalProps) {
+export function LoginModal({
+  isOpen,
+  onClose,
+  backendUrl,
+  onSuccess,
+}: LoginModalProps) {
   const queryClient = useQueryClient();
   const { setGuestMode } = useAuth();
   const {
@@ -51,7 +56,7 @@ export function LoginModal({ isOpen, onClose, backendUrl, onSuccess }: LoginModa
   }, [isOpen, resetAuth]);
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+    const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
     setPhoneNumber(digits);
   };
 
@@ -59,9 +64,9 @@ export function LoginModal({ isOpen, onClose, backendUrl, onSuccess }: LoginModa
     e.preventDefault();
     try {
       await sendOTP();
-      toast.success('OTP sent successfully');
+      toast.success("OTP sent successfully");
     } catch (err: any) {
-      toast.error(err.message || 'Failed to send OTP');
+      toast.error(err.message || "Failed to send OTP");
     }
   };
 
@@ -69,21 +74,21 @@ export function LoginModal({ isOpen, onClose, backendUrl, onSuccess }: LoginModa
     e.preventDefault();
     try {
       await verifyOTP();
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
-      toast.success('Login successful!');
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+      toast.success("Login successful!");
       if (onSuccess) onSuccess();
       onClose();
     } catch (err: any) {
-      toast.error(err.message || 'Failed to verify OTP');
+      toast.error(err.message || "Failed to verify OTP");
     }
   };
 
   const handleSendSMS = async () => {
     try {
       await sendSMSOTP();
-      toast.success('OTP sent via SMS');
+      toast.success("OTP sent via SMS");
     } catch (err: any) {
-      toast.error(err.message || 'Failed to send SMS OTP');
+      toast.error(err.message || "Failed to send SMS OTP");
     }
   };
 
@@ -124,7 +129,9 @@ export function LoginModal({ isOpen, onClose, backendUrl, onSuccess }: LoginModa
 
           {!otpSent ? (
             <>
-              <h2 className="text-[32px] leading-tight font-bold text-black mb-2">Sign in</h2>
+              <h2 className="text-[32px] leading-tight font-bold text-black mb-2">
+                Sign in
+              </h2>
               <p className="text-[15px] text-gray-700 mb-6">
                 Enter your phone number to continue
               </p>
@@ -157,7 +164,7 @@ export function LoginModal({ isOpen, onClose, backendUrl, onSuccess }: LoginModa
                   disabled={loading || phoneNumber.length !== 10}
                   className="cursor-pointer mt-6 w-full py-6 rounded-[12px] bg-[#0C5273] text-white font-semibold hover:bg-[#0C5273] transition disabled:opacity-60"
                 >
-                  {loading ? 'Processing…' : 'Continue'}
+                  {loading ? "Processing…" : "Continue"}
                 </Button>
 
                 <button
@@ -176,11 +183,11 @@ export function LoginModal({ isOpen, onClose, backendUrl, onSuccess }: LoginModa
                 Enter OTP Code
               </h2>
               <p className="text-[15px] text-[#0C5273] mb-2">
-                {otpProvider === 'whatsapp'
+                {otpProvider === "whatsapp"
                   ? "We've sent an OTP to your WhatsApp"
                   : "We've sent an OTP to your device"}
               </p>
-              {otpProvider === 'whatsapp' && (
+              {otpProvider === "whatsapp" && (
                 <p className="text-[13px] text-teal-700 mb-4 font-medium">
                   Check your WhatsApp messages
                 </p>
@@ -205,7 +212,9 @@ export function LoginModal({ isOpen, onClose, backendUrl, onSuccess }: LoginModa
                 </div>
 
                 {error && otpSent && (
-                  <p className="text-red-600 mb-3 text-sm text-center">{error}</p>
+                  <p className="text-red-600 mb-3 text-sm text-center">
+                    {error}
+                  </p>
                 )}
 
                 <Button
@@ -213,7 +222,7 @@ export function LoginModal({ isOpen, onClose, backendUrl, onSuccess }: LoginModa
                   disabled={loading || otp.length !== 6}
                   className="w-full py-6 rounded-[12px] bg-[#0C5273] text-white font-semibold hover:bg-[#0C5273]/80 transition disabled:opacity-60"
                 >
-                  {loading ? 'Verifying…' : 'Verify Code'}
+                  {loading ? "Verifying…" : "Verify Code"}
                 </Button>
 
                 <button

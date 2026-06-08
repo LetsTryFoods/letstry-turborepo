@@ -5,7 +5,10 @@ import { cookies } from "next/headers";
 const TOKEN_MAX_AGE = 60 * 60 * 24 * 7;
 const REFRESH_TOKEN_MAX_AGE = 60 * 60 * 24 * 30;
 
-export async function setAuthCookie(token: string, maxAge: number = TOKEN_MAX_AGE) {
+export async function setAuthCookie(
+  token: string,
+  maxAge: number = TOKEN_MAX_AGE,
+) {
   const cookieStore = await cookies();
   const domain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN;
 
@@ -31,7 +34,10 @@ export async function setRefreshCookie(refreshToken: string) {
   });
 }
 
-export async function setUserDataCookie(data: { uid: string; phoneNumber: string }) {
+export async function setUserDataCookie(data: {
+  uid: string;
+  phoneNumber: string;
+}) {
   const cookieStore = await cookies();
   cookieStore.set("user_data", JSON.stringify(data), {
     httpOnly: false,

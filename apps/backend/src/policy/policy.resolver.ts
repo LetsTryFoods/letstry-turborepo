@@ -1,4 +1,12 @@
-import { Resolver, Query, Mutation, Args, ID, ResolveField, Parent } from '@nestjs/graphql';
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Args,
+  ID,
+  ResolveField,
+  Parent,
+} from '@nestjs/graphql';
 import { PolicyService } from './policy.service';
 import { PolicySeoService } from './policy-seo.service';
 import { Policy } from './policy.graphql';
@@ -14,7 +22,7 @@ export class PolicyResolver {
   constructor(
     private readonly policyService: PolicyService,
     private readonly policySeoService: PolicySeoService,
-  ) { }
+  ) {}
 
   @Query(() => [Policy], { name: 'policies' })
   @Public()
@@ -67,11 +75,13 @@ export class PolicyResolver {
   @Public()
   async getSeo(@Parent() policy: Policy): Promise<PolicySeo | null> {
     if (!policy.seo || !policy.seo.metaTitle) {
-      const seoFromCollection = await this.policySeoService.findByPolicyId(policy._id);
+      const seoFromCollection = await this.policySeoService.findByPolicyId(
+        policy._id,
+      );
       if (seoFromCollection) return seoFromCollection;
       return null;
     }
-    
+
     return {
       _id: policy._id,
       policyId: policy._id,

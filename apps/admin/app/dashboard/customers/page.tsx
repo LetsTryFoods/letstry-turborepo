@@ -137,47 +137,61 @@ export default function CustomersPage() {
 
       <Card>
         <CardContent className="pt-6">
-          <h3 className="text-sm font-medium text-muted-foreground mb-4">Platform Breakdown</h3>
+          <h3 className="text-sm font-medium text-muted-foreground mb-4">
+            Platform Breakdown
+          </h3>
           <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
             <div className="flex items-center gap-2">
               <Smartphone className="h-4 w-4 text-green-600" />
               <div>
-                <p className="text-lg font-bold">{summary?.platformStats?.android || 0}</p>
+                <p className="text-lg font-bold">
+                  {summary?.platformStats?.android || 0}
+                </p>
                 <p className="text-xs text-muted-foreground">Android</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Smartphone className="h-4 w-4 text-blue-600" />
               <div>
-                <p className="text-lg font-bold">{summary?.platformStats?.ios || 0}</p>
+                <p className="text-lg font-bold">
+                  {summary?.platformStats?.ios || 0}
+                </p>
                 <p className="text-xs text-muted-foreground">iOS</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Globe className="h-4 w-4 text-purple-600" />
               <div>
-                <p className="text-lg font-bold">{summary?.platformStats?.web || 0}</p>
+                <p className="text-lg font-bold">
+                  {summary?.platformStats?.web || 0}
+                </p>
                 <p className="text-xs text-muted-foreground">Web</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Laptop className="h-4 w-4 text-gray-600" />
               <div>
-                <p className="text-lg font-bold">{summary?.platformStats?.macos || 0}</p>
+                <p className="text-lg font-bold">
+                  {summary?.platformStats?.macos || 0}
+                </p>
                 <p className="text-xs text-muted-foreground">macOS</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Monitor className="h-4 w-4 text-blue-500" />
               <div>
-                <p className="text-lg font-bold">{summary?.platformStats?.windows || 0}</p>
+                <p className="text-lg font-bold">
+                  {summary?.platformStats?.windows || 0}
+                </p>
                 <p className="text-xs text-muted-foreground">Windows</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Monitor className="h-4 w-4 text-orange-600" />
               <div>
-                <p className="text-lg font-bold">{summary?.platformStats?.linux || 0}</p>
+                <p className="text-lg font-bold">
+                  {summary?.platformStats?.linux || 0}
+                </p>
                 <p className="text-xs text-muted-foreground">Linux</p>
               </div>
             </div>

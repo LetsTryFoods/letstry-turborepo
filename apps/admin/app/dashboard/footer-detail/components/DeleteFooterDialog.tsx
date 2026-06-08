@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import {
   AlertDialog,
@@ -9,20 +9,20 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
 
 interface DeleteFooterDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  footerToDelete: { id: string; companyName: string } | null
-  onConfirm: () => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  footerToDelete: { id: string; companyName: string } | null;
+  onConfirm: () => void;
 }
 
 export function DeleteFooterDialog({
   open,
   onOpenChange,
   footerToDelete,
-  onConfirm
+  onConfirm,
 }: DeleteFooterDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -30,13 +30,14 @@ export function DeleteFooterDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>Are you sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This will permanently delete the footer configuration for{' '}
-            <strong>{footerToDelete?.companyName}</strong>. This action cannot be undone.
+            This will permanently delete the footer configuration for{" "}
+            <strong>{footerToDelete?.companyName}</strong>. This action cannot
+            be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction 
+          <AlertDialogAction
             onClick={onConfirm}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
@@ -45,5 +46,5 @@ export function DeleteFooterDialog({
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  )
+  );
 }

@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { gql } from "@apollo/client";
 
 export const BULK_UPSERT_PINCODES = gql`
   mutation BulkUpsertPincodes($pincodes: [PincodeInput!]!) {

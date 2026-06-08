@@ -1,4 +1,4 @@
-import { graphql } from '@/gql';
+import { graphql } from "@/gql";
 
 export const GET_PRODUCTS_BY_CATEGORY = graphql(`
   query GetProductsByCategory($categoryId: ID!, $pagination: PaginationInput!) {
@@ -97,15 +97,30 @@ export const GET_PRODUCT_BY_SLUG = graphql(`
       manufacturingProcess
       audience
       occasions
-      pros { text }
-      cons { text }
-      certifications { name number iconUrl }
-      lifestyleImages { url alt caption }
+      pros {
+        text
+      }
+      cons {
+        text
+      }
+      certifications {
+        name
+        number
+        iconUrl
+      }
+      lifestyleImages {
+        url
+        alt
+        caption
+      }
       videoUrl
       videoTitle
       videoDescription
       videoThumbnailUrl
-      productFaqs { question answer }
+      productFaqs {
+        question
+        answer
+      }
       pillarSlugs
       relatedProductIds
       bundleProductIds

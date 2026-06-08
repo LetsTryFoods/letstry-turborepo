@@ -1,147 +1,181 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect } from "react";
 import {
   useCategories,
   useCreateCategory,
   useUpdateCategory,
   useArchiveCategory,
   useUnarchiveCategory,
-  useSearchCategories
-} from "@/lib/categories/useCategories"
+  useSearchCategories,
+} from "@/lib/categories/useCategories";
 
 export function useCategoryPage() {
   // UI State
   const [selectedColumns, setSelectedColumns] = useState([
-    "name", "slug", "codeValue", "productCount", "isArchived", "createdAt"
-  ])
-  const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize] = useState(10)
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [editingCategory, setEditingCategory] = useState<any | null>(null)
-  const [deleteAlertOpen, setDeleteAlertOpen] = useState(false)
-  const [categoryToArchive, setCategoryToArchive] = useState<{ _id: string; isArchived: boolean } | null>(null)
-  const [imagePreview, setImagePreview] = useState<{ url: string; title: string } | null>(null)
-  const [includeArchived, setIncludeArchived] = useState(false)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("")
+    "name",
+    "slug",
+    "codeValue",
+    "productCount",
+    "isArchived",
+    "createdAt",
+  ]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<any | null>(null);
+  const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
+  const [categoryToArchive, setCategoryToArchive] = useState<{
+    _id: string;
+    isArchived: boolean;
+  } | null>(null);
+  const [imagePreview, setImagePreview] = useState<{
+    url: string;
+    title: string;
+  } | null>(null);
+  const [includeArchived, setIncludeArchived] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
   // Update debounced search term
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedSearchTerm(searchTerm)
-      setCurrentPage(1)
-    }, 500)
-    return () => clearTimeout(timer)
-  }, [searchTerm])
+      setDebouncedSearchTerm(searchTerm);
+      setCurrentPage(1);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   // API Hooks
-  const allCategoriesQuery = useCategories({ page: currentPage, limit: pageSize }, includeArchived)
-  const searchCategoriesQuery = useSearchCategories(debouncedSearchTerm, { page: currentPage, limit: pageSize }, includeArchived)
+  const allCategoriesQuery = useCategories(
+    { page: currentPage, limit: pageSize },
+    includeArchived,
+  );
+  const searchCategoriesQuery = useSearchCategories(
+    debouncedSearchTerm,
+    { page: currentPage, limit: pageSize },
+    includeArchived,
+  );
 
-  const categoriesQuery = debouncedSearchTerm ? searchCategoriesQuery : allCategoriesQuery
-  const { data: categoriesData, loading: categoriesLoading, error: categoriesError } = categoriesQuery as { data: any, loading: boolean, error: any }
+  const categoriesQuery = debouncedSearchTerm
+    ? searchCategoriesQuery
+    : allCategoriesQuery;
+  const {
+    data: categoriesData,
+    loading: categoriesLoading,
+    error: categoriesError,
+  } = categoriesQuery as { data: any; loading: boolean; error: any };
 
-  const { mutate: createCategory, loading: createLoading } = useCreateCategory()
-  const { mutate: updateCategory, loading: updateLoading } = useUpdateCategory()
-  const { mutate: archiveCategory, loading: archiveLoading } = useArchiveCategory()
-  const { mutate: unarchiveCategory, loading: unarchiveLoading } = useUnarchiveCategory()
+  const { mutate: createCategory, loading: createLoading } =
+    useCreateCategory();
+  const { mutate: updateCategory, loading: updateLoading } =
+    useUpdateCategory();
+  const { mutate: archiveCategory, loading: archiveLoading } =
+    useArchiveCategory();
+  const { mutate: unarchiveCategory, loading: unarchiveLoading } =
+    useUnarchiveCategory();
 
   // Derived Data
   const categories = debouncedSearchTerm
     ? (categoriesData as any)?.searchCategories?.items || []
-    : (categoriesData as any)?.categories?.items || []
+    : (categoriesData as any)?.categories?.items || [];
 
   const meta = debouncedSearchTerm
     ? (categoriesData as any)?.searchCategories?.meta || {
-      totalCount: 0,
-      page: 1,
-      limit: pageSize,
-      totalPages: 1,
-      hasNextPage: false,
-      hasPreviousPage: false
-    }
+        totalCount: 0,
+        page: 1,
+        limit: pageSize,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      }
     : (categoriesData as any)?.categories?.meta || {
-      totalCount: 0,
-      page: 1,
-      limit: pageSize,
-      totalPages: 1,
-      hasNextPage: false,
-      hasPreviousPage: false
-    }
+        totalCount: 0,
+        page: 1,
+        limit: pageSize,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      };
 
   // Handlers
   const handleColumnToggle = (columnKey: string) => {
-    setSelectedColumns(prev =>
+    setSelectedColumns((prev) =>
       prev.includes(columnKey)
-        ? prev.filter(key => key !== columnKey)
-        : [...prev, columnKey]
-    )
-  }
+        ? prev.filter((key) => key !== columnKey)
+        : [...prev, columnKey],
+    );
+  };
 
   const handlePageChange = (page: number) => {
-    setCurrentPage(page)
-  }
+    setCurrentPage(page);
+  };
 
-  const handleArchiveToggle = (categoryId: string, isCurrentlyArchived: boolean) => {
-    setCategoryToArchive({ _id: categoryId, isArchived: isCurrentlyArchived })
-    setDeleteAlertOpen(true)
-  }
+  const handleArchiveToggle = (
+    categoryId: string,
+    isCurrentlyArchived: boolean,
+  ) => {
+    setCategoryToArchive({ _id: categoryId, isArchived: isCurrentlyArchived });
+    setDeleteAlertOpen(true);
+  };
 
   const handleArchiveConfirm = async () => {
     if (categoryToArchive) {
       try {
         if (categoryToArchive.isArchived) {
           await unarchiveCategory({
-            variables: { id: categoryToArchive._id }
-          })
+            variables: { id: categoryToArchive._id },
+          });
         } else {
           await archiveCategory({
-            variables: { id: categoryToArchive._id }
-          })
+            variables: { id: categoryToArchive._id },
+          });
         }
-        setCategoryToArchive(null)
+        setCategoryToArchive(null);
       } catch (error) {
-        console.error('Failed to toggle category archive status:', error)
+        console.error("Failed to toggle category archive status:", error);
       }
     }
-    setDeleteAlertOpen(false)
-  }
+    setDeleteAlertOpen(false);
+  };
 
-  const handleFavouriteToggle = async (categoryId: string, currentFavourite: boolean) => {
+  const handleFavouriteToggle = async (
+    categoryId: string,
+    currentFavourite: boolean,
+  ) => {
     try {
       await updateCategory({
         variables: {
           id: categoryId,
           input: {
-            favourite: !currentFavourite
-          }
-        }
-      })
+            favourite: !currentFavourite,
+          },
+        },
+      });
     } catch (error) {
-      console.error('Failed to toggle category favourite status:', error)
+      console.error("Failed to toggle category favourite status:", error);
     }
-  }
+  };
 
   const handleEdit = (categoryId: string) => {
-    const category = categories.find((c: any) => c._id === categoryId)
+    const category = categories.find((c: any) => c._id === categoryId);
     if (category) {
-      setEditingCategory(category)
-      setIsDialogOpen(true)
+      setEditingCategory(category);
+      setIsDialogOpen(true);
     }
-  }
+  };
 
   const handleCloseDialog = () => {
-    setIsDialogOpen(false)
-    setEditingCategory(null)
-  }
+    setIsDialogOpen(false);
+    setEditingCategory(null);
+  };
 
   const handleAddCategory = () => {
-    setEditingCategory(null)
-    setIsDialogOpen(true)
-  }
+    setEditingCategory(null);
+    setIsDialogOpen(true);
+  };
 
   const handleImagePreview = (url: string, title: string) => {
-    setImagePreview({ url, title })
-  }
+    setImagePreview({ url, title });
+  };
 
   return {
     state: {
@@ -162,7 +196,7 @@ export function useCategoryPage() {
       createLoading,
       updateLoading,
       archiveLoading,
-      unarchiveLoading
+      unarchiveLoading,
     },
     actions: {
       setSelectedColumns,
@@ -181,7 +215,7 @@ export function useCategoryPage() {
       handleAddCategory,
       handleImagePreview,
       createCategory,
-      updateCategory
-    }
-  }
+      updateCategory,
+    },
+  };
 }

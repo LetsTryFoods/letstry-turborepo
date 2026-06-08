@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { ShoppingCart } from 'lucide-react';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { ShoppingCart } from "lucide-react";
 
 interface DietIcon {
   type: string;
@@ -29,7 +29,7 @@ export function ProductInfo({
   sizes,
   dietIcons,
   category,
-  categoryLink = '#'
+  categoryLink = "#",
 }: ProductInfoProps) {
   const [selectedSize, setSelectedSize] = useState(sizes[0]);
 
@@ -41,12 +41,16 @@ export function ProductInfo({
         </h1>
         {category && (
           <div className="flex items-center gap-2 text-sm">
-            <Link 
+            <Link
               href={categoryLink}
               className="flex items-center gap-1 text-teal-700 hover:underline"
             >
               <span className="w-5 h-5 flex items-center justify-center">
-                <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                <svg
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  className="w-4 h-4"
+                >
                   <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
                 </svg>
               </span>
@@ -60,8 +64,8 @@ export function ProductInfo({
         <p className="text-3xl font-bold text-gray-900">₹{price}</p>
         {(taxIncluded || shippingCalculated) && (
           <p className="text-sm text-gray-500 mt-1">
-            {taxIncluded && 'Tax included. '}
-            {shippingCalculated && 'Shipping calculated at checkout.'}
+            {taxIncluded && "Tax included. "}
+            {shippingCalculated && "Shipping calculated at checkout."}
           </p>
         )}
       </div>
@@ -77,8 +81,8 @@ export function ProductInfo({
               onClick={() => setSelectedSize(size)}
               className={`w-14 h-14 rounded-full border-2 flex items-center justify-center text-sm font-medium transition-all ${
                 selectedSize === size
-                  ? 'border-teal-600 bg-teal-50 text-teal-700'
-                  : 'border-gray-300 text-gray-700 hover:border-gray-400'
+                  ? "border-teal-600 bg-teal-50 text-teal-700"
+                  : "border-gray-300 text-gray-700 hover:border-gray-400"
               }`}
             >
               {size}
@@ -95,19 +99,25 @@ export function ProductInfo({
               className="w-12 h-12 rounded-full border-2 border-gray-300 flex items-center justify-center"
               title={icon.label}
             >
-              <div className={`w-8 h-8 rounded-full ${
-                icon.type === 'veg' ? 'bg-green-500' :
-                icon.type === 'nonveg' ? 'bg-red-500' :
-                icon.type === 'gluten-free' ? 'bg-orange-500' :
-                icon.type === 'halal' ? 'bg-blue-500' :
-                'bg-gray-400'
-              }`} />
+              <div
+                className={`w-8 h-8 rounded-full ${
+                  icon.type === "veg"
+                    ? "bg-green-500"
+                    : icon.type === "nonveg"
+                      ? "bg-red-500"
+                      : icon.type === "gluten-free"
+                        ? "bg-orange-500"
+                        : icon.type === "halal"
+                          ? "bg-blue-500"
+                          : "bg-gray-400"
+                }`}
+              />
             </div>
           ))}
         </div>
       )}
 
-      <Button 
+      <Button
         className="w-full bg-teal-700 hover:bg-teal-800 text-white font-semibold py-6 text-base"
         size="lg"
       >

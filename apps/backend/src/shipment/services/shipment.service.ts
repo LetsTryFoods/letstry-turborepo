@@ -1,4 +1,9 @@
-import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Shipment } from '../entities/shipment.entity';
@@ -6,7 +11,10 @@ import { OrderTrackingAnalytics } from '../entities/order-tracking-analytics.ent
 import { DtdcApiService } from './dtdc-api.service';
 import { TrackingService } from './tracking.service';
 import { ShipmentStatusMapperService } from './shipment-status-mapper.service';
-import { CreateShipmentData, ShipmentFilters } from '../interfaces/shipment.interface';
+import {
+  CreateShipmentData,
+  ShipmentFilters,
+} from '../interfaces/shipment.interface';
 import { DtdcBookingPayload } from '../interfaces/dtdc-payload.interface';
 import { ConfigService } from '@nestjs/config';
 import { ShipmentLoggerService } from './shipment-logger.service';
@@ -42,12 +50,16 @@ export class ShipmentService {
     private readonly shipmentLogger: ShipmentLoggerService,
     private readonly orderRepository: OrderRepository,
     private readonly deliveryPartnerFactory: DeliveryPartnerFactory,
-  ) { }
+  ) {}
 
-  async createShipment(data: CreateShipmentData): Promise<{ shipment: Shipment; awbNumber: string; labelUrl: string }> {
+  async createShipment(
+    data: CreateShipmentData,
+  ): Promise<{ shipment: Shipment; awbNumber: string; labelUrl: string }> {
     const providerStr = (data as any).provider || 'DTDC';
     const provider = providerStr === 'Shiprocket' ? 'SHIPROCKET' : providerStr;
-    const adapter = this.deliveryPartnerFactory.getAdapter(provider as 'DTDC' | 'SHIPROCKET');
+    const adapter = this.deliveryPartnerFactory.getAdapter(
+      provider as 'DTDC' | 'SHIPROCKET',
+    );
 
     if (provider === 'DTDC') {
       const serviceable = await this.dtdcApiService.checkPincode(
@@ -56,7 +68,9 @@ export class ShipmentService {
       );
 
       if (!serviceable) {
-        throw new BadRequestException('Destination pincode not serviceable by DTDC');
+        throw new BadRequestException(
+          'Destination pincode not serviceable by DTDC',
+        );
       }
     }
 
@@ -64,8 +78,12 @@ export class ShipmentService {
     const awbNumber = bookingResult.awbNumber;
 
     const trackingDisabledAfter = new Date();
-    const trackingValidityDays = this.configService.get<number>('dtdc.defaults.trackingValidityDays') || 90;
-    trackingDisabledAfter.setDate(trackingDisabledAfter.getDate() + trackingValidityDays);
+    const trackingValidityDays =
+      this.configService.get<number>('dtdc.defaults.trackingValidityDays') ||
+      90;
+    trackingDisabledAfter.setDate(
+      trackingDisabledAfter.getDate() + trackingValidityDays,
+    );
 
     const shipment = await this.shipmentModel.create({
       orderId: data.orderId ? new Types.ObjectId(data.orderId) : undefined,
@@ -73,7 +91,11 @@ export class ShipmentService {
       pickupLocationName: (data as any).pickupLocationName,
       awbNumber: bookingResult.awbNumber,
       dtdcAwbNumber: bookingResult.awbNumber,
-      dtdcReferenceNumber: bookingResult.providerOrderId || data.orderNumber || data.orderId || `REF-${Date.now()}`,
+      dtdcReferenceNumber:
+        bookingResult.providerOrderId ||
+        data.orderNumber ||
+        data.orderId ||
+        `REF-${Date.now()}`,
       providerOrderId: bookingResult.providerOrderId,
       customerCode: this.configService.get<string>('dtdc.customerCode'),
       serviceType: data.serviceType,
@@ -100,18 +122,22 @@ export class ShipmentService {
       labelUrl: bookingResult.labelUrl,
     });
 
-    this.shipmentLogger.logShipmentBooked(awbNumber, data.orderId || '', shipment._id.toString(), provider);
+    this.shipmentLogger.logShipmentBooked(
+      awbNumber,
+      data.orderId || '',
+      shipment._id.toString(),
+      provider,
+    );
 
     return { shipment, awbNumber, labelUrl: bookingResult.labelUrl };
   }
 
   async findByAwbNumber(awbNumber: string): Promise<Shipment | null> {
-    return this.shipmentModel.findOne({
-      $or: [
-        { awbNumber: awbNumber },
-        { dtdcAwbNumber: awbNumber }
-      ]
-    }).exec();
+    return this.shipmentModel
+      .findOne({
+        $or: [{ awbNumber: awbNumber }, { dtdcAwbNumber: awbNumber }],
+      })
+      .exec();
   }
 
   async findById(id: string): Promise<Shipment | null> {
@@ -130,7 +156,9 @@ export class ShipmentService {
   }
 
   async findByOrderId(orderId: string): Promise<Shipment[]> {
-    return this.shipmentModel.find({ orderId: new Types.ObjectId(orderId) }).exec();
+    return this.shipmentModel
+      .find({ orderId: new Types.ObjectId(orderId) })
+      .exec();
   }
 
   async listShipments(filters: ShipmentFilters): Promise<{
@@ -166,7 +194,12 @@ export class ShipmentService {
     const skip = (page - 1) * limit;
 
     const [shipments, total, summary] = await Promise.all([
-      this.shipmentModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).exec(),
+      this.shipmentModel
+        .find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .exec(),
       this.shipmentModel.countDocuments(query).exec(),
       this.getShipmentsSummary(baseFilter),
     ]);
@@ -179,7 +212,12 @@ export class ShipmentService {
     };
   }
 
-  async updateStatus(awbNumber: string, statusCode: string, statusDescription: string, location?: string): Promise<Shipment> {
+  async updateStatus(
+    awbNumber: string,
+    statusCode: string,
+    statusDescription: string,
+    location?: string,
+  ): Promise<Shipment> {
     const shipment = await this.findByAwbNumber(awbNumber);
 
     if (!shipment) {
@@ -216,7 +254,9 @@ export class ShipmentService {
     }
 
     const provider = shipment.provider || 'DTDC';
-    const adapter = this.deliveryPartnerFactory.getAdapter(provider as 'DTDC' | 'SHIPROCKET');
+    const adapter = this.deliveryPartnerFactory.getAdapter(
+      provider as 'DTDC' | 'SHIPROCKET',
+    );
     await adapter.cancelShipment(awbNumber, shipment.providerOrderId);
 
     shipment.isCancelled = true;
@@ -228,19 +268,25 @@ export class ShipmentService {
     return shipment;
   }
 
-  async getShipmentWithTracking(awbNumber: string): Promise<{ shipment: Shipment; tracking: any[] }> {
+  async getShipmentWithTracking(
+    awbNumber: string,
+  ): Promise<{ shipment: Shipment; tracking: any[] }> {
     const shipment = await this.findByAwbNumber(awbNumber);
 
     if (!shipment) {
       throw new NotFoundException(`Shipment with AWB ${awbNumber} not found`);
     }
 
-    const tracking = await this.trackingService.getShipmentTimeline(shipment._id.toString());
+    const tracking = await this.trackingService.getShipmentTimeline(
+      shipment._id.toString(),
+    );
 
     return { shipment, tracking };
   }
 
-  async getShipmentWithFreshTracking(awbNumber: string): Promise<{ shipment: Shipment; tracking: any[]; order: any | null }> {
+  async getShipmentWithFreshTracking(
+    awbNumber: string,
+  ): Promise<{ shipment: Shipment; tracking: any[]; order: any | null }> {
     const shipment = await this.findByAwbNumber(awbNumber);
 
     if (!shipment) {
@@ -253,47 +299,71 @@ export class ShipmentService {
       const trackResponse = await this.dtdcApiService.trackShipment(awbNumber);
 
       if (trackResponse?.statusFlag && trackResponse.trackDetails?.length) {
-        const newEvents = await this.trackingService.syncTrackingData(shipmentId, trackResponse.trackDetails);
+        const newEvents = await this.trackingService.syncTrackingData(
+          shipmentId,
+          trackResponse.trackDetails,
+        );
 
         if (newEvents && newEvents.length > 0) {
           const latestEvent = newEvents[newEvents.length - 1];
-          const statusDescription = this.statusMapper.getStatusDescription(latestEvent.statusCode);
-          await this.updateStatus(awbNumber, latestEvent.statusCode, statusDescription, latestEvent.location);
+          const statusDescription = this.statusMapper.getStatusDescription(
+            latestEvent.statusCode,
+          );
+          await this.updateStatus(
+            awbNumber,
+            latestEvent.statusCode,
+            statusDescription,
+            latestEvent.location,
+          );
         }
       }
-    } catch {
-    }
+    } catch {}
 
     const updatedShipment = await this.findByAwbNumber(awbNumber);
     const tracking = await this.trackingService.getShipmentTimeline(shipmentId);
 
     let order: any | null = null;
     if (updatedShipment!.orderId) {
-      order = await this.orderRepository.findByInternalId(updatedShipment!.orderId.toString());
+      order = await this.orderRepository.findByInternalId(
+        updatedShipment!.orderId.toString(),
+      );
     }
 
     return { shipment: updatedShipment!, tracking, order };
   }
 
-  async findAwbByLookup(query: string, analyticsData?: {
-    searchType: 'orderId' | 'phone' | 'awb';
-    userAgent: string;
-    ipAddress: string;
-    userId?: string;
-  }): Promise<{ awbNumber: string | null; orderId: string | null; order: any | null }> {
-    writeTrackingLog(`Start search for query: ${query}, analytics: ${JSON.stringify(analyticsData)}`);
+  async findAwbByLookup(
+    query: string,
+    analyticsData?: {
+      searchType: 'orderId' | 'phone' | 'awb';
+      userAgent: string;
+      ipAddress: string;
+      userId?: string;
+    },
+  ): Promise<{
+    awbNumber: string | null;
+    orderId: string | null;
+    order: any | null;
+  }> {
+    writeTrackingLog(
+      `Start search for query: ${query}, analytics: ${JSON.stringify(analyticsData)}`,
+    );
     let foundResult = false;
     let awbNumber: string | null = null;
     let foundOrder: any | null = null;
 
     writeTrackingLog(`Checking byAwb...`);
-    const byAwb = await this.shipmentModel.findOne({ dtdcAwbNumber: query }).exec();
+    const byAwb = await this.shipmentModel
+      .findOne({ dtdcAwbNumber: query })
+      .exec();
     if (byAwb) {
       writeTrackingLog(`Found byAwb: ${byAwb.dtdcAwbNumber}`);
       foundResult = true;
       awbNumber = byAwb.dtdcAwbNumber;
       if (byAwb.orderId) {
-        foundOrder = await this.orderRepository.findByInternalId(byAwb.orderId.toString());
+        foundOrder = await this.orderRepository.findByInternalId(
+          byAwb.orderId.toString(),
+        );
       }
     }
 
@@ -356,7 +426,11 @@ export class ShipmentService {
     return {
       awbNumber,
       orderId: foundOrder ? (foundOrder.orderId ?? null) : null,
-      order: foundOrder ? (foundOrder.toObject ? foundOrder.toObject() : foundOrder) : null,
+      order: foundOrder
+        ? foundOrder.toObject
+          ? foundOrder.toObject()
+          : foundOrder
+        : null,
     };
   }
 
@@ -380,17 +454,24 @@ export class ShipmentService {
       .exec();
 
     // Calculate summary statistics
-    const totalSearches = await this.analyticsModel.countDocuments(query).exec();
-    const successfulSearches = await this.analyticsModel.countDocuments({ ...query, foundResult: true }).exec();
-    const searchTypeBreakdown = await this.analyticsModel.aggregate([
-      { $match: query },
-      { $group: { _id: '$searchType', count: { $sum: 1 } } },
-    ]).exec();
+    const totalSearches = await this.analyticsModel
+      .countDocuments(query)
+      .exec();
+    const successfulSearches = await this.analyticsModel
+      .countDocuments({ ...query, foundResult: true })
+      .exec();
+    const searchTypeBreakdown = await this.analyticsModel
+      .aggregate([
+        { $match: query },
+        { $group: { _id: '$searchType', count: { $sum: 1 } } },
+      ])
+      .exec();
 
     return {
       totalSearches,
       successfulSearches,
-      successRate: totalSearches > 0 ? (successfulSearches / totalSearches) * 100 : 0,
+      successRate:
+        totalSearches > 0 ? (successfulSearches / totalSearches) * 100 : 0,
       searchTypeBreakdown,
       recentSearches: analytics.map((item) => ({
         id: item._id.toString(),
@@ -474,27 +555,37 @@ export class ShipmentService {
       cancelled,
     ] = await Promise.all([
       this.shipmentModel.countDocuments(baseFilter).exec(),
-      this.shipmentModel.countDocuments({
-        ...baseFilter,
-        currentStatusCode: { $in: ['ITM', 'OFD'] },
-      }).exec(),
-      this.shipmentModel.countDocuments({
-        ...baseFilter,
-        isDelivered: true,
-        deliveredAt: { $gte: startOfToday, $lte: endOfToday },
-      }).exec(),
-      this.shipmentModel.countDocuments({
-        ...baseFilter,
-        currentStatusCode: { $in: ['BKD', 'PUP'] },
-      }).exec(),
-      this.shipmentModel.countDocuments({
-        ...baseFilter,
-        isRto: true,
-      }).exec(),
-      this.shipmentModel.countDocuments({
-        ...baseFilter,
-        isCancelled: true,
-      }).exec(),
+      this.shipmentModel
+        .countDocuments({
+          ...baseFilter,
+          currentStatusCode: { $in: ['ITM', 'OFD'] },
+        })
+        .exec(),
+      this.shipmentModel
+        .countDocuments({
+          ...baseFilter,
+          isDelivered: true,
+          deliveredAt: { $gte: startOfToday, $lte: endOfToday },
+        })
+        .exec(),
+      this.shipmentModel
+        .countDocuments({
+          ...baseFilter,
+          currentStatusCode: { $in: ['BKD', 'PUP'] },
+        })
+        .exec(),
+      this.shipmentModel
+        .countDocuments({
+          ...baseFilter,
+          isRto: true,
+        })
+        .exec(),
+      this.shipmentModel
+        .countDocuments({
+          ...baseFilter,
+          isCancelled: true,
+        })
+        .exec(),
     ]);
 
     return {

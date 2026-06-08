@@ -1,25 +1,34 @@
-'use client'
+"use client";
 
-import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { ColumnSelector, ColumnDefinition } from '@/app/dashboard/components/column-selector'
-import { useLandingPagePage } from '@/hooks/useLandingPagePage'
-import { LandingPageForm } from './components/LandingPageForm'
-import { LandingPageTable } from './components/LandingPageTable'
-import { DeleteLandingPageDialog } from './components/DeleteLandingPageDialog'
-import { LandingPageSeoDialog } from './components/LandingPageSeoDialog'
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  ColumnSelector,
+  ColumnDefinition,
+} from "@/app/dashboard/components/column-selector";
+import { useLandingPagePage } from "@/hooks/useLandingPagePage";
+import { LandingPageForm } from "./components/LandingPageForm";
+import { LandingPageTable } from "./components/LandingPageTable";
+import { DeleteLandingPageDialog } from "./components/DeleteLandingPageDialog";
+import { LandingPageSeoDialog } from "./components/LandingPageSeoDialog";
 
 const allColumns: ColumnDefinition[] = [
-  { key: '_id', label: 'ID' },
-  { key: 'title', label: 'Title' },
-  { key: 'slug', label: 'Slug' },
-  { key: 'description', label: 'Description' },
-  { key: 'thumbnailUrl', label: 'Thumbnail URL' },
-  { key: 'isActive', label: 'Active' },
-  { key: 'position', label: 'Position' },
-  { key: 'createdAt', label: 'Created At' },
-  { key: 'updatedAt', label: 'Updated At' },
-]
+  { key: "_id", label: "ID" },
+  { key: "title", label: "Title" },
+  { key: "slug", label: "Slug" },
+  { key: "description", label: "Description" },
+  { key: "thumbnailUrl", label: "Thumbnail URL" },
+  { key: "isActive", label: "Active" },
+  { key: "position", label: "Position" },
+  { key: "createdAt", label: "Created At" },
+  { key: "updatedAt", label: "Updated At" },
+];
 
 export default function LandingPagesPage() {
   const {
@@ -46,7 +55,7 @@ export default function LandingPagesPage() {
     seoTargetPage,
     handleSeoClick,
     handleSeoSave,
-  } = useLandingPagePage()
+  } = useLandingPagePage();
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -59,7 +68,9 @@ export default function LandingPagesPage() {
             </DialogTrigger>
             <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>{editingPage ? 'Edit Landing Page' : 'Add New Landing Page'}</DialogTitle>
+                <DialogTitle>
+                  {editingPage ? "Edit Landing Page" : "Add New Landing Page"}
+                </DialogTitle>
               </DialogHeader>
               <LandingPageForm
                 onClose={handleCloseDialog}
@@ -85,7 +96,9 @@ export default function LandingPagesPage() {
           </div>
         ) : pagesError ? (
           <div className="flex items-center justify-center h-32">
-            <p className="text-destructive">Error loading landing pages: {(pagesError as any).message}</p>
+            <p className="text-destructive">
+              Error loading landing pages: {(pagesError as any).message}
+            </p>
           </div>
         ) : (
           <LandingPageTable
@@ -113,5 +126,5 @@ export default function LandingPagesPage() {
         onSave={handleSeoSave}
       />
     </div>
-  )
+  );
 }

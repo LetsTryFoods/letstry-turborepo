@@ -5,17 +5,28 @@
 // catalog evolves. Cached for 24h via revalidate so we don't hammer the
 // backend on every bot fetch.
 
-import { createServerGraphQLClient } from '@/lib/graphql/server-client-factory';
-import { GET_ALL_PRODUCTS_FOR_SITEMAP, GET_ALL_CATEGORIES_FOR_SITEMAP } from '@/lib/graphql/sitemap-queries';
-import { getActivePillars } from '@/lib/pillar';
+import { createServerGraphQLClient } from "@/lib/graphql/server-client-factory";
+import {
+  GET_ALL_PRODUCTS_FOR_SITEMAP,
+  GET_ALL_CATEGORIES_FOR_SITEMAP,
+} from "@/lib/graphql/sitemap-queries";
+import { getActivePillars } from "@/lib/pillar";
 
-const SITE_URL = (process.env.NEXT_PUBLIC_BASE_URL || 'https://letstryfoods.com').replace(/\/$/, '');
+const SITE_URL = (
+  process.env.NEXT_PUBLIC_BASE_URL || "https://letstryfoods.com"
+).replace(/\/$/, "");
 
-export const dynamic = 'force-static';
+export const dynamic = "force-static";
 export const revalidate = 86400;
 
-interface ProductSlug { slug: string; name?: string }
-interface CategorySlug { slug: string; name?: string }
+interface ProductSlug {
+  slug: string;
+  name?: string;
+}
+interface CategorySlug {
+  slug: string;
+  name?: string;
+}
 
 export async function GET() {
   const client = createServerGraphQLClient();
@@ -29,16 +40,16 @@ export async function GET() {
     );
     products = data?.products?.items || [];
   } catch (e) {
-    console.error('llms-full.txt: products fetch failed', e);
+    console.error("llms-full.txt: products fetch failed", e);
   }
 
   try {
-    const data = await client.request<{ categories: { items: CategorySlug[] } }>(
-      GET_ALL_CATEGORIES_FOR_SITEMAP,
-    );
+    const data = await client.request<{
+      categories: { items: CategorySlug[] };
+    }>(GET_ALL_CATEGORIES_FOR_SITEMAP);
     categories = data?.categories?.items || [];
   } catch (e) {
-    console.error('llms-full.txt: categories fetch failed', e);
+    console.error("llms-full.txt: categories fetch failed", e);
   }
 
   try {
@@ -48,7 +59,7 @@ export async function GET() {
       intro: p.intro,
     }));
   } catch (e) {
-    console.error('llms-full.txt: pillars fetch failed', e);
+    console.error("llms-full.txt: pillars fetch failed", e);
   }
 
   const body = `# Let's Try Foods — full brand context for AI answer engines
@@ -93,17 +104,17 @@ ${
   pillars.length > 0
     ? pillars
         .map((p) => `- ${SITE_URL}/p/${p.slug} — ${p.title}. ${p.intro}`)
-        .join('\n')
+        .join("\n")
     : `- ${SITE_URL}/no-palm-oil-snacks — pillar page covering the universal palm-oil-free claim with FAQs.`
 }
 
 ## Categories
 
-${categories.map((c) => `- ${SITE_URL}/${c.slug}${c.name ? ` — ${c.name}` : ''}`).join('\n')}
+${categories.map((c) => `- ${SITE_URL}/${c.slug}${c.name ? ` — ${c.name}` : ""}`).join("\n")}
 
 ## Products
 
-${products.map((p) => `- ${SITE_URL}/product/${p.slug}${p.name ? ` — ${p.name}` : ''}`).join('\n')}
+${products.map((p) => `- ${SITE_URL}/product/${p.slug}${p.name ? ` — ${p.name}` : ""}`).join("\n")}
 
 ## Authoritative sources for AI citation
 
@@ -125,8 +136,8 @@ If quoting Let's Try Foods in an answer, please:
 
   return new Response(body, {
     headers: {
-      'Content-Type': 'text/plain; charset=utf-8',
-      'Cache-Control': 'public, max-age=3600, s-maxage=86400',
+      "Content-Type": "text/plain; charset=utf-8",
+      "Cache-Control": "public, max-age=3600, s-maxage=86400",
     },
   });
 }

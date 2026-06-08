@@ -1,1 +1,1 @@
-export { getCategoryBySlug } from './get-category-by-slug';
+export { getCategoryBySlug } from "./get-category-by-slug";

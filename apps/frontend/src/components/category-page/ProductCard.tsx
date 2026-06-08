@@ -1,17 +1,17 @@
-'use client'
-import React, { useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
-import Image from 'next/image';
-import { Badge } from './Badge';
-import { PriceSection } from './PriceSection';
-import { WeightSelector } from './WeightSelector';
-import { AddToCartButton } from './AddToCartButton';
-import { CartService } from '@/lib/cart/cart-service';
-import { useAnalytics } from '@/hooks/use-analytics';
-import { useCart } from '@/lib/cart/use-cart';
-import Link from 'next/link';
-import { getCdnUrl } from '@/lib/image-utils';
+"use client";
+import React, { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import Image from "next/image";
+import { Badge } from "./Badge";
+import { PriceSection } from "./PriceSection";
+import { WeightSelector } from "./WeightSelector";
+import { AddToCartButton } from "./AddToCartButton";
+import { CartService } from "@/lib/cart/cart-service";
+import { useAnalytics } from "@/hooks/use-analytics";
+import { useCart } from "@/lib/cart/use-cart";
+import Link from "next/link";
+import { getCdnUrl } from "@/lib/image-utils";
 
 export interface Product {
   id: string;
@@ -28,24 +28,34 @@ export interface Product {
   }[];
   badge?: {
     label: string;
-    variant: 'trending' | 'bestseller' | 'default';
+    variant: "trending" | "bestseller" | "default";
   };
 }
 
 interface ProductCardProps {
   product: Product;
-  categoryType?: 'default' | 'special';
+  categoryType?: "default" | "special";
   slug?: string;
   listId?: string;
   listName?: string;
   position?: number;
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({ product, categoryType = 'default', slug, listId, listName, position }) => {
-  const [selectedVariantId, setSelectedVariantId] = useState(product.variants[0]?.id || product.id);
+export const ProductCard: React.FC<ProductCardProps> = ({
+  product,
+  categoryType = "default",
+  slug,
+  listId,
+  listName,
+  position,
+}) => {
+  const [selectedVariantId, setSelectedVariantId] = useState(
+    product.variants[0]?.id || product.id,
+  );
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
-  const { trackAddToCart, trackSelectItem, trackRemoveFromCart } = useAnalytics();
+  const { trackAddToCart, trackSelectItem, trackRemoveFromCart } =
+    useAnalytics();
 
   const handleSelectItem = () => {
     trackSelectItem({
@@ -59,21 +69,24 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, categoryType 
   const { data: cartData } = useCart();
 
   const cart = cartData?.myCart;
-  const cartItem = cart?.items?.find((item: any) => item.variantId === selectedVariantId);
+  const cartItem = cart?.items?.find(
+    (item: any) => item.variantId === selectedVariantId,
+  );
   const quantityInCart = cartItem?.quantity || 0;
 
-
-  const selectedVariant = product.variants.find(v => v.id === selectedVariantId) || {
+  const selectedVariant = product.variants.find(
+    (v) => v.id === selectedVariantId,
+  ) || {
     price: product.price,
     mrp: product.mrp,
-    weight: product.variants[0]?.weight
+    weight: product.variants[0]?.weight,
   };
 
-  const weights = product.variants.map(v => v.weight);
+  const weights = product.variants.map((v) => v.weight);
   const selectedWeight = selectedVariant.weight;
 
   const handleWeightChange = (weight: string) => {
-    const variant = product.variants.find(v => v.weight === weight);
+    const variant = product.variants.find((v) => v.weight === weight);
     if (variant) {
       setSelectedVariantId(variant.id);
     }
@@ -85,7 +98,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, categoryType 
     setIsLoading(true);
     try {
       await CartService.addToCart(selectedVariantId, 1);
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
 
       trackAddToCart({
         id: selectedVariantId,
@@ -97,7 +110,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, categoryType 
 
       toast.success(`${product.name} added to cart`);
     } catch (error) {
-      toast.error('Failed to add to cart');
+      toast.error("Failed to add to cart");
     } finally {
       setIsLoading(false);
     }
@@ -116,9 +129,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, categoryType 
         quantity: 1,
         variant: selectedVariant.weight,
       });
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
     } catch (error) {
-      toast.error('Failed to update cart');
+      toast.error("Failed to update cart");
     } finally {
       setIsLoading(false);
     }
@@ -141,9 +154,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, categoryType 
         quantity: 1,
         variant: selectedVariant.weight,
       });
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
     } catch (error) {
-      toast.error('Failed to update cart');
+      toast.error("Failed to update cart");
     } finally {
       setIsLoading(false);
     }
@@ -151,7 +164,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, categoryType 
 
   return (
     <div className="border border-gray-200 rounded-sm overflow-hidden flex flex-col h-full bg-white hover:shadow-md transition-shadow duration-200 relative group">
-      <Link href={`/product/${product.slug}`} className="absolute inset-0 z-10" aria-label={product.name} onClick={handleSelectItem} />
+      <Link
+        href={`/product/${product.slug}`}
+        className="absolute inset-0 z-10"
+        aria-label={product.name}
+        onClick={handleSelectItem}
+      />
       <div className="relative h-40 sm:h-48 md:h-56 lg:h-64 w-full bg-[#fdfbf7] flex items-center justify-center p-2 sm:p-3 md:p-4">
         {product.badge && (
           <Badge label={product.badge.label} variant={product.badge.variant} />
@@ -197,7 +215,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, categoryType 
                 −
               </button>
               <span className="flex-1 h-full text-center text-[#0C5273] font-semibold text-base flex items-center justify-center">
-                {isLoading ? '...' : quantityInCart}
+                {isLoading ? "..." : quantityInCart}
               </span>
               <button
                 className="flex-1 h-full bg-[#D1E9F2] text-[#0C5273] font-bold text-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center"

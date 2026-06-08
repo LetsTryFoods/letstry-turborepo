@@ -1,1 +1,1 @@
-export { getActiveBanners } from './get-active-banners';
+export { getActiveBanners } from "./get-active-banners";

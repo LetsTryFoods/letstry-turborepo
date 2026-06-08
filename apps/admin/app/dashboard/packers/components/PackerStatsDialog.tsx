@@ -1,19 +1,34 @@
-'use client'
+"use client";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { usePackerStats } from "@/lib/packers/usePackers"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { usePackerStats } from "@/lib/packers/usePackers";
 
 interface PackerStatsDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  packerId: string | null
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  packerId: string | null;
 }
 
-export function PackerStatsDialog({ open, onOpenChange, packerId }: PackerStatsDialogProps) {
-  const { data: statsData, loading } = usePackerStats(packerId || "")
+export function PackerStatsDialog({
+  open,
+  onOpenChange,
+  packerId,
+}: PackerStatsDialogProps) {
+  const { data: statsData, loading } = usePackerStats(packerId || "");
 
-  const stats = (statsData as any)?.getPackerStats
+  const stats = (statsData as any)?.getPackerStats;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -21,7 +36,7 @@ export function PackerStatsDialog({ open, onOpenChange, packerId }: PackerStatsD
         <DialogHeader>
           <DialogTitle>Packer Statistics</DialogTitle>
         </DialogHeader>
-        
+
         {loading ? (
           <div className="flex items-center justify-center h-32">
             <p className="text-muted-foreground">Loading statistics...</p>
@@ -44,7 +59,9 @@ export function PackerStatsDialog({ open, onOpenChange, packerId }: PackerStatsD
                 <CardDescription>Packed today</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats.ordersPackedToday}</div>
+                <div className="text-2xl font-bold">
+                  {stats.ordersPackedToday}
+                </div>
               </CardContent>
             </Card>
 
@@ -54,7 +71,11 @@ export function PackerStatsDialog({ open, onOpenChange, packerId }: PackerStatsD
                 <CardDescription>Current performance</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats.accuracyRate === 0 && stats.totalOrders === 0 ? 'No orders packed' : `${stats.accuracyRate.toFixed(2)}%`}</div>
+                <div className="text-2xl font-bold">
+                  {stats.accuracyRate === 0 && stats.totalOrders === 0
+                    ? "No orders packed"
+                    : `${stats.accuracyRate.toFixed(2)}%`}
+                </div>
               </CardContent>
             </Card>
 
@@ -64,7 +85,9 @@ export function PackerStatsDialog({ open, onOpenChange, packerId }: PackerStatsD
                 <CardDescription>Per order (seconds)</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats.averagePackTime.toFixed(0)}s</div>
+                <div className="text-2xl font-bold">
+                  {stats.averagePackTime.toFixed(0)}s
+                </div>
               </CardContent>
             </Card>
 
@@ -77,9 +100,16 @@ export function PackerStatsDialog({ open, onOpenChange, packerId }: PackerStatsD
                 <CardContent>
                   <div className="space-y-2">
                     {stats.errorsByType.map((error: any) => (
-                      <div key={error.errorType} className="flex justify-between items-center">
-                        <span className="text-sm font-medium">{error.errorType}</span>
-                        <span className="text-sm text-muted-foreground">{error.count}</span>
+                      <div
+                        key={error.errorType}
+                        className="flex justify-between items-center"
+                      >
+                        <span className="text-sm font-medium">
+                          {error.errorType}
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          {error.count}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -94,5 +124,5 @@ export function PackerStatsDialog({ open, onOpenChange, packerId }: PackerStatsD
         )}
       </DialogContent>
     </Dialog>
-  )
+  );
 }

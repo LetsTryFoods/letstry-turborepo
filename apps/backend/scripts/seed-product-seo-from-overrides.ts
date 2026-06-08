@@ -59,7 +59,7 @@ const productOverrides: Record<string, SeoOverride> = {
     description:
       "Buy thin, crispy sev bhujia online with no palm oil and no maida. Authentic Indian namkeen from Let's Try Foods. Shipped across India.",
   },
-  'sattu': {
+  sattu: {
     title: "Sattu Online – Roasted Gram Flour, High Protein | Let's Try Foods",
     description:
       "Buy authentic roasted sattu (chana sattu) online — high protein, no additives. Energy-rich summer drink base from Let's Try Foods. Shipped across India.",
@@ -239,8 +239,12 @@ async function seed() {
   console.log(
     'After this runs, the storefront will read the seeded values from CMS',
   );
-  console.log('instead of falling back to lib/seo/overrides.ts. Editors can now');
-  console.log('edit these in admin → Product SEO and their changes will land live.');
+  console.log(
+    'instead of falling back to lib/seo/overrides.ts. Editors can now',
+  );
+  console.log(
+    'edit these in admin → Product SEO and their changes will land live.',
+  );
 
   await conn.disconnect();
   process.exit(0);

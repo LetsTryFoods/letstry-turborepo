@@ -1,10 +1,10 @@
-import { ApolloClient, NormalizedCacheObject } from '@apollo/client';
-import { 
-  GET_ACTIVE_BANNERS, 
-  GET_ROOT_CATEGORIES, 
-  GET_CATEGORY_BY_SLUG, 
-  GET_PRODUCTS_BY_CATEGORY 
-} from '../../../lib/graphql/home';
+import { ApolloClient, NormalizedCacheObject } from "@apollo/client";
+import {
+  GET_ACTIVE_BANNERS,
+  GET_ROOT_CATEGORIES,
+  GET_CATEGORY_BY_SLUG,
+  GET_PRODUCTS_BY_CATEGORY,
+} from "../../../lib/graphql/home";
 
 export class HomeService {
   constructor(private client: ApolloClient<NormalizedCacheObject>) {}
@@ -12,7 +12,7 @@ export class HomeService {
   async getActiveBanners() {
     const { data } = await this.client.query({
       query: GET_ACTIVE_BANNERS,
-      fetchPolicy: 'cache-first',
+      fetchPolicy: "cache-first",
     });
     return data.activeBanners || [];
   }
@@ -49,7 +49,10 @@ export class HomeService {
 
       return prodData.productsByCategory?.items || [];
     } catch (error) {
-      console.error(`[HomeService] Error fetching products for slug ${slug}:`, error);
+      console.error(
+        `[HomeService] Error fetching products for slug ${slug}:`,
+        error,
+      );
       return [];
     }
   }

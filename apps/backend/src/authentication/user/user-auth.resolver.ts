@@ -5,10 +5,12 @@ import { Public } from '../../common/decorators/public.decorator';
 
 @Resolver()
 export class UserAuthResolver {
-  constructor(private readonly userAuthService: UserAuthService) { }
+  constructor(private readonly userAuthService: UserAuthService) {}
 
   private getSessionId(context: any): string | undefined {
-    const structuredCookie = context.req?.cookies?.guest_session || context.req?.headers['x-guest-session'];
+    const structuredCookie =
+      context.req?.cookies?.guest_session ||
+      context.req?.headers['x-guest-session'];
 
     let sessionId: string | undefined;
 
@@ -17,7 +19,7 @@ export class UserAuthResolver {
         try {
           const parsed = JSON.parse(structuredCookie);
           sessionId = parsed.sessionId;
-        } catch (e) { }
+        } catch (e) {}
       } else if (
         typeof structuredCookie === 'object' &&
         structuredCookie.sessionId
@@ -27,7 +29,8 @@ export class UserAuthResolver {
     }
 
     if (!sessionId) {
-      sessionId = context.req?.cookies?.sessionId || context.req?.headers['x-session-id'];
+      sessionId =
+        context.req?.cookies?.sessionId || context.req?.headers['x-session-id'];
     }
 
     return sessionId;
@@ -62,7 +65,9 @@ export class UserAuthResolver {
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000,
         domain:
-          process.env.NODE_ENV === 'production' ? '.letstryfoods.com' : undefined,
+          process.env.NODE_ENV === 'production'
+            ? '.letstryfoods.com'
+            : undefined,
       });
     }
 
@@ -90,7 +95,9 @@ export class UserAuthResolver {
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000,
         domain:
-          process.env.NODE_ENV === 'production' ? '.letstryfoods.com' : undefined,
+          process.env.NODE_ENV === 'production'
+            ? '.letstryfoods.com'
+            : undefined,
       });
     }
 
@@ -107,7 +114,9 @@ export class UserAuthResolver {
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 0,
         domain:
-          process.env.NODE_ENV === 'production' ? '.letstryfoods.com' : undefined,
+          process.env.NODE_ENV === 'production'
+            ? '.letstryfoods.com'
+            : undefined,
       });
     }
 

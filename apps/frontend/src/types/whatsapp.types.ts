@@ -1,12 +1,12 @@
 export interface WhatsAppOtpResponse {
   success: boolean;
   message: string;
-  provider: 'whatsapp' | 'unavailable';
+  provider: "whatsapp" | "unavailable";
 }
 
 export enum OtpProvider {
-  WhatsApp = 'whatsapp',
-  Firebase = 'firebase',
+  WhatsApp = "whatsapp",
+  Firebase = "firebase",
 }
 
 export interface OtpSendResult {

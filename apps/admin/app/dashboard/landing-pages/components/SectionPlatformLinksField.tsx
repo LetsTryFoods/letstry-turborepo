@@ -1,22 +1,31 @@
-'use client'
+"use client";
 
-import { useFieldArray, UseFormReturn } from 'react-hook-form'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Plus, Trash2 } from 'lucide-react'
-import { LandingPageFormValues } from '@/lib/validations/landing-page.schema'
+import { useFieldArray, UseFormReturn } from "react-hook-form";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Plus, Trash2 } from "lucide-react";
+import { LandingPageFormValues } from "@/lib/validations/landing-page.schema";
 
 interface SectionPlatformLinksFieldProps {
-  form: UseFormReturn<LandingPageFormValues>
-  sectionIndex: number
+  form: UseFormReturn<LandingPageFormValues>;
+  sectionIndex: number;
 }
 
-export function SectionPlatformLinksField({ form, sectionIndex }: SectionPlatformLinksFieldProps) {
+export function SectionPlatformLinksField({
+  form,
+  sectionIndex,
+}: SectionPlatformLinksFieldProps) {
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: `sections.${sectionIndex}.platformLinks`,
-  })
+  });
 
   return (
     <div className="space-y-2">
@@ -62,11 +71,11 @@ export function SectionPlatformLinksField({ form, sectionIndex }: SectionPlatfor
         type="button"
         variant="outline"
         size="sm"
-        onClick={() => append({ platform: '', url: '' })}
+        onClick={() => append({ platform: "", url: "" })}
       >
         <Plus className="mr-2 h-4 w-4" />
         Add Platform Link
       </Button>
     </div>
-  )
+  );
 }

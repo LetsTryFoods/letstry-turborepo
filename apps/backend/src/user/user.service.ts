@@ -20,7 +20,7 @@ export class UserService {
     private customerDetailsService: CustomerDetailsService,
     private userActivityService: UserActivityService,
     private paginationService: PaginationService,
-  ) { }
+  ) {}
 
   async createUser(data: CreateUserData): Promise<User> {
     return this.userCrudService.createUser(data);

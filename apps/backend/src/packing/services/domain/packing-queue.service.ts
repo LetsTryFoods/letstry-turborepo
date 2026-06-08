@@ -66,9 +66,13 @@ export class PackingQueueService {
         const packingOrder = await this.packingOrderCrud.findOne({ orderId });
 
         if (!packingOrder) {
-          this.packingLogger.logError('Packing order not found - likely deleted', new Error(), {
-            orderId,
-          });
+          this.packingLogger.logError(
+            'Packing order not found - likely deleted',
+            new Error(),
+            {
+              orderId,
+            },
+          );
           return;
         }
 
@@ -133,7 +137,9 @@ export class PackingQueueService {
   private async processOrphanedPackerOrders(): Promise<void> {
     try {
       const activePackers = await this.packerCrud.findAll({ isActive: true });
-      const activePackerIds = new Set(activePackers.map((p: any) => p._id.toString()));
+      const activePackerIds = new Set(
+        activePackers.map((p: any) => p._id.toString()),
+      );
 
       const assignedOrders = await this.packingOrderCrud.findAll({
         assignedTo: { $exists: true, $ne: null },
@@ -172,7 +178,11 @@ export class PackingQueueService {
         );
       }
     } catch (error) {
-      this.packingLogger.logError('Failed to process orphaned packer orders', error, {});
+      this.packingLogger.logError(
+        'Failed to process orphaned packer orders',
+        error,
+        {},
+      );
     }
   }
 

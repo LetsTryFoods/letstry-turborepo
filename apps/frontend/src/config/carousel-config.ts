@@ -16,7 +16,6 @@ export const carouselImagesPhone = [
   },
 ];
 
-
 export const carouselImagesDesktop = [
   {
     id: 1,

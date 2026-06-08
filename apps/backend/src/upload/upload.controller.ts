@@ -14,14 +14,13 @@ import { Public } from 'src/common/decorators/public.decorator';
 
 @Controller('files')
 export class UploadController {
-  constructor(private readonly uploadService: UploadService) { }
+  constructor(private readonly uploadService: UploadService) {}
 
   @Get('url/:key')
   async getPresignedUrl(@Param('key') key: string) {
     const url = await this.uploadService.getPresignedUrl(key);
     return { url };
   }
-
 
   @Post('upload')
   @UseInterceptors(FilesInterceptor('files'))
@@ -42,8 +41,8 @@ export class UploadController {
         await this.uploadService.uploadFile(key, file.buffer, filename);
         const finalKey =
           this.uploadService.isImageFile(file.mimetype) &&
-            file.mimetype !== 'image/gif' &&
-            !filename.toLowerCase().endsWith('.webp')
+          file.mimetype !== 'image/gif' &&
+          !filename.toLowerCase().endsWith('.webp')
             ? key.replace(/\.[^.]+$/, '.webp')
             : key;
 

@@ -1,22 +1,35 @@
-'use client'
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Checkbox } from "@/components/ui/checkbox"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { packerFormSchema } from "@/lib/validations/packer.schema"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { packerFormSchema } from "@/lib/validations/packer.schema";
 
 interface PackerFormProps {
-  onClose: () => void
-  initialData?: any | null
-  createPacker?: any
-  updatePacker?: any
-  onPackerCreated?: (packer: any, password: string) => void
+  onClose: () => void;
+  initialData?: any | null;
+  createPacker?: any;
+  updatePacker?: any;
+  onPackerCreated?: (packer: any, password: string) => void;
 }
 
-export function PackerForm({ onClose, initialData, createPacker, updatePacker, onPackerCreated }: PackerFormProps) {
+export function PackerForm({
+  onClose,
+  initialData,
+  createPacker,
+  updatePacker,
+  onPackerCreated,
+}: PackerFormProps) {
   const form = useForm({
     resolver: zodResolver(packerFormSchema as any),
     defaultValues: {
@@ -26,7 +39,7 @@ export function PackerForm({ onClose, initialData, createPacker, updatePacker, o
       email: initialData?.email || "",
       isActive: initialData?.isActive ?? true,
     },
-  })
+  });
 
   const onSubmit = async (data: any) => {
     try {
@@ -39,10 +52,10 @@ export function PackerForm({ onClose, initialData, createPacker, updatePacker, o
               phone: data.phone,
               email: data.email,
               isActive: data.isActive,
-            }
-          }
-        })
-        onClose()
+            },
+          },
+        });
+        onClose();
       } else {
         const result = await createPacker({
           variables: {
@@ -51,19 +64,22 @@ export function PackerForm({ onClose, initialData, createPacker, updatePacker, o
               name: data.name,
               phone: data.phone,
               email: data.email,
-            }
-          }
-        })
+            },
+          },
+        });
 
         if (onPackerCreated && result.data?.createPacker) {
-          onPackerCreated(result.data.createPacker.packer, result.data.createPacker.generatedPassword)
+          onPackerCreated(
+            result.data.createPacker.packer,
+            result.data.createPacker.generatedPassword,
+          );
         }
-        onClose()
+        onClose();
       }
     } catch (error) {
-      console.error("Failed to save packer:", error)
+      console.error("Failed to save packer:", error);
     }
-  }
+  };
 
   return (
     <Form {...form}>
@@ -75,7 +91,11 @@ export function PackerForm({ onClose, initialData, createPacker, updatePacker, o
             <FormItem>
               <FormLabel>Employee ID *</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="e.g., EMP001" disabled={!!initialData} />
+                <Input
+                  {...field}
+                  placeholder="e.g., EMP001"
+                  disabled={!!initialData}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -117,7 +137,11 @@ export function PackerForm({ onClose, initialData, createPacker, updatePacker, o
             <FormItem>
               <FormLabel>Email *</FormLabel>
               <FormControl>
-                <Input {...field} type="email" placeholder="e.g., john@example.com" />
+                <Input
+                  {...field}
+                  type="email"
+                  placeholder="e.g., john@example.com"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -149,10 +173,10 @@ export function PackerForm({ onClose, initialData, createPacker, updatePacker, o
             Cancel
           </Button>
           <Button type="submit">
-            {initialData ? 'Update' : 'Create'} Packer
+            {initialData ? "Update" : "Create"} Packer
           </Button>
         </div>
       </form>
     </Form>
-  )
+  );
 }

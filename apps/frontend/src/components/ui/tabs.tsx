@@ -1,16 +1,12 @@
-import * as React from "react"
+import * as React from "react";
 
 const Tabs = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={className}
-    {...props}
-  />
-))
-Tabs.displayName = "Tabs"
+  <div ref={ref} className={className} {...props} />
+));
+Tabs.displayName = "Tabs";
 
 const TabsList = React.forwardRef<
   HTMLDivElement,
@@ -21,8 +17,8 @@ const TabsList = React.forwardRef<
     className={`inline-flex h-10 items-center justify-center rounded-md bg-gray-100 p-1 text-gray-500 ${className}`}
     {...props}
   />
-))
-TabsList.displayName = "TabsList"
+));
+TabsList.displayName = "TabsList";
 
 const TabsTrigger = React.forwardRef<
   HTMLButtonElement,
@@ -35,8 +31,8 @@ const TabsTrigger = React.forwardRef<
     } ${className}`}
     {...props}
   />
-))
-TabsTrigger.displayName = "TabsTrigger"
+));
+TabsTrigger.displayName = "TabsTrigger";
 
 const TabsContent = React.forwardRef<
   HTMLDivElement,
@@ -47,7 +43,7 @@ const TabsContent = React.forwardRef<
     className={`mt-2 ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 ${className}`}
     {...props}
   />
-))
-TabsContent.displayName = "TabsContent"
+));
+TabsContent.displayName = "TabsContent";
 
-export { Tabs, TabsList, TabsTrigger, TabsContent }
+export { Tabs, TabsList, TabsTrigger, TabsContent };
