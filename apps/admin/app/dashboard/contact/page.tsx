@@ -41,12 +41,7 @@ import {
 import ContactTable from "./components/ContactTable";
 import ContactDetailsDialog from "./components/ContactDetailsDialog";
 import ContactReplyDialog from "./components/ContactReplyDialog";
-priorityLabels
-} from "@/lib/contact/useContact"
-import ContactTable from "./components/ContactTable"
-import ContactDetailsDialog from "./components/ContactDetailsDialog"
-import ContactReplyDialog from "./components/ContactReplyDialog"
-import ContactExcelDownloadDialog from "./components/ContactExcelDownloadDialog"
+import ContactExcelDownloadDialog from "./components/ContactExcelDownloadDialog";
 
 const statuses: (ContactStatus | "ALL")[] = [
   "ALL",
