@@ -2,7 +2,7 @@ import { getCategoryBySlug } from '@/lib/category';
 import { CategoryPageContainer } from '@/components/category-page/CategoryPageContainer';
 import { CategoryHeader } from '@/components/category-page/CategoryHeader';
 import { ProductGrid } from '@/components/category-page/ProductGrid';
-import { CategoryFaqSection } from '@/components/category-page/CategoryFaqSection';
+// import { CategoryFaqSection } from '@/components/category-page/CategoryFaqSection';
 import { CategoryAnswerBox } from '@/components/category-page/CategoryAnswerBox';
 import { Product } from '@/components/category-page/ProductCard';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
@@ -297,11 +297,11 @@ export default async function DynamicSlugPage({ params, searchParams }: PageProp
           ]}
         />
         <CategoryHeader title={category.name} productCount={category.productCount} />
-        {faqBlock && <CategoryAnswerBox intro={faqBlock.intro} />}
         <ProductGrid products={products} categoryType={categoryType} slug={slug} />
-        {faqBlock && (
-          <CategoryFaqSection categoryName={category.name} faqs={faqBlock.faqs} />
-        )}
+        {/* {faqBlock && (
+              {faqBlock && <CategoryAnswerBox intro={faqBlock.intro} />}
+          // <CategoryFaqSection categoryName={category.name} faqs={faqBlock.faqs} />
+        )} */}
       </CategoryPageContainer>
     </>
   );
