@@ -13,8 +13,9 @@ interface ProductGalleryProps {
   images: {
     url: string;
     alt?: string;
-  }[]; isOutOfStock?: boolean;
-
+  }[]; 
+  isOutOfStock?: boolean;
+  productName?: string;
 }
 
 export const ProductGallery: React.FC<ProductGalleryProps> = ({
@@ -79,7 +80,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
             {images.map((img, idx) => (
               <div key={idx} className="flex-[0_0_100%] min-w-0 relative p-1">
                 <Image
-                  src={getCdnUrl(img)}
+                  src={getCdnUrl(img.url)}
                   alt={
                     productName
                       ? `${productName} — image ${idx + 1}`
@@ -108,7 +109,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
             >
               <div className="relative w-full h-full">
                 <Image
-                  src={getCdnUrl(img)}
+                  src={getCdnUrl(img.url)}
                   alt={
                     productName
                       ? `${productName} — thumbnail ${idx + 1}`

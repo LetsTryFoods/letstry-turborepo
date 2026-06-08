@@ -881,6 +881,7 @@ export type CreateRedirectInput = {
 
 export type CreateSampleInvoiceInput = {
   invoiceNumber: Scalars['String']['input'];
+  isComplimentary?: InputMaybe<Scalars['Boolean']['input']>;
   items: Array<SampleInvoiceItemInput>;
   recipient?: InputMaybe<SampleInvoiceRecipientInput>;
 };
@@ -3526,6 +3527,7 @@ export type SampleInvoice = {
   _id: Scalars['ID']['output'];
   createdAt: Scalars['DateTime']['output'];
   invoiceNumber: Scalars['String']['output'];
+  isComplimentary: Scalars['Boolean']['output'];
   items: Array<SampleInvoiceItem>;
   recipient?: Maybe<SampleInvoiceRecipient>;
   totalMrpValue: Scalars['Float']['output'];

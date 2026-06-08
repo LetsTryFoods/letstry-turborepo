@@ -7,13 +7,9 @@ import { cn } from "@/lib/utils";
 type FAQItem = {
   q: string;
   a: string;
-  q: string;
-  a: string;
 };
 
 type ProductDetailFAQProps = {
-  faqs: FAQItem[];
-  heading?: string;
   faqs: FAQItem[];
   heading?: string;
 };
@@ -24,15 +20,8 @@ export const ProductDetailFAQ = ({
 }: ProductDetailFAQProps) => {
   const [sectionOpen, setSectionOpen] = useState(true);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
-  export const ProductDetailFAQ = ({
-    faqs,
-    heading = "Frequently Asked Questions",
-  }: ProductDetailFAQProps) => {
-    const [sectionOpen, setSectionOpen] = useState(true);
-    const [openIndex, setOpenIndex] = useState<number | null>(null);
 
-    if (faqs.length === 0) return null;
-    if (faqs.length === 0) return null;
+  if (faqs.length === 0) return null;
 
     const toggle = (index: number) => {
       setOpenIndex(openIndex === index ? null : index);

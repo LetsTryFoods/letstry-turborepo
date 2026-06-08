@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import BatchLookup from '@/components/address/BatchLookup';
+import { ProductRangeBanner } from '@/components/address/ProductRangeBanner';
 
 export const metadata: Metadata = {
     title: "Manufacturing Unit Addresses | Let's Try",
