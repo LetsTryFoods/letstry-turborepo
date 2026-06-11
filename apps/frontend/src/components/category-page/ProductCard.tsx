@@ -152,7 +152,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, categoryType 
   return (
     <div className="border border-gray-200 rounded-sm overflow-hidden flex flex-col h-full bg-white hover:shadow-md transition-shadow duration-200 relative group">
       <Link href={`/product/${product.slug}`} className="absolute inset-0 z-10" aria-label={product.name} onClick={handleSelectItem} />
-      <div className="relative h-40 sm:h-48 md:h-56 lg:h-64 w-full bg-[#fdfbf7] flex items-center justify-center p-2 sm:p-3 md:p-4">
+      <div className="relative h-40 sm:h-48 md:h-56 lg:h-64 w-full bg-[#fdfbf7] flex items-center justify-center">
         {product.badge && (
           <Badge label={product.badge.label} variant={product.badge.variant} />
         )}
