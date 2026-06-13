@@ -68,7 +68,8 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
       ? images
       : [{ url: "/placeholder-image.svg", alt: product.name }];
 
-  const isOutOfStock = false; // Keep button enabled regardless of stock
+  const isOutOfStock = false; // Keep button enabled regardless of stock // alt tag images
+
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 md:gap-8 lg:gap-10 xl:gap-12">
