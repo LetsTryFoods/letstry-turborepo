@@ -118,12 +118,12 @@ export const CategoryProductCard: React.FC<CategoryProductCardProps> = ({
   return (
     <article className="flex flex-col border border-gray-300 rounded-lg bg-gray-50 hover:shadow-lg transition-shadow">
       <Link href={`/product/${product.slug}`}>
-        <div className="relative w-full aspect-square sm:mb-4 mb-2 bg-[#F3EEEA] rounded overflow-hidden">
+        <div className="relative w-full aspect-square sm:mb-4 mb-2 rounded overflow-hidden">
           <Image
             src={displayImage}
             alt={product.name}
             fill
-            className="object-contain p-4 sm:p-6"
+            className="object-cover"
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 240px"
           />
         </div>

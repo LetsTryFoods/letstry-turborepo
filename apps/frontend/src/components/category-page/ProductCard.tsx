@@ -170,19 +170,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         aria-label={product.name}
         onClick={handleSelectItem}
       />
-      <div className="relative h-40 sm:h-48 md:h-56 lg:h-64 w-full bg-[#fdfbf7] flex items-center justify-center p-2 sm:p-3 md:p-4">
+      <div className="relative h-40 sm:h-48 md:h-56 lg:h-64 w-full bg-[#fdfbf7] overflow-hidden">
         {product.badge && (
           <Badge label={product.badge.label} variant={product.badge.variant} />
         )}
         <div className="relative w-full h-full">
+
           <Image
+            //correct this in search page also
             src={getCdnUrl(product.image)}
             alt={product.name}
             fill
-            className="object-contain"
+            className="object-cover"
             loading="lazy"
             quality={75}
-            sizes="(max-width: 640px) 112px, (max-width: 768px) 128px, (max-width: 1024px) 144px, 160px"
+            sizes="(max-width: 640px) 50vw, (max-width: 768px) 50vw, (max-width: 1024px) 25vw, 25vw"
           />
         </div>
       </div>

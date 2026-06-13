@@ -136,7 +136,7 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
             src={getCdnUrl(displayImages[0].url)}
             alt={displayImages[0].alt || product.name}
             fill
-            className="object-contain p-4 sm:p-6"
+            className="object-cover"
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 250px"
           />
         </div>
