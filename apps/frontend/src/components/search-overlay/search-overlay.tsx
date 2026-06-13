@@ -100,12 +100,12 @@ export const SearchOverlay = () => {
                   key={product.id}
                   className="border border-gray-100 rounded-2xl p-3 flex flex-col bg-white shadow-sm"
                 >
-                  <div className="relative w-full h-40 bg-[#F5F5F5] rounded-xl mb-3 overflow-hidden">
+                  <div className="relative w-full h-40 rounded-xl mb-3 overflow-hidden">
                     <Image
                       src={product.image}
                       alt={product.title}
                       fill
-                      className="object-contain p-4"
+                      className="object-cover"
                       sizes="(max-width: 768px) 50vw, 200px"
                     />
                   </div>

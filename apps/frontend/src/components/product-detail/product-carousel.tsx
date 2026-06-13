@@ -69,12 +69,12 @@ export function ProductCarousel({
             <div key={product.id} className="flex-shrink-0 w-48">
               <article className="bg-white border border-gray-200 rounded-lg overflow-hidden h-full flex flex-col">
                 <Link href={`/${product.id}`} className="block">
-                  <div className="relative w-full h-40 bg-gray-50 p-4">
+                  <div className="relative w-full h-40 bg-gray-50 overflow-hidden">
                     <Image
                       src={product.imageUrl}
                       alt={product.name}
                       fill
-                      className="object-contain"
+                      className="object-cover"
                     />
                   </div>
                   <div className="p-3 text-center">
