@@ -1,0 +1,106 @@
+{
+  "project_info": {
+    "project_number": "182074141728",
+    "project_id": "lets-try-app-22e0a",
+    "storage_bucket": "lets-try-app-22e0a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:182074141728:android:df2e6c7e45f077f2b72045",
+        "android_client_info": {
+          "package_name": "com.letstryapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "182074141728-47oeibcs42hqvhj7jmds7tk3ju9osuer.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.letstryapp",
+            "certificate_hash": "656204d5b69a091563d2087bebbde5a6ef087ee7"
+          }
+        },
+        {
+          "client_id": "182074141728-524cke3c25tajc3aooo15nr3guv60ton.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.letstryapp",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "182074141728-obf6l5jm43pvqcfsdgpba4u033pnl0lq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.letstryapp",
+            "certificate_hash": "61c7b017d02b84485effabeeb85189e40307498a"
+          }
+        },
+        {
+          "client_id": "182074141728-a4hi0vm7qht6dmid41ql60ib0gsk9s5v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5Bi8WM9gM41xRo5QxvNI9RXM8FSoliD0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "182074141728-a4hi0vm7qht6dmid41ql60ib0gsk9s5v.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "182074141728-1m93mslv7elurc9h65sn2q80168ccst6.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.reactjs.native.example.csk"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:182074141728:android:90781834bb1e00beb72045",
+        "android_client_info": {
+          "package_name": "com.letstryfoods.mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "182074141728-a4hi0vm7qht6dmid41ql60ib0gsk9s5v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5Bi8WM9gM41xRo5QxvNI9RXM8FSoliD0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "182074141728-a4hi0vm7qht6dmid41ql60ib0gsk9s5v.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "182074141728-1m93mslv7elurc9h65sn2q80168ccst6.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.reactjs.native.example.csk"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

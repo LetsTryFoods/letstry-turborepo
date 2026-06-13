@@ -1354,6 +1354,7 @@ export type Mutation = {
   initiateAdminRefund: RefundInitiateResponse;
   initiatePayment: InitiatePaymentResponse;
   logout: Scalars['String']['output'];
+  markItemShort: PackingOrder;
   packerLogin: PackerLoginResponse;
   processRefund: RefundResponse;
   removeAuthor: Author;
@@ -1693,6 +1694,13 @@ export type MutationInitiateAdminRefundArgs = {
 
 export type MutationInitiatePaymentArgs = {
   input: InitiatePaymentInput;
+};
+
+
+export type MutationMarkItemShortArgs = {
+  packingOrderId: Scalars['String']['input'];
+  productId: Scalars['String']['input'];
+  shortQty: Scalars['Int']['input'];
 };
 
 
@@ -2220,7 +2228,9 @@ export type PackingItem = {
   productId: Scalars['String']['output'];
   quantity: Scalars['Int']['output'];
   scannedCount?: Maybe<Scalars['Int']['output']>;
+  shortCount?: Maybe<Scalars['Int']['output']>;
   sku: Scalars['String']['output'];
+  unitPrice?: Maybe<Scalars['Float']['output']>;
 };
 
 export type PackingOrder = {
@@ -2239,6 +2249,8 @@ export type PackingOrder = {
   packingCompletedAt?: Maybe<Scalars['DateTime']['output']>;
   packingStartedAt?: Maybe<Scalars['DateTime']['output']>;
   priority: Scalars['Float']['output'];
+  shipmentInfo?: Maybe<ShipmentInfo>;
+  shippingInfo?: Maybe<ShippingInfo>;
   specialInstructions?: Maybe<Scalars['String']['output']>;
   status: Scalars['String']['output'];
 };
@@ -3671,6 +3683,12 @@ export type ShipmentFiltersInput = {
   statusCode?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type ShipmentInfo = {
+  __typename?: 'ShipmentInfo';
+  awbNumber?: Maybe<Scalars['String']['output']>;
+  provider?: Maybe<Scalars['String']['output']>;
+};
+
 export type ShipmentListResponse = {
   __typename?: 'ShipmentListResponse';
   meta: PaginationMeta;
@@ -3775,6 +3793,17 @@ export type ShipmentWithTrackingResponse = {
   updatedAt: Scalars['DateTime']['output'];
   webhookLastReceivedAt?: Maybe<Scalars['DateTime']['output']>;
   weight: Scalars['Float']['output'];
+};
+
+export type ShippingInfo = {
+  __typename?: 'ShippingInfo';
+  addressLine1: Scalars['String']['output'];
+  addressLine2?: Maybe<Scalars['String']['output']>;
+  city: Scalars['String']['output'];
+  pincode: Scalars['String']['output'];
+  recipientName: Scalars['String']['output'];
+  recipientPhone?: Maybe<Scalars['String']['output']>;
+  state: Scalars['String']['output'];
 };
 
 export type ShippingInsightsType = {

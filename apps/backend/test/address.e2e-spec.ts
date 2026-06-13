@@ -59,7 +59,8 @@ describe('Address (e2e)', () => {
     userToken = userSignupResponse.body.data.verifyOtpAndLogin;
 
     // Get User ID
-    userId = user?._id.toString() || '';
+    const testUser = await connection.collection('users').findOne({ phoneNumber: '+919876543210' });
+    userId = testUser?._id.toString() || '';
   });
 
   afterAll(async () => {

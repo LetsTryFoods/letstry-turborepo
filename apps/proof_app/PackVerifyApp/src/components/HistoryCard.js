@@ -2,8 +2,9 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '../constants/theme';
+import { getCdnUrl } from '../config/api';
 
-const HistoryCard = ({ order }) => {
+const HistoryCard = ({ order, navigation }) => {
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
@@ -13,7 +14,11 @@ const HistoryCard = ({ order }) => {
   const images = order.evidence?.prePackImages || [];
 
   return (
-    <View style={styles.container}>
+    <TouchableOpacity
+      style={styles.container}
+      activeOpacity={0.7}
+      onPress={() => navigation?.navigate('PackedOrderDetail', { order })}
+    >
       <View style={styles.header}>
         <View>
           <Text style={styles.orderId}>#{order.orderNumber || order.orderId}</Text>
@@ -33,7 +38,7 @@ const HistoryCard = ({ order }) => {
       {images.length > 0 && (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageScroll}>
           {images.map((img, index) => (
-            <Image key={index} source={{ uri: img }} style={styles.evidenceImage} />
+            <Image key={index} source={{ uri: getCdnUrl(img) }} style={styles.evidenceImage} />
           ))}
         </ScrollView>
       )}
@@ -44,7 +49,7 @@ const HistoryCard = ({ order }) => {
           <Text style={styles.expressText}>EXPRESS</Text>
         </View>
       )}
-    </View>
+    </TouchableOpacity>
   );
 };
 

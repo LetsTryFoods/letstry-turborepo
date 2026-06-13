@@ -1260,9 +1260,26 @@ type PackingItem {
   name: String!
   quantity: Int!
   scannedCount: Int
+  shortCount: Int
+  unitPrice: Float
   dimensions: ItemDimensions!
   isFragile: Boolean!
   imageUrl: String!
+}
+
+type ShippingInfo {
+  recipientName: String!
+  recipientPhone: String
+  addressLine1: String!
+  addressLine2: String
+  city: String!
+  pincode: String!
+  state: String!
+}
+
+type ShipmentInfo {
+  awbNumber: String
+  provider: String
 }
 
 type PackingOrder {
@@ -1282,6 +1299,8 @@ type PackingOrder {
   specialInstructions: String
   isExpress: Boolean!
   evidence: PackingEvidence
+  shippingInfo: ShippingInfo
+  shipmentInfo: ShipmentInfo
 }
 
 type ScanLog {
@@ -2046,6 +2065,7 @@ type Mutation {
   updateOrderStatus(input: UpdateOrderStatusInput!): OrderType!
   startPacking(packingOrderId: String!): PackingOrder!
   batchScanItems(input: BatchScanInput!): BatchScanResult!
+  markItemShort(packingOrderId: String!, productId: String!, shortQty: Int!): PackingOrder!
   uploadEvidence(input: UploadEvidenceInput!): PackingOrder!
   completePacking(packingOrderId: String!, provider: String, serviceType: String): PackingOrder!
   adminPunchShipment(input: AdminPunchShipmentInput!): PackingOrder!

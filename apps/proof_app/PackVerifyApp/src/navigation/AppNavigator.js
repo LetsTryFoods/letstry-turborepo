@@ -8,6 +8,8 @@ import DashboardScreen from '../screens/DashboardScreen';
 import LoginScreen from '../screens/LoginScreen';
 import OrderDetailsScreen from '../screens/OrderDetailsScreen';
 import InventoryScreen from '../screens/InventoryScreen';
+import PackedOrderDetailScreen from '../screens/PackedOrderDetailScreen';
+import NetworkLogsScreen from '../screens/NetworkLogsScreen';
 
 const Stack = createStackNavigator();
 
@@ -54,6 +56,16 @@ const MainStackNavigator = () => {
         name="Inventory" 
         component={InventoryScreen} 
         options={{ title: 'Inventory Management' }}
+      />
+      <Stack.Screen 
+        name="PackedOrderDetail" 
+        component={PackedOrderDetailScreen} 
+        options={{ title: 'Packed Order Details' }}
+      />
+      <Stack.Screen 
+        name="NetworkLogs" 
+        component={NetworkLogsScreen} 
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );

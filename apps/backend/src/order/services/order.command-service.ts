@@ -152,6 +152,18 @@ export class OrderCommandService {
       reason: params.reason,
     });
 
+    try {
+      await this.packingService.syncTerminalOrderStatus(
+        updatedOrder._id.toString(),
+        'CANCELLED' as any,
+      );
+    } catch (err) {
+      this.paymentLogger.error('Failed to sync packing order cancellation', '', {
+        orderId: updatedOrder._id.toString(),
+        error: err.message,
+      });
+    }
+
     return updatedOrder;
   }
 
@@ -185,6 +197,18 @@ export class OrderCommandService {
       oldStatus: order.orderStatus,
       newStatus: params.status,
     });
+
+    try {
+      await this.packingService.syncTerminalOrderStatus(
+        order._id.toString(),
+        params.status,
+      );
+    } catch (err) {
+      this.paymentLogger.error('Failed to sync packing order terminal status', '', {
+        orderId: order._id.toString(),
+        error: err.message,
+      });
+    }
 
     return order;
   }

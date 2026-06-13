@@ -27,6 +27,15 @@ export const GET_MY_ASSIGNED_ORDERS = gql`
       status
       specialInstructions
       isExpress
+      shippingInfo {
+        recipientName
+        recipientPhone
+        addressLine1
+        addressLine2
+        city
+        pincode
+        state
+      }
       items {
         productId
         sku
@@ -34,9 +43,27 @@ export const GET_MY_ASSIGNED_ORDERS = gql`
         name
         quantity
         scannedCount
-        imageUrl
+        shortCount
+        unitPrice
+        dimensions {
+          length
+          width
+          height
+          weight
+          unit
+        }
         isFragile
+        imageUrl
       }
+    }
+  }
+`;
+
+export const MARK_ITEM_SHORT = gql`
+  mutation MarkItemShort($packingOrderId: String!, $productId: String!, $shortQty: Int!) {
+    markItemShort(packingOrderId: $packingOrderId, productId: $productId, shortQty: $shortQty) {
+      _id
+      orderId
     }
   }
 `;
@@ -50,9 +77,26 @@ export const GET_MY_HISTORY = gql`
       status
       packingCompletedAt
       isExpress
+      shippingInfo {
+        recipientName
+        recipientPhone
+        addressLine1
+        addressLine2
+        city
+        pincode
+        state
+      }
+      shipmentInfo {
+        awbNumber
+        provider
+      }
       items {
+        productId
+        sku
+        ean
         name
         quantity
+        imageUrl
       }
       evidence {
         prePackImages
@@ -190,6 +234,20 @@ export const COMPLETE_PACKING = gql`
     }
   }
 `;
+
+export const ADMIN_PUNCH_SHIPMENT = gql`
+  mutation AdminPunchShipment($input: AdminPunchShipmentInput!) {
+    adminPunchShipment(input: $input) {
+      id
+      status
+      shipmentInfo {
+        awbNumber
+        provider
+      }
+    }
+  }
+`;
+
 export const SEARCH_PRODUCTS = gql`
   query SearchProducts($searchTerm: String!) {
     searchProducts(searchTerm: $searchTerm, pagination: { page: 1, limit: 20 }) {

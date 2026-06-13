@@ -1,22 +1,25 @@
 import { Ionicons } from '@expo/vector-icons';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as FileSystem from 'expo-file-system/legacy';
+import * as Speech from 'expo-speech';
 import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Image,
+  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   Vibration,
   View,
-  Modal,
 } from 'react-native';
 
-import { useMutation, useLazyQuery, useQuery } from '@apollo/client';
-import { BATCH_SCAN_ITEMS, COMPLETE_PACKING, UPLOAD_EVIDENCE, GET_DELIVERY_RECOMMENDATION, GET_GLOBAL_SETTINGS } from '../graphql/queries';
+import { useMutation, useQuery } from '@apollo/client';
+import { BATCH_SCAN_ITEMS, COMPLETE_PACKING, UPLOAD_EVIDENCE, GET_GLOBAL_SETTINGS, MARK_ITEM_SHORT } from '../graphql/queries';
 import { COLORS } from '../constants/theme';
+import { API_URL } from '../config/api';
 
 const CameraScreen = ({ navigation, route }) => {
   const { order, user } = route.params;
@@ -24,7 +27,7 @@ const CameraScreen = ({ navigation, route }) => {
 
   const [permission, requestPermission] = useCameraPermissions();
   const [items, setItems] = useState(
-    order.items.map(i => ({ ...i, scannedQty: i.scannedCount || 0 }))
+    order.items.map(i => ({ ...i, scannedQty: i.scannedCount || 0, shortQty: i.shortCount || 0 }))
   );
   const pendingScans = useRef({});
   const [scanLocked, setScanLocked] = useState(false);
@@ -34,14 +37,11 @@ const CameraScreen = ({ navigation, route }) => {
   const [lastScanned, setLastScanned] = useState(null);
 
   const [batchScanMutation] = useMutation(BATCH_SCAN_ITEMS);
+  const [markItemShortMutation] = useMutation(MARK_ITEM_SHORT);
   const [uploadEvidenceMutation] = useMutation(UPLOAD_EVIDENCE);
   const [completePackingMutation] = useMutation(COMPLETE_PACKING);
-  const [getRecommendation, { data: recommendationData }] = useLazyQuery(GET_DELIVERY_RECOMMENDATION);
 
-  const [showPartnerModal, setShowPartnerModal] = useState(false);
-  const [selectedProvider, setSelectedProvider] = useState('DTDC');
-
-  const { data: settingsData } = useQuery(GET_GLOBAL_SETTINGS);
+  const { data: settingsData } = useQuery(GET_GLOBAL_SETTINGS, { fetchPolicy: 'network-only' });
   const isBypassEnabled = settingsData?.getGlobalSettings?.isPackerScanBypassEnabled || false;
 
   useEffect(() => {
@@ -52,35 +52,49 @@ const CameraScreen = ({ navigation, route }) => {
     if (isBypassEnabled) {
       if (!allScanned) {
         setAllScanned(true);
-        getRecommendation({ variables: { orderId: order.orderId } });
         Alert.alert('Scan Bypassed', 'Please take 5 photos of the packed items.');
       }
       return;
     }
 
-    const done = items.every(i => i.scannedQty >= i.quantity);
+    const done = items.every(i => (i.scannedQty + (i.shortQty || 0)) >= i.quantity);
     if (done && items.length > 0 && !allScanned) {
       setAllScanned(true);
-      getRecommendation({ variables: { orderId: order.orderId } });
-      Alert.alert('✅ All Items Scanned!', 'Now take a photo of the packed box.');
+      Alert.alert('✅ All Items Scanned!', 'Please take 5 photos of the packed items and box.');
     }
   }, [items, isBypassEnabled]);
 
   const handleBarcodeScan = async ({ data }) => {
-    if (scanLocked || allScanned) return;
+    console.log('\n--- SCAN EVENT TRIGGERED ---');
+    console.log(`Scanned Barcode Data: ${data}`);
+    console.log(`Scan Locked State: ${scanLocked}, All Scanned State: ${allScanned}`);
+    
+    if (scanLocked || allScanned) {
+      console.log('Scan ignored because scan is locked or all items are already scanned.');
+      return;
+    }
+    
     setScanLocked(true);
     setLastScanned(data);
 
     const matchedItem = items.find(i => i.ean === data);
     if (!matchedItem) {
-      Vibration.vibrate();
+      console.log(`ERROR: EAN ${data} not found in this order's items!`);
+      Vibration.vibrate([0, 100, 80, 100]);
+      Speech.speak('Wrong item', { rate: 1.2 });
       Alert.alert('Unknown EAN', `${data} is not in this order.`);
       setTimeout(() => setScanLocked(false), 800);
       return;
     }
 
-    if (matchedItem.scannedQty >= matchedItem.quantity) {
-      Vibration.vibrate();
+    console.log(`Matched Item: ${matchedItem.name} (SKU: ${matchedItem.sku}, ID: ${matchedItem.productId})`);
+    console.log(`Item Target Quantity: ${matchedItem.quantity} (Type: ${typeof matchedItem.quantity})`);
+    console.log(`Currently Scanned Qty in UI: ${matchedItem.scannedQty}`);
+
+    if ((matchedItem.scannedQty + (matchedItem.shortQty || 0)) >= matchedItem.quantity) {
+      console.log(`WARNING: Item ${matchedItem.name} is already fully scanned or marked short (${matchedItem.scannedQty + (matchedItem.shortQty || 0)}/${matchedItem.quantity})`);
+      Vibration.vibrate([0, 100, 80, 100]);
+      Speech.speak('Already done', { rate: 1.2 });
       Alert.alert('Already Scanned', `${matchedItem.name} is already fully scanned.`);
       setTimeout(() => setScanLocked(false), 800);
       return;
@@ -91,16 +105,23 @@ const CameraScreen = ({ navigation, route }) => {
     pendingScans.current[pid].push(data);
 
     const collected = pendingScans.current[pid].length;
-    const needed = matchedItem.quantity;
+    // VERY IMPORTANT: Parse needed as integer just in case it is coming as a string from GraphQL
+    const needed = parseInt(matchedItem.quantity, 10);
+    
+    console.log(`Pending Scans for this PID:`, pendingScans.current[pid]);
+    console.log(`Collected so far: ${collected} | Needed (parsed): ${needed}`);
 
     if (collected < needed) {
+      console.log(`ACTION: Item partially scanned. Updating UI to ${collected}/${needed} and unlocking scanner.`);
       setItems(prev =>
         prev.map(i => i.productId === pid ? { ...i, scannedQty: collected } : i)
       );
-      setTimeout(() => setScanLocked(false), 800);
+      Speech.speak(collected.toString());
+      setTimeout(() => setScanLocked(false), 1200);
       return;
     }
 
+    console.log(`ACTION: Collected (${collected}) == Needed (${needed}). Triggering backend mutation!`);
     try {
       const response = await batchScanMutation({
         variables: {
@@ -121,8 +142,9 @@ const CameraScreen = ({ navigation, route }) => {
 
       const validation = response?.data?.batchScanItems?.validations?.[0];
       if (!validation?.isValid) {
-        Vibration.vibrate();
+        Vibration.vibrate([0, 100, 80, 100]);
         pendingScans.current[pid] = [];
+        Speech.speak('Scan failed', { rate: 1.2 });
         Alert.alert('Invalid', validation?.errorMessage || 'Scan failed');
         return;
       }
@@ -130,13 +152,50 @@ const CameraScreen = ({ navigation, route }) => {
       setItems(prev =>
         prev.map(i => i.productId === pid ? { ...i, scannedQty: needed } : i)
       );
+      Speech.speak("Done");
     } catch (err) {
       pendingScans.current[pid] = [];
       Alert.alert('Network Error', err.message);
     } finally {
-      setTimeout(() => setScanLocked(false), 800);
+      setTimeout(() => setScanLocked(false), 1200);
     }
   };
+
+  const handleMarkShort = (item) => {
+    const remaining = item.quantity - item.scannedQty - (item.shortQty || 0);
+    if (remaining <= 0) return;
+
+    Alert.alert(
+      'Mark Missing',
+      `How many ${item.name} are missing? (Up to ${remaining})`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: `Mark ${remaining} Missing`, 
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              const res = await markItemShortMutation({
+                variables: {
+                  packingOrderId: order.id || order._id,
+                  productId: item.productId,
+                  shortQty: remaining,
+                }
+              });
+              if (res.data) {
+                setItems(prev => prev.map(i => i.productId === item.productId ? { ...i, shortQty: (i.shortQty || 0) + remaining } : i));
+                Alert.alert('Marked', `${remaining} items marked as missing.`);
+              }
+            } catch (err) {
+              Alert.alert('Error', err.message);
+            }
+          }
+        }
+      ]
+    );
+  };
+
+
 
   const takeBoxPhoto = async () => {
     if (!cameraRef.current) return;
@@ -146,31 +205,48 @@ const CameraScreen = ({ navigation, route }) => {
 
   const retakePhoto = () => setBoxPhotos([]);
 
-  const submitOrder = async () => {
-    if (isBypassEnabled && boxPhotos.length < 5) {
-      Alert.alert('Missing Photos', 'Please take 5 photos of the packed box and items.');
-      return;
-    }
-    if (!isBypassEnabled && boxPhotos.length === 0) {
-      Alert.alert('Missing Photo', 'Please take a photo of the packed box.');
-      return;
-    }
-    setShowPartnerModal(true);
-  };
-
-  const finalizeCompletion = async () => {
-    setShowPartnerModal(false);
+  const handleComplete = async () => {
     setIsSubmitting(true);
     try {
-      const base64Images = await Promise.all(
-        boxPhotos.map(uri => FileSystem.readAsStringAsync(uri, { encoding: 'base64' }))
+      const restApiUrl = API_URL.replace('/graphql', '');
+      const uploadedKeys = await Promise.all(
+        boxPhotos.map(async (uri, index) => {
+          const filename = `box-photo-${order.id}-${index}.jpg`;
+          const presignedRes = await fetch(`${restApiUrl}/files/presigned-url`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ filename, contentType: 'image/jpeg' }),
+          });
+
+          if (!presignedRes.ok) {
+            throw new Error('Failed to get upload URL');
+          }
+          const presignedData = await presignedRes.json();
+
+          const response = await fetch(uri);
+          const blob = await response.blob();
+
+          const uploadRes = await fetch(presignedData.uploadUrl, {
+            method: 'PUT',
+            body: blob,
+            headers: {
+              'Content-Type': 'image/jpeg',
+            },
+          });
+
+          if (!uploadRes.ok) {
+            throw new Error('Failed to upload image to CDN');
+          }
+
+          return presignedData.key;
+        })
       );
 
       await uploadEvidenceMutation({
         variables: {
           input: {
             packingOrderId: order.id,
-            prePackImages: base64Images,
+            prePackImages: uploadedKeys,
             postPackImages: [],
             actualBoxCode: null,
           },
@@ -178,10 +254,8 @@ const CameraScreen = ({ navigation, route }) => {
       });
 
       await completePackingMutation({
-        variables: { 
+        variables: {
           packingOrderId: order.id,
-          provider: selectedProvider,
-          serviceType: selectedProvider === 'DTDC' ? 'GROUND EXPRESS' : 'Standard'
         },
       });
 
@@ -208,7 +282,7 @@ const CameraScreen = ({ navigation, route }) => {
   }
 
   if (allScanned) {
-    const isPhotoComplete = isBypassEnabled ? boxPhotos.length >= 5 : boxPhotos.length >= 1;
+    const isPhotoComplete = boxPhotos.length >= 5;
 
     return (
       <View style={styles.container}>
@@ -217,18 +291,24 @@ const CameraScreen = ({ navigation, route }) => {
           <View style={styles.container}>
             <View style={styles.photoHeader}>
               <Text style={styles.photoTitle}>Box Photo Preview</Text>
-              <Text style={styles.photoSub}>Order #{order.orderNumber} — Packed by {user.name}</Text>
+              <Text style={styles.photoSub}>Order #{order.orderNumber} — {boxPhotos.length}/5 photos captured ✓</Text>
             </View>
-            <View style={styles.photoPreview}>
-              <Ionicons name="images" size={80} color="#555" />
-              <Text style={styles.photoCapured}>{boxPhotos.length} Photo(s) captured ✓</Text>
-            </View>
+            <ScrollView contentContainerStyle={styles.photoGrid}>
+              {boxPhotos.map((uri, index) => (
+                <Image
+                  key={index}
+                  source={{ uri }}
+                  style={styles.photoThumb}
+                  resizeMode="cover"
+                />
+              ))}
+            </ScrollView>
             <View style={styles.photoActions}>
               <TouchableOpacity style={styles.retakeBtn} onPress={retakePhoto}>
                 <Ionicons name="refresh" size={20} color={COLORS.textDark} />
-                <Text style={styles.retakeBtnText}>Retake</Text>
+                <Text style={styles.retakeBtnText}>Retake All</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.submitBtn} onPress={submitOrder} disabled={isSubmitting}>
+              <TouchableOpacity style={styles.submitBtn} onPress={handleComplete} disabled={isSubmitting}>
                 {isSubmitting ? (
                   <ActivityIndicator color="#fff" />
                 ) : (
@@ -245,8 +325,8 @@ const CameraScreen = ({ navigation, route }) => {
             <View style={styles.photoOverlay}>
               <View style={styles.photoPromptBox}>
                 <Ionicons name="camera" size={36} color="#fff" />
-                <Text style={styles.photoPromptTitle}>{isBypassEnabled ? `Take Photos (${boxPhotos.length}/5)` : 'Take Box Photo'}</Text>
-                <Text style={styles.photoPromptSub}>{isBypassEnabled ? 'Capture 5 photos of the packed items.' : 'Capture the sealed packed box with all items inside'}</Text>
+                <Text style={styles.photoPromptTitle}>{`Take Photos (${boxPhotos.length}/5)`}</Text>
+                <Text style={styles.photoPromptSub}>Capture 5 photos of the packed items and sealed box.</Text>
               </View>
               <TouchableOpacity style={styles.shutterBtn} onPress={takeBoxPhoto}>
                 <View style={styles.shutterInner} />
@@ -254,63 +334,6 @@ const CameraScreen = ({ navigation, route }) => {
             </View>
           </CameraView>
         )}
-
-        <Modal
-          visible={showPartnerModal}
-          transparent={true}
-          animationType="fade"
-          onRequestClose={() => setShowPartnerModal(false)}
-        >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Select Delivery Partner</Text>
-              
-              {recommendationData?.getDeliveryRecommendation && (
-                <View style={styles.recommendationBox}>
-                  <View style={styles.recommendationHeader}>
-                    <Ionicons name="star" size={16} color="#f59e0b" />
-                    <Text style={styles.recommendationText}>RECOMMENDED</Text>
-                  </View>
-                  <Text style={styles.recommendedProvider}>
-                    {recommendationData.getDeliveryRecommendation.recommendedProvider}
-                  </Text>
-                  <Text style={styles.recommendationReason}>
-                    {recommendationData.getDeliveryRecommendation.reason}
-                  </Text>
-                </View>
-              )}
-
-              <View style={styles.partnerOptions}>
-                <TouchableOpacity 
-                  style={[styles.partnerOption, selectedProvider === 'DTDC' && styles.partnerSelected]}
-                  onPress={() => setSelectedProvider('DTDC')}
-                >
-                  <Ionicons name="bus" size={24} color={selectedProvider === 'DTDC' ? COLORS.primary : '#64748b'} />
-                  <Text style={[styles.partnerName, selectedProvider === 'DTDC' && styles.partnerNameSelected]}>DTDC</Text>
-                  {selectedProvider === 'DTDC' && <Ionicons name="checkmark-circle" size={20} color={COLORS.primary} />}
-                </TouchableOpacity>
-
-                <TouchableOpacity 
-                  style={[styles.partnerOption, selectedProvider === 'SHIPROCKET' && styles.partnerSelected]}
-                  onPress={() => setSelectedProvider('SHIPROCKET')}
-                >
-                  <Ionicons name="rocket" size={24} color={selectedProvider === 'SHIPROCKET' ? COLORS.primary : '#64748b'} />
-                  <Text style={[styles.partnerName, selectedProvider === 'SHIPROCKET' && styles.partnerNameSelected]}>SHIPROCKET</Text>
-                  {selectedProvider === 'SHIPROCKET' && <Ionicons name="checkmark-circle" size={20} color={COLORS.primary} />}
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.modalActions}>
-                <TouchableOpacity style={styles.modalCancel} onPress={() => setShowPartnerModal(false)}>
-                  <Text style={styles.modalCancelText}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.modalConfirm} onPress={finalizeCompletion}>
-                  <Text style={styles.modalConfirmText}>Confirm & Finish</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </Modal>
       </View>
     );
   }
@@ -326,12 +349,20 @@ const CameraScreen = ({ navigation, route }) => {
       >
         <View style={styles.scanOverlay}>
           <Text style={styles.overlayTitle}>📦 Scan Items — Order #{order.orderNumber}</Text>
+          {order.shippingInfo && (
+            <View style={styles.addressBanner}>
+              <Text style={styles.addressText} numberOfLines={1}>
+                To: {order.shippingInfo.recipientName} · {order.shippingInfo.city} - {order.shippingInfo.pincode}
+              </Text>
+            </View>
+          )}
           {lastScanned ? (
             <Text style={styles.lastScanned}>Last scanned: {lastScanned}</Text>
           ) : null}
           <View style={styles.divider} />
           {items.map((item, idx) => {
-            const done = item.scannedQty >= item.quantity;
+            const done = (item.scannedQty + (item.shortQty || 0)) >= item.quantity;
+            const hasShort = (item.shortQty || 0) > 0;
             const pending = pendingScans.current[item.productId]?.length || 0;
             const display = done ? item.quantity : pending;
             return (
@@ -339,14 +370,24 @@ const CameraScreen = ({ navigation, route }) => {
                 <Ionicons
                   name={done ? 'checkmark-circle' : pending > 0 ? 'hourglass-outline' : 'ellipse-outline'}
                   size={20}
-                  color={done ? '#4ade80' : pending > 0 ? '#fb923c' : '#facc15'}
+                  color={done ? (hasShort ? '#f97316' : '#4ade80') : pending > 0 ? '#fb923c' : '#facc15'}
                   style={{ marginRight: 8 }}
                 />
-                <Text style={[styles.itemName, done && styles.itemDone]} numberOfLines={1}>
-                  {item.name}
-                </Text>
-                <Text style={[styles.itemCount, done && styles.itemCountDone]}>
-                  {display}/{item.quantity}
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.itemName, done && (hasShort ? {color: '#f97316'} : styles.itemDone)]} numberOfLines={1}>
+                    {item.name}
+                  </Text>
+                  {hasShort && (
+                    <Text style={{color: '#f97316', fontSize: 10}}>Marked {item.shortQty} missing</Text>
+                  )}
+                </View>
+                {!done && (
+                  <TouchableOpacity onPress={() => handleMarkShort(item)} style={{ marginRight: 12, paddingHorizontal: 6, paddingVertical: 2, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 4 }}>
+                    <Text style={{ color: '#f87171', fontSize: 10 }}>Mark Missing</Text>
+                  </TouchableOpacity>
+                )}
+                <Text style={[styles.itemCount, done && (hasShort ? {color: '#f97316'} : styles.itemCountDone)]}>
+                  {item.scannedQty + (item.shortQty || 0)}/{item.quantity}
                 </Text>
               </View>
             );
@@ -400,30 +441,28 @@ const styles = StyleSheet.create({
   photoSub: { color: 'rgba(255,255,255,0.8)', fontSize: 13, marginTop: 4 },
   photoPreview: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#111' },
   photoCapured: { color: '#aaa', marginTop: 12 },
+  photoGrid: { flexDirection: 'row', flexWrap: 'wrap', padding: 8, backgroundColor: '#111' },
+  photoThumb: { width: '48%', aspectRatio: 1, margin: '1%', borderRadius: 10 },
   photoActions: { flexDirection: 'row', padding: 16, backgroundColor: '#fff', gap: 12 },
   retakeBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, height: 52, gap: 8 },
   retakeBtnText: { fontWeight: '600', color: COLORS.textDark },
   submitBtn: { flex: 2, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#22c55e', borderRadius: 12, height: 52, gap: 8 },
   submitBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
 
-  modalContainer: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center', padding: 20 },
-  modalContent: { backgroundColor: '#fff', borderRadius: 20, padding: 24, width: '100%', maxWidth: 400 },
-  modalTitle: { fontSize: 20, fontWeight: 'bold', color: COLORS.textDark, marginBottom: 20, textAlign: 'center' },
-  recommendationBox: { backgroundColor: '#fffbeb', borderRadius: 12, padding: 16, marginBottom: 20, borderWidth: 1, borderColor: '#fef3c7' },
-  recommendationHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 4, gap: 4 },
-  recommendationText: { fontSize: 11, fontWeight: 'bold', color: '#b45309', letterSpacing: 0.5 },
-  recommendedProvider: { fontSize: 18, fontWeight: 'bold', color: '#92400e', marginBottom: 4 },
-  recommendationReason: { fontSize: 12, color: '#b45309' },
-  partnerOptions: { gap: 12, marginBottom: 24 },
-  partnerOption: { flexDirection: 'row', alignItems: 'center', padding: 16, borderRadius: 12, borderWidth: 1, borderColor: '#e2e8f0', gap: 12 },
-  partnerSelected: { borderColor: COLORS.primary, backgroundColor: '#f0f9ff' },
-  partnerName: { flex: 1, fontSize: 16, fontWeight: '600', color: '#64748b' },
-  partnerNameSelected: { color: COLORS.textDark },
-  modalActions: { flexDirection: 'row', gap: 12 },
-  modalCancel: { flex: 1, paddingVertical: 14, alignItems: 'center', justifyContent: 'center' },
-  modalCancelText: { color: '#64748b', fontWeight: '600' },
-  modalConfirm: { flex: 2, backgroundColor: COLORS.primary, paddingVertical: 14, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  modalConfirmText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  addressBanner: {
+    backgroundColor: 'rgba(79, 70, 229, 0.25)',
+    borderWidth: 1,
+    borderColor: 'rgba(79, 70, 229, 0.5)',
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    marginVertical: 6,
+  },
+  addressText: {
+    color: '#a5f3fc',
+    fontSize: 12,
+    fontWeight: '600',
+  },
 });
 
 export default CameraScreen;

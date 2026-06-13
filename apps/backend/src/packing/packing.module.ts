@@ -37,6 +37,7 @@ import { UnassignedOrderProcessorService } from './services/domain/unassigned-or
 import { QueueCleanupService } from './services/domain/queue-cleanup.service';
 import { SettingsModule } from '../settings/settings.module';
 import { ScanLoggerService } from './services/domain/scan-logger.service';
+import { UploadModule } from '../upload/upload.module';
 
 import { PackingService } from './services/packing.service';
 import { PackerService } from './services/packer.service';
@@ -99,6 +100,7 @@ import { ShipmentModule } from '../shipment/shipment.module';
     ProductModule,
     forwardRef(() => OrderModule),
     forwardRef(() => ShipmentModule),
+    UploadModule,
   ],
   providers: [
     PackerCrudService,

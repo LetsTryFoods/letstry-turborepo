@@ -39,6 +39,12 @@ export class PackingItem {
   @Field(() => Int, { nullable: true })
   scannedCount?: number;
 
+  @Field(() => Int, { nullable: true })
+  shortCount?: number;
+
+  @Field(() => Float, { nullable: true })
+  unitPrice?: number;
+
   @Field(() => ItemDimensions)
   dimensions: ItemDimensions;
 
@@ -47,6 +53,39 @@ export class PackingItem {
 
   @Field()
   imageUrl: string;
+}
+
+@ObjectType()
+export class ShippingInfo {
+  @Field()
+  recipientName: string;
+
+  @Field({ nullable: true })
+  recipientPhone?: string;
+
+  @Field()
+  addressLine1: string;
+
+  @Field({ nullable: true })
+  addressLine2?: string;
+
+  @Field()
+  city: string;
+
+  @Field()
+  pincode: string;
+
+  @Field()
+  state: string;
+}
+
+@ObjectType()
+export class ShipmentInfo {
+  @Field({ nullable: true })
+  awbNumber?: string;
+
+  @Field({ nullable: true })
+  provider?: string;
 }
 
 @ObjectType()
@@ -98,4 +137,11 @@ export class PackingOrder {
 
   @Field(() => PackingEvidence, { nullable: true })
   evidence?: PackingEvidence;
+
+  @Field(() => ShippingInfo, { nullable: true })
+  shippingInfo?: ShippingInfo;
+
+  @Field(() => ShipmentInfo, { nullable: true })
+  shipmentInfo?: ShipmentInfo;
 }
+

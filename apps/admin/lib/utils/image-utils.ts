@@ -14,6 +14,12 @@ export const getCdnUrl = (key: string | null | undefined): string => {
     return key;
   }
 
+  // Handle raw base64 strings (JPEG starts with /9j/, PNG with iVBOR)
+  const trimmedKey = key.trim();
+  if (trimmedKey.length > 500 && (trimmedKey.startsWith("/9j/") || trimmedKey.startsWith("iVBOR"))) {
+    return `data:image/jpeg;base64,${trimmedKey.replace(/[\r\n]+/g, "")}`;
+  }
+
   const cdnDomain =
     process.env.NEXT_PUBLIC_API_IMAGE_URL?.replace(/\/$/, "") || "";
 

@@ -94,12 +94,7 @@ export class UploadService {
     const key = `${uid}${extension}`;
 
     const uploadUrl = await this.getPresignedUploadUrl(key, contentType);
-    const finalKey =
-      this.isImageFile(contentType || '') &&
-      contentType !== 'image/gif' &&
-      !filename.toLowerCase().endsWith('.webp')
-        ? key.replace(/\.[^.]+$/, '.webp')
-        : key;
+    const finalKey = key;
     const finalUrl = this.getCloudFrontUrl(finalKey);
 
     return {

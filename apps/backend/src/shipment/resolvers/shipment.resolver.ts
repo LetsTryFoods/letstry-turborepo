@@ -206,6 +206,7 @@ export class ShipmentResolver {
   }
 
   @Query(() => String, { nullable: true })
+  @Roles(Role.ADMIN, Role.PACKER)
   async getShipmentLabel(
     @Args('awbNumber') awbNumber: string,
   ): Promise<string | null> {

@@ -13,7 +13,7 @@ interface ProductGalleryProps {
   images: {
     url: string;
     alt?: string;
-  }[]; 
+  }[];
   isOutOfStock?: boolean;
   productName?: string;
 }
