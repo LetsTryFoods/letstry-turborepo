@@ -28,6 +28,8 @@ import { PackingOrder, PackingStatus } from '../entities/packing-order.entity';
 import { PackingEvidence } from '../entities/packing-evidence.entity';
 import { InventoryService } from '../../product/services/inventory.service';
 import { InventoryAction } from '../../product/inventory-log.schema';
+import { UploadService } from '../../upload/upload.service';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class PackingService {
@@ -54,6 +56,7 @@ export class PackingService {
     private readonly packingEvidenceModel: Model<PackingEvidence>,
     private readonly inventoryService: InventoryService,
     private readonly settingsService: SettingsService,
+    private readonly uploadService: UploadService,
   ) {}
 
   async createPackingOrder(order: Order): Promise<void> {
@@ -87,6 +90,42 @@ export class PackingService {
     }
 
     return packingOrder;
+  }
+
+  async markItemShort(
+    packingOrderId: string,
+    productId: string,
+    shortQty: number,
+    packerId: string,
+  ): Promise<any> {
+    const packingOrder = await this.packingOrderCrud.findById(packingOrderId);
+    if (!packingOrder) throw new Error('Packing order not found');
+    if (packingOrder.assignedTo !== packerId) throw new Error('This order is no longer assigned to you');
+
+    const updatedItems = packingOrder.items.map((i: any) => {
+      if (i.productId === productId) {
+        return { ...i, shortCount: shortQty };
+      }
+      return i;
+    });
+
+    const item = packingOrder.items.find(i => i.productId === productId);
+    
+    const updateData: any = { items: updatedItems };
+    if (item) {
+      updateData.$push = {
+        retrospectiveErrors: {
+          errorType: 'short_item',
+          flaggedAt: new Date(),
+          flaggedBy: packerId,
+          notes: `Item ${item.name} marked short by ${shortQty} units.`,
+          severity: 'major',
+          source: 'quality_audit',
+        }
+      };
+    }
+
+    return this.packingOrderCrud.update(packingOrderId, updateData);
   }
 
   async batchScanItems(
@@ -320,10 +359,15 @@ export class PackingService {
       });
     }
 
-    await this.packingLifecycle.completePacking(packingOrderId);
+    const isPartiallyFulfilled = packingOrder.items.some(
+      (item: any) => (item.shortCount || 0) > 0
+    );
+
+    await this.packingLifecycle.completePacking(packingOrderId, isPartiallyFulfilled);
 
     this.scanLogger.logCompletePackingStep('STATUS_COMPLETED', {
       packingOrderId,
+      isPartiallyFulfilled,
     });
 
     await this.orderRepository.updateOrderStatus(
@@ -350,19 +394,22 @@ export class PackingService {
       orderId: packingOrder.orderId,
     });
 
-    // Subtract stock for each item packed
+    // Subtract stock for each item actually packed
     try {
       for (const item of packingOrder.items) {
-        await this.inventoryService.adjustStockByIdentifier(
-          item.sku,
-          -item.quantity,
-          InventoryAction.ORDER_PACKED,
-          {
-            referenceId: packingOrder.orderId,
-            performedBy: packerId,
-            notes: `Auto-subtracted during packing of order ${packingOrder.orderId}`,
-          },
-        );
+        const qtyToDeduct = item.scannedCount || 0;
+        if (qtyToDeduct > 0) {
+          await this.inventoryService.adjustStockByIdentifier(
+            item.sku,
+            -qtyToDeduct,
+            InventoryAction.ORDER_PACKED,
+            {
+              referenceId: packingOrder.orderId,
+              performedBy: packerId,
+              notes: `Auto-subtracted during packing of order ${packingOrder.orderId}`,
+            },
+          );
+        }
       }
       this.scanLogger.logCompletePackingStep('STOCK_SUBTRACTED', {
         packingOrderId,
@@ -378,12 +425,19 @@ export class PackingService {
     }
 
     try {
-      await this.initiateShipmentCreation(
-        packingOrder.orderId,
-        packingOrderId,
-        serviceType,
-        provider,
-      );
+      if (provider) {
+        await this.initiateShipmentCreation(
+          packingOrder.orderId,
+          packingOrderId,
+          serviceType,
+          provider,
+        );
+      } else {
+        this.scanLogger.logCompletePackingStep('SHIPMENT_SKIPPED', {
+          packingOrderId,
+          reason: 'No provider specified (auto-complete packing)',
+        });
+      }
     } catch (shipmentError) {
       this.scanLogger.logCompletePackingStep('SHIPMENT_SKIPPED', {
         packingOrderId,
@@ -470,6 +524,53 @@ export class PackingService {
     );
 
     return this.packingOrderCrud.findById(packingOrderId);
+  }
+
+  async syncTerminalOrderStatus(
+    orderId: string,
+    status: OrderStatus | string,
+  ): Promise<void> {
+    const terminalStatuses: string[] = [
+      OrderStatus.DELIVERED,
+      OrderStatus.SHIPPED,
+      OrderStatus.PACKED,
+      'CANCELLED',
+      'RTO',
+      'RTO_DELIVERED',
+    ];
+
+    if (!terminalStatuses.includes(status)) {
+      return;
+    }
+
+    const packingOrder = await this.packingOrderCrud.findOne({ orderId });
+    if (!packingOrder) {
+      return;
+    }
+
+    if (
+      packingOrder.status === PackingStatus.PENDING ||
+      packingOrder.status === PackingStatus.ASSIGNED ||
+      packingOrder.status === PackingStatus.PACKING
+    ) {
+      await this.packingOrderCrud.update(packingOrder._id.toString(), {
+        status: PackingStatus.COMPLETED,
+        packingCompletedAt: new Date(),
+      });
+
+      this.packingLogger.logInfo(
+        'Synced terminal order status to PackingOrder',
+        {
+          orderId,
+          packingOrderId: packingOrder._id.toString(),
+          newOrderStatus: status,
+        },
+      );
+
+      try {
+        await this.packingQueue.removeFromQueue(orderId);
+      } catch (err) {}
+    }
   }
 
   private resolvePhone(order: any, address: any): string | null {
@@ -803,7 +904,59 @@ export class PackingService {
   }
 
   async getEvidenceByOrder(packingOrderId: string): Promise<any> {
-    return this.evidenceCrud.findByOrder(packingOrderId);
+    const evidence = await this.evidenceCrud.findByOrder(packingOrderId);
+    if (!evidence) return null;
+
+    // Auto-migrate any base64 images to R2 and update DB
+    const isBase64 = (str: string) =>
+      str.length > 500 && (str.startsWith('/9j/') || str.startsWith('iVBOR') || str.startsWith('data:image'));
+
+    const migrateImages = async (images: string[]): Promise<string[]> => {
+      return Promise.all(
+        images.map(async (img) => {
+          if (!isBase64(img)) return img; // already a key or URL, skip
+          try {
+            // Strip data URI prefix if present
+            const base64Data = img.replace(/^data:image\/\w+;base64,/, '');
+            const buffer = Buffer.from(base64Data, 'base64');
+            const key = `${crypto.randomBytes(16).toString('hex')}.jpg`;
+            const bucket = this.uploadService.getBucketName();
+            const s3 = this.uploadService.getS3Client();
+            const { PutObjectCommand } = await import('@aws-sdk/client-s3');
+            await s3.send(
+              new PutObjectCommand({
+                Bucket: bucket,
+                Key: key,
+                Body: buffer,
+                ContentType: 'image/jpeg',
+                CacheControl: 'public, max-age=31536000',
+              }),
+            );
+            return key;
+          } catch (e) {
+            return img; // fallback: return original if migration fails
+          }
+        }),
+      );
+    };
+
+    let changed = false;
+    const newPrePack = await migrateImages(evidence.prePackImages || []);
+    const newPostPack = await migrateImages(evidence.postPackImages || []);
+
+    if (JSON.stringify(newPrePack) !== JSON.stringify(evidence.prePackImages)) changed = true;
+    if (JSON.stringify(newPostPack) !== JSON.stringify(evidence.postPackImages)) changed = true;
+
+    if (changed) {
+      await this.evidenceCrud.update(evidence._id.toString(), {
+        prePackImages: newPrePack,
+        postPackImages: newPostPack,
+      });
+      evidence.prePackImages = newPrePack;
+      evidence.postPackImages = newPostPack;
+    }
+
+    return evidence;
   }
 
   async reassignOrder(
@@ -909,7 +1062,30 @@ export class PackingService {
   }
   async getPackerHistory(packerId: string): Promise<any[]> {
     const orders = await this.packingOrderCrud.findByPacker(packerId);
-    return orders.filter((order: any) => order.status === 'completed');
+    const completed = orders.filter((order: any) => order.status === 'completed');
+
+    // Attach evidence (photos) to each order
+    const withEvidence = await Promise.all(
+      completed.map(async (order: any) => {
+        const evidence = await this.evidenceCrud.findByOrder(order._id.toString());
+        return {
+          ...order.toObject ? order.toObject() : order,
+          evidence: evidence
+            ? {
+                prePackImages: (evidence.prePackImages || []).map((img: string) => {
+                  // If already a CDN key (not base64), build full URL
+                  if (img.length < 500) {
+                    return `${this.configService.get<string>('aws.cloudfrontDomain')?.replace(/\/$/, '')}/${img}`;
+                  }
+                  return img; // return raw base64 as-is for app (it can display it directly)
+                }),
+              }
+            : null,
+        };
+      }),
+    );
+
+    return withEvidence;
   }
 
   isDelhiNCR(address: any): boolean {
@@ -948,5 +1124,43 @@ export class PackingService {
       recommendedProvider: 'DTDC',
       reason: 'Outside NCR region - DTDC has better reach',
     };
+  }
+
+  async getShippingInfo(orderId: string): Promise<any> {
+    try {
+      const order = await this.orderRepository.findByInternalId(orderId);
+      if (!order || !order.shippingAddressId) return null;
+      const address = await this.addressModel.findById(order.shippingAddressId).exec();
+      if (!address) return null;
+
+      const addressLine1 = address.buildingName + (address.floor ? `, Floor ${address.floor}` : '');
+      const addressLine2 = [address.streetArea, address.landmark].filter(Boolean).join(', ');
+
+      return {
+        recipientName: address.recipientName,
+        recipientPhone: address.recipientPhone,
+        addressLine1,
+        addressLine2,
+        city: address.addressLocality,
+        pincode: address.postalCode,
+        state: address.addressRegion,
+      };
+    } catch (err) {
+      return null;
+    }
+  }
+
+  async getShipmentInfo(orderId: string): Promise<any> {
+    try {
+      const shipments = await this.shipmentService.findByOrderId(orderId);
+      if (!shipments || shipments.length === 0) return null;
+      const sh = shipments[0];
+      return {
+        awbNumber: sh.awbNumber || sh.dtdcAwbNumber,
+        provider: sh.provider,
+      };
+    } catch (err) {
+      return null;
+    }
   }
 }

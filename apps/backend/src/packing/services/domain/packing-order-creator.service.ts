@@ -97,6 +97,7 @@ export class PackingOrderCreatorService {
             sku: variant.sku,
             ean: variant.sku,
             name: product.name,
+            unitPrice: parseFloat(item.price) || 0,
             quantity: item.quantity,
             dimensions: {
               length: variant.length || 0,
@@ -129,6 +130,7 @@ export class PackingOrderCreatorService {
       sku: item.sku || 'UNKNOWN',
       ean: item.sku || 'UNKNOWN',
       name: item.name || 'Unknown Product',
+      unitPrice: parseFloat(item.price) || 0,
       quantity: item.quantity,
       dimensions: {
         length: 0,

@@ -26,7 +26,7 @@ import { UploadEvidenceInput } from './dto/upload-evidence.input';
 import { BatchScanInput } from './dto/batch-scan.input';
 import { AdminPunchShipmentInput } from './dto/admin-punch-shipment.input';
 import { BatchScanResult } from './dto/batch-scan.result';
-import { PackingOrder } from './types/packing-order.type';
+import { PackingOrder, ShippingInfo, ShipmentInfo } from './types/packing-order.type';
 import { ScanLog } from './types/scan-log.type';
 import { BoxSize } from '../box-size/types/box-size.type';
 import { PackingEvidence } from './types/packing-evidence.type';
@@ -82,6 +82,16 @@ export class PackingResolver {
     return this.packingService.getEvidenceByOrder(id);
   }
 
+  @ResolveField(() => ShippingInfo, { nullable: true })
+  async shippingInfo(@Parent() packingOrder: any): Promise<any> {
+    return this.packingService.getShippingInfo(packingOrder.orderId);
+  }
+
+  @ResolveField(() => ShipmentInfo, { nullable: true })
+  async shipmentInfo(@Parent() packingOrder: any): Promise<any> {
+    return this.packingService.getShipmentInfo(packingOrder.orderId);
+  }
+
   @Query(() => PackingOrder)
   @UseGuards(PackerAuthGuard, RolesGuard)
   @Roles(Role.PACKER, Role.ADMIN)
@@ -115,6 +125,23 @@ export class PackingResolver {
     return this.packingService.batchScanItems(
       input.packingOrderId,
       input.items,
+      ctx.req.user.packerId,
+    );
+  }
+
+  @Mutation(() => PackingOrder)
+  @UseGuards(PackerAuthGuard, RolesGuard)
+  @Roles(Role.PACKER)
+  async markItemShort(
+    @Args('packingOrderId') packingOrderId: string,
+    @Args('productId') productId: string,
+    @Args('shortQty', { type: () => Int }) shortQty: number,
+    @Context() ctx,
+  ): Promise<any> {
+    return this.packingService.markItemShort(
+      packingOrderId,
+      productId,
+      shortQty,
       ctx.req.user.packerId,
     );
   }
@@ -163,7 +190,7 @@ export class PackingResolver {
 
   @Mutation(() => PackingOrder)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @Roles(Role.ADMIN, Role.PACKER)
   async adminPunchShipment(
     @Args('input') input: AdminPunchShipmentInput,
   ): Promise<any> {

@@ -13,9 +13,9 @@ export class PackingLifecycleService {
     });
   }
 
-  async completePacking(orderId: string): Promise<void> {
+  async completePacking(orderId: string, isPartiallyFulfilled: boolean = false): Promise<void> {
     await this.packingOrderCrud.update(orderId, {
-      status: PackingStatus.COMPLETED,
+      status: isPartiallyFulfilled ? PackingStatus.PARTIALLY_FULFILLED : PackingStatus.COMPLETED,
       packingCompletedAt: new Date(),
     });
   }

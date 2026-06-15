@@ -16,11 +16,13 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.letstryapp",
-      "icon": "./assets/icon.png"
+      "icon": "./assets/icon.png",
+      "googleServicesFile": "./ios/GoogleService-Info.plist"
     },
     "android": {
       "package": "com.letstryapp",
       "versionCode": 209,
+      "googleServicesFile": "./android/app/google-services.json",
       "permissions": [
         "com.google.android.gms.permission.AD_ID"
       ],
@@ -35,8 +37,10 @@
       }
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "@react-native-firebase/app"
     ],
+
     "experiments": {
       "typedRoutes": true
     },

@@ -90,4 +90,41 @@ export class OrderController {
         .json({ message: 'Failed to generate invoice', error: error.message });
     }
   }
+
+  @Get(':orderId/custom-label')
+  @Public()
+  async downloadCustomLabel(
+    @Param('orderId') orderId: string,
+    @Res() res: Response,
+  ) {
+    try {
+      const orderData = await this.orderService.getOrderByInternalId(orderId);
+      const [shippingAddress, customer, items] = await Promise.all([
+        this.orderService.resolveShippingAddress(orderData).catch(() => null),
+        this.orderService.resolveCustomer(orderData).catch(() => null),
+        this.orderService.resolveItems(orderData).catch(() => []),
+      ]);
+
+      const orderObj = orderData.toObject ? orderData.toObject() : orderData;
+      const populatedOrder = {
+        ...orderObj,
+        shippingAddress,
+        customer,
+        items,
+      };
+
+      const buffer = await this.invoiceService.generateCustomLabel(populatedOrder);
+
+      res.set({
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename=custom-label-${orderData.orderId}.pdf`,
+        'Content-Length': buffer.length,
+      });
+
+      res.end(buffer);
+    } catch (error) {
+      this.logger.error(`Failed to handle custom label download: ${error.message}`);
+      res.status(500).json({ message: 'Failed to generate custom label', error: error.message });
+    }
+  }
 }

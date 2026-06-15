@@ -56,6 +56,70 @@ export class InvoiceService {
     });
   }
 
+  async generateCustomLabel(order: any): Promise<Buffer> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const doc = new PDFDocument({ size: [400, 600], margin: 30 });
+        const chunks: Buffer[] = [];
+        doc.on('data', (chunk) => chunks.push(chunk));
+        doc.on('end', () => resolve(Buffer.concat(chunks)));
+        doc.on('error', reject);
+
+        // Header
+        doc.rect(0, 0, 400, 60).fill('#1e3a5f');
+        doc.fillColor('#ffffff').fontSize(20).font('Helvetica-Bold').text('DELIVERY LABEL', 30, 20);
+        doc.fontSize(10).font('Helvetica').text(`Order #${order.orderId}`, 30, 40);
+
+        // Ship To
+        doc.fillColor('#000000');
+        let currentY = 80;
+        doc.fontSize(10).font('Helvetica-Bold').fillColor('#64748b').text('SHIP TO', 30, currentY);
+        currentY += 15;
+
+        const address = order.shippingAddress;
+        const name = address?.fullName || order.customer?.name || order.recipientContact?.name || 'Customer';
+        const phone = address?.phone || order.recipientContact?.phone || 'N/A';
+
+        doc.fontSize(16).font('Helvetica-Bold').fillColor('#0f172a').text(name, 30, currentY);
+        currentY += 20;
+        doc.fontSize(12).font('Helvetica').fillColor('#334155').text(`Ph: ${phone}`, 30, currentY);
+        currentY += 20;
+
+        if (address) {
+          const lines = [
+            address.addressLine1,
+            address.addressLine2,
+            `${address.city || ''}, ${address.state || ''} - ${address.pincode || ''}`
+          ].filter(Boolean);
+          lines.forEach(line => {
+            doc.text(line, 30, currentY);
+            currentY += 15;
+          });
+        }
+
+        currentY += 20;
+        this.generateHr(doc, currentY);
+        currentY += 20;
+
+
+        // Items
+        doc.fontSize(10).font('Helvetica-Bold').fillColor('#64748b').text('ITEMS', 30, currentY);
+        currentY += 20;
+
+        doc.fontSize(10).fillColor('#0f172a');
+        (order.items || []).forEach((item: any) => {
+          doc.font('Helvetica').text(item.name, 30, currentY, { width: 280 });
+          doc.font('Helvetica-Bold').text(`x${item.quantity}`, 320, currentY, { width: 50, align: 'right' });
+          currentY += Math.max(doc.heightOfString(item.name, { width: 280 }), 15) + 5;
+        });
+
+        doc.end();
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
   private async generateHeader(doc: PDFKit.PDFDocument) {
     const logoRelPath = 'assets/logo.avif';
     const logoPath = path.join(process.cwd(), logoRelPath);
@@ -115,9 +179,9 @@ export class InvoiceService {
       .font('Helvetica-Bold')
       .text(
         address?.fullName ||
-          order.customer?.name ||
-          order.recipientContact?.name ||
-          'Customer',
+        order.customer?.name ||
+        order.recipientContact?.name ||
+        'Customer',
         300,
         customerInfoTop,
       )

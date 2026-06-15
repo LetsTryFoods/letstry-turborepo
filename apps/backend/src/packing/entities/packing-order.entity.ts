@@ -5,6 +5,7 @@ export enum PackingStatus {
   PENDING = 'pending',
   ASSIGNED = 'assigned',
   PACKING = 'packing',
+  PARTIALLY_FULFILLED = 'partially_fulfilled',
   COMPLETED = 'completed',
   FAILED = 'failed',
 }
@@ -37,6 +38,8 @@ export class PackingOrder extends Document {
     name: string;
     quantity: number;
     scannedCount: number;
+    shortCount?: number;
+    unitPrice?: number;
     dimensions: {
       length: number;
       width: number;

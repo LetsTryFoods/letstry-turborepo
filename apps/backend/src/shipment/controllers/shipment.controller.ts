@@ -9,8 +9,9 @@ import {
   NotFoundException,
   BadRequestException,
   Req,
+  Res,
 } from '@nestjs/common';
-import type { Request } from 'express';
+import type { Request, Response } from 'express';
 import { TrackingCronService } from '../services/tracking-cron.service';
 import { ShipmentService } from '../services/shipment.service';
 import { Public } from '../../common/decorators/public.decorator';
@@ -22,6 +23,33 @@ export class ShipmentController {
     private readonly trackingCronService: TrackingCronService,
     private readonly shipmentService: ShipmentService,
   ) {}
+
+  @Public()
+  @Get('label/:awb/download')
+  async downloadShippingLabel(
+    @Param('awb') awb: string,
+    @Res() res: Response,
+  ) {
+    const shipment = await this.shipmentService.findByAwbNumber(awb);
+    if (!shipment || !shipment.labelUrl) {
+      throw new NotFoundException('Shipping label not found');
+    }
+
+    let base64Data = shipment.labelUrl;
+    if (base64Data.startsWith('data:application/pdf;base64,')) {
+      base64Data = base64Data.replace('data:application/pdf;base64,', '');
+    }
+
+    const buffer = Buffer.from(base64Data, 'base64');
+    
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename=shipping-label-${awb}.pdf`,
+      'Content-Length': buffer.length,
+    });
+    
+    res.end(buffer);
+  }
 
   @Public()
   @Post('trigger-tracking-sync')

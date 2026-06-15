@@ -161,6 +161,9 @@ const DashboardScreen = ({ navigation, route }) => {
             <Text style={styles.userName}>{user.name}</Text>
           </View>
           <View style={{ flexDirection: 'row', gap: 12 }}>
+            <TouchableOpacity onPress={() => navigation.navigate('NetworkLogs')} style={styles.profileBtn}>
+              <Ionicons name="bug-outline" size={30} color="white" />
+            </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate('Inventory', { user })} style={styles.profileBtn}>
               <Ionicons name="cube-outline" size={30} color="white" />
             </TouchableOpacity>
@@ -197,7 +200,7 @@ const DashboardScreen = ({ navigation, route }) => {
       <FlatList
         data={activeTab === 'active' ? activeData?.getMyAssignedOrders : historyData?.getMyOrderHistory}
         keyExtractor={item => item.id}
-        renderItem={activeTab === 'active' ? renderOrderCard : ({ item }) => <HistoryCard order={item} />}
+        renderItem={activeTab === 'active' ? renderOrderCard : ({ item }) => <HistoryCard order={item} navigation={navigation} />}
         refreshControl={
           <RefreshControl 
             refreshing={activeLoading || historyLoading || statsLoading} 

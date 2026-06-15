@@ -13,8 +13,9 @@ interface ProductGalleryProps {
   images: {
     url: string;
     alt?: string;
-  }[];  isOutOfStock?: boolean;
-
+  }[];
+  isOutOfStock?: boolean;
+  productName?: string;
 }
 
 export const ProductGallery: React.FC<ProductGalleryProps> = ({ images, isOutOfStock = false }) => {

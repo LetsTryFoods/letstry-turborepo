@@ -14,18 +14,22 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useMutation } from "@apollo/client";
+import { FirebaseAuthTypes } from "@react-native-firebase/auth";
 import { theme } from "../../src/styles/theme";
 import { RFValue, wp } from "../../src/lib/utils/ui-utils";
 import {
   SEND_OTP,
   VERIFY_WHATSAPP_OTP,
+  VERIFY_OTP_AND_LOGIN,
   ME_QUERY,
 } from "../../src/lib/graphql/auth";
 import { useAuthStore } from "../../src/store/auth-store";
 import { client as apolloClient } from "../../src/lib/apollo-client";
 import AuthLogger from "../../src/lib/utils/auth-logger";
+import { getFirebaseAuth } from "../../src/lib/firebase";
 
 type AuthStep = "phone" | "otp";
+type AuthMode = "whatsapp" | "firebase";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -36,11 +40,15 @@ export default function LoginScreen() {
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(0);
+  const [authMode, setAuthMode] = useState<AuthMode>("whatsapp");
+  const [firebaseConfirmation, setFirebaseConfirmation] =
+    useState<FirebaseAuthTypes.ConfirmationResult | null>(null);
 
   const otpInputRef = useRef<TextInput>(null);
 
   const [sendOtpMutation] = useMutation(SEND_OTP);
   const [verifyOtpMutation] = useMutation(VERIFY_WHATSAPP_OTP);
+  const [verifyOtpAndLoginMutation] = useMutation(VERIFY_OTP_AND_LOGIN);
 
   useEffect(() => {
     let interval: any;
@@ -65,10 +73,38 @@ export default function LoginScreen() {
         .replace(/^\+91/, "")
         .replace(/^91/, "")
         .slice(-10);
-      await sendOtpMutation({ variables: { phoneNumber: formattedPhone } });
+
+      const { data } = await sendOtpMutation({
+        variables: { phoneNumber: formattedPhone },
+      });
+
+      const serverMessage: string = data?.sendOtp ?? "";
+      const whatsappFailed = serverMessage
+        .toLowerCase()
+        .includes("whatsapp not available");
+
+      if (whatsappFailed) {
+        // Fallback to Firebase SMS
+        AuthLogger.info("WhatsApp unavailable, switching to Firebase SMS");
+        const fbAuth = getFirebaseAuth();
+        if (!fbAuth) {
+          Alert.alert(
+            "SMS Unavailable",
+            "WhatsApp OTP failed and Firebase SMS is not yet available. Please rebuild the app."
+          );
+          return;
+        }
+        const confirmation = await fbAuth.signInWithPhoneNumber(
+          `+91${formattedPhone}`,
+        );
+        setFirebaseConfirmation(confirmation);
+        setAuthMode("firebase");
+      } else {
+        setAuthMode("whatsapp");
+      }
+
       setStep("otp");
       setTimer(30);
-      // Focus OTP input after a short delay
       setTimeout(() => otpInputRef.current?.focus(), 500);
       AuthLogger.info("OTP sent successfully to:", formattedPhone);
     } catch (error: any) {
@@ -90,28 +126,40 @@ export default function LoginScreen() {
         .slice(-10);
       AuthLogger.step(1, "Attempting verification for:", formattedPhone);
 
-      const { data } = await verifyOtpMutation({
-        variables: {
-          phoneNumber: formattedPhone,
-          otp: code,
-        },
-      });
+      let token: string | null = null;
 
-      if (data?.verifyWhatsAppOtp) {
-        const token = data.verifyWhatsAppOtp;
-        AuthLogger.step(2, "Success! Token received.", {
-          length: token.length,
+      if (authMode === "firebase" && firebaseConfirmation) {
+        // --- Firebase SMS path ---
+        AuthLogger.step(1, "Firebase SMS verification");
+        const credential = await firebaseConfirmation.confirm(code);
+        const idToken = await credential?.user.getIdToken();
+        if (!idToken) throw new Error("Failed to get Firebase ID token");
+
+        const { data } = await verifyOtpAndLoginMutation({
+          variables: { idToken },
         });
+        token = data?.verifyOtpAndLogin ?? null;
+      } else {
+        // --- WhatsApp OTP path ---
+        const { data } = await verifyOtpMutation({
+          variables: {
+            phoneNumber: formattedPhone,
+            otp: code,
+          },
+        });
+        token = data?.verifyWhatsAppOtp ?? null;
+      }
 
-        // Manual set in store immediately.
+      if (token) {
+        AuthLogger.step(2, "Success! Token received.", { length: token.length });
+
         useAuthStore.setState({
           accessToken: token,
           isAuthenticated: true,
           sessionId: null,
         });
-        AuthLogger.step(3, "Auth state updated in store (sessionId cleared)");
+        AuthLogger.step(3, "Auth state updated in store");
 
-        // WAIT 100ms for Zustand + AsyncStorage internal state loops to fully settle
         await new Promise((resolve) => setTimeout(resolve, 100));
 
         AuthLogger.step(4, "Fetching user profile...");
@@ -126,15 +174,10 @@ export default function LoginScreen() {
         }
 
         if (meData?.me) {
-          AuthLogger.step(
-            5,
-            "Profile synced successfully:",
-            meData.me.firstName,
-          );
+          AuthLogger.step(5, "Profile synced successfully:", meData.me.firstName);
           await setAuth(meData.me, token);
           router.replace("/(tabs)/profile");
         } else {
-          AuthLogger.error("Profile query returned no data");
           throw new Error("User profile not found. Please contact support.");
         }
       } else {
@@ -203,7 +246,9 @@ export default function LoginScreen() {
           <Text style={styles.subtitle}>
             {step === "phone"
               ? "Enter your mobile number to continue"
-              : `Enter the 6-digit code sent to +91 ${phone}`}
+              : authMode === "firebase"
+                ? `Enter the 6-digit SMS code sent to +91 ${phone}`
+                : `Enter the 6-digit WhatsApp code sent to +91 ${phone}`}
           </Text>
 
           {step === "phone" ? (
