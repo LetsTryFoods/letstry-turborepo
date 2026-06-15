@@ -27,7 +27,18 @@ const CameraScreen = ({ navigation, route }) => {
 
   const [permission, requestPermission] = useCameraPermissions();
   const [items, setItems] = useState(
-    order.items.map(i => ({ ...i, scannedQty: i.scannedCount || 0, shortQty: i.shortCount || 0 }))
+    order.items.map(i => {
+      const comboEans = i.ean ? i.ean.split(',').map(e => e.trim()).filter(e => e) : [];
+      const isCombo = comboEans.length > 1;
+      return { 
+        ...i, 
+        isCombo,
+        comboEans,
+        scannedQty: i.scannedCount || 0, 
+        shortQty: i.shortCount || 0,
+        shortComponentCount: i.shortComponentCount || 0
+      };
+    })
   );
   const pendingScans = useRef({});
   const [scanLocked, setScanLocked] = useState(false);
@@ -44,6 +55,13 @@ const CameraScreen = ({ navigation, route }) => {
   const { data: settingsData } = useQuery(GET_GLOBAL_SETTINGS, { fetchPolicy: 'network-only' });
   const isBypassEnabled = settingsData?.getGlobalSettings?.isPackerScanBypassEnabled || false;
 
+  const getNeeded = (item) => {
+    const nonShorted = item.quantity - (item.shortQty || 0);
+    return item.isCombo 
+      ? Math.max(0, (nonShorted * item.comboEans.length) - (item.shortComponentCount || 0))
+      : Math.max(0, nonShorted);
+  };
+
   useEffect(() => {
     if (!permission?.granted) requestPermission();
   }, []);
@@ -57,7 +75,7 @@ const CameraScreen = ({ navigation, route }) => {
       return;
     }
 
-    const done = items.every(i => (i.scannedQty + (i.shortQty || 0)) >= i.quantity);
+    const done = items.every(i => i.scannedQty >= getNeeded(i));
     if (done && items.length > 0 && !allScanned) {
       setAllScanned(true);
       Alert.alert('✅ All Items Scanned!', 'Please take 5 photos of the packed items and box.');
@@ -77,7 +95,7 @@ const CameraScreen = ({ navigation, route }) => {
     setScanLocked(true);
     setLastScanned(data);
 
-    const matchedItem = items.find(i => i.ean === data);
+    const matchedItem = items.find(i => i.ean === data || (i.isCombo && i.comboEans.includes(data)));
     if (!matchedItem) {
       console.log(`ERROR: EAN ${data} not found in this order's items!`);
       Vibration.vibrate([0, 100, 80, 100]);
@@ -87,12 +105,10 @@ const CameraScreen = ({ navigation, route }) => {
       return;
     }
 
-    console.log(`Matched Item: ${matchedItem.name} (SKU: ${matchedItem.sku}, ID: ${matchedItem.productId})`);
-    console.log(`Item Target Quantity: ${matchedItem.quantity} (Type: ${typeof matchedItem.quantity})`);
-    console.log(`Currently Scanned Qty in UI: ${matchedItem.scannedQty}`);
+    const needed = getNeeded(matchedItem);
 
-    if ((matchedItem.scannedQty + (matchedItem.shortQty || 0)) >= matchedItem.quantity) {
-      console.log(`WARNING: Item ${matchedItem.name} is already fully scanned or marked short (${matchedItem.scannedQty + (matchedItem.shortQty || 0)}/${matchedItem.quantity})`);
+    if (matchedItem.scannedQty >= needed) {
+      console.log(`WARNING: Item ${matchedItem.name} is already fully scanned or marked short (${matchedItem.scannedQty}/${needed})`);
       Vibration.vibrate([0, 100, 80, 100]);
       Speech.speak('Already done', { rate: 1.2 });
       Alert.alert('Already Scanned', `${matchedItem.name} is already fully scanned.`);
@@ -105,18 +121,18 @@ const CameraScreen = ({ navigation, route }) => {
     pendingScans.current[pid].push(data);
 
     const collected = pendingScans.current[pid].length;
-    // VERY IMPORTANT: Parse needed as integer just in case it is coming as a string from GraphQL
-    const needed = parseInt(matchedItem.quantity, 10);
     
-    console.log(`Pending Scans for this PID:`, pendingScans.current[pid]);
-    console.log(`Collected so far: ${collected} | Needed (parsed): ${needed}`);
+    if (matchedItem.isCombo) {
+      Speech.speak("Combo item scanned", { rate: 1.2 });
+    } else {
+      Speech.speak(collected.toString());
+    }
 
     if (collected < needed) {
       console.log(`ACTION: Item partially scanned. Updating UI to ${collected}/${needed} and unlocking scanner.`);
       setItems(prev =>
         prev.map(i => i.productId === pid ? { ...i, scannedQty: collected } : i)
       );
-      Speech.speak(collected.toString());
       setTimeout(() => setScanLocked(false), 1200);
       return;
     }
@@ -162,37 +178,68 @@ const CameraScreen = ({ navigation, route }) => {
   };
 
   const handleMarkShort = (item) => {
-    const remaining = item.quantity - item.scannedQty - (item.shortQty || 0);
+    const needed = getNeeded(item);
+    const remaining = needed - item.scannedQty;
     if (remaining <= 0) return;
 
-    Alert.alert(
-      'Mark Missing',
-      `How many ${item.name} are missing? (Up to ${remaining})`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: `Mark ${remaining} Missing`, 
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              const res = await markItemShortMutation({
-                variables: {
-                  packingOrderId: order.id || order._id,
-                  productId: item.productId,
-                  shortQty: remaining,
-                }
-              });
-              if (res.data) {
-                setItems(prev => prev.map(i => i.productId === item.productId ? { ...i, shortQty: (i.shortQty || 0) + remaining } : i));
-                Alert.alert('Marked', `${remaining} items marked as missing.`);
-              }
-            } catch (err) {
-              Alert.alert('Error', err.message);
+    if (item.isCombo) {
+      Alert.alert(
+        'Mark Missing',
+        `Is an entire Combo missing, or just a single component?`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { 
+            text: 'Single Component', 
+            onPress: () => submitShort(item, 1, true)
+          },
+          {
+            text: 'Full Combo',
+            onPress: () => submitShort(item, 1, false)
+          }
+        ]
+      );
+    } else {
+      Alert.alert(
+        'Mark Missing',
+        `How many ${item.name} are missing? (Up to ${remaining})`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { 
+            text: `Mark ${remaining} Missing`, 
+            style: 'destructive',
+            onPress: () => submitShort(item, remaining, false)
+          }
+        ]
+      );
+    }
+  };
+
+  const submitShort = async (item, shortQty, isComponent) => {
+    try {
+      const res = await markItemShortMutation({
+        variables: {
+          packingOrderId: order.id || order._id,
+          productId: item.productId,
+          shortQty,
+          isComponent
+        }
+      });
+      if (res.data) {
+        setItems(prev => prev.map(i => {
+          if (i.productId === item.productId) {
+            if (isComponent) {
+              return { ...i, shortComponentCount: (i.shortComponentCount || 0) + shortQty };
+            } else {
+              return { ...i, shortQty: (i.shortQty || 0) + shortQty };
             }
           }
-        }
-      ]
-    );
+          return i;
+        }));
+        Alert.alert('Marked', `${shortQty} ${isComponent ? 'component(s)' : 'item(s)'} marked as missing.`);
+      }
+    } catch (err) {
+      Alert.alert('Error', err.message);
+    }
   };
 
 
@@ -361,10 +408,11 @@ const CameraScreen = ({ navigation, route }) => {
           ) : null}
           <View style={styles.divider} />
           {items.map((item, idx) => {
-            const done = (item.scannedQty + (item.shortQty || 0)) >= item.quantity;
-            const hasShort = (item.shortQty || 0) > 0;
+            const needed = getNeeded(item);
+            const done = item.scannedQty >= needed;
+            const hasShort = (item.shortQty || 0) > 0 || (item.shortComponentCount || 0) > 0;
             const pending = pendingScans.current[item.productId]?.length || 0;
-            const display = done ? item.quantity : pending;
+            const display = done ? needed : pending;
             return (
               <View key={idx} style={styles.itemRow}>
                 <Ionicons
@@ -375,10 +423,18 @@ const CameraScreen = ({ navigation, route }) => {
                 />
                 <View style={{ flex: 1 }}>
                   <Text style={[styles.itemName, done && (hasShort ? {color: '#f97316'} : styles.itemDone)]} numberOfLines={1}>
-                    {item.name}
+                    {item.name} {item.isCombo ? '(Combo)' : ''}
                   </Text>
+                  {(item.dimensions?.weight || item.unitPrice) ? (
+                    <Text style={{color: done ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.5)', fontSize: 11, marginTop: 2}}>
+                      {item.dimensions?.weight ? `${item.dimensions.weight}${item.dimensions.unit}  ` : ''}
+                      {item.unitPrice ? `₹${item.unitPrice}` : ''}
+                    </Text>
+                  ) : null}
                   {hasShort && (
-                    <Text style={{color: '#f97316', fontSize: 10}}>Marked {item.shortQty} missing</Text>
+                    <Text style={{color: '#f97316', fontSize: 10}}>
+                      Marked {item.shortQty || 0} full, {item.shortComponentCount || 0} comp. missing
+                    </Text>
                   )}
                 </View>
                 {!done && (
@@ -387,18 +443,18 @@ const CameraScreen = ({ navigation, route }) => {
                   </TouchableOpacity>
                 )}
                 <Text style={[styles.itemCount, done && (hasShort ? {color: '#f97316'} : styles.itemCountDone)]}>
-                  {item.scannedQty + (item.shortQty || 0)}/{item.quantity}
+                  {item.scannedQty}/{needed}
                 </Text>
               </View>
             );
           })}
           <View style={styles.progressBar}>
             <View style={[styles.progressFill, {
-              width: `${(items.reduce((s, i) => s + Math.min(i.scannedQty, i.quantity), 0) / items.reduce((s, i) => s + i.quantity, 0)) * 100}%`
+              width: `${(items.reduce((s, i) => s + Math.min(i.scannedQty, getNeeded(i)), 0) / (items.reduce((s, i) => s + getNeeded(i), 0) || 1)) * 100}%`
             }]} />
           </View>
           <Text style={styles.progressText}>
-            {items.reduce((s, i) => s + Math.min(i.scannedQty, i.quantity), 0)} / {items.reduce((s, i) => s + i.quantity, 0)} scanned
+            {items.reduce((s, i) => s + Math.min(i.scannedQty, getNeeded(i)), 0)} / {items.reduce((s, i) => s + getNeeded(i), 0)} scanned
           </Text>
         </View>
       </CameraView>

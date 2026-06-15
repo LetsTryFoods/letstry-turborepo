@@ -47,7 +47,7 @@ const DashboardScreen = ({ navigation, route }) => {
     data: historyData, 
     loading: historyLoading, 
     refetch: refetchHistory 
-  } = useQuery(GET_MY_HISTORY, { skip: activeTab !== 'history' });
+  } = useQuery(GET_MY_HISTORY, { skip: activeTab === 'active' });
 
   const { 
     data: statsData, 
@@ -194,11 +194,28 @@ const DashboardScreen = ({ navigation, route }) => {
         >
           <Text style={[styles.tabText, activeTab === 'history' && styles.activeTabText]}>History</Text>
         </TouchableOpacity>
+        <TouchableOpacity 
+          style={[styles.tab, activeTab === 'exceptions' && styles.activeTab]} 
+          onPress={() => setActiveTab('exceptions')}
+        >
+          <Text style={[styles.tabText, activeTab === 'exceptions' && styles.activeTabText]}>Exceptions</Text>
+          {historyData?.getMyOrderHistory?.filter(o => o.status === 'partially_fulfilled').length > 0 && (
+            <View style={[styles.countBadge, { backgroundColor: '#f59e0b' }]}>
+              <Text style={styles.countText}>
+                {historyData.getMyOrderHistory.filter(o => o.status === 'partially_fulfilled').length}
+              </Text>
+            </View>
+          )}
+        </TouchableOpacity>
       </View>
 
       {/* List */}
       <FlatList
-        data={activeTab === 'active' ? activeData?.getMyAssignedOrders : historyData?.getMyOrderHistory}
+        data={
+          activeTab === 'active' ? activeData?.getMyAssignedOrders : 
+          activeTab === 'history' ? historyData?.getMyOrderHistory?.filter(o => o.status === 'completed') :
+          activeTab === 'exceptions' ? historyData?.getMyOrderHistory?.filter(o => o.status === 'partially_fulfilled') : []
+        }
         keyExtractor={item => item.id}
         renderItem={activeTab === 'active' ? renderOrderCard : ({ item }) => <HistoryCard order={item} navigation={navigation} />}
         refreshControl={
@@ -214,7 +231,8 @@ const DashboardScreen = ({ navigation, route }) => {
             <View style={styles.emptyContainer}>
               <Ionicons name="clipboard-outline" size={64} color="#e2e8f0" />
               <Text style={styles.emptyText}>
-                {activeTab === 'active' ? 'No orders assigned right now.' : 'No history found.'}
+                {activeTab === 'active' ? 'No orders assigned right now.' : 
+                 activeTab === 'exceptions' ? 'No exceptions found.' : 'No history found.'}
               </Text>
               {activeTab === 'active' && (
                 <TouchableOpacity style={styles.refreshBtn} onPress={onRefresh}>

@@ -69,7 +69,19 @@ const OrderDetailsScreen = ({ route, navigation }) => {
           <Text style={styles.productName}>{item.name}</Text>
           <Text style={styles.sku}>SKU: {item.sku}</Text>
           <Text style={styles.ean}>EAN: {item.ean}</Text>
-          <Text style={styles.qty}>Qty: {item.quantity}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4, gap: 12 }}>
+            <Text style={styles.qty}>Qty: {item.quantity}</Text>
+            {item.dimensions?.weight ? (
+              <Text style={{ fontSize: 12, color: COLORS.textLight, marginTop: 4 }}>
+                {item.dimensions.weight}{item.dimensions.unit}
+              </Text>
+            ) : null}
+            {item.unitPrice ? (
+              <Text style={{ fontSize: 12, color: COLORS.textLight, marginTop: 4 }}>
+                ₹{item.unitPrice}
+              </Text>
+            ) : null}
+          </View>
         </View>
         {item.isFragile && <Ionicons name="wine" size={20} color={COLORS.danger} />}
       </View>

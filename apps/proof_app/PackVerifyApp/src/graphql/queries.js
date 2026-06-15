@@ -44,6 +44,7 @@ export const GET_MY_ASSIGNED_ORDERS = gql`
         quantity
         scannedCount
         shortCount
+        shortComponentCount
         unitPrice
         dimensions {
           length
@@ -60,9 +61,9 @@ export const GET_MY_ASSIGNED_ORDERS = gql`
 `;
 
 export const MARK_ITEM_SHORT = gql`
-  mutation MarkItemShort($packingOrderId: String!, $productId: String!, $shortQty: Int!) {
-    markItemShort(packingOrderId: $packingOrderId, productId: $productId, shortQty: $shortQty) {
-      _id
+  mutation MarkItemShort($packingOrderId: String!, $productId: String!, $shortQty: Int!, $isComponent: Boolean) {
+    markItemShort(packingOrderId: $packingOrderId, productId: $productId, shortQty: $shortQty, isComponent: $isComponent) {
+      id
       orderId
     }
   }
@@ -96,6 +97,8 @@ export const GET_MY_HISTORY = gql`
         ean
         name
         quantity
+        shortCount
+        shortComponentCount
         imageUrl
       }
       evidence {
@@ -145,6 +148,13 @@ export const GET_ORDER_DETAILS = gql`
         name
         quantity
         scannedCount
+        shortCount
+        shortComponentCount
+        unitPrice
+        dimensions {
+          weight
+          unit
+        }
         imageUrl
         isFragile
       }

@@ -1261,6 +1261,7 @@ type PackingItem {
   quantity: Int!
   scannedCount: Int
   shortCount: Int
+  shortComponentCount: Int
   unitPrice: Float
   dimensions: ItemDimensions!
   isFragile: Boolean!
@@ -2065,7 +2066,7 @@ type Mutation {
   updateOrderStatus(input: UpdateOrderStatusInput!): OrderType!
   startPacking(packingOrderId: String!): PackingOrder!
   batchScanItems(input: BatchScanInput!): BatchScanResult!
-  markItemShort(packingOrderId: String!, productId: String!, shortQty: Int!): PackingOrder!
+  markItemShort(packingOrderId: String!, productId: String!, shortQty: Int!, isComponent: Boolean): PackingOrder!
   uploadEvidence(input: UploadEvidenceInput!): PackingOrder!
   completePacking(packingOrderId: String!, provider: String, serviceType: String): PackingOrder!
   adminPunchShipment(input: AdminPunchShipmentInput!): PackingOrder!

@@ -57,7 +57,7 @@ export class PackingService {
     private readonly inventoryService: InventoryService,
     private readonly settingsService: SettingsService,
     private readonly uploadService: UploadService,
-  ) {}
+  ) { }
 
   async createPackingOrder(order: Order): Promise<void> {
     const packingOrder = await this.packingOrderCreator.createFromOrder(order);
@@ -97,6 +97,7 @@ export class PackingService {
     productId: string,
     shortQty: number,
     packerId: string,
+    isComponent: boolean = false,
   ): Promise<any> {
     const packingOrder = await this.packingOrderCrud.findById(packingOrderId);
     if (!packingOrder) throw new Error('Packing order not found');
@@ -104,13 +105,17 @@ export class PackingService {
 
     const updatedItems = packingOrder.items.map((i: any) => {
       if (i.productId === productId) {
-        return { ...i, shortCount: shortQty };
+        if (isComponent) {
+          return { ...i, shortComponentCount: (i.shortComponentCount || 0) + shortQty };
+        } else {
+          return { ...i, shortCount: (i.shortCount || 0) + shortQty };
+        }
       }
       return i;
     });
 
     const item = packingOrder.items.find(i => i.productId === productId);
-    
+
     const updateData: any = { items: updatedItems };
     if (item) {
       updateData.$push = {
@@ -118,7 +123,7 @@ export class PackingService {
           errorType: 'short_item',
           flaggedAt: new Date(),
           flaggedBy: packerId,
-          notes: `Item ${item.name} marked short by ${shortQty} units.`,
+          notes: `Item ${item.name} marked ${isComponent ? 'component ' : ''}short by ${shortQty} units.`,
           severity: 'major',
           source: 'quality_audit',
         }
@@ -164,13 +169,22 @@ export class PackingService {
         continue;
       }
 
-      if (item.eans.length !== orderItem.quantity) {
+      const expectedEansArray = orderItem.ean ? orderItem.ean.split(',').map((e: string) => e.trim()).filter((e: string) => e) : [];
+      const isCombo = expectedEansArray.length > 1;
+
+      const nonShortedQuantity = orderItem.quantity - (orderItem.shortCount || 0);
+      let expectedTotalScans = nonShortedQuantity;
+      if (isCombo) {
+        expectedTotalScans = (nonShortedQuantity * expectedEansArray.length) - (orderItem.shortComponentCount || 0);
+      }
+
+      if (item.eans.length !== expectedTotalScans) {
         validationResults.push({
           productId: item.productId,
           isValid: false,
           errorType: 'quantity_mismatch',
-          errorMessage: `Expected ${orderItem.quantity} scans, got ${item.eans.length}`,
-          expectedQuantity: orderItem.quantity,
+          errorMessage: `Expected ${expectedTotalScans} scans, got ${item.eans.length}`,
+          expectedQuantity: expectedTotalScans,
           scannedQuantity: item.eans.length,
           productName: orderItem.name,
         });
@@ -179,20 +193,64 @@ export class PackingService {
       }
 
       let eanError = false;
-      for (const ean of item.eans) {
-        if (ean !== orderItem.ean) {
-          validationResults.push({
-            productId: item.productId,
-            isValid: false,
-            errorType: 'ean_mismatch',
-            errorMessage: `EAN ${ean} does not match expected EAN ${orderItem.ean}`,
-            expectedQuantity: orderItem.quantity,
-            scannedQuantity: item.eans.length,
-            productName: orderItem.name,
-          });
-          hasAnyError = true;
-          eanError = true;
-          break;
+
+      if (isCombo) {
+        const scanCounts: Record<string, number> = {};
+        for (const ean of item.eans) {
+          scanCounts[ean] = (scanCounts[ean] || 0) + 1;
+        }
+
+        for (const ean of item.eans) {
+          if (!expectedEansArray.includes(ean)) {
+            validationResults.push({
+              productId: item.productId,
+              isValid: false,
+              errorType: 'ean_mismatch',
+              errorMessage: `EAN ${ean} does not belong to combo components`,
+              expectedQuantity: expectedTotalScans,
+              scannedQuantity: item.eans.length,
+              productName: orderItem.name,
+            });
+            hasAnyError = true;
+            eanError = true;
+            break;
+          }
+        }
+
+        if (!eanError) {
+          for (const [scannedEan, count] of Object.entries(scanCounts)) {
+            if (count > nonShortedQuantity) {
+              validationResults.push({
+                productId: item.productId,
+                isValid: false,
+                errorType: 'quantity_mismatch',
+                errorMessage: `Component ${scannedEan} scanned too many times (${count} > ${nonShortedQuantity})`,
+                expectedQuantity: expectedTotalScans,
+                scannedQuantity: item.eans.length,
+                productName: orderItem.name,
+              });
+              hasAnyError = true;
+              eanError = true;
+              break;
+            }
+          }
+        }
+      } else {
+        for (const ean of item.eans) {
+          if (ean !== orderItem.ean) {
+            validationResults.push({
+              productId: item.productId,
+              isValid: false,
+              errorType: 'ean_mismatch',
+              errorMessage: `EAN ${ean} does not match expected EAN ${orderItem.ean}`,
+              expectedQuantity: expectedTotalScans,
+              scannedQuantity: item.eans.length,
+              productName: orderItem.name,
+            });
+            hasAnyError = true;
+            eanError = true;
+            break;
+          }
         }
       }
 
@@ -200,7 +258,7 @@ export class PackingService {
         validationResults.push({
           productId: item.productId,
           isValid: true,
-          expectedQuantity: orderItem.quantity,
+          expectedQuantity: expectedTotalScans,
           scannedQuantity: item.eans.length,
           productName: orderItem.name,
         });
@@ -569,7 +627,7 @@ export class PackingService {
 
       try {
         await this.packingQueue.removeFromQueue(orderId);
-      } catch (err) {}
+      } catch (err) { }
     }
   }
 
@@ -766,7 +824,7 @@ export class PackingService {
           orderId,
           OrderStatus.SHIPMENT_FAILED,
         );
-      } catch (_) {}
+      } catch (_) { }
       throw error;
     }
   }
@@ -1062,7 +1120,9 @@ export class PackingService {
   }
   async getPackerHistory(packerId: string): Promise<any[]> {
     const orders = await this.packingOrderCrud.findByPacker(packerId);
-    const completed = orders.filter((order: any) => order.status === 'completed');
+    const completed = orders.filter(
+      (order: any) => order.status === 'completed' || order.status === 'partially_fulfilled'
+    );
 
     // Attach evidence (photos) to each order
     const withEvidence = await Promise.all(
@@ -1072,14 +1132,14 @@ export class PackingService {
           ...order.toObject ? order.toObject() : order,
           evidence: evidence
             ? {
-                prePackImages: (evidence.prePackImages || []).map((img: string) => {
-                  // If already a CDN key (not base64), build full URL
-                  if (img.length < 500) {
-                    return `${this.configService.get<string>('aws.cloudfrontDomain')?.replace(/\/$/, '')}/${img}`;
-                  }
-                  return img; // return raw base64 as-is for app (it can display it directly)
-                }),
-              }
+              prePackImages: (evidence.prePackImages || []).map((img: string) => {
+                // If already a CDN key (not base64), build full URL
+                if (img.length < 500) {
+                  return `${this.configService.get<string>('aws.cloudfrontDomain')?.replace(/\/$/, '')}/${img}`;
+                }
+                return img; // return raw base64 as-is for app (it can display it directly)
+              }),
+            }
             : null,
         };
       }),

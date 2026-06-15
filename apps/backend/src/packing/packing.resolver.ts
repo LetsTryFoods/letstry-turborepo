@@ -136,6 +136,7 @@ export class PackingResolver {
     @Args('packingOrderId') packingOrderId: string,
     @Args('productId') productId: string,
     @Args('shortQty', { type: () => Int }) shortQty: number,
+    @Args('isComponent', { type: () => Boolean, nullable: true }) isComponent: boolean,
     @Context() ctx,
   ): Promise<any> {
     return this.packingService.markItemShort(
@@ -143,6 +144,7 @@ export class PackingResolver {
       productId,
       shortQty,
       ctx.req.user.packerId,
+      isComponent,
     );
   }
 
