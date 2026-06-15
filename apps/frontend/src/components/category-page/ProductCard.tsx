@@ -181,7 +181,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             src={getCdnUrl(product.image)}
             alt={product.name}
             fill
-            className="object-cover"
+            className="object-center"
             loading="lazy"
             quality={75}
             sizes="(max-width: 640px) 50vw, (max-width: 768px) 50vw, (max-width: 1024px) 25vw, 25vw"
