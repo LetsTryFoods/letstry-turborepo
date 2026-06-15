@@ -21,6 +21,7 @@ type ProductVariant = {
   thumbnailUrl: string;
   packageSize: string;
   stockQuantity: number;
+  availabilityStatus?: string;
 };
 
 type BestsellerProduct = {
@@ -42,6 +43,7 @@ export const BestsellerCard = ({ product, position }: BestsellerCardProps) => {
   const variant = product.defaultVariant;
   if (!variant) return null;
 
+  const isOutOfStock = variant.availabilityStatus !== "in_stock";
   const hasDiscount = variant.discountPercent > 0;
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
@@ -67,7 +69,7 @@ export const BestsellerCard = ({ product, position }: BestsellerCardProps) => {
   const quantityInCart = cartItem?.quantity || 0;
 
   const handleAddToCart = async () => {
-    if (isLoading) return;
+    if (isLoading || isOutOfStock) return;
 
     setIsLoading(true);
     try {
@@ -187,7 +189,16 @@ export const BestsellerCard = ({ product, position }: BestsellerCardProps) => {
           )}
         </div>
 
-        {quantityInCart > 0 ? (
+        {isOutOfStock ? (
+          <div className="flex justify-center mt-auto">
+            <button
+              disabled
+              className="cursor-not-allowed w-full h-[28px] sm:h-[34px] lg:h-[44px] border border-[#0C5273] text-[#0C5273] font-semibold text-[10px] sm:text-[12px] lg:text-[16px] rounded-lg opacity-50 uppercase tracking-wide"
+            >
+              Out of Stock
+            </button>
+          </div>
+        ) : quantityInCart > 0 ? (
           <div className="flex justify-center mt-auto">
             <button
               className="cursor-pointer w-[26px] sm:w-[34px] lg:w-[40px] h-[28px] sm:h-[34px] lg:h-[44px] text-[12px] lg:text-[18px] bg-[#0C5273] text-white font-semibold rounded-l hover:bg-[#003349] transition"

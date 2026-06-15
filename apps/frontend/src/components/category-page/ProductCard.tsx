@@ -25,6 +25,7 @@ export interface Product {
     weight: string;
     price: number;
     mrp?: number;
+    isOutOfStock?: boolean;
   }[];
   badge?: {
     label: string;
@@ -80,7 +81,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     price: product.price,
     mrp: product.mrp,
     weight: product.variants[0]?.weight,
+    isOutOfStock: product.variants[0]?.isOutOfStock,
   };
+
+  const isOutOfStock = selectedVariant.isOutOfStock || false;
 
   const weights = product.variants.map((v) => v.weight);
   const selectedWeight = selectedVariant.weight;
@@ -93,7 +97,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   };
 
   const handleAddToCart = async () => {
-    if (isLoading) return;
+    if (isLoading || isOutOfStock) return;
 
     setIsLoading(true);
     try {
@@ -205,7 +209,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             onWeightChange={handleWeightChange}
           />
 
-          {quantityInCart === 0 ? (
+          {isOutOfStock ? (
+            <button
+              disabled
+              className="w-full h-10 flex items-center justify-center text-sm sm:text-md mt-2 mb-2 sm:mt-4 border border-[#0C5273] text-[#0C5273] font-medium rounded-lg cursor-not-allowed opacity-50 uppercase tracking-wide"
+            >
+              Out of Stock
+            </button>
+          ) : quantityInCart === 0 ? (
             <AddToCartButton onClick={handleAddToCart} />
           ) : (
             <div className="mt-2 mb-2 sm:mt-4 h-10 w-full flex items-center justify-between border sm:border-2 border-[#0C5273] rounded-lg overflow-hidden">

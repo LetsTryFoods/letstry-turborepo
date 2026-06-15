@@ -60,6 +60,7 @@ export const GET_CATEGORY_WITH_PRODUCTS = graphql(`
           packageSize
           weight
           weightUnit
+          availabilityStatus
         }
       }
       createdAt
@@ -95,6 +96,7 @@ export const GET_CATEGORY_BY_SLUG = graphql(`
           price
           mrp
           packageSize
+          availabilityStatus
         }
         availableVariants {
           _id
@@ -104,6 +106,7 @@ export const GET_CATEGORY_BY_SLUG = graphql(`
           packageSize
           weight
           weightUnit
+          availabilityStatus
         }
         tags
       }

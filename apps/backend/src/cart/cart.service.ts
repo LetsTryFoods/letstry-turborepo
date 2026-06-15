@@ -100,6 +100,12 @@ export class CartService {
     if (input.quantity === 0) {
       cart.items.splice(itemIndex, 1);
     } else {
+      if (input.quantity > cart.items[itemIndex].quantity) {
+        const item = cart.items[itemIndex];
+        await this.productValidationService.validateProductAvailability(
+          item.variantId?.toString() || item.productId.toString()
+        );
+      }
       this.cartItemService.updateItemQuantity(
         cart.items[itemIndex],
         input.quantity,

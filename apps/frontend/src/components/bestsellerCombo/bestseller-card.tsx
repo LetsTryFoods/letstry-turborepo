@@ -20,6 +20,7 @@ type ProductVariant = {
   thumbnailUrl: string;
   packageSize: string;
   stockQuantity: number;
+  availabilityStatus?: string;
   images?: Array<{ url: string; alt: string }>;
 };
 
@@ -40,6 +41,7 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
   const variant = product.defaultVariant;
   if (!variant) return null;
 
+  const isOutOfStock = variant.availabilityStatus !== "in_stock";
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
   const { data: cartData } = useCart();
@@ -58,7 +60,7 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
       : [{ url: variant.thumbnailUrl, alt: product.name }];
 
   const handleAddToCart = async () => {
-    if (isLoading) return;
+    if (isLoading || isOutOfStock) return;
 
     setIsLoading(true);
     try {
@@ -165,7 +167,14 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
         )}
       </div>
       <div className="px-4 pb-4 mt-auto bg-[#F3EEEA]">
-        {quantityInCart === 0 ? (
+        {isOutOfStock ? (
+          <button
+            disabled
+            className="cursor-not-allowed w-full border sm:border-2 border-[#0C5273] text-[#0C5273] text-sm font-semibold py-2 rounded-md transition-all duration-200 opacity-50 uppercase tracking-wide"
+          >
+            Out of Stock
+          </button>
+        ) : quantityInCart === 0 ? (
           <button
             className="cursor-pointer w-full border sm:border-2 border-[#0C5273] text-[#0C5273] text-sm font-semibold py-2 rounded-md hover:bg-[#0C5273] hover:text-white transition-all duration-200 shadow-sm hover:shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={handleAddToCart}
