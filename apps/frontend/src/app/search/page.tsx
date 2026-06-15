@@ -23,6 +23,7 @@ function mapProductData(apiProduct: any): Product {
       weight: v.packageSize || `${v.weight}${v.weightUnit}`,
       price: v.price,
       mrp: v.mrp,
+      isOutOfStock: v.availabilityStatus !== "in_stock",
     })) || [];
 
   if (variants.length === 0 && defaultVariant) {
@@ -31,6 +32,7 @@ function mapProductData(apiProduct: any): Product {
       weight: defaultVariant.packageSize || "Standard",
       price: defaultVariant.price,
       mrp: defaultVariant.mrp,
+      isOutOfStock: defaultVariant.availabilityStatus !== "in_stock",
     });
   }
 

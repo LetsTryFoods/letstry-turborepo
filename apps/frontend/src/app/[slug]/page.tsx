@@ -2,7 +2,7 @@ import { getCategoryBySlug } from '@/lib/category';
 import { CategoryPageContainer } from '@/components/category-page/CategoryPageContainer';
 import { CategoryHeader } from '@/components/category-page/CategoryHeader';
 import { ProductGrid } from '@/components/category-page/ProductGrid';
-import  CategoryFaqSection from '@/components/category-page/CategoryFaqSection';
+import CategoryFaqSection from '@/components/category-page/CategoryFaqSection';
 import { CategoryAnswerBox } from '@/components/category-page/CategoryAnswerBox';
 import { Product } from '@/components/category-page/ProductCard';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
@@ -115,6 +115,7 @@ function mapProductData(apiProduct: any): Product {
     weight: v.packageSize || `${v.weight}${v.weightUnit}`,
     price: v.price,
     mrp: v.mrp,
+    isOutOfStock: v.availabilityStatus !== "in_stock",
   })) || [];
 
   if (variants.length === 0 && defaultVariant) {
@@ -123,6 +124,7 @@ function mapProductData(apiProduct: any): Product {
       weight: defaultVariant.packageSize || 'Standard',
       price: defaultVariant.price,
       mrp: defaultVariant.mrp,
+      isOutOfStock: defaultVariant.availabilityStatus !== "in_stock",
     });
   }
 
@@ -148,21 +150,21 @@ function mapProductData(apiProduct: any): Product {
 }
 
 // faq section
-  // const productFaqs = buildProductFaqs({
-  //   name: product.name,
-  //   isVegetarian: product.isVegetarian,
-  //   isGlutenFree: product.isGlutenFree,
-  //   shelfLife: product.shelfLife,
-  //   ingredients: product.ingredients,
-  //   primaryCategorySlug: primaryCategory?.slug || null,
-  //   primaryCategoryName: primaryCategory?.name || null,
-  //   // Sprint 4 additions feeding the extended FAQ generator.
-  //   audience: richProductForFaq.audience,
-  //   occasions: richProductForFaq.occasions,
-  //   proteinContent: richProductForFaq.nutrition?.proteinContent,
-  //   caloriesPerServing: richProductForFaq.nutrition?.caloriesPerServing,
-  //   cmsFaqs: richProductForFaq.productFaqs,
-  // });
+// const productFaqs = buildProductFaqs({
+//   name: product.name,
+//   isVegetarian: product.isVegetarian,
+//   isGlutenFree: product.isGlutenFree,
+//   shelfLife: product.shelfLife,
+//   ingredients: product.ingredients,
+//   primaryCategorySlug: primaryCategory?.slug || null,
+//   primaryCategoryName: primaryCategory?.name || null,
+//   // Sprint 4 additions feeding the extended FAQ generator.
+//   audience: richProductForFaq.audience,
+//   occasions: richProductForFaq.occasions,
+//   proteinContent: richProductForFaq.nutrition?.proteinContent,
+//   caloriesPerServing: richProductForFaq.nutrition?.caloriesPerServing,
+//   cmsFaqs: richProductForFaq.productFaqs,
+// });
 
 export default async function DynamicSlugPage({ params, searchParams }: PageProps) {
   const { slug } = await params;
@@ -252,33 +254,33 @@ export default async function DynamicSlugPage({ params, searchParams }: PageProp
 
   const faqSchema = faqBlock
     ? {
-        '@context': 'https://schema.org',
-        '@type': 'FAQPage',
-        '@id': `${categoryUrl}#faq`,
-        mainEntity: faqBlock.faqs.map((f) => ({
-          '@type': 'Question',
-          name: f.q,
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: f.a,
-          },
-        })),
-      }
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      '@id': `${categoryUrl}#faq`,
+      mainEntity: faqBlock.faqs.map((f) => ({
+        '@type': 'Question',
+        name: f.q,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: f.a,
+        },
+      })),
+    }
     : null;
 
   // Speakable hints the answer-box paragraph and FAQ answers — these are
   // the parts AI / voice engines should consider quoting.
   const speakableSchema = faqBlock
     ? {
-        '@context': 'https://schema.org',
-        '@type': 'WebPage',
-        '@id': `${categoryUrl}#speakable`,
-        url: categoryUrl,
-        speakable: {
-          '@type': 'SpeakableSpecification',
-          cssSelector: ['[data-speakable="true"]'],
-        },
-      }
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      '@id': `${categoryUrl}#speakable`,
+      url: categoryUrl,
+      speakable: {
+        '@type': 'SpeakableSpecification',
+        cssSelector: ['[data-speakable="true"]'],
+      },
+    }
     : null;
 
   return (

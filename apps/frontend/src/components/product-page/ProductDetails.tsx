@@ -68,8 +68,6 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
   const isOutOfStock = selectedVariant?.availabilityStatus === "in_stock" ? false : true;
 
 
-  console.log("Rendering ProductDetails with product:", product);
-
 
 
   return (

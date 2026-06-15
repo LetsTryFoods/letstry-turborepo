@@ -80,6 +80,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
           listId={resolvedListId}
           listName={resolvedListName}
           position={index}
+
         />
       ))}
     </div>
