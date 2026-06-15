@@ -4400,7 +4400,7 @@ export type GetCategoryWithProductsQueryVariables = Exact<{
 }>;
 
 
-export type GetCategoryWithProductsQuery = { __typename?: 'Query', category?: { __typename?: 'Category', id: string, name: string, slug: string, description?: string | null, imageUrl?: string | null, codeValue?: string | null, inCodeSet?: string | null, productCount: number, isArchived: boolean, favourite?: boolean | null, createdAt: any, updatedAt: any, products: Array<{ __typename?: 'Product', _id: string, name: string, slug: string, brand: string, defaultVariant?: { __typename?: 'ProductVariant', sku: string, price: number, mrp: number, discountPercent: number, thumbnailUrl: string, availabilityStatus: string, stockQuantity: number } | null, availableVariants: Array<{ __typename?: 'ProductVariant', _id: string, sku: string, price: number, mrp: number, packageSize: string, weight: number, weightUnit: string }> }> } | null };
+export type GetCategoryWithProductsQuery = { __typename?: 'Query', category?: { __typename?: 'Category', id: string, name: string, slug: string, description?: string | null, imageUrl?: string | null, codeValue?: string | null, inCodeSet?: string | null, productCount: number, isArchived: boolean, favourite?: boolean | null, createdAt: any, updatedAt: any, products: Array<{ __typename?: 'Product', _id: string, name: string, slug: string, brand: string, defaultVariant?: { __typename?: 'ProductVariant', sku: string, price: number, mrp: number, discountPercent: number, thumbnailUrl: string, availabilityStatus: string, stockQuantity: number } | null, availableVariants: Array<{ __typename?: 'ProductVariant', _id: string, sku: string, price: number, mrp: number, packageSize: string, weight: number, weightUnit: string, availabilityStatus: string }> }> } | null };
 
 export type GetCategoryBySlugQueryVariables = Exact<{
   slug: Scalars['String']['input'];
@@ -4408,7 +4408,7 @@ export type GetCategoryBySlugQueryVariables = Exact<{
 }>;
 
 
-export type GetCategoryBySlugQuery = { __typename?: 'Query', categoryBySlug?: { __typename?: 'Category', id: string, name: string, slug: string, description?: string | null, productCount: number, imageUrl?: string | null, seo?: { __typename?: 'CategorySeo', metaTitle?: string | null, metaDescription?: string | null, metaKeywords?: Array<string> | null, canonicalUrl?: string | null, ogTitle?: string | null, ogDescription?: string | null, ogImage?: string | null } | null, products: Array<{ __typename?: 'Product', _id: string, name: string, slug: string, tags: Array<string>, defaultVariant?: { __typename?: 'ProductVariant', thumbnailUrl: string, price: number, mrp: number, packageSize: string } | null, availableVariants: Array<{ __typename?: 'ProductVariant', _id: string, sku: string, price: number, mrp: number, packageSize: string, weight: number, weightUnit: string }> }> } | null };
+export type GetCategoryBySlugQuery = { __typename?: 'Query', categoryBySlug?: { __typename?: 'Category', id: string, name: string, slug: string, description?: string | null, productCount: number, imageUrl?: string | null, seo?: { __typename?: 'CategorySeo', metaTitle?: string | null, metaDescription?: string | null, metaKeywords?: Array<string> | null, canonicalUrl?: string | null, ogTitle?: string | null, ogDescription?: string | null, ogImage?: string | null } | null, products: Array<{ __typename?: 'Product', _id: string, name: string, slug: string, tags: Array<string>, defaultVariant?: { __typename?: 'ProductVariant', thumbnailUrl: string, price: number, mrp: number, packageSize: string, availabilityStatus: string } | null, availableVariants: Array<{ __typename?: 'ProductVariant', _id: string, sku: string, price: number, mrp: number, packageSize: string, weight: number, weightUnit: string, availabilityStatus: string }> }> } | null };
 
 export type GetCategoryWithChildrenQueryVariables = Exact<{
   slug: Scalars['String']['input'];
@@ -4972,6 +4972,7 @@ export const GetCategoryWithProductsDocument = new TypedDocumentString(`
         packageSize
         weight
         weightUnit
+        availabilityStatus
       }
     }
     createdAt
@@ -5006,6 +5007,7 @@ export const GetCategoryBySlugDocument = new TypedDocumentString(`
         price
         mrp
         packageSize
+        availabilityStatus
       }
       availableVariants {
         _id
@@ -5015,6 +5017,7 @@ export const GetCategoryBySlugDocument = new TypedDocumentString(`
         packageSize
         weight
         weightUnit
+        availabilityStatus
       }
       tags
     }
