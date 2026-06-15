@@ -51,6 +51,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
       price: selectedVariant?.price || 0,
       category: primaryCategorySlug || undefined,
       variant: selectedVariant?.name,
+
     });
   }, [selectedVariantId, product, selectedVariant, primaryCategorySlug, trackViewItem]);
 
@@ -64,11 +65,11 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
       ? images
       : [{ url: "/placeholder-image.svg", alt: product.name }];
 
-  const isOutOfStock = false; // Keep button enabled regardless of stock
+  const isOutOfStock = selectedVariant?.availabilityStatus === "in_stock" ? false : true;
 
 
   console.log("Rendering ProductDetails with product:", product);
-  
+
 
 
   return (

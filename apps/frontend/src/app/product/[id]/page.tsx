@@ -37,13 +37,13 @@ interface OfferBuildArgs {
   productUrl: string;
   currency: string;
   defaultVariant:
-    | {
-        price?: number;
-        mrp?: number;
-        stockQuantity?: number;
-        availabilityStatus?: string;
-      }
-    | undefined;
+  | {
+    price?: number;
+    mrp?: number;
+    stockQuantity?: number;
+    availabilityStatus?: string;
+  }
+  | undefined;
   availableVariants?: { price?: number; sku?: string }[];
   availability: string;
   priceValidUntil: string;
@@ -104,32 +104,32 @@ function buildOfferSchema(args: OfferBuildArgs) {
     itemCondition: "https://schema.org/NewCondition",
     ...(args.deliveryLeadTime
       ? {
-          shippingDetails: {
-            "@type": "OfferShippingDetails",
-            deliveryTime: {
-              "@type": "ShippingDeliveryTime",
-              transitTime: {
-                "@type": "QuantitativeValue",
-                minValue: 1,
-                maxValue: 7,
-                unitCode: "d",
-              },
-            },
-            shippingDestination: {
-              "@type": "DefinedRegion",
-              addressCountry: "IN",
+        shippingDetails: {
+          "@type": "OfferShippingDetails",
+          deliveryTime: {
+            "@type": "ShippingDeliveryTime",
+            transitTime: {
+              "@type": "QuantitativeValue",
+              minValue: 1,
+              maxValue: 7,
+              unitCode: "d",
             },
           },
-          hasMerchantReturnPolicy: {
-            "@type": "MerchantReturnPolicy",
-            applicableCountry: "IN",
-            returnPolicyCategory:
-              "https://schema.org/MerchantReturnFiniteReturnWindow",
-            merchantReturnDays: 7,
-            returnMethod: "https://schema.org/ReturnByMail",
-            returnFees: "https://schema.org/FreeReturn",
+          shippingDestination: {
+            "@type": "DefinedRegion",
+            addressCountry: "IN",
           },
-        }
+        },
+        hasMerchantReturnPolicy: {
+          "@type": "MerchantReturnPolicy",
+          applicableCountry: "IN",
+          returnPolicyCategory:
+            "https://schema.org/MerchantReturnFiniteReturnWindow",
+          merchantReturnDays: 7,
+          returnMethod: "https://schema.org/ReturnByMail",
+          returnFees: "https://schema.org/FreeReturn",
+        },
+      }
       : {}),
     seller,
   };
@@ -275,9 +275,9 @@ export default async function ProductDetailPage({
 
   const breadcrumbItems = primaryCategory
     ? [
-        { label: primaryCategory.name, href: `/${primaryCategory.slug}` },
-        { label: product.name },
-      ]
+      { label: primaryCategory.name, href: `/${primaryCategory.slug}` },
+      { label: product.name },
+    ]
     : [{ label: product.name }];
 
   const productUrl = `${SITE_URL}/product/${slug}`;
@@ -292,7 +292,7 @@ export default async function ProductDetailPage({
 
   const availability =
     defaultVariant?.availabilityStatus === "in_stock" &&
-    (defaultVariant?.stockQuantity ?? 0) > 0
+      (defaultVariant?.stockQuantity ?? 0) > 0
       ? "https://schema.org/InStock"
       : "https://schema.org/OutOfStock";
 
@@ -314,33 +314,33 @@ export default async function ProductDetailPage({
       : null,
     product.allergens
       ? {
-          "@type": "PropertyValue",
-          name: "Allergens",
-          value: product.allergens,
-        }
+        "@type": "PropertyValue",
+        name: "Allergens",
+        value: product.allergens,
+      }
       : null,
     product.shelfLife
       ? {
-          "@type": "PropertyValue",
-          name: "Shelf life",
-          value: product.shelfLife,
-        }
+        "@type": "PropertyValue",
+        name: "Shelf life",
+        value: product.shelfLife,
+      }
       : null,
     // Sprint 4: surface "Country of origin" / "FSSAI" so they appear in
     // shopping rich results.
     (product as { countryOfOrigin?: string }).countryOfOrigin
       ? {
-          "@type": "PropertyValue",
-          name: "Country of origin",
-          value: (product as { countryOfOrigin?: string }).countryOfOrigin,
-        }
+        "@type": "PropertyValue",
+        name: "Country of origin",
+        value: (product as { countryOfOrigin?: string }).countryOfOrigin,
+      }
       : null,
     (product as { fssaiLicense?: string }).fssaiLicense
       ? {
-          "@type": "PropertyValue",
-          name: "FSSAI licence",
-          value: (product as { fssaiLicense?: string }).fssaiLicense,
-        }
+        "@type": "PropertyValue",
+        name: "FSSAI licence",
+        value: (product as { fssaiLicense?: string }).fssaiLicense,
+      }
       : null,
   ].filter(Boolean);
 
@@ -371,80 +371,80 @@ export default async function ProductDetailPage({
 
   const nutritionInformation = richProduct.nutrition
     ? Object.fromEntries(
-        Object.entries({
-          "@type": "NutritionInformation",
-          servingSize: richProduct.nutrition.servingSize,
-          calories:
-            richProduct.nutrition.caloriesPerServing ||
-            richProduct.nutrition.calories,
-          fatContent: richProduct.nutrition.fatContent,
-          saturatedFatContent: richProduct.nutrition.saturatedFatContent,
-          transFatContent: richProduct.nutrition.transFatContent,
-          cholesterolContent: richProduct.nutrition.cholesterolContent,
-          sodiumContent: richProduct.nutrition.sodiumContent,
-          carbohydrateContent: richProduct.nutrition.carbohydrateContent,
-          fiberContent: richProduct.nutrition.fiberContent,
-          sugarContent: richProduct.nutrition.sugarContent,
-          proteinContent: richProduct.nutrition.proteinContent,
-        }).filter(([, v]) => v !== undefined && v !== null && v !== ""),
-      )
+      Object.entries({
+        "@type": "NutritionInformation",
+        servingSize: richProduct.nutrition.servingSize,
+        calories:
+          richProduct.nutrition.caloriesPerServing ||
+          richProduct.nutrition.calories,
+        fatContent: richProduct.nutrition.fatContent,
+        saturatedFatContent: richProduct.nutrition.saturatedFatContent,
+        transFatContent: richProduct.nutrition.transFatContent,
+        cholesterolContent: richProduct.nutrition.cholesterolContent,
+        sodiumContent: richProduct.nutrition.sodiumContent,
+        carbohydrateContent: richProduct.nutrition.carbohydrateContent,
+        fiberContent: richProduct.nutrition.fiberContent,
+        sugarContent: richProduct.nutrition.sugarContent,
+        proteinContent: richProduct.nutrition.proteinContent,
+      }).filter(([, v]) => v !== undefined && v !== null && v !== ""),
+    )
     : undefined;
 
   const positiveNotes =
     richProduct.pros && richProduct.pros.length > 0
       ? {
-          "@type": "ItemList",
-          itemListElement: richProduct.pros.map((p, i) => ({
-            "@type": "ListItem",
-            position: i + 1,
-            name: p.text,
-          })),
-        }
+        "@type": "ItemList",
+        itemListElement: richProduct.pros.map((p, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          name: p.text,
+        })),
+      }
       : undefined;
 
   const negativeNotes =
     richProduct.cons && richProduct.cons.length > 0
       ? {
-          "@type": "ItemList",
-          itemListElement: richProduct.cons.map((p, i) => ({
-            "@type": "ListItem",
-            position: i + 1,
-            name: p.text,
-          })),
-        }
+        "@type": "ItemList",
+        itemListElement: richProduct.cons.map((p, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          name: p.text,
+        })),
+      }
       : undefined;
 
   const audienceSchema =
     richProduct.audience && richProduct.audience.length > 0
       ? richProduct.audience.map((a) => ({
-          "@type": "PeopleAudience",
-          audienceType: a,
-        }))
+        "@type": "PeopleAudience",
+        audienceType: a,
+      }))
       : undefined;
 
   const awardSchema =
     richProduct.certifications && richProduct.certifications.length > 0
       ? richProduct.certifications.map((c) =>
-          c.number ? `${c.name} (${c.number})` : c.name,
-        )
+        c.number ? `${c.name} (${c.number})` : c.name,
+      )
       : undefined;
 
   const videoSchema = richProduct.videoUrl
     ? {
-        "@context": "https://schema.org",
-        "@type": "VideoObject",
-        "@id": `${productUrl}#video`,
-        name: richProduct.videoTitle || product.name,
-        description:
-          richProduct.videoDescription ||
-          `Watch ${product.name} from Let's Try Foods.`,
-        thumbnailUrl: richProduct.videoThumbnailUrl
-          ? getCdnUrl(richProduct.videoThumbnailUrl)
-          : productImageObjects[0]?.url,
-        contentUrl: richProduct.videoUrl,
-        embedUrl: richProduct.videoUrl,
-        uploadDate: product.createdAt || undefined,
-      }
+      "@context": "https://schema.org",
+      "@type": "VideoObject",
+      "@id": `${productUrl}#video`,
+      name: richProduct.videoTitle || product.name,
+      description:
+        richProduct.videoDescription ||
+        `Watch ${product.name} from Let's Try Foods.`,
+      thumbnailUrl: richProduct.videoThumbnailUrl
+        ? getCdnUrl(richProduct.videoThumbnailUrl)
+        : productImageObjects[0]?.url,
+      contentUrl: richProduct.videoUrl,
+      embedUrl: richProduct.videoUrl,
+      uploadDate: product.createdAt || undefined,
+    }
     : null;
 
   const productSchema: Record<string, unknown> = {
@@ -474,10 +474,10 @@ export default async function ProductDetailPage({
     weight:
       defaultVariant?.weight && defaultVariant?.weightUnit
         ? {
-            "@type": "QuantitativeValue",
-            value: defaultVariant.weight,
-            unitText: defaultVariant.weightUnit,
-          }
+          "@type": "QuantitativeValue",
+          value: defaultVariant.weight,
+          unitText: defaultVariant.weightUnit,
+        }
         : undefined,
     additionalProperty:
       additionalProperty.length > 0 ? additionalProperty : undefined,
@@ -491,25 +491,25 @@ export default async function ProductDetailPage({
     // help.
     ...(product.rating && product.ratingCount && product.ratingCount > 0
       ? {
-          aggregateRating: {
-            "@type": "AggregateRating",
-            ratingValue: product.rating,
-            reviewCount: product.ratingCount,
-            bestRating: 5,
-            worstRating: 1,
-          },
-        }
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: product.rating,
+          reviewCount: product.ratingCount,
+          bestRating: 5,
+          worstRating: 1,
+        },
+      }
       : {}),
     offers: buildOfferSchema({
       productUrl,
       currency: product.currency || "INR",
       defaultVariant: defaultVariant
         ? {
-            price: defaultVariant.price,
-            mrp: defaultVariant.mrp,
-            stockQuantity: defaultVariant.stockQuantity,
-            availabilityStatus: defaultVariant.availabilityStatus,
-          }
+          price: defaultVariant.price,
+          mrp: defaultVariant.mrp,
+          stockQuantity: defaultVariant.stockQuantity,
+          availabilityStatus: defaultVariant.availabilityStatus,
+        }
         : undefined,
       availableVariants: ((
         product as { availableVariants?: (typeof defaultVariant)[] }
@@ -590,18 +590,18 @@ export default async function ProductDetailPage({
   const faqSchema =
     productFaqs.length > 0
       ? {
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          "@id": `${productUrl}#faq`,
-          mainEntity: productFaqs.map((f) => ({
-            "@type": "Question",
-            name: f.q,
-            acceptedAnswer: {
-              "@type": "Answer",
-              text: f.a,
-            },
-          })),
-        }
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "@id": `${productUrl}#faq`,
+        mainEntity: productFaqs.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: f.a,
+          },
+        })),
+      }
       : null;
 
   return (
