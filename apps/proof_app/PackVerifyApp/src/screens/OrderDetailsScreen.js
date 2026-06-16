@@ -10,17 +10,47 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS } from '../constants/theme';
 import { START_PACKING } from '../graphql/queries';
-import { getCdnUrl } from '../config/api';
+import { getCdnUrl, API_URL } from '../config/api';
 import ImageZoomModal from '../components/ImageZoomModal';
 
 const OrderDetailsScreen = ({ route, navigation }) => {
   const { order, user } = route.params;
   const [zoomModalVisible, setZoomModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+
+  const [isDownloadingInvoice, setIsDownloadingInvoice] = useState(false);
+  const [isDownloadingCustom, setIsDownloadingCustom] = useState(false);
+
+  const handleDownloadInvoice = async () => {
+    try {
+      setIsDownloadingInvoice(true);
+      const restApiUrl = API_URL.replace('/graphql', '');
+      const downloadUrl = `${restApiUrl}/orders/${order.orderId || order.id}/invoice`;
+      await Linking.openURL(downloadUrl);
+    } catch (err) {
+      Alert.alert('Download Error', err.message || 'Failed to open invoice URL');
+    } finally {
+      setIsDownloadingInvoice(false);
+    }
+  };
+
+  const handleDownloadCustomLabel = async () => {
+    try {
+      setIsDownloadingCustom(true);
+      const restApiUrl = API_URL.replace('/graphql', '');
+      const downloadUrl = `${restApiUrl}/orders/${order.orderId || order.id}/custom-label`;
+      await Linking.openURL(downloadUrl);
+    } catch (err) {
+      Alert.alert('Download Error', err.message || 'Failed to download custom label');
+    } finally {
+      setIsDownloadingCustom(false);
+    }
+  };
 
   const [startPacking, { loading }] = useMutation(START_PACKING, {
     onCompleted: () => {
@@ -106,6 +136,26 @@ const OrderDetailsScreen = ({ route, navigation }) => {
         ) : null}
       </View>
 
+      <View style={styles.downloadActions}>
+        <TouchableOpacity 
+          style={styles.downloadBtn} 
+          onPress={handleDownloadInvoice}
+          disabled={isDownloadingInvoice}
+        >
+          {isDownloadingInvoice ? <ActivityIndicator size="small" color={COLORS.primary} /> : <Ionicons name="document-text" size={16} color={COLORS.primary} />}
+          <Text style={styles.downloadBtnText}>Invoice</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={styles.downloadBtn} 
+          onPress={handleDownloadCustomLabel}
+          disabled={isDownloadingCustom}
+        >
+          {isDownloadingCustom ? <ActivityIndicator size="small" color={COLORS.primary} /> : <Ionicons name="barcode" size={16} color={COLORS.primary} />}
+          <Text style={styles.downloadBtnText}>Custom Label</Text>
+        </TouchableOpacity>
+      </View>
+
       <FlatList
         data={order.items}
         keyExtractor={(item) => item.productId || item.sku}
@@ -145,6 +195,9 @@ const styles = StyleSheet.create({
   status: { fontSize: 14, fontWeight: 'bold', color: COLORS.primary },
   sub: { fontSize: 12, color: COLORS.textLight, marginTop: 4 },
   instructions: { marginTop: 6, color: '#f59e0b', fontSize: 12 },
+  downloadActions: { flexDirection: 'row', paddingHorizontal: 16, marginBottom: 12, gap: 12 },
+  downloadBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#eff6ff', paddingVertical: 10, borderRadius: 8, gap: 6, borderWidth: 1, borderColor: '#bfdbfe' },
+  downloadBtnText: { color: COLORS.primary, fontSize: 13, fontWeight: 'bold' },
   sectionTitle: { fontSize: 18, fontWeight: 'bold', paddingHorizontal: 16, marginVertical: 12, color: COLORS.textDark },
   itemCard: { flexDirection: 'row', backgroundColor: '#fff', marginHorizontal: 16, marginBottom: 12, padding: 12, borderRadius: 14, alignItems: 'center', elevation: 2 },
   imageWrapper: { position: 'relative' },
