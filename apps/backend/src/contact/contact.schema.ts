@@ -41,6 +41,10 @@ export class Contact extends Document {
   @Field({ nullable: true })
   queryType?: string;
 
+  @Prop({ type: [String], default: undefined })
+  @Field(() => [String], { nullable: true })
+  productNames?: string[];
+
   @Prop({ required: true })
   @Field()
   message!: string;

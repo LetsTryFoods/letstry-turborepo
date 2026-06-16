@@ -15,6 +15,7 @@ export interface SubmitContactInput {
   email?: string;
   orderId?: string;
   queryType?: string;
+  productNames?: string[];
   message: string;
 }
 

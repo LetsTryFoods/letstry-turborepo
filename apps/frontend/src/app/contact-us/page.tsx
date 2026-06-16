@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Mail, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { Mail, Loader2, CheckCircle2, AlertCircle, Plus, X } from "lucide-react";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import {
@@ -13,6 +13,7 @@ import {
 
 function ContactFormContent() {
   const [successMsg, setSuccessMsg] = useState("");
+  const [productNames, setProductNames] = useState<string[]>([""]);
   const searchParams = useSearchParams();
   const prefillQueryType = searchParams.get("queryType");
 
@@ -38,6 +39,7 @@ function ContactFormContent() {
       if (data.success) {
         setSuccessMsg(data.message);
         reset();
+        setProductNames([""]);
       } else {
         throw new Error(data.message);
       }
@@ -46,7 +48,8 @@ function ContactFormContent() {
 
   const onSubmit = (data: SubmitContactInput) => {
     setSuccessMsg("");
-    mutate(data);
+    const filtered = productNames.filter((p) => p.trim() !== "");
+    mutate({ ...data, productNames: filtered.length > 0 ? filtered : undefined });
   };
 
   const displayError = (error as Error)?.message;
@@ -211,6 +214,49 @@ function ContactFormContent() {
                     {errors.orderId.message}
                   </p>
                 )}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Product Name(s){" "}
+                <span className="text-gray-400 font-normal">(optional)</span>
+              </label>
+              <div className="space-y-2">
+                {productNames.map((name, index) => (
+                  <div key={index} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) => {
+                        const updated = [...productNames];
+                        updated[index] = e.target.value;
+                        setProductNames(updated);
+                      }}
+                      className="block w-full px-4 py-3 border border-gray-300 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm transition-colors"
+                      placeholder={`e.g. Product name ${index + 1}`}
+                    />
+                    {productNames.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setProductNames(productNames.filter((_, i) => i !== index))
+                        }
+                        className="shrink-0 h-11 w-11 flex items-center justify-center border border-gray-300 rounded-xl text-gray-400 hover:text-red-500 hover:border-red-300 transition-colors"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setProductNames([...productNames, ""])}
+                  className="flex items-center gap-1.5 text-sm text-yellow-600 hover:text-yellow-700 font-medium"
+                >
+                  <Plus className="h-4 w-4" />
+                  Add another product
+                </button>
               </div>
             </div>
 

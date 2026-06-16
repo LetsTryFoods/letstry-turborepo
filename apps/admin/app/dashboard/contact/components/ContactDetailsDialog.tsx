@@ -18,6 +18,7 @@ import {
   Package,
   MessageSquare,
   Clock,
+  ShoppingBag,
 } from "lucide-react";
 import {
   ContactQuery,
@@ -131,6 +132,21 @@ export default function ContactDetailsDialog({
                   <Package className="h-4 w-4 text-muted-foreground" />
                   <span>Related Order: </span>
                   <Badge variant="outline">{query.orderId}</Badge>
+                </div>
+              )}
+              {query.productNames && query.productNames.length > 0 && (
+                <div className="flex items-start gap-2">
+                  <ShoppingBag className="h-4 w-4 text-muted-foreground mt-0.5" />
+                  <div>
+                    <span className="text-sm font-medium">Product(s): </span>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {query.productNames.map((name, i) => (
+                        <Badge key={i} variant="outline">
+                          {name}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               )}
               {query.assignedTo && (

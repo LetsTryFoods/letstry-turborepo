@@ -1,5 +1,5 @@
 import { InputType, Field } from '@nestjs/graphql';
-import { IsString, IsNotEmpty, ValidateIf, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsArray } from 'class-validator';
 
 @InputType()
 export class SubmitContactInput {
@@ -27,6 +27,12 @@ export class SubmitContactInput {
   @IsString()
   @IsOptional()
   queryType?: string;
+
+  @Field(() => [String], { nullable: true })
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  productNames?: string[];
 
   @Field()
   @IsString()
