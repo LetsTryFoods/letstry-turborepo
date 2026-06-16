@@ -39,6 +39,7 @@ export class PackingOrder extends Document {
     quantity: number;
     scannedCount: number;
     shortCount?: number;
+    shortComponentCount?: number;
     unitPrice?: number;
     dimensions: {
       length: number;

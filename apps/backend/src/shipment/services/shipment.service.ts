@@ -369,7 +369,10 @@ export class ShipmentService {
 
     if (!awbNumber) {
       writeTrackingLog(`Checking byOrderId...`);
-      const byOrderId = await this.orderRepository.findById(query);
+      let byOrderId = await this.orderRepository.findById(query);
+      if (!byOrderId) {
+        byOrderId = await this.orderRepository.findByPaymentOrderId(query);
+      }
       if (byOrderId) {
         writeTrackingLog(`Found byOrderId: ${byOrderId.orderId}`);
         foundOrder = byOrderId;

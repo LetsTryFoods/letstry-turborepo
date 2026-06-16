@@ -63,7 +63,7 @@ export default () => ({
   whatsapp: {
     apiUrl:
       process.env.WHATSAPP_API_URL ||
-      'https://nurenaiautomatic-b7hmdnb4fzbpbtbh.canadacentral-01.azurewebsites.net/webhook/send-template',
+      'https://automation.nuren.ai/webhook/send-template',
     jwtToken:
       process.env.WHATSAPP_JWT_TOKEN ||
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkxldHNUcnkiLCJhZG1pbiI6dHJ1ZX0.gJvhuRhqKjVS_Gc0T87vjE9EAGKBzfx09SpJVpUcb1I',

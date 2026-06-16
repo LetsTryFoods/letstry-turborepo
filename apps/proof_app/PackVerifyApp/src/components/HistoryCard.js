@@ -24,8 +24,10 @@ const HistoryCard = ({ order, navigation }) => {
           <Text style={styles.orderId}>#{order.orderNumber || order.orderId}</Text>
           <Text style={styles.dateText}>{formatDate(order.packingCompletedAt)}</Text>
         </View>
-        <View style={styles.statusBadge}>
-          <Text style={styles.statusText}>COMPLETED</Text>
+        <View style={[styles.statusBadge, order.status === 'partially_fulfilled' && { backgroundColor: '#fef3c7' }]}>
+          <Text style={[styles.statusText, order.status === 'partially_fulfilled' && { color: '#b45309' }]}>
+            {order.status === 'partially_fulfilled' ? 'EXCEPTION' : 'COMPLETED'}
+          </Text>
         </View>
       </View>
 
@@ -33,6 +35,20 @@ const HistoryCard = ({ order, navigation }) => {
         <Text style={styles.itemCount}>
           {order.items?.length || 0} product types • {order.items?.reduce((s, i) => s + i.quantity, 0) || 0} items
         </Text>
+        {order.status === 'partially_fulfilled' && (
+          <View style={{ marginTop: 8 }}>
+            <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#f59e0b', marginBottom: 4 }}>
+              Items Marked Missing:
+            </Text>
+            {order.items?.filter(i => (i.shortCount || 0) > 0 || (i.shortComponentCount || 0) > 0).map((item, idx) => (
+              <Text key={idx} style={{ fontSize: 11, color: '#b45309', marginBottom: 2 }}>
+                • {item.name} 
+                {(item.shortCount || 0) > 0 ? ` (${item.shortCount} full missing)` : ''}
+                {(item.shortComponentCount || 0) > 0 ? ` (${item.shortComponentCount} component missing)` : ''}
+              </Text>
+            ))}
+          </View>
+        )}
       </View>
 
       {images.length > 0 && (

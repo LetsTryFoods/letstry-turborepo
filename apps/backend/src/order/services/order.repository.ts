@@ -131,6 +131,7 @@ export class OrderRepository {
         $match: {
           $or: [
             { orderId: regex },
+            { paymentOrderId: regex },
             { 'placerContact.phone': regex },
             { 'recipientContact.phone': regex },
             { 'identity.phoneNumber': regex },

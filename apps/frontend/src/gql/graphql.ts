@@ -1698,6 +1698,7 @@ export type MutationInitiatePaymentArgs = {
 
 
 export type MutationMarkItemShortArgs = {
+  isComponent?: InputMaybe<Scalars['Boolean']['input']>;
   packingOrderId: Scalars['String']['input'];
   productId: Scalars['String']['input'];
   shortQty: Scalars['Int']['input'];
@@ -2228,6 +2229,7 @@ export type PackingItem = {
   productId: Scalars['String']['output'];
   quantity: Scalars['Int']['output'];
   scannedCount?: Maybe<Scalars['Int']['output']>;
+  shortComponentCount?: Maybe<Scalars['Int']['output']>;
   shortCount?: Maybe<Scalars['Int']['output']>;
   sku: Scalars['String']['output'];
   unitPrice?: Maybe<Scalars['Float']['output']>;

@@ -42,6 +42,9 @@ export class PackingItem {
   @Field(() => Int, { nullable: true })
   shortCount?: number;
 
+  @Field(() => Int, { nullable: true })
+  shortComponentCount?: number;
+
   @Field(() => Float, { nullable: true })
   unitPrice?: number;
 
