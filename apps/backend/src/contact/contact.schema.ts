@@ -45,6 +45,10 @@ export class Contact extends Document {
   @Field(() => [String], { nullable: true })
   productNames?: string[];
 
+  @Prop({ type: [String], default: undefined })
+  @Field(() => [String], { nullable: true })
+  imageUrls?: string[];
+
   @Prop({ required: true })
   @Field()
   message!: string;

@@ -185,6 +185,11 @@ export default function ContactTable({
                             Order: {query.orderId}
                           </p>
                         )}
+                        {query.productNames && query.productNames.length > 0 && (
+                          <p className="text-xs text-muted-foreground truncate">
+                            Products: {query.productNames.join(", ")}
+                          </p>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell>

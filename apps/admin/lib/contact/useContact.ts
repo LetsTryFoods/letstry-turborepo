@@ -32,6 +32,7 @@ export interface ContactQuery {
   priority?: ContactPriority;
   orderId?: string;
   productNames?: string[];
+  imageUrls?: string[];
   replies?: any[];
   assignedTo?: string;
   resolvedAt?: string;

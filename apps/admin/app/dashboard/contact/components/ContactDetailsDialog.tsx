@@ -19,6 +19,7 @@ import {
   MessageSquare,
   Clock,
   ShoppingBag,
+  ImageIcon,
 } from "lucide-react";
 import {
   ContactQuery,
@@ -154,6 +155,27 @@ export default function ContactDetailsDialog({
                   <User className="h-4 w-4 text-muted-foreground" />
                   <span>Assigned to: </span>
                   <Badge variant="secondary">{query.assignedTo}</Badge>
+                </div>
+              )}
+              {query.imageUrls && query.imageUrls.length > 0 && (
+                <div className="flex items-start gap-2">
+                  <ImageIcon className="h-4 w-4 text-muted-foreground mt-0.5" />
+                  <div>
+                    <span className="text-sm font-medium">
+                      Attached Images ({query.imageUrls.length})
+                    </span>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {query.imageUrls.map((url, i) => (
+                        <a key={i} href={url} target="_blank" rel="noreferrer">
+                          <img
+                            src={url}
+                            alt={`attachment-${i + 1}`}
+                            className="h-24 w-24 object-cover rounded-lg border border-gray-200 hover:opacity-80 transition-opacity"
+                          />
+                        </a>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

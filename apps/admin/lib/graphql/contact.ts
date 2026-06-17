@@ -11,6 +11,7 @@ export const GET_CONTACT_MESSAGES = gql`
         orderId
         queryType
         productNames
+        imageUrls
         message
         status
         createdAt

@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Contact, ContactDocument } from '../contact.schema';
@@ -6,7 +6,6 @@ import { SubmitContactInput } from '../dto/submit-contact.input';
 
 @Injectable()
 export class ContactService {
-  private readonly logger = new Logger(ContactService.name);
 
   constructor(
     @InjectModel(Contact.name) private contactModel: Model<ContactDocument>,

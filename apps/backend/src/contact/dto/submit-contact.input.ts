@@ -34,6 +34,12 @@ export class SubmitContactInput {
   @IsOptional()
   productNames?: string[];
 
+  @Field(() => [String], { nullable: true })
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  imageUrls?: string[];
+
   @Field()
   @IsString()
   @IsNotEmpty()
