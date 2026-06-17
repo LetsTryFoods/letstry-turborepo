@@ -18,24 +18,24 @@ import {
   submitContactMessage,
   SubmitContactInput,
 } from "@/lib/queries/contact";
-async function uploadImageToS3(file: File): Promise<string> {
-  // Call through Next.js proxy to avoid CORS/403 from deployed backend
-  const presignedRes = await fetch("/api/upload-presigned", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ filename: file.name, contentType: file.type }),
+async function uploadImageToR2(file: File): Promise<string> {
+  // Send raw file bytes to Next.js proxy — the server handles the Cloudflare R2 upload.
+  // This avoids browser CORS errors when PUTting directly to R2 from letstryfoods.com.
+  const params = new URLSearchParams({
+    filename: file.name,
+    contentType: file.type,
   });
-  if (!presignedRes.ok) throw new Error("Failed to get upload URL");
-  const { uploadUrl, finalUrl } = await presignedRes.json();
-
-  const uploadRes = await fetch(uploadUrl, {
-    method: "PUT",
+  const res = await fetch(`/api/upload-image?${params}`, {
+    method: "POST",
     body: file,
     headers: { "Content-Type": file.type },
   });
-  if (!uploadRes.ok) throw new Error("Failed to upload image");
-
-  return finalUrl;
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: "Upload failed" }));
+    throw new Error(err.error || "Upload failed");
+  }
+  const { url } = await res.json();
+  return url;
 }
 
 function ContactFormContent() {
@@ -90,7 +90,7 @@ function ContactFormContent() {
       const uploaded = await Promise.all(
         newImages.map(async (img) => ({
           ...img,
-          url: await uploadImageToS3(img.file),
+          url: await uploadImageToR2(img.file),
         }))
       );
       setImages((prev) =>
