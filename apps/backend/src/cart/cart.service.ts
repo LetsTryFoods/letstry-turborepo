@@ -42,7 +42,7 @@ export class CartService {
   }
 
   async getCartById(cartId: string): Promise<CartDocument | null> {
-    const cart = await this.cartModel.findOne({ _id: cartId }).exec();
+    const cart = await this.cartModel.findOne({ _id: cartId } as any).exec();
     if (!cart) return null;
     return this.cartHydrationService.hydrate(cart);
   }

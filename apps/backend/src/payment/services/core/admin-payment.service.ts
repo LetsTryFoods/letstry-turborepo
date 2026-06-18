@@ -116,7 +116,7 @@ export class AdminPaymentService {
       .find({
         paymentOrderId: { $in: allPayments.map((p) => p._id) },
         refundStatus: 'SUCCESS',
-      })
+      } as any)
       .lean()
       .exec();
 

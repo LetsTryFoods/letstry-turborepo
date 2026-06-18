@@ -52,7 +52,7 @@ export class UserCrudService {
             IdentityStatus.ACTIVE,
           ],
         },
-      })
+      } as any)
       .exec();
     return identity ? this.mapToUser(identity) : null;
   }

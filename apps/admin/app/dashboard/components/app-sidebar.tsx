@@ -217,6 +217,11 @@ const navGroups: NavGroup[] = [
         icon: PackageCheck,
       },
       {
+        title: "WhatsApp",
+        url: "/dashboard/whatsapp",
+        icon: MessageSquare,
+      },
+      {
         title: "Notifications",
         url: "/dashboard/notifications",
         icon: Bell,

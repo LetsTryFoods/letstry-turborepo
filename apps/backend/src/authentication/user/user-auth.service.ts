@@ -9,7 +9,7 @@ import { CreateUserInput } from './user-auth.input';
 import { Role } from '../../common/enums/role.enum';
 import { User } from '../../user/user.schema';
 import { CartService } from '../../cart/cart.service';
-import { WhatsAppService } from '../../whatsapp/whatsapp.service';
+import { WhatsAppOrchestratorService } from '../../whatsapp/services/whatsapp-orchestrator.service';
 import { OtpService } from './otp.service';
 import {
   Identity,
@@ -28,7 +28,7 @@ export class UserAuthService {
     private firebaseAuthService: FirebaseAuthService,
     private jwtService: JwtService,
     private cartService: CartService,
-    private whatsAppService: WhatsAppService,
+    private whatsAppOrchestratorService: WhatsAppOrchestratorService,
     private otpService: OtpService,
     private addressService: AddressService,
     @InjectModel(Identity.name) private identityModel: Model<IdentityDocument>,
@@ -37,12 +37,12 @@ export class UserAuthService {
   async sendOtp(phoneNumber: string): Promise<string> {
     const otp = await this.otpService.createOtp(phoneNumber);
 
-    const whatsAppSent = await this.whatsAppService.sendOtpTemplate(
+    const whatsAppSent = await this.whatsAppOrchestratorService.sendOtp(
       phoneNumber,
       otp,
     );
 
-    if (whatsAppSent) {
+    if (whatsAppSent.success) {
       return 'OTP sent via WhatsApp';
     }
 
@@ -246,7 +246,7 @@ export class UserAuthService {
 
   private async updateUserLastActive(userId: string): Promise<void> {
     await this.identityModel
-      .updateOne({ _id: userId }, { lastActiveAt: new Date() })
+      .updateOne({ _id: userId } as any, { lastActiveAt: new Date() })
       .exec();
   }
 
@@ -267,7 +267,7 @@ export class UserAuthService {
       update.$set.firstAuthMethod = authMethod;
     }
 
-    await this.identityModel.updateOne({ _id: userId }, update).exec();
+    await this.identityModel.updateOne({ _id: userId } as any, update).exec();
   }
 
   private async validateOtp(phoneNumber: string, otp: string): Promise<void> {
@@ -492,7 +492,7 @@ export class UserAuthService {
 
     await this.identityModel
       .updateOne(
-        { _id: targetIdentityId },
+        { _id: targetIdentityId } as any,
         {
           $addToSet: {
             sessionIds: sourceIdentity.currentSessionId,

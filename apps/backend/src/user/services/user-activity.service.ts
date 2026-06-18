@@ -25,7 +25,7 @@ export class UserActivityService {
               IdentityStatus.ACTIVE,
             ],
           },
-        },
+        } as any,
         { lastActiveAt: new Date() },
       )
       .exec();

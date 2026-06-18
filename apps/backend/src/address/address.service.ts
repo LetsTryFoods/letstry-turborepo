@@ -58,7 +58,7 @@ export class AddressService {
   async getAddress(id: string, identityId: string): Promise<AddressDocument> {
     this.logger.log('Fetching address', { id, identityId }, 'AddressModule');
     const address = await this.addressModel
-      .findOne({ _id: id, identityId })
+      .findOne({ _id: id, identityId } as any)
       .exec();
     if (!address) {
       throw new NotFoundException('Address not found');
@@ -99,7 +99,7 @@ export class AddressService {
   ): Promise<AddressDocument> {
     this.logger.log('Deleting address', { id, identityId }, 'AddressModule');
     const address = await this.addressModel
-      .findOneAndDelete({ _id: id, identityId })
+      .findOneAndDelete({ _id: id, identityId } as any)
       .exec();
     if (!address) {
       throw new NotFoundException('Address not found');

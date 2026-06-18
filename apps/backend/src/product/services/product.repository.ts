@@ -3,18 +3,18 @@ import { Product, ProductDocument } from '../product.schema';
 import { ProductFilter } from './product.types';
 
 export class ProductRepository {
-  constructor(private readonly productModel: Model<ProductDocument>) {}
+  constructor(private readonly productModel: Model<ProductDocument>) { }
 
   async countDocuments(filter: ProductFilter): Promise<number> {
-    return this.productModel.countDocuments(filter).exec();
+    return this.productModel.countDocuments(filter as any).exec();
   }
 
   async find(filter: ProductFilter): Promise<Product[]> {
-    return this.productModel.find(filter).sort({ createdAt: -1 }).exec();
+    return this.productModel.find(filter as any).sort({ createdAt: -1 }).exec();
   }
 
   async findOne(filter: ProductFilter): Promise<Product | null> {
-    return this.productModel.findOne(filter).exec();
+    return this.productModel.findOne(filter as any).exec();
   }
 
   async findPaginated(
@@ -23,7 +23,7 @@ export class ProductRepository {
     limit: number,
   ): Promise<Product[]> {
     return this.productModel
-      .find(filter)
+      .find(filter as any)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
