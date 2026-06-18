@@ -114,6 +114,6 @@ export class RedirectService {
     return this.redirectModel
       .find({ isActive: true })
       .select('fromPath toPath statusCode')
-      .lean();
+      .exec();
   }
 }
