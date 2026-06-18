@@ -59,6 +59,7 @@ interface ContactTableProps {
   onRefresh: () => void;
   onView: (query: ContactQuery) => void;
   onReply: (query: ContactQuery) => void;
+  onChat?: (query: ContactQuery) => void;
 }
 
 const statusConfig: Record<
@@ -101,6 +102,7 @@ export default function ContactTable({
   onRefresh,
   onView,
   onReply,
+  onChat,
 }: ContactTableProps) {
   const [selectedQuery, setSelectedQuery] = useState<ContactQuery | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -170,6 +172,16 @@ export default function ContactTable({
                         <p className="text-sm text-muted-foreground">
                           {query.email}
                         </p>
+                        {query.phone && (
+                          <Button
+                            variant="link"
+                            className="p-0 h-auto text-xs flex items-center text-green-600 hover:text-green-700"
+                            onClick={() => onChat && onChat(query)}
+                          >
+                            <MessageSquare className="h-3 w-3 mr-1" />
+                            {query.phone}
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -242,8 +254,14 @@ export default function ContactTable({
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => onReply(query)}>
                             <MessageSquare className="mr-2 h-4 w-4" />
-                            Reply
+                            Reply via Email
                           </DropdownMenuItem>
+                          {query.phone && onChat && (
+                            <DropdownMenuItem onClick={() => onChat(query)}>
+                              <MessageSquare className="mr-2 h-4 w-4 text-green-600" />
+                              WhatsApp Chat
+                            </DropdownMenuItem>
+                          )}
                           <DropdownMenuSeparator />
                           <DropdownMenuSub>
                             <DropdownMenuSubTrigger>

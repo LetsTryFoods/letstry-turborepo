@@ -17,13 +17,23 @@ import {
 } from '../schemas/baileys-session.schema';
 import { WinstonLoggerService } from '../../logger/logger.service';
 import { WhatsAppSettingsService } from './whatsapp-settings.service';
+import { IWhatsAppProvider, IncomingWhatsAppMessage } from '../interfaces/whatsapp-provider.interface';
+import { WhatsAppMessageType } from '../schemas/whatsapp-message.schema';
+import { downloadMediaMessage } from '@whiskeysockets/baileys';
 
 @Injectable()
-export class BaileysService implements OnModuleInit, OnModuleDestroy {
+export class BaileysService implements OnModuleInit, OnModuleDestroy, IWhatsAppProvider {
   private sock: any = null;
   private qrCodeBase64: string | null = null;
   private connectionStatus: 'disconnected' | 'qr_pending' | 'connected' =
     'disconnected';
+  private onMessageCallback?: (msg: IncomingWhatsAppMessage) => Promise<void>;
+  
+  private keysSaveTimeout: NodeJS.Timeout | null = null;
+  private credsSaveTimeout: NodeJS.Timeout | null = null;
+  private reconnectAttempts = 0;
+  private isReconnecting = false;
+  private reconnectTimeoutId: NodeJS.Timeout | null = null;
 
   constructor(
     @InjectModel(BaileysSession.name)
@@ -58,8 +68,13 @@ export class BaileysService implements OnModuleInit, OnModuleDestroy {
 
   async connect(): Promise<void> {
     if (this.sock) {
-      this.logger.log('Closing existing Baileys socket before reconnect', 'BaileysService');
-      this.sock.end();
+      this.logger.log('Closing existing Baileys socket before reconnect (preventing zombie sockets)', 'BaileysService');
+      try {
+        if (this.sock.ws?.isOpen) {
+          this.sock.ws.close();
+        }
+        this.sock.end(new Error('reconnect'));
+      } catch (e) {}
       this.sock = null;
     }
 
@@ -88,6 +103,15 @@ export class BaileysService implements OnModuleInit, OnModuleDestroy {
 
     this.sock = sock;
 
+    sock.ev.on('messages.upsert', async (m: any) => {
+      if (this.onMessageCallback && m.type === 'notify') {
+        for (const msg of m.messages) {
+          if (!msg.message || msg.key.fromMe) continue;
+          await this.handleIncomingMessage(msg);
+        }
+      }
+    });
+
     sock.ev.on('connection.update', async (update: any) => {
       const { connection, lastDisconnect, qr } = update;
 
@@ -95,6 +119,7 @@ export class BaileysService implements OnModuleInit, OnModuleDestroy {
         this.connectionStatus = 'qr_pending';
         this.qrCodeBase64 = await QRCode.toDataURL(qr);
         this.logger.log('Baileys QR code generated — waiting for scan', 'BaileysService');
+        this.reconnectAttempts = 0;
 
         // Mark needsRescan in DB
         await this.sessionModel.findOneAndUpdate(
@@ -107,6 +132,13 @@ export class BaileysService implements OnModuleInit, OnModuleDestroy {
       if (connection === 'open') {
         this.connectionStatus = 'connected';
         this.qrCodeBase64 = null;
+        this.reconnectAttempts = 0;
+        this.isReconnecting = false;
+        if (this.reconnectTimeoutId) {
+          clearTimeout(this.reconnectTimeoutId);
+          this.reconnectTimeoutId = null;
+        }
+
         const phoneNumber = sock.user?.id?.split(':')[0] || 'unknown';
 
         this.logger.log(
@@ -114,7 +146,7 @@ export class BaileysService implements OnModuleInit, OnModuleDestroy {
           'BaileysService',
         );
 
-        await this.saveAuthState(authState);
+        this.queueCredsSave();
         await this.sessionModel.findOneAndUpdate(
           { sessionId: 'default' },
           {
@@ -127,48 +159,76 @@ export class BaileysService implements OnModuleInit, OnModuleDestroy {
           { upsert: true },
         );
       }
+      
       if (connection === 'close') {
-        const statusCode = (lastDisconnect?.error as Boom)?.output?.statusCode;
+        const error = lastDisconnect?.error as Boom;
+        const statusCode = error?.output?.statusCode;
         const reason = DisconnectReason[statusCode] || `code_${statusCode}`;
-        const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
 
         this.logger.warn(
-          `Baileys disconnected — reason: ${reason}, reconnect: ${shouldReconnect}`,
+          `Baileys disconnected — reason: ${reason} (code: ${statusCode})`,
           'BaileysService',
         );
 
         this.connectionStatus = 'disconnected';
+        
+        try {
+          if (this.sock?.ws?.isOpen) this.sock.ws.close();
+          this.sock?.end(new Error('reconnecting'));
+        } catch (e) {}
         this.sock = null;
 
-        await this.sessionModel.findOneAndUpdate(
-          { sessionId: 'default' },
-          {
-            isActive: false,
-            disconnectReason: reason,
-            needsRescan: !shouldReconnect, // logged out = needs rescan
-          },
-          { upsert: true },
-        );
-
-        if (shouldReconnect) {
-          this.logger.log('Auto-reconnecting Baileys...', 'BaileysService');
-          setTimeout(() => this.connect(), 5000);
-        } else {
-          this.logger.warn(
-            'Baileys logged out — manual QR re-scan required',
-            'BaileysService',
+        // 1. Logged Out / Unauthorized (401)
+        if (statusCode === DisconnectReason.loggedOut) {
+          this.logger.error('Baileys logged out — clearing credentials and waiting for QR re-scan.', 'BaileysService');
+          await this.sessionModel.findOneAndUpdate(
+            { sessionId: 'default' },
+            { $unset: { creds: "", keys: "" }, isActive: false, disconnectReason: reason, needsRescan: true },
+            { upsert: true }
           );
+          this.isReconnecting = false;
+          // Trigger a new connect to generate a fresh QR code
+          this.reconnectTimeoutId = setTimeout(() => this.connect(), 2000);
+          return;
+        }
+
+        // 2. Forbidden (403)
+        if (statusCode === 403) {
+          this.logger.error('Baileys connection forbidden (403) — stopping reconnect to avoid ban.', 'BaileysService');
+          this.isReconnecting = false;
+          return;
+        }
+
+        // 3. Restart Required or generic drop
+        if (!this.isReconnecting) {
+          this.isReconnecting = true;
+          
+          const isRestartRequired = statusCode === DisconnectReason.restartRequired;
+          const maxDelay = 60000;
+          
+          // Exponential backoff: 2s, 3s, 4.5s, ... capped at 60s
+          let delayMs = isRestartRequired ? 1500 : Math.min(2000 * Math.pow(1.5, this.reconnectAttempts), maxDelay);
+          
+          // Give up if we fail continuously without any success (prevents infinite loop ban)
+          if (this.reconnectAttempts > 15) {
+            this.logger.error('Max Baileys reconnection attempts reached. Halting reconnections.', 'BaileysService');
+            this.isReconnecting = false;
+            return;
+          }
+
+          this.reconnectAttempts++;
+          this.logger.log(`Auto-reconnecting Baileys in ${delayMs / 1000}s... (Attempt ${this.reconnectAttempts})`, 'BaileysService');
+          
+          if (this.reconnectTimeoutId) clearTimeout(this.reconnectTimeoutId);
+          this.reconnectTimeoutId = setTimeout(() => {
+            this.connect();
+          }, delayMs);
         }
       }
     });
 
-    sock.ev.on('creds.update', async () => {
-      // Save the latest creds directly from the socket's auth state
-      await this.sessionModel.findOneAndUpdate(
-        { sessionId: 'default' },
-        { creds: JSON.stringify(sock.authState.creds, BufferJSON.replacer) },
-        { upsert: true },
-      );
+    sock.ev.on('creds.update', () => {
+      this.queueCredsSave();
     });
   }
 
@@ -184,6 +244,68 @@ export class BaileysService implements OnModuleInit, OnModuleDestroy {
       { sessionId: 'default' },
       { isActive: false, disconnectReason: 'manual_disconnect' },
     );
+  }
+
+  onMessage(callback: (msg: IncomingWhatsAppMessage) => Promise<void>): void {
+    this.onMessageCallback = callback;
+  }
+
+  private async handleIncomingMessage(msg: any): Promise<void> {
+    try {
+      const jid = msg.key.remoteJid;
+      if (!jid || jid.includes('@g.us')) return; // Ignore groups for now
+      const phoneNumber = jid.split('@')[0];
+
+      let type: WhatsAppMessageType = WhatsAppMessageType.TEXT;
+      let content = '';
+      let mediaBuffer: Buffer | undefined;
+      let mediaFileName: string | undefined;
+
+      const messageContent = msg.message;
+
+      if (messageContent.conversation || messageContent.extendedTextMessage) {
+        type = WhatsAppMessageType.TEXT;
+        content = messageContent.conversation || messageContent.extendedTextMessage.text;
+      } else if (messageContent.imageMessage) {
+        type = WhatsAppMessageType.IMAGE;
+        content = messageContent.imageMessage.caption || '';
+        mediaBuffer = await downloadMediaMessage(msg, 'buffer', {}, { logger: this.logger as any, reuploadRequest: this.sock.updateMediaMessage });
+        mediaFileName = `image-${Date.now()}.jpeg`; // WhatsApp images are usually jpeg
+      } else if (messageContent.videoMessage) {
+        type = WhatsAppMessageType.VIDEO;
+        content = messageContent.videoMessage.caption || '';
+        mediaBuffer = await downloadMediaMessage(msg, 'buffer', {}, { logger: this.logger as any, reuploadRequest: this.sock.updateMediaMessage });
+        mediaFileName = `video-${Date.now()}.mp4`; 
+      } else if (messageContent.audioMessage) {
+        type = WhatsAppMessageType.AUDIO;
+        mediaBuffer = await downloadMediaMessage(msg, 'buffer', {}, { logger: this.logger as any, reuploadRequest: this.sock.updateMediaMessage });
+        mediaFileName = `audio-${Date.now()}.${messageContent.audioMessage.mimetype?.includes('ogg') ? 'ogg' : 'mp3'}`;
+      } else if (messageContent.documentMessage) {
+        type = WhatsAppMessageType.DOCUMENT;
+        content = messageContent.documentMessage.caption || messageContent.documentMessage.fileName || '';
+        mediaBuffer = await downloadMediaMessage(msg, 'buffer', {}, { logger: this.logger as any, reuploadRequest: this.sock.updateMediaMessage });
+        mediaFileName = messageContent.documentMessage.fileName || `doc-${Date.now()}.bin`;
+      } else {
+        type = WhatsAppMessageType.OTHER;
+        content = '[Unsupported Message Type]';
+      }
+
+      const incomingMsg: IncomingWhatsAppMessage = {
+        messageId: msg.key.id,
+        phoneNumber,
+        content,
+        type,
+        timestamp: new Date((msg.messageTimestamp as number) * 1000),
+        mediaBuffer,
+        mediaFileName,
+      };
+
+      if (this.onMessageCallback) {
+        await this.onMessageCallback(incomingMsg);
+      }
+    } catch (err) {
+      this.logger.error(`Error processing incoming Baileys message: ${err.message}`, 'BaileysService');
+    }
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -212,7 +334,8 @@ export class BaileysService implements OnModuleInit, OnModuleDestroy {
     }
 
     try {
-      const jid = `${phoneNumber}@s.whatsapp.net`;
+      const normalized = this.normalizePhoneNumber(phoneNumber);
+      const jid = `${normalized}@s.whatsapp.net`;
       await this.sock.sendMessage(jid, { text });
 
       await this.sessionModel.findOneAndUpdate(
@@ -316,34 +439,75 @@ export class BaileysService implements OnModuleInit, OnModuleDestroy {
         const result: Record<string, any> = {};
         ids.forEach((id) => {
           const key = `${type}-${id}`;
-          if (keysData[key]) result[id] = keysData[key];
+          if (keysData[key] !== undefined && keysData[key] !== null) {
+            result[id] = keysData[key];
+          }
         });
         return result;
       },
       set: async (data: Record<string, any>) => {
-        const updates: Record<string, any> = { ...keysData };
         for (const [type, values] of Object.entries(data)) {
           for (const [id, value] of Object.entries(values as any)) {
-            updates[`${type}-${id}`] = value;
+            const key = `${type}-${id}`;
+            if (value === null || value === undefined) {
+              delete keysData[key];
+            } else {
+              keysData[key] = value;
+            }
           }
         }
-        await this.sessionModel.findOneAndUpdate(
-          { sessionId: 'default' },
-          { keys: JSON.stringify(updates, BufferJSON.replacer) },
-          { upsert: true },
-        );
-        Object.assign(keysData, updates);
+        this.queueKeysSave(keysData);
       },
     };
 
     return { creds, keys };
   }
 
-  private async saveAuthState(authState: any): Promise<void> {
-    await this.sessionModel.findOneAndUpdate(
-      { sessionId: 'default' },
-      { creds: JSON.stringify(authState.creds, BufferJSON.replacer) },
-      { upsert: true },
-    );
+  /**
+   * Normalize a phone number to E.164 format (digits only, with country code).
+   * - Strips spaces, dashes, +, parentheses
+   * - If the number is 10 digits (Indian mobile), prepends '91'
+   * - If already has 91 prefix (12 digits), leaves as-is
+   */
+  private normalizePhoneNumber(phone: string): string {
+    // Remove all non-digit characters
+    const digits = phone.replace(/\D/g, '');
+    // Indian mobile: 10 digits → prepend 91
+    if (digits.length === 10) {
+      return `91${digits}`;
+    }
+    // Already has country code (e.g. 918840330283 = 12 digits)
+    return digits;
+  }
+
+  private queueKeysSave(keysData: any) {
+    if (this.keysSaveTimeout) clearTimeout(this.keysSaveTimeout);
+    this.keysSaveTimeout = setTimeout(async () => {
+      try {
+        await this.sessionModel.findOneAndUpdate(
+          { sessionId: 'default' },
+          { keys: JSON.stringify(keysData, BufferJSON.replacer) },
+          { upsert: true },
+        );
+      } catch (err) {
+        this.logger.error(`Error saving Baileys keys: ${err.message}`, 'BaileysService');
+      }
+    }, 2000);
+  }
+
+  private queueCredsSave() {
+    if (this.credsSaveTimeout) clearTimeout(this.credsSaveTimeout);
+    this.credsSaveTimeout = setTimeout(async () => {
+      if (!this.sock?.authState?.creds) return;
+      try {
+        await this.sessionModel.findOneAndUpdate(
+          { sessionId: 'default' },
+          { creds: JSON.stringify(this.sock.authState.creds, BufferJSON.replacer) },
+          { upsert: true },
+        );
+      } catch (err) {
+        this.logger.error(`Error saving Baileys creds: ${err.message}`, 'BaileysService');
+      }
+    }, 2000);
   }
 }

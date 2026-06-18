@@ -8,7 +8,9 @@ import { BaileysService } from './services/baileys.service';
 import { BaileysMessageLogService } from './services/baileys-message-log.service';
 import { WhatsAppOrchestratorService } from './services/whatsapp-orchestrator.service';
 import { WhatsAppSettingsService } from './services/whatsapp-settings.service';
+import { WhatsAppChatService } from './services/whatsapp-chat.service';
 import { WhatsAppController } from './whatsapp.controller';
+import { WhatsAppChatController } from './whatsapp-chat.controller';
 import {
   BaileysMessageLog,
   BaileysMessageLogSchema,
@@ -21,6 +23,15 @@ import {
   WhatsAppSettings,
   WhatsAppSettingsSchema,
 } from './schemas/whatsapp-settings.schema';
+import {
+  WhatsAppChat,
+  WhatsAppChatSchema,
+} from './schemas/whatsapp-chat.schema';
+import {
+  WhatsAppMessage,
+  WhatsAppMessageSchema,
+} from './schemas/whatsapp-message.schema';
+import { UploadModule } from '../upload/upload.module';
 
 @Module({
   imports: [
@@ -29,7 +40,10 @@ import {
       { name: BaileysMessageLog.name, schema: BaileysMessageLogSchema },
       { name: BaileysSession.name, schema: BaileysSessionSchema },
       { name: WhatsAppSettings.name, schema: WhatsAppSettingsSchema },
+      { name: WhatsAppChat.name, schema: WhatsAppChatSchema },
+      { name: WhatsAppMessage.name, schema: WhatsAppMessageSchema },
     ]),
+    UploadModule,
     BullModule.registerQueue({
       name: 'whatsapp-notification-queue',
       defaultJobOptions: {
@@ -43,7 +57,7 @@ import {
       },
     }),
   ],
-  controllers: [WhatsAppController],
+  controllers: [WhatsAppController, WhatsAppChatController],
   providers: [
     WhatsAppService,
     WhatsAppNotificationProcessor,
@@ -51,6 +65,7 @@ import {
     BaileysMessageLogService,
     WhatsAppOrchestratorService,
     WhatsAppSettingsService,
+    WhatsAppChatService,
   ],
   exports: [
     WhatsAppService,
@@ -58,6 +73,7 @@ import {
     BaileysService,
     BaileysMessageLogService,
     WhatsAppSettingsService,
+    WhatsAppChatService,
   ],
 })
 export class WhatsAppModule {}
