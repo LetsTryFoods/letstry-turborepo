@@ -133,13 +133,13 @@ export class LogisticsAnalyticsService {
     // Only look at orders where logisticsCost is recorded so we can calculate net cost accurately
     const matchStage = {
       createdAt: { $gte: startDate, $lte: endDate },
-      orderStatus: { $nin: [OrderStatus.SHIPMENT_FAILED, OrderStatus.PAYMENT_FAILED] },
+      orderStatus: { $nin: [OrderStatus.SHIPMENT_FAILED] },
       logisticsCost: { $exists: true, $ne: null },
     };
 
     const ordersData = await this.orderModel.find(matchStage).lean().exec();
 
-    const orders = [];
+    const orders: any[] = [];
     const summary = {
       totalOrders: 0,
       totalSubtotal: 0,
