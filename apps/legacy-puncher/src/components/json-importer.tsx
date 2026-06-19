@@ -76,7 +76,6 @@ export function JsonImporter({ onImport }: JsonImporterProps) {
           <Button
             variant="outline"
             size="sm"
-            asChild={false}
             onClick={() => document.getElementById("file-upload")?.click()}
           >
             <Upload className="mr-2 h-4 w-4" />
