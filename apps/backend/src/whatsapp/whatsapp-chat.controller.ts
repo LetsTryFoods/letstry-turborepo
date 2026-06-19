@@ -2,6 +2,13 @@ import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
 import { WhatsAppChatService } from './services/whatsapp-chat.service';
 import { BaileysService } from './services/baileys.service';
 
+// Normalize phone: strip leading 91 for 12-digit Indian numbers → 10-digit
+function normalizePhone(phone: string): string {
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length === 12 && digits.startsWith('91')) return digits.slice(2);
+  return digits;
+}
+
 @Controller('whatsapp-chat')
 // @UseGuards(AdminAuthGuard) // Assuming there's some guard, will skip for now or rely on global guard
 export class WhatsAppChatController {
@@ -12,7 +19,7 @@ export class WhatsAppChatController {
 
   @Get(':phoneNumber')
   async getChatHistory(@Param('phoneNumber') phoneNumber: string) {
-    const { chat, messages } = await this.chatService.getChatHistoryByPhone(phoneNumber);
+    const { chat, messages } = await this.chatService.getChatHistoryByPhone(normalizePhone(phoneNumber));
     return { chat, messages };
   }
 
@@ -22,12 +29,11 @@ export class WhatsAppChatController {
     @Body('message') messageText: string,
     @Body('contactId') contactId?: string,
   ) {
-    // 1. Send via Baileys (currently acts as the primary provider for support)
-    const result = await this.baileysService.sendMessage(phoneNumber, messageText);
+    const normalized = normalizePhone(phoneNumber);
+    const result = await this.baileysService.sendMessage(normalized, messageText);
 
     if (result.success) {
-      // 2. Save outgoing message to DB
-      const dbMessage = await this.chatService.saveOutgoingMessage(phoneNumber, messageText, result.messageId || undefined, 'TEXT', contactId);
+      const dbMessage = await this.chatService.saveOutgoingMessage(normalized, messageText, result.messageId || undefined, 'TEXT', contactId);
       return { success: true, message: dbMessage };
     }
 

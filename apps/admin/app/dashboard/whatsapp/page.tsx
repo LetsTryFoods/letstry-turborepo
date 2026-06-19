@@ -56,10 +56,15 @@ interface LogEntry {
   templateName: string;
   channel: 'NUREN' | 'BAILEYS' | 'NONE';
   status: 'SUCCESS' | 'FAILED' | 'SKIPPED_LIMIT' | 'NO_FALLBACK';
+  primaryAttempted: boolean;
   primarySuccess: boolean;
+  fallbackAttempted: boolean;
   fallbackSuccess: boolean;
+  payload?: Record<string, any>;
   errorMessage?: string;
   sentAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -102,6 +107,7 @@ export default function WhatsAppPage() {
   const [testText, setTestText] = useState('');
   const [sendingTest, setSendingTest] = useState(false);
   const [qrScanned, setQrScanned] = useState(false);
+  const [selectedLog, setSelectedLog] = useState<LogEntry | null>(null);
   const pollingRef = useRef<any>(null);
   const prevQrRef = useRef<string | null>(null);
 
@@ -517,12 +523,12 @@ export default function WhatsAppPage() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
-                {['Time', 'Phone', 'Order', 'Template', 'Channel', 'Status', 'Error'].map((h) => (
-                  <th key={h} className="text-left text-xs font-semibold text-gray-500 px-4 py-3 uppercase tracking-wide">
-                    {h}
-                  </th>
-                ))}
-              </tr>
+                  {['Time', 'Phone', 'Order', 'Template', 'Channel', 'Status', 'Error', ''].map((h) => (
+                    <th key={h} className="text-left text-xs font-semibold text-gray-500 px-4 py-3 uppercase tracking-wide">
+                      {h}
+                    </th>
+                  ))}
+                </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
               {loading ? (
@@ -560,6 +566,14 @@ export default function WhatsAppPage() {
                     <td className="px-4 py-3 text-red-500 text-xs max-w-xs truncate">
                       {log.errorMessage || '—'}
                     </td>
+                    <td className="px-4 py-3">
+                      <button
+                        onClick={() => setSelectedLog(log)}
+                        className="text-xs text-blue-600 hover:text-blue-800 font-medium border border-blue-200 hover:border-blue-400 px-2.5 py-1 rounded-lg transition-colors"
+                      >
+                        Open
+                      </button>
+                    </td>
                   </tr>
                 ))
               )}
@@ -592,6 +606,107 @@ export default function WhatsAppPage() {
           </div>
         )}
       </div>
+      {/* ── Log Detail Modal ───────────────────────────────────────────────── */}
+      {selectedLog && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+          onClick={() => setSelectedLog(null)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between rounded-t-2xl">
+              <div>
+                <h3 className="text-base font-semibold text-gray-900">Message Log Details</h3>
+                <p className="text-xs text-gray-400 font-mono mt-0.5">{selectedLog._id}</p>
+              </div>
+              <button
+                onClick={() => setSelectedLog(null)}
+                className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 text-lg"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="px-6 py-4 space-y-5">
+
+              {/* Status + Channel */}
+              <div className="flex items-center gap-3">
+                <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-semibold ${statusColor[selectedLog.status]}`}>
+                  {selectedLog.status === 'SUCCESS' ? '✅' : selectedLog.status === 'FAILED' ? '❌' : '⏭️'}
+                  {selectedLog.status.replace(/_/g, ' ')}
+                </span>
+                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${channelBadge[selectedLog.channel]}`}>
+                  {selectedLog.channel}
+                </span>
+              </div>
+
+              {/* Core Details */}
+              <div className="bg-gray-50 rounded-xl divide-y divide-gray-100">
+                {([
+                  ['Phone Number', selectedLog.phoneNumber.replace(/^91/, '+91 ')],
+                  ['Template', selectedLog.templateName],
+                  ['Order ID', selectedLog.orderId || '—'],
+                  ['Recipient', selectedLog.recipientName || '—'],
+                  ['Sent At', selectedLog.sentAt ? new Date(selectedLog.sentAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'medium' }) : '—'],
+                  ['Created At', selectedLog.createdAt ? new Date(selectedLog.createdAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'medium' }) : '—'],
+                ] as [string, string][]).map(([label, value]) => (
+                  <div key={label} className="flex items-start px-4 py-2.5 gap-4">
+                    <span className="text-xs text-gray-400 w-28 shrink-0 pt-0.5">{label}</span>
+                    <span className="text-sm text-gray-700 font-mono break-all">{value}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Delivery Attempt Status */}
+              <div>
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Delivery Attempts</p>
+                <div className="grid grid-cols-2 gap-3">
+                  {([
+                    { label: 'Primary Attempted', value: selectedLog.primaryAttempted },
+                    { label: 'Primary Success', value: selectedLog.primarySuccess },
+                    { label: 'Fallback Attempted', value: selectedLog.fallbackAttempted },
+                    { label: 'Fallback Success', value: selectedLog.fallbackSuccess },
+                  ] as { label: string; value: boolean }[]).map(({ label, value }) => (
+                    <div key={label} className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2.5">
+                      <span className="text-xs text-gray-500">{label}</span>
+                      <span className={`text-xs font-bold ${value ? 'text-emerald-600' : 'text-red-500'}`}>
+                        {value ? '✓ Yes' : '✗ No'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Payload */}
+              {selectedLog.payload && Object.keys(selectedLog.payload).length > 0 && (
+                <div>
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Payload</p>
+                  <div className="bg-gray-50 rounded-xl divide-y divide-gray-100">
+                    {Object.entries(selectedLog.payload).map(([key, val]) => (
+                      <div key={key} className="flex items-start px-4 py-2.5 gap-4">
+                        <span className="text-xs text-gray-400 w-32 shrink-0 pt-0.5 font-mono">{key}</span>
+                        <span className="text-sm text-gray-700 break-all">{String(val)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Error */}
+              {selectedLog.errorMessage && (
+                <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+                  <p className="text-xs font-semibold text-red-600 mb-1">Error Message</p>
+                  <p className="text-sm text-red-700 font-mono break-all">{selectedLog.errorMessage}</p>
+                </div>
+              )}
+
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -76,5 +76,5 @@ import { UploadModule } from '../upload/upload.module';
     WhatsAppChatService,
   ],
 })
-export class WhatsAppModule {}
+export class WhatsAppModule { }
 

@@ -28,12 +28,12 @@ export class BaileysService implements OnModuleInit, OnModuleDestroy, IWhatsAppP
   private connectionStatus: 'disconnected' | 'qr_pending' | 'connected' =
     'disconnected';
   private onMessageCallback?: (msg: IncomingWhatsAppMessage) => Promise<void>;
-  
-  private keysSaveTimeout: NodeJS.Timeout | null = null;
-  private credsSaveTimeout: NodeJS.Timeout | null = null;
+
+  private keysSaveTimeout: ReturnType<typeof setTimeout> | null = null;
+  private credsSaveTimeout: ReturnType<typeof setTimeout> | null = null;
   private reconnectAttempts = 0;
   private isReconnecting = false;
-  private reconnectTimeoutId: NodeJS.Timeout | null = null;
+  private reconnectTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
     @InjectModel(BaileysSession.name)
@@ -74,7 +74,7 @@ export class BaileysService implements OnModuleInit, OnModuleDestroy, IWhatsAppP
           this.sock.ws.close();
         }
         this.sock.end(new Error('reconnect'));
-      } catch (e) {}
+      } catch (e) { }
       this.sock = null;
     }
 
@@ -159,7 +159,7 @@ export class BaileysService implements OnModuleInit, OnModuleDestroy, IWhatsAppP
           { upsert: true },
         );
       }
-      
+
       if (connection === 'close') {
         const error = lastDisconnect?.error as Boom;
         const statusCode = error?.output?.statusCode;
@@ -171,11 +171,11 @@ export class BaileysService implements OnModuleInit, OnModuleDestroy, IWhatsAppP
         );
 
         this.connectionStatus = 'disconnected';
-        
+
         try {
           if (this.sock?.ws?.isOpen) this.sock.ws.close();
           this.sock?.end(new Error('reconnecting'));
-        } catch (e) {}
+        } catch (e) { }
         this.sock = null;
 
         // 1. Logged Out / Unauthorized (401)
@@ -202,13 +202,13 @@ export class BaileysService implements OnModuleInit, OnModuleDestroy, IWhatsAppP
         // 3. Restart Required or generic drop
         if (!this.isReconnecting) {
           this.isReconnecting = true;
-          
+
           const isRestartRequired = statusCode === DisconnectReason.restartRequired;
           const maxDelay = 60000;
-          
+
           // Exponential backoff: 2s, 3s, 4.5s, ... capped at 60s
           let delayMs = isRestartRequired ? 1500 : Math.min(2000 * Math.pow(1.5, this.reconnectAttempts), maxDelay);
-          
+
           // Give up if we fail continuously without any success (prevents infinite loop ban)
           if (this.reconnectAttempts > 15) {
             this.logger.error('Max Baileys reconnection attempts reached. Halting reconnections.', 'BaileysService');
@@ -218,7 +218,7 @@ export class BaileysService implements OnModuleInit, OnModuleDestroy, IWhatsAppP
 
           this.reconnectAttempts++;
           this.logger.log(`Auto-reconnecting Baileys in ${delayMs / 1000}s... (Attempt ${this.reconnectAttempts})`, 'BaileysService');
-          
+
           if (this.reconnectTimeoutId) clearTimeout(this.reconnectTimeoutId);
           this.reconnectTimeoutId = setTimeout(() => {
             this.connect();
@@ -254,7 +254,12 @@ export class BaileysService implements OnModuleInit, OnModuleDestroy, IWhatsAppP
     try {
       const jid = msg.key.remoteJid;
       if (!jid || jid.includes('@g.us')) return; // Ignore groups for now
-      const phoneNumber = jid.split('@')[0];
+      const rawPhone = jid.split('@')[0];
+      // Normalize: strip 91 country code from 12-digit Indian numbers so it
+      // matches how contacts are stored (10 digits) in the DB.
+      const phoneNumber = this.normalizePhoneNumber(rawPhone).length === 12
+        ? this.normalizePhoneNumber(rawPhone).slice(2)
+        : rawPhone.replace(/\D/g, '');
 
       let type: WhatsAppMessageType = WhatsAppMessageType.TEXT;
       let content = '';
@@ -275,7 +280,7 @@ export class BaileysService implements OnModuleInit, OnModuleDestroy, IWhatsAppP
         type = WhatsAppMessageType.VIDEO;
         content = messageContent.videoMessage.caption || '';
         mediaBuffer = await downloadMediaMessage(msg, 'buffer', {}, { logger: this.logger as any, reuploadRequest: this.sock.updateMediaMessage });
-        mediaFileName = `video-${Date.now()}.mp4`; 
+        mediaFileName = `video-${Date.now()}.mp4`;
       } else if (messageContent.audioMessage) {
         type = WhatsAppMessageType.AUDIO;
         mediaBuffer = await downloadMediaMessage(msg, 'buffer', {}, { logger: this.logger as any, reuploadRequest: this.sock.updateMediaMessage });
@@ -316,7 +321,7 @@ export class BaileysService implements OnModuleInit, OnModuleDestroy, IWhatsAppP
     phoneNumber: string,
     text: string,
     options?: { isTest?: boolean },
-  ): Promise<{ success: boolean; error?: string; skippedLimit?: boolean }> {
+  ): Promise<{ success: boolean; error?: string; skippedLimit?: boolean; messageId?: string }> {
     if (this.connectionStatus !== 'connected' || !this.sock) {
       return { success: false, error: 'Baileys not connected' };
     }
