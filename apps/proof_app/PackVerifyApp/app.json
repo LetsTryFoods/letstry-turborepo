@@ -10,13 +10,14 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yourcompany.packverifyapp",
+      "bundleIdentifier": "com.letstryfoods.packverifyapp",
       "infoPlist": {
-        "NSCameraUsageDescription": "This app needs camera access to verify packages."
+        "NSCameraUsageDescription": "This app needs camera access to verify packages.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
-      "package": "com.yourcompany.packverifyapp",
+      "package": "com.letstryfoods.packverifyapp",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",

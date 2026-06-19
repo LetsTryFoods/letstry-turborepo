@@ -3,6 +3,7 @@ import { useQuery } from '@apollo/client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useState, useCallback } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   ActivityIndicator,
   Alert,
@@ -22,6 +23,7 @@ import HistoryCard from '../components/HistoryCard';
 const { width } = Dimensions.get('window');
 
 const DashboardScreen = ({ navigation, route }) => {
+  const insets = useSafeAreaInsets();
   const [user, setUser] = useState({ name: 'Packer' });
   const [activeTab, setActiveTab] = useState('active'); // 'active' or 'history'
 
@@ -118,8 +120,8 @@ const DashboardScreen = ({ navigation, route }) => {
       activeOpacity={0.7}
     >
       <View style={styles.cardHeader}>
-        <View>
-          <Text style={styles.orderId}>#{item.orderNumber || item.orderId}</Text>
+        <View style={{ flex: 1, marginRight: 8 }}>
+          <Text style={styles.orderId} numberOfLines={1} ellipsizeMode="middle">#{item.orderNumber || item.orderId}</Text>
           {item.isExpress && (
             <View style={styles.expressBadge}>
               <Ionicons name="flash" size={10} color="#92400e" />
@@ -154,7 +156,7 @@ const DashboardScreen = ({ navigation, route }) => {
       <StatusBar barStyle="light-content" />
       
       {/* Header */}
-      <LinearGradient colors={[COLORS.primary, COLORS.primaryLight]} style={styles.header}>
+      <LinearGradient colors={[COLORS.primary, COLORS.primaryLight]} style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <View style={styles.headerTop}>
           <View>
             <Text style={styles.welcomeText}>Good Day,</Text>
@@ -250,7 +252,6 @@ const DashboardScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
   header: { 
-    paddingTop: 60, 
     paddingBottom: 25, 
     paddingHorizontal: 20, 
     borderBottomLeftRadius: 32, 
@@ -345,7 +346,7 @@ const styles = StyleSheet.create({
     borderColor: '#f1f5f9'
   },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
-  orderId: { fontSize: 17, fontWeight: 'bold', color: COLORS.textDark },
+  orderId: { fontSize: 15, fontWeight: 'bold', color: COLORS.textDark, flexShrink: 1 },
   expressBadge: { 
     flexDirection: 'row', 
     alignItems: 'center', 

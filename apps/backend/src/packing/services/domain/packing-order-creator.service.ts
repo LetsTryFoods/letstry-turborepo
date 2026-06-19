@@ -47,7 +47,7 @@ export class PackingOrderCreatorService {
         try {
           if (!item.variantId) {
             this.packingLogger.logError(
-              'Item missing variantId',
+              'Item missing variantId — falling back to order-level SKU for EAN',
               new Error('Missing variantId'),
               {
                 orderId: order._id.toString(),
@@ -65,7 +65,7 @@ export class PackingOrderCreatorService {
 
           if (!product) {
             this.packingLogger.logError(
-              'Product not found for variantId',
+              'Product not found for variantId — falling back to order-level SKU for EAN',
               new Error('Product not found'),
               {
                 orderId: order._id.toString(),
@@ -75,13 +75,16 @@ export class PackingOrderCreatorService {
             return this.createUnknownItem(item, order._id.toString());
           }
 
+          // Find the EXACT variant that was ordered using variantId
+          // This ensures the correct variant-specific SKU (EAN barcode) is used
+          // and not another variant's SKU or the product-level GTIN
           const variant = product.variants.find(
             (v) => v._id.toString() === item.variantId.toString(),
           );
 
           if (!variant) {
             this.packingLogger.logError(
-              'Variant not found in product',
+              'Variant not found in product — falling back to order-level SKU for EAN',
               new Error('Variant not found'),
               {
                 orderId: order._id.toString(),
@@ -92,10 +95,16 @@ export class PackingOrderCreatorService {
             return this.createUnknownItem(item, order._id.toString());
           }
 
+          // EAN = variant.sku (EAN barcode is stored in the SKU field per project convention)
+          // We use the matched variant's SKU so each variant gets its own unique barcode.
+          // Fallback to item.sku (stored at order-time) in case variant.sku is somehow empty.
+          // We intentionally do NOT use product.gtin as that is the product-level global identifier.
+          const ean = variant.sku || item.sku || 'UNKNOWN';
+
           return {
             productId: product._id.toString(),
             sku: variant.sku,
-            ean: variant.sku,
+            ean,
             name: product.name,
             unitPrice: parseFloat(item.price) || 0,
             quantity: item.quantity,

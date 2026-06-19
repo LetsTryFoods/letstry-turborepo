@@ -168,11 +168,9 @@ const PackedOrderDetailScreen = ({ route, navigation }) => {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Order Info Card */}
         <View style={styles.card}>
-          <View style={styles.row}>
-            <View>
-              <Text style={styles.orderNumber}>#{orderState.orderNumber || orderState.orderId}</Text>
-              <Text style={styles.dateText}>Packed: {formatDate(orderState.packingCompletedAt)}</Text>
-            </View>
+          <View>
+            <Text style={styles.orderNumber}>#{orderState.orderNumber || orderState.orderId}</Text>
+            <Text style={styles.dateText}>Packed: {formatDate(orderState.packingCompletedAt)}</Text>
             <View style={[styles.statusBadge, styles.statusCompleted]}>
               <Text style={styles.statusText}>{orderState.status.toUpperCase()}</Text>
             </View>
@@ -497,9 +495,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   orderNumber: {
-    fontSize: 20,
+    fontSize: 15,
     fontWeight: 'bold',
     color: COLORS.textDark,
+    flexShrink: 1,
   },
   dateText: {
     fontSize: 12,
@@ -510,6 +509,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 8,
+    alignSelf: 'flex-start',
+    marginTop: 8,
   },
   statusCompleted: {
     backgroundColor: '#dcfce7',

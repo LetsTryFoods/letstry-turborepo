@@ -30,10 +30,10 @@ export class CartRepositoryService {
 
   async markCartAsMerged(cartId: string): Promise<void> {
     await this.cartModel.findOneAndUpdate(
-      { _id: cartId, status: CartStatus.ACTIVE },
+      { _id: cartId, status: CartStatus.ACTIVE } as any,
       { status: CartStatus.MERGED },
       { new: true },
-    );
+    ).exec();
   }
 
   async adoptGuestCartAsUserCart(
@@ -41,12 +41,12 @@ export class CartRepositoryService {
     userIdentityId: string,
   ): Promise<CartDocument | null> {
     return this.cartModel.findOneAndUpdate(
-      { _id: guestCartId, status: CartStatus.ACTIVE },
+      { _id: guestCartId, status: CartStatus.ACTIVE } as any,
       {
         identityId: userIdentityId,
       },
       { new: true },
-    );
+    ).exec();
   }
 
   async createCart(identityId: string): Promise<CartDocument> {

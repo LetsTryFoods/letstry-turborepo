@@ -47,7 +47,7 @@ export class GuestService {
       .findOne({
         _id: id,
         status: IdentityStatus.GUEST,
-      })
+      } as any)
       .exec();
     if (!identity) {
       this.logger.warn('Guest not found by ID', { id }, 'GuestModule');
@@ -98,7 +98,7 @@ export class GuestService {
     this.logger.log('Updating guest', { id, input }, 'GuestModule');
     const identity = await this.identityModel
       .findOneAndUpdate(
-        { _id: id, status: IdentityStatus.GUEST },
+        { _id: id, status: IdentityStatus.GUEST } as any,
         { ...input, lastActiveAt: new Date() },
         { new: true },
       )

@@ -89,12 +89,12 @@ export class PolicyRepository {
   constructor(private readonly policyModel: Model<PolicyDocument>) {}
 
   async find(filter: PolicyFilter): Promise<Policy[]> {
-    return this.policyModel.find(filter).lean().exec() as unknown as Policy[];
+    return this.policyModel.find(filter as any).lean().exec() as unknown as Policy[];
   }
 
   async findOne(filter: PolicyFilter): Promise<Policy | null> {
     return this.policyModel
-      .findOne(filter)
+      .findOne(filter as any)
       .lean()
       .exec() as unknown as Policy | null;
   }

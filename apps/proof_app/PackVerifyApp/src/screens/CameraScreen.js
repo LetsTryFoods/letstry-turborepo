@@ -2,11 +2,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Speech from 'expo-speech';
+import { Audio } from 'expo-av';
 import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
   Image,
+  Platform,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -30,17 +32,19 @@ const CameraScreen = ({ navigation, route }) => {
     order.items.map(i => {
       const comboEans = i.ean ? i.ean.split(',').map(e => e.trim()).filter(e => e) : [];
       const isCombo = comboEans.length > 1;
-      return { 
-        ...i, 
+      return {
+        ...i,
         isCombo,
         comboEans,
-        scannedQty: i.scannedCount || 0, 
+        scannedQty: i.scannedCount || 0,
         shortQty: i.shortCount || 0,
         shortComponentCount: i.shortComponentCount || 0
       };
     })
   );
   const pendingScans = useRef({});
+  // Use a ref for scan lock so iOS camera's rapid callbacks always see the latest value
+  const scanLockedRef = useRef(false);
   const [scanLocked, setScanLocked] = useState(false);
   const [allScanned, setAllScanned] = useState(false);
   const [boxPhotos, setBoxPhotos] = useState([]);
@@ -57,13 +61,29 @@ const CameraScreen = ({ navigation, route }) => {
 
   const getNeeded = (item) => {
     const nonShorted = item.quantity - (item.shortQty || 0);
-    return item.isCombo 
+    return item.isCombo
       ? Math.max(0, (nonShorted * item.comboEans.length) - (item.shortComponentCount || 0))
       : Math.max(0, nonShorted);
   };
 
+  // Helper to lock/unlock scanner via BOTH ref and state
+  const lockScanner = () => {
+    scanLockedRef.current = true;
+    setScanLocked(true);
+  };
+  const unlockScanner = () => {
+    scanLockedRef.current = false;
+    setScanLocked(false);
+  };
+
   useEffect(() => {
     if (!permission?.granted) requestPermission();
+    // FIX: Configure audio session so sound plays even when iPhone is on silent/ringer off
+    Audio.setAudioModeAsync({
+      playsInSilentModeIOS: true,
+      allowsRecordingIOS: false,
+      staysActiveInBackground: false,
+    });
   }, []);
 
   useEffect(() => {
@@ -83,36 +103,33 @@ const CameraScreen = ({ navigation, route }) => {
   }, [items, isBypassEnabled]);
 
   const handleBarcodeScan = async ({ data }) => {
-    console.log('\n--- SCAN EVENT TRIGGERED ---');
-    console.log(`Scanned Barcode Data: ${data}`);
-    console.log(`Scan Locked State: ${scanLocked}, All Scanned State: ${allScanned}`);
-    
-    if (scanLocked || allScanned) {
-      console.log('Scan ignored because scan is locked or all items are already scanned.');
+    // Use the REF here (not state) — state updates are async and iOS fires this many times per second
+    if (scanLockedRef.current || allScanned) {
       return;
     }
-    
-    setScanLocked(true);
+
+    lockScanner();
     setLastScanned(data);
 
-    const matchedItem = items.find(i => i.ean === data || (i.isCombo && i.comboEans.includes(data)));
+    const currentItems = items;
+    const matchedItem = currentItems.find(i => i.ean === data || (i.isCombo && i.comboEans.includes(data)));
     if (!matchedItem) {
-      console.log(`ERROR: EAN ${data} not found in this order's items!`);
       Vibration.vibrate([0, 100, 80, 100]);
       Speech.speak('Wrong item', { rate: 1.2 });
-      Alert.alert('Unknown EAN', `${data} is not in this order.`);
-      setTimeout(() => setScanLocked(false), 800);
+      Alert.alert('Unknown EAN', `${data} is not in this order.`, [
+        { text: 'OK', onPress: () => setTimeout(unlockScanner, 500) }
+      ]);
       return;
     }
 
     const needed = getNeeded(matchedItem);
 
     if (matchedItem.scannedQty >= needed) {
-      console.log(`WARNING: Item ${matchedItem.name} is already fully scanned or marked short (${matchedItem.scannedQty}/${needed})`);
       Vibration.vibrate([0, 100, 80, 100]);
       Speech.speak('Already done', { rate: 1.2 });
-      Alert.alert('Already Scanned', `${matchedItem.name} is already fully scanned.`);
-      setTimeout(() => setScanLocked(false), 800);
+      Alert.alert('Already Scanned', `${matchedItem.name} is already fully scanned.`, [
+        { text: 'OK', onPress: () => setTimeout(unlockScanner, 500) }
+      ]);
       return;
     }
 
@@ -121,7 +138,7 @@ const CameraScreen = ({ navigation, route }) => {
     pendingScans.current[pid].push(data);
 
     const collected = pendingScans.current[pid].length;
-    
+
     if (matchedItem.isCombo) {
       Speech.speak("Combo item scanned", { rate: 1.2 });
     } else {
@@ -129,15 +146,13 @@ const CameraScreen = ({ navigation, route }) => {
     }
 
     if (collected < needed) {
-      console.log(`ACTION: Item partially scanned. Updating UI to ${collected}/${needed} and unlocking scanner.`);
       setItems(prev =>
         prev.map(i => i.productId === pid ? { ...i, scannedQty: collected } : i)
       );
-      setTimeout(() => setScanLocked(false), 1200);
+      setTimeout(unlockScanner, 1200);
       return;
     }
 
-    console.log(`ACTION: Collected (${collected}) == Needed (${needed}). Triggering backend mutation!`);
     try {
       const response = await batchScanMutation({
         variables: {
@@ -152,7 +167,9 @@ const CameraScreen = ({ navigation, route }) => {
       if (response.errors?.length) {
         Vibration.vibrate();
         pendingScans.current[pid] = [];
-        Alert.alert('Scan Error', response.errors[0].message);
+        Alert.alert('Scan Error', response.errors[0].message, [
+          { text: 'OK', onPress: () => setTimeout(unlockScanner, 500) }
+        ]);
         return;
       }
 
@@ -161,7 +178,9 @@ const CameraScreen = ({ navigation, route }) => {
         Vibration.vibrate([0, 100, 80, 100]);
         pendingScans.current[pid] = [];
         Speech.speak('Scan failed', { rate: 1.2 });
-        Alert.alert('Invalid', validation?.errorMessage || 'Scan failed');
+        Alert.alert('Invalid', validation?.errorMessage || 'Scan failed', [
+          { text: 'OK', onPress: () => setTimeout(unlockScanner, 500) }
+        ]);
         return;
       }
 
@@ -171,10 +190,13 @@ const CameraScreen = ({ navigation, route }) => {
       Speech.speak("Done");
     } catch (err) {
       pendingScans.current[pid] = [];
-      Alert.alert('Network Error', err.message);
-    } finally {
-      setTimeout(() => setScanLocked(false), 1200);
+      Alert.alert('Network Error', err.message, [
+        { text: 'OK', onPress: () => setTimeout(unlockScanner, 500) }
+      ]);
+      return;
     }
+
+    setTimeout(unlockScanner, 1200);
   };
 
   const handleMarkShort = (item) => {
@@ -188,8 +210,8 @@ const CameraScreen = ({ navigation, route }) => {
         `Is an entire Combo missing, or just a single component?`,
         [
           { text: 'Cancel', style: 'cancel' },
-          { 
-            text: 'Single Component', 
+          {
+            text: 'Single Component',
             onPress: () => submitShort(item, 1, true)
           },
           {
@@ -204,8 +226,8 @@ const CameraScreen = ({ navigation, route }) => {
         `How many ${item.name} are missing? (Up to ${remaining})`,
         [
           { text: 'Cancel', style: 'cancel' },
-          { 
-            text: `Mark ${remaining} Missing`, 
+          {
+            text: `Mark ${remaining} Missing`,
             style: 'destructive',
             onPress: () => submitShort(item, remaining, false)
           }
@@ -241,8 +263,6 @@ const CameraScreen = ({ navigation, route }) => {
       Alert.alert('Error', err.message);
     }
   };
-
-
 
   const takeBoxPhoto = async () => {
     if (!cameraRef.current) return;
@@ -368,7 +388,9 @@ const CameraScreen = ({ navigation, route }) => {
             </View>
           </View>
         ) : (
-          <CameraView style={{ flex: 1 }} ref={cameraRef}>
+          // FIX: Use absolute positioning overlay OUTSIDE CameraView (no children in CameraView on iOS)
+          <View style={styles.container}>
+            <CameraView style={StyleSheet.absoluteFill} ref={cameraRef} />
             <View style={styles.photoOverlay}>
               <View style={styles.photoPromptBox}>
                 <Ionicons name="camera" size={36} color="#fff" />
@@ -379,85 +401,85 @@ const CameraScreen = ({ navigation, route }) => {
                 <View style={styles.shutterInner} />
               </TouchableOpacity>
             </View>
-          </CameraView>
+          </View>
         )}
       </View>
     );
   }
 
+  // FIX: Use absolute positioning overlay OUTSIDE CameraView (no children in CameraView on iOS)
   return (
     <View style={styles.container}>
       <StatusBar hidden />
       <CameraView
-        style={{ flex: 1 }}
+        style={StyleSheet.absoluteFill}
         ref={cameraRef}
         barcodeScannerSettings={{ barcodeTypes: ['ean13', 'ean8', 'qr', 'code128'] }}
         onBarcodeScanned={handleBarcodeScan}
-      >
-        <View style={styles.scanOverlay}>
-          <Text style={styles.overlayTitle}>📦 Scan Items — Order #{order.orderNumber}</Text>
-          {order.shippingInfo && (
-            <View style={styles.addressBanner}>
-              <Text style={styles.addressText} numberOfLines={1}>
-                To: {order.shippingInfo.recipientName} · {order.shippingInfo.city} - {order.shippingInfo.pincode}
+      />
+      <View style={styles.scanOverlay}>
+        <Text style={styles.overlayTitle}>📦 Scan Items — Order #{order.orderNumber}</Text>
+        {order.shippingInfo && (
+          <View style={styles.addressBanner}>
+            <Text style={styles.addressText} numberOfLines={1}>
+              To: {order.shippingInfo.recipientName} · {order.shippingInfo.city} - {order.shippingInfo.pincode}
+            </Text>
+          </View>
+        )}
+        {lastScanned ? (
+          <Text style={styles.lastScanned}>Last scanned: {lastScanned}</Text>
+        ) : null}
+        <View style={styles.divider} />
+        {items.map((item, idx) => {
+          const needed = getNeeded(item);
+          const done = item.scannedQty >= needed;
+          const hasShort = (item.shortQty || 0) > 0 || (item.shortComponentCount || 0) > 0;
+          const pending = pendingScans.current[item.productId]?.length || 0;
+          const display = done ? needed : pending;
+          return (
+            <View key={idx} style={styles.itemRow}>
+              <Ionicons
+                name={done ? 'checkmark-circle' : pending > 0 ? 'hourglass-outline' : 'ellipse-outline'}
+                size={20}
+                color={done ? (hasShort ? '#f97316' : '#4ade80') : pending > 0 ? '#fb923c' : '#facc15'}
+                style={{ marginRight: 8 }}
+              />
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.itemName, done && (hasShort ? { color: '#f97316' } : styles.itemDone)]} numberOfLines={1}>
+                  {item.name} {item.isCombo ? '(Combo)' : ''}
+                </Text>
+                {(item.dimensions?.weight || item.unitPrice) ? (
+                  <Text style={{ color: done ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.5)', fontSize: 11, marginTop: 2 }}>
+                    {item.dimensions?.weight ? `${item.dimensions.weight}${item.dimensions.unit}  ` : ''}
+                    {item.unitPrice ? `₹${item.unitPrice}` : ''}
+                  </Text>
+                ) : null}
+                {hasShort && (
+                  <Text style={{ color: '#f97316', fontSize: 10 }}>
+                    Marked {item.shortQty || 0} full, {item.shortComponentCount || 0} comp. missing
+                  </Text>
+                )}
+              </View>
+              {!done && (
+                <TouchableOpacity onPress={() => handleMarkShort(item)} style={{ marginRight: 12, paddingHorizontal: 6, paddingVertical: 2, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 4 }}>
+                  <Text style={{ color: '#f87171', fontSize: 10 }}>Mark Missing</Text>
+                </TouchableOpacity>
+              )}
+              <Text style={[styles.itemCount, done && (hasShort ? { color: '#f97316' } : styles.itemCountDone)]}>
+                {item.scannedQty}/{needed}
               </Text>
             </View>
-          )}
-          {lastScanned ? (
-            <Text style={styles.lastScanned}>Last scanned: {lastScanned}</Text>
-          ) : null}
-          <View style={styles.divider} />
-          {items.map((item, idx) => {
-            const needed = getNeeded(item);
-            const done = item.scannedQty >= needed;
-            const hasShort = (item.shortQty || 0) > 0 || (item.shortComponentCount || 0) > 0;
-            const pending = pendingScans.current[item.productId]?.length || 0;
-            const display = done ? needed : pending;
-            return (
-              <View key={idx} style={styles.itemRow}>
-                <Ionicons
-                  name={done ? 'checkmark-circle' : pending > 0 ? 'hourglass-outline' : 'ellipse-outline'}
-                  size={20}
-                  color={done ? (hasShort ? '#f97316' : '#4ade80') : pending > 0 ? '#fb923c' : '#facc15'}
-                  style={{ marginRight: 8 }}
-                />
-                <View style={{ flex: 1 }}>
-                  <Text style={[styles.itemName, done && (hasShort ? {color: '#f97316'} : styles.itemDone)]} numberOfLines={1}>
-                    {item.name} {item.isCombo ? '(Combo)' : ''}
-                  </Text>
-                  {(item.dimensions?.weight || item.unitPrice) ? (
-                    <Text style={{color: done ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.5)', fontSize: 11, marginTop: 2}}>
-                      {item.dimensions?.weight ? `${item.dimensions.weight}${item.dimensions.unit}  ` : ''}
-                      {item.unitPrice ? `₹${item.unitPrice}` : ''}
-                    </Text>
-                  ) : null}
-                  {hasShort && (
-                    <Text style={{color: '#f97316', fontSize: 10}}>
-                      Marked {item.shortQty || 0} full, {item.shortComponentCount || 0} comp. missing
-                    </Text>
-                  )}
-                </View>
-                {!done && (
-                  <TouchableOpacity onPress={() => handleMarkShort(item)} style={{ marginRight: 12, paddingHorizontal: 6, paddingVertical: 2, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 4 }}>
-                    <Text style={{ color: '#f87171', fontSize: 10 }}>Mark Missing</Text>
-                  </TouchableOpacity>
-                )}
-                <Text style={[styles.itemCount, done && (hasShort ? {color: '#f97316'} : styles.itemCountDone)]}>
-                  {item.scannedQty}/{needed}
-                </Text>
-              </View>
-            );
-          })}
-          <View style={styles.progressBar}>
-            <View style={[styles.progressFill, {
-              width: `${(items.reduce((s, i) => s + Math.min(i.scannedQty, getNeeded(i)), 0) / (items.reduce((s, i) => s + getNeeded(i), 0) || 1)) * 100}%`
-            }]} />
-          </View>
-          <Text style={styles.progressText}>
-            {items.reduce((s, i) => s + Math.min(i.scannedQty, getNeeded(i)), 0)} / {items.reduce((s, i) => s + getNeeded(i), 0)} scanned
-          </Text>
+          );
+        })}
+        <View style={styles.progressBar}>
+          <View style={[styles.progressFill, {
+            width: `${(items.reduce((s, i) => s + Math.min(i.scannedQty, getNeeded(i)), 0) / (items.reduce((s, i) => s + getNeeded(i), 0) || 1)) * 100}%`
+          }]} />
         </View>
-      </CameraView>
+        <Text style={styles.progressText}>
+          {items.reduce((s, i) => s + Math.min(i.scannedQty, getNeeded(i)), 0)} / {items.reduce((s, i) => s + getNeeded(i), 0)} scanned
+        </Text>
+      </View>
     </View>
   );
 };

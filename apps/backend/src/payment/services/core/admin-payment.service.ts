@@ -7,6 +7,10 @@ import {
   InitiateAdminRefundInput,
 } from '../../dto/admin-payment.input';
 import { RefundService } from './refund.service';
+import {
+  PaymentsListResponse,
+  PaymentListItemType,
+} from '../../dto/admin-payment.graphql';
 
 @Injectable()
 export class AdminPaymentService {
@@ -18,7 +22,7 @@ export class AdminPaymentService {
     private readonly refundService: RefundService,
   ) {}
 
-  async getPaymentsList(input: GetPaymentsListInput) {
+  async getPaymentsList(input: GetPaymentsListInput): Promise<PaymentsListResponse> {
     const { page, limit, filters } = input;
     const skip = (page - 1) * limit;
 
@@ -116,7 +120,7 @@ export class AdminPaymentService {
       .find({
         paymentOrderId: { $in: allPayments.map((p) => p._id) },
         refundStatus: 'SUCCESS',
-      })
+      } as any)
       .lean()
       .exec();
 
@@ -139,7 +143,7 @@ export class AdminPaymentService {
     };
   }
 
-  async getPaymentDetail(paymentOrderId: string) {
+  async getPaymentDetail(paymentOrderId: string): Promise<any> {
     const payment = await this.paymentOrderModel
       .findOne({ paymentOrderId })
       .lean()
@@ -219,7 +223,7 @@ export class AdminPaymentService {
     };
   }
 
-  async getPaymentsByIdentity(identityId: string) {
+  async getPaymentsByIdentity(identityId: string): Promise<PaymentListItemType[]> {
     const payments = await this.paymentOrderModel
       .find({ identityId })
       .sort({ createdAt: -1 })
@@ -234,7 +238,7 @@ export class AdminPaymentService {
     }));
   }
 
-  async getPaymentsByOrder(orderId: string) {
+  async getPaymentsByOrder(orderId: string): Promise<PaymentListItemType[]> {
     const payments = await this.paymentOrderModel
       .find({ orderId: new Types.ObjectId(orderId) })
       .sort({ createdAt: -1 })

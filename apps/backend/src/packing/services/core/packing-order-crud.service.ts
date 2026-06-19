@@ -43,7 +43,7 @@ export class PackingOrderCrudService {
   }
 
   async findByStatus(status: string): Promise<PackingOrder[]> {
-    return this.packingOrderModel.find({ status }).exec();
+    return this.packingOrderModel.find({ status } as any).exec();
   }
 
   async update(

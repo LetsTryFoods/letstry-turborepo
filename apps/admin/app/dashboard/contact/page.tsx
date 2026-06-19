@@ -42,6 +42,7 @@ import ContactTable from "./components/ContactTable";
 import ContactDetailsDialog from "./components/ContactDetailsDialog";
 import ContactReplyDialog from "./components/ContactReplyDialog";
 import ContactExcelDownloadDialog from "./components/ContactExcelDownloadDialog";
+import SupportChatWindow from "./components/SupportChatWindow";
 
 const statuses: (ContactStatus | "ALL")[] = [
   "ALL",
@@ -93,6 +94,7 @@ export default function ContactPage() {
   const [selectedQuery, setSelectedQuery] = useState<ContactQuery | null>(null);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const [showReplyDialog, setShowReplyDialog] = useState(false);
+  const [showChatWindow, setShowChatWindow] = useState(false);
 
   const stats = useMemo(() => {
     const s = getContactStats(queries);
@@ -142,6 +144,11 @@ export default function ContactPage() {
   const handleReply = (query: ContactQuery) => {
     setSelectedQuery(query);
     setShowReplyDialog(true);
+  };
+
+  const handleChat = (query: ContactQuery) => {
+    setSelectedQuery(query);
+    setShowChatWindow(true);
   };
 
   const handleSuccess = () => {
@@ -370,6 +377,7 @@ export default function ContactPage() {
             onRefresh={refetch}
             onView={handleView}
             onReply={handleReply}
+            onChat={handleChat}
           />
 
           {/* Pagination */}
@@ -422,6 +430,13 @@ export default function ContactPage() {
         onOpenChange={setShowReplyDialog}
         query={selectedQuery}
         onSuccess={handleSuccess}
+      />
+
+      {/* WhatsApp Chat Window */}
+      <SupportChatWindow
+        open={showChatWindow}
+        onOpenChange={setShowChatWindow}
+        query={selectedQuery}
       />
     </div>
   );

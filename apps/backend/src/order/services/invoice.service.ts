@@ -80,10 +80,11 @@ export class InvoiceService {
         const name = address?.fullName || order.customer?.name || order.recipientContact?.name || 'Customer';
         const phone = address?.phone || order.recipientContact?.phone || 'N/A';
 
-        doc.fontSize(16).font('Helvetica-Bold').fillColor('#0f172a').text(name, 30, currentY);
-        currentY += 20;
-        doc.fontSize(12).font('Helvetica').fillColor('#334155').text(`Ph: ${phone}`, 30, currentY);
-        currentY += 20;
+        doc.fontSize(16).font('Helvetica-Bold').fillColor('#0f172a').text(name, 30, currentY, { width: 340 });
+        currentY += doc.heightOfString(name, { width: 340 }) + 5;
+        
+        doc.fontSize(12).font('Helvetica').fillColor('#334155').text(`Ph: ${phone}`, 30, currentY, { width: 340 });
+        currentY += doc.heightOfString(`Ph: ${phone}`, { width: 340 }) + 10;
 
         if (address) {
           const lines = [
@@ -91,13 +92,16 @@ export class InvoiceService {
             address.addressLine2,
             `${address.city || ''}, ${address.state || ''} - ${address.pincode || ''}`
           ].filter(Boolean);
+          
+          doc.fontSize(12).font('Helvetica').fillColor('#334155');
           lines.forEach(line => {
-            doc.text(line, 30, currentY);
-            currentY += 15;
+            const lineHeight = doc.heightOfString(line, { width: 340 });
+            doc.text(line, 30, currentY, { width: 340 });
+            currentY += lineHeight + 3;
           });
         }
 
-        currentY += 20;
+        currentY += 10;
         this.generateHr(doc, currentY);
         currentY += 20;
 

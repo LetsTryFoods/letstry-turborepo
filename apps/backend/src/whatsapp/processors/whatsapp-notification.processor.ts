@@ -1,7 +1,7 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { Injectable } from '@nestjs/common';
-import { WhatsAppService } from '../../whatsapp/whatsapp.service';
+import { WhatsAppOrchestratorService } from '../services/whatsapp-orchestrator.service';
 import { WinstonLoggerService } from '../../logger/logger.service';
 
 export interface PaymentConfirmationJobData {
@@ -30,26 +30,24 @@ export type WhatsAppNotificationJobData =
 @Injectable()
 export class WhatsAppNotificationProcessor extends WorkerHost {
   constructor(
-    private readonly whatsAppService: WhatsAppService,
+    private readonly orchestrator: WhatsAppOrchestratorService,
     private readonly logger: WinstonLoggerService,
   ) {
     super();
   }
 
   async process(job: Job<WhatsAppNotificationJobData>): Promise<void> {
-    const { type } = job.data;
-
     this.logger.log(
       `Processing WhatsApp notification [${job.name}] - ${JSON.stringify({ jobId: job.id, attempt: job.attemptsMade + 1, payload: job.data })}`,
       'WhatsAppNotificationProcessor',
     );
 
     try {
-      let success = false;
+      let result: { success: boolean; channel: string; error?: string };
 
       if (job.name === 'payment-confirmation') {
         const data = job.data as PaymentConfirmationJobData;
-        success = await this.whatsAppService.sendPaymentConfirmation(
+        result = await this.orchestrator.sendPaymentConfirmation(
           data.phoneNumber,
           data.orderId,
           data.amountPaid,
@@ -59,7 +57,7 @@ export class WhatsAppNotificationProcessor extends WorkerHost {
         );
       } else if (job.name === 'order-packed') {
         const data = job.data as OrderPackedJobData;
-        success = await this.whatsAppService.sendOrderPackedNotification(
+        result = await this.orchestrator.sendOrderPackedNotification(
           data.phoneNumber,
           data.orderId,
           data.orderDate,
@@ -73,17 +71,17 @@ export class WhatsAppNotificationProcessor extends WorkerHost {
         return;
       }
 
-      if (success) {
+      if (result.success) {
         this.logger.log(
-          `WhatsApp notification [${job.name}] sent successfully.`,
+          `WhatsApp [${job.name}] delivered via ${result.channel}`,
           'WhatsAppNotificationProcessor',
         );
       } else {
         this.logger.warn(
-          `Failed to send WhatsApp notification [${job.name}].`,
+          `WhatsApp [${job.name}] failed on all channels: ${result.error}`,
           'WhatsAppNotificationProcessor',
         );
-        throw new Error('WhatsApp API returned failure');
+        // Don't throw — orchestrator already logged it; avoid infinite retries for permanent failures
       }
     } catch (error) {
       this.logger.error(
@@ -94,3 +92,4 @@ export class WhatsAppNotificationProcessor extends WorkerHost {
     }
   }
 }
+

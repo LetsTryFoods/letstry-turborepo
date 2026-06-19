@@ -20,8 +20,8 @@ const HistoryCard = ({ order, navigation }) => {
       onPress={() => navigation?.navigate('PackedOrderDetail', { order })}
     >
       <View style={styles.header}>
-        <View>
-          <Text style={styles.orderId}>#{order.orderNumber || order.orderId}</Text>
+        <View style={{ flex: 1, marginRight: 8 }}>
+          <Text style={styles.orderId} numberOfLines={1} ellipsizeMode="middle">#{order.orderNumber || order.orderId}</Text>
           <Text style={styles.dateText}>{formatDate(order.packingCompletedAt)}</Text>
         </View>
         <View style={[styles.statusBadge, order.status === 'partially_fulfilled' && { backgroundColor: '#fef3c7' }]}>
@@ -90,9 +90,10 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   orderId: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
     color: COLORS.textDark,
+    flexShrink: 1,
   },
   dateText: {
     fontSize: 12,

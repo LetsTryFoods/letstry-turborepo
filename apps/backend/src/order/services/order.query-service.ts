@@ -242,7 +242,7 @@ export class OrderQueryService {
   private async fetchIdentitiesByIds(
     identityIds: string[],
   ): Promise<IdentityDocument[]> {
-    return this.identityModel.find({ _id: { $in: identityIds } }).exec();
+    return this.identityModel.find({ _id: { $in: identityIds } } as any).exec();
   }
 
   private createIdentityMap(

@@ -158,7 +158,7 @@ export class InventoryService {
   private async recordTransaction(
     logData: Partial<InventoryLog>,
   ): Promise<void> {
-    await this.logModel.create(logData);
+    await this.logModel.create(logData as any);
   }
 
   /**
