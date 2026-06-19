@@ -27,6 +27,7 @@ import {
   BoxDimensionType,
 } from './order.graphql';
 import { LogisticsAnalyticsResponse } from './logistics-analytics.graphql';
+import { OrderDiscountAnalyticsResponse } from './discount-analytics.graphql';
 import {
   OrderReportResponse,
   ShippingInsightsType,
@@ -64,6 +65,16 @@ export class OrderResolver {
     @Args('year', { type: () => Number }) year: number,
   ): Promise<LogisticsAnalyticsResponse> {
     return this.logisticsAnalyticsService.getMonthlyAnalytics(month, year);
+  }
+
+  @Query(() => OrderDiscountAnalyticsResponse)
+  @Roles(Role.ADMIN)
+  @UseGuards(RolesGuard)
+  async getMonthlyDiscountAnalytics(
+    @Args('month', { type: () => Number }) month: number,
+    @Args('year', { type: () => Number }) year: number,
+  ): Promise<any> {
+    return this.logisticsAnalyticsService.getDiscountAnalytics(month, year);
   }
 
   @Query(() => OrderReportResponse)

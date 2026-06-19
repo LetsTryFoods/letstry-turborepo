@@ -1164,6 +1164,45 @@ type LogisticsAnalyticsResponse {
   leastUsedBox: BoxUsageType
 }
 
+type OrderDiscountItem {
+  orderId: String!
+  orderNumber: String
+  subtotal: Float!
+  deliveryCharge: Float!
+  logisticsCost: Float!
+  netRevenue: Float!
+  impliedMRP: Float!
+  discountOnMRP: Float!
+  netCostToBusiness: Float!
+  netDiscountAmount: Float!
+  netDiscountPct: Float!
+  boxName: String
+  boxPhotoUrl: String
+  volumetricWeight: Float
+}
+
+type OrderDiscountSummary {
+  totalOrders: Int!
+  totalSubtotal: Float!
+  totalDeliveryChargesCollected: Float!
+  totalLogisticsCost: Float!
+  totalNetRevenue: Float!
+  impliedTotalMRP: Float!
+  totalDiscountOnMRP: Float!
+  totalNetCostToBusiness: Float!
+  totalNetDiscountAmount: Float!
+  avgNetDiscountPct: Float!
+  freeDeliveryOrdersCount: Int!
+  paidDeliveryOrdersCount: Int!
+}
+
+type OrderDiscountAnalyticsResponse {
+  month: Int!
+  year: Int!
+  summary: OrderDiscountSummary!
+  orders: [OrderDiscountItem!]!
+}
+
 type ShippingInsightsType {
   avgWeight: Float!
   mostUsedBox: String
@@ -1876,6 +1915,7 @@ type Query {
   getAdminPaymentsByIdentity(identityId: String!): [PaymentListItemType!]!
   getAdminPaymentsByOrder(orderId: String!): [PaymentListItemType!]!
   getMonthlyLogisticsAnalytics(month: Float!, year: Float!): LogisticsAnalyticsResponse!
+  getMonthlyDiscountAnalytics(month: Float!, year: Float!): OrderDiscountAnalyticsResponse!
   getOrderReports(period: String! = "month"): OrderReportResponse!
   getShippingInsights: ShippingInsightsType!
   getSalesByState(period: String! = "month"): [StateSalesType!]!

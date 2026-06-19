@@ -40,3 +40,42 @@ export const GET_MONTHLY_LOGISTICS_ANALYTICS = gql`
     }
   }
 `;
+
+export const GET_MONTHLY_DISCOUNT_ANALYTICS = gql`
+  query GetMonthlyDiscountAnalytics($month: Float!, $year: Float!) {
+    getMonthlyDiscountAnalytics(month: $month, year: $year) {
+      month
+      year
+      summary {
+        totalOrders
+        totalSubtotal
+        totalDeliveryChargesCollected
+        totalLogisticsCost
+        totalNetRevenue
+        impliedTotalMRP
+        totalDiscountOnMRP
+        totalNetCostToBusiness
+        totalNetDiscountAmount
+        avgNetDiscountPct
+        freeDeliveryOrdersCount
+        paidDeliveryOrdersCount
+      }
+      orders {
+        orderId
+        orderNumber
+        subtotal
+        deliveryCharge
+        logisticsCost
+        netRevenue
+        impliedMRP
+        discountOnMRP
+        netCostToBusiness
+        netDiscountAmount
+        netDiscountPct
+        boxName
+        boxPhotoUrl
+        volumetricWeight
+      }
+    }
+  }
+`;
