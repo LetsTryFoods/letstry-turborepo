@@ -21,6 +21,10 @@ import { PackingModule } from '../packing/packing.module';
 import { OrderController } from './order.controller';
 import { InvoiceService } from './services/invoice.service';
 import { ShipmentModule } from '../shipment/shipment.module';
+import { LogisticsService } from './services/logistics.service';
+import { LogisticsAnalyticsService } from './services/logistics-analytics.service';
+import { BoxSizeModule } from '../box-size/box-size.module';
+
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -33,6 +37,7 @@ import { ShipmentModule } from '../shipment/shipment.module';
     ProductModule,
     forwardRef(() => PackingModule),
     ShipmentModule,
+    BoxSizeModule,
   ],
   controllers: [OrderController],
   providers: [
@@ -45,7 +50,9 @@ import { ShipmentModule } from '../shipment/shipment.module';
     OrderCommandService,
     OrderItemService,
     InvoiceService,
+    LogisticsService,
+    LogisticsAnalyticsService,
   ],
-  exports: [OrderService, OrderCartLoggerService, OrderRepository],
+  exports: [OrderService, OrderCartLoggerService, OrderRepository, LogisticsService, LogisticsAnalyticsService],
 })
 export class OrderModule {}

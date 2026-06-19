@@ -164,6 +164,13 @@ export class OrderService {
     return this.commandService.updateOrderStatus(params);
   }
 
+  async assignBoxToOrder(params: {
+    orderId: string;
+    boxId: string;
+  }): Promise<Order> {
+    return this.commandService.assignBoxToOrder(params);
+  }
+
   async getOrderByPaymentOrderId(
     paymentOrderId: string,
   ): Promise<Order | null> {

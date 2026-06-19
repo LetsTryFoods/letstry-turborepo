@@ -73,8 +73,25 @@ export class PackingService {
   }
   async getPackerAssignedOrders(packerId: string): Promise<any[]> {
     const orders = await this.packingOrderCrud.findByPacker(packerId);
-    return orders.filter(
+    const assigned = orders.filter(
       (order: any) => order.status === 'assigned' || order.status === 'packing',
+    );
+
+    return Promise.all(
+      assigned.map(async (order: any) => {
+        let originalOrder = await this.orderRepository.findByInternalId(order.orderId);
+        if (!originalOrder) {
+          originalOrder = await this.orderRepository.findById(order.orderId);
+        }
+
+        return {
+          ...(order.toObject ? order.toObject() : order),
+          boxId: originalOrder?.boxId?.toString() || null,
+          volumetricWeight: originalOrder?.volumetricWeight || null,
+          region: originalOrder?.region || null,
+          logisticsCost: originalOrder?.logisticsCost || null,
+        };
+      })
     );
   }
 
@@ -961,6 +978,38 @@ export class PackingService {
     return this.packingOrderCrud.findAll(dbFilters);
   }
 
+  async getPackingOrderById(packingOrderId: string): Promise<any> {
+    const order = await this.packingOrderCrud.findById(packingOrderId);
+    if (!order) {
+      throw new Error('Packing order not found');
+    }
+
+    const evidence = await this.evidenceCrud.findByOrder(order._id.toString());
+    
+    let originalOrder = await this.orderRepository.findByInternalId(order.orderId);
+    if (!originalOrder) {
+      originalOrder = await this.orderRepository.findById(order.orderId);
+    }
+
+    return {
+      ...(order.toObject ? order.toObject() : order),
+      evidence: evidence
+        ? {
+            prePackImages: (evidence.prePackImages || []).map((img: string) => {
+              if (img.length < 500) {
+                return `${this.configService.get<string>('aws.cloudfrontDomain')?.replace(/\/$/, '')}/${img}`;
+              }
+              return img;
+            }),
+          }
+        : null,
+      boxId: originalOrder?.boxId?.toString() || null,
+      volumetricWeight: originalOrder?.volumetricWeight || null,
+      region: originalOrder?.region || null,
+      logisticsCost: originalOrder?.logisticsCost || null,
+    };
+  }
+
   async getEvidenceByOrder(packingOrderId: string): Promise<any> {
     const evidence = await this.evidenceCrud.findByOrder(packingOrderId);
     if (!evidence) return null;
@@ -1124,12 +1173,19 @@ export class PackingService {
       (order: any) => order.status === 'completed' || order.status === 'partially_fulfilled'
     );
 
-    // Attach evidence (photos) to each order
+    // Attach evidence (photos) and original order details to each order
     const withEvidence = await Promise.all(
       completed.map(async (order: any) => {
         const evidence = await this.evidenceCrud.findByOrder(order._id.toString());
+        
+        // Fetch original order to get box info
+        let originalOrder = await this.orderRepository.findByInternalId(order.orderId);
+        if (!originalOrder) {
+          originalOrder = await this.orderRepository.findById(order.orderId);
+        }
+
         return {
-          ...order.toObject ? order.toObject() : order,
+          ...(order.toObject ? order.toObject() : order),
           evidence: evidence
             ? {
               prePackImages: (evidence.prePackImages || []).map((img: string) => {
@@ -1141,6 +1197,10 @@ export class PackingService {
               }),
             }
             : null,
+          boxId: originalOrder?.boxId?.toString() || null,
+          volumetricWeight: originalOrder?.volumetricWeight || null,
+          region: originalOrder?.region || null,
+          logisticsCost: originalOrder?.logisticsCost || null,
         };
       }),
     );

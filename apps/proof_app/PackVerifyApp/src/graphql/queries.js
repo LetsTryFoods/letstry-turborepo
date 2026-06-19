@@ -29,32 +29,14 @@ export const GET_MY_ASSIGNED_ORDERS = gql`
       isExpress
       shippingInfo {
         recipientName
-        recipientPhone
         addressLine1
-        addressLine2
         city
         pincode
-        state
+        recipientPhone
       }
       items {
         productId
-        sku
-        ean
-        name
         quantity
-        scannedCount
-        shortCount
-        shortComponentCount
-        unitPrice
-        dimensions {
-          length
-          width
-          height
-          weight
-          unit
-        }
-        isFragile
-        imageUrl
       }
     }
   }
@@ -80,26 +62,14 @@ export const GET_MY_HISTORY = gql`
       isExpress
       shippingInfo {
         recipientName
-        recipientPhone
         addressLine1
-        addressLine2
         city
         pincode
-        state
-      }
-      shipmentInfo {
-        awbNumber
-        provider
+        recipientPhone
       }
       items {
         productId
-        sku
-        ean
-        name
         quantity
-        shortCount
-        shortComponentCount
-        imageUrl
       }
       evidence {
         prePackImages
@@ -132,35 +102,35 @@ export const GET_EVIDENCE_BY_ORDER = gql`
   }
 `;
 
-export const GET_ORDER_DETAILS = gql`
-  query GetOrderDetails($packingOrderId: String!) {
-    getPackingOrder(id: $packingOrderId) {
-      id
-      orderId
-      orderNumber
-      status
-      specialInstructions
-      isExpress
-      items {
-        productId
-        sku
-        ean
-        name
-        quantity
-        scannedCount
-        shortCount
-        shortComponentCount
-        unitPrice
-        dimensions {
-          weight
-          unit
-        }
-        imageUrl
-        isFragile
-      }
-    }
-  }
-`;
+// export const GET_ORDER_DETAILS = gql`
+//   query GetOrderDetails($packingOrderId: String!) {
+//     getPackingOrder(id: $packingOrderId) {
+//       id
+//       orderId
+//       orderNumber
+//       status
+//       specialInstructions
+//       isExpress
+//       items {
+//         productId
+//         sku
+//         ean
+//         name
+//         quantity
+//         scannedCount
+//         shortCount
+//         shortComponentCount
+//         unitPrice
+//         dimensions {
+//           weight
+//           unit
+//         }
+//         imageUrl
+//         isFragile
+//       }
+//     }
+//   }
+// `;
 
 /* ====================================================
    2. PACKING FLOW MUTATIONS
@@ -280,6 +250,89 @@ export const GET_GLOBAL_SETTINGS = gql`
     getGlobalSettings {
       _id
       isPackerScanBypassEnabled
+    }
+  }
+`;
+
+export const GET_ORDER_DETAILS = gql`
+  query GetOrderDetails($id: String!) {
+    getPackingOrder(id: $id) {
+      id
+      orderId
+      orderNumber
+      status
+      specialInstructions
+      isExpress
+      packingCompletedAt
+      shippingInfo {
+        recipientName
+        recipientPhone
+        addressLine1
+        addressLine2
+        city
+        pincode
+        state
+      }
+      shipmentInfo {
+        awbNumber
+        provider
+      }
+      items {
+        productId
+        sku
+        ean
+        name
+        quantity
+        scannedCount
+        shortCount
+        shortComponentCount
+        unitPrice
+        dimensions {
+          length
+          width
+          height
+          weight
+          unit
+        }
+        isFragile
+        imageUrl
+      }
+      evidence {
+        prePackImages
+      }
+      boxId
+      volumetricWeight
+      region
+      logisticsCost
+    }
+  }
+`;
+
+export const GET_ACTIVE_BOX_SIZES = gql`
+  query GetActiveBoxSizes {
+    getActiveBoxSizes {
+      id
+      code
+      name
+      lengthCm
+      breadthCm
+      heightCm
+      lengthInches
+      breadthInches
+      heightInches
+      maxWeight
+    }
+  }
+`;
+
+export const ASSIGN_BOX_TO_ORDER = gql`
+  mutation AssignBoxToOrder($input: AssignBoxToOrderInput!) {
+    assignBoxToOrder(input: $input) {
+      _id
+      boxId
+      volumetricWeight
+      region
+      logisticsCost
     }
   }
 `;

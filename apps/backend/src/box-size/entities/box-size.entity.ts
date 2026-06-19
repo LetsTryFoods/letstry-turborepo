@@ -9,17 +9,38 @@ export class BoxSize extends Document {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ type: Object, required: true })
-  internalDimensions: { l: number; w: number; h: number };
+  @Prop({ type: Object, required: false })
+  internalDimensions?: { l: number; w: number; h: number };
 
-  @Prop({ required: true })
-  maxWeight: number;
+  @Prop({ required: false })
+  maxWeight?: number;
 
-  @Prop({ required: true })
-  cost: number;
+  @Prop({ required: false })
+  cost?: number;
 
   @Prop({ default: true })
   isActive: boolean;
+
+  @Prop()
+  lengthInches: number;
+
+  @Prop()
+  breadthInches: number;
+
+  @Prop()
+  heightInches: number;
+
+  @Prop()
+  lengthCm: number;
+
+  @Prop()
+  breadthCm: number;
+
+  @Prop()
+  heightCm: number;
+
+  @Prop({ type: [String], default: [] })
+  photos: string[];
 }
 
 export const BoxSizeSchema = SchemaFactory.createForClass(BoxSize);

@@ -24,6 +24,6 @@ import { CommonModule } from '../common/common.module';
     BoxSizeService,
     BoxSizeResolver,
   ],
-  exports: [BoxSizeService, BoxRecommendationService],
+  exports: [BoxSizeService, BoxRecommendationService, BoxSizeCrudService],
 })
-export class BoxSizeModule {}
+export class BoxSizeModule { }

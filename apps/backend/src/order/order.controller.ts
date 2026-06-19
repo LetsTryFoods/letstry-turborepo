@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Res, Logger } from '@nestjs/common';
+import { Controller, Get, Param, Res, Logger, Query } from '@nestjs/common';
 import type { Response } from 'express';
 import { OrderService } from './order.service';
 import { InvoiceService } from './services/invoice.service';
@@ -11,7 +11,7 @@ export class OrderController {
   constructor(
     private readonly orderService: OrderService,
     private readonly invoiceService: InvoiceService,
-  ) {}
+  ) { }
 
   @Get(':orderId/invoice')
   @Public()
@@ -125,6 +125,94 @@ export class OrderController {
     } catch (error) {
       this.logger.error(`Failed to handle custom label download: ${error.message}`);
       res.status(500).json({ message: 'Failed to generate custom label', error: error.message });
+    }
+  }
+  @Get('bulk/invoices')
+  @Public()
+  async downloadBulkInvoices(@Res() res: Response, @Query('ids') idsString: string) {
+    try {
+      if (!idsString) return res.status(400).json({ message: 'No order IDs provided' });
+      const ids = idsString.split(',').map(id => id.trim());
+
+      this.logger.log(`Received request to bulk download invoices for ${ids.length} orders`);
+
+      const orders = await Promise.all(
+        ids.map(id => this.orderService.getOrderByInternalId(id).catch(() => null))
+      );
+
+      const validOrders = orders.filter((o: any): o is any => !!o && o.orderStatus === 'CONFIRMED');
+
+      if (validOrders.length === 0) {
+        return res.status(404).json({ message: 'No valid confirmed orders found to pack' });
+      }
+
+      const populatedOrders = await Promise.all(validOrders.map(async (orderData) => {
+        const [payment, shippingAddress, customer, items] = await Promise.all([
+          this.orderService.resolvePayment(orderData).catch(() => null),
+          this.orderService.resolveShippingAddress(orderData).catch(() => null),
+          this.orderService.resolveCustomer(orderData).catch(() => null),
+          this.orderService.resolveItems(orderData).catch(() => []),
+        ]);
+        const orderObj = (orderData as any).toObject ? (orderData as any).toObject() : orderData;
+        return { ...orderObj, payment, shippingAddress, customer, items };
+      }));
+
+      const buffer = await this.invoiceService.generateBulkInvoices(populatedOrders);
+
+      res.set({
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename=bulk-invoices.pdf`,
+        'Content-Length': buffer.length,
+      });
+
+      res.end(buffer);
+    } catch (error) {
+      this.logger.error(`Failed to handle bulk invoice download: ${error.message}`);
+      res.status(500).json({ message: 'Failed to generate bulk invoices', error: error.message });
+    }
+  }
+
+  @Get('bulk/custom-labels')
+  @Public()
+  async downloadBulkCustomLabels(@Res() res: Response, @Query('ids') idsString: string) {
+    try {
+      if (!idsString) return res.status(400).json({ message: 'No order IDs provided' });
+      const ids = idsString.split(',').map(id => id.trim());
+
+      this.logger.log(`Received request to bulk download custom labels for ${ids.length} orders`);
+
+      const orders = await Promise.all(
+        ids.map(id => this.orderService.getOrderByInternalId(id).catch(() => null))
+      );
+
+      const validOrders = orders.filter((o: any): o is any => !!o && o.orderStatus === 'CONFIRMED');
+
+      if (validOrders.length === 0) {
+        return res.status(404).json({ message: 'No valid confirmed orders found to pack' });
+      }
+
+      const populatedOrders = await Promise.all(validOrders.map(async (orderData) => {
+        const [shippingAddress, customer, items] = await Promise.all([
+          this.orderService.resolveShippingAddress(orderData).catch(() => null),
+          this.orderService.resolveCustomer(orderData).catch(() => null),
+          this.orderService.resolveItems(orderData).catch(() => []),
+        ]);
+        const orderObj = (orderData as any).toObject ? (orderData as any).toObject() : orderData;
+        return { ...orderObj, shippingAddress, customer, items };
+      }));
+
+      const buffer = await this.invoiceService.generateBulkCustomLabels(populatedOrders);
+
+      res.set({
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename=bulk-custom-labels.pdf`,
+        'Content-Length': buffer.length,
+      });
+
+      res.end(buffer);
+    } catch (error) {
+      this.logger.error(`Failed to handle bulk custom label download: ${error.message}`);
+      res.status(500).json({ message: 'Failed to generate bulk custom labels', error: error.message });
     }
   }
 }

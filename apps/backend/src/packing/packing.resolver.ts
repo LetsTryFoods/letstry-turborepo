@@ -10,12 +10,15 @@ import {
   Field,
   Int,
   ID,
+  Float,
 } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { PackingService } from './services/packing.service';
 import { PackerService } from './services/packer.service';
 import { QueueCleanupService } from './services/domain/queue-cleanup.service';
 import { PackingQueueService } from './services/domain/packing-queue.service';
+import { OrderRepository } from '../order/services/order.repository';
+import { Types } from 'mongoose';
 import { PackerAuthGuard } from './guards/packer-auth.guard';
 import { JwtAuthGuard } from '../authentication/common/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -56,6 +59,7 @@ export class PackingResolver {
     private readonly packerService: PackerService,
     private readonly queueCleanupService: QueueCleanupService,
     private readonly packingQueueService: PackingQueueService,
+    private readonly orderRepository: OrderRepository,
   ) {
     console.log('PackingResolver initialized');
   }
@@ -90,6 +94,47 @@ export class PackingResolver {
   @ResolveField(() => ShipmentInfo, { nullable: true })
   async shipmentInfo(@Parent() packingOrder: any): Promise<any> {
     return this.packingService.getShipmentInfo(packingOrder.orderId);
+  }
+
+  /**
+   * The packingOrder.orderId field stores the linked Order's MongoDB _id (ObjectId string),
+   * NOT the custom 'ORD_xxx' orderId string.
+   * So we must first try findByInternalId (by _id), then fall back to findById (by orderId string).
+   */
+  private async findLinkedOrder(packingOrder: any) {
+    const ref = packingOrder.orderId as string;
+    if (!ref) return null;
+    // Primary: treat as MongoDB ObjectId
+    if (Types.ObjectId.isValid(ref)) {
+      const order = await this.orderRepository.findByInternalId(ref);
+      if (order) return order;
+    }
+    // Fallback: treat as custom orderId string (ORD_xxx)
+    return this.orderRepository.findById(ref);
+  }
+
+  @ResolveField(() => String, { nullable: true })
+  async boxId(@Parent() packingOrder: any): Promise<string | null> {
+    const order = await this.findLinkedOrder(packingOrder);
+    return order?.boxId?.toString() || null;
+  }
+
+  @ResolveField(() => Float, { nullable: true })
+  async volumetricWeight(@Parent() packingOrder: any): Promise<number | null> {
+    const order = await this.findLinkedOrder(packingOrder);
+    return order?.volumetricWeight || null;
+  }
+
+  @ResolveField(() => String, { nullable: true })
+  async region(@Parent() packingOrder: any): Promise<string | null> {
+    const order = await this.findLinkedOrder(packingOrder);
+    return order?.region || null;
+  }
+
+  @ResolveField(() => Float, { nullable: true })
+  async logisticsCost(@Parent() packingOrder: any): Promise<number | null> {
+    const order = await this.findLinkedOrder(packingOrder);
+    return order?.logisticsCost || null;
   }
 
   @Query(() => PackingOrder)
@@ -223,6 +268,12 @@ export class PackingResolver {
     @Args('status', { nullable: true }) status?: string,
   ): Promise<any[]> {
     return this.packingService.getAllPackingOrders({ packerId, status });
+  }
+
+  @Query(() => PackingOrder)
+  @UseGuards(JwtAuthGuard)
+  async getPackingOrder(@Args('id') id: string): Promise<any> {
+    return this.packingService.getPackingOrderById(id);
   }
 
   @Query(() => PackingEvidence)

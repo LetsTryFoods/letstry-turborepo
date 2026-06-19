@@ -6,6 +6,13 @@ import { PaymentLoggerService } from '../../common/services/payment-logger.servi
 import { v4 as uuidv4 } from 'uuid';
 import { Inject, forwardRef } from '@nestjs/common';
 import { PackingService } from '../../packing/services/packing.service';
+import { LogisticsService } from './logistics.service';
+import { BoxSizeCrudService } from '../../box-size/services/core/box-size-crud.service';
+import { OrderQueryService } from './order.query-service';
+
+import { Address, AddressDocument } from '../../address/address.schema';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class OrderCommandService {
@@ -14,7 +21,11 @@ export class OrderCommandService {
     private paymentLogger: PaymentLoggerService,
     @Inject(forwardRef(() => PackingService))
     private packingService: PackingService,
-  ) {}
+    private logisticsService: LogisticsService,
+    private boxSizeCrudService: BoxSizeCrudService,
+    @InjectModel(Address.name)
+    private addressModel: Model<AddressDocument>,
+  ) { }
 
   async createOrder(params: {
     identityId: Types.ObjectId;
@@ -212,4 +223,64 @@ export class OrderCommandService {
 
     return order;
   }
+
+  async assignBoxToOrder(params: {
+    orderId: string;
+    boxId: string;
+  }): Promise<Order> {
+    let order = await this.orderRepository.findById(params.orderId);
+
+    // Fallback: If not found by custom orderId, try finding by MongoDB _id
+    if (!order && Types.ObjectId.isValid(params.orderId)) {
+      order = await this.orderRepository.findByInternalId(params.orderId);
+    }
+
+    if (!order) {
+      throw new Error('Order not found');
+    }
+
+    const box = await this.boxSizeCrudService.findById(params.boxId);
+    if (!box) {
+      throw new Error('Box not found');
+    }
+
+    // Resolve shipping address to get state and city
+    let state = '';
+    let city = '';
+    if (order.shippingAddressId) {
+      const address = await this.addressModel.findById(order.shippingAddressId).exec();
+      if (address) {
+        state = address.addressRegion || '';
+        city = address.addressLocality || '';
+      }
+    }
+
+    const { region, rate } = this.logisticsService.getRegionAndRate(state, city);
+    const volumetricWeight = this.logisticsService.calculateVolumetricWeight(
+      box.lengthCm || 0,
+      box.breadthCm || 0,
+      box.heightCm || 0
+    );
+    const logisticsCost = this.logisticsService.calculateBaseCost(volumetricWeight, rate);
+
+    const updateData = {
+      boxId: new Types.ObjectId(params.boxId),
+      volumetricWeight,
+      region,
+      logisticsCost,
+    };
+
+    const updatedOrder = await this.orderRepository.updateStatusByInternalId(
+      order._id.toString(),
+      order.orderStatus,
+      updateData,
+    );
+
+    if (!updatedOrder) {
+      throw new Error('Failed to update order with box info');
+    }
+
+    return updatedOrder;
+  }
 }
+

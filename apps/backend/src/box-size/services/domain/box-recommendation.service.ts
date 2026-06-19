@@ -19,21 +19,20 @@ export class BoxRecommendationService {
 
     const boxes = await this.boxSizeCrud.findActive();
 
-    for (const box of boxes.sort(
-      (a, b) =>
-        a.internalDimensions.l *
-          a.internalDimensions.w *
-          a.internalDimensions.h -
-        b.internalDimensions.l *
-          b.internalDimensions.w *
-          b.internalDimensions.h,
-    )) {
-      const boxVolume =
-        box.internalDimensions.l *
-        box.internalDimensions.w *
-        box.internalDimensions.h;
+    for (const box of boxes.sort((a, b) => {
+      const volA = a.internalDimensions
+        ? a.internalDimensions.l * a.internalDimensions.w * a.internalDimensions.h
+        : a.lengthCm * a.breadthCm * a.heightCm;
+      const volB = b.internalDimensions
+        ? b.internalDimensions.l * b.internalDimensions.w * b.internalDimensions.h
+        : b.lengthCm * b.breadthCm * b.heightCm;
+      return volA - volB;
+    })) {
+      const boxVolume = box.internalDimensions
+        ? box.internalDimensions.l * box.internalDimensions.w * box.internalDimensions.h
+        : box.lengthCm * box.breadthCm * box.heightCm;
 
-      if (boxVolume >= totalVolume && box.maxWeight >= totalWeight) {
+      if (boxVolume >= totalVolume && (box.maxWeight || 99999) >= totalWeight) {
         if (hasFragile && boxVolume < totalVolume * 1.25) continue;
         return box;
       }
@@ -47,7 +46,7 @@ export class BoxRecommendationService {
       (sum, item) => sum + item.dimensions.weight * item.quantity,
       0,
     );
-    return box.maxWeight >= totalWeight;
+    return (box.maxWeight || 99999) >= totalWeight;
   }
 
   async getBoxByCode(code: string): Promise<any> {

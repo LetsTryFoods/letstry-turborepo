@@ -146,5 +146,17 @@ export class PackingOrder {
 
   @Field(() => ShipmentInfo, { nullable: true })
   shipmentInfo?: ShipmentInfo;
+
+  @Field({ nullable: true })
+  boxId?: string;
+
+  @Field(() => Float, { nullable: true })
+  volumetricWeight?: number;
+
+  @Field({ nullable: true })
+  region?: string;
+
+  @Field(() => Float, { nullable: true })
+  logisticsCost?: number;
 }
 

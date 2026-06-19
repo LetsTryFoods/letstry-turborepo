@@ -4,7 +4,8 @@ export const getCdnUrl = (key: string | null | undefined): string => {
   if (
     key.startsWith("http") ||
     key.startsWith("/") ||
-    key.startsWith("data:")
+    key.startsWith("data:") ||
+    key.startsWith("blob:")
   ) {
     return key;
   }

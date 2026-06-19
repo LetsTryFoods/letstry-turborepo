@@ -14,10 +14,12 @@ import {
   TouchableOpacity,
   View,
   Dimensions,
-  StatusBar
+  StatusBar,
+  Linking
 } from 'react-native';
 import { COLORS, SIZES } from '../constants/theme';
 import { GET_MY_ASSIGNED_ORDERS, GET_MY_HISTORY, GET_MY_STATS } from '../graphql/queries';
+import { API_URL } from '../config/api';
 import HistoryCard from '../components/HistoryCard';
 
 const { width } = Dimensions.get('window');
@@ -26,6 +28,8 @@ const DashboardScreen = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
   const [user, setUser] = useState({ name: 'Packer' });
   const [activeTab, setActiveTab] = useState('active'); // 'active' or 'history'
+  const [isDownloadingBulkInvoice, setIsDownloadingBulkInvoice] = useState(false);
+  const [isDownloadingBulkCustom, setIsDownloadingBulkCustom] = useState(false);
 
   // 1. Get User from Storage
   useEffect(() => {
@@ -49,13 +53,15 @@ const DashboardScreen = ({ navigation, route }) => {
     data: historyData, 
     loading: historyLoading, 
     refetch: refetchHistory 
-  } = useQuery(GET_MY_HISTORY, { skip: activeTab === 'active' });
+  } = useQuery(GET_MY_HISTORY, {
+    skip: activeTab === 'active',
+    fetchPolicy: 'cache-and-network',
+  });
 
-  const { 
-    data: statsData, 
-    loading: statsLoading, 
-    refetch: refetchStats 
-  } = useQuery(GET_MY_STATS);
+  const { data: statsData, loading: statsLoading, refetch: refetchStats } = useQuery(GET_MY_STATS);
+
+  const [historyPage, setHistoryPage] = useState(1);
+  const itemsPerPage = 10;
 
   const onRefresh = useCallback(() => {
     refetchStats();
@@ -75,6 +81,70 @@ const DashboardScreen = ({ navigation, route }) => {
       order: order,
       user: user,
     });
+  };
+
+  const handleBulkDownloadInvoice = async () => {
+    try {
+      setIsDownloadingBulkInvoice(true);
+      const orders = activeData?.getMyAssignedOrders || [];
+      const ids = orders.map(o => o.orderId || o.id).join(',');
+      if (!ids) return Alert.alert('No Orders', 'No active orders to download.');
+      const restApiUrl = API_URL.replace('/graphql', '');
+      const downloadUrl = `${restApiUrl}/orders/bulk/invoices?ids=${ids}`;
+      await Linking.openURL(downloadUrl);
+    } catch (err) {
+      Alert.alert('Download Error', err.message || 'Failed to download invoices');
+    } finally {
+      setIsDownloadingBulkInvoice(false);
+    }
+  };
+
+  const handleBulkDownloadCustomLabel = async () => {
+    try {
+      setIsDownloadingBulkCustom(true);
+      const orders = activeData?.getMyAssignedOrders || [];
+      const ids = orders.map(o => o.orderId || o.id).join(',');
+      if (!ids) return Alert.alert('No Orders', 'No active orders to download.');
+      const restApiUrl = API_URL.replace('/graphql', '');
+      const downloadUrl = `${restApiUrl}/orders/bulk/custom-labels?ids=${ids}`;
+      await Linking.openURL(downloadUrl);
+    } catch (err) {
+      Alert.alert('Download Error', err.message || 'Failed to download custom labels');
+    } finally {
+      setIsDownloadingBulkInvoice(false);
+      setIsDownloadingBulkCustom(false);
+    }
+  };
+
+  const completedHistory = historyData?.getMyOrderHistory?.filter(o => o.status === 'completed') || [];
+  const totalHistoryPages = Math.ceil(completedHistory.length / itemsPerPage);
+  const paginatedHistory = completedHistory.slice((historyPage - 1) * itemsPerPage, historyPage * itemsPerPage);
+
+  const renderPaginationControls = () => {
+    if (activeTab !== 'history' || completedHistory.length <= itemsPerPage) return null;
+    return (
+      <View style={styles.paginationContainer}>
+        <TouchableOpacity 
+          style={[styles.pageBtn, historyPage === 1 && styles.pageBtnDisabled]}
+          onPress={() => setHistoryPage(p => Math.max(1, p - 1))}
+          disabled={historyPage === 1}
+        >
+          <Ionicons name="chevron-back" size={20} color={historyPage === 1 ? '#94a3b8' : COLORS.primary} />
+          <Text style={[styles.pageBtnText, historyPage === 1 && { color: '#94a3b8' }]}>Prev</Text>
+        </TouchableOpacity>
+        
+        <Text style={styles.pageIndicator}>Page {historyPage} of {totalHistoryPages}</Text>
+        
+        <TouchableOpacity 
+          style={[styles.pageBtn, historyPage === totalHistoryPages && styles.pageBtnDisabled]}
+          onPress={() => setHistoryPage(p => Math.min(totalHistoryPages, p + 1))}
+          disabled={historyPage === totalHistoryPages}
+        >
+          <Text style={[styles.pageBtnText, historyPage === totalHistoryPages && { color: '#94a3b8' }]}>Next</Text>
+          <Ionicons name="chevron-forward" size={20} color={historyPage === totalHistoryPages ? '#94a3b8' : COLORS.primary} />
+        </TouchableOpacity>
+      </View>
+    );
   };
 
   const renderStats = () => {
@@ -148,6 +218,30 @@ const DashboardScreen = ({ navigation, route }) => {
         </View>
         <Ionicons name="chevron-forward" size={18} color={COLORS.textLight} />
       </View>
+
+      {item.shippingInfo && (
+        <View style={styles.shippingContainer}>
+          <View style={styles.shippingRow}>
+            <Ionicons name="person" size={12} color={COLORS.textLight} />
+            <Text style={styles.shippingName}>{item.shippingInfo.recipientName}</Text>
+          </View>
+          <View style={styles.shippingRow}>
+            <Ionicons name="location" size={12} color={COLORS.textLight} />
+            <Text style={styles.shippingAddress} numberOfLines={2}>
+              {item.shippingInfo.addressLine1}, {item.shippingInfo.city} - {item.shippingInfo.pincode}
+            </Text>
+          </View>
+          {item.shippingInfo.recipientPhone && (
+            <TouchableOpacity 
+              style={styles.shippingRow}
+              onPress={() => Linking.openURL(`tel:${item.shippingInfo.recipientPhone}`)}
+            >
+              <Ionicons name="call" size={12} color={COLORS.primary} />
+              <Text style={styles.shippingPhone}>{item.shippingInfo.recipientPhone}</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
     </TouchableOpacity>
   );
 
@@ -192,7 +286,7 @@ const DashboardScreen = ({ navigation, route }) => {
         </TouchableOpacity>
         <TouchableOpacity 
           style={[styles.tab, activeTab === 'history' && styles.activeTab]} 
-          onPress={() => setActiveTab('history')}
+          onPress={() => { setActiveTab('history'); setHistoryPage(1); }}
         >
           <Text style={[styles.tabText, activeTab === 'history' && styles.activeTabText]}>History</Text>
         </TouchableOpacity>
@@ -211,15 +305,40 @@ const DashboardScreen = ({ navigation, route }) => {
         </TouchableOpacity>
       </View>
 
+      {/* Bulk Actions */}
+      {activeTab === 'active' && activeData?.getMyAssignedOrders?.length > 0 && (
+        <View style={styles.downloadActions}>
+          <TouchableOpacity 
+            style={styles.downloadBtn} 
+            onPress={handleBulkDownloadInvoice}
+            disabled={isDownloadingBulkInvoice}
+          >
+            {isDownloadingBulkInvoice ? <ActivityIndicator size="small" color={COLORS.primary} /> : <Ionicons name="document-text" size={16} color={COLORS.primary} />}
+            <Text style={styles.downloadBtnText}>All Invoices</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.downloadBtn} 
+            onPress={handleBulkDownloadCustomLabel}
+            disabled={isDownloadingBulkCustom}
+          >
+            {isDownloadingBulkCustom ? <ActivityIndicator size="small" color={COLORS.primary} /> : <Ionicons name="barcode" size={16} color={COLORS.primary} />}
+            <Text style={styles.downloadBtnText}>All Labels</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
       {/* List */}
       <FlatList
         data={
           activeTab === 'active' ? activeData?.getMyAssignedOrders : 
-          activeTab === 'history' ? historyData?.getMyOrderHistory?.filter(o => o.status === 'completed') :
+          activeTab === 'history' ? paginatedHistory :
           activeTab === 'exceptions' ? historyData?.getMyOrderHistory?.filter(o => o.status === 'partially_fulfilled') : []
         }
         keyExtractor={item => item.id}
         renderItem={activeTab === 'active' ? renderOrderCard : ({ item }) => <HistoryCard order={item} navigation={navigation} />}
+        ListHeaderComponent={renderPaginationControls}
+        ListFooterComponent={renderPaginationControls}
         refreshControl={
           <RefreshControl 
             refreshing={activeLoading || historyLoading || statsLoading} 
@@ -331,6 +450,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
+  downloadActions: { flexDirection: 'row', paddingHorizontal: 20, marginBottom: 12, gap: 12 },
+  downloadBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#eff6ff', paddingVertical: 10, borderRadius: 8, gap: 6, borderWidth: 1, borderColor: '#bfdbfe' },
+  downloadBtnText: { color: COLORS.primary, fontSize: 13, fontWeight: 'bold' },
+
   listContent: { padding: 20, paddingBottom: 40 },
   card: { 
     backgroundColor: 'white', 
@@ -385,7 +508,70 @@ const styles = StyleSheet.create({
   },
   footerInfo: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   footerText: { fontSize: 13, color: COLORS.textLight, fontWeight: '500' },
-
+  
+  shippingContainer: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#f1f5f9',
+    gap: 4,
+  },
+  shippingRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 6,
+  },
+  shippingName: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: COLORS.textDark,
+  },
+  shippingAddress: {
+    fontSize: 11,
+    color: COLORS.textLight,
+    flex: 1,
+  },
+  shippingPhone: {
+    fontSize: 12,
+    color: COLORS.primary,
+    fontWeight: '500',
+    textDecorationLine: 'underline',
+  },
+  
+  paginationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    marginBottom: 10,
+    backgroundColor: 'white',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#e2e8f0'
+  },
+  pageBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: '#eff6ff',
+    borderRadius: 8,
+    gap: 4
+  },
+  pageBtnDisabled: {
+    backgroundColor: '#f1f5f9'
+  },
+  pageBtnText: {
+    color: COLORS.primary,
+    fontWeight: '600',
+    fontSize: 14
+  },
+  pageIndicator: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: COLORS.textDark
+  },
   emptyContainer: { alignItems: 'center', marginTop: 60 },
   emptyText: { textAlign: 'center', color: '#94a3b8', marginTop: 15, fontSize: 16, fontWeight: '500' },
   refreshBtn: { 

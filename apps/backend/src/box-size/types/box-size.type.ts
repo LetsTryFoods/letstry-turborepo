@@ -24,15 +24,42 @@ export class BoxSize {
   @Field()
   name: string;
 
-  @Field(() => BoxDimensions)
-  internalDimensions: BoxDimensions;
+  @Field(() => BoxDimensions, { nullable: true })
+  internalDimensions?: BoxDimensions;
 
-  @Field(() => Float)
-  maxWeight: number;
+  @Field(() => Float, { nullable: true })
+  maxWeight?: number;
 
-  @Field(() => Float)
-  cost: number;
+  @Field(() => Float, { nullable: true })
+  cost?: number;
+
+  @Field(() => Float, { nullable: true })
+  lengthInches?: number;
+
+  @Field(() => Float, { nullable: true })
+  breadthInches?: number;
+
+  @Field(() => Float, { nullable: true })
+  heightInches?: number;
+
+  @Field(() => Float, { nullable: true })
+  lengthCm?: number;
+
+  @Field(() => Float, { nullable: true })
+  breadthCm?: number;
+
+  @Field(() => Float, { nullable: true })
+  heightCm?: number;
+
+  @Field(() => [String], { nullable: true })
+  photos?: string[];
 
   @Field()
   isActive: boolean;
+
+  @Field({ nullable: true })
+  createdAt?: Date;
+
+  @Field({ nullable: true })
+  updatedAt?: Date;
 }

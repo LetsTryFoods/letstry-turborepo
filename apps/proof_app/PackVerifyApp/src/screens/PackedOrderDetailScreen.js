@@ -9,7 +9,6 @@ import {
   Alert,
   ActivityIndicator,
   Dimensions,
-  SafeAreaView,
   StatusBar,
   Linking,
   Share,
@@ -17,12 +16,13 @@ import {
   FlatList,
   Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useMutation, useLazyQuery, gql } from '@apollo/client';
+import { useMutation, useLazyQuery, useQuery, gql } from '@apollo/client';
 import * as FileSystem from 'expo-file-system/legacy';
 import { COLORS } from '../constants/theme';
 import { API_URL, getCdnUrl } from '../config/api';
-import { ADMIN_PUNCH_SHIPMENT } from '../graphql/queries';
+import { ADMIN_PUNCH_SHIPMENT, GET_ACTIVE_BOX_SIZES, ASSIGN_BOX_TO_ORDER, GET_ORDER_DETAILS } from '../graphql/queries';
 
 const { width, height } = Dimensions.get('window');
 
@@ -33,8 +33,22 @@ const GET_SHIPMENT_LABEL = gql`
 `;
 
 const PackedOrderDetailScreen = ({ route, navigation }) => {
-  const { order } = route.params;
+  const { order: routeOrder } = route.params;
+
+  const { data: detailsData, loading: detailsLoading } = useQuery(GET_ORDER_DETAILS, {
+    variables: { id: routeOrder.id || routeOrder.orderId },
+    fetchPolicy: 'cache-and-network',
+  });
+
+  const order = detailsData?.getPackingOrder || routeOrder;
   const [orderState, setOrderState] = useState(order);
+
+  // Update orderState when data arrives
+  React.useEffect(() => {
+    if (detailsData?.getPackingOrder) {
+      setOrderState(detailsData.getPackingOrder);
+    }
+  }, [detailsData]);
 
   const [isDownloadingInvoice, setIsDownloadingInvoice] = useState(false);
   const [isDownloadingCustom, setIsDownloadingCustom] = useState(false);
@@ -61,6 +75,54 @@ const PackedOrderDetailScreen = ({ route, navigation }) => {
       Alert.alert('Punch Error', err.message || 'Failed to punch shipment');
     },
   });
+
+  const [showBoxModal, setShowBoxModal] = useState(false);
+  const [selectedBoxId, setSelectedBoxId] = useState(null);
+
+  const { data: boxesData } = useQuery(GET_ACTIVE_BOX_SIZES, { fetchPolicy: 'cache-first' });
+  const activeBoxes = boxesData?.getActiveBoxSizes || [];
+
+  const [assignBoxMutation, { loading: isAssigning }] = useMutation(ASSIGN_BOX_TO_ORDER, {
+    onCompleted: (data) => {
+      const updatedOrder = {
+        ...orderState,
+        boxId: data.assignBoxToOrder.boxId,
+        volumetricWeight: data.assignBoxToOrder.volumetricWeight,
+        region: data.assignBoxToOrder.region,
+        logisticsCost: data.assignBoxToOrder.logisticsCost,
+      };
+      setOrderState(updatedOrder);
+      setShowBoxModal(false);
+      Alert.alert('Success', 'Box assigned successfully');
+    },
+    onError: (err) => {
+      Alert.alert('Error', err.message || 'Failed to assign box');
+    },
+    // Refetch packing order detail + history so cache is fresh when user navigates back
+    refetchQueries: [
+      {
+        query: GET_ORDER_DETAILS,
+        variables: { id: routeOrder.id || routeOrder.orderId },
+      },
+      'GetMyHistory',
+    ],
+    awaitRefetchQueries: true,
+  });
+
+  const handleAssignBox = () => {
+    if (!selectedBoxId) {
+      Alert.alert('Error', 'Please select a box first');
+      return;
+    }
+    assignBoxMutation({
+      variables: {
+        input: {
+          orderId: orderState.orderId,
+          boxId: selectedBoxId,
+        },
+      },
+    });
+  };
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -165,286 +227,383 @@ const PackedOrderDetailScreen = ({ route, navigation }) => {
         <View style={{ width: 40 }} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* Order Info Card */}
-        <View style={styles.card}>
-          <View>
-            <Text style={styles.orderNumber}>#{orderState.orderNumber || orderState.orderId}</Text>
-            <Text style={styles.dateText}>Packed: {formatDate(orderState.packingCompletedAt)}</Text>
-            <View style={[styles.statusBadge, styles.statusCompleted]}>
-              <Text style={styles.statusText}>{orderState.status.toUpperCase()}</Text>
-            </View>
-          </View>
-
-          <View style={styles.divider} />
-
-          <Text style={styles.sectionHeading}>Items Packed:</Text>
-          {orderState.items?.map((item, index) => (
-            <View key={index} style={styles.itemRow}>
-              <Ionicons name="checkmark-circle" size={16} color="#10b981" style={{ marginRight: 6 }} />
-              <Text style={styles.itemName} numberOfLines={1}>{item.name}</Text>
-              <Text style={styles.itemQty}>x{item.quantity}</Text>
-            </View>
-          ))}
+      {detailsLoading && !orderState.items ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+          <Text style={{ marginTop: 12, color: COLORS.textLight }}>Loading details...</Text>
         </View>
-
-        {/* Customer Address Card */}
-        <View style={styles.card}>
-          <View style={[styles.row, { marginBottom: 12 }]}>
-            <Ionicons name="location-sharp" size={20} color={COLORS.primary} />
-            <Text style={[styles.cardTitle, { marginLeft: 6 }]}>Delivery Address</Text>
-          </View>
-          {orderState.shippingInfo ? (
+      ) : (
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          {/* Order Info Card */}
+          <View style={styles.card}>
             <View>
-              <Text style={styles.customerName}>{orderState.shippingInfo.recipientName}</Text>
-              {orderState.shippingInfo.recipientPhone ? (
-                <TouchableOpacity onPress={() => Linking.openURL(`tel:${orderState.shippingInfo.recipientPhone}`)}>
-                  <Text style={[styles.customerPhone, { color: COLORS.primary, textDecorationLine: 'underline', marginBottom: 6 }]}>
-                    📞 {orderState.shippingInfo.recipientPhone}
-                  </Text>
-                </TouchableOpacity>
-              ) : null}
-              <Text style={styles.customerAddress}>
-                {orderState.shippingInfo.addressLine1}
-                {orderState.shippingInfo.addressLine2 ? `\n${orderState.shippingInfo.addressLine2}` : ''}
-                {`\n${orderState.shippingInfo.city}, ${orderState.shippingInfo.state} - ${orderState.shippingInfo.pincode}`}
-              </Text>
+              <Text style={styles.orderNumber}>#{orderState.orderNumber || orderState.orderId}</Text>
+              <Text style={styles.dateText}>Packed: {formatDate(orderState.packingCompletedAt)}</Text>
+              <View style={[styles.statusBadge, styles.statusCompleted]}>
+                <Text style={styles.statusText}>{orderState.status.toUpperCase()}</Text>
+              </View>
             </View>
-          ) : (
-            <Text style={styles.noData}>No address details available</Text>
-          )}
-        </View>
 
-        {/* Evidence Photos */}
-        <View style={styles.card}>
-          <View style={[styles.row, { marginBottom: 12 }]}>
-            <Ionicons name="images" size={20} color={COLORS.primary} />
-            <Text style={[styles.cardTitle, { marginLeft: 6 }]}>Packing Evidence ({images.length})</Text>
+            <View style={styles.divider} />
+
+            <Text style={styles.sectionHeading}>Items Packed:</Text>
+            {orderState.items?.map((item, index) => (
+              <View key={index} style={styles.itemRow}>
+                <Ionicons name="checkmark-circle" size={16} color="#10b981" style={{ marginRight: 6 }} />
+                <Text style={styles.itemName} numberOfLines={1}>{item.name}</Text>
+                <Text style={styles.itemQty}>x{item.quantity}</Text>
+              </View>
+            ))}
           </View>
-          {images.length > 0 ? (
-            <>
-              <Text style={styles.tapHint}>Tap an image to view full screen</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageScroll}>
-                {images.map((img, index) => (
-                  <TouchableOpacity key={index} onPress={() => openLightbox(index)} activeOpacity={0.85}>
-                    <View style={styles.imageContainer}>
-                      <Image source={{ uri: getCdnUrl(img) }} style={styles.evidenceImage} />
-                      <View style={styles.imageOverlay}>
-                        <Ionicons name="expand-outline" size={18} color="#fff" />
-                      </View>
-                      <Text style={styles.imageLabel}>Photo {index + 1}</Text>
-                    </View>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-            </>
-          ) : (
-            <Text style={styles.noData}>No evidence photos uploaded</Text>
-          )}
-        </View>
 
-        {/* Lightbox Modal */}
-        <Modal
-          visible={lightboxVisible}
-          transparent
-          animationType="fade"
-          onRequestClose={() => setLightboxVisible(false)}
-          statusBarTranslucent
-        >
-          <View style={styles.lightboxBg}>
-            <SafeAreaView style={styles.lightboxSafe}>
-              {/* Lightbox Header */}
-              <View style={styles.lightboxHeader}>
-                <Text style={styles.lightboxCounter}>{lightboxIndex + 1} / {images.length}</Text>
-                <View style={{ flexDirection: 'row', gap: 16 }}>
-                  <TouchableOpacity
-                    onPress={() => handleDownloadImage(images[lightboxIndex])}
-                    disabled={isDownloadingImage}
-                    style={styles.lightboxActionBtn}
-                  >
-                    {isDownloadingImage
-                      ? <ActivityIndicator color="#fff" size="small" />
-                      : <Ionicons name="download-outline" size={24} color="#fff" />
-                    }
+          {/* Customer Address Card */}
+          <View style={styles.card}>
+            <View style={[styles.row, { marginBottom: 12 }]}>
+              <Ionicons name="location-sharp" size={20} color={COLORS.primary} />
+              <Text style={[styles.cardTitle, { marginLeft: 6 }]}>Delivery Address</Text>
+            </View>
+            {orderState.shippingInfo ? (
+              <View>
+                <Text style={styles.customerName}>{orderState.shippingInfo.recipientName}</Text>
+                {orderState.shippingInfo.recipientPhone ? (
+                  <TouchableOpacity onPress={() => Linking.openURL(`tel:${orderState.shippingInfo.recipientPhone}`)}>
+                    <Text style={[styles.customerPhone, { color: COLORS.primary, textDecorationLine: 'underline', marginBottom: 6 }]}>
+                      📞 {orderState.shippingInfo.recipientPhone}
+                    </Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => setLightboxVisible(false)} style={styles.lightboxActionBtn}>
-                    <Ionicons name="close" size={26} color="#fff" />
+                ) : null}
+                <Text style={styles.customerAddress}>
+                  {orderState.shippingInfo.addressLine1}
+                  {orderState.shippingInfo.addressLine2 ? `\n${orderState.shippingInfo.addressLine2}` : ''}
+                  {`\n${orderState.shippingInfo.city}, ${orderState.shippingInfo.state} - ${orderState.shippingInfo.pincode}`}
+                </Text>
+              </View>
+            ) : (
+              <Text style={styles.noData}>No address details available</Text>
+            )}
+          </View>
+
+          {/* Box & Logistics Info Card */}
+          <View style={styles.card}>
+            <View style={[styles.row, { marginBottom: 12, justifyContent: 'space-between' }]}>
+              <View style={styles.row}>
+                <Ionicons name="cube" size={20} color={COLORS.primary} />
+                <Text style={[styles.cardTitle, { marginLeft: 6 }]}>Logistics & Box Info</Text>
+              </View>
+              <TouchableOpacity onPress={() => setShowBoxModal(true)}>
+                <Text style={{ color: COLORS.primary, fontWeight: '600' }}>
+                  {orderState.boxId ? 'Change Box' : 'Assign Box'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {orderState.boxId ? (
+              <View style={styles.logisticsBox}>
+                <View style={styles.row}>
+                  <Text style={styles.shipmentFieldLabel}>Assigned Box:</Text>
+                  <Text style={styles.shipmentValueText}>
+                    {activeBoxes.find(b => b.id === orderState.boxId)?.name || orderState.boxId}
+                  </Text>
+                </View>
+                <View style={[styles.row, { marginTop: 6 }]}>
+                  <Text style={styles.shipmentFieldLabel}>Volumetric Weight:</Text>
+                  <Text style={styles.shipmentValueText}>{orderState.volumetricWeight?.toFixed(2)} kg</Text>
+                </View>
+                <View style={[styles.row, { marginTop: 6 }]}>
+                  <Text style={styles.shipmentFieldLabel}>Region Rate Map:</Text>
+                  <Text style={styles.shipmentValueText}>{orderState.region || "N/A"}</Text>
+                </View>
+                <View style={[styles.row, { marginTop: 6 }]}>
+                  <Text style={styles.shipmentFieldLabel}>Estimated Cost:</Text>
+                  <Text style={[styles.shipmentValueText, { color: COLORS.primary }]}>₹{orderState.logisticsCost?.toFixed(2) || "0.00"}</Text>
+                </View>
+              </View>
+            ) : (
+              <View style={{ padding: 10, backgroundColor: '#fff3cd', borderRadius: 8 }}>
+                <Text style={{ color: '#856404' }}>No box assigned. Please assign a box to calculate logistics cost.</Text>
+              </View>
+            )}
+          </View>
+
+          {/* Evidence Photos */}
+          <View style={styles.card}>
+            <View style={[styles.row, { marginBottom: 12 }]}>
+              <Ionicons name="images" size={20} color={COLORS.primary} />
+              <Text style={[styles.cardTitle, { marginLeft: 6 }]}>Packing Evidence ({images.length})</Text>
+            </View>
+            {images.length > 0 ? (
+              <>
+                <Text style={styles.tapHint}>Tap an image to view full screen</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imageScroll}>
+                  {images.map((img, index) => (
+                    <TouchableOpacity key={index} onPress={() => openLightbox(index)} activeOpacity={0.85}>
+                      <View style={styles.imageContainer}>
+                        <Image source={{ uri: getCdnUrl(img) }} style={styles.evidenceImage} />
+                        <View style={styles.imageOverlay}>
+                          <Ionicons name="expand-outline" size={18} color="#fff" />
+                        </View>
+                        <Text style={styles.imageLabel}>Photo {index + 1}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </>
+            ) : (
+              <Text style={styles.noData}>No evidence photos uploaded</Text>
+            )}
+          </View>
+
+          {/* Lightbox Modal */}
+          <Modal
+            visible={lightboxVisible}
+            transparent
+            animationType="fade"
+            onRequestClose={() => setLightboxVisible(false)}
+            statusBarTranslucent
+          >
+            <View style={styles.lightboxBg}>
+              <SafeAreaView style={styles.lightboxSafe}>
+                {/* Lightbox Header */}
+                <View style={styles.lightboxHeader}>
+                  <Text style={styles.lightboxCounter}>{lightboxIndex + 1} / {images.length}</Text>
+                  <View style={{ flexDirection: 'row', gap: 16 }}>
+                    <TouchableOpacity
+                      onPress={() => handleDownloadImage(images[lightboxIndex])}
+                      disabled={isDownloadingImage}
+                      style={styles.lightboxActionBtn}
+                    >
+                      {isDownloadingImage
+                        ? <ActivityIndicator color="#fff" size="small" />
+                        : <Ionicons name="download-outline" size={24} color="#fff" />
+                      }
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => setLightboxVisible(false)} style={styles.lightboxActionBtn}>
+                      <Ionicons name="close" size={26} color="#fff" />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                {/* Image Pager */}
+                <FlatList
+                  data={images}
+                  keyExtractor={(_, i) => String(i)}
+                  horizontal
+                  pagingEnabled
+                  initialScrollIndex={lightboxIndex}
+                  showsHorizontalScrollIndicator={false}
+                  getItemLayout={(_, index) => ({ length: width, offset: width * index, index })}
+                  onMomentumScrollEnd={(e) => {
+                    const newIndex = Math.round(e.nativeEvent.contentOffset.x / width);
+                    setLightboxIndex(newIndex);
+                  }}
+                  renderItem={({ item }) => (
+                    <View style={styles.lightboxImageWrapper}>
+                      <Image
+                        source={{ uri: getCdnUrl(item) }}
+                        style={styles.lightboxImage}
+                        resizeMode="contain"
+                      />
+                    </View>
+                  )}
+                />
+
+                {/* Nav arrows for convenience */}
+                <View style={styles.lightboxNav}>
+                  <TouchableOpacity
+                    style={[styles.navBtn, lightboxIndex === 0 && styles.navBtnDisabled]}
+                    onPress={() => lightboxIndex > 0 && setLightboxIndex(lightboxIndex - 1)}
+                    disabled={lightboxIndex === 0}
+                  >
+                    <Ionicons name="chevron-back" size={22} color="#fff" />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.navBtn, lightboxIndex === images.length - 1 && styles.navBtnDisabled]}
+                    onPress={() => lightboxIndex < images.length - 1 && setLightboxIndex(lightboxIndex + 1)}
+                    disabled={lightboxIndex === images.length - 1}
+                  >
+                    <Ionicons name="chevron-forward" size={22} color="#fff" />
+                  </TouchableOpacity>
+                </View>
+              </SafeAreaView>
+            </View>
+          </Modal>
+
+          {/* Box Selection Modal */}
+          <Modal visible={showBoxModal} animationType="slide" transparent={true}>
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>Select Box Size</Text>
+                <Text style={styles.modalSubtitle}>Please choose the box you used for packing.</Text>
+
+                <FlatList
+                  data={activeBoxes}
+                  keyExtractor={(item) => item.id}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={[
+                        styles.boxOption,
+                        selectedBoxId === item.id && styles.boxOptionSelected
+                      ]}
+                      onPress={() => setSelectedBoxId(item.id)}
+                    >
+                      <Text style={[
+                        styles.boxOptionText,
+                        selectedBoxId === item.id && styles.boxOptionTextSelected
+                      ]}>
+                        {item.name} ({item.lengthInches}x{item.breadthInches}x{item.heightInches} in)
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                />
+
+                <View style={styles.modalActions}>
+                  <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowBoxModal(false)}>
+                    <Text style={styles.cancelBtnText}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.confirmBtn, !selectedBoxId && { opacity: 0.5 }]}
+                    onPress={handleAssignBox}
+                    disabled={!selectedBoxId || isAssigning}
+                  >
+                    {isAssigning ? (
+                      <ActivityIndicator color="#fff" />
+                    ) : (
+                      <Text style={styles.confirmBtnText}>Save</Text>
+                    )}
                   </TouchableOpacity>
                 </View>
               </View>
+            </View>
+          </Modal>
 
-              {/* Image Pager */}
-              <FlatList
-                data={images}
-                keyExtractor={(_, i) => String(i)}
-                horizontal
-                pagingEnabled
-                initialScrollIndex={lightboxIndex}
-                showsHorizontalScrollIndicator={false}
-                getItemLayout={(_, index) => ({ length: width, offset: width * index, index })}
-                onMomentumScrollEnd={(e) => {
-                  const newIndex = Math.round(e.nativeEvent.contentOffset.x / width);
-                  setLightboxIndex(newIndex);
-                }}
-                renderItem={({ item }) => (
-                  <View style={styles.lightboxImageWrapper}>
-                    <Image
-                      source={{ uri: getCdnUrl(item) }}
-                      style={styles.lightboxImage}
-                      resizeMode="contain"
-                    />
-                  </View>
+          {/* Shipment Details & Booking */}
+          <View style={styles.card}>
+            <View style={[styles.row, { marginBottom: 12 }]}>
+              <Ionicons name="bus-sharp" size={20} color={COLORS.primary} />
+              <Text style={[styles.cardTitle, { marginLeft: 6 }]}>Shipment Status</Text>
+            </View>
+
+            {orderState.shipmentInfo?.awbNumber ? (
+              <View style={styles.shipmentDetailsBox}>
+                <View style={styles.row}>
+                  <Text style={styles.shipmentFieldLabel}>AWB Number:</Text>
+                  <Text style={styles.shipmentValueText}>{orderState.shipmentInfo.awbNumber}</Text>
+                </View>
+                <View style={[styles.row, { marginTop: 6 }]}>
+                  <Text style={styles.shipmentFieldLabel}>Provider:</Text>
+                  <Text style={[styles.shipmentValueText, styles.providerText]}>
+                    {orderState.shipmentInfo.provider?.toUpperCase()}
+                  </Text>
+                </View>
+              </View>
+            ) : (
+              <View>
+                <Text style={styles.notBookedText}>Shipment booking has not been initiated for this order yet.</Text>
+                <View style={styles.punchButtonsRow}>
+                  <TouchableOpacity
+                    style={[styles.punchBtn, styles.dtdcBtn]}
+                    onPress={() => handlePunch('DTDC')}
+                    disabled={isPunching}
+                  >
+                    <Ionicons name="cube-outline" size={18} color="#fff" />
+                    <Text style={styles.punchBtnText}>Punch DTDC</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.punchBtn, styles.rocketBtn]}
+                    onPress={() => handlePunch('SHIPROCKET')}
+                    disabled={isPunching}
+                  >
+                    <Ionicons name="rocket-outline" size={18} color="#fff" />
+                    <Text style={styles.punchBtnText}>Punch Shiprocket</Text>
+                  </TouchableOpacity>
+                </View>
+                {isPunching && (
+                  <ActivityIndicator color={COLORS.primary} style={{ marginTop: 12 }} />
                 )}
-              />
-
-              {/* Nav arrows for convenience */}
-              <View style={styles.lightboxNav}>
-                <TouchableOpacity
-                  style={[styles.navBtn, lightboxIndex === 0 && styles.navBtnDisabled]}
-                  onPress={() => lightboxIndex > 0 && setLightboxIndex(lightboxIndex - 1)}
-                  disabled={lightboxIndex === 0}
-                >
-                  <Ionicons name="chevron-back" size={22} color="#fff" />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.navBtn, lightboxIndex === images.length - 1 && styles.navBtnDisabled]}
-                  onPress={() => lightboxIndex < images.length - 1 && setLightboxIndex(lightboxIndex + 1)}
-                  disabled={lightboxIndex === images.length - 1}
-                >
-                  <Ionicons name="chevron-forward" size={22} color="#fff" />
-                </TouchableOpacity>
               </View>
-            </SafeAreaView>
-          </View>
-        </Modal>
-
-        {/* Shipment Details & Booking */}
-        <View style={styles.card}>
-          <View style={[styles.row, { marginBottom: 12 }]}>
-            <Ionicons name="bus-sharp" size={20} color={COLORS.primary} />
-            <Text style={[styles.cardTitle, { marginLeft: 6 }]}>Shipment Status</Text>
+            )}
           </View>
 
-          {orderState.shipmentInfo?.awbNumber ? (
-            <View style={styles.shipmentDetailsBox}>
-              <View style={styles.row}>
-                <Text style={styles.shipmentFieldLabel}>AWB Number:</Text>
-                <Text style={styles.shipmentValueText}>{orderState.shipmentInfo.awbNumber}</Text>
+          {/* Document Downloads Section */}
+          <View style={styles.card}>
+            <Text style={[styles.cardTitle, { marginBottom: 16 }]}>Documents</Text>
+
+            <TouchableOpacity
+              style={styles.downloadRowButton}
+              onPress={handleDownloadInvoice}
+              disabled={isDownloadingInvoice}
+            >
+              <View style={styles.downloadRowLeft}>
+                <View style={[styles.iconBg, { backgroundColor: '#fee2e2' }]}>
+                  <Ionicons name="document-text" size={22} color="#dc2626" />
+                </View>
+                <Text style={styles.downloadButtonText}>Download Invoice PDF</Text>
               </View>
-              <View style={[styles.row, { marginTop: 6 }]}>
-                <Text style={styles.shipmentFieldLabel}>Provider:</Text>
-                <Text style={[styles.shipmentValueText, styles.providerText]}>
-                  {orderState.shipmentInfo.provider?.toUpperCase()}
+              {isDownloadingInvoice ? (
+                <ActivityIndicator color={COLORS.primary} size="small" />
+              ) : (
+                <Ionicons name="download-outline" size={20} color={COLORS.textLight} />
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.downloadRowButton}
+              onPress={handleDownloadCustomLabel}
+              disabled={isDownloadingCustom}
+            >
+              <View style={styles.downloadRowLeft}>
+                <View style={[styles.iconBg, { backgroundColor: '#e0f2fe' }]}>
+                  <Ionicons name="barcode" size={22} color="#0284c7" />
+                </View>
+                <Text style={styles.downloadButtonText}>Download Custom Label PDF</Text>
+              </View>
+              {isDownloadingCustom ? (
+                <ActivityIndicator color={COLORS.primary} size="small" />
+              ) : (
+                <Ionicons name="download-outline" size={20} color={COLORS.textLight} />
+              )}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.downloadRowButton,
+                !orderState.shipmentInfo?.awbNumber && styles.disabledDownloadButton,
+              ]}
+              onPress={handleDownloadShippingLabel}
+              disabled={isDownloadingLabel || !orderState.shipmentInfo?.awbNumber}
+            >
+              <View style={styles.downloadRowLeft}>
+                <View style={[
+                  styles.iconBg,
+                  { backgroundColor: orderState.shipmentInfo?.awbNumber ? '#dcfce7' : '#f1f5f9' },
+                ]}>
+                  <Ionicons
+                    name="print"
+                    size={22}
+                    color={orderState.shipmentInfo?.awbNumber ? '#16a34a' : '#94a3b8'}
+                  />
+                </View>
+                <Text style={[
+                  styles.downloadButtonText,
+                  !orderState.shipmentInfo?.awbNumber && { color: '#94a3b8' },
+                ]}>
+                  Download Shipping Label PDF
                 </Text>
               </View>
-            </View>
-          ) : (
-            <View>
-              <Text style={styles.notBookedText}>Shipment booking has not been initiated for this order yet.</Text>
-              <View style={styles.punchButtonsRow}>
-                <TouchableOpacity
-                  style={[styles.punchBtn, styles.dtdcBtn]}
-                  onPress={() => handlePunch('DTDC')}
-                  disabled={isPunching}
-                >
-                  <Ionicons name="cube-outline" size={18} color="#fff" />
-                  <Text style={styles.punchBtnText}>Punch DTDC</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.punchBtn, styles.rocketBtn]}
-                  onPress={() => handlePunch('SHIPROCKET')}
-                  disabled={isPunching}
-                >
-                  <Ionicons name="rocket-outline" size={18} color="#fff" />
-                  <Text style={styles.punchBtnText}>Punch Shiprocket</Text>
-                </TouchableOpacity>
-              </View>
-              {isPunching && (
-                <ActivityIndicator color={COLORS.primary} style={{ marginTop: 12 }} />
-              )}
-            </View>
-          )}
-        </View>
-
-        {/* Document Downloads Section */}
-        <View style={styles.card}>
-          <Text style={[styles.cardTitle, { marginBottom: 16 }]}>Documents</Text>
-
-          <TouchableOpacity
-            style={styles.downloadRowButton}
-            onPress={handleDownloadInvoice}
-            disabled={isDownloadingInvoice}
-          >
-            <View style={styles.downloadRowLeft}>
-              <View style={[styles.iconBg, { backgroundColor: '#fee2e2' }]}>
-                <Ionicons name="document-text" size={22} color="#dc2626" />
-              </View>
-              <Text style={styles.downloadButtonText}>Download Invoice PDF</Text>
-            </View>
-            {isDownloadingInvoice ? (
-              <ActivityIndicator color={COLORS.primary} size="small" />
-            ) : (
-              <Ionicons name="download-outline" size={20} color={COLORS.textLight} />
-            )}
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.downloadRowButton}
-            onPress={handleDownloadCustomLabel}
-            disabled={isDownloadingCustom}
-          >
-            <View style={styles.downloadRowLeft}>
-              <View style={[styles.iconBg, { backgroundColor: '#e0f2fe' }]}>
-                <Ionicons name="barcode" size={22} color="#0284c7" />
-              </View>
-              <Text style={styles.downloadButtonText}>Download Custom Label PDF</Text>
-            </View>
-            {isDownloadingCustom ? (
-              <ActivityIndicator color={COLORS.primary} size="small" />
-            ) : (
-              <Ionicons name="download-outline" size={20} color={COLORS.textLight} />
-            )}
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.downloadRowButton,
-              !orderState.shipmentInfo?.awbNumber && styles.disabledDownloadButton,
-            ]}
-            onPress={handleDownloadShippingLabel}
-            disabled={isDownloadingLabel || !orderState.shipmentInfo?.awbNumber}
-          >
-            <View style={styles.downloadRowLeft}>
-              <View style={[
-                styles.iconBg,
-                { backgroundColor: orderState.shipmentInfo?.awbNumber ? '#dcfce7' : '#f1f5f9' },
-              ]}>
+              {isDownloadingLabel ? (
+                <ActivityIndicator color={COLORS.primary} size="small" />
+              ) : (
                 <Ionicons
-                  name="print"
-                  size={22}
-                  color={orderState.shipmentInfo?.awbNumber ? '#16a34a' : '#94a3b8'}
+                  name="download-outline"
+                  size={20}
+                  color={orderState.shipmentInfo?.awbNumber ? COLORS.textLight : '#cbd5e1'}
                 />
-              </View>
-              <Text style={[
-                styles.downloadButtonText,
-                !orderState.shipmentInfo?.awbNumber && { color: '#94a3b8' },
-              ]}>
-                Download Shipping Label PDF
-              </Text>
-            </View>
-            {isDownloadingLabel ? (
-              <ActivityIndicator color={COLORS.primary} size="small" />
-            ) : (
-              <Ionicons
-                name="download-outline"
-                size={20}
-                color={orderState.shipmentInfo?.awbNumber ? COLORS.textLight : '#cbd5e1'}
-              />
-            )}
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+              )}
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      )}
     </SafeAreaView>
   );
 };
@@ -592,6 +751,13 @@ const styles = StyleSheet.create({
     color: COLORS.textLight,
     marginTop: 6,
   },
+  logisticsBox: {
+    backgroundColor: '#f8fafc',
+    borderRadius: 12,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+  },
   shipmentDetailsBox: {
     backgroundColor: '#f8fafc',
     borderRadius: 12,
@@ -734,6 +900,80 @@ const styles = StyleSheet.create({
   },
   navBtnDisabled: {
     opacity: 0.3,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'flex-end'
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 24,
+    maxHeight: '80%'
+  },
+  modalTitle: {
+    color: COLORS.textDark,
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 4
+  },
+  modalSubtitle: {
+    color: COLORS.textLight,
+    fontSize: 14,
+    marginBottom: 16
+  },
+  boxOption: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#f8fafc',
+    borderRadius: 12,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#e2e8f0'
+  },
+  boxOptionSelected: {
+    borderColor: COLORS.primary,
+    backgroundColor: '#eef2ff'
+  },
+  boxOptionText: {
+    color: COLORS.textDark,
+    fontSize: 15,
+    fontWeight: '500'
+  },
+  boxOptionTextSelected: {
+    color: COLORS.primary,
+    fontWeight: 'bold'
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 16
+  },
+  cancelBtn: {
+    flex: 1,
+    padding: 14,
+    backgroundColor: '#f1f5f9',
+    borderRadius: 10,
+    alignItems: 'center'
+  },
+  cancelBtnText: {
+    color: COLORS.textDark,
+    fontWeight: '600'
+  },
+  confirmBtn: {
+    flex: 2,
+    padding: 14,
+    backgroundColor: COLORS.primary,
+    borderRadius: 10,
+    alignItems: 'center'
+  },
+  confirmBtnText: {
+    color: '#fff',
+    fontWeight: 'bold'
   },
 });
 

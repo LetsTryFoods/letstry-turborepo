@@ -89,3 +89,16 @@ export class CancelOrderInput {
   @IsString()
   reason?: string;
 }
+
+@InputType()
+export class AssignBoxToOrderInput {
+  @Field()
+  @IsNotEmpty()
+  @IsString()
+  orderId: string;
+
+  @Field()
+  @IsNotEmpty()
+  @IsString()
+  boxId: string;
+}

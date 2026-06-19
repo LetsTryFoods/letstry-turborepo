@@ -136,6 +136,10 @@ export const GET_ORDER_BY_ID = gql`
         w
         h
       }
+      boxId
+      volumetricWeight
+      region
+      logisticsCost
       shipment {
         dtdcAwbNumber
       }
@@ -156,6 +160,19 @@ export const UPDATE_ORDER_STATUS = gql`
       orderStatus
       trackingNumber
       updatedAt
+    }
+  }
+`;
+
+export const ASSIGN_BOX_TO_ORDER = gql`
+  mutation AssignBoxToOrder($input: AssignBoxToOrderInput!) {
+    assignBoxToOrder(input: $input) {
+      _id
+      orderId
+      boxId
+      volumetricWeight
+      region
+      logisticsCost
     }
   }
 `;

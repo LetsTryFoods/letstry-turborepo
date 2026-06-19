@@ -217,6 +217,16 @@ const navGroups: NavGroup[] = [
         icon: PackageCheck,
       },
       {
+        title: "Box Sizes",
+        url: "/dashboard/boxes",
+        icon: Package,
+      },
+      {
+        title: "Logistics Analytics",
+        url: "/dashboard/logistics",
+        icon: BarChart3,
+      },
+      {
         title: "WhatsApp",
         url: "/dashboard/whatsapp",
         icon: MessageSquare,

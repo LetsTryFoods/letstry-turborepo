@@ -1,4 +1,4 @@
-import { useMutation } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import {
@@ -14,14 +14,21 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS } from '../constants/theme';
-import { START_PACKING } from '../graphql/queries';
+import { START_PACKING, GET_ORDER_DETAILS } from '../graphql/queries';
 import { getCdnUrl, API_URL } from '../config/api';
 import ImageZoomModal from '../components/ImageZoomModal';
 
 const OrderDetailsScreen = ({ route, navigation }) => {
-  const { order, user } = route.params;
+  const { order: routeOrder, user } = route.params;
   const [zoomModalVisible, setZoomModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+
+  const { data: detailsData, loading: detailsLoading } = useQuery(GET_ORDER_DETAILS, {
+    variables: { id: routeOrder.id },
+    fetchPolicy: 'cache-and-network',
+  });
+
+  const order = detailsData?.getPackingOrder || routeOrder;
 
   const [isDownloadingInvoice, setIsDownloadingInvoice] = useState(false);
   const [isDownloadingCustom, setIsDownloadingCustom] = useState(false);
@@ -128,13 +135,20 @@ const OrderDetailsScreen = ({ route, navigation }) => {
         <View style={{ width: 24 }} />
       </View>
 
-      <View style={styles.infoBox}>
-        <Text style={styles.status}>Status: {order.status}</Text>
-        <Text style={styles.sub}>Assigned to: {order.packerName || user.name}</Text>
-        {order.specialInstructions ? (
-          <Text style={styles.instructions}>⚠ {order.specialInstructions}</Text>
-        ) : null}
-      </View>
+      {detailsLoading && !order.items ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+          <Text style={{ marginTop: 12, color: COLORS.textLight }}>Loading details...</Text>
+        </View>
+      ) : (
+        <>
+          <View style={styles.infoBox}>
+            <Text style={styles.status}>Status: {order.status}</Text>
+            <Text style={styles.sub}>Assigned to: {order.packerName || user?.name || 'Packer'}</Text>
+            {order.specialInstructions ? (
+              <Text style={styles.instructions}>⚠ {order.specialInstructions}</Text>
+            ) : null}
+          </View>
 
       <View style={styles.downloadActions}>
         <TouchableOpacity 
@@ -176,6 +190,8 @@ const OrderDetailsScreen = ({ route, navigation }) => {
           )}
         </TouchableOpacity>
       </View>
+      </>
+      )}
 
       <ImageZoomModal
         visible={zoomModalVisible}

@@ -14,12 +14,12 @@ function writeTrackingLog(msg: string) {
     }
     fs.appendFileSync(logPath, logMsg);
     console.log(`[TRACKING_DEBUG] ${msg}`);
-  } catch (e) {}
+  } catch (e) { }
 }
 
 @Injectable()
 export class OrderRepository {
-  constructor(@InjectModel(Order.name) private orderModel: Model<Order>) {}
+  constructor(@InjectModel(Order.name) private orderModel: Model<Order>) { }
 
   async create(orderData: Partial<Order>): Promise<Order> {
     const order = new this.orderModel(orderData);

@@ -13,7 +13,7 @@ export const ADJUST_INVENTORY = gql`
       reason: $reason,
       performedBy: $performedBy
     ) {
-      _id
+      id
       sku
       changeAmount
       previousStock
@@ -27,10 +27,10 @@ export const ADJUST_INVENTORY = gql`
 export const FIND_PRODUCT_BY_IDENTIFIER = gql`
   query FindProductByIdentifier($identifier: String!) {
     findProductByIdentifier(identifier: $identifier) {
-      _id
+      id
       name
       variants {
-        _id
+        id
         sku
         gtin
         name
@@ -46,7 +46,7 @@ export const FIND_PRODUCT_BY_IDENTIFIER = gql`
 export const SET_INVENTORY = gql`
   mutation SetInventory($identifier: String!, $newStockLevel: Int!, $performedBy: String) {
     setInventory(identifier: $identifier, newStockLevel: $newStockLevel, performedBy: $performedBy) {
-      _id
+      id
       sku
       changeAmount
       previousStock

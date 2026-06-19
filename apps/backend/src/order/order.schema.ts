@@ -56,6 +56,18 @@ export class Order extends Document {
   @Prop({ type: Types.ObjectId, ref: 'Address' })
   shippingAddressId: Types.ObjectId;
 
+  @Prop({ type: Types.ObjectId, ref: 'BoxSize' })
+  boxId?: Types.ObjectId;
+
+  @Prop()
+  volumetricWeight?: number;
+
+  @Prop()
+  region?: string;
+
+  @Prop()
+  logisticsCost?: number;
+
   @Prop({ type: Array })
   items: Array<{
     productId: Types.ObjectId;
