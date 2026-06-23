@@ -24,6 +24,15 @@ export class BoxSize {
   @Field()
   name: string;
 
+  @Field({ nullable: true })
+  type?: string;
+
+  @Field(() => Float, { nullable: true })
+  chargeableWeight?: number;
+
+  @Field(() => Float, { nullable: true })
+  fixedCourierCost?: number;
+
   @Field(() => BoxDimensions, { nullable: true })
   internalDimensions?: BoxDimensions;
 

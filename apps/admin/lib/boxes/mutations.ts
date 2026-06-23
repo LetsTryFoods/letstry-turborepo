@@ -6,6 +6,9 @@ export const CREATE_BOX_SIZE = gql`
       id
       code
       name
+      type
+      chargeableWeight
+      fixedCourierCost
       lengthInches
       breadthInches
       heightInches
@@ -24,6 +27,9 @@ export const UPDATE_BOX_SIZE = gql`
       id
       code
       name
+      type
+      chargeableWeight
+      fixedCourierCost
       lengthInches
       breadthInches
       heightInches

@@ -1176,6 +1176,8 @@ type OrderDiscountItem {
   netCostToBusiness: Float!
   netDiscountAmount: Float!
   netDiscountPct: Float!
+  zaakpayCost: Float!
+  serverCost: Float!
   boxName: String
   boxPhotoUrl: String
   volumetricWeight: Float
@@ -1194,6 +1196,8 @@ type OrderDiscountSummary {
   avgNetDiscountPct: Float!
   freeDeliveryOrdersCount: Int!
   paidDeliveryOrdersCount: Int!
+  totalZaakpayCost: Float!
+  totalServerCost: Float!
 }
 
 type OrderDiscountAnalyticsResponse {
@@ -1298,6 +1302,9 @@ type BoxSize {
   id: ID!
   code: String!
   name: String!
+  type: String
+  chargeableWeight: Float
+  fixedCourierCost: Float
   internalDimensions: BoxDimensions
   maxWeight: Float
   cost: Float
@@ -2756,6 +2763,9 @@ enum ErrorSeverity {
 input CreateBoxSizeInput {
   code: String!
   name: String!
+  type: String
+  chargeableWeight: Float
+  fixedCourierCost: Float
   internalDimensions: DimensionsInput
   maxWeight: Float
   cost: Float
@@ -2778,6 +2788,9 @@ input DimensionsInput {
 input UpdateBoxSizeInput {
   code: String
   name: String
+  type: String
+  chargeableWeight: Float
+  fixedCourierCost: Float
   internalDimensions: DimensionsInput
   maxWeight: Float
   cost: Float

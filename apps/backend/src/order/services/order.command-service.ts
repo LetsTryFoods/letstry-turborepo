@@ -256,12 +256,22 @@ export class OrderCommandService {
     }
 
     const { region, rate } = this.logisticsService.getRegionAndRate(state, city);
-    const volumetricWeight = this.logisticsService.calculateVolumetricWeight(
-      box.lengthCm || 0,
-      box.breadthCm || 0,
-      box.heightCm || 0
-    );
-    const logisticsCost = this.logisticsService.calculateBaseCost(volumetricWeight, rate);
+    let volumetricWeight = 0;
+    let logisticsCost = 0;
+    
+    if (box.type === 'PACKET') {
+      volumetricWeight = box.chargeableWeight || 0.5; // default 500g if not specified
+      logisticsCost = box.fixedCourierCost 
+        ? box.fixedCourierCost 
+        : this.logisticsService.calculateBaseCost(volumetricWeight, rate);
+    } else {
+      volumetricWeight = this.logisticsService.calculateVolumetricWeight(
+        box.lengthCm || 0,
+        box.breadthCm || 0,
+        box.heightCm || 0
+      );
+      logisticsCost = this.logisticsService.calculateBaseCost(volumetricWeight, rate);
+    }
 
     const updateData = {
       boxId: new Types.ObjectId(params.boxId),

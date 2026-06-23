@@ -47,6 +47,12 @@ export class OrderDiscountItem {
   @Field(() => Float)
   netDiscountPct: number;    // netDiscountAmount / impliedMRP × 100
 
+  @Field(() => Float)
+  zaakpayCost: number; // payment gateway cost (1.85% + GST)
+
+  @Field(() => Float)
+  serverCost: number;  // allocated server cost (2500 / totalOrders)
+
   // Optional box details
   @Field({ nullable: true })
   boxName?: string;
@@ -95,6 +101,12 @@ export class OrderDiscountSummary {
 
   @Field(() => Int)
   paidDeliveryOrdersCount: number;
+
+  @Field(() => Float)
+  totalZaakpayCost: number;
+
+  @Field(() => Float)
+  totalServerCost: number;
 }
 
 @ObjectType()

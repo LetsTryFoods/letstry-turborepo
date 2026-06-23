@@ -51,6 +51,8 @@ export const GET_MONTHLY_DISCOUNT_ANALYTICS = gql`
         totalSubtotal
         totalDeliveryChargesCollected
         totalLogisticsCost
+        totalZaakpayCost
+        totalServerCost
         totalNetRevenue
         impliedTotalMRP
         totalDiscountOnMRP
@@ -66,6 +68,8 @@ export const GET_MONTHLY_DISCOUNT_ANALYTICS = gql`
         subtotal
         deliveryCharge
         logisticsCost
+        zaakpayCost
+        serverCost
         netRevenue
         impliedMRP
         discountOnMRP

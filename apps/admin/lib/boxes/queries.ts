@@ -11,6 +11,9 @@ export const GET_ALL_BOX_SIZES = gql`
         w
         h
       }
+      type
+      chargeableWeight
+      fixedCourierCost
       lengthInches
       breadthInches
       heightInches
@@ -33,6 +36,9 @@ export const GET_ACTIVE_BOX_SIZES = gql`
       id
       code
       name
+      type
+      chargeableWeight
+      fixedCourierCost
       lengthInches
       breadthInches
       heightInches

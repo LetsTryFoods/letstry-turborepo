@@ -9,6 +9,15 @@ export class BoxSize extends Document {
   @Prop({ required: true })
   name: string;
 
+  @Prop({ enum: ['BOX', 'PACKET'], default: 'BOX' })
+  type: string;
+
+  @Prop({ required: false })
+  chargeableWeight?: number;
+
+  @Prop({ required: false })
+  fixedCourierCost?: number;
+
   @Prop({ type: Object, required: false })
   internalDimensions?: { l: number; w: number; h: number };
 

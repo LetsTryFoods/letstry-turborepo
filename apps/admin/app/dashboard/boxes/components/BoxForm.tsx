@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Loader2 } from "lucide-react";
 import { ImageUpload } from "@/components/custom/image-upload";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getCdnUrl, extractKeyFromUrl } from "@/lib/image-utils";
 
 interface BoxFormProps {
@@ -28,6 +29,9 @@ export function BoxForm({ onClose, initialData, createBox, updateBox }: BoxFormP
     breadthInches: 0,
     heightInches: 0,
     isActive: true,
+    type: "BOX",
+    chargeableWeight: 0,
+    fixedCourierCost: 0,
   });
 
   useEffect(() => {
@@ -39,6 +43,9 @@ export function BoxForm({ onClose, initialData, createBox, updateBox }: BoxFormP
         breadthInches: initialData.breadthInches || 0,
         heightInches: initialData.heightInches || 0,
         isActive: initialData.isActive !== false,
+        type: initialData.type || "BOX",
+        chargeableWeight: initialData.chargeableWeight || 0,
+        fixedCourierCost: initialData.fixedCourierCost || 0,
       });
 
       // Set existing photos as R2 keys
@@ -111,6 +118,9 @@ export function BoxForm({ onClose, initialData, createBox, updateBox }: BoxFormP
       breadthCm,
       heightCm,
       isActive: formData.isActive,
+      type: formData.type,
+      chargeableWeight: formData.chargeableWeight,
+      fixedCourierCost: formData.fixedCourierCost,
       photos,
     };
 
@@ -149,7 +159,24 @@ export function BoxForm({ onClose, initialData, createBox, updateBox }: BoxFormP
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="space-y-2">
+        <Label htmlFor="type">Packaging Type</Label>
+        <Select
+          value={formData.type}
+          onValueChange={(val) => setFormData((prev) => ({ ...prev, type: val }))}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="BOX">Box (Volumetric Weight)</SelectItem>
+            <SelectItem value="PACKET">Packet (Fixed Chargeable Weight)</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {formData.type === "BOX" && (
+        <div className="grid grid-cols-3 gap-4">
         <div className="space-y-2">
           <Label htmlFor="lengthInches">Length (inches)</Label>
           <Input
@@ -196,6 +223,44 @@ export function BoxForm({ onClose, initialData, createBox, updateBox }: BoxFormP
           </span>
         </div>
       </div>
+      )}
+
+      {formData.type === "PACKET" && (
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="chargeableWeight">Fixed Chargeable Weight (kg)</Label>
+            <Input
+              id="chargeableWeight"
+              name="chargeableWeight"
+              type="number"
+              step="0.01"
+              required={formData.type === "PACKET"}
+              value={formData.chargeableWeight}
+              onChange={handleChange}
+              placeholder="e.g. 0.5"
+            />
+            <p className="text-xs text-muted-foreground">
+              Optional fallback weight for analytics.
+            </p>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="fixedCourierCost">Fixed Courier Cost (₹)</Label>
+            <Input
+              id="fixedCourierCost"
+              name="fixedCourierCost"
+              type="number"
+              step="0.01"
+              required={formData.type === "PACKET"}
+              value={formData.fixedCourierCost}
+              onChange={handleChange}
+              placeholder="e.g. 45"
+            />
+            <p className="text-xs text-muted-foreground">
+              Directly used as the final courier base cost.
+            </p>
+          </div>
+        </div>
+      )}
 
       <div className="flex items-center space-x-2">
         <Switch

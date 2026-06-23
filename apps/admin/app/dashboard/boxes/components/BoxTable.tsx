@@ -42,8 +42,8 @@ export function BoxTable({ boxes, loading, onEdit }: BoxTableProps) {
             <TableHead>Photo</TableHead>
             <TableHead>Code</TableHead>
             <TableHead>Name</TableHead>
-            <TableHead>Dimensions (in)</TableHead>
-            <TableHead>Dimensions (cm)</TableHead>
+            <TableHead>Type</TableHead>
+            <TableHead>Dimensions / Weight</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
@@ -67,10 +67,20 @@ export function BoxTable({ boxes, loading, onEdit }: BoxTableProps) {
               <TableCell className="font-medium">{box.code}</TableCell>
               <TableCell>{box.name}</TableCell>
               <TableCell>
-                {box.lengthInches} x {box.breadthInches} x {box.heightInches}
+                <Badge variant={box.type === "PACKET" ? "secondary" : "outline"}>
+                  {box.type || "BOX"}
+                </Badge>
               </TableCell>
               <TableCell>
-                {box.lengthCm} x {box.breadthCm} x {box.heightCm}
+                {box.type === "PACKET" ? (
+                  <span className="text-muted-foreground">
+                    Fixed Wt: {box.chargeableWeight ? `${box.chargeableWeight} kg` : 'N/A'}
+                  </span>
+                ) : (
+                  <div className="flex flex-col text-sm">
+                    <span>{box.lengthCm}x{box.breadthCm}x{box.heightCm} cm</span>
+                  </div>
+                )}
               </TableCell>
               <TableCell>
                 <Badge variant={box.isActive ? "default" : "secondary"}>

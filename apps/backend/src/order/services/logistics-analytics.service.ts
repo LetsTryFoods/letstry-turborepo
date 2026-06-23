@@ -139,6 +139,9 @@ export class LogisticsAnalyticsService {
 
     const ordersData = await this.orderModel.find(matchStage).lean().exec();
 
+    const totalOrdersCount = ordersData.length;
+    const serverCostPerOrder = totalOrdersCount > 0 ? 2500 / totalOrdersCount : 0;
+
     const orders: any[] = [];
     const summary = {
       totalOrders: 0,
@@ -153,6 +156,8 @@ export class LogisticsAnalyticsService {
       avgNetDiscountPct: 0,
       freeDeliveryOrdersCount: 0,
       paidDeliveryOrdersCount: 0,
+      totalZaakpayCost: 0,
+      totalServerCost: 0,
     };
 
     const boxCache = new Map<string, any>();
@@ -179,17 +184,26 @@ export class LogisticsAnalyticsService {
       const gstCharge = preGst * 0.18;
       const actualCourierCost = round4(preGst + gstCharge);
 
+      // Calculate Zaakpay Gateway Cost (1.85% + 18% GST)
+      const paymentAmount = subtotal + deliveryCharge;
+      const zaakpayFee = paymentAmount * 0.0185;
+      const zaakpayGst = zaakpayFee * 0.18;
+      const actualZaakpayCost = round4(zaakpayFee + zaakpayGst);
+
+      // Calculate Server Cost Share
+      const serverCostAllocated = round4(serverCostPerOrder);
+
       // Implied MRP assuming subtotal is after 30% discount
       const impliedMRP = round4(subtotal > 0 ? subtotal / (1 - DISCOUNT_RATE) : 0);
       
-      // What business actually earned (product + delivery fee collected - actual courier cost paid)
-      const netRevenue = round4((subtotal + deliveryCharge) - actualCourierCost);
+      // What business actually earned (product + delivery fee collected - actual courier cost paid - payment gateway - server cost)
+      const netRevenue = round4((subtotal + deliveryCharge) - actualCourierCost - actualZaakpayCost - serverCostAllocated);
       
       // The explicit 30% discount amount
       const discountOnMRP = round4(impliedMRP - subtotal);
       
-      // The hidden discount: company absorbed delivery cost
-      const netCostToBusiness = round4(actualCourierCost - deliveryCharge);
+      // The hidden discount: company absorbed delivery cost + extra costs
+      const netCostToBusiness = round4(actualCourierCost + actualZaakpayCost + serverCostAllocated - deliveryCharge);
       
       // Total amount 'lost' from MRP
       const netDiscountAmount = round4(impliedMRP - netRevenue);
@@ -214,6 +228,8 @@ export class LogisticsAnalyticsService {
         netCostToBusiness,
         netDiscountAmount,
         netDiscountPct,
+        zaakpayCost: actualZaakpayCost,
+        serverCost: serverCostAllocated,
         boxName,
         boxPhotoUrl,
         volumetricWeight,
@@ -229,6 +245,8 @@ export class LogisticsAnalyticsService {
       summary.totalDiscountOnMRP += discountOnMRP;
       summary.totalNetCostToBusiness += netCostToBusiness;
       summary.totalNetDiscountAmount += netDiscountAmount;
+      summary.totalZaakpayCost += actualZaakpayCost;
+      summary.totalServerCost += serverCostAllocated;
 
       if (deliveryCharge === 0) {
         summary.freeDeliveryOrdersCount++;

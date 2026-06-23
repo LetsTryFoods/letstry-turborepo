@@ -260,6 +260,18 @@ export default function LogisticsPage() {
                             − {formatCurrencyFull(d.totalLogisticsCost)}
                           </span>
                         </div>
+                        <div className="flex justify-between text-red-600">
+                          <span>— Zaakpay Fees (1.85% + GST)</span>
+                          <span>
+                            − {formatCurrencyFull(d.totalZaakpayCost)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-red-600 pb-2">
+                          <span>— Server Cost (Allocated)</span>
+                          <span>
+                            − {formatCurrencyFull(d.totalServerCost)}
+                          </span>
+                        </div>
                         <div className="flex justify-between border-t pt-2 font-bold text-base text-green-700">
                           <span>= Net Earning (Actual Margin)</span>
                           <span>{formatCurrencyFull(d.totalNetRevenue)}</span>
@@ -319,6 +331,8 @@ export default function LogisticsPage() {
                           <TableHead className="text-right">Subtotal</TableHead>
                           <TableHead className="text-right">Del Collected</TableHead>
                           <TableHead className="text-right">Courier Cost</TableHead>
+                          <TableHead className="text-right text-red-500">Zaakpay Cost</TableHead>
+                          <TableHead className="text-right text-red-500">Server Cost</TableHead>
                           <TableHead className="text-right bg-green-50/50">Net Revenue</TableHead>
                           <TableHead className="text-right text-muted-foreground">MRP</TableHead>
                           <TableHead className="text-right text-red-500 bg-red-50/50">Net Discount</TableHead>
@@ -344,6 +358,12 @@ export default function LogisticsPage() {
                             </TableCell>
                             <TableCell className="text-right text-red-600">
                               {formatCurrency(o.logisticsCost)}
+                            </TableCell>
+                            <TableCell className="text-right text-red-600">
+                              {formatCurrency(o.zaakpayCost)}
+                            </TableCell>
+                            <TableCell className="text-right text-red-600">
+                              {formatCurrency(o.serverCost)}
                             </TableCell>
                             <TableCell className="text-right font-bold text-green-700 bg-green-50/20">
                               {formatCurrency(o.netRevenue)}
@@ -409,7 +429,7 @@ export default function LogisticsPage() {
                         ))}
                         {(!orders || orders.length === 0) && (
                           <TableRow>
-                            <TableCell colSpan={9} className="text-center py-4 text-muted-foreground">
+                            <TableCell colSpan={11} className="text-center py-4 text-muted-foreground">
                               No order data available
                             </TableCell>
                           </TableRow>

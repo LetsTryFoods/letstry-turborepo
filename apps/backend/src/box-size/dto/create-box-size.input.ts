@@ -34,6 +34,19 @@ export class CreateBoxSizeInput {
   @IsNotEmpty()
   name: string;
 
+  @Field({ nullable: true })
+  @IsString()
+  @IsOptional()
+  type?: string;
+
+  @Field(() => Number, { nullable: true })
+  @IsOptional()
+  chargeableWeight?: number;
+
+  @Field(() => Number, { nullable: true })
+  @IsOptional()
+  fixedCourierCost?: number;
+
   @Field(() => DimensionsInput, { nullable: true })
   @IsOptional()
   internalDimensions?: DimensionsInput;
