@@ -226,6 +226,18 @@ export class OrderType {
   cancellationReason?: string;
 
   @Field({ nullable: true })
+  boxId?: string;
+
+  @Field({ nullable: true })
+  volumetricWeight?: number;
+
+  @Field({ nullable: true })
+  region?: string;
+
+  @Field({ nullable: true })
+  logisticsCost?: number;
+
+  @Field({ nullable: true })
   estimatedWeight?: number;
 
   @Field(() => BoxDimensionType, { nullable: true })

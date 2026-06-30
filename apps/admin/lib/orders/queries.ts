@@ -4,6 +4,7 @@ import {
   GET_ORDER_BY_ID,
   UPDATE_ORDER_STATUS,
   ADMIN_PUNCH_SHIPMENT,
+  ASSIGN_BOX_TO_ORDER,
 } from "../graphql/orders";
 
 export type OrderStatus =
@@ -62,6 +63,10 @@ interface AdminPunchShipmentData {
     orderId: string;
     status: string;
   };
+}
+
+interface AssignBoxToOrderData {
+  assignBoxToOrder: Order;
 }
 
 export interface Customer {
@@ -143,6 +148,10 @@ export interface Order {
     w: number;
     h: number;
   };
+  boxId?: string;
+  volumetricWeight?: number;
+  region?: string;
+  logisticsCost?: number;
   shipment?: Shipment;
 }
 
@@ -183,6 +192,11 @@ export interface AdminPunchShipmentInput {
   serviceType?: string;
   provider?: string;
   pickupLocationName?: string;
+}
+
+export interface AssignBoxToOrderInput {
+  orderId: string;
+  boxId: string;
 }
 
 export const useAllOrders = (input: GetAllOrdersInput = {}) => {
@@ -297,5 +311,24 @@ export const getOrderStats = (summary?: OrdersSummary) => {
     webOrdersCount: summary.webOrdersCount || 0,
     appRevenue: summary.appRevenue || 0,
     webRevenue: summary.webRevenue || 0,
+  };
+};
+
+export const useAssignBoxToOrder = () => {
+  const [assignBoxToOrder, { loading, error }] =
+    useMutation<AssignBoxToOrderData>(ASSIGN_BOX_TO_ORDER);
+
+  const assignBox = async (input: AssignBoxToOrderInput) => {
+    const result = await assignBoxToOrder({
+      variables: { input },
+      refetchQueries: ["GetOrderById", "GetAllOrders"],
+    });
+    return result.data?.assignBoxToOrder;
+  };
+
+  return {
+    assignBox,
+    loading,
+    error,
   };
 };

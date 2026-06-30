@@ -41,6 +41,7 @@ import {
   FileImage,
 } from "lucide-react";
 import { printShippingLabel } from "@/lib/utils/label-printer";
+import { ManualBoxAssignment } from "./ManualBoxAssignment";
 
 interface OrderDetailsDialogProps {
   order: Order | null;
@@ -486,38 +487,72 @@ export function OrderDetailsDialog({
                     Shipment Data
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">
-                      Calculated Weight
-                    </span>
-                    <span className="font-medium">
-                      {order.estimatedWeight
-                        ? `${order.estimatedWeight} kg`
-                        : "N/A"}
-                    </span>
-                  </div>
-                  {order.boxDimensions && (
+                <CardContent className="space-y-4 text-sm">
+                  <div className="space-y-2">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">
-                        Box Dimensions
+                        Calculated Weight
                       </span>
                       <span className="font-medium">
-                        {order.boxDimensions.l} x {order.boxDimensions.w} x{" "}
-                        {order.boxDimensions.h} cm
+                        {order.estimatedWeight
+                          ? `${order.estimatedWeight} kg`
+                          : "N/A"}
                       </span>
                     </div>
-                  )}
-                  {!order.boxDimensions && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">
-                        Box Recommendation
-                      </span>
-                      <span className="text-muted-foreground italic">
-                        Not available
-                      </span>
-                    </div>
-                  )}
+                    {order.boxDimensions && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">
+                          Box Dimensions
+                        </span>
+                        <span className="font-medium">
+                          {order.boxDimensions.l} x {order.boxDimensions.w} x{" "}
+                          {order.boxDimensions.h} cm
+                        </span>
+                      </div>
+                    )}
+                    {!order.boxDimensions && (
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">
+                          Box Recommendation
+                        </span>
+                        <span className="text-muted-foreground italic">
+                          Not available
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <Separator />
+
+                  <div className="space-y-3">
+                    <p className="font-medium text-xs text-muted-foreground uppercase tracking-wider">Logistics & Box Assignment</p>
+                    
+                    {order.boxId ? (
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-muted-foreground">Assigned Box</span>
+                          <ManualBoxAssignment orderId={order._id} currentBoxId={order.boxId} />
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-muted-foreground">Volumetric Weight</span>
+                          <span>{order.volumetricWeight?.toFixed(2)} kg</span>
+                        </div>
+                        <div className="flex justify-between text-xs">
+                          <span className="text-muted-foreground">Region Rate Map</span>
+                          <span>{order.region || "N/A"}</span>
+                        </div>
+                        <div className="flex justify-between text-xs font-medium">
+                          <span className="text-muted-foreground">Estimated Base Cost</span>
+                          <span>₹{order.logisticsCost?.toFixed(2) || "0.00"}</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground text-xs italic">No box assigned yet</span>
+                        <ManualBoxAssignment orderId={order._id} />
+                      </div>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             </div>

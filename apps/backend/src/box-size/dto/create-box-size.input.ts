@@ -3,6 +3,7 @@ import {
   IsNotEmpty,
   IsNumber,
   ValidateNested,
+  IsOptional,
 } from 'class-validator';
 import { InputType, Field } from '@nestjs/graphql';
 
@@ -33,14 +34,60 @@ export class CreateBoxSizeInput {
   @IsNotEmpty()
   name: string;
 
-  @Field(() => DimensionsInput)
-  internalDimensions: DimensionsInput;
+  @Field({ nullable: true })
+  @IsString()
+  @IsOptional()
+  type?: string;
+
+  @Field(() => Number, { nullable: true })
+  @IsOptional()
+  chargeableWeight?: number;
+
+  @Field(() => Number, { nullable: true })
+  @IsOptional()
+  fixedCourierCost?: number;
+
+  @Field(() => DimensionsInput, { nullable: true })
+  @IsOptional()
+  internalDimensions?: DimensionsInput;
+
+  @Field(() => Number, { nullable: true })
+  @IsOptional()
+  maxWeight?: number;
+
+  @Field(() => Number, { nullable: true })
+  @IsOptional()
+  cost?: number;
 
   @Field(() => Number)
   @IsNumber()
-  maxWeight: number;
+  lengthInches: number;
 
   @Field(() => Number)
   @IsNumber()
-  cost: number;
+  breadthInches: number;
+
+  @Field(() => Number)
+  @IsNumber()
+  heightInches: number;
+
+  @Field(() => Number)
+  @IsNumber()
+  lengthCm: number;
+
+  @Field(() => Number)
+  @IsNumber()
+  breadthCm: number;
+
+  @Field(() => Number)
+  @IsNumber()
+  heightCm: number;
+
+  @Field(() => [String])
+  @IsOptional()
+  photos: string[];
+
+  @Field(() => Boolean, { nullable: true })
+  @IsOptional()
+  isActive?: boolean;
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, SIZES } from '../constants/theme';
 import { getCdnUrl } from '../config/api';
@@ -35,6 +35,30 @@ const HistoryCard = ({ order, navigation }) => {
         <Text style={styles.itemCount}>
           {order.items?.length || 0} product types • {order.items?.reduce((s, i) => s + i.quantity, 0) || 0} items
         </Text>
+
+        {order.shippingInfo && (
+          <View style={styles.shippingContainer}>
+            <View style={styles.shippingRow}>
+              <Ionicons name="person" size={12} color={COLORS.textLight} />
+              <Text style={styles.shippingName}>{order.shippingInfo.recipientName}</Text>
+            </View>
+            <View style={styles.shippingRow}>
+              <Ionicons name="location" size={12} color={COLORS.textLight} />
+              <Text style={styles.shippingAddress} numberOfLines={2}>
+                {order.shippingInfo.addressLine1}, {order.shippingInfo.city} - {order.shippingInfo.pincode}
+              </Text>
+            </View>
+            {order.shippingInfo.recipientPhone && (
+              <TouchableOpacity 
+                style={styles.shippingRow}
+                onPress={() => Linking.openURL(`tel:${order.shippingInfo.recipientPhone}`)}
+              >
+                <Ionicons name="call" size={12} color={COLORS.primary} />
+                <Text style={styles.shippingPhone}>{order.shippingInfo.recipientPhone}</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
         {order.status === 'partially_fulfilled' && (
           <View style={{ marginTop: 8 }}>
             <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#f59e0b', marginBottom: 4 }}>
@@ -117,6 +141,34 @@ const styles = StyleSheet.create({
   itemCount: {
     fontSize: 13,
     color: COLORS.textLight,
+  },
+  shippingContainer: {
+    marginTop: 10,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#f1f5f9',
+    gap: 4,
+  },
+  shippingRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 6,
+  },
+  shippingName: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: COLORS.textDark,
+  },
+  shippingAddress: {
+    fontSize: 11,
+    color: COLORS.textLight,
+    flex: 1,
+  },
+  shippingPhone: {
+    fontSize: 12,
+    color: COLORS.primary,
+    fontWeight: '500',
+    textDecorationLine: 'underline',
   },
   imageScroll: {
     flexDirection: 'row',

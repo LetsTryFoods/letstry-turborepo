@@ -56,6 +56,34 @@ export class InvoiceService {
     });
   }
 
+  async generateBulkInvoices(orders: any[]): Promise<Buffer> {
+    this.logger.log(`Starting bulk PDF invoice generation for ${orders.length} orders`);
+    return new Promise(async (resolve, reject) => {
+      try {
+        const doc = new PDFDocument({ size: 'A4', margin: 50 });
+        const chunks: Buffer[] = [];
+        doc.on('data', (chunk) => chunks.push(chunk));
+        doc.on('end', () => resolve(Buffer.concat(chunks)));
+        doc.on('error', reject);
+
+        for (let i = 0; i < orders.length; i++) {
+          const order = orders[i];
+          if (i > 0) doc.addPage();
+          
+          await this.generateHeader(doc);
+          this.generateCustomerInformation(doc, order);
+          this.generateInvoiceTable(doc, order);
+          this.generateFooter(doc);
+        }
+
+        doc.end();
+      } catch (error) {
+        this.logger.error(`Failed to generate bulk invoices: ${error.message}`);
+        reject(error);
+      }
+    });
+  }
+
   async generateCustomLabel(order: any): Promise<Buffer> {
     return new Promise(async (resolve, reject) => {
       try {
@@ -65,7 +93,42 @@ export class InvoiceService {
         doc.on('end', () => resolve(Buffer.concat(chunks)));
         doc.on('error', reject);
 
-        // Header
+        this.drawCustomLabel(doc, order);
+
+        doc.end();
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  async generateBulkCustomLabels(orders: any[]): Promise<Buffer> {
+    this.logger.log(`Starting bulk PDF custom label generation for ${orders.length} orders`);
+    return new Promise(async (resolve, reject) => {
+      try {
+        const doc = new PDFDocument({ size: [400, 600], margin: 30 });
+        const chunks: Buffer[] = [];
+        doc.on('data', (chunk) => chunks.push(chunk));
+        doc.on('end', () => resolve(Buffer.concat(chunks)));
+        doc.on('error', reject);
+
+        for (let i = 0; i < orders.length; i++) {
+          const order = orders[i];
+          if (i > 0) doc.addPage();
+          
+          this.drawCustomLabel(doc, order);
+        }
+
+        doc.end();
+      } catch (error) {
+        this.logger.error(`Failed to generate bulk custom labels: ${error.message}`);
+        reject(error);
+      }
+    });
+  }
+
+  private drawCustomLabel(doc: PDFKit.PDFDocument, order: any) {
+    // Header
         doc.rect(0, 0, 400, 60).fill('#1e3a5f');
         doc.fillColor('#ffffff').fontSize(20).font('Helvetica-Bold').text('DELIVERY LABEL', 30, 20);
         doc.fontSize(10).font('Helvetica').text(`Order #${order.orderId}`, 30, 40);
@@ -116,12 +179,6 @@ export class InvoiceService {
           doc.font('Helvetica-Bold').text(`x${item.quantity}`, 320, currentY, { width: 50, align: 'right' });
           currentY += Math.max(doc.heightOfString(item.name, { width: 280 }), 15) + 5;
         });
-
-        doc.end();
-      } catch (error) {
-        reject(error);
-      }
-    });
   }
 
   private async generateHeader(doc: PDFKit.PDFDocument) {

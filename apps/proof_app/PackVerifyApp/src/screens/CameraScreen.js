@@ -16,10 +16,12 @@ import {
   TouchableOpacity,
   Vibration,
   View,
+  Modal,
+  FlatList,
 } from 'react-native';
 
 import { useMutation, useQuery } from '@apollo/client';
-import { BATCH_SCAN_ITEMS, COMPLETE_PACKING, UPLOAD_EVIDENCE, GET_GLOBAL_SETTINGS, MARK_ITEM_SHORT } from '../graphql/queries';
+import { BATCH_SCAN_ITEMS, COMPLETE_PACKING, UPLOAD_EVIDENCE, GET_GLOBAL_SETTINGS, MARK_ITEM_SHORT, GET_ACTIVE_BOX_SIZES, ASSIGN_BOX_TO_ORDER } from '../graphql/queries';
 import { COLORS } from '../constants/theme';
 import { API_URL } from '../config/api';
 
@@ -55,9 +57,16 @@ const CameraScreen = ({ navigation, route }) => {
   const [markItemShortMutation] = useMutation(MARK_ITEM_SHORT);
   const [uploadEvidenceMutation] = useMutation(UPLOAD_EVIDENCE);
   const [completePackingMutation] = useMutation(COMPLETE_PACKING);
+  const [assignBoxMutation] = useMutation(ASSIGN_BOX_TO_ORDER);
 
   const { data: settingsData } = useQuery(GET_GLOBAL_SETTINGS, { fetchPolicy: 'network-only' });
   const isBypassEnabled = settingsData?.getGlobalSettings?.isPackerScanBypassEnabled || false;
+
+  const { data: boxesData } = useQuery(GET_ACTIVE_BOX_SIZES, { fetchPolicy: 'cache-first' });
+  const activeBoxes = boxesData?.getActiveBoxSizes || [];
+
+  const [showBoxModal, setShowBoxModal] = useState(false);
+  const [selectedBoxId, setSelectedBoxId] = useState(null);
 
   const getNeeded = (item) => {
     const nonShorted = item.quantity - (item.shortQty || 0);
@@ -272,7 +281,15 @@ const CameraScreen = ({ navigation, route }) => {
 
   const retakePhoto = () => setBoxPhotos([]);
 
-  const handleComplete = async () => {
+  const handleCompletePress = () => {
+    if (!selectedBoxId) {
+      setShowBoxModal(true);
+      return;
+    }
+    handleComplete(selectedBoxId);
+  };
+
+  const handleComplete = async (boxId) => {
     setIsSubmitting(true);
     try {
       const restApiUrl = API_URL.replace('/graphql', '');
@@ -326,6 +343,17 @@ const CameraScreen = ({ navigation, route }) => {
         },
       });
 
+      if (boxId) {
+        await assignBoxMutation({
+          variables: {
+            input: {
+              orderId: order.orderId,
+              boxId: boxId,
+            }
+          }
+        });
+      }
+
       Alert.alert('🎉 Order Complete!', `Order #${order.orderNumber} packed by ${user.name}`, [
         { text: 'Back to Dashboard', onPress: () => navigation.navigate('Dashboard') },
       ]);
@@ -375,17 +403,57 @@ const CameraScreen = ({ navigation, route }) => {
                 <Ionicons name="refresh" size={20} color={COLORS.textDark} />
                 <Text style={styles.retakeBtnText}>Retake All</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.submitBtn} onPress={handleComplete} disabled={isSubmitting}>
+              <TouchableOpacity style={styles.submitBtn} onPress={handleCompletePress} disabled={isSubmitting}>
                 {isSubmitting ? (
                   <ActivityIndicator color="#fff" />
                 ) : (
                   <>
                     <Ionicons name="checkmark-circle" size={20} color="#fff" />
-                    <Text style={styles.submitBtnText}>Complete Order</Text>
+                    <Text style={styles.submitBtnText}>{selectedBoxId ? "Complete Order" : "Select Box & Complete"}</Text>
                   </>
                 )}
               </TouchableOpacity>
             </View>
+
+            <Modal visible={showBoxModal} animationType="slide" transparent={true}>
+              <View style={styles.modalOverlay}>
+                <View style={styles.modalContent}>
+                  <Text style={styles.modalTitle}>Select Box Used</Text>
+                  <Text style={styles.modalSubtitle}>Please select the box size you used for packing.</Text>
+                  
+                  <FlatList
+                    data={activeBoxes}
+                    keyExtractor={(item) => item.id}
+                    renderItem={({ item }) => (
+                      <TouchableOpacity 
+                        style={[styles.boxOption, selectedBoxId === item.id && styles.boxOptionSelected]}
+                        onPress={() => setSelectedBoxId(item.id)}
+                      >
+                        <Text style={[styles.boxName, selectedBoxId === item.id && styles.boxNameSelected]}>{item.name}</Text>
+                        <Text style={styles.boxDim}>{item.lengthInches}x{item.breadthInches}x{item.heightInches}&quot;</Text>
+                      </TouchableOpacity>
+                    )}
+                    style={styles.boxList}
+                  />
+
+                  <View style={styles.modalActions}>
+                    <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowBoxModal(false)}>
+                      <Text style={styles.cancelBtnText}>Cancel</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                      style={[styles.confirmBtn, !selectedBoxId && styles.confirmBtnDisabled]} 
+                      disabled={!selectedBoxId}
+                      onPress={() => {
+                        setShowBoxModal(false);
+                        handleComplete(selectedBoxId);
+                      }}
+                    >
+                      <Text style={styles.confirmBtnText}>Confirm Box</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            </Modal>
           </View>
         ) : (
           // FIX: Use absolute positioning overlay OUTSIDE CameraView (no children in CameraView on iOS)
@@ -541,6 +609,22 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
   },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
+  modalContent: { backgroundColor: '#1e293b', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, maxHeight: '80%' },
+  modalTitle: { color: '#fff', fontSize: 18, fontWeight: 'bold', marginBottom: 4 },
+  modalSubtitle: { color: '#94a3b8', fontSize: 14, marginBottom: 16 },
+  boxList: { maxHeight: 300 },
+  boxOption: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, backgroundColor: '#334155', borderRadius: 12, marginBottom: 10, borderWidth: 1, borderColor: 'transparent' },
+  boxOptionSelected: { borderColor: COLORS.primary, backgroundColor: 'rgba(79, 70, 229, 0.2)' },
+  boxName: { color: '#fff', fontSize: 16, fontWeight: '500' },
+  boxNameSelected: { color: COLORS.primary, fontWeight: 'bold' },
+  boxDim: { color: '#94a3b8', fontSize: 13 },
+  modalActions: { flexDirection: 'row', gap: 12, marginTop: 16 },
+  cancelBtn: { flex: 1, padding: 14, backgroundColor: '#334155', borderRadius: 10, alignItems: 'center' },
+  cancelBtnText: { color: '#e2e8f0', fontWeight: '600' },
+  confirmBtn: { flex: 2, padding: 14, backgroundColor: COLORS.primary, borderRadius: 10, alignItems: 'center' },
+  confirmBtnDisabled: { opacity: 0.5 },
+  confirmBtnText: { color: '#fff', fontWeight: 'bold' },
 });
 
 export default CameraScreen;

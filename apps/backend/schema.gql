@@ -1049,6 +1049,10 @@ type OrderType {
   cancelledAt: DateTime
   trackingNumber: String
   cancellationReason: String
+  boxId: String
+  volumetricWeight: Float
+  region: String
+  logisticsCost: Float
   estimatedWeight: Float
   boxDimensions: BoxDimensionType
   shipment: ShipmentResponse
@@ -1087,6 +1091,10 @@ type OrderWithUserInfo {
   cancelledAt: DateTime
   trackingNumber: String
   cancellationReason: String
+  boxId: String
+  volumetricWeight: Float
+  region: String
+  logisticsCost: Float
   estimatedWeight: Float
   boxDimensions: BoxDimensionType
   shipment: ShipmentResponse
@@ -1123,6 +1131,80 @@ type AdminOrdersResponse {
   orders: [OrderWithUserInfo!]!
   meta: PaginationMeta!
   summary: OrdersSummary!
+}
+
+type RegionStatsType {
+  region: String!
+  count: Int!
+  baseCost: Float!
+  volumetricWeight: Float!
+  totalCost: Float!
+}
+
+type BoxUsageType {
+  boxId: String!
+  boxName: String!
+  count: Int!
+  costGenerated: Float!
+}
+
+type LogisticsAnalyticsResponse {
+  month: Int!
+  year: Int!
+  totalCost: Float!
+  totalBaseCost: Float!
+  fuelCharge: Float!
+  fovCharge: Float!
+  gstCharge: Float!
+  totalVolumetricWeight: Float!
+  totalBoxesUsed: Int!
+  regionStats: [RegionStatsType!]!
+  boxUsage: [BoxUsageType!]!
+  mostUsedBox: BoxUsageType
+  leastUsedBox: BoxUsageType
+}
+
+type OrderDiscountItem {
+  orderId: String!
+  orderNumber: String
+  subtotal: Float!
+  deliveryCharge: Float!
+  logisticsCost: Float!
+  netRevenue: Float!
+  impliedMRP: Float!
+  discountOnMRP: Float!
+  netCostToBusiness: Float!
+  netDiscountAmount: Float!
+  netDiscountPct: Float!
+  zaakpayCost: Float!
+  serverCost: Float!
+  boxName: String
+  boxPhotoUrl: String
+  volumetricWeight: Float
+}
+
+type OrderDiscountSummary {
+  totalOrders: Int!
+  totalSubtotal: Float!
+  totalDeliveryChargesCollected: Float!
+  totalLogisticsCost: Float!
+  totalNetRevenue: Float!
+  impliedTotalMRP: Float!
+  totalDiscountOnMRP: Float!
+  totalNetCostToBusiness: Float!
+  totalNetDiscountAmount: Float!
+  avgNetDiscountPct: Float!
+  freeDeliveryOrdersCount: Int!
+  paidDeliveryOrdersCount: Int!
+  totalZaakpayCost: Float!
+  totalServerCost: Float!
+}
+
+type OrderDiscountAnalyticsResponse {
+  month: Int!
+  year: Int!
+  summary: OrderDiscountSummary!
+  orders: [OrderDiscountItem!]!
 }
 
 type ShippingInsightsType {
@@ -1220,10 +1302,22 @@ type BoxSize {
   id: ID!
   code: String!
   name: String!
-  internalDimensions: BoxDimensions!
-  maxWeight: Float!
-  cost: Float!
+  type: String
+  chargeableWeight: Float
+  fixedCourierCost: Float
+  internalDimensions: BoxDimensions
+  maxWeight: Float
+  cost: Float
+  lengthInches: Float
+  breadthInches: Float
+  heightInches: Float
+  lengthCm: Float
+  breadthCm: Float
+  heightCm: Float
+  photos: [String!]
   isActive: Boolean!
+  createdAt: DateTime
+  updatedAt: DateTime
 }
 
 type BoxInfo {
@@ -1302,6 +1396,10 @@ type PackingOrder {
   evidence: PackingEvidence
   shippingInfo: ShippingInfo
   shipmentInfo: ShipmentInfo
+  boxId: String
+  volumetricWeight: Float
+  region: String
+  logisticsCost: Float
 }
 
 type ScanLog {
@@ -1823,6 +1921,8 @@ type Query {
   getAdminPaymentDetail(paymentOrderId: String!): PaymentDetailType!
   getAdminPaymentsByIdentity(identityId: String!): [PaymentListItemType!]!
   getAdminPaymentsByOrder(orderId: String!): [PaymentListItemType!]!
+  getMonthlyLogisticsAnalytics(month: Float!, year: Float!): LogisticsAnalyticsResponse!
+  getMonthlyDiscountAnalytics(month: Float!, year: Float!): OrderDiscountAnalyticsResponse!
   getOrderReports(period: String! = "month"): OrderReportResponse!
   getShippingInsights: ShippingInsightsType!
   getSalesByState(period: String! = "month"): [StateSalesType!]!
@@ -1838,6 +1938,7 @@ type Query {
   getMyOrderHistory: [PackingOrder!]!
   getBoxRecommendation(packingOrderId: String!): BoxSize!
   getAllPackingOrders(packerId: String, status: String): [PackingOrder!]!
+  getPackingOrder(id: String!): PackingOrder!
   getEvidenceByOrder(packingOrderId: String!): PackingEvidence!
   getAllPackers(isActive: Boolean): [Packer!]!
   getPackerById(packerId: String!): Packer!
@@ -2066,6 +2167,7 @@ type Mutation {
   initiateAdminRefund(input: InitiateAdminRefundInput!): RefundInitiateResponse!
   cancelOrder(input: CancelOrderInput!): OrderType!
   updateOrderStatus(input: UpdateOrderStatusInput!): OrderType!
+  assignBoxToOrder(input: AssignBoxToOrderInput!): OrderType!
   startPacking(packingOrderId: String!): PackingOrder!
   batchScanItems(input: BatchScanInput!): BatchScanResult!
   markItemShort(packingOrderId: String!, productId: String!, shortQty: Int!, isComponent: Boolean): PackingOrder!
@@ -2595,6 +2697,11 @@ input UpdateOrderStatusInput {
   trackingNumber: String
 }
 
+input AssignBoxToOrderInput {
+  orderId: String!
+  boxId: String!
+}
+
 input BatchScanInput {
   packingOrderId: String!
   items: [ProductScanItem!]!
@@ -2656,9 +2763,20 @@ enum ErrorSeverity {
 input CreateBoxSizeInput {
   code: String!
   name: String!
-  internalDimensions: DimensionsInput!
-  maxWeight: Float!
-  cost: Float!
+  type: String
+  chargeableWeight: Float
+  fixedCourierCost: Float
+  internalDimensions: DimensionsInput
+  maxWeight: Float
+  cost: Float
+  lengthInches: Float!
+  breadthInches: Float!
+  heightInches: Float!
+  lengthCm: Float!
+  breadthCm: Float!
+  heightCm: Float!
+  photos: [String!]!
+  isActive: Boolean
 }
 
 input DimensionsInput {
@@ -2668,11 +2786,22 @@ input DimensionsInput {
 }
 
 input UpdateBoxSizeInput {
+  code: String
   name: String
+  type: String
+  chargeableWeight: Float
+  fixedCourierCost: Float
   internalDimensions: DimensionsInput
   maxWeight: Float
   cost: Float
   isActive: Boolean
+  lengthInches: Float
+  breadthInches: Float
+  heightInches: Float
+  lengthCm: Float
+  breadthCm: Float
+  heightCm: Float
+  photos: [String!]
 }
 
 input CreateShipmentInput {

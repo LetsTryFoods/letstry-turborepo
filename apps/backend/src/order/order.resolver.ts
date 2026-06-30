@@ -8,11 +8,13 @@ import {
 } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { OrderService } from './order.service';
+import { LogisticsAnalyticsService } from './services/logistics-analytics.service';
 import {
   GetMyOrdersInput,
   CancelOrderInput,
   GetAllOrdersInput,
   UpdateOrderStatusInput,
+  AssignBoxToOrderInput,
 } from './order.input';
 import {
   OrderType,
@@ -24,6 +26,8 @@ import {
   OrderWithUserInfo,
   BoxDimensionType,
 } from './order.graphql';
+import { LogisticsAnalyticsResponse } from './logistics-analytics.graphql';
+import { OrderDiscountAnalyticsResponse } from './discount-analytics.graphql';
 import {
   OrderReportResponse,
   ShippingInsightsType,
@@ -50,7 +54,28 @@ export class OrderResolver {
     private readonly orderService: OrderService,
     private readonly packingService: PackingService,
     private readonly shipmentService: ShipmentService,
+    private readonly logisticsAnalyticsService: LogisticsAnalyticsService,
   ) {}
+
+  @Query(() => LogisticsAnalyticsResponse)
+  @Roles(Role.ADMIN)
+  @UseGuards(RolesGuard)
+  async getMonthlyLogisticsAnalytics(
+    @Args('month', { type: () => Number }) month: number,
+    @Args('year', { type: () => Number }) year: number,
+  ): Promise<LogisticsAnalyticsResponse> {
+    return this.logisticsAnalyticsService.getMonthlyAnalytics(month, year);
+  }
+
+  @Query(() => OrderDiscountAnalyticsResponse)
+  @Roles(Role.ADMIN)
+  @UseGuards(RolesGuard)
+  async getMonthlyDiscountAnalytics(
+    @Args('month', { type: () => Number }) month: number,
+    @Args('year', { type: () => Number }) year: number,
+  ): Promise<any> {
+    return this.logisticsAnalyticsService.getDiscountAnalytics(month, year);
+  }
 
   @Query(() => OrderReportResponse)
   @Roles(Role.ADMIN)
@@ -306,6 +331,19 @@ export class OrderResolver {
       orderId: input.orderId,
       status: input.status,
       trackingNumber: input.trackingNumber,
+    });
+    return order.toObject ? order.toObject() : order;
+  }
+
+  @Mutation(() => OrderType)
+  @Roles(Role.ADMIN, Role.USER, Role.PACKER)
+  @UseGuards(DualAuthGuard, RolesGuard)
+  async assignBoxToOrder(
+    @Args('input') input: AssignBoxToOrderInput,
+  ): Promise<any> {
+    const order = await this.orderService.assignBoxToOrder({
+      orderId: input.orderId,
+      boxId: input.boxId,
     });
     return order.toObject ? order.toObject() : order;
   }
