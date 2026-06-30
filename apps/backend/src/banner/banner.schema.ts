@@ -70,6 +70,15 @@ export class Banner {
   @Field({ nullable: true })
   textColor?: string;
 
+  /**
+   * Banner category tag. Use 'sale' for near-expiry / clearance sale banners,
+   * 'hero' for the main homepage carousel, etc.
+   * Defaults to 'hero' if not set.
+   */
+  @Prop({ default: 'hero' })
+  @Field({ nullable: true })
+  bannerType?: string;
+
   @Field(() => GraphQLISODateTime)
   createdAt: Date;
 

@@ -46,6 +46,9 @@ export class CreateBannerInput {
 
   @Field({ nullable: true })
   textColor?: string;
+
+  @Field({ nullable: true, defaultValue: 'hero' })
+  bannerType?: string;
 }
 
 @InputType()
@@ -94,4 +97,7 @@ export class UpdateBannerInput {
 
   @Field({ nullable: true })
   textColor?: string;
+
+  @Field({ nullable: true })
+  bannerType?: string;
 }

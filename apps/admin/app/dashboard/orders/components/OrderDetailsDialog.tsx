@@ -323,8 +323,8 @@ export function OrderDetailsDialog({
                           ₹
                           {item.price
                             ? (
-                                Number(item.price) * Number(item.quantity)
-                              ).toLocaleString()
+                              Number(item.price) * Number(item.quantity)
+                            ).toLocaleString()
                             : "0"}
                         </p>
                         <p className="text-xs text-muted-foreground">
@@ -521,19 +521,30 @@ export function OrderDetailsDialog({
                       </div>
                     )}
                   </div>
-                  
+
                   <Separator />
 
                   <div className="space-y-3">
                     <p className="font-medium text-xs text-muted-foreground uppercase tracking-wider">Logistics & Box Assignment</p>
-                    
+
                     {order.boxId ? (
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
                           <span className="text-muted-foreground">Assigned Box</span>
                           <ManualBoxAssignment orderId={order._id} currentBoxId={order.boxId} />
                         </div>
-                        <div className="flex justify-between text-xs">
+                        {order.box && (
+                          <div className="flex justify-between text-xs mt-1">
+                            <span className="text-muted-foreground">Box Details</span>
+                            <span className="font-medium text-right max-w-[200px] truncate" title={order.box.name}>
+                              {order.box.name} <br />
+                              <span className="text-muted-foreground text-[10px]">
+                                {order.box.lengthCm} x {order.box.breadthCm} x {order.box.heightCm} cm
+                              </span>
+                            </span>
+                          </div>
+                        )}
+                        <div className="flex justify-between text-xs mt-2">
                           <span className="text-muted-foreground">Volumetric Weight</span>
                           <span>{order.volumetricWeight?.toFixed(2)} kg</span>
                         </div>

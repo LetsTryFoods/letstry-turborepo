@@ -121,8 +121,9 @@ const CameraScreen = ({ navigation, route }) => {
     setLastScanned(data);
 
     const currentItems = items;
-    const matchedItem = currentItems.find(i => i.ean === data || (i.isCombo && i.comboEans.includes(data)));
-    if (!matchedItem) {
+    const matchingItems = currentItems.filter(i => i.ean === data || (i.isCombo && i.comboEans.includes(data)));
+
+    if (matchingItems.length === 0) {
       Vibration.vibrate([0, 100, 80, 100]);
       Speech.speak('Wrong item', { rate: 1.2 });
       Alert.alert('Unknown EAN', `${data} is not in this order.`, [
@@ -131,17 +132,46 @@ const CameraScreen = ({ navigation, route }) => {
       return;
     }
 
-    const needed = getNeeded(matchedItem);
+    let matchedItem = null;
 
-    if (matchedItem.scannedQty >= needed) {
+    // Prioritize exact matches (non-combos) first
+    for (const item of matchingItems) {
+      if (!item.isCombo && item.ean === data) {
+        if (item.scannedQty < getNeeded(item)) {
+          matchedItem = item;
+          break;
+        }
+      }
+    }
+
+    // If no exact match found, look at combos
+    if (!matchedItem) {
+      for (const item of matchingItems) {
+        if (item.isCombo && item.scannedQty < getNeeded(item)) {
+          // Check if this specific EAN can still be added to this combo
+          const nonShorted = item.quantity - (item.shortQty || 0);
+          const eanOccurrences = item.comboEans.filter(e => e === data).length;
+          const maxAllowed = nonShorted * eanOccurrences;
+          const currentEanScans = (pendingScans.current[item.productId] || []).filter(e => e === data).length;
+
+          if (currentEanScans < maxAllowed) {
+            matchedItem = item;
+            break;
+          }
+        }
+      }
+    }
+
+    if (!matchedItem) {
       Vibration.vibrate([0, 100, 80, 100]);
       Speech.speak('Already done', { rate: 1.2 });
-      Alert.alert('Already Scanned', `${matchedItem.name} is already fully scanned.`, [
+      Alert.alert('Already Scanned', `All items needing this barcode are fully scanned.`, [
         { text: 'OK', onPress: () => setTimeout(unlockScanner, 500) }
       ]);
       return;
     }
 
+    const needed = getNeeded(matchedItem);
     const pid = matchedItem.productId;
     if (!pendingScans.current[pid]) pendingScans.current[pid] = [];
     pendingScans.current[pid].push(data);
@@ -420,12 +450,12 @@ const CameraScreen = ({ navigation, route }) => {
                 <View style={styles.modalContent}>
                   <Text style={styles.modalTitle}>Select Box Used</Text>
                   <Text style={styles.modalSubtitle}>Please select the box size you used for packing.</Text>
-                  
+
                   <FlatList
                     data={activeBoxes}
                     keyExtractor={(item) => item.id}
                     renderItem={({ item }) => (
-                      <TouchableOpacity 
+                      <TouchableOpacity
                         style={[styles.boxOption, selectedBoxId === item.id && styles.boxOptionSelected]}
                         onPress={() => setSelectedBoxId(item.id)}
                       >
@@ -440,8 +470,8 @@ const CameraScreen = ({ navigation, route }) => {
                     <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowBoxModal(false)}>
                       <Text style={styles.cancelBtnText}>Cancel</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity 
-                      style={[styles.confirmBtn, !selectedBoxId && styles.confirmBtnDisabled]} 
+                    <TouchableOpacity
+                      style={[styles.confirmBtn, !selectedBoxId && styles.confirmBtnDisabled]}
                       disabled={!selectedBoxId}
                       onPress={() => {
                         setShowBoxModal(false);

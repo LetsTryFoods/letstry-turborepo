@@ -46,6 +46,7 @@ export const variantFormSchema = z
     thumbnailUrl: z.string().default(""),
     isDefault: z.boolean().default(false),
     isActive: z.boolean().default(true),
+    isSaleVariant: z.boolean().default(false),
   })
   .refine((data) => data.price <= data.mrp, {
     message: "Selling Price cannot be greater than MRP",
@@ -101,4 +102,5 @@ export const getDefaultVariant = (
   thumbnailUrl: "",
   isDefault: true,
   isActive: true,
+  isSaleVariant: false,
 });

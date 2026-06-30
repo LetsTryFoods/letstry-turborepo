@@ -236,12 +236,14 @@ export class PackingService {
 
         if (!eanError) {
           for (const [scannedEan, count] of Object.entries(scanCounts)) {
-            if (count > nonShortedQuantity) {
+            const occurrencesInCombo = expectedEansArray.filter((e: string) => e === scannedEan).length;
+            const maxAllowed = nonShortedQuantity * occurrencesInCombo;
+            if (count > maxAllowed) {
               validationResults.push({
                 productId: item.productId,
                 isValid: false,
                 errorType: 'quantity_mismatch',
-                errorMessage: `Component ${scannedEan} scanned too many times (${count} > ${nonShortedQuantity})`,
+                errorMessage: `Component ${scannedEan} scanned too many times (${count} > ${maxAllowed})`,
                 expectedQuantity: expectedTotalScans,
                 scannedQuantity: item.eans.length,
                 productName: orderItem.name,

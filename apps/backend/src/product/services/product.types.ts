@@ -12,6 +12,7 @@ export interface ProductFilter {
   'variants.sku'?: string;
   'variants._id'?: string;
   'variants.availabilityStatus'?: string | { $ne: string };
+  'variants.isSaleVariant'?: boolean;
   variants?: { $elemMatch: Record<string, any> };
   $or?: Array<Record<string, any>>;
   $and?: Array<Record<string, any>>;

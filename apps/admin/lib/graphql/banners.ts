@@ -19,6 +19,7 @@ export const GET_BANNERS = gql`
       endDate
       backgroundColor
       textColor
+      bannerType
       createdAt
       updatedAt
     }
@@ -44,6 +45,7 @@ export const GET_ACTIVE_BANNERS = gql`
       endDate
       backgroundColor
       textColor
+      bannerType
       createdAt
       updatedAt
     }
@@ -69,6 +71,7 @@ export const GET_BANNER = gql`
       endDate
       backgroundColor
       textColor
+      bannerType
       createdAt
       updatedAt
     }
@@ -94,6 +97,7 @@ export const CREATE_BANNER = gql`
       endDate
       backgroundColor
       textColor
+      bannerType
       createdAt
       updatedAt
     }
@@ -104,6 +108,7 @@ export const UPDATE_BANNER = gql`
   mutation UpdateBanner($id: ID!, $input: UpdateBannerInput!) {
     updateBanner(id: $id, input: $input) {
       _id
+      bannerType
     }
   }
 `;

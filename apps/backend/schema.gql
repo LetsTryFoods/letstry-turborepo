@@ -297,6 +297,7 @@ type Banner {
   endDate: DateTime
   backgroundColor: String
   textColor: String
+  bannerType: String
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -402,6 +403,7 @@ type ProductVariant {
   thumbnailUrl: String!
   isDefault: Boolean!
   isActive: Boolean!
+  isSaleVariant: Boolean!
 }
 
 type DashboardStats {
@@ -636,6 +638,8 @@ type Guest {
 type GlobalSettings {
   _id: ID!
   isPackerScanBypassEnabled: Boolean!
+  minAppVersionAndroid: String!
+  minAppVersionIos: String!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -967,6 +971,34 @@ type ShipmentListResponse {
   summary: ShipmentSummaryResponse!
 }
 
+type BoxDimensions {
+  l: Float!
+  w: Float!
+  h: Float!
+}
+
+type BoxSize {
+  id: ID!
+  code: String!
+  name: String!
+  type: String
+  chargeableWeight: Float
+  fixedCourierCost: Float
+  internalDimensions: BoxDimensions
+  maxWeight: Float
+  cost: Float
+  lengthInches: Float
+  breadthInches: Float
+  heightInches: Float
+  lengthCm: Float
+  breadthCm: Float
+  heightCm: Float
+  photos: [String!]
+  isActive: Boolean!
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
 type OrderPaymentType {
   _id: String!
   status: PaymentStatus!
@@ -1050,6 +1082,7 @@ type OrderType {
   trackingNumber: String
   cancellationReason: String
   boxId: String
+  box: BoxSize
   volumetricWeight: Float
   region: String
   logisticsCost: Float
@@ -1092,6 +1125,7 @@ type OrderWithUserInfo {
   trackingNumber: String
   cancellationReason: String
   boxId: String
+  box: BoxSize
   volumetricWeight: Float
   region: String
   logisticsCost: Float
@@ -1170,6 +1204,9 @@ type OrderDiscountItem {
   subtotal: Float!
   deliveryCharge: Float!
   logisticsCost: Float!
+  fuelCharge: Float!
+  fovCharge: Float!
+  gstCharge: Float!
   netRevenue: Float!
   impliedMRP: Float!
   discountOnMRP: Float!
@@ -1188,6 +1225,9 @@ type OrderDiscountSummary {
   totalSubtotal: Float!
   totalDeliveryChargesCollected: Float!
   totalLogisticsCost: Float!
+  totalFuelCharge: Float!
+  totalFovCharge: Float!
+  totalGstCharge: Float!
   totalNetRevenue: Float!
   impliedTotalMRP: Float!
   totalDiscountOnMRP: Float!
@@ -1290,34 +1330,6 @@ type BatchScanResult {
   validations: [ProductValidation!]!
   errorMessage: String
   totalScans: Int
-}
-
-type BoxDimensions {
-  l: Float!
-  w: Float!
-  h: Float!
-}
-
-type BoxSize {
-  id: ID!
-  code: String!
-  name: String!
-  type: String
-  chargeableWeight: Float
-  fixedCourierCost: Float
-  internalDimensions: BoxDimensions
-  maxWeight: Float
-  cost: Float
-  lengthInches: Float
-  breadthInches: Float
-  heightInches: Float
-  lengthCm: Float
-  breadthCm: Float
-  heightCm: Float
-  photos: [String!]
-  isActive: Boolean!
-  createdAt: DateTime
-  updatedAt: DateTime
 }
 
 type BoxInfo {
@@ -1884,6 +1896,7 @@ type Query {
   productVariant(productId: ID!, variantId: ID!): ProductVariant
   inventoryLogs(sku: String!): [InventoryLog!]!
   findProductByIdentifier(identifier: String!): Product
+  nearExpirySaleProducts: [Product!]!
   categories(pagination: PaginationInput! = {page: 1, limit: 10}, includeArchived: Boolean! = false): PaginatedCategories!
   rootCategories(pagination: PaginationInput! = {page: 1, limit: 10}, includeArchived: Boolean! = false): PaginatedCategories!
   categoryChildren(parentId: ID!, pagination: PaginationInput! = {page: 1, limit: 10}, includeArchived: Boolean! = false): PaginatedCategories!
@@ -1902,6 +1915,7 @@ type Query {
   getPlaceDetails(input: PlaceDetailsInput!): PlaceDetailsOutput!
   banners: [Banner!]!
   activeBanners: [Banner!]!
+  activeSaleBanners: [Banner!]!
   banner(id: ID!): Banner
   dashboardStats: DashboardStats!
   policies: [Policy!]!
@@ -2181,7 +2195,7 @@ type Mutation {
   deletePacker(packerId: String!): Boolean!
   packerLogin(input: PackerLoginInput!): PackerLoginResponse!
   flagPackingError(input: FlagErrorInput!): ScanLog!
-  updateGlobalSettings(isPackerScanBypassEnabled: Boolean!): GlobalSettings!
+  updateGlobalSettings(isPackerScanBypassEnabled: Boolean!, minAppVersionAndroid: String, minAppVersionIos: String): GlobalSettings!
   createBoxSize(input: CreateBoxSizeInput!): BoxSize!
   updateBoxSize(boxId: String!, input: UpdateBoxSizeInput!): BoxSize!
   deleteBoxSize(boxId: String!): Boolean!
@@ -2296,6 +2310,7 @@ input CreateProductVariantInput {
   thumbnailUrl: String!
   isDefault: Boolean! = false
   isActive: Boolean! = true
+  isSaleVariant: Boolean! = false
 }
 
 input ProductImageInput {
@@ -2425,6 +2440,7 @@ input UpdateProductVariantInput {
   thumbnailUrl: String
   isDefault: Boolean
   isActive: Boolean
+  isSaleVariant: Boolean
 }
 
 input CreateCategoryInput {
@@ -2574,6 +2590,7 @@ input CreateBannerInput {
   endDate: DateTime
   backgroundColor: String
   textColor: String
+  bannerType: String = "hero"
 }
 
 input UpdateBannerInput {
@@ -2592,6 +2609,7 @@ input UpdateBannerInput {
   endDate: DateTime
   backgroundColor: String
   textColor: String
+  bannerType: String
 }
 
 input CreatePolicyInput {

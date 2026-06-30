@@ -292,6 +292,18 @@ export default function ProductDetailPage() {
                             Inactive
                           </Badge>
                         )}
+                        {variant.isSaleVariant && (
+                          <Badge
+                            className="text-xs"
+                            style={{
+                              background: "linear-gradient(135deg, #dc2626, #b91c1c)",
+                              color: "#fff",
+                              border: "none",
+                            }}
+                          >
+                            🔥 On Sale
+                          </Badge>
+                        )}
                       </div>
                       <Badge
                         variant={
@@ -470,6 +482,24 @@ export default function ProductDetailPage() {
                             ? "Pre-Order"
                             : "Discontinued"}
                     </Badge>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Sale Item
+                    </p>
+                    {selectedVariant.isSaleVariant ? (
+                      <Badge
+                        style={{
+                          background: "linear-gradient(135deg, #dc2626, #b91c1c)",
+                          color: "#fff",
+                          border: "none",
+                        }}
+                      >
+                        🔥 On Sale
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline">Not on Sale</Badge>
+                    )}
                   </div>
                 </div>
               </CardContent>

@@ -15,6 +15,8 @@ export class SettingsService {
     if (!settings) {
       settings = await this.settingsModel.create({
         isPackerScanBypassEnabled: false,
+        minAppVersionAndroid: '1.0.0',
+        minAppVersionIos: '1.0.0',
       });
     }
     return settings;
@@ -22,9 +24,13 @@ export class SettingsService {
 
   async updateGlobalSettings(
     isPackerScanBypassEnabled: boolean,
+    minAppVersionAndroid: string,
+    minAppVersionIos: string,
   ): Promise<GlobalSettingsDocument> {
     const settings = await this.getGlobalSettings();
     settings.isPackerScanBypassEnabled = isPackerScanBypassEnabled;
+    settings.minAppVersionAndroid = minAppVersionAndroid;
+    settings.minAppVersionIos = minAppVersionIos;
     return settings.save();
   }
 }

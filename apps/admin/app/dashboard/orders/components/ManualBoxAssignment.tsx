@@ -43,7 +43,7 @@ export function ManualBoxAssignment({ orderId, currentBoxId }: { orderId: string
         >
           <option value="" disabled>Select a box</option>
           {boxes.map((box: any) => (
-            <option key={box._id} value={box._id}>
+            <option key={box.id} value={box.id}>
               {box.name} ({box.lengthInches}x{box.breadthInches}x{box.heightInches}")
             </option>
           ))}

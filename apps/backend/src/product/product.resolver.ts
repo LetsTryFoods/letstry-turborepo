@@ -363,4 +363,15 @@ export class ProductResolver {
   ): Promise<Product | null> {
     return this.productService.findBySkuOrGtin(identifier);
   }
+
+  /**
+   * Returns all products that have at least one in-stock variant with
+   * isSaleVariant = true. Used to power the Sale section on the homepage
+   * and the /sale page on the website.
+   */
+  @Query(() => [Product], { name: 'nearExpirySaleProducts' })
+  @Public()
+  async getNearExpirySaleProducts(): Promise<Product[]> {
+    return this.productService.findSaleProducts();
+  }
 }

@@ -136,6 +136,7 @@ export function BannerForm({
       endDate: formatDateForInput(initialData?.endDate),
       backgroundColor: initialData?.backgroundColor || "",
       textColor: initialData?.textColor || "",
+      bannerType: initialData?.bannerType || "hero",
     },
   });
 
@@ -157,6 +158,7 @@ export function BannerForm({
         endDate: formatDateForInput(initialData.endDate),
         backgroundColor: initialData.backgroundColor || "",
         textColor: initialData.textColor || "",
+        bannerType: initialData.bannerType || "hero",
       });
 
       setUploadedImages(
@@ -203,6 +205,7 @@ export function BannerForm({
         endDate: "",
         backgroundColor: "",
         textColor: "",
+        bannerType: "hero",
       });
       setUploadedImages([]);
       setUploadedMobileImages([]);
@@ -498,6 +501,27 @@ export function BannerForm({
               <FormLabel>Description</FormLabel>
               <FormControl>
                 <Textarea {...field} value={field.value || ""} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="bannerType"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Banner Type</FormLabel>
+              <FormControl>
+                <select
+                  {...field}
+                  value={field.value || "hero"}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <option value="hero">🖼️ Hero (main carousel)</option>
+                  <option value="sale">🔥 Sale (near-expiry flash sale)</option>
+                  <option value="promo">🎉 Promo (general promotion)</option>
+                </select>
               </FormControl>
               <FormMessage />
             </FormItem>

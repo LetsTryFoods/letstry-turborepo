@@ -24,6 +24,7 @@ const VARIANT_FIELDS = `
   thumbnailUrl
   isDefault
   isActive
+  isSaleVariant
 `;
 
 // Fragment for SEO fields. Sprint 4 adds twitterCard / twitterTitle /

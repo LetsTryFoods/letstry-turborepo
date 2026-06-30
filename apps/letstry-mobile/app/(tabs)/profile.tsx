@@ -47,7 +47,6 @@ const FALLBACK_COMPONENTS = [
           icon: "help-circle-outline",
           action: { type: "NAVIGATE", destination: "/support/contact" },
         },
-        { id: 'network_logs', label: 'Network Logs', icon: 'pulse-outline', action: { type: 'NAVIGATE', destination: '/network-logs' } },
       ],
     },
   },
@@ -63,29 +62,38 @@ export default function ProfileScreen() {
 
   const components = [...(sduiData?.components || FALLBACK_COMPONENTS)];
 
-  // Ensure Network Logs is always available for debugging
-  const hasNetworkLogs = components.some(c =>
-    c.type === 'LinkSection' &&
-    c.props?.links?.some((l: any) => l.id === 'network_logs')
-  );
+  // Ensure Network Logs is only available for local debugging
+  if (__DEV__) {
+    const hasNetworkLogs = components.some(c =>
+      c.type === 'LinkSection' &&
+      c.props?.links?.some((l: any) => l.id === 'network_logs')
+    );
 
-  if (!hasNetworkLogs) {
-    const debugSection = {
-      type: 'LinkSection',
-      props: {
-        title: 'Debug',
-        links: [
-          { id: 'network_logs', label: 'Network Logs', icon: 'pulse-outline', action: { type: 'NAVIGATE', destination: '/network-logs' } },
-        ]
+    if (!hasNetworkLogs) {
+      const debugSection = {
+        type: 'LinkSection',
+        props: {
+          title: 'Debug',
+          links: [
+            { id: 'network_logs', label: 'Network Logs', icon: 'pulse-outline', action: { type: 'NAVIGATE', destination: '/network-logs' } },
+          ]
+        }
+      };
+
+      const logoutIndex = components.findIndex(c => c.type === 'LogoutButton');
+      if (logoutIndex !== -1) {
+        components.splice(logoutIndex, 0, debugSection);
+      } else {
+        components.push(debugSection);
       }
-    };
-
-    const logoutIndex = components.findIndex(c => c.type === 'LogoutButton');
-    if (logoutIndex !== -1) {
-      components.splice(logoutIndex, 0, debugSection);
-    } else {
-      components.push(debugSection);
     }
+  } else {
+    // If we're in production, strip it out if it accidentally came from the server
+    components.forEach((c) => {
+      if (c.type === 'LinkSection' && c.props?.links) {
+        c.props.links = c.props.links.filter((l: any) => l.id !== 'network_logs');
+      }
+    });
   }
 
   return (

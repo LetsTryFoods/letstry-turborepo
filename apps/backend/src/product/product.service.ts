@@ -223,4 +223,9 @@ export class ProductService {
   zeroAllStock(): Promise<boolean> {
     return this.commandService.zeroAllStock();
   }
+
+  /** Returns all active, in-stock products that have isSaleVariant=true on at least one variant. */
+  findSaleProducts(): Promise<Product[]> {
+    return this.queryService.findSaleProducts();
+  }
 }

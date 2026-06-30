@@ -46,6 +46,16 @@ export class BannerService {
     );
   }
 
+  async findActiveSaleBanners(): Promise<Banner[]> {
+    return this.getCachedList('active_sale', () =>
+      this.bannerModel
+        .find({ ...this.buildActiveQuery(), bannerType: 'sale' })
+        .sort({ position: 1 })
+        .lean()
+        .exec(),
+    );
+  }
+
   async findOne(id: string): Promise<Banner> {
     return this.findByIdOrThrow(id);
   }

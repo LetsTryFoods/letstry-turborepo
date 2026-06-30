@@ -14,6 +14,14 @@ export class GlobalSettings {
   @Prop({ default: false })
   isPackerScanBypassEnabled: boolean;
 
+  @Field(() => String)
+  @Prop({ default: '1.0.0' })
+  minAppVersionAndroid: string;
+
+  @Field(() => String)
+  @Prop({ default: '1.0.0' })
+  minAppVersionIos: string;
+
   @Field(() => Date)
   createdAt: Date;
 

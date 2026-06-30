@@ -24,6 +24,7 @@ export default function OrderSuccessScreen() {
   }>();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const query = isAuthenticated ? GET_MY_ORDERS : GET_GUEST_ORDERS;
+  const [gaveUp, setGaveUp] = React.useState(false);
 
   // Fetch the latest order to display the real Order ID (not the payment reference)
   const { data, loading, refetch } = useQuery(query, {
@@ -43,18 +44,29 @@ export default function OrderSuccessScreen() {
     latestOrder?.paymentOrderId === passedOrderId ||
     latestOrder?.orderId === passedOrderId;
 
+  // Show loader only while the first fetch is in progress OR while polling for the specific order.
+  // Once isTargetOrderFound is true, stop showing loader regardless of loading state.
+  const showOrderIdLoader = !isTargetOrderFound && !gaveUp;
+
   // Poll for the order if it's not found yet
   React.useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (!isTargetOrderFound && !loading) {
+    let interval: ReturnType<typeof setInterval>;
+    let timeout: ReturnType<typeof setTimeout>;
+    if (!isTargetOrderFound && !gaveUp) {
       interval = setInterval(() => {
         refetch();
       }, 3000);
+      // Stop polling after 30 seconds and show fallback
+      timeout = setTimeout(() => {
+        setGaveUp(true);
+        clearInterval(interval);
+      }, 30000);
     }
     return () => {
       if (interval) clearInterval(interval);
+      if (timeout) clearTimeout(timeout);
     };
-  }, [isTargetOrderFound, loading, refetch]);
+  }, [isTargetOrderFound, gaveUp, refetch]);
 
   React.useEffect(() => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -85,13 +97,13 @@ export default function OrderSuccessScreen() {
             <View style={styles.orderRow}>
               <Text style={styles.orderLabel}>Order ID</Text>
               <Text style={styles.orderValue}>
-                {!isTargetOrderFound || loading ? (
+                {showOrderIdLoader ? (
                   <ActivityIndicator
                     size="small"
                     color={theme.colors.primary}
                   />
                 ) : (
-                  `#${latestOrder?.orderId || "PENDING"}`
+                  `#${latestOrder?.orderId || passedOrderId || "PENDING"}`
                 )}
               </Text>
             </View>

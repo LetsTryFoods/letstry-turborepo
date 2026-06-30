@@ -112,4 +112,24 @@ export class ProductRepository {
   async delete(id: string): Promise<Product | null> {
     return this.productModel.findByIdAndDelete(id).exec();
   }
+
+  /**
+   * Returns all non-archived products that have at least one in-stock
+   * variant with isSaleVariant = true.
+   */
+  async findSaleProducts(): Promise<Product[]> {
+    return this.productModel
+      .find({
+        isArchived: false,
+        variants: {
+          $elemMatch: {
+            isSaleVariant: true,
+            availabilityStatus: 'in_stock',
+            stockQuantity: { $gt: 0 },
+          },
+        },
+      })
+      .sort({ updatedAt: -1 })
+      .exec();
+  }
 }

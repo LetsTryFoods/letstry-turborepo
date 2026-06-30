@@ -1,0 +1,8 @@
+query GetGlobalSettings {
+  getGlobalSettings {
+    _id
+    isPackerScanBypassEnabled
+    minAppVersionAndroid
+    minAppVersionIos
+  }
+}

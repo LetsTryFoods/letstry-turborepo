@@ -11,6 +11,7 @@ import { OrderStatus } from './order.schema';
 import { PaginationMeta } from '../common/pagination';
 import { PaymentStatus } from '../payment/entities/payment.schema';
 import { ShipmentResponse } from '../shipment/dto/shipment-response.dto';
+import { BoxSize } from '../box-size/types/box-size.type';
 
 registerEnumType(OrderStatus, {
   name: 'OrderStatus',
@@ -227,6 +228,9 @@ export class OrderType {
 
   @Field({ nullable: true })
   boxId?: string;
+
+  @Field(() => BoxSize, { nullable: true })
+  box?: BoxSize;
 
   @Field({ nullable: true })
   volumetricWeight?: number;

@@ -13,6 +13,7 @@ import {
   PercentIcon,
   BadgePercent,
   ArrowDownRight,
+  Download,
 } from "lucide-react";
 import {
   Table,
@@ -82,6 +83,66 @@ export default function LogisticsPage() {
   const a = state.analytics;
   const d = state.discountAnalytics?.summary;
   const orders = state.discountAnalytics?.orders;
+
+  const downloadCsv = () => {
+    if (!orders || orders.length === 0) return;
+
+    const headers = [
+      "Order",
+      "Subtotal",
+      "Del Collected",
+      "Courier Total",
+      "Courier Base",
+      "Fuel Charge",
+      "FOV Charge",
+      "Courier GST",
+      "Zaakpay Cost",
+      "Server Cost",
+      "Net Revenue",
+      "Implied MRP",
+      "Net Discount",
+      "Net Disc %",
+      "Box Name",
+      "Volumetric Weight",
+    ];
+
+    const rows = orders.map((o: any) => [
+      o.orderNumber || o.orderId,
+      o.subtotal || 0,
+      o.deliveryCharge || 0,
+      (o.logisticsCost + (o.fuelCharge || 0) + (o.fovCharge || 0) + (o.gstCharge || 0)) || 0,
+      o.logisticsCost || 0,
+      o.fuelCharge || 0,
+      o.fovCharge || 0,
+      o.gstCharge || 0,
+      o.zaakpayCost || 0,
+      o.serverCost || 0,
+      o.netRevenue || 0,
+      o.impliedMRP || 0,
+      o.netDiscountAmount || 0,
+      (o.netDiscountPct || 0).toFixed(2) + "%",
+      o.boxName || "N/A",
+      o.volumetricWeight || 0,
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map((row: any[]) =>
+        row.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `order-margin-analysis-${state.year}-${state.month}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="flex-1 space-y-6 p-4 md:p-8 pt-6">
@@ -254,11 +315,27 @@ export default function LogisticsPage() {
                             + {formatCurrencyFull(d.totalDeliveryChargesCollected)}
                           </span>
                         </div>
-                        <div className="flex justify-between text-red-600">
-                          <span>— Actual Courier Cost</span>
+                        <div className="flex justify-between text-red-600 font-semibold mt-2">
+                          <span>— Courier Cost Total</span>
                           <span>
-                            − {formatCurrencyFull(d.totalLogisticsCost)}
+                            − {formatCurrencyFull(d.totalLogisticsCost + d.totalFuelCharge + d.totalFovCharge + d.totalGstCharge)}
                           </span>
+                        </div>
+                        <div className="flex justify-between text-red-500 text-xs ml-4 mt-1">
+                          <span>↳ Base Cost</span>
+                          <span>{formatCurrencyFull(d.totalLogisticsCost)}</span>
+                        </div>
+                        <div className="flex justify-between text-red-500 text-xs ml-4">
+                          <span>↳ Fuel Charge</span>
+                          <span>{formatCurrencyFull(d.totalFuelCharge)}</span>
+                        </div>
+                        <div className="flex justify-between text-red-500 text-xs ml-4">
+                          <span>↳ FOV Charge</span>
+                          <span>{formatCurrencyFull(d.totalFovCharge)}</span>
+                        </div>
+                        <div className="flex justify-between text-red-500 text-xs ml-4 pb-1">
+                          <span>↳ GST</span>
+                          <span>{formatCurrencyFull(d.totalGstCharge)}</span>
                         </div>
                         <div className="flex justify-between text-red-600">
                           <span>— Zaakpay Fees (1.85% + GST)</span>
@@ -316,11 +393,20 @@ export default function LogisticsPage() {
 
               {/* Order Wise Table */}
               <Card className="mt-4">
-                <CardHeader>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0">
                   <CardTitle className="text-base flex items-center gap-2">
                     <ShoppingBag className="h-4 w-4" />
                     Order-wise Margin Analysis
                   </CardTitle>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={downloadCsv}
+                    disabled={!orders || orders.length === 0}
+                  >
+                    <Download className="mr-2 h-4 w-4" />
+                    Export CSV
+                  </Button>
                 </CardHeader>
                 <CardContent>
                   <ScrollArea className="h-[400px]">
@@ -357,7 +443,13 @@ export default function LogisticsPage() {
                               )}
                             </TableCell>
                             <TableCell className="text-right text-red-600">
-                              {formatCurrency(o.logisticsCost)}
+                              <div className="font-semibold">{formatCurrency(o.logisticsCost + (o.fuelCharge || 0) + (o.fovCharge || 0) + (o.gstCharge || 0))}</div>
+                              <div className="text-[10px] text-red-400 mt-1 whitespace-nowrap text-right">
+                                Base: {formatCurrency(o.logisticsCost)}<br />
+                                Fuel: {formatCurrency(o.fuelCharge)}<br />
+                                FOV: {formatCurrency(o.fovCharge)}<br />
+                                GST: {formatCurrency(o.gstCharge)}
+                              </div>
                             </TableCell>
                             <TableCell className="text-right text-red-600">
                               {formatCurrency(o.zaakpayCost)}
@@ -390,13 +482,13 @@ export default function LogisticsPage() {
                                   </DialogHeader>
                                   <div className="flex flex-col items-center gap-4 py-4">
                                     <div className="text-sm font-semibold">{o.orderNumber || o.orderId}</div>
-                                    
+
                                     {o.boxPhotoUrl ? (
                                       <div className="relative w-full max-w-[250px] aspect-square rounded-lg border overflow-hidden bg-muted flex items-center justify-center">
                                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img 
-                                          src={getCdnUrl(o.boxPhotoUrl)} 
-                                          alt="Box Image" 
+                                        <img
+                                          src={getCdnUrl(o.boxPhotoUrl)}
+                                          alt="Box Image"
                                           className="object-contain w-full h-full"
                                         />
                                       </div>
@@ -461,9 +553,12 @@ export default function LogisticsPage() {
                   <div className="text-2xl font-bold">
                     {formatCurrency(a.totalCost)}
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Base + Fuel (25%) + FOV (0.2%) + GST (18%)
-                  </p>
+                  <div className="text-[11px] text-muted-foreground mt-3 space-y-1">
+                    <div className="flex justify-between border-b pb-1"><span>Base:</span> <span className="font-medium text-foreground">{formatCurrency(a.totalBaseCost)}</span></div>
+                    <div className="flex justify-between"><span>Fuel (25%):</span> <span>{formatCurrency(a.fuelCharge)}</span></div>
+                    <div className="flex justify-between"><span>FOV (0.2%):</span> <span>{formatCurrency(a.fovCharge)}</span></div>
+                    <div className="flex justify-between"><span>GST (18%):</span> <span>{formatCurrency(a.gstCharge)}</span></div>
+                  </div>
                 </CardContent>
               </Card>
               <Card>

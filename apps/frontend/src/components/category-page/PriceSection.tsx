@@ -28,7 +28,7 @@ export const PriceSection: React.FC<PriceSectionProps> = ({
         )}
       </div>
       {discount > 0 && (
-        <span className="text-sm font-medium text-[#16a34a]">
+        <span className="text-lg font-bold text-red-600">
           {discount}% OFF
         </span>
       )}

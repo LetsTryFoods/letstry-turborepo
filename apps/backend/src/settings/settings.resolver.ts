@@ -20,9 +20,17 @@ export class SettingsResolver {
   async updateGlobalSettings(
     @Args('isPackerScanBypassEnabled', { type: () => Boolean })
     isPackerScanBypassEnabled: boolean,
+    @Args('minAppVersionAndroid', { type: () => String, nullable: true })
+    minAppVersionAndroid: string,
+    @Args('minAppVersionIos', { type: () => String, nullable: true })
+    minAppVersionIos: string,
   ): Promise<GlobalSettings> {
+    // Keep existing values if not provided (for backwards compatibility during mutation changes)
+    const current = await this.settingsService.getGlobalSettings();
     return this.settingsService.updateGlobalSettings(
       isPackerScanBypassEnabled,
+      minAppVersionAndroid ?? current.minAppVersionAndroid,
+      minAppVersionIos ?? current.minAppVersionIos,
     );
   }
 }

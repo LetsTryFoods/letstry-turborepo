@@ -149,6 +149,14 @@ export interface Order {
     h: number;
   };
   boxId?: string;
+  box?: {
+    name: string;
+    code: string;
+    type?: string;
+    lengthCm?: number;
+    breadthCm?: number;
+    heightCm?: number;
+  };
   volumetricWeight?: number;
   region?: string;
   logisticsCost?: number;

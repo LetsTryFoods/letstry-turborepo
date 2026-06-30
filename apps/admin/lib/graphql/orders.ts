@@ -137,6 +137,14 @@ export const GET_ORDER_BY_ID = gql`
         h
       }
       boxId
+      box {
+        name
+        code
+        type
+        lengthCm
+        breadthCm
+        heightCm
+      }
       volumetricWeight
       region
       logisticsCost

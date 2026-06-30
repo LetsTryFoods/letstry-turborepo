@@ -239,9 +239,24 @@ export class OrderCommandService {
       throw new Error('Order not found');
     }
 
-    const box = await this.boxSizeCrudService.findById(params.boxId);
+    let box;
+    if (Types.ObjectId.isValid(params.boxId)) {
+      box = await this.boxSizeCrudService.findById(params.boxId);
+    }
+    
+    // Fallback to code or name if not a valid ObjectId or not found
     if (!box) {
-      throw new Error('Box not found');
+      box = await this.boxSizeCrudService.findByCode(params.boxId);
+    }
+    if (!box) {
+      const BoxModel = (this.boxSizeCrudService as any).boxSizeModel;
+      if (BoxModel) {
+        box = await BoxModel.findOne({ name: params.boxId }).exec();
+      }
+    }
+
+    if (!box) {
+      throw new Error(`Box not found for identifier: ${params.boxId}`);
     }
 
     // Resolve shipping address to get state and city
@@ -259,10 +274,10 @@ export class OrderCommandService {
     let volumetricWeight = 0;
     let logisticsCost = 0;
     
-    if (box.type === 'PACKET') {
+    if (box.type && box.type.toUpperCase() === 'PACKET') {
       volumetricWeight = box.chargeableWeight || 0.5; // default 500g if not specified
       logisticsCost = box.fixedCourierCost 
-        ? box.fixedCourierCost 
+        ? box.fixedCourierCost * volumetricWeight
         : this.logisticsService.calculateBaseCost(volumetricWeight, rate);
     } else {
       volumetricWeight = this.logisticsService.calculateVolumetricWeight(
@@ -274,7 +289,7 @@ export class OrderCommandService {
     }
 
     const updateData = {
-      boxId: new Types.ObjectId(params.boxId),
+      boxId: box._id,
       volumetricWeight,
       region,
       logisticsCost,

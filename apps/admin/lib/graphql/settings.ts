@@ -5,15 +5,27 @@ export const GET_GLOBAL_SETTINGS = gql`
     getGlobalSettings {
       _id
       isPackerScanBypassEnabled
+      minAppVersionAndroid
+      minAppVersionIos
     }
   }
 `;
 
 export const UPDATE_GLOBAL_SETTINGS = gql`
-  mutation UpdateGlobalSettings($isPackerScanBypassEnabled: Boolean!) {
-    updateGlobalSettings(isPackerScanBypassEnabled: $isPackerScanBypassEnabled) {
+  mutation UpdateGlobalSettings(
+    $isPackerScanBypassEnabled: Boolean!
+    $minAppVersionAndroid: String
+    $minAppVersionIos: String
+  ) {
+    updateGlobalSettings(
+      isPackerScanBypassEnabled: $isPackerScanBypassEnabled
+      minAppVersionAndroid: $minAppVersionAndroid
+      minAppVersionIos: $minAppVersionIos
+    ) {
       _id
       isPackerScanBypassEnabled
+      minAppVersionAndroid
+      minAppVersionIos
     }
   }
 `;

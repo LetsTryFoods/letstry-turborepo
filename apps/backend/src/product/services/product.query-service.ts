@@ -157,4 +157,9 @@ export class ProductQueryService {
   async findBySkuOrGtin(identifier: string): Promise<Product | null> {
     return this.repository.findBySkuOrGtin(identifier);
   }
+
+  /** Returns all active, in-stock products with at least one isSaleVariant=true variant. */
+  async findSaleProducts(): Promise<Product[]> {
+    return this.repository.findSaleProducts();
+  }
 }

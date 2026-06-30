@@ -27,7 +27,16 @@ export class OrderDiscountItem {
   deliveryCharge: number; // delivery fee collected from customer (0 if free)
 
   @Field(() => Float)
-  logisticsCost: number; // actual courier cost company paid (volumetric-weight based)
+  logisticsCost: number; // actual courier base cost
+
+  @Field(() => Float)
+  fuelCharge: number; // 25% of base
+
+  @Field(() => Float)
+  fovCharge: number; // 0.2% of base
+
+  @Field(() => Float)
+  gstCharge: number; // 18% of (base + fuel + fov)
 
   @Field(() => Float)
   netRevenue: number;    // subtotal + deliveryCharge - logisticsCost
@@ -77,6 +86,15 @@ export class OrderDiscountSummary {
 
   @Field(() => Float)
   totalLogisticsCost: number;
+
+  @Field(() => Float)
+  totalFuelCharge: number;
+
+  @Field(() => Float)
+  totalFovCharge: number;
+
+  @Field(() => Float)
+  totalGstCharge: number;
 
   @Field(() => Float)
   totalNetRevenue: number;

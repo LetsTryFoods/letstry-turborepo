@@ -20,6 +20,7 @@ export const bannerFormSchema = z.object({
   endDate: z.string().optional(),
   backgroundColor: z.string().optional(),
   textColor: z.string().optional(),
+  bannerType: z.string().optional(),
 });
 
 export type BannerFormValues = z.infer<typeof bannerFormSchema>;

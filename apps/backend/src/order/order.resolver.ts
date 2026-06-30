@@ -45,8 +45,9 @@ import {
   ShipmentWithTrackingResponse,
 } from '../shipment/dto/shipment-response.dto';
 import { MobileAppGuard } from '../common/guards/mobile-app.guard';
-
 import { Public } from '../common/decorators/public.decorator';
+import { BoxSizeCrudService } from '../box-size/services/core/box-size-crud.service';
+import { BoxSize } from '../box-size/types/box-size.type';
 
 @Resolver(() => OrderType)
 export class OrderResolver {
@@ -55,6 +56,7 @@ export class OrderResolver {
     private readonly packingService: PackingService,
     private readonly shipmentService: ShipmentService,
     private readonly logisticsAnalyticsService: LogisticsAnalyticsService,
+    private readonly boxSizeCrudService: BoxSizeCrudService,
   ) {}
 
   @Query(() => LogisticsAnalyticsResponse)
@@ -412,6 +414,17 @@ export class OrderResolver {
       (await this.packingService.calculateWeightAndBoxFromOrder(order))
         ?.boxDimensions || null
     );
+  }
+
+  @ResolveField('box', () => BoxSize, { nullable: true })
+  async box(@Parent() order: any): Promise<BoxSize | null> {
+    if (order.boxId) {
+      const boxSize = await this.boxSizeCrudService.findById(order.boxId.toString());
+      if (boxSize) {
+        return boxSize as unknown as BoxSize;
+      }
+    }
+    return null;
   }
 }
 

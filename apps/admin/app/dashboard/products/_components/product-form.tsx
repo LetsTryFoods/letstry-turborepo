@@ -103,6 +103,7 @@ export function ProductForm({
         thumbnailUrl: extractKeyFromUrl(v.thumbnailUrl) || "",
         isDefault: v.isDefault ?? false,
         isActive: v.isActive ?? true,
+        isSaleVariant: v.isSaleVariant ?? false,
       })) || [getDefaultVariant()],
     },
   });
@@ -216,6 +217,7 @@ export function ProductForm({
           thumbnailUrl: formattedImages[0]?.url || "",
           isDefault: variant.isDefault,
           isActive: variant.isActive,
+          isSaleVariant: variant.isSaleVariant,
         };
 
         if (initialData && variant._id) {
@@ -1104,6 +1106,25 @@ export function ProductForm({
                                   />
                                 </FormControl>
                                 <FormLabel className="!mt-0">Active</FormLabel>
+                              </div>
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name={`variants.${index}.isSaleVariant`}
+                          render={({ field }) => (
+                            <FormItem className="flex flex-col justify-end">
+                              <div className="flex items-center space-x-2 pb-2">
+                                <FormControl>
+                                  <Switch
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />
+                                </FormControl>
+                                <FormLabel className="!mt-0 text-red-600 font-bold">
+                                  🔥 Sale Item
+                                </FormLabel>
                               </div>
                             </FormItem>
                           )}

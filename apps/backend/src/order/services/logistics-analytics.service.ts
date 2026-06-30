@@ -148,6 +148,9 @@ export class LogisticsAnalyticsService {
       totalSubtotal: 0,
       totalDeliveryChargesCollected: 0,
       totalLogisticsCost: 0,
+      totalFuelCharge: 0,
+      totalFovCharge: 0,
+      totalGstCharge: 0,
       totalNetRevenue: 0,
       impliedTotalMRP: 0,
       totalDiscountOnMRP: 0,
@@ -176,13 +179,13 @@ export class LogisticsAnalyticsService {
       const subtotal = Number(orderDoc.subtotal || 0);
       const deliveryCharge = Number(orderDoc.deliveryCharge || 0);
       
-      // Calculate full actual courier cost with surcharges
+      // Keep surcharges separate
       const baseCost = Number(orderDoc.logisticsCost || 0);
-      const fuelCharge = baseCost * 0.25;
-      const fovCharge = baseCost * 0.002;
+      const fuelCharge = round4(baseCost * 0.25);
+      const fovCharge = round4(baseCost * 0.002);
       const preGst = baseCost + fuelCharge + fovCharge;
-      const gstCharge = preGst * 0.18;
-      const actualCourierCost = round4(preGst + gstCharge);
+      const gstCharge = round4(preGst * 0.18);
+      const actualCourierCost = round4(baseCost);
 
       // Calculate Zaakpay Gateway Cost (1.85% + 18% GST)
       const paymentAmount = subtotal + deliveryCharge;
@@ -196,14 +199,14 @@ export class LogisticsAnalyticsService {
       // Implied MRP assuming subtotal is after 30% discount
       const impliedMRP = round4(subtotal > 0 ? subtotal / (1 - DISCOUNT_RATE) : 0);
       
-      // What business actually earned (product + delivery fee collected - actual courier cost paid - payment gateway - server cost)
-      const netRevenue = round4((subtotal + deliveryCharge) - actualCourierCost - actualZaakpayCost - serverCostAllocated);
+      // What business actually earned
+      const netRevenue = round4((subtotal + deliveryCharge) - actualCourierCost - fuelCharge - fovCharge - gstCharge - actualZaakpayCost - serverCostAllocated);
       
       // The explicit 30% discount amount
       const discountOnMRP = round4(impliedMRP - subtotal);
       
       // The hidden discount: company absorbed delivery cost + extra costs
-      const netCostToBusiness = round4(actualCourierCost + actualZaakpayCost + serverCostAllocated - deliveryCharge);
+      const netCostToBusiness = round4(actualCourierCost + fuelCharge + fovCharge + gstCharge + actualZaakpayCost + serverCostAllocated - deliveryCharge);
       
       // Total amount 'lost' from MRP
       const netDiscountAmount = round4(impliedMRP - netRevenue);
@@ -222,6 +225,9 @@ export class LogisticsAnalyticsService {
         subtotal,
         deliveryCharge,
         logisticsCost: actualCourierCost,
+        fuelCharge,
+        fovCharge,
+        gstCharge,
         netRevenue,
         impliedMRP,
         discountOnMRP,
@@ -240,6 +246,9 @@ export class LogisticsAnalyticsService {
       summary.totalSubtotal += subtotal;
       summary.totalDeliveryChargesCollected += deliveryCharge;
       summary.totalLogisticsCost += actualCourierCost;
+      summary.totalFuelCharge += fuelCharge;
+      summary.totalFovCharge += fovCharge;
+      summary.totalGstCharge += gstCharge;
       summary.totalNetRevenue += netRevenue;
       summary.impliedTotalMRP += impliedMRP;
       summary.totalDiscountOnMRP += discountOnMRP;

@@ -72,6 +72,9 @@ export class CreateProductVariantInput {
 
   @Field({ defaultValue: true })
   isActive: boolean;
+
+  @Field({ defaultValue: false })
+  isSaleVariant: boolean;
 }
 
 @InputType()
@@ -132,6 +135,9 @@ export class UpdateProductVariantInput {
 
   @Field({ nullable: true })
   isActive?: boolean;
+
+  @Field({ nullable: true })
+  isSaleVariant?: boolean;
 }
 
 @InputType()

@@ -114,6 +114,10 @@ export class ProductVariant {
   @Prop({ required: true, default: true })
   @Field()
   isActive: boolean;
+
+  @Prop({ required: true, default: false, index: true })
+  @Field(() => Boolean, { defaultValue: false })
+  isSaleVariant: boolean;
 }
 
 export const ProductVariantSchema =
@@ -380,4 +384,5 @@ ProductSchema.index({ 'variants.gtin': 1 });
 ProductSchema.index({ 'variants._id': 1 });
 ProductSchema.index({ keywords: 1 });
 ProductSchema.index({ 'variants.availabilityStatus': 1 });
+ProductSchema.index({ 'variants.isSaleVariant': 1 });
 ProductSchema.index({ createdAt: -1 });

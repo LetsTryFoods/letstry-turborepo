@@ -10,6 +10,7 @@ import JourneyVideos from "@/components/journey-videos/journeyVideos";
 import CustomerTestimonials from "@/components/customer-testimonials/CustomerTestimonials";
 import BrandSlider from "@/components/brand-slider/BrandSlider";
 import { getWholesomeChoices } from "@/lib/category/get-wholesome-choices";
+import { SaleSection } from "@/components/sale/sale-section";
 
 const SITE_URL = (
   process.env.NEXT_PUBLIC_BASE_URL || "https://letstryfoods.com"
@@ -59,6 +60,7 @@ export default async function Home() {
         <CategoryGrid />
         <BestsellerCombo />
       </div>
+      {/* <SaleSection /> */}
       <BestsellerCarousel />
       <WhyChooseUs />
       <HealthySnacking />

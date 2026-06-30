@@ -88,6 +88,8 @@ export default function SettingsPage() {
       await updateGlobalSettings({
         variables: {
           isPackerScanBypassEnabled: checked,
+          minAppVersionAndroid: data?.getGlobalSettings?.minAppVersionAndroid,
+          minAppVersionIos: data?.getGlobalSettings?.minAppVersionIos,
         },
         refetchQueries: [{ query: GET_GLOBAL_SETTINGS }],
       });
@@ -96,6 +98,22 @@ export default function SettingsPage() {
       );
     } catch (error) {
       toast.error("Failed to update scan bypass setting");
+    }
+  };
+
+  const handleUpdateAppVersions = async () => {
+    try {
+      await updateGlobalSettings({
+        variables: {
+          isPackerScanBypassEnabled: data?.getGlobalSettings?.isPackerScanBypassEnabled,
+          minAppVersionAndroid: (document.getElementById('minAppVersionAndroid') as HTMLInputElement).value,
+          minAppVersionIos: (document.getElementById('minAppVersionIos') as HTMLInputElement).value,
+        },
+        refetchQueries: [{ query: GET_GLOBAL_SETTINGS }],
+      });
+      toast.success("Minimum app versions updated successfully");
+    } catch (error) {
+      toast.error("Failed to update minimum app versions");
     }
   };
 
@@ -211,6 +229,43 @@ export default function SettingsPage() {
               disabled={loading}
             />
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Mobile App Versions */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <SettingsIcon className="h-5 w-5" />
+            Mobile App Version Control
+          </CardTitle>
+          <CardDescription>
+            Force users to update if their app version is below these minimums.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
+            <div className="flex-1 space-y-2">
+              <Label htmlFor="minAppVersionAndroid">Minimum Android Version</Label>
+              <Input
+                id="minAppVersionAndroid"
+                defaultValue={data?.getGlobalSettings?.minAppVersionAndroid || "1.0.0"}
+                key={data?.getGlobalSettings?.minAppVersionAndroid} // Forces re-render when data loads
+              />
+            </div>
+            <div className="flex-1 space-y-2">
+              <Label htmlFor="minAppVersionIos">Minimum iOS Version</Label>
+              <Input
+                id="minAppVersionIos"
+                defaultValue={data?.getGlobalSettings?.minAppVersionIos || "1.0.0"}
+                key={data?.getGlobalSettings?.minAppVersionIos}
+              />
+            </div>
+          </div>
+          <Button onClick={handleUpdateAppVersions} disabled={loading}>
+            <Save className="h-4 w-4 mr-2" />
+            Save Versions
+          </Button>
         </CardContent>
       </Card>
 

@@ -22,6 +22,12 @@ export class BannerResolver {
     return this.bannerService.findActive();
   }
 
+  @Query(() => [Banner], { name: 'activeSaleBanners' })
+  @Public()
+  async getActiveSaleBanners(): Promise<Banner[]> {
+    return this.bannerService.findActiveSaleBanners();
+  }
+
   @Query(() => Banner, { name: 'banner', nullable: true })
   @Public()
   async getBanner(

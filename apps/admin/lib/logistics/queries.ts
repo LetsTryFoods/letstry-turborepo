@@ -51,6 +51,9 @@ export const GET_MONTHLY_DISCOUNT_ANALYTICS = gql`
         totalSubtotal
         totalDeliveryChargesCollected
         totalLogisticsCost
+        totalFuelCharge
+        totalFovCharge
+        totalGstCharge
         totalZaakpayCost
         totalServerCost
         totalNetRevenue
@@ -68,6 +71,9 @@ export const GET_MONTHLY_DISCOUNT_ANALYTICS = gql`
         subtotal
         deliveryCharge
         logisticsCost
+        fuelCharge
+        fovCharge
+        gstCharge
         zaakpayCost
         serverCost
         netRevenue

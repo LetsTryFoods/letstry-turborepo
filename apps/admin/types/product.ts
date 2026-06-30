@@ -23,6 +23,7 @@ export interface ProductVariant {
   thumbnailUrl: string;
   isDefault: boolean;
   isActive: boolean;
+  isSaleVariant?: boolean;
 }
 
 export interface PriceRange {
