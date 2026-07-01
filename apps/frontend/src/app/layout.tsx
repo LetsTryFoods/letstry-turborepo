@@ -8,6 +8,7 @@ import { RecaptchaProvider } from "@/components/recaptcha-provider";
 import { QueryProvider } from "@/providers/query-provider";
 import { TopBanner } from "@/components/top-banner";
 import { Navbar } from "@/components/navbar";
+import { SaleAnnouncementBar } from "@/components/sale/SaleAnnouncementBar";
 import { Footer } from "@/components/footer";
 import { GuestSessionManager } from "@/components/guest/GuestSessionManager";
 import { CartContainer } from "@/components/cart-drawer/CartContainer";
@@ -209,6 +210,7 @@ export default function RootLayout({
                 <PageViewTracker />
               </Suspense>
               <WebVitalsTracker />
+              <SaleAnnouncementBar />
               <TopBanner />
               <Navbar />
               <SearchOverlay />

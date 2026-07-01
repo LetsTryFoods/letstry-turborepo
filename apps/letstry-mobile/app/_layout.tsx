@@ -11,7 +11,8 @@ import { startNetworkLogging } from "react-native-network-logger";
 import { GuestService } from "../src/features/auth/services/guest.service";
 import { useAuthStore } from "../src/store/auth-store";
 import * as SplashScreen from "expo-splash-screen";
-import SpInAppUpdates, { IAUUpdateKind } from "sp-react-native-in-app-updates";
+// sp-react-native-in-app-updates is loaded dynamically to avoid crashing
+// the root layout when the native module hasn't been rebuilt yet.
 import Constants from "expo-constants";
 import { compareVersions } from "compare-versions";
 import { Platform } from "react-native";
@@ -40,7 +41,8 @@ export default function RootLayout() {
       try {
         await GuestService.ensureGuestSession();
         
-        // Check for updates
+        // Check for updates — loaded dynamically so a missing native module
+        // doesn't crash the root layout before providers are mounted.
         try {
           const { data } = await apolloClient.query({
             query: gql`
@@ -59,14 +61,20 @@ export default function RootLayout() {
           const currentVersion = Constants.expoConfig?.version || '1.0.0';
           const minRequired = Platform.OS === 'android' ? minAndroid : minIos;
 
-          const inAppUpdates = new SpInAppUpdates(false);
-          const updateResult = await inAppUpdates.checkNeedsUpdate();
+          // Dynamic import so missing native module doesn't crash Expo Go
+          const SpInAppUpdatesModule = await import('sp-react-native-in-app-updates').catch(() => null);
+          if (SpInAppUpdatesModule) {
+            const SpInAppUpdates = SpInAppUpdatesModule.default;
+            const { IAUUpdateKind } = SpInAppUpdatesModule;
+            const inAppUpdates = new SpInAppUpdates(false);
+            const updateResult = await inAppUpdates.checkNeedsUpdate();
 
-          if (updateResult.shouldUpdate) {
-            const isHardUpdate = compareVersions(currentVersion, minRequired) < 0;
-            inAppUpdates.startUpdate({
-              updateType: isHardUpdate ? IAUUpdateKind.IMMEDIATE : IAUUpdateKind.FLEXIBLE,
-            });
+            if (updateResult.shouldUpdate) {
+              const isHardUpdate = compareVersions(currentVersion, minRequired) < 0;
+              inAppUpdates.startUpdate({
+                updateType: isHardUpdate ? IAUUpdateKind.IMMEDIATE : IAUUpdateKind.FLEXIBLE,
+              });
+            }
           }
         } catch (updateError) {
           console.log('Failed to check for updates:', updateError);

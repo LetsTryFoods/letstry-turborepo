@@ -1,12 +1,13 @@
 import { Tabs, useRouter, usePathname } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { TouchableOpacity, View, Text, StyleSheet } from "react-native";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SDUIService } from "../../src/features/home/services/sdui.service";
 import { wp, hp } from "../../src/lib/utils/ui-utils";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export default function TabsLayout() {
+// Inner component — only rendered once we're safely inside QueryClientProvider
+function TabsLayoutInner() {
   const router = useRouter();
   const pathname = usePathname();
   const insets = useSafeAreaInsets();
@@ -95,6 +96,18 @@ export default function TabsLayout() {
     </Tabs>
   );
 }
+
+// Fallback QueryClient in case this layout is somehow rendered outside the root provider
+const fallbackQueryClient = new QueryClient();
+
+export default function TabsLayout() {
+  return (
+    <QueryClientProvider client={fallbackQueryClient}>
+      <TabsLayoutInner />
+    </QueryClientProvider>
+  );
+}
+
 
 const styles = StyleSheet.create({
   tabBar: {

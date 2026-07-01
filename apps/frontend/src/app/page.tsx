@@ -11,6 +11,8 @@ import CustomerTestimonials from "@/components/customer-testimonials/CustomerTes
 import BrandSlider from "@/components/brand-slider/BrandSlider";
 import { getWholesomeChoices } from "@/lib/category/get-wholesome-choices";
 import { SaleSection } from "@/components/sale/sale-section";
+import { SaleHeroBanner } from "@/components/sale/SaleHeroBanner";
+import { SaleStrip } from "@/components/sale/SaleStrip";
 
 const SITE_URL = (
   process.env.NEXT_PUBLIC_BASE_URL || "https://letstryfoods.com"
@@ -50,6 +52,8 @@ export default async function Home() {
   const wholesomeChoicesData = await getWholesomeChoices();
   return (
     <main>
+      {/* Static sale banner — always visible above the carousel */}
+      {/* <SaleHeroBanner /> */}
       <div
         style={{
           background:
@@ -60,8 +64,11 @@ export default async function Home() {
         <CategoryGrid />
         <BestsellerCombo />
       </div>
-      {/* <SaleSection /> */}
+      {/* Sale products section */}
+      <SaleSection />
       <BestsellerCarousel />
+      {/* Bold sale strip between sections */}
+      <SaleStrip />
       <WhyChooseUs />
       <HealthySnacking />
       <WholesomeChoices categories={wholesomeChoicesData?.children || []} />
@@ -71,3 +78,5 @@ export default async function Home() {
     </main>
   );
 }
+
+

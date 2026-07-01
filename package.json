@@ -19,6 +19,7 @@
   "devDependencies": {
     "@next/swc-darwin-arm64": "^16.2.4",
     "@types/canvas-confetti": "^1.9.0",
+    "baseline-browser-mapping": "^2.10.40",
     "husky": "^9.1.7",
     "prettier": "^3.7.4",
     "turbo": "^2.6.3",
@@ -36,9 +37,15 @@
       "react": "19.1.0",
       "react-dom": "19.1.0"
     },
-     "supportedArchitectures": {
-      "os": ["linux", "darwin"],
-      "cpu": ["x64", "arm64"]
+    "supportedArchitectures": {
+      "os": [
+        "linux",
+        "darwin"
+      ],
+      "cpu": [
+        "x64",
+        "arm64"
+      ]
     }
   }
 }

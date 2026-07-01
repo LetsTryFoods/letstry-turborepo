@@ -2,7 +2,7 @@
 import { useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ProductCard } from "@/components/category-page/ProductCard";
+import { ProductGrid } from "@/components/category-page/ProductGrid";
 import type { SaleProduct, SaleBanner } from "@/lib/sale/get-sale-data";
 import { getCdnUrl } from "@/lib/image-utils";
 

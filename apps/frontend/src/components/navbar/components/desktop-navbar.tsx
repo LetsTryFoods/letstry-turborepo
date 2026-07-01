@@ -15,6 +15,7 @@ interface DesktopNavbarProps {
     dropdownItems?: Array<{ href: string; label: string }>;
     isLogin?: boolean;
     disableActive?: boolean;
+    isSale?: boolean;
   }>;
   cartItemCount: number;
   toggleCart: () => void;
@@ -64,6 +65,26 @@ export const DesktopNavbar = ({
               >
                 {link.label}
               </button>
+            ) : link.isSale === true ? (
+              <Link
+                href={link.href}
+                style={{
+                  background: "linear-gradient(135deg, #c41a1a, #8b0000)",
+                  color: "#f5c518",
+                  fontWeight: 800,
+                  fontSize: 13,
+                  padding: "5px 14px",
+                  borderRadius: 20,
+                  textDecoration: "none",
+                  whiteSpace: "nowrap",
+                  border: "1.5px solid #e8a020",
+                  boxShadow: "0 2px 8px rgba(196,26,26,0.3)",
+                  letterSpacing: "0.01em",
+                  transition: "box-shadow 0.2s, transform 0.2s",
+                }}
+              >
+                {link.label}
+              </Link>
             ) : (
               <Link
                 href={link.href}

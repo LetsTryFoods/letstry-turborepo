@@ -91,6 +91,11 @@ export type AdminPunchShipmentInput = {
   serviceType?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type AssignBoxToOrderInput = {
+  boxId: Scalars['String']['input'];
+  orderId: Scalars['String']['input'];
+};
+
 export enum AuthMethod {
   Firebase = 'FIREBASE',
   Whatsapp = 'WHATSAPP'
@@ -131,6 +136,7 @@ export type Banner = {
   __typename?: 'Banner';
   _id: Scalars['ID']['output'];
   backgroundColor?: Maybe<Scalars['String']['output']>;
+  bannerType?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   ctaText: Scalars['String']['output'];
   description?: Maybe<Scalars['String']['output']>;
@@ -237,13 +243,33 @@ export type BoxInfo = {
 
 export type BoxSize = {
   __typename?: 'BoxSize';
+  breadthCm?: Maybe<Scalars['Float']['output']>;
+  breadthInches?: Maybe<Scalars['Float']['output']>;
+  chargeableWeight?: Maybe<Scalars['Float']['output']>;
   code: Scalars['String']['output'];
-  cost: Scalars['Float']['output'];
+  cost?: Maybe<Scalars['Float']['output']>;
+  createdAt?: Maybe<Scalars['DateTime']['output']>;
+  fixedCourierCost?: Maybe<Scalars['Float']['output']>;
+  heightCm?: Maybe<Scalars['Float']['output']>;
+  heightInches?: Maybe<Scalars['Float']['output']>;
   id: Scalars['ID']['output'];
-  internalDimensions: BoxDimensions;
+  internalDimensions?: Maybe<BoxDimensions>;
   isActive: Scalars['Boolean']['output'];
-  maxWeight: Scalars['Float']['output'];
+  lengthCm?: Maybe<Scalars['Float']['output']>;
+  lengthInches?: Maybe<Scalars['Float']['output']>;
+  maxWeight?: Maybe<Scalars['Float']['output']>;
   name: Scalars['String']['output'];
+  photos?: Maybe<Array<Scalars['String']['output']>>;
+  type?: Maybe<Scalars['String']['output']>;
+  updatedAt?: Maybe<Scalars['DateTime']['output']>;
+};
+
+export type BoxUsageType = {
+  __typename?: 'BoxUsageType';
+  boxId: Scalars['String']['output'];
+  boxName: Scalars['String']['output'];
+  costGenerated: Scalars['Float']['output'];
+  count: Scalars['Int']['output'];
 };
 
 export type CancelOrderInput = {
@@ -507,10 +533,12 @@ export type Contact = {
   _id: Scalars['ID']['output'];
   createdAt: Scalars['DateTime']['output'];
   email?: Maybe<Scalars['String']['output']>;
+  imageUrls?: Maybe<Array<Scalars['String']['output']>>;
   message: Scalars['String']['output'];
   name: Scalars['String']['output'];
   orderId?: Maybe<Scalars['String']['output']>;
   phone: Scalars['String']['output'];
+  productNames?: Maybe<Array<Scalars['String']['output']>>;
   queryType?: Maybe<Scalars['String']['output']>;
   status: ContactStatus;
   updatedAt: Scalars['DateTime']['output'];
@@ -614,6 +642,7 @@ export type CreateAuthorInput = {
 
 export type CreateBannerInput = {
   backgroundColor?: InputMaybe<Scalars['String']['input']>;
+  bannerType?: InputMaybe<Scalars['String']['input']>;
   ctaText: Scalars['String']['input'];
   description?: InputMaybe<Scalars['String']['input']>;
   endDate?: InputMaybe<Scalars['DateTime']['input']>;
@@ -657,11 +686,22 @@ export type CreateBlogInput = {
 };
 
 export type CreateBoxSizeInput = {
+  breadthCm: Scalars['Float']['input'];
+  breadthInches: Scalars['Float']['input'];
+  chargeableWeight?: InputMaybe<Scalars['Float']['input']>;
   code: Scalars['String']['input'];
-  cost: Scalars['Float']['input'];
-  internalDimensions: DimensionsInput;
-  maxWeight: Scalars['Float']['input'];
+  cost?: InputMaybe<Scalars['Float']['input']>;
+  fixedCourierCost?: InputMaybe<Scalars['Float']['input']>;
+  heightCm: Scalars['Float']['input'];
+  heightInches: Scalars['Float']['input'];
+  internalDimensions?: InputMaybe<DimensionsInput>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  lengthCm: Scalars['Float']['input'];
+  lengthInches: Scalars['Float']['input'];
+  maxWeight?: InputMaybe<Scalars['Float']['input']>;
   name: Scalars['String']['input'];
+  photos: Array<Scalars['String']['input']>;
+  type?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type CreateCategoryInput = {
@@ -858,6 +898,7 @@ export type CreateProductVariantInput = {
   images: Array<ProductImageInput>;
   isActive?: Scalars['Boolean']['input'];
   isDefault?: Scalars['Boolean']['input'];
+  isSaleVariant?: Scalars['Boolean']['input'];
   length: Scalars['Float']['input'];
   mrp: Scalars['Float']['input'];
   name: Scalars['String']['input'];
@@ -1139,6 +1180,8 @@ export type GlobalSettings = {
   _id: Scalars['ID']['output'];
   createdAt: Scalars['DateTime']['output'];
   isPackerScanBypassEnabled: Scalars['Boolean']['output'];
+  minAppVersionAndroid: Scalars['String']['output'];
+  minAppVersionIos: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
 };
 
@@ -1293,6 +1336,23 @@ export type LifestyleImageInput = {
   url: Scalars['String']['input'];
 };
 
+export type LogisticsAnalyticsResponse = {
+  __typename?: 'LogisticsAnalyticsResponse';
+  boxUsage: Array<BoxUsageType>;
+  fovCharge: Scalars['Float']['output'];
+  fuelCharge: Scalars['Float']['output'];
+  gstCharge: Scalars['Float']['output'];
+  leastUsedBox?: Maybe<BoxUsageType>;
+  month: Scalars['Int']['output'];
+  mostUsedBox?: Maybe<BoxUsageType>;
+  regionStats: Array<RegionStatsType>;
+  totalBaseCost: Scalars['Float']['output'];
+  totalBoxesUsed: Scalars['Int']['output'];
+  totalCost: Scalars['Float']['output'];
+  totalVolumetricWeight: Scalars['Float']['output'];
+  year: Scalars['Int']['output'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   addProductVariant: Product;
@@ -1305,6 +1365,7 @@ export type Mutation = {
   applyCoupon: Cart;
   archiveCategory: Category;
   archiveProduct: Product;
+  assignBoxToOrder: OrderType;
   batchScanItems: BatchScanResult;
   bulkUpsertPincodes: Scalars['Float']['output'];
   bulkUpsertSkuMasters: Scalars['Int']['output'];
@@ -1461,6 +1522,11 @@ export type MutationArchiveCategoryArgs = {
 
 export type MutationArchiveProductArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationAssignBoxToOrderArgs = {
+  input: AssignBoxToOrderInput;
 };
 
 
@@ -1876,6 +1942,8 @@ export type MutationUpdateContactStatusArgs = {
 
 export type MutationUpdateGlobalSettingsArgs = {
   isPackerScanBypassEnabled: Scalars['Boolean']['input'];
+  minAppVersionAndroid?: InputMaybe<Scalars['String']['input']>;
+  minAppVersionIos?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -2014,6 +2082,58 @@ export type OrderCustomerType = {
   phone?: Maybe<Scalars['String']['output']>;
 };
 
+export type OrderDiscountAnalyticsResponse = {
+  __typename?: 'OrderDiscountAnalyticsResponse';
+  month: Scalars['Int']['output'];
+  orders: Array<OrderDiscountItem>;
+  summary: OrderDiscountSummary;
+  year: Scalars['Int']['output'];
+};
+
+export type OrderDiscountItem = {
+  __typename?: 'OrderDiscountItem';
+  boxName?: Maybe<Scalars['String']['output']>;
+  boxPhotoUrl?: Maybe<Scalars['String']['output']>;
+  deliveryCharge: Scalars['Float']['output'];
+  discountOnMRP: Scalars['Float']['output'];
+  fovCharge: Scalars['Float']['output'];
+  fuelCharge: Scalars['Float']['output'];
+  gstCharge: Scalars['Float']['output'];
+  impliedMRP: Scalars['Float']['output'];
+  logisticsCost: Scalars['Float']['output'];
+  netCostToBusiness: Scalars['Float']['output'];
+  netDiscountAmount: Scalars['Float']['output'];
+  netDiscountPct: Scalars['Float']['output'];
+  netRevenue: Scalars['Float']['output'];
+  orderId: Scalars['String']['output'];
+  orderNumber?: Maybe<Scalars['String']['output']>;
+  serverCost: Scalars['Float']['output'];
+  subtotal: Scalars['Float']['output'];
+  volumetricWeight?: Maybe<Scalars['Float']['output']>;
+  zaakpayCost: Scalars['Float']['output'];
+};
+
+export type OrderDiscountSummary = {
+  __typename?: 'OrderDiscountSummary';
+  avgNetDiscountPct: Scalars['Float']['output'];
+  freeDeliveryOrdersCount: Scalars['Int']['output'];
+  impliedTotalMRP: Scalars['Float']['output'];
+  paidDeliveryOrdersCount: Scalars['Int']['output'];
+  totalDeliveryChargesCollected: Scalars['Float']['output'];
+  totalDiscountOnMRP: Scalars['Float']['output'];
+  totalFovCharge: Scalars['Float']['output'];
+  totalFuelCharge: Scalars['Float']['output'];
+  totalGstCharge: Scalars['Float']['output'];
+  totalLogisticsCost: Scalars['Float']['output'];
+  totalNetCostToBusiness: Scalars['Float']['output'];
+  totalNetDiscountAmount: Scalars['Float']['output'];
+  totalNetRevenue: Scalars['Float']['output'];
+  totalOrders: Scalars['Int']['output'];
+  totalServerCost: Scalars['Float']['output'];
+  totalSubtotal: Scalars['Float']['output'];
+  totalZaakpayCost: Scalars['Float']['output'];
+};
+
 export type OrderItemType = {
   __typename?: 'OrderItemType';
   image?: Maybe<Scalars['String']['output']>;
@@ -2086,7 +2206,9 @@ export type OrderStatusCount = {
 export type OrderType = {
   __typename?: 'OrderType';
   _id: Scalars['String']['output'];
+  box?: Maybe<BoxSize>;
   boxDimensions?: Maybe<BoxDimensionType>;
+  boxId?: Maybe<Scalars['String']['output']>;
   cancellationReason?: Maybe<Scalars['String']['output']>;
   cancelledAt?: Maybe<Scalars['DateTime']['output']>;
   cartId: Scalars['String']['output'];
@@ -2100,10 +2222,12 @@ export type OrderType = {
   handlingCharge?: Maybe<Scalars['String']['output']>;
   identityId: Scalars['String']['output'];
   items: Array<OrderItemType>;
+  logisticsCost?: Maybe<Scalars['Float']['output']>;
   orderId: Scalars['String']['output'];
   orderStatus: OrderStatus;
   payment?: Maybe<OrderPaymentType>;
   paymentOrderId: Scalars['String']['output'];
+  region?: Maybe<Scalars['String']['output']>;
   shipment?: Maybe<ShipmentResponse>;
   shippingAddress?: Maybe<OrderShippingAddressType>;
   shippingAddressId?: Maybe<Scalars['String']['output']>;
@@ -2111,6 +2235,7 @@ export type OrderType = {
   totalAmount: Scalars['String']['output'];
   trackingNumber?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTime']['output'];
+  volumetricWeight?: Maybe<Scalars['Float']['output']>;
 };
 
 export type OrderUserInfo = {
@@ -2127,7 +2252,9 @@ export type OrderUserInfo = {
 export type OrderWithUserInfo = {
   __typename?: 'OrderWithUserInfo';
   _id: Scalars['String']['output'];
+  box?: Maybe<BoxSize>;
   boxDimensions?: Maybe<BoxDimensionType>;
+  boxId?: Maybe<Scalars['String']['output']>;
   cancellationReason?: Maybe<Scalars['String']['output']>;
   cancelledAt?: Maybe<Scalars['DateTime']['output']>;
   cartId: Scalars['String']['output'];
@@ -2141,10 +2268,12 @@ export type OrderWithUserInfo = {
   handlingCharge?: Maybe<Scalars['String']['output']>;
   identityId: Scalars['String']['output'];
   items: Array<OrderItemType>;
+  logisticsCost?: Maybe<Scalars['Float']['output']>;
   orderId: Scalars['String']['output'];
   orderStatus: OrderStatus;
   payment?: Maybe<OrderPaymentType>;
   paymentOrderId: Scalars['String']['output'];
+  region?: Maybe<Scalars['String']['output']>;
   shipment?: Maybe<ShipmentResponse>;
   shippingAddress?: Maybe<OrderShippingAddressType>;
   shippingAddressId?: Maybe<Scalars['String']['output']>;
@@ -2153,6 +2282,7 @@ export type OrderWithUserInfo = {
   trackingNumber?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTime']['output'];
   userInfo?: Maybe<OrderUserInfo>;
+  volumetricWeight?: Maybe<Scalars['Float']['output']>;
 };
 
 export type OrdersSummary = {
@@ -2239,22 +2369,26 @@ export type PackingOrder = {
   __typename?: 'PackingOrder';
   assignedAt?: Maybe<Scalars['DateTime']['output']>;
   assignedTo?: Maybe<Scalars['String']['output']>;
+  boxId?: Maybe<Scalars['String']['output']>;
   estimatedPackTime?: Maybe<Scalars['Float']['output']>;
   evidence?: Maybe<PackingEvidence>;
   hasErrors: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   isExpress: Scalars['Boolean']['output'];
   items: Array<PackingItem>;
+  logisticsCost?: Maybe<Scalars['Float']['output']>;
   orderId: Scalars['String']['output'];
   orderNumber: Scalars['String']['output'];
   packerName?: Maybe<Scalars['String']['output']>;
   packingCompletedAt?: Maybe<Scalars['DateTime']['output']>;
   packingStartedAt?: Maybe<Scalars['DateTime']['output']>;
   priority: Scalars['Float']['output'];
+  region?: Maybe<Scalars['String']['output']>;
   shipmentInfo?: Maybe<ShipmentInfo>;
   shippingInfo?: Maybe<ShippingInfo>;
   specialInstructions?: Maybe<Scalars['String']['output']>;
   status: Scalars['String']['output'];
+  volumetricWeight?: Maybe<Scalars['Float']['output']>;
 };
 
 export type PaginatedCategories = {
@@ -2890,6 +3024,7 @@ export type ProductVariant = {
   images: Array<ProductImage>;
   isActive: Scalars['Boolean']['output'];
   isDefault: Scalars['Boolean']['output'];
+  isSaleVariant: Scalars['Boolean']['output'];
   length: Scalars['Float']['output'];
   mrp: Scalars['Float']['output'];
   name: Scalars['String']['output'];
@@ -2944,6 +3079,7 @@ export type Query = {
   activeLandingPages: Array<LandingPage>;
   activePillars: Array<Pillar>;
   activePressMentions: Array<PressMention>;
+  activeSaleBanners: Array<Banner>;
   address: Address;
   admins: Array<Admin>;
   allActiveRedirects: Array<RedirectType>;
@@ -2993,6 +3129,8 @@ export type Query = {
   getGuestOrderById: OrderType;
   getGuestOrders: PaginatedOrdersResponse;
   getGuestShipmentWithTracking: ShipmentWithTrackingResponse;
+  getMonthlyDiscountAnalytics: OrderDiscountAnalyticsResponse;
+  getMonthlyLogisticsAnalytics: LogisticsAnalyticsResponse;
   getMyAssignedOrders: Array<PackingOrder>;
   getMyOrderHistory: Array<PackingOrder>;
   getMyOrders: PaginatedOrdersResponse;
@@ -3002,6 +3140,7 @@ export type Query = {
   getOrderReports: OrderReportResponse;
   getPackerById: Packer;
   getPackerStats: PackerStats;
+  getPackingOrder: PackingOrder;
   getPaymentOrderById: PaymentOrderType;
   getPaymentStatus: PaymentStatusResponse;
   getPickupLocations: Array<PickupLocationType>;
@@ -3025,6 +3164,7 @@ export type Query = {
   myAddresses: Array<Address>;
   myCart?: Maybe<Cart>;
   myPayments: Array<PaymentOrderType>;
+  nearExpirySaleProducts: Array<Product>;
   pillar: Pillar;
   pillarByCustomRoute?: Maybe<Pillar>;
   pillarBySlug: Pillar;
@@ -3237,6 +3377,18 @@ export type QueryGetGuestShipmentWithTrackingArgs = {
 };
 
 
+export type QueryGetMonthlyDiscountAnalyticsArgs = {
+  month: Scalars['Float']['input'];
+  year: Scalars['Float']['input'];
+};
+
+
+export type QueryGetMonthlyLogisticsAnalyticsArgs = {
+  month: Scalars['Float']['input'];
+  year: Scalars['Float']['input'];
+};
+
+
 export type QueryGetMyOrdersArgs = {
   input: GetMyOrdersInput;
 };
@@ -3266,6 +3418,11 @@ export type QueryGetPackerStatsArgs = {
   endDate: Scalars['DateTime']['input'];
   packerId: Scalars['String']['input'];
   startDate: Scalars['DateTime']['input'];
+};
+
+
+export type QueryGetPackingOrderArgs = {
+  id: Scalars['String']['input'];
 };
 
 
@@ -3513,6 +3670,15 @@ export type RefundResponse = {
   message?: Maybe<Scalars['String']['output']>;
   refundId: Scalars['String']['output'];
   status: PaymentStatus;
+};
+
+export type RegionStatsType = {
+  __typename?: 'RegionStatsType';
+  baseCost: Scalars['Float']['output'];
+  count: Scalars['Int']['output'];
+  region: Scalars['String']['output'];
+  totalCost: Scalars['Float']['output'];
+  volumetricWeight: Scalars['Float']['output'];
 };
 
 export type RemoveProductsFromCategoryInput = {
@@ -3875,10 +4041,12 @@ export type StatusStats = {
 
 export type SubmitContactInput = {
   email?: InputMaybe<Scalars['String']['input']>;
+  imageUrls?: InputMaybe<Array<Scalars['String']['input']>>;
   message: Scalars['String']['input'];
   name: Scalars['String']['input'];
   orderId?: InputMaybe<Scalars['String']['input']>;
   phone: Scalars['String']['input'];
+  productNames?: InputMaybe<Array<Scalars['String']['input']>>;
   queryType?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -3987,6 +4155,7 @@ export type UpdateAuthorInput = {
 
 export type UpdateBannerInput = {
   backgroundColor?: InputMaybe<Scalars['String']['input']>;
+  bannerType?: InputMaybe<Scalars['String']['input']>;
   ctaText?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   endDate?: InputMaybe<Scalars['DateTime']['input']>;
@@ -4030,11 +4199,22 @@ export type UpdateBlogInput = {
 };
 
 export type UpdateBoxSizeInput = {
+  breadthCm?: InputMaybe<Scalars['Float']['input']>;
+  breadthInches?: InputMaybe<Scalars['Float']['input']>;
+  chargeableWeight?: InputMaybe<Scalars['Float']['input']>;
+  code?: InputMaybe<Scalars['String']['input']>;
   cost?: InputMaybe<Scalars['Float']['input']>;
+  fixedCourierCost?: InputMaybe<Scalars['Float']['input']>;
+  heightCm?: InputMaybe<Scalars['Float']['input']>;
+  heightInches?: InputMaybe<Scalars['Float']['input']>;
   internalDimensions?: InputMaybe<DimensionsInput>;
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  lengthCm?: InputMaybe<Scalars['Float']['input']>;
+  lengthInches?: InputMaybe<Scalars['Float']['input']>;
   maxWeight?: InputMaybe<Scalars['Float']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
+  photos?: InputMaybe<Array<Scalars['String']['input']>>;
+  type?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateCartItemInput = {
@@ -4198,6 +4378,7 @@ export type UpdateProductVariantInput = {
   images?: InputMaybe<Array<ProductImageInput>>;
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   isDefault?: InputMaybe<Scalars['Boolean']['input']>;
+  isSaleVariant?: InputMaybe<Scalars['Boolean']['input']>;
   length?: InputMaybe<Scalars['Float']['input']>;
   mrp?: InputMaybe<Scalars['Float']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
