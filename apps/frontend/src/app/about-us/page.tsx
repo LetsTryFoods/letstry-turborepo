@@ -101,21 +101,21 @@ const products = [
     name: "Munchies",
     href: "/munchies",
     description: "Snack smart with munchies that are big on taste and free from junk.",
-    icon: "/assets/ChatGPT Image May 26, 2026, 02_04_00 PM 1.png",
+    icon: "/assets/icon1.png",
     photo: "/assets/9 1.png",
   },
   {
     name: "Cookies",
     href: "/cookies",
     description: "Deliciously light, naturally sweet—healthy cookies for every mindful munch.",
-    icon: "/assets/ChatGPT Image May 26, 2026, 02_03_05 PM 1.png",
+    icon: "/assets/icon2.png",
     photo: "/assets/7 1.png",
   },
   {
     name: "Namkeen",
     href: "/namkeen",
     description: "Wholesome crunch in every bite—our healthy namkeen made in 100% groundnut oil.",
-    icon: "/assets/ChatGPT Image May 26, 2026, 01_59_37 PM 1.png",
+    icon: "/assets/icon3.png",
     photo: "/assets/8 1.png",
   },
 ];
@@ -252,7 +252,7 @@ export default function AboutUsPage() {
           {/* Image — fixed on mobile, 40% of card on desktop */}
           <div className="flex-shrink-0 w-[120px] md:w-[300px] lg:w-[40%]">
             <Image
-              src="/assets/ChatGPT Image May 26, 2026, 12_10_01 PM 1.png"
+              src="/assets/mixed-nuts-dry-fruits.png"
               alt="Bowl of mixed nuts and dry fruits"
               width={520}
               height={520}
