@@ -5,6 +5,7 @@ export interface DistributorEnquiryInput {
   email: string;
   gstNo: string;
   fssaiNo: string;
+  panNo: string;
   location: string;
   totalVehicles: string;
   manpower: string;

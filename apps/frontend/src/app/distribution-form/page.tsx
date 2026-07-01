@@ -21,6 +21,7 @@ const initialForm: DistributorEnquiryInput = {
   email: "",
   gstNo: "",
   fssaiNo: "",
+  panNo: "",
   location: "",
   totalVehicles: "",
   manpower: "",
@@ -64,6 +65,13 @@ const FIELDS: Array<{
     required: true,
     placeholder: "FSSAI license number",
   },
+  {
+    key: "panNo",
+    label: "PAN Number",
+    required: true,
+    placeholder: "PAN number",
+  },
+  
   {
     key: "location",
     label: "Location / Area of Operation",
