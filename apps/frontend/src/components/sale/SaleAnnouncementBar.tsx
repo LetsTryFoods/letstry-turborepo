@@ -1,25 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
 export const SaleAnnouncementBar = () => {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    // Only show if not dismissed in this session
-    const dismissed = sessionStorage.getItem("sale-bar-dismissed");
-    if (!dismissed) setVisible(true);
-  }, []);
-
-  const dismiss = () => {
-    sessionStorage.setItem("sale-bar-dismissed", "1");
-    setVisible(false);
-  };
-
-  if (!visible) return null;
-
   return (
+
     <div
       style={{
         background: "linear-gradient(90deg, #8b0000 0%, #c41a1a 40%, #8b0000 100%)",
@@ -105,7 +90,7 @@ export const SaleAnnouncementBar = () => {
           >
             60% OFF
           </span>{" "}
-          on Limited Products — Traditional snacks before they&apos;re gone!
+          on Limited Products — Grab Yours Before They're Gone!
         </p>
 
         <Link
@@ -126,27 +111,6 @@ export const SaleAnnouncementBar = () => {
           Shop Now →
         </Link>
       </div>
-
-      {/* Dismiss button */}
-      <button
-        onClick={dismiss}
-        aria-label="Dismiss sale banner"
-        style={{
-          position: "absolute",
-          right: 10,
-          top: "50%",
-          transform: "translateY(-50%)",
-          background: "none",
-          border: "none",
-          color: "rgba(255,255,255,0.6)",
-          fontSize: 18,
-          cursor: "pointer",
-          lineHeight: 1,
-          padding: 4,
-        }}
-      >
-        ×
-      </button>
     </div>
   );
 };
