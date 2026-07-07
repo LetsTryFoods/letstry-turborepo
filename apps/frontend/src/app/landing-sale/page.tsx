@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { getSaleBanners } from "@/lib/landing-sale/get-sale-data";
 import { SaleProductGrid } from "@/components/landing-sale/sale-product-grid";
-import { getCdnUrl } from "@/lib/image-utils";
 
 const SITE_URL = (
   process.env.NEXT_PUBLIC_BASE_URL || "https://letstryfoods.com"
@@ -32,108 +30,28 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function SalePage() {
-  const banners = await getSaleBanners();
-
-  const heroBanner = banners[0];
-
+export default function SalePage() {
   return (
     <main>
-      {/* Hero banner for the sale page */}
-      {heroBanner ? (
-        <div
-          style={{
-            position: "relative",
-            height: "clamp(180px, 35vw, 420px)",
-            overflow: "hidden",
-          }}
-        >
-          <Image
-            src={getCdnUrl(heroBanner.imageUrl)}
-            alt={heroBanner.headline}
-            fill
-            className="object-cover"
-            priority
-            sizes="100vw"
-          />
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              background:
-                "linear-gradient(90deg, rgba(0,0,0,0.6) 0%, transparent 65%)",
-              display: "flex",
-              alignItems: "center",
-              padding: "0 clamp(20px, 5vw, 80px)",
-            }}
-          >
-            <div>
-              <span
-                style={{
-                  background: "linear-gradient(135deg, #dc2626, #b91c1c)",
-                  color: "#fff",
-                  fontSize: 11,
-                  fontWeight: 700,
-                  padding: "3px 14px",
-                  borderRadius: 20,
-                  letterSpacing: "0.1em",
-                  textTransform: "uppercase",
-                  display: "inline-block",
-                  marginBottom: 12,
-                }}
-              >
-                Limited Time
-              </span>
-              <h1
-                style={{
-                  color: "#fff",
-                  fontSize: "clamp(24px, 4.5vw, 52px)",
-                  fontWeight: 900,
-                  margin: "0 0 8px",
-                  lineHeight: 1.15,
-                }}
-              >
-                {heroBanner.headline}
-              </h1>
-              <p
-                style={{
-                  color: "rgba(255,255,255,0.85)",
-                  fontSize: "clamp(13px, 1.8vw, 18px)",
-                  margin: "0 0 20px",
-                }}
-              >
-                {heroBanner.subheadline}
-              </p>
-              <span
-                style={{
-                  background: "#fff",
-                  color: "#dc2626",
-                  fontWeight: 700,
-                  fontSize: 14,
-                  padding: "10px 24px",
-                  borderRadius: 10,
-                  display: "inline-block",
-                  boxShadow: "0 4px 14px rgba(0,0,0,0.2)",
-                }}
-              >
-                {heroBanner.ctaText}
-              </span>
-            </div>
-          </div>
-        </div>
-      ) : (
-        /* Fallback hero when no banner is configured */
-        <div className="w-full relative">
-          <Image
-            src="/sale-banner.png"
-            alt="Sale Banner"
-            width={1920}
-            height={600}
-            className="w-full h-auto object-cover"
-            priority
-          />
-        </div>
-      )}
+      {/* Static hero banner */}
+      <div className="w-full relative">
+        <Image
+          src="/saller_landing.png"
+          alt="Sale Banner"
+          width={1920}
+          height={600}
+          className="hidden md:block w-full h-auto object-cover"
+          priority
+        />
+        <Image
+          src="/saller_mobile_landing.png"
+          alt="Sale Banner"
+          width={828}
+          height={420}
+          className="block md:hidden w-full h-auto object-cover"
+          priority
+        />
+      </div>
 
       {/* Products grid */}
       <section
