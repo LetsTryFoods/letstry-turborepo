@@ -162,4 +162,13 @@ export class ProductQueryService {
   async findSaleProducts(): Promise<Product[]> {
     return this.repository.findSaleProducts();
   }
+
+  async findSaleProductsPaginated(
+    page: number,
+    limit: number,
+  ): Promise<PaginationResult<Product>> {
+    const strategy =
+      this.cacheStrategyFactory.createNoCache<PaginationResult<Product>>();
+    return this.executor.executeSaleProductsPaginated(page, limit, strategy);
+  }
 }

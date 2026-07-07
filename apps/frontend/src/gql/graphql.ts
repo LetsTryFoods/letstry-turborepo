@@ -4725,6 +4725,13 @@ export type SearchProductsQueryVariables = Exact<{
 
 export type SearchProductsQuery = { __typename?: 'Query', searchProducts: { __typename?: 'PaginatedProducts', items: Array<{ __typename?: 'Product', _id: string, name: string, slug: string, description?: string | null, categoryIds: Array<string>, brand: string, currency: string, isArchived: boolean, favourite?: boolean | null, tags: Array<string>, createdAt: any, updatedAt: any, defaultVariant?: { __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, discountSource: string, weight: number, weightUnit: string, packageSize: string, length: number, height: number, breadth: number, stockQuantity: number, availabilityStatus: string, thumbnailUrl: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> } | null, availableVariants: Array<{ __typename?: 'ProductVariant', _id: string, sku: string, name: string, price: number, mrp: number, discountPercent: number, discountSource: string, weight: number, weightUnit: string, packageSize: string, length: number, height: number, breadth: number, stockQuantity: number, availabilityStatus: string, thumbnailUrl: string, isDefault: boolean, isActive: boolean, images: Array<{ __typename?: 'ProductImage', url: string, alt: string }> }>, priceRange: { __typename?: 'PriceRange', min: number, max: number } }>, meta: { __typename?: 'PaginationMeta', totalCount: number, page: number, limit: number, totalPages: number, hasNextPage: boolean, hasPreviousPage: boolean } } };
 
+export type SaleProductsPaginatedQueryVariables = Exact<{
+  pagination?: InputMaybe<PaginationInput>;
+}>;
+
+
+export type SaleProductsPaginatedQuery = { __typename?: 'Query', saleProductsPaginated: { __typename?: 'PaginatedProducts', items: Array<{ __typename?: 'Product', _id: string, name: string, slug: string, defaultVariant?: { __typename?: 'ProductVariant', _id: string, thumbnailUrl: string, price: number, mrp: number } | null, variants: Array<{ __typename?: 'ProductVariant', _id: string, packageSize: string, price: number, mrp: number, availabilityStatus: string }> }>, meta: { __typename?: 'PaginationMeta', totalCount: number, page: number, limit: number, totalPages: number, hasNextPage: boolean, hasPreviousPage: boolean } } };
+
 export class TypedDocumentString<TResult, TVariables>
   extends String
   implements DocumentTypeDecoration<TResult, TVariables>
@@ -5912,3 +5919,35 @@ export const SearchProductsDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<SearchProductsQuery, SearchProductsQueryVariables>;
+export const SaleProductsPaginatedDocument = new TypedDocumentString(`
+  query SaleProductsPaginated($pagination: PaginationInput) {
+    saleProductsPaginated(pagination: $pagination) {
+      items {
+        _id
+        name
+        slug
+        defaultVariant {
+          _id
+          thumbnailUrl
+          price
+          mrp
+        }
+        variants {
+          _id
+          packageSize
+          price
+          mrp
+          availabilityStatus
+        }
+      }
+      meta {
+        totalCount
+        page
+        limit
+        totalPages
+        hasNextPage
+        hasPreviousPage
+      }
+    }
+  }
+    `) as unknown as TypedDocumentString<SaleProductsPaginatedQuery, SaleProductsPaginatedQueryVariables>;

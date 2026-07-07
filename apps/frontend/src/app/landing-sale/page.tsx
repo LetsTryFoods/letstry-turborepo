@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { getSaleProducts, getSaleBanners } from "@/lib/sale/get-landing-sale-data";
-import { ProductGrid } from "@/components/category-page/ProductGrid";
+import { getSaleBanners } from "@/lib/landing-sale/get-sale-data";
+import { SaleProductGrid } from "@/components/landing-sale/sale-product-grid";
 import { getCdnUrl } from "@/lib/image-utils";
 
 const SITE_URL = (
@@ -33,10 +33,7 @@ export const metadata: Metadata = {
 };
 
 export default async function SalePage() {
-  const [products, banners] = await Promise.all([
-    getSaleProducts(),
-    getSaleBanners(),
-  ]);
+  const banners = await getSaleBanners();
 
   const heroBanner = banners[0];
 
@@ -155,77 +152,8 @@ export default async function SalePage() {
           <span style={{ color: "#111", fontWeight: 600 }}>Sale</span>
         </nav>
 
-        {products.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "60px 0" }}>
-            <p style={{ fontSize: 20, color: "#6b7280", fontWeight: 600 }}>
-              No sale items right now. Check back soon!
-            </p>
-            <Link
-              href="/"
-              style={{
-                display: "inline-block",
-                marginTop: 20,
-                background: "#dc2626",
-                color: "#fff",
-                fontWeight: 700,
-                fontSize: 14,
-                padding: "12px 28px",
-                borderRadius: 10,
-                textDecoration: "none",
-              }}
-            >
-              Shop All Products
-            </Link>
-          </div>
-        ) : (
-          <>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginBottom: 24,
-              }}
-            >
-              <h2
-                style={{ fontSize: 22, fontWeight: 800, color: "#111", margin: 0 }}
-              >
-                All Sale Items
-              </h2>
-              <span style={{ fontSize: 13, color: "#6b7280" }}>
-                {products.length} product{products.length !== 1 ? "s" : ""}
-              </span>
-            </div>
-
-              <ProductGrid 
-                products={[...products]
-                  .sort((a, b) => {
-                    const discountA = a.defaultVariant?.discountPercent || 0;
-                    const discountB = b.defaultVariant?.discountPercent || 0;
-                    return discountB - discountA;
-                  })
-                  .map((product) => ({
-                  id: product._id,
-                  name: product.name,
-                  slug: product.slug,
-                  image: product.defaultVariant?.thumbnailUrl || "",
-                  price: product.defaultVariant?.price || 0,
-                  mrp: product.defaultVariant?.mrp,
-                  variants: product.variants.map((v) => ({
-                    id: v._id,
-                    weight: v.packageSize || "",
-                    price: v.price,
-                    mrp: v.mrp,
-                    isOutOfStock: v.availabilityStatus !== "in_stock",
-                  })),
-                  badge: { label: "🔥 SALE", variant: "trending" as const },
-                }))}
-                listId="sale_page_products"
-                listName="Sale Page"
-              />
-            </>
-          )}
-        </section>
+        <SaleProductGrid />
+      </section>
     </main>
   );
 }

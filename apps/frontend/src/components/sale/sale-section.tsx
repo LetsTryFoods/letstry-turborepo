@@ -1,4 +1,4 @@
-import { getSaleProducts, getSaleBanners } from "@/lib/sale/get-sale-data";
+import { getSaleProducts, getSaleBanners } from "@/lib/sale/get-landing-sale-data";
 import { SaleSectionClient } from "./sale-section-client";
 
 /**

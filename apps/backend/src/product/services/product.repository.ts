@@ -132,4 +132,76 @@ export class ProductRepository {
       .sort({ updatedAt: -1 })
       .exec();
   }
+
+  async countSaleProducts(): Promise<number> {
+    return this.productModel
+      .countDocuments({
+        isArchived: false,
+        variants: {
+          $elemMatch: {
+            isSaleVariant: true,
+            availabilityStatus: 'in_stock',
+            stockQuantity: { $gt: 0 },
+          },
+        },
+      })
+      .exec();
+  }
+
+  /**
+   * Same product set as findSaleProducts(), paginated and sorted by the
+   * qualifying sale variant's own discountPercent (not defaultVariant's —
+   * the default variant isn't guaranteed to be the one on sale).
+   */
+  async findSaleProductsPaginatedByDiscount(
+    skip: number,
+    limit: number,
+  ): Promise<Product[]> {
+    return this.productModel
+      .aggregate([
+        {
+          $match: {
+            isArchived: false,
+            variants: {
+              $elemMatch: {
+                isSaleVariant: true,
+                availabilityStatus: 'in_stock',
+                stockQuantity: { $gt: 0 },
+              },
+            },
+          },
+        },
+        {
+          $addFields: {
+            _saleDiscount: {
+              $max: {
+                $map: {
+                  input: {
+                    $filter: {
+                      input: '$variants',
+                      as: 'v',
+                      cond: {
+                        $and: [
+                          { $eq: ['$$v.isSaleVariant', true] },
+                          { $eq: ['$$v.availabilityStatus', 'in_stock'] },
+                          { $gt: ['$$v.stockQuantity', 0] },
+                        ],
+                      },
+                    },
+                  },
+                  as: 'v',
+                  in: '$$v.discountPercent',
+                },
+              },
+            },
+          },
+        },
+        { $sort: { _saleDiscount: -1, updatedAt: -1 } },
+        { $skip: skip },
+        { $limit: limit },
+        { $project: { _saleDiscount: 0 } },
+      ])
+      .option({ allowDiskUse: true })
+      .exec();
+  }
 }

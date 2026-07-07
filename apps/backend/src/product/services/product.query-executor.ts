@@ -105,4 +105,33 @@ export class QueryExecutor {
       );
     });
   }
+
+  async executeSaleProductsPaginated(
+    page: number,
+    limit: number,
+    cacheStrategy: CacheStrategy<PaginationResult<Product>>,
+  ): Promise<PaginationResult<Product>> {
+    return cacheStrategy.execute(async () => {
+      const paginationParams = PaginationCalculator.calculate(page, limit, 0);
+      const [totalCount, items] = await Promise.all([
+        this.repository.countSaleProducts(),
+        this.repository.findSaleProductsPaginatedByDiscount(
+          paginationParams.skip,
+          limit,
+        ),
+      ]);
+      const finalParams = PaginationCalculator.calculate(
+        page,
+        limit,
+        totalCount,
+      );
+      return PaginationCalculator.createResult(
+        items,
+        page,
+        limit,
+        totalCount,
+        finalParams,
+      );
+    });
+  }
 }

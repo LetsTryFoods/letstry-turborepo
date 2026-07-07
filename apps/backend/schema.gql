@@ -1897,6 +1897,7 @@ type Query {
   inventoryLogs(sku: String!): [InventoryLog!]!
   findProductByIdentifier(identifier: String!): Product
   nearExpirySaleProducts: [Product!]!
+  saleProductsPaginated(pagination: PaginationInput! = {page: 1, limit: 10}): PaginatedProducts!
   categories(pagination: PaginationInput! = {page: 1, limit: 10}, includeArchived: Boolean! = false): PaginatedCategories!
   rootCategories(pagination: PaginationInput! = {page: 1, limit: 10}, includeArchived: Boolean! = false): PaginatedCategories!
   categoryChildren(parentId: ID!, pagination: PaginationInput! = {page: 1, limit: 10}, includeArchived: Boolean! = false): PaginatedCategories!

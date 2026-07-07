@@ -228,4 +228,11 @@ export class ProductService {
   findSaleProducts(): Promise<Product[]> {
     return this.queryService.findSaleProducts();
   }
+
+  findSaleProductsPaginated(
+    page = DEFAULT_PAGE,
+    limit = DEFAULT_LIMIT,
+  ): Promise<PaginationResult<Product>> {
+    return this.queryService.findSaleProductsPaginated(page, limit);
+  }
 }

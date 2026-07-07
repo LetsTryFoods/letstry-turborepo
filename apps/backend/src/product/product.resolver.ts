@@ -374,4 +374,27 @@ export class ProductResolver {
   async getNearExpirySaleProducts(): Promise<Product[]> {
     return this.productService.findSaleProducts();
   }
+
+  /**
+   * Same product set as nearExpirySaleProducts, but paginated and sorted
+   * by discount percentage (highest first). Powers /landing-sale.
+   */
+  @Query(() => PaginatedProducts, { name: 'saleProductsPaginated' })
+  @Public()
+  async getSaleProductsPaginated(
+    @Args('pagination', {
+      type: () => PaginationInput,
+      defaultValue: { page: 1, limit: 10 },
+    })
+    pagination: PaginationInput,
+  ): Promise<PaginatedProducts> {
+    const result = await this.productService.findSaleProductsPaginated(
+      pagination.page,
+      pagination.limit,
+    );
+    return {
+      items: result.items,
+      meta: result.meta,
+    };
+  }
 }

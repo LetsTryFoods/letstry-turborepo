@@ -3,7 +3,7 @@ import { useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ProductGrid } from "@/components/category-page/ProductGrid";
-import type { SaleProduct, SaleBanner } from "@/lib/sale/get-sale-data";
+import type { SaleProduct, SaleBanner } from "@/lib/sale/get-landing-sale-data";
 import { getCdnUrl } from "@/lib/image-utils";
 
 interface SaleSectionClientProps {
