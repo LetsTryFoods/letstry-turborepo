@@ -195,7 +195,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       </div>
 
       <div className="p-1.5 sm:p-3 md:p-4 flex flex-col flex-grow text-center relative z-20 pointer-events-none">
-        <h3 className="text-xs sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold text-gray-900 line-clamp-2 min-h-[1.75rem] sm:min-h-[2.5rem] md:min-h-[3rem] flex items-center justify-center pointer-events-auto">
+        <h3 className="text-sm sm:text-base font-semibold text-gray-800 line-clamp-2 leading-snug min-h-[2.5rem] flex items-center justify-center pointer-events-auto mt-1 sm:mt-2 px-1">
           <Link href={`/product/${product.slug}`} onClick={handleSelectItem}>
             {product.name}
           </Link>
@@ -213,26 +213,26 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           {isOutOfStock ? (
             <button
               disabled
-              className="w-full h-8 sm:h-10 flex items-center justify-center text-xs sm:text-md cursor-pointer mt-1 mb-1 sm:mt-4 border sm:border-2 border-[#0C5273] text-[#0C5273] font-medium rounded-lg cursor-not-allowed opacity-50 uppercase tracking-wide"
+              className="w-full h-8 sm:h-10 flex items-center justify-center text-[13px] sm:text-sm cursor-pointer mt-1 mb-1 sm:mt-4 border sm:border-2 border-[#0C5273] text-[#0C5273] font-semibold rounded-md cursor-not-allowed opacity-50 uppercase tracking-wide"
             >
               Out of Stock
             </button>
           ) : quantityInCart === 0 ? (
             <AddToCartButton onClick={handleAddToCart} />
           ) : (
-            <div className="mt-1 mb-1 sm:mt-4 h-8 sm:h-10 w-full flex items-center justify-between border sm:border-2 border-[#0C5273] rounded-lg overflow-hidden">
+            <div className="mt-1 mb-1 sm:mt-4 h-8 sm:h-10 w-full flex items-center justify-between border sm:border-2 border-[#0C5273] rounded-md overflow-hidden bg-[#D1E9F2]">
               <button
-                className="flex-1 h-full bg-[#D1E9F2] text-[#0C5273] font-bold text-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center"
+                className="w-10 sm:w-12 h-full text-[#0C5273] font-bold text-lg sm:text-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center hover:bg-[#b5dbe9]"
                 onClick={handleDecrement}
                 disabled={isLoading}
               >
                 −
               </button>
-              <span className="flex-1 h-full text-center text-[#0C5273] font-semibold text-base flex items-center justify-center">
+              <span className="flex-1 h-full text-center text-[#0C5273] font-bold text-[13px] sm:text-sm flex items-center justify-center bg-white">
                 {isLoading ? "..." : quantityInCart}
               </span>
               <button
-                className="flex-1 h-full bg-[#D1E9F2] text-[#0C5273] font-bold text-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center"
+                className="w-10 sm:w-12 h-full text-[#0C5273] font-bold text-lg sm:text-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center hover:bg-[#b5dbe9]"
                 onClick={handleIncrement}
                 disabled={isLoading}
               >
