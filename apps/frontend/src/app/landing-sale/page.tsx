@@ -41,7 +41,7 @@ export default async function LandingSalePage() {
     <main>
       {/* Static hero banners — desktop & mobile */}
       {/* aspect-ratio prevents layout shift before image loads (fixes CLS) */}
-      <div className="w-full relative">
+      {/* <div className="w-full relative">
         <Image
           src="/saller_landing.png"
           alt="Sale Banner"
@@ -64,7 +64,7 @@ export default async function LandingSalePage() {
           fetchPriority="high"
           sizes="100vw"
         />
-      </div>
+      </div> */}
 
       {/* Products grid */}
       <section
