@@ -187,6 +187,17 @@ export const useAnalytics = () => {
           })),
         },
       });
+
+      // Meta Pixel Tracking
+      if (typeof window !== "undefined" && (window as any).fbq) {
+        (window as any).fbq("track", "Purchase", {
+          content_ids: orderData.items.map((item) => item.id),
+          content_type: "product",
+          value: orderData.value,
+          currency: "INR",
+          num_items: orderData.items.reduce((total, item) => total + item.quantity, 0),
+        });
+      }
     },
     [],
   );
