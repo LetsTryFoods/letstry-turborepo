@@ -5,8 +5,9 @@ import Link from "next/link";
 import { ProductGrid } from "@/components/category-page/ProductGrid";
 import type { Product } from "@/components/category-page/ProductCard";
 import { useSaleProducts } from "@/lib/landing-sale/use-sale-products";
+import type { SaleProductItem, SaleProductsMeta } from "@/lib/landing-sale/get-sale-data";
 
-function mapSaleProduct(apiProduct: any): Product {
+function mapSaleProduct(apiProduct: SaleProductItem): Product {
   return {
     id: apiProduct._id,
     name: apiProduct.name,
@@ -14,7 +15,7 @@ function mapSaleProduct(apiProduct: any): Product {
     image: apiProduct.defaultVariant?.thumbnailUrl || "",
     price: apiProduct.defaultVariant?.price || 0,
     mrp: apiProduct.defaultVariant?.mrp,
-    variants: (apiProduct.variants || []).map((v: any) => ({
+    variants: (apiProduct.variants || []).map((v) => ({
       id: v._id,
       weight: v.packageSize || "",
       price: v.price,
@@ -25,9 +26,15 @@ function mapSaleProduct(apiProduct: any): Product {
   };
 }
 
-export function SaleProductGrid() {
+interface SaleProductGridProps {
+  /** First page of products pre-fetched on the server — shown instantly, no spinner */
+  initialItems?: SaleProductItem[];
+  initialMeta?: SaleProductsMeta;
+}
+
+export function SaleProductGrid({ initialItems, initialMeta }: SaleProductGridProps) {
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } =
-    useSaleProducts();
+    useSaleProducts({ initialItems, initialMeta });
   const loaderRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -43,7 +50,8 @@ export function SaleProductGrid() {
     return () => observer.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  if (isLoading) {
+  // Only show the spinner if there are NO initial products at all
+  if (isLoading && (!initialItems || initialItems.length === 0)) {
     return (
       <div style={{ textAlign: "center", padding: "60px 0" }}>
         <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-500" />
@@ -53,11 +61,13 @@ export function SaleProductGrid() {
 
   const products =
     data?.pages.flatMap(
-      (page) => page?.saleProductsPaginated?.items?.map(mapSaleProduct) ?? [],
-    ) ?? [];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (page) => (page?.saleProductsPaginated?.items as any[])?.map(mapSaleProduct) ?? [],
+    ) ?? (initialItems?.map(mapSaleProduct) ?? []);
+
   const totalCount =
     data?.pages[data.pages.length - 1]?.saleProductsPaginated?.meta
-      ?.totalCount ?? 0;
+      ?.totalCount ?? initialMeta?.totalCount ?? 0;
 
   if (products.length === 0) {
     return (

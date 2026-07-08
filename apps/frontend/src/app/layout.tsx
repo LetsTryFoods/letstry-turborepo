@@ -38,7 +38,9 @@ const agbalumo = Agbalumo({
   subsets: ["latin"],
   weight: "400",
   display: "swap",
-  preload: true,
+  // This decorative font is only used in specific brand elements — don't
+  // block the critical path by preloading it on every page.
+  preload: false,
 });
 
 const SITE_URL = (

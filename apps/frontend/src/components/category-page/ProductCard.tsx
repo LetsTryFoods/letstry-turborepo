@@ -188,7 +188,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             className="object-center"
             loading="lazy"
             quality={75}
-            sizes="(max-width: 640px) 50vw, (max-width: 768px) 50vw, (max-width: 1024px) 25vw, 25vw"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />
         </div>
       </div>
