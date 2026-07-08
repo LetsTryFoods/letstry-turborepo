@@ -162,59 +162,56 @@ export const BestsellerCard = ({ product, position }: BestsellerCardProps) => {
             sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
           />
         </div>
-        <h3 className="text-[11px] sm:text-[13px] md:text-[14px] lg:text-[22px] font-bold text-black leading-snug min-h-[28px] sm:min-h-[36px] md:min-h-[40px] lg:min-h-[70px] mb-1 lg:mb-[10px]">
+        <h3 className="text-[13px] sm:text-sm md:text-base font-semibold text-gray-800 leading-snug min-h-[2.5rem] mb-1 lg:mb-[10px] px-1">
           {product.name}
         </h3>
       </Link>
 
-      <div className="p-2 sm:p-4 md:p-5 lg:p-6">
-        <div className="text-[11px] sm:text-[12px] lg:text-[15px] text-black mb-1 lg:mb-[10px] font-bold">
+      <div className="p-2 sm:p-4 md:p-5 lg:p-6 flex flex-col flex-grow">
+        <div className="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
           {variant.packageSize}
         </div>
 
         <div className="mb-2 lg:mb-[10px]">
           {hasDiscount ? (
-            <div className="text-black text-center">
-              <span className="text-[11px] sm:text-[13px] md:text-[14px] lg:text-[18px] font-semibold">
+            <div className="flex items-center justify-center gap-1.5 sm:gap-2">
+              <span className="text-base sm:text-lg font-bold text-gray-900">
                 ₹{variant.price.toFixed(2)}
               </span>
-              <span className="line-through text-[#00000091] font-normal px-1 text-[10px] sm:text-[12px] md:text-[14px] lg:text-[16px]">
+              <span className="text-[11px] sm:text-sm text-gray-500 line-through font-medium px-1">
                 MRP ₹{variant.mrp.toFixed(2)}
               </span>
             </div>
           ) : (
-            <span className="text-[12px] sm:text-[14px] lg:text-[18px] font-bold text-black">
+            <span className="text-base sm:text-lg font-bold text-gray-900">
               ₹{variant.price.toFixed(2)}
             </span>
           )}
         </div>
 
         {isOutOfStock ? (
-          <div className="flex justify-center mt-auto">
+          <div className="flex justify-center mt-auto w-full">
             <button
               disabled
-              className="cursor-not-allowed w-full h-[28px] sm:h-[34px] lg:h-[44px] border border-[#0C5273] text-[#0C5273] font-semibold text-[10px] sm:text-[12px] lg:text-[16px] rounded-lg opacity-50 uppercase tracking-wide"
+              className="w-full h-8 sm:h-10 border sm:border-2 border-[#0C5273] text-[#0C5273] text-[13px] sm:text-sm font-semibold rounded-md opacity-50 uppercase tracking-wide cursor-not-allowed"
             >
               Out of Stock
             </button>
           </div>
         ) : quantityInCart > 0 ? (
-          <div className="flex justify-center mt-auto">
+          <div className="mt-auto h-8 sm:h-10 w-full flex items-center justify-between border sm:border-2 border-[#0C5273] rounded-md overflow-hidden bg-[#D1E9F2]">
             <button
-              className="cursor-pointer w-[26px] sm:w-[34px] lg:w-[40px] h-[28px] sm:h-[34px] lg:h-[44px] text-[12px] lg:text-[18px] bg-[#0C5273] text-white font-semibold rounded-l hover:bg-[#003349] transition"
+              className="w-10 sm:w-12 h-full text-[#0C5273] font-bold text-lg sm:text-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center hover:bg-[#b5dbe9]"
               onClick={handleDecrement}
               disabled={isLoading}
             >
               −
             </button>
-            <input
-              type="text"
-              readOnly
-              value={isLoading ? "..." : quantityInCart}
-              className="w-[36px] sm:w-[50px] lg:w-[80px] h-[28px] sm:h-[34px] lg:h-[44px] text-[12px] lg:text-[18px] text-center border-y-2 border-[#0C5273] text-white bg-[#0C5273] rounded-none"
-            />
+            <span className="flex-1 h-full text-center text-[#0C5273] font-bold text-[13px] sm:text-sm flex items-center justify-center bg-white">
+              {isLoading ? "..." : quantityInCart}
+            </span>
             <button
-              className="cursor-pointer w-[26px] sm:w-[34px] lg:w-[40px] h-[28px] sm:h-[34px] lg:h-[44px] text-[12px] lg:text-[18px] border-2 border-[#0C5273] text-white bg-[#0C5273] font-semibold rounded-r hover:bg-[#003349] transition"
+              className="w-10 sm:w-12 h-full text-[#0C5273] font-bold text-lg sm:text-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center hover:bg-[#b5dbe9]"
               onClick={(e) => {
                 triggerSpark(e, "#ffffff");
                 handleIncrement();
@@ -225,9 +222,9 @@ export const BestsellerCard = ({ product, position }: BestsellerCardProps) => {
             </button>
           </div>
         ) : (
-          <div className="flex justify-center mt-auto">
+          <div className="flex justify-center mt-auto w-full">
             <button
-              className="cursor-pointer w-full h-[28px] sm:h-[34px] lg:h-[44px] bg-[#0C5273] text-white font-semibold text-[10px] sm:text-[12px] lg:text-[16px] rounded-lg hover:bg-[#003349] transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-8 sm:h-10 flex items-center justify-center text-[13px] sm:text-sm cursor-pointer border sm:border-2 border-[#0C5273] text-[#0C5273] font-semibold rounded-md transition-colors duration-200 uppercase tracking-wide hover:bg-[#0C5273] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={(e) => {
                 triggerSpark(e, "#ffffff");
                 handleAddToCart();

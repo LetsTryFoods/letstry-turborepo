@@ -400,6 +400,7 @@ export type Category = {
   parentId?: Maybe<Scalars['String']['output']>;
   pillarSlugs?: Maybe<Array<Scalars['String']['output']>>;
   productCount: Scalars['Float']['output'];
+  productOrder?: Maybe<Array<Scalars['String']['output']>>;
   products: Array<Product>;
   seo?: Maybe<CategorySeo>;
   slug: Scalars['String']['output'];
@@ -1426,6 +1427,7 @@ export type Mutation = {
   removePressMention: PressMention;
   removeProductVariant: Product;
   removeProductsFromCategory: Scalars['Boolean']['output'];
+  reorderCategoryProducts: Scalars['Boolean']['output'];
   sendOtp: Scalars['String']['output'];
   setDefaultProductVariant: Product;
   setInventory: InventoryLog;
@@ -1814,6 +1816,11 @@ export type MutationRemoveProductVariantArgs = {
 
 export type MutationRemoveProductsFromCategoryArgs = {
   input: RemoveProductsFromCategoryInput;
+};
+
+
+export type MutationReorderCategoryProductsArgs = {
+  input: ReorderCategoryProductsInput;
 };
 
 
@@ -3690,6 +3697,11 @@ export type RegionStatsType = {
 export type RemoveProductsFromCategoryInput = {
   categoryId: Scalars['ID']['input'];
   productIds: Array<Scalars['ID']['input']>;
+};
+
+export type ReorderCategoryProductsInput = {
+  categoryId: Scalars['ID']['input'];
+  orderedProductIds: Array<Scalars['String']['input']>;
 };
 
 export type ReportSummaryType = {
