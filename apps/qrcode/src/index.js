@@ -8,6 +8,7 @@ const { getDeviceInfo, getLocation } = require('./analytics');
 
 const app = express();
 const PORT = process.env.PORT || 8000;
+const HOST = process.env.HOST || '127.0.0.1';
 
 // Enable client IP detection behind proxies
 app.use(requestIp.mw());
@@ -119,6 +120,6 @@ app.get('/redirect', (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Node.js QR tracking service active on port ${PORT}`);
+app.listen(PORT, HOST, () => {
+  console.log(`QR tracking service active at http://${HOST}:${PORT}`);
 });

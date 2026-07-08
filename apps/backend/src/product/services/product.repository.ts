@@ -136,22 +136,25 @@ export class ProductRepository {
   async countSaleProducts(): Promise<number> {
     return this.productModel
       .countDocuments({
-        isArchived: false,
-        variants: {
-          $elemMatch: {
-            isSaleVariant: true,
-            availabilityStatus: 'in_stock',
-            stockQuantity: { $gt: 0 },
+        $and: [
+          { isArchived: { $ne: true } },
+          {
+            variants: {
+              $elemMatch: {
+                availabilityStatus: { $ne: 'out_of_stock' },
+                isActive: true,
+              },
+            },
           },
-        },
+        ],
       })
       .exec();
   }
 
   /**
-   * Same product set as findSaleProducts(), paginated and sorted by the
-   * qualifying sale variant's own discountPercent (not defaultVariant's —
-   * the default variant isn't guaranteed to be the one on sale).
+   * All active, non-archived products (same "available" definition as the
+   * plain products() query), paginated and sorted by each product's own
+   * best available-variant discountPercent, highest first.
    */
   async findSaleProductsPaginatedByDiscount(
     skip: number,
@@ -161,19 +164,22 @@ export class ProductRepository {
       .aggregate([
         {
           $match: {
-            isArchived: false,
-            variants: {
-              $elemMatch: {
-                isSaleVariant: true,
-                availabilityStatus: 'in_stock',
-                stockQuantity: { $gt: 0 },
+            $and: [
+              { isArchived: { $ne: true } },
+              {
+                variants: {
+                  $elemMatch: {
+                    availabilityStatus: { $ne: 'out_of_stock' },
+                    isActive: true,
+                  },
+                },
               },
-            },
+            ],
           },
         },
         {
           $addFields: {
-            _saleDiscount: {
+            _maxDiscount: {
               $max: {
                 $map: {
                   input: {
@@ -182,9 +188,8 @@ export class ProductRepository {
                       as: 'v',
                       cond: {
                         $and: [
-                          { $eq: ['$$v.isSaleVariant', true] },
-                          { $eq: ['$$v.availabilityStatus', 'in_stock'] },
-                          { $gt: ['$$v.stockQuantity', 0] },
+                          { $ne: ['$$v.availabilityStatus', 'out_of_stock'] },
+                          { $eq: ['$$v.isActive', true] },
                         ],
                       },
                     },
@@ -196,10 +201,10 @@ export class ProductRepository {
             },
           },
         },
-        { $sort: { _saleDiscount: -1, updatedAt: -1 } },
+        { $sort: { _maxDiscount: -1, updatedAt: -1 } },
         { $skip: skip },
         { $limit: limit },
-        { $project: { _saleDiscount: 0 } },
+        { $project: { _maxDiscount: 0 } },
       ])
       .option({ allowDiskUse: true })
       .exec();

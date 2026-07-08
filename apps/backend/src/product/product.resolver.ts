@@ -376,8 +376,9 @@ export class ProductResolver {
   }
 
   /**
-   * Same product set as nearExpirySaleProducts, but paginated and sorted
-   * by discount percentage (highest first). Powers /landing-sale.
+   * All active products (unlike nearExpirySaleProducts, not limited to
+   * isSaleVariant items), paginated and sorted by discount percentage
+   * (highest first). Powers /landing-sale.
    */
   @Query(() => PaginatedProducts, { name: 'saleProductsPaginated' })
   @Public()

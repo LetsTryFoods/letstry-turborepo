@@ -29,7 +29,8 @@ fastify.get("/sdui/navigation", navigationHandler);
 const start = async () => {
   try {
     const port = process.env.PORT ? parseInt(process.env.PORT) : 4000;
-    await fastify.listen({ port, host: "0.0.0.0" });
+    const host = process.env.HOST || "127.0.0.1";
+    await fastify.listen({ port, host });
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);
