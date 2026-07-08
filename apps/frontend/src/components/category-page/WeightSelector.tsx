@@ -25,7 +25,7 @@ export const WeightSelector: React.FC<WeightSelectorProps> = ({
   };
 
   return (
-    <div className="w-full flex flex-col items-start gap-1 mt-2 sm:mt-3">
+    <div className="w-full flex flex-col items-start gap-0.5 sm:gap-1 mt-1 sm:mt-3">
       <label className="text-sm font-bold text-black">Weight</label>
       <div className="relative w-full">
         {weights.length > 1 ? (
@@ -33,7 +33,7 @@ export const WeightSelector: React.FC<WeightSelectorProps> = ({
             <select
               value={selectedWeight}
               onChange={(e) => onWeightChange(e.target.value)}
-              className="w-full appearance-none bg-[#fdfbf7] border border-[#f5e6d3] rounded-lg text-sm sm:text-base md:text-lg font-bold text-black py-2.5 px-4 pr-10 cursor-pointer focus:outline-none focus:ring-1 focus:ring-brand-hover"
+              className="w-full appearance-none bg-[#fdfbf7] border border-[#f5e6d3] rounded-lg text-xs sm:text-base md:text-lg font-bold text-black py-1 sm:py-2.5 px-2 sm:px-4 pr-8 sm:pr-10 cursor-pointer focus:outline-none focus:ring-1 focus:ring-brand-hover"
             >
               {weights.map((weight) => (
                 <option key={weight} value={weight}>
@@ -47,7 +47,7 @@ export const WeightSelector: React.FC<WeightSelectorProps> = ({
             />
           </>
         ) : (
-          <div className="w-full bg-[#fdfbf7] border border-[#f5e6d3] rounded-lg text-sm sm:text-base md:text-lg font-bold text-black py-2.5 px-4">
+          <div className="w-full bg-[#fdfbf7] border border-[#f5e6d3] rounded-lg text-xs sm:text-base md:text-lg font-bold text-black py-1 sm:py-2.5 px-2 sm:px-4">
             {formatWeight(weights[0] || selectedWeight)}
           </div>
         )}

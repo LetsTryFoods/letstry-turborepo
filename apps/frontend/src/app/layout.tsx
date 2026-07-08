@@ -17,6 +17,7 @@ import { GoogleTagManager, GoogleAnalytics } from "@next/third-parties/google";
 import { PageViewTracker } from "@/components/analytics/page-view-tracker";
 import { WebVitalsTracker } from "@/components/analytics/web-vitals";
 import { SpinWheelContainer } from "@/components/spin-wheel/SpinWheelContainer";
+import { MetaPixel } from "@/components/analytics/meta-pixel";
 import Script from "next/script";
 
 const geistSans = Geist({
@@ -200,6 +201,7 @@ export default function RootLayout({
             {`window.gtag && window.gtag('config', '${gaId}', { send_page_view: false });`}
           </Script>
         )}
+        <MetaPixel />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${agbalumo.variable} antialiased`}

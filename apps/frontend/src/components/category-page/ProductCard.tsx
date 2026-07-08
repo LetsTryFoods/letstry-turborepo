@@ -174,7 +174,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         aria-label={product.name}
         onClick={handleSelectItem}
       />
-      <div className="relative h-40 sm:h-48 md:h-56 lg:h-64 w-full bg-[#fdfbf7] overflow-hidden">
+      {/* aspect-square on mobile = container matches product image shape (no stretch/squish) */}
+      <div className="relative aspect-square sm:aspect-auto sm:h-48 md:h-56 lg:h-64 w-full bg-[#fdfbf7] overflow-hidden">
         {product.badge && (
           <Badge label={product.badge.label} variant={product.badge.variant} />
         )}
@@ -193,8 +194,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </div>
       </div>
 
-      <div className="p-2 sm:p-3 md:p-4 flex flex-col flex-grow text-center relative z-20 pointer-events-none">
-        <h3 className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold text-gray-900 line-clamp-2 min-h-[2rem] sm:min-h-[2.5rem] md:min-h-[3rem] flex items-center justify-center pointer-events-auto">
+      <div className="p-1.5 sm:p-3 md:p-4 flex flex-col flex-grow text-center relative z-20 pointer-events-none">
+        <h3 className="text-xs sm:text-base md:text-lg lg:text-xl xl:text-2xl font-bold text-gray-900 line-clamp-2 min-h-[1.75rem] sm:min-h-[2.5rem] md:min-h-[3rem] flex items-center justify-center pointer-events-auto">
           <Link href={`/product/${product.slug}`} onClick={handleSelectItem}>
             {product.name}
           </Link>
@@ -212,14 +213,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           {isOutOfStock ? (
             <button
               disabled
-              className="w-full h-10 flex items-center justify-center text-sm sm:text-md mt-2 mb-2 sm:mt-4 border border-[#0C5273] text-[#0C5273] font-medium rounded-lg cursor-not-allowed opacity-50 uppercase tracking-wide"
+              className="w-full h-8 sm:h-10 flex items-center justify-center text-xs sm:text-md cursor-pointer mt-1 mb-1 sm:mt-4 border sm:border-2 border-[#0C5273] text-[#0C5273] font-medium rounded-lg cursor-not-allowed opacity-50 uppercase tracking-wide"
             >
               Out of Stock
             </button>
           ) : quantityInCart === 0 ? (
             <AddToCartButton onClick={handleAddToCart} />
           ) : (
-            <div className="mt-2 mb-2 sm:mt-4 h-10 w-full flex items-center justify-between border sm:border-2 border-[#0C5273] rounded-lg overflow-hidden">
+            <div className="mt-1 mb-1 sm:mt-4 h-8 sm:h-10 w-full flex items-center justify-between border sm:border-2 border-[#0C5273] rounded-lg overflow-hidden">
               <button
                 className="flex-1 h-full bg-[#D1E9F2] text-[#0C5273] font-bold text-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center"
                 onClick={handleDecrement}
