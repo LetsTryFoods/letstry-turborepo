@@ -123,3 +123,12 @@ export class RemoveProductsFromCategoryInput {
   @Field(() => [ID])
   productIds: string[];
 }
+
+@InputType()
+export class ReorderCategoryProductsInput {
+  @Field(() => ID)
+  categoryId: string;
+
+  @Field(() => [String])
+  orderedProductIds: string[];
+}

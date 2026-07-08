@@ -68,6 +68,12 @@ export class Category {
   @Prop({ type: [String], default: [] })
   featuredProductIds?: string[];
 
+  // Explicit display order for products in this category.
+  // Stored as an ordered array of product _id strings.
+  // Products not listed here are appended after the ordered ones.
+  @Prop({ type: [String], default: [] })
+  productOrder?: string[];
+
   // Pillar pages this category belongs to. Used for cross-category
   // internal linking from the pillar templates.
   @Prop({ type: [String], default: [] })

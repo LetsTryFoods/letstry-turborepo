@@ -16,6 +16,7 @@ import {
   UpdateCategoryInput,
   AddProductsToCategoryInput,
   RemoveProductsFromCategoryInput,
+  ReorderCategoryProductsInput,
 } from './category.input';
 import { CategorySeoInput } from './category-seo.input';
 import { Public } from '../common/decorators/public.decorator';
@@ -211,6 +212,17 @@ export class CategoryResolver {
     );
   }
 
+  @Mutation(() => Boolean, { name: 'reorderCategoryProducts' })
+  @Roles(Role.ADMIN)
+  async reorderCategoryProducts(
+    @Args('input') input: ReorderCategoryProductsInput,
+  ): Promise<boolean> {
+    return this.categoryService.reorderProducts(
+      input.categoryId,
+      input.orderedProductIds,
+    );
+  }
+
   // Public so storefront can fetch products via Category in a single query
   // (e.g. GET_CATEGORY_BY_SLUG / GET_CATEGORY_WITH_PRODUCTS for category PLPs).
   // Previously @Roles(Role.ADMIN) — would 403 any storefront query that
@@ -218,7 +230,35 @@ export class CategoryResolver {
   @ResolveField(() => [Product], { name: 'products' })
   @Public()
   async getProducts(@Parent() category: Category): Promise<Product[]> {
-    return this.productService.findByCategoryId(category._id);
+    const products = await this.productService.findByCategoryId(category._id);
+
+    // If no order is defined, return as is
+    if (!category.productOrder || category.productOrder.length === 0) {
+      return products;
+    }
+
+    // Fast O(N) map-based lookup for sorting
+    const orderMap = new Map<string, number>();
+    category.productOrder.forEach((id, index) => {
+      orderMap.set(id.toString(), index);
+    });
+
+    return products.sort((a, b) => {
+      const aIndex = orderMap.get(a._id.toString());
+      const bIndex = orderMap.get(b._id.toString());
+
+      // If both have an explicit order, sort by that order
+      if (aIndex !== undefined && bIndex !== undefined) {
+        return aIndex - bIndex;
+      }
+      // If only A has an order, it comes first
+      if (aIndex !== undefined) return -1;
+      // If only B has an order, it comes first
+      if (bIndex !== undefined) return 1;
+      
+      // If neither has an order, keep their original relative positions (usually creation date/fallback)
+      return 0;
+    });
   }
 
   @ResolveField(() => Number, { name: 'productCount' })

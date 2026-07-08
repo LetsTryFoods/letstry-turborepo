@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -24,11 +25,13 @@ import {
   Archive,
   ArchiveRestore,
   Package,
+  ListOrdered,
 } from "lucide-react";
 import { Pagination } from "@/app/dashboard/components/pagination";
 import { ColumnDefinition } from "@/app/dashboard/components/column-selector";
 import Link from "next/link";
 import { getCdnUrl } from "@/lib/utils/image-utils";
+import { ProductOrderDialog } from "./ProductOrderDialog";
 
 interface CategoryTableProps {
   categories: any[];
@@ -64,6 +67,9 @@ export function CategoryTable({
   onEdit,
   onImagePreview,
 }: CategoryTableProps) {
+  const [orderDialogOpen, setOrderDialogOpen] = useState(false);
+  const [selectedCategorySlug, setSelectedCategorySlug] = useState("");
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-32">
@@ -181,6 +187,15 @@ export function CategoryTable({
                           View Products ({category.productCount || 0})
                         </Link>
                       </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setSelectedCategorySlug(category.slug);
+                          setOrderDialogOpen(true);
+                        }}
+                      >
+                        <ListOrdered className="mr-2 h-4 w-4" />
+                        Manage Product Order
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => onEdit(category._id)}>
                         <Pencil className="mr-2 h-4 w-4" />
                         Edit
@@ -227,6 +242,14 @@ export function CategoryTable({
           onPageChange={onPageChange}
         />
       )}
+      <ProductOrderDialog
+        isOpen={orderDialogOpen}
+        onClose={() => {
+          setOrderDialogOpen(false);
+          setSelectedCategorySlug("");
+        }}
+        categorySlug={selectedCategorySlug}
+      />
     </>
   );
 }

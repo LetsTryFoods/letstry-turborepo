@@ -60,6 +60,7 @@ export class Category {
   @Field(() => [CategoryFaqEntry], { nullable: true })
   categoryFaqs?: CategoryFaqEntry[];
   @Field(() => [String], { nullable: true }) featuredProductIds?: string[];
+  @Field(() => [String], { nullable: true }) productOrder?: string[];
   @Field(() => [String], { nullable: true }) pillarSlugs?: string[];
   @Field(() => [String], { nullable: true }) editorialHighlights?: string[];
 

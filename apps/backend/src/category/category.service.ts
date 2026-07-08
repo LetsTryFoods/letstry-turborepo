@@ -555,6 +555,20 @@ export class CategoryCommandService {
     return result;
   }
 
+  async reorderProducts(
+    categoryId: string,
+    orderedProductIds: string[],
+  ): Promise<boolean> {
+    await this.validateCategoryExists(categoryId);
+    
+    await this.repository.findByIdAndUpdate(categoryId, {
+      productOrder: orderedProductIds,
+    });
+    
+    await this.invalidateCategoryCache(categoryId);
+    return true;
+  }
+
   private async validateCategoryExists(categoryId: string): Promise<void> {
     const category = await this.repository.findById(categoryId);
     if (!category) {
@@ -788,6 +802,13 @@ export class CategoryService {
       categoryId,
       productIds,
     );
+  }
+
+  async reorderProducts(
+    categoryId: string,
+    orderedProductIds: string[],
+  ): Promise<boolean> {
+    return this.commandService.reorderProducts(categoryId, orderedProductIds);
   }
 
   // ========== READ OPERATIONS ==========
