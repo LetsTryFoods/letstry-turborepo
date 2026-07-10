@@ -68,6 +68,7 @@ function OrderSuccess() {
       transactionId: order.orderId,
       value,
       shipping: Number(order.deliveryCharge) || 0,
+      paymentMethod: order.payment?.method ?? undefined,
       items: order.items.map((item) => ({
         id: item.variantId || item.sku || order.orderId,
         name: item.name,

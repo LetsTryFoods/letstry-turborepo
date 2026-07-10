@@ -15,7 +15,7 @@ import { CartDrawer } from "./CartDrawer";
 import { AddressFormData } from "./AddressDetailsModal";
 import { LoginModal } from "@/components/auth/login-modal";
 import { useAnalytics } from "@/hooks/use-analytics";
-import { pushToDataLayer } from "@/lib/analytics/data-layer";
+import { mpTrack } from "@/lib/analytics/mixpanel";
 import { graphqlClient } from "@/lib/graphql/client-factory";
 import { CHECK_PINCODE_SERVICEABILITY } from "@/lib/queries/pincode";
 import toast from "react-hot-toast";
@@ -33,6 +33,9 @@ export const CartContainer = () => {
     trackAddToCart,
     trackViewCart,
     trackAddShippingInfo,
+    trackPaymentInitiated,
+    trackCouponApplied,
+    trackCouponRemoved,
   } = useAnalytics();
   const wasOpenRef = useRef(false);
 
@@ -197,8 +200,7 @@ export const CartContainer = () => {
     await CouponService.applyCoupon(code);
     queryClient.invalidateQueries({ queryKey: ["cart"] });
 
-    pushToDataLayer({
-      event: "apply_coupon",
+    trackCouponApplied({
       coupon_code: code,
       cart_value: totalPrice,
     });
@@ -210,8 +212,7 @@ export const CartContainer = () => {
     queryClient.invalidateQueries({ queryKey: ["cart"] });
 
     if (removedCouponCode) {
-      pushToDataLayer({
-        event: "remove_coupon",
+      trackCouponRemoved({
         coupon_code: removedCouponCode,
         cart_value: totalPrice,
       });
@@ -368,6 +369,11 @@ export const CartContainer = () => {
           }
         }
         if (!isAnyDeliverable) {
+          // Pincode rejected — fire before returning so we capture this drop-off
+          mpTrack("Pincode Rejected", {
+            pincode: pincodesToCheck.join(","),
+            cart_value: totalPrice,
+          });
           toast.error(
             "Sorry, we currently do not deliver to your selected PIN code.",
           );
@@ -395,6 +401,13 @@ export const CartContainer = () => {
     });
 
     setShowPaymentModal(true);
+
+    // Funnel Step 9 — payment gateway is about to open
+    trackPaymentInitiated({
+      payment_method: "razorpay",
+      cart_value: totalPrice,
+      gateway: "razorpay",
+    });
   };
 
   const suggestions: Array<{

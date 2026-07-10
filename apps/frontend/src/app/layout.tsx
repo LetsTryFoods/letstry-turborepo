@@ -18,6 +18,7 @@ import { PageViewTracker } from "@/components/analytics/page-view-tracker";
 import { WebVitalsTracker } from "@/components/analytics/web-vitals";
 import { SpinWheelContainer } from "@/components/spin-wheel/SpinWheelContainer";
 import { MetaPixel } from "@/components/analytics/meta-pixel";
+import { MixpanelProvider } from "@/components/analytics/mixpanel-provider";
 import Script from "next/script";
 
 const geistSans = Geist({
@@ -213,6 +214,7 @@ export default function RootLayout({
               <Suspense fallback={null}>
                 <PageViewTracker />
               </Suspense>
+              <MixpanelProvider />
               <WebVitalsTracker />
               {/* <SaleAnnouncementBar /> */}
               <TopBanner />

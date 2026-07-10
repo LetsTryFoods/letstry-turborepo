@@ -1,13 +1,31 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { XCircle } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { useAnalytics } from "@/hooks/use-analytics";
 
 function PaymentFailed() {
   const searchParams = useSearchParams();
   const paymentOrderId = searchParams.get("paymentOrderId");
+  const { trackPaymentFailed } = useAnalytics();
+
+  useEffect(() => {
+    // Guard: only fire once per payment failure page load
+    const guardKey = `mp_payment_failed:${paymentOrderId ?? "unknown"}`;
+    if (typeof window === "undefined") return;
+    if (sessionStorage.getItem(guardKey)) return;
+
+    trackPaymentFailed({
+      reason: searchParams.get("reason") ?? "unknown",
+      payment_order_id: paymentOrderId ?? undefined,
+    });
+
+    sessionStorage.setItem(guardKey, "1");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
