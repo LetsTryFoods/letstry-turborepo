@@ -47,6 +47,14 @@ export const initMixpanel = (token?: string): void => {
         "[Mixpanel] ✅ Initialized. distinct_id:",
         instance.get_distinct_id(),
       );
+      // Create a People profile for every visitor — even anonymous guests.
+      // Without this call Mixpanel never writes a row to the Users table,
+      // so the "Users" column stays empty in the Verify Connection screen.
+      instance.people.set_once({
+        $created: new Date().toISOString(),
+        is_guest: true, // overwritten to false when mpIdentify is called on login
+        platform: "web",
+      });
     },
   });
 

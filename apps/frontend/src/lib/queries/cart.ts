@@ -26,6 +26,7 @@ export const GET_MY_CART = graphql(`
         estimatedTax
         handlingCharge
         grandTotal
+        freeDeliveryThreshold
       }
       createdAt
       updatedAt

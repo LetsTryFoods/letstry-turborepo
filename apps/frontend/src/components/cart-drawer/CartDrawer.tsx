@@ -75,6 +75,7 @@ interface CartDrawerProps {
     name: string;
     phone: string;
   };
+  freeDeliveryThreshold?: number;
 }
 
 export const CartDrawer: React.FC<CartDrawerProps> = ({
@@ -112,6 +113,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   cartId,
   amount,
   userDetails,
+  freeDeliveryThreshold = 499,
 }) => {
   const [isMobile, setIsMobile] = React.useState(false);
 
@@ -141,6 +143,15 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     exit: isMobile ? { y: "100%" } : { x: "100%" },
   };
 
+  const amountAwayFromFreeDelivery = Math.max(
+    0,
+    freeDeliveryThreshold - priceBreakdown.subtotal
+  );
+  const progressPercentage = Math.min(
+    100,
+    (priceBreakdown.subtotal / freeDeliveryThreshold) * 100
+  );
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -167,6 +178,23 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
               onClose={onClose}
               savings={priceBreakdown.discountAmount}
             />
+
+            {/* Free Delivery Progress */}
+            <div className="bg-green-50 px-4 py-3 border-b border-green-100">
+              <div className="flex justify-between items-center mb-2 text-sm">
+                <span className="text-gray-700 font-medium">
+                  {amountAwayFromFreeDelivery > 0
+                    ? `Add ₹${amountAwayFromFreeDelivery} more for free delivery`
+                    : "🎉 You've unlocked free delivery!"}
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                <div
+                  className="bg-green-600 h-1.5 rounded-full transition-all duration-500 ease-out"
+                  style={{ width: `${progressPercentage}%` }}
+                />
+              </div>
+            </div>
 
             <div className="flex-1 overflow-y-auto p-4 scrollbar-hide">
               <div className="mb-6">

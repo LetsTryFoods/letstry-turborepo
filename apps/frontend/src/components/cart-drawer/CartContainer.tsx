@@ -84,6 +84,8 @@ export const CartContainer = () => {
     estimatedTax: (cartData as any)?.myCart?.totalsSummary?.estimatedTax || 0,
     handlingCharge:
       (cartData as any)?.myCart?.totalsSummary?.handlingCharge || 0,
+    freeDeliveryThreshold:
+      (cartData as any)?.myCart?.totalsSummary?.freeDeliveryThreshold || 499,
     grandTotal: totalPrice,
   };
 
@@ -463,10 +465,15 @@ export const CartContainer = () => {
         onPayNow={handlePayNow}
         showPaymentModal={showPaymentModal}
         onTogglePaymentModal={() => setShowPaymentModal(!showPaymentModal)}
-        cartId={(cartData as any)?.myCart?._id}
+        cartId={(cartData as any)?.myCart?._id || ""}
         amount={totalPrice.toString()}
-        userDetails={userDetails}
+        userDetails={{
+          email: user?.email || "",
+          name: user?.name || "",
+          phone: user?.phoneNumber || "",
+        }}
         isAuthenticated={isAuthenticated}
+        freeDeliveryThreshold={priceBreakdown.freeDeliveryThreshold}
       />
 
       <LoginModal
