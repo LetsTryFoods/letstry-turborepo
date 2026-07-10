@@ -9,12 +9,14 @@ import { Order } from '../../order/order.schema';
 import { Cart, CartStatus } from '../../cart/cart.schema';
 import { EnrichedCustomer } from '../user.graphql';
 import { CartStatusFilter } from '../user.input';
+import { Address } from '../../address/address.schema';
 
 @Injectable()
 export class CustomerEnrichmentService {
   constructor(
     @InjectModel(Order.name) private orderModel: Model<Order>,
     @InjectModel(Cart.name) private cartModel: Model<Cart>,
+    @InjectModel(Address.name) private addressModel: Model<Address>,
   ) {}
 
   async enrichCustomersWithOrderData(
@@ -22,9 +24,10 @@ export class CustomerEnrichmentService {
   ): Promise<EnrichedCustomer[]> {
     const identityIds = customers.map((c) => c._id.toString());
 
-    const [orderStats, cartStats] = await Promise.all([
+    const [orderStats, cartStats, addressStats] = await Promise.all([
       this.getOrderStatsForCustomers(identityIds),
       this.getCartStatsForCustomers(identityIds),
+      this.getAddressStatsForCustomers(identityIds),
     ]);
 
     return customers.map((customer) => {
@@ -40,6 +43,7 @@ export class CustomerEnrichmentService {
         totalOrders: orderStat.totalOrders,
         totalSpent: orderStat.totalSpent,
         activeCartItemsCount: cartStat?.itemsCount,
+        hasAddress: addressStats.get(customerId) || false,
         displayPhone: this.getDisplayPhone(customer),
         isGuest: customer.status === IdentityStatus.GUEST,
       };
@@ -56,6 +60,15 @@ export class CustomerEnrichmentService {
       return customers.filter(
         (c) =>
           c.activeCartItemsCount !== undefined && c.activeCartItemsCount > 0,
+      );
+    }
+
+    if (cartStatus === CartStatusFilter.HAS_CART_AND_ADDRESS) {
+      return customers.filter(
+        (c) =>
+          c.activeCartItemsCount !== undefined && 
+          c.activeCartItemsCount > 0 &&
+          (c as any).hasAddress === true,
       );
     }
 
@@ -105,6 +118,21 @@ export class CustomerEnrichmentService {
         { itemsCount: cart.items.length },
       ]),
     );
+  }
+
+  async getAddressStatsForCustomers(
+    identityIds: string[],
+  ): Promise<Map<string, boolean>> {
+    const addresses = await this.addressModel
+      .find({
+        identityId: { $in: identityIds },
+      })
+      .select('identityId')
+      .exec();
+
+    const addressSet = new Set(addresses.map((a) => a.identityId.toString()));
+    
+    return new Map(identityIds.map(id => [id, addressSet.has(id)]));
   }
 
   getDisplayPhone(customer: IdentityDocument): string | undefined {

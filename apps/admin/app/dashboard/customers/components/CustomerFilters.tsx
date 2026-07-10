@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,24 +55,37 @@ export default function CustomerFilters({
       endDate: "",
       minSpent: "",
       maxSpent: "",
-      cartStatus: "",
+      cartStatus: "HAS_CART",
     },
   });
 
   const handleClear = () => {
-    form.reset();
+    form.reset({
+      sortBy: "",
+      sortOrder: "",
+      startDate: "",
+      endDate: "",
+      minSpent: "",
+      maxSpent: "",
+      cartStatus: "HAS_CART",
+    });
     onClearFilters();
   };
 
   const watchedValues = form.watch();
+  
+  // Use useEffect to trigger onFilterChange whenever any form value changes
+  useEffect(() => {
+    onFilterChange(watchedValues);
+  }, [watchedValues, onFilterChange]);
+
   const hasActiveFilters = Object.values(watchedValues).some(
-    (value) => value !== "",
+    (value) => value !== "" && value !== "HAS_CART",
   );
 
   return (
     <Form {...form}>
       <form
-        onChange={() => onFilterChange(form.getValues())}
         className="space-y-4"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -82,10 +96,7 @@ export default function CustomerFilters({
               <FormItem>
                 <FormLabel>Sort By</FormLabel>
                 <Select
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                    onFilterChange(form.getValues());
-                  }}
+                  onValueChange={field.onChange}
                   value={field.value}
                 >
                   <FormControl>
@@ -111,10 +122,7 @@ export default function CustomerFilters({
               <FormItem>
                 <FormLabel>Sort Order</FormLabel>
                 <Select
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                    onFilterChange(form.getValues());
-                  }}
+                  onValueChange={field.onChange}
                   value={field.value}
                 >
                   <FormControl>
@@ -142,10 +150,6 @@ export default function CustomerFilters({
                     type="number"
                     placeholder="0"
                     {...field}
-                    onChange={(e) => {
-                      field.onChange(e);
-                      onFilterChange(form.getValues());
-                    }}
                   />
                 </FormControl>
               </FormItem>
@@ -163,10 +167,6 @@ export default function CustomerFilters({
                     type="number"
                     placeholder="No limit"
                     {...field}
-                    onChange={(e) => {
-                      field.onChange(e);
-                      onFilterChange(form.getValues());
-                    }}
                   />
                 </FormControl>
               </FormItem>
@@ -185,10 +185,6 @@ export default function CustomerFilters({
                   <Input
                     type="date"
                     {...field}
-                    onChange={(e) => {
-                      field.onChange(e);
-                      onFilterChange(form.getValues());
-                    }}
                   />
                 </FormControl>
               </FormItem>
@@ -205,10 +201,6 @@ export default function CustomerFilters({
                   <Input
                     type="date"
                     {...field}
-                    onChange={(e) => {
-                      field.onChange(e);
-                      onFilterChange(form.getValues());
-                    }}
                   />
                 </FormControl>
               </FormItem>
@@ -222,10 +214,7 @@ export default function CustomerFilters({
               <FormItem>
                 <FormLabel>Cart Status</FormLabel>
                 <Select
-                  onValueChange={(value) => {
-                    field.onChange(value);
-                    onFilterChange(form.getValues());
-                  }}
+                  onValueChange={field.onChange}
                   value={field.value}
                 >
                   <FormControl>
@@ -235,6 +224,7 @@ export default function CustomerFilters({
                   </FormControl>
                   <SelectContent>
                     <SelectItem value="HAS_CART">Has Active Cart</SelectItem>
+                    <SelectItem value="HAS_CART_AND_ADDRESS">Has Cart & Address</SelectItem>
                     <SelectItem value="NO_CART">No Cart</SelectItem>
                   </SelectContent>
                 </Select>

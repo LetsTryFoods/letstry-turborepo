@@ -14,6 +14,7 @@ export enum CustomerPlatform {
 export enum CartStatusFilter {
   HAS_CART = 'HAS_CART',
   NO_CART = 'NO_CART',
+  HAS_CART_AND_ADDRESS = 'HAS_CART_AND_ADDRESS',
 }
 
 export enum CustomerSortField {

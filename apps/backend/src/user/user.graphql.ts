@@ -81,6 +81,9 @@ export class EnrichedCustomer extends Identity {
   @Field({ nullable: true })
   displayPhone?: string;
 
+  @Field(() => Boolean, { nullable: true })
+  hasAddress?: boolean;
+
   @Field()
   isGuest: boolean;
 }
