@@ -77,6 +77,7 @@ const statusColor = {
 };
 
 const channelBadge = {
+  META: 'bg-green-100 text-green-700',
   NUREN: 'bg-blue-100 text-blue-700',
   BAILEYS: 'bg-purple-100 text-purple-700',
   NONE: 'bg-gray-100 text-gray-500',
@@ -189,7 +190,7 @@ export default function WhatsAppPage() {
     setConnecting(true);
     try {
       await api.post(`${WHATSAPP_API_BASE}/whatsapp/baileys/connect`);
-      
+
       const checkStatus = async (attempts = 0) => {
         if (attempts > 15) {
           setConnecting(false);
@@ -198,7 +199,7 @@ export default function WhatsAppPage() {
         try {
           const { data } = await api.get(`${WHATSAPP_API_BASE}/whatsapp/baileys/status`);
           setBaileysStatus(data);
-          
+
           if (data.connectionStatus === 'qr_pending' || data.connectionStatus === 'connected') {
             setConnecting(false);
           } else if (data.connectionStatus === 'disconnected' && attempts > 3) {
@@ -211,7 +212,7 @@ export default function WhatsAppPage() {
           setConnecting(false);
         }
       };
-      
+
       setTimeout(() => checkStatus(0), 1000);
     } catch {
       setConnecting(false);
@@ -283,14 +284,14 @@ export default function WhatsAppPage() {
             </h2>
             <div className="flex items-center gap-2">
               <span className={`h-2.5 w-2.5 rounded-full ${status === 'connected' ? 'bg-emerald-500' :
-                  status === 'qr_pending' ? 'bg-amber-400 animate-pulse' :
-                    'bg-red-400'
+                status === 'qr_pending' ? 'bg-amber-400 animate-pulse' :
+                  'bg-red-400'
                 }`} />
               <span className="text-sm font-medium text-gray-600 capitalize">
                 {status === 'qr_pending' && !qrScanned ? 'Waiting for QR scan…' :
-                 status === 'qr_pending' && qrScanned ? '⏳ QR Scanned — Establishing connection…' :
-                 status === 'connected' ? '🟢 Connected' :
-                 status || 'Loading…'}
+                  status === 'qr_pending' && qrScanned ? '⏳ QR Scanned — Establishing connection…' :
+                    status === 'connected' ? '🟢 Connected' :
+                      status || 'Loading…'}
               </span>
               {baileysStatus?.phoneConnected && status === 'connected' && (
                 <span className="text-sm text-gray-400">— +{baileysStatus.phoneConnected}</span>
@@ -512,6 +513,7 @@ export default function WhatsAppPage() {
               className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">All Channels</option>
+              <option value="META">Meta</option>
               <option value="NUREN">nuren.ai</option>
               <option value="BAILEYS">Baileys</option>
               <option value="NONE">None</option>
@@ -523,12 +525,12 @@ export default function WhatsAppPage() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
-                  {['Time', 'Phone', 'Order', 'Template', 'Channel', 'Status', 'Error', ''].map((h) => (
-                    <th key={h} className="text-left text-xs font-semibold text-gray-500 px-4 py-3 uppercase tracking-wide">
-                      {h}
-                    </th>
-                  ))}
-                </tr>
+                {['Time', 'Phone', 'Order', 'Template', 'Channel', 'Status', 'Error', ''].map((h) => (
+                  <th key={h} className="text-left text-xs font-semibold text-gray-500 px-4 py-3 uppercase tracking-wide">
+                    {h}
+                  </th>
+                ))}
+              </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
               {loading ? (
