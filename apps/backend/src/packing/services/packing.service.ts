@@ -748,11 +748,14 @@ export class PackingService {
         const orderDate = new Date(order.createdAt).toLocaleDateString('en-IN');
         const trackingUrl = `https://letstryfoods.com/track/${existingShipments[0].dtdcAwbNumber}`;
 
+        const recipientName = existingAddress?.recipientName || 'Customer';
+
         await this.whatsappQueue.add('order-packed', {
           phoneNumber,
           orderId,
           orderDate,
           trackingUrl,
+          recipientName,
         });
 
         this.shipmentLogger.logInfo(
@@ -858,11 +861,14 @@ export class PackingService {
       const orderDate = new Date(order.createdAt).toLocaleDateString('en-IN');
       const trackingUrl = `https://letstryfoods.com/track/${shipmentResult.awbNumber}`;
 
+      const recipientName = shippingAddress?.recipientName || 'Customer';
+
       await this.whatsappQueue.add('order-packed', {
         phoneNumber,
         orderId,
         orderDate,
         trackingUrl,
+        recipientName,
       });
 
       this.shipmentLogger.logInfo(
@@ -1029,7 +1035,7 @@ export class PackingService {
     }
 
     const evidence = await this.evidenceCrud.findByOrder(order._id.toString());
-    
+
     let originalOrder = await this.orderRepository.findByInternalId(order.orderId);
     if (!originalOrder) {
       originalOrder = await this.orderRepository.findById(order.orderId);
@@ -1039,13 +1045,13 @@ export class PackingService {
       ...(order.toObject ? order.toObject() : order),
       evidence: evidence
         ? {
-            prePackImages: (evidence.prePackImages || []).map((img: string) => {
-              if (img.length < 500) {
-                return `${this.configService.get<string>('aws.cloudfrontDomain')?.replace(/\/$/, '')}/${img}`;
-              }
-              return img;
-            }),
-          }
+          prePackImages: (evidence.prePackImages || []).map((img: string) => {
+            if (img.length < 500) {
+              return `${this.configService.get<string>('aws.cloudfrontDomain')?.replace(/\/$/, '')}/${img}`;
+            }
+            return img;
+          }),
+        }
         : null,
       boxId: originalOrder?.boxId?.toString() || null,
       volumetricWeight: originalOrder?.volumetricWeight || null,
@@ -1221,7 +1227,7 @@ export class PackingService {
     const withEvidence = await Promise.all(
       completed.map(async (order: any) => {
         const evidence = await this.evidenceCrud.findByOrder(order._id.toString());
-        
+
         // Fetch original order to get box info
         let originalOrder = await this.orderRepository.findByInternalId(order.orderId);
         if (!originalOrder) {

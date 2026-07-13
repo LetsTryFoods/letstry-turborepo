@@ -20,6 +20,7 @@ export interface OrderPackedJobData {
   orderId: string;
   orderDate: string;
   trackingUrl: string;
+  recipientName?: string;
 }
 
 export type WhatsAppNotificationJobData =
@@ -62,6 +63,7 @@ export class WhatsAppNotificationProcessor extends WorkerHost {
           data.orderId,
           data.orderDate,
           data.trackingUrl,
+          data.recipientName,
         );
       } else {
         this.logger.warn(

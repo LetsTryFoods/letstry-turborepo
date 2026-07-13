@@ -150,8 +150,8 @@ export class WhatsAppOrchestratorService {
     try {
       const metaSuccess = await this.metaService.sendOrderPackedNotification(
         phoneNumber,
-        trackingUrl,
-        orderDate,
+        orderId,
+        recipientName || 'Customer',
       );
       if (metaSuccess) {
         await this.logService.logMessage({

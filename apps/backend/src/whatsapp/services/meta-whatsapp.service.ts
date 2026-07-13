@@ -143,8 +143,8 @@ export class MetaWhatsappService {
 
   async sendOrderPackedNotification(
     phoneNumber: string,
-    trackingUrl: string,
-    orderDate: string,
+    orderId: string,
+    recipientName: string,
   ): Promise<boolean> {
     if (!this.phoneNumberId || !this.accessToken) {
       this.logger.warn('Meta WhatsApp credentials missing. Skipping Meta send.', 'MetaWhatsappService');
@@ -165,14 +165,14 @@ export class MetaWhatsappService {
             to: `91${phoneNumber}`,
             type: 'template',
             template: {
-              name: 'deliveryutilitymarchtwo',
-              language: { code: 'en' },
+              name: 'ordershipped',
+              language: { code: 'en_US' },
               components: [
                 {
                   type: 'body',
                   parameters: [
-                    { type: 'text', text: trackingUrl },
-                    { type: 'text', text: orderDate },
+                    { type: 'text', text: recipientName || 'Customer' },
+                    { type: 'text', text: orderId },
                   ],
                 },
               ],
@@ -184,7 +184,7 @@ export class MetaWhatsappService {
       const data = await response.json();
 
       if (data.error) {
-        this.logger.error(`WhatsApp API Error (deliveryutilitymarchtwo): ${data.error.message}`, 'MetaWhatsappService', { data });
+        this.logger.error(`WhatsApp API Error (ordershipped): ${data.error.message}`, 'MetaWhatsappService', { data });
         return false;
       }
 
