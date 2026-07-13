@@ -32,15 +32,10 @@ export class DashboardService {
     const inStockProducts = await this.productModel
       .countDocuments({
         isArchived: false,
-        availabilityStatus: 'in_stock',
+        'variants.availabilityStatus': 'in_stock',
       })
       .exec();
-    const outOfStockProducts = await this.productModel
-      .countDocuments({
-        isArchived: false,
-        availabilityStatus: 'out_of_stock',
-      })
-      .exec();
+    const outOfStockProducts = totalProducts - inStockProducts;
     const totalCategories = await this.categoryModel
       .countDocuments({ isArchived: false })
       .exec();
