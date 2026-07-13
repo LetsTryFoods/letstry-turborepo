@@ -87,6 +87,7 @@ export class InventoryService {
       actionType: action,
       ...metadata,
     });
+
     return { success: true, newStock, sku };
   }
 

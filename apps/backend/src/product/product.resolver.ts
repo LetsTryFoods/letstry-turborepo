@@ -50,31 +50,36 @@ export class ProductResolver {
     private readonly productService: ProductService,
     private readonly categoryLoader: CategoryLoader,
     private readonly inventoryService: InventoryService,
-  ) {}
+  ) { }
 
   @Query(() => PaginatedProducts, { name: 'products' })
   @Public()
   async getProducts(
-    @Args('pagination', {
-      type: () => PaginationInput,
-      defaultValue: { page: 1, limit: 10 },
-    })
-    pagination: PaginationInput,
-    @Args('includeOutOfStock', { type: () => Boolean, defaultValue: false })
-    includeOutOfStock: boolean,
+    @Args('pagination', { nullable: true }) pagination?: PaginationInput,
+    @Args('includeOutOfStock', { type: () => Boolean, defaultValue: true })
+    includeOutOfStock?: boolean,
     @Args('includeArchived', { type: () => Boolean, defaultValue: false })
-    includeArchived: boolean,
+    includeArchived?: boolean,
   ): Promise<PaginatedProducts> {
-    const result = await this.productService.findAllPaginated(
-      pagination.page,
-      pagination.limit,
+    const page = pagination?.page;
+    const limit = pagination?.limit;
+    return this.productService.findAllPaginated(
+      page,
+      limit,
       includeOutOfStock,
       includeArchived,
     );
-    return {
-      items: result.items,
-      meta: result.meta,
-    };
+  }
+
+  @Query(() => [Product], { name: 'allProductsUncached' })
+  async getAllProductsUncached(
+    @Args('includeOutOfStock', { type: () => Boolean, defaultValue: true })
+    includeOutOfStock?: boolean,
+    @Args('includeArchived', { type: () => Boolean, defaultValue: false })
+    includeArchived?: boolean,
+  ): Promise<Product[]> {
+    // This calls ProductService.findAll which uses createNoCache() internally.
+    return this.productService.findAll(includeOutOfStock, includeArchived);
   }
 
   @Query(() => Product, { name: 'product', nullable: true })

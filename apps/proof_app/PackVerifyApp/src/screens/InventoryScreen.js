@@ -150,6 +150,8 @@ const InventoryScreen = ({ navigation, route }) => {
         });
         if (res.data?.recordStockInward) {
           const r = res.data.recordStockInward;
+          // Refetch the product to update displayed stock in the UI
+          lookupByIdentifier({ variables: { identifier: selectedVariant.sku } });
           Alert.alert(
             '✅ Stock Added',
             `${selectedProduct.name}\nSKU: ${selectedVariant.sku}\n\n` +
@@ -159,7 +161,7 @@ const InventoryScreen = ({ navigation, route }) => {
           );
         }
       } else {
-        // ── Set Stock: set absolute stock level ──────────────────────────
+        // ── Set Stock: set absolute stock level ──────────────────────────────
         const res = await setInventoryMutation({
           variables: {
             identifier: selectedVariant.sku,
@@ -169,6 +171,8 @@ const InventoryScreen = ({ navigation, route }) => {
         });
         if (res.data?.setInventory) {
           const r = res.data.setInventory;
+          // Refetch the product to update displayed stock in the UI
+          lookupByIdentifier({ variables: { identifier: selectedVariant.sku } });
           Alert.alert(
             '✅ Stock Updated',
             `${selectedProduct.name}\nSKU: ${selectedVariant.sku}\n\n` +

@@ -47,16 +47,12 @@ import { gql } from "@apollo/client";
 
 const GET_ALL_PRODUCTS_STOCK = gql`
   query GetAllProductsStock {
-    products(
-      pagination: { page: 1, limit: 1000 }
-      includeOutOfStock: true
-      includeArchived: false
-    ) {
-      items {
-        variants {
-          _id
-          stockQuantity
-        }
+    allProductsUncached(includeOutOfStock: true, includeArchived: false) {
+      _id
+      variants {
+        _id
+        sku
+        stockQuantity
       }
     }
   }
@@ -102,17 +98,34 @@ export default function InventoryPage() {
     totalPages: 1,
   };
 
-  // Extract all variants from all products with parent context
+  // Create a map of the fresh stock values from the uncached query
+  const freshStockMap: Record<string, number> = {};
+  if ((statsData as any)?.allProductsUncached) {
+    (statsData as any).allProductsUncached.forEach((p: any) => {
+      if (p.variants) {
+        p.variants.forEach((v: any) => {
+          freshStockMap[v._id] = v.stockQuantity;
+        });
+      }
+    });
+  }
+
+  // Extract all variants from all products with parent context, merging in fresh stock
   const allVariants = products.flatMap((product) =>
     (product.variants || [])
       .filter((variant) => !!variant._id)
-      .map((variant) => ({
-        ...variant,
-        _id: variant._id as string,
-        productId: product._id,
-        productName: product.name,
-        productImage: variant.thumbnailUrl || variant.images?.[0]?.url || "",
-      })),
+      .map((variant) => {
+        const _idStr = variant._id as string;
+        return {
+          ...variant,
+          _id: _idStr,
+          productId: product._id,
+          productName: product.name,
+          productImage: variant.thumbnailUrl || variant.images?.[0]?.url || "",
+          // OVERRIDE WITH FRESH STOCK IF AVAILABLE
+          stockQuantity: freshStockMap[_idStr] !== undefined ? freshStockMap[_idStr] : variant.stockQuantity,
+        };
+      }),
   );
 
   // Sync initial inputs when products load
@@ -209,7 +222,7 @@ export default function InventoryPage() {
   };
 
   // Calculate high-level overall stock insights from ALL products
-  const allProductsForStats = (statsData as any)?.products?.items || [];
+  const allProductsForStats = (statsData as any)?.allProductsUncached || [];
   const allVariantsForStats = allProductsForStats.flatMap(
     (product: any) => product.variants || [],
   );
