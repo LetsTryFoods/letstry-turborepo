@@ -78,7 +78,7 @@ export default function InventoryPage() {
   }>({});
   const [savingState, setSavingState] = useState<RowLoadingState>({});
 
-  // Fetch all products (retrieve 100 products per page to acts as a centralized dashboard)
+  // Fetch all products – network-only so we always get live data (no stale Apollo cache)
   const { data, loading, error, refetch } = useProducts(
     { page: currentPage, limit: pageSize },
     true,
@@ -91,7 +91,8 @@ export default function InventoryPage() {
   const { data: statsData, refetch: refetchStats } = useQuery(
     GET_ALL_PRODUCTS_STOCK,
     {
-      fetchPolicy: "cache-and-network",
+      fetchPolicy: "network-only",
+      nextFetchPolicy: "network-only",
     },
   );
 
@@ -216,25 +217,25 @@ export default function InventoryPage() {
   const totals =
     allVariantsForStats.length > 0
       ? allVariantsForStats.reduce(
-          (acc: any, v: any) => {
-            acc.totalItems += 1;
-            if (v.stockQuantity === 0) acc.outOfStock += 1;
-            else if (v.stockQuantity < 10) acc.lowStock += 1;
-            else acc.inStock += 1;
-            return acc;
-          },
-          { totalItems: 0, outOfStock: 0, lowStock: 0, inStock: 0 },
-        )
+        (acc: any, v: any) => {
+          acc.totalItems += 1;
+          if (v.stockQuantity === 0) acc.outOfStock += 1;
+          else if (v.stockQuantity < 10) acc.lowStock += 1;
+          else acc.inStock += 1;
+          return acc;
+        },
+        { totalItems: 0, outOfStock: 0, lowStock: 0, inStock: 0 },
+      )
       : allVariants.reduce(
-          (acc, v) => {
-            acc.totalItems += 1;
-            if (v.stockQuantity === 0) acc.outOfStock += 1;
-            else if (v.stockQuantity < 10) acc.lowStock += 1;
-            else acc.inStock += 1;
-            return acc;
-          },
-          { totalItems: 0, outOfStock: 0, lowStock: 0, inStock: 0 },
-        );
+        (acc, v) => {
+          acc.totalItems += 1;
+          if (v.stockQuantity === 0) acc.outOfStock += 1;
+          else if (v.stockQuantity < 10) acc.lowStock += 1;
+          else acc.inStock += 1;
+          return acc;
+        },
+        { totalItems: 0, outOfStock: 0, lowStock: 0, inStock: 0 },
+      );
 
   return (
     <div className="p-6 space-y-6 mb-12">
@@ -252,10 +253,7 @@ export default function InventoryPage() {
         </div>
         <div className="flex flex-wrap gap-2 self-start sm:self-auto">
           <Button
-            onClick={() => {
-              refetch();
-              refetchStats();
-            }}
+            onClick={() => { refetch(); refetchStats(); }}
             variant="outline"
             size="sm"
             className="cursor-pointer"
@@ -402,11 +400,10 @@ export default function InventoryPage() {
                 variant={statusFilter === "IN" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setStatusFilter("IN")}
-                className={`text-xs h-8 px-3 rounded-full cursor-pointer ${
-                  statusFilter === "IN"
+                className={`text-xs h-8 px-3 rounded-full cursor-pointer ${statusFilter === "IN"
                     ? ""
                     : "hover:border-green-300 hover:text-green-600"
-                }`}
+                  }`}
               >
                 In Stock ({totals.inStock})
               </Button>
@@ -414,11 +411,10 @@ export default function InventoryPage() {
                 variant={statusFilter === "LOW" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setStatusFilter("LOW")}
-                className={`text-xs h-8 px-3 rounded-full cursor-pointer ${
-                  statusFilter === "LOW"
+                className={`text-xs h-8 px-3 rounded-full cursor-pointer ${statusFilter === "LOW"
                     ? ""
                     : "hover:border-orange-300 hover:text-orange-600"
-                }`}
+                  }`}
               >
                 Low Stock ({totals.lowStock})
               </Button>
@@ -426,11 +422,10 @@ export default function InventoryPage() {
                 variant={statusFilter === "OUT" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setStatusFilter("OUT")}
-                className={`text-xs h-8 px-3 rounded-full cursor-pointer ${
-                  statusFilter === "OUT"
+                className={`text-xs h-8 px-3 rounded-full cursor-pointer ${statusFilter === "OUT"
                     ? ""
                     : "hover:border-red-300 hover:text-red-600"
-                }`}
+                  }`}
               >
                 Out of Stock ({totals.outOfStock})
               </Button>

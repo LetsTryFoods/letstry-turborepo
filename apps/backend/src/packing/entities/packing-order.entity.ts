@@ -79,6 +79,11 @@ export class PackingOrder extends Document {
 
   @Prop({ default: false })
   isExpress: boolean;
+
+  /** Guards against double inventory deduction when both completePacking
+   *  and adminPunchShipment are called for the same order. */
+  @Prop({ default: false })
+  inventoryDeducted: boolean;
 }
 
 export const PackingOrderSchema = SchemaFactory.createForClass(PackingOrder);

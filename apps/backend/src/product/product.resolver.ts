@@ -26,6 +26,23 @@ import { Role } from '../common/enums/role.enum';
 import { Roles } from '../common/decorators/roles.decorator';
 import { InventoryService } from './services/inventory.service';
 import { InventoryLog, InventoryAction } from './inventory-log.schema';
+import { ObjectType, Field } from '@nestjs/graphql';
+
+
+@ObjectType()
+class InventorySnapshot {
+  @Field()
+  sku: string;
+
+  @Field(() => Int)
+  stockQuantity: number;
+
+  @Field()
+  availabilityStatus: string;
+
+  @Field(() => [InventoryLog])
+  recentLogs: InventoryLog[];
+}
 
 @Resolver(() => Product)
 export class ProductResolver {
@@ -232,11 +249,22 @@ export class ProductResolver {
     @Args('variantId', { type: () => ID }) variantId: string,
     @Args('quantity', { type: () => Int }) quantity: number,
   ): Promise<Product> {
-    return this.productService.updateVariantStock(
-      productId,
-      variantId,
-      quantity,
+    // Find the SKU for this variantId so InventoryService can do the update
+    const product = await this.productService.findOne(productId);
+    const variant = product?.variants?.find(
+      (v: any) => v._id?.toString() === variantId,
     );
+    if (variant?.sku) {
+      // Route through InventoryService: creates audit log + auto-syncs availabilityStatus
+      await this.inventoryService.setStockLevel(variant.sku, quantity, {
+        performedBy: 'ADMIN_PANEL',
+        notes: `Stock set via Admin Inventory Hub`,
+      });
+      // Return the updated product
+      return this.productService.findOne(productId);
+    }
+    // Fallback to direct update if SKU can't be resolved
+    return this.productService.updateVariantStock(productId, variantId, quantity);
   }
 
   @Mutation(() => Boolean, { name: 'zeroAllProductStock' })
@@ -303,6 +331,8 @@ export class ProductResolver {
     return this.productService.findSeoByProductId(product._id);
   }
 
+  // ─── adjustInventory ───────────────────────────────────────────────────────
+  // Positive delta → treated as INWARD; negative → MANUAL_ADJUSTMENT.
   @Mutation(() => InventoryLog, { name: 'adjustInventory' })
   @Roles(Role.ADMIN, Role.PACKER)
   async adjustInventory(
@@ -328,7 +358,31 @@ export class ProductResolver {
     return logs[0];
   }
 
-  /** Sets stock TO an absolute value (used by Proof App manual inward). */
+  // ─── recordStockInward ─────────────────────────────────────────────────────
+  // Dedicated Stock-In from Proof App scan or admin panel.
+  // Always records as INWARD with vendor / purchase-order metadata.
+  @Mutation(() => InventoryLog, { name: 'recordStockInward' })
+  @Roles(Role.ADMIN, Role.PACKER)
+  async recordStockInward(
+    @Args('identifier') identifier: string,
+    @Args('quantityAdded', { type: () => Int }) quantityAdded: number,
+    @Args('vendor', { type: () => String, nullable: true }) vendor: string,
+    @Args('purchaseOrderRef', { type: () => String, nullable: true })
+    purchaseOrderRef: string,
+    @Args('performedBy', { type: () => String, nullable: true })
+    performedBy: string,
+    @Args('notes', { type: () => String, nullable: true }) notes: string,
+  ): Promise<any> {
+    const result = await this.inventoryService.recordInward(
+      identifier,
+      quantityAdded,
+      { vendor, referenceId: purchaseOrderRef, performedBy, notes },
+    );
+    const logs = await this.inventoryService.getLogsBySku(result.sku);
+    return logs[0];
+  }
+
+  // ─── setInventory (Proof App absolute set) ─────────────────────────────────
   @Mutation(() => InventoryLog, { name: 'setInventory' })
   @Roles(Role.ADMIN, Role.PACKER)
   async setInventory(
@@ -346,10 +400,63 @@ export class ProductResolver {
     return logs[0];
   }
 
+  // ─── forceAvailabilityStatus ───────────────────────────────────────────────
+  // Mark product Out of Stock / back In Stock without touching quantity.
+  @Mutation(() => InventoryLog, { name: 'forceAvailabilityStatus' })
+  @Roles(Role.ADMIN)
+  async forceAvailabilityStatus(
+    @Args('identifier') identifier: string,
+    @Args('status') status: string,
+    @Args('reason') reason: string,
+    @Args('performedBy', { type: () => String, nullable: true })
+    performedBy: string,
+  ): Promise<any> {
+    if (status !== 'in_stock' && status !== 'out_of_stock') {
+      throw new Error("status must be 'in_stock' or 'out_of_stock'");
+    }
+    await this.inventoryService.forceAvailabilityStatus(
+      identifier,
+      status as 'in_stock' | 'out_of_stock',
+      performedBy || 'ADMIN',
+      reason,
+    );
+    const logs = await this.inventoryService.getLogsBySku(
+      (await this.inventoryService.findProductByAnyIdentifier(identifier))
+        ?.variants?.find((v) => v.sku === identifier || v.gtin === identifier)
+        ?.sku || identifier,
+    );
+    return logs[0];
+  }
+
+  // ─── inventoryLogs (with pagination + action filter) ──────────────────────
   @Query(() => [InventoryLog], { name: 'inventoryLogs' })
   @Roles(Role.ADMIN)
-  async getInventoryLogs(@Args('sku') sku: string): Promise<InventoryLog[]> {
+  async getInventoryLogs(
+    @Args('sku') sku: string,
+    @Args('page', { type: () => Int, nullable: true }) page?: number,
+    @Args('limit', { type: () => Int, nullable: true }) limit?: number,
+    @Args('actionType', { type: () => InventoryAction, nullable: true })
+    actionType?: InventoryAction,
+  ): Promise<InventoryLog[]> {
+    if (page || limit || actionType) {
+      const { logs } = await this.inventoryService.getLogsBySkuPaginated(
+        sku,
+        page || 1,
+        limit || 20,
+        actionType,
+      );
+      return logs;
+    }
     return this.inventoryService.getLogsBySku(sku);
+  }
+
+  // ─── inventorySnapshot ────────────────────────────────────────────────────
+  @Query(() => InventorySnapshot, { name: 'inventorySnapshot', nullable: true })
+  @Roles(Role.ADMIN, Role.PACKER)
+  async getInventorySnapshot(
+    @Args('identifier') identifier: string,
+  ): Promise<any> {
+    return this.inventoryService.getInventorySnapshot(identifier);
   }
 
   /**

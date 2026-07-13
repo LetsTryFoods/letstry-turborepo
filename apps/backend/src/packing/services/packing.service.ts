@@ -471,34 +471,43 @@ export class PackingService {
       orderId: packingOrder.orderId,
     });
 
-    // Subtract stock for each item actually packed
-    try {
-      for (const item of packingOrder.items) {
-        const qtyToDeduct = item.scannedCount || 0;
-        if (qtyToDeduct > 0) {
-          await this.inventoryService.adjustStockByIdentifier(
-            item.sku,
-            -qtyToDeduct,
-            InventoryAction.ORDER_PACKED,
-            {
-              referenceId: packingOrder.orderId,
-              performedBy: packerId,
-              notes: `Auto-subtracted during packing of order ${packingOrder.orderId}`,
-            },
-          );
+    // Subtract stock for each item actually packed (idempotency guard prevents double-deduction)
+    if (!packingOrder.inventoryDeducted) {
+      try {
+        for (const item of packingOrder.items) {
+          const qtyToDeduct = item.scannedCount || 0;
+          if (qtyToDeduct > 0 && item.sku && item.sku !== 'UNKNOWN') {
+            await this.inventoryService.adjustStockByIdentifier(
+              item.sku,
+              -qtyToDeduct,
+              InventoryAction.ORDER_PACKED,
+              {
+                referenceId: packingOrder.orderId,
+                performedBy: packerId,
+                notes: `Auto-subtracted during packing of order ${packingOrder.orderId}`,
+              },
+            );
+          }
         }
+        // Mark deduction as done to prevent double-firing via adminPunchShipment
+        await this.packingOrderCrud.update(packingOrderId, { inventoryDeducted: true });
+        this.scanLogger.logCompletePackingStep('STOCK_SUBTRACTED', {
+          packingOrderId,
+          orderId: packingOrder.orderId,
+        });
+      } catch (stockError) {
+        this.scanLogger.logScanError(
+          'completePacking',
+          packingOrderId,
+          new Error(`Stock subtraction failed: ${stockError.message}`),
+        );
+        // We don't throw here to avoid blocking the shipment process, but we log the error
       }
-      this.scanLogger.logCompletePackingStep('STOCK_SUBTRACTED', {
+    } else {
+      this.scanLogger.logCompletePackingStep('STOCK_ALREADY_DEDUCTED', {
         packingOrderId,
         orderId: packingOrder.orderId,
       });
-    } catch (stockError) {
-      this.scanLogger.logScanError(
-        'completePacking',
-        packingOrderId,
-        new Error(`Stock subtraction failed: ${stockError.message}`),
-      );
-      // We don't throw here to avoid blocking the shipment process, but we log the error
     }
 
     try {
@@ -591,6 +600,39 @@ export class PackingService {
       packingOrder.orderId,
       OrderStatus.PACKED,
     );
+
+    // Deduct inventory for admin punch (idempotency guard prevents double-deduction)
+    if (!packingOrder.inventoryDeducted) {
+      try {
+        for (const item of packingOrder.items) {
+          // Admin punch has no scan count — use ordered quantity
+          const qtyToDeduct = item.quantity || 0;
+          if (qtyToDeduct > 0 && item.sku && item.sku !== 'UNKNOWN') {
+            await this.inventoryService.adjustStockByIdentifier(
+              item.sku,
+              -qtyToDeduct,
+              InventoryAction.ORDER_PACKED,
+              {
+                referenceId: packingOrder.orderId,
+                performedBy: 'ADMIN_PUNCH',
+                notes: `Auto-deducted via admin punch for order ${packingOrder.orderId}`,
+              },
+            );
+          }
+        }
+        await this.packingOrderCrud.update(packingOrderId, { inventoryDeducted: true });
+        this.packingLogger.logInfo('Stock deducted via admin punch', {
+          orderId: packingOrder.orderId,
+          packingOrderId,
+        });
+      } catch (stockError) {
+        this.packingLogger.logError(
+          'Stock deduction failed in admin punch (non-blocking)',
+          stockError,
+          { orderId: packingOrder.orderId, packingOrderId },
+        );
+      }
+    }
 
     await this.initiateShipmentCreation(
       packingOrder.orderId,

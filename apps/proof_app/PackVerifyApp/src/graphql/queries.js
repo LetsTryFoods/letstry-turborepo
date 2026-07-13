@@ -237,7 +237,9 @@ export const SEARCH_PRODUCTS = gql`
         variants {
           _id
           sku
+          gtin
           stockQuantity
+          availabilityStatus
           thumbnailUrl
         }
       }

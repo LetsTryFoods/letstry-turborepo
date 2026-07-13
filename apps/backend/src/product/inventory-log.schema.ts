@@ -9,6 +9,7 @@ export enum InventoryAction {
   ORDER_PACKED = 'ORDER_PACKED',
   MANUAL_ADJUSTMENT = 'MANUAL_ADJUSTMENT',
   RETURN = 'RETURN',
+  AVAILABILITY_OVERRIDE = 'AVAILABILITY_OVERRIDE',
 }
 
 registerEnumType(InventoryAction, {
@@ -49,6 +50,16 @@ export class InventoryLog {
   @Field({ nullable: true })
   referenceId?: string;
 
+  /** Supplier / vendor name — for INWARD actions (e.g. "Supplier ABC", "PO-2024-001") */
+  @Prop()
+  @Field({ nullable: true })
+  vendor?: string;
+
+  /** Reason text — for AVAILABILITY_OVERRIDE actions */
+  @Prop()
+  @Field({ nullable: true })
+  overrideReason?: string;
+
   @Prop()
   @Field({ nullable: true })
   performedBy?: string;
@@ -65,3 +76,4 @@ export const InventoryLogSchema = SchemaFactory.createForClass(InventoryLog);
 
 InventoryLogSchema.index({ sku: 1, createdAt: -1 });
 InventoryLogSchema.index({ actionType: 1 });
+InventoryLogSchema.index({ productId: 1, createdAt: -1 });
