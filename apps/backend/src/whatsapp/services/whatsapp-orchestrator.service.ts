@@ -4,16 +4,18 @@ import { BaileysService } from './baileys.service';
 import { BaileysMessageLogService } from './baileys-message-log.service';
 import { WhatsAppSettingsService } from './whatsapp-settings.service';
 import { WinstonLoggerService } from '../../logger/logger.service';
+import { MetaWhatsappService } from './meta-whatsapp.service';
 
 export interface SendResult {
   success: boolean;
-  channel: 'NUREN' | 'BAILEYS' | 'NONE';
+  channel: 'META' | 'NUREN' | 'BAILEYS' | 'NONE';
   error?: string;
 }
 
 @Injectable()
 export class WhatsAppOrchestratorService {
   constructor(
+    private readonly metaService: MetaWhatsappService,
     private readonly nurenService: WhatsAppService,
     private readonly baileysService: BaileysService,
     private readonly logService: BaileysMessageLogService,
@@ -32,6 +34,28 @@ export class WhatsAppOrchestratorService {
       `🔒 *Your Verification Code*\n\n` +
       `Your Let's Try Foods OTP is: *${otp}*\n\n` +
       `Please do not share this code with anyone.`;
+
+    try {
+      const metaSuccess = await this.metaService.sendOtpTemplate(phoneNumber, otp);
+      if (metaSuccess) {
+        // Log it to DB for tracking too if needed, but for now just return success
+        await this.logService.logMessage({
+          phoneNumber,
+          recipientName: undefined,
+          channel: 'META',
+          templateName,
+          status: 'SUCCESS',
+          primaryAttempted: true,
+          primarySuccess: true,
+          fallbackAttempted: false,
+          fallbackSuccess: false,
+          payload,
+        });
+        return { success: true, channel: 'META' };
+      }
+    } catch (error) {
+      this.logger.error(`Meta WhatsApp failed: ${error.message}`, 'WhatsAppOrchestrator');
+    }
 
     return this.sendWithFallback(
       phoneNumber,
@@ -66,6 +90,35 @@ export class WhatsAppOrchestratorService {
       `Date: ${orderDate}\n\n` +
       `Thank you for shopping with Let's Try Foods! 🙏`;
 
+    try {
+      const metaSuccess = await this.metaService.sendPaymentConfirmation(
+        phoneNumber,
+        orderId,
+        amountPaid,
+        paymentMode,
+        transactionId,
+        orderDate,
+      );
+      if (metaSuccess) {
+        await this.logService.logMessage({
+          phoneNumber,
+          recipientName,
+          orderId,
+          channel: 'META',
+          templateName,
+          status: 'SUCCESS',
+          primaryAttempted: true,
+          primarySuccess: true,
+          fallbackAttempted: false,
+          fallbackSuccess: false,
+          payload,
+        });
+        return { success: true, channel: 'META' };
+      }
+    } catch (error) {
+      this.logger.error(`Meta WhatsApp failed: ${error.message}`, 'WhatsAppOrchestrator');
+    }
+
     return this.sendWithFallback(
       phoneNumber,
       templateName,
@@ -93,6 +146,32 @@ export class WhatsAppOrchestratorService {
       `Date: ${orderDate}\n` +
       `Track your order: ${trackingUrl}\n\n` +
       `Let's Try Foods 🚀`;
+
+    try {
+      const metaSuccess = await this.metaService.sendOrderPackedNotification(
+        phoneNumber,
+        trackingUrl,
+        orderDate,
+      );
+      if (metaSuccess) {
+        await this.logService.logMessage({
+          phoneNumber,
+          recipientName,
+          orderId,
+          channel: 'META',
+          templateName,
+          status: 'SUCCESS',
+          primaryAttempted: true,
+          primarySuccess: true,
+          fallbackAttempted: false,
+          fallbackSuccess: false,
+          payload,
+        });
+        return { success: true, channel: 'META' };
+      }
+    } catch (error) {
+      this.logger.error(`Meta WhatsApp failed: ${error.message}`, 'WhatsAppOrchestrator');
+    }
 
     return this.sendWithFallback(
       phoneNumber,

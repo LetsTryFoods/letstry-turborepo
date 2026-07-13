@@ -4,7 +4,7 @@ import { Document } from 'mongoose';
 
 export type BaileysMessageLogDocument = BaileysMessageLog & Document;
 
-export type MessageChannel = 'NUREN' | 'BAILEYS' | 'NONE';
+export type MessageChannel = 'META' | 'NUREN' | 'BAILEYS' | 'NONE';
 export type MessageStatus =
   | 'SUCCESS'
   | 'FAILED'
@@ -25,7 +25,7 @@ export class BaileysMessageLog {
   @Prop({ required: true })
   templateName: string;
 
-  @Prop({ type: mongoose.Schema.Types.String, required: true, enum: ['NUREN', 'BAILEYS', 'NONE'] })
+  @Prop({ type: mongoose.Schema.Types.String, required: true, enum: ['META', 'NUREN', 'BAILEYS', 'NONE'] })
   channel: MessageChannel;
 
   @Prop({

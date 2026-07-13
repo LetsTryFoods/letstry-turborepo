@@ -11,6 +11,7 @@ import { WhatsAppSettingsService } from './services/whatsapp-settings.service';
 import { WhatsAppChatService } from './services/whatsapp-chat.service';
 import { WhatsAppController } from './whatsapp.controller';
 import { WhatsAppChatController } from './whatsapp-chat.controller';
+import { MetaWhatsappService } from './services/meta-whatsapp.service';
 import {
   BaileysMessageLog,
   BaileysMessageLogSchema,
@@ -66,6 +67,7 @@ import { UploadModule } from '../upload/upload.module';
     WhatsAppOrchestratorService,
     WhatsAppSettingsService,
     WhatsAppChatService,
+    MetaWhatsappService,
   ],
   exports: [
     WhatsAppService,
@@ -74,6 +76,7 @@ import { UploadModule } from '../upload/upload.module';
     BaileysMessageLogService,
     WhatsAppSettingsService,
     WhatsAppChatService,
+    MetaWhatsappService,
   ],
 })
 export class WhatsAppModule { }

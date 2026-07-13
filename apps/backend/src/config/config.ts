@@ -68,6 +68,10 @@ export default () => ({
       process.env.WHATSAPP_JWT_TOKEN ||
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkxldHNUcnkiLCJhZG1pbiI6dHJ1ZX0.gJvhuRhqKjVS_Gc0T87vjE9EAGKBzfx09SpJVpUcb1I',
   },
+  metaWhatsapp: {
+    phoneNumberId: process.env.META_WHATSAPP_PHONE_NUMBER_ID,
+    accessToken: process.env.META_WHATSAPP_ACCESS_TOKEN,
+  },
   cart: {
     applyCouponOnMrp: process.env.APPLY_COUPON_ON_MRP === 'true',
   },
