@@ -479,9 +479,9 @@ export class PackingService {
         const recipientName = shippingAddress?.recipientName || 'Customer';
         await this.whatsappQueue.add('order-packed', {
           phoneNumber,
-          orderId: packingOrder.orderId,
+          orderId: order.orderId,
           orderDate,
-          trackingUrl: `https://letstryfoods.com/track/${packingOrder.orderId}`,
+          trackingUrl: `https://letstryfoods.com/track/${order.orderId}`,
           recipientName,
         });
         this.scanLogger.logCompletePackingStep('WHATSAPP_QUEUED', {

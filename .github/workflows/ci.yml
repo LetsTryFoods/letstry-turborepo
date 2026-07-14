@@ -10,7 +10,7 @@ jobs:
     env:
       CI: true
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-      TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+      TURBO_API: ${{ secrets.TURBO_API }}
 
     steps:
       # --- 1. SETUP & INSTALL ---
@@ -39,6 +39,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nextjs-
 
+      - name: Cache Turborepo local cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
+
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
 
@@ -46,7 +54,7 @@ jobs:
       - name: Build Backend
         run: |
           rm -rf apps/backend/dist
-          npx turbo run build --filter=backend --no-cache
+          npx turbo run build --filter=backend
 
       # --- 3. DEPLOY BACKEND FILES TO EC2 ---
       - name: Stop Backend (to allow file replacement)
@@ -123,7 +131,7 @@ jobs:
           echo "${{ secrets.ADMIN_ENV }}" > apps/admin/.env.local
 
       - name: Build Frontend, Admin, and OTA Server
-        run: npx turbo run build --filter=frontend --filter=admin --filter=ota-sdui-server --no-cache
+        run: npx turbo run build --filter=frontend --filter=admin --filter=ota-sdui-server
         env:
           NEXT_TURBOPACK: 0
 

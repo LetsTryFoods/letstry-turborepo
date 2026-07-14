@@ -112,6 +112,14 @@ export default function WhatsAppPage() {
   const pollingRef = useRef<any>(null);
   const prevQrRef = useRef<string | null>(null);
 
+  // ── Template Tester State ────────────────────────────────────────────────
+  const [tplPhone, setTplPhone] = useState('');
+  const [tplName, setTplName] = useState('');
+  const [tplLang, setTplLang] = useState('en_US');
+  const [tplParams, setTplParams] = useState<string[]>(['']);
+  const [tplSending, setTplSending] = useState(false);
+  const [tplResult, setTplResult] = useState<{ ok: boolean; msg: string } | null>(null);
+
   // ── Fetch functions ─────────────────────────────────────────────────────────
 
   const fetchStatus = useCallback(async () => {
@@ -279,6 +287,31 @@ export default function WhatsAppPage() {
       alert(`Nuren test failed: ${err.response?.data?.message || err.message}`);
     }
     setSendingTest(false);
+  };
+
+  const handleSendTemplate = async () => {
+    if (!tplPhone) return setTplResult({ ok: false, msg: 'Phone number required' });
+    if (!tplName) return setTplResult({ ok: false, msg: 'Template name required' });
+    setTplSending(true);
+    setTplResult(null);
+    try {
+      const components = tplParams.filter(p => p.trim()).length > 0
+        ? [{
+          type: 'body',
+          parameters: tplParams.filter(p => p.trim()).map(p => ({ type: 'text', text: p })),
+        }]
+        : [];
+      const res = await api.post(`${WHATSAPP_API_BASE}/whatsapp/meta/send-template`, {
+        phoneNumber: tplPhone,
+        templateName: tplName,
+        languageCode: tplLang,
+        components,
+      });
+      setTplResult({ ok: true, msg: res.data?.message || 'Sent successfully!' });
+    } catch (err: any) {
+      setTplResult({ ok: false, msg: err.response?.data?.message || err.message || 'Failed' });
+    }
+    setTplSending(false);
   };
 
   // ── Render ───────────────────────────────────────────────────────────────────
@@ -502,6 +535,112 @@ export default function WhatsAppPage() {
           </div>
         </div>
       )}
+
+      {/* ── Meta Template Tester ──────────────────────────────────────────── */}
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-800">🧪 Meta Template Tester</h2>
+            <p className="text-sm text-gray-400 mt-0.5">Send any template to any number — add params dynamically</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+          <div>
+            <label className="text-xs text-gray-500 font-medium mb-1 block">Phone Number</label>
+            <input
+              type="text"
+              placeholder="919876543210"
+              value={tplPhone}
+              onChange={e => setTplPhone(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 font-medium mb-1 block">Template Name</label>
+            <input
+              type="text"
+              placeholder="e.g. paymentconfirm"
+              value={tplName}
+              onChange={e => setTplName(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 font-medium mb-1 block">Language Code</label>
+            <select
+              value={tplLang}
+              onChange={e => setTplLang(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
+              <option value="en_US">en_US</option>
+              <option value="en">en</option>
+              <option value="hi">hi</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="mb-4">
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-xs text-gray-500 font-medium">Body Parameters (&#123;&#123;1&#125;&#125;, &#123;&#123;2&#125;&#125;, ...)</label>
+            <button
+              onClick={() => setTplParams(p => [...p, ''])}
+              className="text-xs text-green-600 hover:text-green-800 font-medium border border-green-200 px-2.5 py-1 rounded-lg"
+            >
+              + Add Param
+            </button>
+          </div>
+          <div className="space-y-2">
+            {tplParams.map((p, i) => (
+              <div key={i} className="flex gap-2 items-center">
+                <span className="text-xs text-gray-400 w-8 text-right shrink-0">&#123;&#123;{i + 1}&#125;&#125;</span>
+                <input
+                  type="text"
+                  placeholder={`Parameter ${i + 1}`}
+                  value={p}
+                  onChange={e => {
+                    const updated = [...tplParams];
+                    updated[i] = e.target.value;
+                    setTplParams(updated);
+                  }}
+                  className="flex-1 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+                {tplParams.length > 1 && (
+                  <button
+                    onClick={() => setTplParams(p => p.filter((_, idx) => idx !== i))}
+                    className="text-red-400 hover:text-red-600 text-lg leading-none"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleSendTemplate}
+            disabled={tplSending || !tplPhone || !tplName}
+            className="bg-green-600 text-white text-sm font-medium px-6 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
+          >
+            {tplSending ? 'Sending…' : '🚀 Send Template'}
+          </button>
+          <button
+            onClick={() => { setTplParams(['']); setTplName(''); setTplPhone(''); setTplResult(null); }}
+            className="text-sm text-gray-500 hover:text-gray-700 border border-gray-200 px-4 py-2 rounded-lg"
+          >
+            Reset
+          </button>
+        </div>
+
+        {tplResult && (
+          <div className={`mt-3 px-4 py-3 rounded-xl text-sm font-medium ${tplResult.ok ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'
+            }`}>
+            {tplResult.ok ? '✅' : '❌'} {tplResult.msg}
+          </div>
+        )}
+      </div>
 
       {/* ── Stats Cards ───────────────────────────────────────────────────── */}
       {stats && stats.today && stats.period && (

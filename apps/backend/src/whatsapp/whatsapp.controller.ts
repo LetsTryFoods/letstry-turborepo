@@ -22,7 +22,7 @@ export class WhatsAppController {
     private readonly settingsService: WhatsAppSettingsService,
     private readonly metaService: MetaWhatsappService,
     private readonly nurenService: WhatsAppService,
-  ) {}
+  ) { }
 
   // ── Baileys Connection ───────────────────────────────────────────────────
 
@@ -72,6 +72,25 @@ export class WhatsAppController {
     const success = await this.nurenService.sendOtpTemplate(phoneNumber, '1234');
     if (!success) throw new HttpException('Nuren API failed', HttpStatus.INTERNAL_SERVER_ERROR);
     return { message: 'Nuren OTP sent successfully' };
+  }
+
+  @Post('meta/send-template')
+  async sendMetaTemplate(
+    @Body('phoneNumber') phoneNumber: string,
+    @Body('templateName') templateName: string,
+    @Body('languageCode') languageCode: string,
+    @Body('components') components: any[],
+  ) {
+    if (!phoneNumber) throw new HttpException('phoneNumber is required', HttpStatus.BAD_REQUEST);
+    if (!templateName) throw new HttpException('templateName is required', HttpStatus.BAD_REQUEST);
+    const success = await this.metaService.sendGenericTemplate(
+      phoneNumber,
+      templateName,
+      languageCode || 'en_US',
+      components || [],
+    );
+    if (!success) throw new HttpException('Meta API failed — check template name, language code, and parameters', HttpStatus.INTERNAL_SERVER_ERROR);
+    return { message: `Template "${templateName}" sent successfully to ${phoneNumber}` };
   }
 
   // ── Logs ─────────────────────────────────────────────────────────────────

@@ -195,4 +195,63 @@ export class MetaWhatsappService {
       return false;
     }
   }
+
+  async sendGenericTemplate(
+    phoneNumber: string,
+    templateName: string,
+    languageCode: string,
+    components: any[],
+  ): Promise<boolean> {
+    if (!this.phoneNumberId || !this.accessToken) {
+      this.logger.warn('Meta WhatsApp credentials missing. Skipping Meta send.', 'MetaWhatsappService');
+      return false;
+    }
+
+    try {
+      const to = phoneNumber.startsWith('91') ? phoneNumber : `91${phoneNumber}`;
+      const response = await fetch(
+        `${this.baseUrl}/${this.phoneNumberId}/messages`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${this.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            messaging_product: 'whatsapp',
+            to,
+            type: 'template',
+            template: {
+              name: templateName,
+              language: { code: languageCode },
+              components,
+            },
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.error) {
+        this.logger.error(
+          `WhatsApp API Error (generic template: ${templateName}): ${data.error.message}`,
+          'MetaWhatsappService',
+          { data },
+        );
+        return false;
+      }
+
+      this.logger.log(
+        `Meta WhatsApp generic template "${templateName}" sent to ${phoneNumber}`,
+        'MetaWhatsappService',
+      );
+      return true;
+    } catch (err) {
+      this.logger.error(
+        `Failed to send Meta WhatsApp generic template "${templateName}": ${err.message}`,
+        'MetaWhatsappService',
+      );
+      return false;
+    }
+  }
 }
