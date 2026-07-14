@@ -10,6 +10,7 @@ jobs:
     env:
       CI: true
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: letstry
       TURBO_API: ${{ secrets.TURBO_API }}
 
     steps:
