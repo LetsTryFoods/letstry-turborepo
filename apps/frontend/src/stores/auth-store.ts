@@ -68,7 +68,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
             isGuest: false,
           });
         }
-      } catch (error) {}
+      } catch (error) { }
 
       /* TEMPORARILY DISABLED FIREBASE AUTH ON LOAD
       onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {

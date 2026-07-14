@@ -45,6 +45,7 @@ import { PincodeModule } from './pincode/pincode.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { SkuMasterModule } from './sku-master/sku-master.module';
 import { SampleInvoiceModule } from './sample-invoice/sample-invoice.module';
+import { PrometheusModule } from '@willsoto/nestjs-prometheus';
 
 @Module({
   imports: [
@@ -59,6 +60,12 @@ import { SampleInvoiceModule } from './sample-invoice/sample-invoice.module';
             port: redisConfig.port,
           },
         };
+      },
+    }),
+    PrometheusModule.register({
+      path: '/metrics',
+      defaultMetrics: {
+        enabled: true,
       },
     }),
     BullBoardModule,

@@ -255,4 +255,63 @@ export class MetaWhatsappService {
       return { success: false, error: err.message };
     }
   }
+
+  async sendPromotionalLeftCustomerTemplate(phoneNumber: string, imageUrl?: string): Promise<{ success: boolean; error?: string }> {
+    if (!this.phoneNumberId || !this.accessToken) {
+      this.logger.warn('Meta WhatsApp credentials missing. Skipping Meta send.', 'MetaWhatsappService');
+      return { success: false, error: 'Meta credentials not configured' };
+    }
+
+    try {
+      const components: any[] = [];
+
+      if (imageUrl) {
+        components.push({
+          type: 'header',
+          parameters: [
+            {
+              type: 'image',
+              image: { link: imageUrl },
+            },
+          ],
+        });
+      }
+
+      const to = phoneNumber.startsWith('91') ? phoneNumber : `91${phoneNumber}`;
+      const response = await fetch(
+        `${this.baseUrl}/${this.phoneNumberId}/messages`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${this.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            messaging_product: 'whatsapp',
+            to,
+            type: 'template',
+            template: {
+              name: 'leftcustomer',
+              language: { code: 'en' },
+              components: components.length > 0 ? components : undefined,
+            },
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.error) {
+        const errMsg = `[${data.error.code}] ${data.error.message}`;
+        this.logger.error(`WhatsApp API Error (leftcustomer): ${errMsg}`, 'MetaWhatsappService', { data });
+        return { success: false, error: errMsg };
+      }
+
+      this.logger.log(`Meta WhatsApp promotional message (leftcustomer) sent to ${phoneNumber}`, 'MetaWhatsappService');
+      return { success: true };
+    } catch (err) {
+      this.logger.error(`Failed to send Meta WhatsApp leftcustomer template: ${err.message}`, 'MetaWhatsappService');
+      return { success: false, error: err.message };
+    }
+  }
 }
