@@ -33,7 +33,7 @@ export class MetaWhatsappService {
           },
           body: JSON.stringify({
             messaging_product: 'whatsapp',
-            to: `91${phoneNumber}`,
+            to: phoneNumber.startsWith('91') ? phoneNumber : `91${phoneNumber}`,
             type: 'template',
             template: {
               name: 'letstryotp',
@@ -104,7 +104,7 @@ export class MetaWhatsappService {
           },
           body: JSON.stringify({
             messaging_product: 'whatsapp',
-            to: `91${phoneNumber}`,
+            to: phoneNumber.startsWith('91') ? phoneNumber : `91${phoneNumber}`,
             type: 'template',
             template: {
               name: 'paymentconfirm',
@@ -162,7 +162,7 @@ export class MetaWhatsappService {
           },
           body: JSON.stringify({
             messaging_product: 'whatsapp',
-            to: `91${phoneNumber}`,
+            to: phoneNumber.startsWith('91') ? phoneNumber : `91${phoneNumber}`,
             type: 'template',
             template: {
               name: 'ordershipped',

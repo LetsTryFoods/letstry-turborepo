@@ -61,15 +61,14 @@ export class WhatsAppService {
   async sendOrderPackedNotification(
     phoneNumber: string,
     orderId: string,
-    orderDate: string,
-    trackingUrl: string,
+    recipientName: string,
   ): Promise<boolean> {
     const payload: WhatsAppTemplatePayload = {
-      template: 'deliveryutilitymarchtwo',
+      template: 'ordershipped',
       recipients: [
         {
           phone: phoneNumber,
-          variables: [trackingUrl, orderDate],
+          variables: [recipientName || 'Customer', orderId],
         },
       ],
     };

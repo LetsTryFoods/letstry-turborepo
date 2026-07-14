@@ -137,8 +137,8 @@ export class WhatsAppOrchestratorService {
     trackingUrl?: string,
     recipientName?: string,
   ): Promise<SendResult> {
-    const templateName = 'deliveryutilitymarchtwo';
-    const payload = { phoneNumber, orderId, orderDate, trackingUrl };
+    const templateName = 'ordershipped';
+    const payload = { phoneNumber, recipientName: recipientName || 'Customer', orderId };
 
     const fallbackText =
       `📦 *Your Order is Packed!*\n\n` +
@@ -180,7 +180,7 @@ export class WhatsAppOrchestratorService {
       fallbackText,
       orderId,
       recipientName,
-      () => this.nurenService.sendOrderPackedNotification(phoneNumber, orderId, orderDate || '', trackingUrl || ''),
+      () => this.nurenService.sendOrderPackedNotification(phoneNumber, orderId, recipientName || 'Customer'),
     );
   }
 
