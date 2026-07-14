@@ -20,7 +20,7 @@ export function RecaptchaProvider({ children }: { children: React.ReactNode }) {
       {siteKey && (
         <Script
           src={`https://www.google.com/recaptcha/api.js?render=${siteKey}`}
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
       )}
       {children}
