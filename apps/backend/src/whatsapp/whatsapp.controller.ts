@@ -11,6 +11,8 @@ import {
 import { BaileysService } from './services/baileys.service';
 import { BaileysMessageLogService } from './services/baileys-message-log.service';
 import { WhatsAppSettingsService } from './services/whatsapp-settings.service';
+import { MetaWhatsappService } from './services/meta-whatsapp.service';
+import { WhatsAppService } from './whatsapp.service';
 
 @Controller('whatsapp')
 export class WhatsAppController {
@@ -18,6 +20,8 @@ export class WhatsAppController {
     private readonly baileysService: BaileysService,
     private readonly logService: BaileysMessageLogService,
     private readonly settingsService: WhatsAppSettingsService,
+    private readonly metaService: MetaWhatsappService,
+    private readonly nurenService: WhatsAppService,
   ) {}
 
   // ── Baileys Connection ───────────────────────────────────────────────────
@@ -52,6 +56,22 @@ export class WhatsAppController {
       throw new HttpException(result.error || 'Failed to send message', HttpStatus.INTERNAL_SERVER_ERROR);
     }
     return { message: 'Test message sent successfully' };
+  }
+
+  @Post('meta/test-otp')
+  async sendMetaTestOtp(@Body('phoneNumber') phoneNumber: string) {
+    if (!phoneNumber) throw new HttpException('phoneNumber required', HttpStatus.BAD_REQUEST);
+    const success = await this.metaService.sendOtpTemplate(phoneNumber, '1234');
+    if (!success) throw new HttpException('Meta API failed', HttpStatus.INTERNAL_SERVER_ERROR);
+    return { message: 'Meta OTP sent successfully' };
+  }
+
+  @Post('nuren/test-otp')
+  async sendNurenTestOtp(@Body('phoneNumber') phoneNumber: string) {
+    if (!phoneNumber) throw new HttpException('phoneNumber required', HttpStatus.BAD_REQUEST);
+    const success = await this.nurenService.sendOtpTemplate(phoneNumber, '1234');
+    if (!success) throw new HttpException('Nuren API failed', HttpStatus.INTERNAL_SERVER_ERROR);
+    return { message: 'Nuren OTP sent successfully' };
   }
 
   // ── Logs ─────────────────────────────────────────────────────────────────

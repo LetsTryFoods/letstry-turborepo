@@ -253,6 +253,34 @@ export default function WhatsAppPage() {
     setSendingTest(false);
   };
 
+  const handleTestMetaOtp = async () => {
+    if (!testPhone) return alert('Phone required for testing OTP');
+    setSendingTest(true);
+    try {
+      await api.post(`${WHATSAPP_API_BASE}/whatsapp/meta/test-otp`, {
+        phoneNumber: testPhone,
+      });
+      alert('Meta OTP test sent successfully!');
+    } catch (err: any) {
+      alert(`Meta test failed: ${err.response?.data?.message || err.message}`);
+    }
+    setSendingTest(false);
+  };
+
+  const handleTestNurenOtp = async () => {
+    if (!testPhone) return alert('Phone required for testing OTP');
+    setSendingTest(true);
+    try {
+      await api.post(`${WHATSAPP_API_BASE}/whatsapp/nuren/test-otp`, {
+        phoneNumber: testPhone,
+      });
+      alert('Nuren OTP test sent successfully!');
+    } catch (err: any) {
+      alert(`Nuren test failed: ${err.response?.data?.message || err.message}`);
+    }
+    setSendingTest(false);
+  };
+
   // ── Render ───────────────────────────────────────────────────────────────────
 
   const status = baileysStatus?.connectionStatus;
@@ -448,13 +476,29 @@ export default function WhatsAppPage() {
               onChange={(e) => setTestText(e.target.value)}
               className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <button
-              onClick={handleTestMessage}
-              disabled={sendingTest || !testPhone || !testText}
-              className="bg-blue-600 text-white text-sm px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 font-medium whitespace-nowrap"
-            >
-              {sendingTest ? 'Sending...' : 'Send Test'}
-            </button>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={handleTestMessage}
+                disabled={sendingTest || !testPhone || !testText}
+                className="bg-purple-100 text-purple-700 font-medium px-4 py-2 rounded-lg hover:bg-purple-200 disabled:opacity-50"
+              >
+                {sendingTest ? 'Sending…' : 'Test Baileys'}
+              </button>
+              <button
+                onClick={handleTestMetaOtp}
+                disabled={sendingTest || !testPhone}
+                className="bg-green-100 text-green-700 font-medium px-4 py-2 rounded-lg hover:bg-green-200 disabled:opacity-50"
+              >
+                {sendingTest ? 'Sending…' : 'Test Meta OTP'}
+              </button>
+              <button
+                onClick={handleTestNurenOtp}
+                disabled={sendingTest || !testPhone}
+                className="bg-blue-100 text-blue-700 font-medium px-4 py-2 rounded-lg hover:bg-blue-200 disabled:opacity-50"
+              >
+                {sendingTest ? 'Sending…' : 'Test Nuren OTP'}
+              </button>
+            </div>
           </div>
         </div>
       )}

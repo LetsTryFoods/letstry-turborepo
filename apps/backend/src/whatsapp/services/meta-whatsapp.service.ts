@@ -108,7 +108,7 @@ export class MetaWhatsappService {
             type: 'template',
             template: {
               name: 'paymentconfirm',
-              language: { code: 'en' },
+              language: { code: 'en_US' },
               components: [
                 {
                   type: 'body',

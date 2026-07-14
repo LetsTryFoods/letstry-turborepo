@@ -145,7 +145,7 @@ jobs:
         uses: easingthemes/ssh-deploy@v5.0.3
         env:
           SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-          ARGS: "-rlgoDzvc -i --checksum --delete"
+          ARGS: "-rlgoDzvc -i --checksum --delete --exclude=.next/cache"
           SOURCE: "apps/"
           REMOTE_HOST: ${{ secrets.EC2_HOST }}
           REMOTE_USER: ${{ secrets.EC2_USER }}

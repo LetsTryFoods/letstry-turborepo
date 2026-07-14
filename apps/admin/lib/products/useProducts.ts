@@ -280,10 +280,6 @@ export const useProducts = (
 ) => {
   return useQuery(GET_PRODUCTS, {
     variables: { pagination, includeOutOfStock, includeArchived },
-    // network-only: always fetch from server, never serve stale Apollo cache.
-    // This is critical for the inventory hub — stock changes from Proof App
-    // (via InventoryService directly) won't invalidate the Apollo cache
-    // on the admin side, so we must always go to the network.
     fetchPolicy: "network-only",
     nextFetchPolicy: "network-only",
   });

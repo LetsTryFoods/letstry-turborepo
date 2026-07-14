@@ -467,6 +467,38 @@ export class PackingService {
       duration,
     );
 
+    // ── WhatsApp notification: Order Packed ──────────────────────────────────
+    try {
+      const order = await this.orderRepository.findByInternalId(packingOrder.orderId);
+      const shippingAddress = order?.shippingAddressId
+        ? await this.addressModel.findById(order.shippingAddressId).exec()
+        : null;
+      const phoneNumber = this.resolvePhone(order, shippingAddress);
+      if (phoneNumber && order) {
+        const orderDate = new Date(order.createdAt).toLocaleDateString('en-IN');
+        const recipientName = shippingAddress?.recipientName || 'Customer';
+        await this.whatsappQueue.add('order-packed', {
+          phoneNumber,
+          orderId: packingOrder.orderId,
+          orderDate,
+          trackingUrl: `https://letstryfoods.com/track/${packingOrder.orderId}`,
+          recipientName,
+        });
+        this.scanLogger.logCompletePackingStep('WHATSAPP_QUEUED', {
+          packingOrderId,
+          orderId: packingOrder.orderId,
+          phoneNumber,
+        });
+      }
+    } catch (waError) {
+      this.scanLogger.logScanError(
+        'completePacking',
+        packingOrderId,
+        new Error(`WhatsApp queue failed: ${waError.message}`),
+      );
+    }
+    // ────────────────────────────────────────────────────────────────────────
+
     this.scanLogger.logCompletePackingStep('SHIPMENT_INITIATION', {
       orderId: packingOrder.orderId,
     });
