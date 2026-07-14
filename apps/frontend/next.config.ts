@@ -129,7 +129,8 @@ export default withSentryConfig(nextConfig, {
   org: "lets-try",
   project: "javascript-nextjs",
   widenClientFileUpload: true,
-  transpileClientSDK: true,
-  hideSourceMaps: true,
+  sourcemaps: {
+    deleteSourcemapsAfterUpload: true,
+  },
   disableLogger: true,
 });
