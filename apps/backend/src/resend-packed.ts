@@ -1,9 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { getModelToken } from '@nestjs/mongoose';
-import { getQueueToken } from '@nestjs/bull';
+import { getQueueToken } from '@nestjs/bullmq';
 import { Model } from 'mongoose';
-import { Queue } from 'bull';
+import { Queue } from 'bullmq';
 
 async function bootstrap() {
   console.log('Bootstrapping NestJS application context...');
@@ -18,7 +18,7 @@ async function bootstrap() {
   startOfToday.setHours(0, 0, 0, 0);
 
   console.log(`Searching for orders packed since ${startOfToday.toISOString()}`);
-  
+
   const packedOrders = await orderModel.find({
     orderStatus: 'PACKED',
     updatedAt: { $gte: startOfToday }
@@ -40,7 +40,7 @@ async function bootstrap() {
     }
 
     console.log(`Queueing WhatsApp for ${phone} (Order ${orderId})...`);
-    
+
     // Add to Bull Queue exactly like packing.service.ts does
     try {
       await whatsappQueue.add('order-packed', {
