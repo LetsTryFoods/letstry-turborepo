@@ -1,17 +1,17 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { WhatsAppOrchestrator } from './whatsapp/services/whatsapp-orchestrator.service';
 import { getModelToken } from '@nestjs/mongoose';
+import { getQueueToken } from '@nestjs/bull';
 import { Model } from 'mongoose';
+import { Queue } from 'bull';
 
 async function bootstrap() {
   console.log('Bootstrapping NestJS application context...');
-  // Only load application context without starting HTTP server
   const app = await NestFactory.createApplicationContext(AppModule);
   console.log('NestJS application context created.');
 
-  // Get our orchestrator service and Order model directly from Nest's DI
-  const orchestrator = app.get(WhatsAppOrchestrator);
+  // Get the Queue and Order model from Nest's DI
+  const whatsappQueue = app.get<Queue>(getQueueToken('whatsapp-notification-queue'));
   const orderModel = app.get<Model<any>>(getModelToken('Order'));
 
   const startOfToday = new Date();
@@ -39,29 +39,29 @@ async function bootstrap() {
       continue;
     }
 
-    console.log(`Sending WhatsApp to ${phone} for order ${orderId}...`);
+    console.log(`Queueing WhatsApp for ${phone} (Order ${orderId})...`);
     
-    // Call the exact same function the backend uses
+    // Add to Bull Queue exactly like packing.service.ts does
     try {
-      const result = await orchestrator.sendOrderPackedNotification(phone, orderId, '', '', name);
-      if (result && result.success) {
-        successCount++;
-      } else {
-        failCount++;
-      }
+      await whatsappQueue.add('order-packed', {
+        orderId: order._id.toString(),
+        orderDisplayId: order.orderId,
+        phoneNumber: phone,
+        recipientName: name,
+      });
+      successCount++;
     } catch (e) {
-      console.error(`Error sending to ${phone}:`, e.message);
+      console.error(`Error queueing for ${phone}:`, e.message);
       failCount++;
     }
-    
-    // 200ms delay to respect rate limits
-    await new Promise(res => setTimeout(res, 200));
   }
 
-  console.log('\n--- Finished ---');
-  console.log(`✅ Success: ${successCount}`);
+  console.log('\n--- Finished Queueing ---');
+  console.log(`✅ Queued: ${successCount}`);
   console.log(`❌ Failed: ${failCount}`);
 
+  // Allow a few seconds for Redis to process the queued jobs if workers are running locally
+  await new Promise(resolve => setTimeout(resolve, 3000));
   await app.close();
   process.exit(0);
 }
