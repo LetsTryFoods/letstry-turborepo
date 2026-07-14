@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Image from "next/image";
 import { BestsellerCard } from "./bestseller-card";
 import { useAnalytics } from "@/hooks/use-analytics";
 
@@ -123,13 +124,16 @@ export function BestsellerCarouselClient({
       ref={bestsellerRef}
       className="relative overflow-hidden"
       style={{
-        backgroundImage: `url("/bestSellerBanner.png")`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
         minHeight: "520px",
       }}
     >
+      <Image
+        src="/bestSellerBanner.png"
+        alt="Bestseller Background"
+        fill
+        className="object-cover -z-10"
+        sizes="100vw"
+      />
       {/* ── Rope SVG overlay ── */}
       <div
         className="absolute top-0 left-0 w-full pointer-events-none z-10"

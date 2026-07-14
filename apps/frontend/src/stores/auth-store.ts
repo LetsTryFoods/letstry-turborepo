@@ -70,6 +70,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         }
       } catch (error) {}
 
+      /* TEMPORARILY DISABLED FIREBASE AUTH ON LOAD
       onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
         if (firebaseUser) {
           try {
@@ -114,6 +115,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
           }
         }
       });
+      */
 
       set({ isInitialized: true });
     } catch (error) {

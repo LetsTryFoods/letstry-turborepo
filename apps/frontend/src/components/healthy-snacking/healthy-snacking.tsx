@@ -75,8 +75,8 @@ export const HealthySnacking = () => {
                       src={slide.img}
                       alt={slide.tag}
                       fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       className="object-cover rounded-xl shadow-md"
-                      sizes="(max-width: 768px) 100vw, 480px"
                     />
                     <span className="absolute bottom-3 right-3 bg-white/40 p-2 rounded-full shadow group-hover:bg-white/60 transition-colors">
                       <ArrowUpRight className="w-5 h-5 md:w-6 md:h-6 text-white" />
@@ -121,16 +121,14 @@ export const HealthySnacking = () => {
                 {healthySnackingSlides.map((slide, index) => (
                   <div key={index} className="flex flex-col items-center">
                     <div
-                      className={`w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5 rounded-full cursor-pointer ${
-                        index <= currentIndex ? "bg-[#FF5400]" : "bg-gray-300"
-                      }`}
+                      className={`w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5 rounded-full cursor-pointer ${index <= currentIndex ? "bg-[#FF5400]" : "bg-gray-300"
+                        }`}
                     />
                     <span
-                      className={`text-[10px] md:text-xs lg:text-sm text-center mt-2 font-normal transition-all duration-200 whitespace-nowrap ${
-                        index === currentIndex
-                          ? "text-orange-600 font-bold"
-                          : "text-gray-700"
-                      }`}
+                      className={`text-[10px] md:text-xs lg:text-sm text-center mt-2 font-normal transition-all duration-200 whitespace-nowrap ${index === currentIndex
+                        ? "text-orange-600 font-bold"
+                        : "text-gray-700"
+                        }`}
                     >
                       {slide.tag}
                     </span>

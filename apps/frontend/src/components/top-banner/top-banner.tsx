@@ -25,6 +25,7 @@ export const TopBanner = ({
             src={imageUrl}
             alt={imageAlt}
             fill
+            sizes="100vw"
             className="object-contain"
             priority
           />
