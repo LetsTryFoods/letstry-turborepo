@@ -201,10 +201,10 @@ export class MetaWhatsappService {
     templateName: string,
     languageCode: string,
     components: any[],
-  ): Promise<boolean> {
+  ): Promise<{ success: boolean; error?: string }> {
     if (!this.phoneNumberId || !this.accessToken) {
       this.logger.warn('Meta WhatsApp credentials missing. Skipping Meta send.', 'MetaWhatsappService');
-      return false;
+      return { success: false, error: 'Meta credentials not configured' };
     }
 
     try {
@@ -233,25 +233,26 @@ export class MetaWhatsappService {
       const data = await response.json();
 
       if (data.error) {
+        const errMsg = `[${data.error.code}] ${data.error.message}`;
         this.logger.error(
-          `WhatsApp API Error (generic template: ${templateName}): ${data.error.message}`,
+          `WhatsApp API Error (generic template: ${templateName}): ${errMsg}`,
           'MetaWhatsappService',
           { data },
         );
-        return false;
+        return { success: false, error: errMsg };
       }
 
       this.logger.log(
         `Meta WhatsApp generic template "${templateName}" sent to ${phoneNumber}`,
         'MetaWhatsappService',
       );
-      return true;
+      return { success: true };
     } catch (err) {
       this.logger.error(
         `Failed to send Meta WhatsApp generic template "${templateName}": ${err.message}`,
         'MetaWhatsappService',
       );
-      return false;
+      return { success: false, error: err.message };
     }
   }
 }

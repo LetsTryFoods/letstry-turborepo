@@ -133,8 +133,8 @@ export class WhatsAppOrchestratorService {
   async sendOrderPackedNotification(
     phoneNumber: string,
     orderId: string,
-    orderDate: string,
-    trackingUrl: string,
+    orderDate?: string,
+    trackingUrl?: string,
     recipientName?: string,
   ): Promise<SendResult> {
     const templateName = 'deliveryutilitymarchtwo';
@@ -143,9 +143,9 @@ export class WhatsAppOrchestratorService {
     const fallbackText =
       `📦 *Your Order is Packed!*\n\n` +
       `Order: ${orderId}\n` +
-      `Date: ${orderDate}\n` +
-      `Track your order: ${trackingUrl}\n\n` +
-      `Let's Try Foods 🚀`;
+      (orderDate ? `Date: ${orderDate}\n` : '') +
+      (trackingUrl ? `Track your order: ${trackingUrl}\n` : '') +
+      `\nLet's Try Foods 🚀`;
 
     try {
       const metaSuccess = await this.metaService.sendOrderPackedNotification(
@@ -180,7 +180,7 @@ export class WhatsAppOrchestratorService {
       fallbackText,
       orderId,
       recipientName,
-      () => this.nurenService.sendOrderPackedNotification(phoneNumber, orderId, orderDate, trackingUrl),
+      () => this.nurenService.sendOrderPackedNotification(phoneNumber, orderId, orderDate || '', trackingUrl || ''),
     );
   }
 

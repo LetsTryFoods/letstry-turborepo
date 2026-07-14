@@ -18,8 +18,8 @@ export interface OrderPackedJobData {
   type: 'order-packed';
   phoneNumber: string;
   orderId: string;
-  orderDate: string;
-  trackingUrl: string;
+  orderDate?: string;
+  trackingUrl?: string;
   recipientName?: string;
 }
 

@@ -480,8 +480,6 @@ export class PackingService {
         await this.whatsappQueue.add('order-packed', {
           phoneNumber,
           orderId: order.orderId,
-          orderDate,
-          trackingUrl: `https://letstryfoods.com/track/${order.orderId}`,
           recipientName,
         });
         this.scanLogger.logCompletePackingStep('WHATSAPP_QUEUED', {

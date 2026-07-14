@@ -83,13 +83,18 @@ export class WhatsAppController {
   ) {
     if (!phoneNumber) throw new HttpException('phoneNumber is required', HttpStatus.BAD_REQUEST);
     if (!templateName) throw new HttpException('templateName is required', HttpStatus.BAD_REQUEST);
-    const success = await this.metaService.sendGenericTemplate(
+    const result = await this.metaService.sendGenericTemplate(
       phoneNumber,
       templateName,
       languageCode || 'en_US',
       components || [],
     );
-    if (!success) throw new HttpException('Meta API failed — check template name, language code, and parameters', HttpStatus.INTERNAL_SERVER_ERROR);
+    if (!result.success) {
+      throw new HttpException(
+        { message: 'Meta API failed', metaError: result.error },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
     return { message: `Template "${templateName}" sent successfully to ${phoneNumber}` };
   }
 
