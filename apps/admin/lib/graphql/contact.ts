@@ -14,6 +14,9 @@ export const GET_CONTACT_MESSAGES = gql`
         imageUrls
         message
         status
+        whatsappPhoneNumber
+        whatsappWindowExpiresAt
+        whatsappTemplateSentAt
         createdAt
         updatedAt
       }

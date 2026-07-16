@@ -5,9 +5,11 @@ const SUBMIT_CONTACT_MESSAGE_MUTATION = `
     submitContactMessage(input: $input) {
       success
       message
+      contactId
     }
   }
 `;
+
 
 export type SubmitContactInput = {
   name: string;

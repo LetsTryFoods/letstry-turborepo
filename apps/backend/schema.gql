@@ -198,6 +198,7 @@ type EnrichedCustomer {
   totalSpent: Float!
   activeCartItemsCount: Int
   displayPhone: String
+  hasAddress: Boolean
   isGuest: Boolean!
 }
 
@@ -593,6 +594,8 @@ type InventoryLog {
   newStock: Int!
   actionType: InventoryAction!
   referenceId: String
+  vendor: String
+  overrideReason: String
   performedBy: String
   notes: String
   createdAt: DateTime!
@@ -603,6 +606,14 @@ enum InventoryAction {
   ORDER_PACKED
   MANUAL_ADJUSTMENT
   RETURN
+  AVAILABILITY_OVERRIDE
+}
+
+type InventorySnapshot {
+  sku: String!
+  stockQuantity: Int!
+  availabilityStatus: String!
+  recentLogs: [InventoryLog!]!
 }
 
 type CategorySeo {
@@ -623,6 +634,31 @@ type CategorySeo {
   categoryId: String!
   createdAt: DateTime!
   updatedAt: DateTime!
+}
+
+type Contact {
+  _id: ID!
+  name: String!
+  phone: String!
+  email: String
+  orderId: String
+  queryType: String
+  productNames: [String!]
+  imageUrls: [String!]
+  message: String!
+  status: ContactStatus!
+  whatsappPhoneNumber: String
+  whatsappWindowExpiresAt: DateTime
+  whatsappTemplateSentAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""The status of the contact complaint"""
+enum ContactStatus {
+  PENDING
+  REVIEWED
+  RESOLVED
 }
 
 type Guest {
@@ -1616,31 +1652,10 @@ type CorporateEnquiryResponse {
   message: String!
 }
 
-type Contact {
-  _id: ID!
-  name: String!
-  phone: String!
-  email: String
-  orderId: String
-  queryType: String
-  productNames: [String!]
-  imageUrls: [String!]
-  message: String!
-  status: ContactStatus!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-}
-
-"""The status of the contact complaint"""
-enum ContactStatus {
-  PENDING
-  REVIEWED
-  RESOLVED
-}
-
 type ContactSubmissionResponse {
   success: Boolean!
   message: String!
+  contactId: String
 }
 
 type PaginatedContactsResponse {
@@ -1888,14 +1903,16 @@ input BoxDimensionsInput {
 
 type Query {
   hello: String!
-  products(pagination: PaginationInput! = {page: 1, limit: 10}, includeOutOfStock: Boolean! = false, includeArchived: Boolean! = false): PaginatedProducts!
+  products(pagination: PaginationInput, includeOutOfStock: Boolean! = true, includeArchived: Boolean! = false): PaginatedProducts!
+  allProductsUncached(includeOutOfStock: Boolean! = true, includeArchived: Boolean! = false): [Product!]!
   product(id: ID!): Product
   productBySlug(slug: String!): Product
   productsBySlugList(slugs: [String!]!): [Product!]!
   productsByCategory(categoryId: ID!, pagination: PaginationInput! = {page: 1, limit: 10}): PaginatedProducts!
   searchProducts(searchTerm: String!, pagination: PaginationInput! = {page: 1, limit: 10}, nameOnly: Boolean! = false, includeArchived: Boolean! = false): PaginatedProducts!
   productVariant(productId: ID!, variantId: ID!): ProductVariant
-  inventoryLogs(sku: String!): [InventoryLog!]!
+  inventoryLogs(sku: String!, page: Int, limit: Int, actionType: InventoryAction): [InventoryLog!]!
+  inventorySnapshot(identifier: String!): InventorySnapshot
   findProductByIdentifier(identifier: String!): Product
   nearExpirySaleProducts: [Product!]!
   saleProductsPaginated(pagination: PaginationInput! = {page: 1, limit: 10}): PaginatedProducts!
@@ -2059,6 +2076,7 @@ enum SortOrder {
 enum CartStatusFilter {
   HAS_CART
   NO_CART
+  HAS_CART_AND_ADDRESS
 }
 
 input GeocodeAddressInput {
@@ -2141,7 +2159,9 @@ type Mutation {
   updateProductVariantStock(productId: ID!, variantId: ID!, quantity: Int!): Product!
   zeroAllProductStock: Boolean!
   adjustInventory(identifier: String!, incrementBy: Int!, reason: String, referenceId: String, performedBy: String): InventoryLog!
+  recordStockInward(identifier: String!, quantityAdded: Int!, vendor: String, purchaseOrderRef: String, performedBy: String, notes: String): InventoryLog!
   setInventory(identifier: String!, newStockLevel: Int!, performedBy: String): InventoryLog!
+  forceAvailabilityStatus(identifier: String!, status: String!, reason: String!, performedBy: String): InventoryLog!
   createCategory(input: CreateCategoryInput!): Category!
   updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
   archiveCategory(id: ID!): Category!

@@ -28,7 +28,12 @@ async function bootstrap() {
     });
 
     app.useGlobalFilters(new GlobalExceptionFilter());
-    app.use(json({ limit: '20mb' }));
+    app.use(json({ 
+      limit: '20mb',
+      verify: (req: any, res, buf) => {
+        req.rawBody = buf;
+      }
+    }));
     app.use(cookieParser());
 
     // Block indexing of API/admin responses. The backend serves GraphQL +

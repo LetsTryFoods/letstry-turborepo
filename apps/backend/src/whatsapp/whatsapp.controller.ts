@@ -5,24 +5,181 @@ import {
   Patch,
   Body,
   Query,
-  HttpException,
+  Headers,
+  Res,
+  HttpCode,
   HttpStatus,
+  HttpException,
+  Req,
+  Logger,
 } from '@nestjs/common';
+import type { Request, Response } from 'express';
+
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
+import { ConfigService } from '@nestjs/config';
+import { createHmac } from 'crypto';
 import { BaileysService } from './services/baileys.service';
 import { BaileysMessageLogService } from './services/baileys-message-log.service';
 import { WhatsAppSettingsService } from './services/whatsapp-settings.service';
 import { MetaWhatsappService } from './services/meta-whatsapp.service';
 import { WhatsAppService } from './whatsapp.service';
+import { Public } from '../common/decorators/public.decorator';
+import { logWhatsAppEvent } from './logger/whatsapp-file.logger';
+
 
 @Controller('whatsapp')
 export class WhatsAppController {
+  private readonly webhookVerifyToken: string;
+  private readonly appSecret: string;
+  private readonly logger = new Logger(WhatsAppController.name);
+
   constructor(
     private readonly baileysService: BaileysService,
     private readonly logService: BaileysMessageLogService,
     private readonly settingsService: WhatsAppSettingsService,
     private readonly metaService: MetaWhatsappService,
     private readonly nurenService: WhatsAppService,
-  ) { }
+    private readonly configService: ConfigService,
+    @InjectQueue('whatsapp-inbound-queue') private readonly inboundQueue: Queue,
+  ) {
+    this.webhookVerifyToken = this.configService.get<string>('metaWhatsapp.webhookVerifyToken') || '';
+    this.appSecret = this.configService.get<string>('metaWhatsapp.appSecret') || '';
+  }
+
+  // ── Meta Webhook ──────────────────────────────────────────────────────────
+
+  /**
+   * GET /whatsapp/webhook
+   * Meta hub challenge verification. Must be @Public so JWT guard doesn't block it.
+   */
+  @Public()
+  @Get('webhook')
+  verifyWebhook(
+    @Query('hub.mode') mode: string,
+    @Query('hub.verify_token') token: string,
+    @Query('hub.challenge') challenge: string,
+    @Res() res: Response,
+  ) {
+    logWhatsAppEvent('Webhook Challenge Received', { mode, token, challenge });
+    if (mode === 'subscribe' && token === this.webhookVerifyToken) {
+      logWhatsAppEvent('Webhook Challenge Verified Successfully');
+      res.status(200).send(challenge);
+    } else {
+      logWhatsAppEvent('Webhook Challenge Failed', { receivedToken: token, expectedToken: this.webhookVerifyToken });
+      res.status(403).send('Forbidden');
+    }
+  }
+
+  /**
+   * POST /whatsapp/webhook
+   * Receives inbound messages and delivery status updates from Meta.
+   *
+   * Design: queue-first pattern.
+   * 1. Verify HMAC signature (if app secret is configured).
+   * 2. Parse the payload to identify messages vs. status updates.
+   * 3. Enqueue each event to `whatsapp-inbound-queue`.
+   * 4. Return 200 immediately — Meta will retry if we don't respond within 20s.
+   *
+   * All heavy lifting (DB writes, socket emits) is done in the BullMQ processor.
+   */
+  @Public()
+  @Post('webhook')
+  @HttpCode(HttpStatus.OK)
+  async handleWebhook(
+    @Body() body: any,
+    @Req() req: Request,
+    @Headers('x-hub-signature-256') signature: string,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    logWhatsAppEvent('Inbound Webhook Payload Received', body);
+
+    // 1. Verify signature if app secret is configured
+    if (this.appSecret) {
+      const rawBody = (req as any).rawBody;
+      if (!rawBody) {
+        this.logger.warn('rawBody is missing from request, cannot verify HMAC signature');
+        res.status(403).json({ error: 'Missing rawBody' });
+        return;
+      }
+      
+      const expected = `sha256=${createHmac('sha256', this.appSecret).update(rawBody).digest('hex')}`;
+      if (signature !== expected) {
+        logWhatsAppEvent('Inbound Webhook Signature Verification Failed', { expected, signature });
+        res.status(403).json({ error: 'Invalid signature' });
+        return;
+      }
+      logWhatsAppEvent('Inbound Webhook Signature Verified Successfully');
+    }
+
+    // 2. Parse Meta webhook payload
+    try {
+      const entries = body?.entry ?? [];
+      for (const entry of entries) {
+        const changes = entry?.changes ?? [];
+        for (const change of changes) {
+          const value = change?.value;
+          if (!value) continue;
+
+          // Inbound messages
+          const messages: any[] = value?.messages ?? [];
+          for (const msg of messages) {
+            const phone = msg?.from;
+            const messageId = msg?.id;
+            const timestamp = msg?.timestamp
+              ? new Date(parseInt(msg.timestamp) * 1000)
+              : new Date();
+            const text = msg?.text?.body || msg?.caption || msg?.image?.caption || msg?.video?.caption || '[media]';
+            const msgType = msg?.type || 'text';
+            const mediaId = msg?.image?.id || msg?.video?.id || msg?.audio?.id || msg?.document?.id || null;
+
+            const jobData = {
+              type: 'inbound_message',
+              messageId,
+              phone,
+              text,
+              timestamp,
+              msgType,
+              mediaId,
+            };
+
+            await this.inboundQueue.add('inbound_message', jobData, {
+              attempts: 3,
+              backoff: { type: 'exponential', delay: 2000 },
+            });
+            logWhatsAppEvent('Enqueued Inbound Message Job', jobData);
+          }
+
+          // Delivery / read status updates
+          const statuses: any[] = value?.statuses ?? [];
+          for (const status of statuses) {
+            const messageId = status?.id;
+            const statusString = status?.status; // sent, delivered, read, failed
+            const phone = status?.recipient_id;
+
+            if (messageId && statusString) {
+              const jobData = {
+                type: 'status_update',
+                messageId,
+                status: statusString,
+                phone,
+              };
+              await this.inboundQueue.add('status_update', jobData, {
+                attempts: 3,
+                backoff: { type: 'exponential', delay: 2000 },
+              });
+              logWhatsAppEvent('Enqueued Status Update Job', jobData);
+            }
+          }
+        }
+      }
+    } catch (err) {
+      logWhatsAppEvent('Error parsing/enqueueing webhook payload', { error: err.message });
+      console.error('[WhatsAppController] Error processing webhook:', err);
+    }
+
+    return { status: 'ok' };
+  }
 
   // ── Baileys Connection ───────────────────────────────────────────────────
 

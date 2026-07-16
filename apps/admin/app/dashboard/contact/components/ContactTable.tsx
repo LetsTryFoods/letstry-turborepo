@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { io } from "socket.io-client";
 import {
   Table,
   TableBody,
@@ -106,6 +107,38 @@ export default function ContactTable({
 }: ContactTableProps) {
   const [selectedQuery, setSelectedQuery] = useState<ContactQuery | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [unreadIds, setUnreadIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const socketUrl = process.env.NEXT_PUBLIC_WHATSAPP_API_BASE_URL?.replace("/api", "") || "http://localhost:3000";
+    const socket = io(`${socketUrl}/support`, {
+      transports: ["websocket"],
+      auth: { token: typeof window !== "undefined" ? localStorage.getItem("token") : "" }
+    });
+
+    socket.on("new_global_message", (data: { contactQueryId: string; message: any }) => {
+      if (data.message?.direction === "INCOMING") {
+        setUnreadIds((prev) => {
+          const next = new Set(prev);
+          next.add(data.contactQueryId);
+          return next;
+        });
+      }
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  const handleChatOpen = (query: ContactQuery) => {
+    setUnreadIds((prev) => {
+      const next = new Set(prev);
+      next.delete(query._id);
+      return next;
+    });
+    if (onChat) onChat(query);
+  };
 
   const { updateStatus } = useUpdateContactStatus();
   const { deleteContact } = useDeleteContact();
@@ -139,6 +172,7 @@ export default function ContactTable({
           <TableHeader>
             <TableRow>
               <TableHead>Customer</TableHead>
+              <TableHead className="text-center" title="WhatsApp session status">💬 WA</TableHead>
               <TableHead>Subject</TableHead>
               <TableHead>Type</TableHead>
               <TableHead className="text-center">Priority</TableHead>
@@ -151,7 +185,7 @@ export default function ContactTable({
             {queries.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={7}
+                  colSpan={8}
                   className="text-center py-8 text-muted-foreground"
                 >
                   No contact queries found
@@ -176,7 +210,7 @@ export default function ContactTable({
                           <Button
                             variant="link"
                             className="p-0 h-auto text-xs flex items-center text-green-600 hover:text-green-700"
-                            onClick={() => onChat && onChat(query)}
+                            onClick={() => handleChatOpen(query)}
                           >
                             <MessageSquare className="h-3 w-3 mr-1" />
                             {query.phone}
@@ -184,6 +218,42 @@ export default function ContactTable({
                         )}
                       </div>
                     </TableCell>
+                    {/* WhatsApp session status dot */}
+                    {(() => {
+                      const hasWa = !!query.whatsappPhoneNumber;
+                      const windowOpen =
+                        hasWa &&
+                        !!query.whatsappWindowExpiresAt &&
+                        new Date(query.whatsappWindowExpiresAt) > new Date();
+                      return (
+                        <TableCell className="text-center">
+                          <button
+                            title={
+                              !hasWa
+                                ? "No WhatsApp session"
+                                : windowOpen
+                                ? "Session active — click to chat"
+                                : "Session expired — click to chat"
+                            }
+                            onClick={() => handleChatOpen(query)}
+                            className="inline-flex items-center justify-center relative"
+                          >
+                            <span
+                              className={`h-3 w-3 rounded-full inline-block ${
+                                !hasWa
+                                  ? "bg-gray-300"
+                                  : windowOpen
+                                  ? "bg-green-500 animate-pulse"
+                                  : "bg-amber-400"
+                              }`}
+                            />
+                            {unreadIds.has(query._id) && (
+                              <span className="absolute -top-1 -right-1 h-2.5 w-2.5 bg-red-500 rounded-full border border-white animate-bounce" title="New Message!" />
+                            )}
+                          </button>
+                        </TableCell>
+                      );
+                    })()}
                     <TableCell>
                       <div className="max-w-[250px]">
                         <p className="font-medium truncate">

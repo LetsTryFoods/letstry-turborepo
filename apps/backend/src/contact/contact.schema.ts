@@ -61,6 +61,20 @@ export class Contact extends Document {
   @Field(() => ContactStatus)
   status!: ContactStatus;
 
+  // ── WhatsApp Support Fields ───────────────────────────────────────────────
+
+  @Prop({ required: false })
+  @Field({ nullable: true })
+  whatsappPhoneNumber?: string; // normalized e.g. "918840330283"
+
+  @Prop({ required: false })
+  @Field({ nullable: true })
+  whatsappWindowExpiresAt?: Date; // last inbound + 24h
+
+  @Prop({ required: false })
+  @Field({ nullable: true })
+  whatsappTemplateSentAt?: Date; // when ack template was first fired
+
   @Field()
   createdAt!: Date;
 
@@ -72,3 +86,4 @@ export const ContactSchema = SchemaFactory.createForClass(Contact);
 
 ContactSchema.index({ createdAt: -1 });
 ContactSchema.index({ status: 1 });
+ContactSchema.index({ whatsappPhoneNumber: 1 });

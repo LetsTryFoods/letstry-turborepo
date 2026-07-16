@@ -36,6 +36,11 @@ export interface ContactQuery {
   replies?: any[];
   assignedTo?: string;
   resolvedAt?: string;
+
+  // WhatsApp support fields
+  whatsappPhoneNumber?: string;
+  whatsappWindowExpiresAt?: string; // ISO date string
+  whatsappTemplateSentAt?: string;  // ISO date string
 }
 
 interface GetContactMessagesResponse {

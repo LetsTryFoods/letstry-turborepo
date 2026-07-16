@@ -9,6 +9,7 @@ import {
 } from '@nestjs/graphql';
 import { Public } from '../../common/decorators/public.decorator';
 import { ContactService } from '../services/contact.service';
+import { ContactWhatsAppService } from '../services/contact-whatsapp.service';
 import { SubmitContactInput } from '../dto/submit-contact.input';
 import { Contact } from '../contact.schema';
 
@@ -19,6 +20,9 @@ export class ContactSubmissionResponse {
 
   @Field()
   message: string;
+
+  @Field({ nullable: true })
+  contactId?: string; // returned so frontend can reference for re-sending ack
 }
 
 @ObjectType()
@@ -32,7 +36,10 @@ export class PaginatedContactsResponse {
 
 @Resolver(() => Contact)
 export class ContactResolver {
-  constructor(private readonly contactService: ContactService) {}
+  constructor(
+    private readonly contactService: ContactService,
+    private readonly contactWhatsAppService: ContactWhatsAppService,
+  ) { }
 
   @Public()
   @Mutation(() => ContactSubmissionResponse)
@@ -40,11 +47,20 @@ export class ContactResolver {
     @Args('input') input: SubmitContactInput,
   ): Promise<ContactSubmissionResponse> {
     try {
-      await this.contactService.create(input);
+      const contact = await this.contactService.create(input);
+
+      // Fire-and-forget: send WhatsApp ack template. We don't await it so
+      // a WhatsApp failure never blocks the form submission response.
+      this.contactWhatsAppService
+        .sendAckTemplate(contact._id.toString(), input.phone, input.name)
+        .catch((err) => {
+          console.error('[ContactResolver] WhatsApp ack failed:', err.message);
+        });
+
       return {
         success: true,
-        message:
-          'Your query has been submitted successfully. We will get back to you shortly.',
+        message: 'Your query has been submitted successfully. We will get back to you shortly.',
+        contactId: contact._id.toString(),
       };
     } catch (error) {
       return {
@@ -54,7 +70,6 @@ export class ContactResolver {
     }
   }
 
-  // Admin access can be secured later or assumed here
   @Query(() => PaginatedContactsResponse)
   async getContactMessages(
     @Args('skip', { type: () => Int, defaultValue: 0 }) skip: number,

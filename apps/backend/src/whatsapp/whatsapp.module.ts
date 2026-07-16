@@ -4,6 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { WhatsAppService } from './whatsapp.service';
 import { LoggerModule } from '../logger/logger.module';
 import { WhatsAppNotificationProcessor } from './processors/whatsapp-notification.processor';
+import { WhatsAppInboundProcessor } from './processors/whatsapp-inbound.processor';
 import { BaileysService } from './services/baileys.service';
 import { BaileysMessageLogService } from './services/baileys-message-log.service';
 import { WhatsAppOrchestratorService } from './services/whatsapp-orchestrator.service';
@@ -12,6 +13,7 @@ import { WhatsAppChatService } from './services/whatsapp-chat.service';
 import { WhatsAppController } from './whatsapp.controller';
 import { WhatsAppChatController } from './whatsapp-chat.controller';
 import { MetaWhatsappService } from './services/meta-whatsapp.service';
+import { WhatsAppSupportGateway } from './whatsapp-support.gateway';
 import {
   BaileysMessageLog,
   BaileysMessageLogSchema,
@@ -45,29 +47,39 @@ import { UploadModule } from '../upload/upload.module';
       { name: WhatsAppMessage.name, schema: WhatsAppMessageSchema },
     ]),
     UploadModule,
-    BullModule.registerQueue({
-      name: 'whatsapp-notification-queue',
-      defaultJobOptions: {
-        removeOnComplete: false,
-        removeOnFail: false,
-        attempts: Number.MAX_SAFE_INTEGER,
-        backoff: {
-          type: 'exponential',
-          delay: 30000,
+    BullModule.registerQueue(
+      {
+        name: 'whatsapp-notification-queue',
+        defaultJobOptions: {
+          removeOnComplete: false,
+          removeOnFail: false,
+          attempts: Number.MAX_SAFE_INTEGER,
+          backoff: { type: 'exponential', delay: 30000 },
         },
       },
-    }),
+      {
+        name: 'whatsapp-inbound-queue',
+        defaultJobOptions: {
+          removeOnComplete: 500,  // Keep last 500 completed for debugging
+          removeOnFail: 100,
+          attempts: 3,
+          backoff: { type: 'exponential', delay: 5000 },
+        },
+      },
+    ),
   ],
   controllers: [WhatsAppController, WhatsAppChatController],
   providers: [
     WhatsAppService,
     WhatsAppNotificationProcessor,
+    WhatsAppInboundProcessor,
     BaileysService,
     BaileysMessageLogService,
     WhatsAppOrchestratorService,
     WhatsAppSettingsService,
     WhatsAppChatService,
     MetaWhatsappService,
+    WhatsAppSupportGateway,
   ],
   exports: [
     WhatsAppService,
@@ -77,7 +89,7 @@ import { UploadModule } from '../upload/upload.module';
     WhatsAppSettingsService,
     WhatsAppChatService,
     MetaWhatsappService,
+    WhatsAppSupportGateway,
   ],
 })
 export class WhatsAppModule { }
-

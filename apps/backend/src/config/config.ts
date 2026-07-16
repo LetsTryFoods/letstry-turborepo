@@ -71,6 +71,12 @@ export default () => ({
   metaWhatsapp: {
     phoneNumberId: process.env.META_WHATSAPP_PHONE_NUMBER_ID,
     accessToken: process.env.META_WHATSAPP_ACCESS_TOKEN,
+    appSecret: process.env.META_WHATSAPP_APP_SECRET || '',
+    webhookVerifyToken: process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN || '',
+    businessPhone: process.env.META_WHATSAPP_BUSINESS_PHONE || '',
+  },
+  support: {
+    slaHours: parseInt(process.env.SUPPORT_SLA_HOURS || '4', 10),
   },
   cart: {
     applyCouponOnMrp: process.env.APPLY_COUPON_ON_MRP === 'true',
