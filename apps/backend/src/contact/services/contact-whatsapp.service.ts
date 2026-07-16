@@ -82,7 +82,7 @@ export class ContactWhatsAppService {
       await this.findOrCreateChat(normalizedPhone, contactId);
 
       this.logger.log(`Ack template sent to ${normalizedPhone} for contact ${contactId}`);
-      logWhatsAppEvent('Service: Ack template sent', { contactId, normalizedPhone, messageId: result.message_id });
+      logWhatsAppEvent('Service: Ack template sent', { contactId, normalizedPhone });
     } else {
       this.logger.warn(`Ack template failed for ${normalizedPhone}: ${result.error}`);
       logWhatsAppEvent('Service: Ack template failed', { contactId, normalizedPhone, error: result.error });
@@ -204,7 +204,7 @@ export class ContactWhatsAppService {
         // Emit to admin panel (we need to emit the full contact object creation logic too, 
         // but for now the table will pick it up on refresh. We emit the message anyway).
         this.gateway.emitNewMessage(newContact._id.toString(), message);
-        this.gateway.emitWindowUpdated(newContact._id.toString(), newContact.whatsappWindowExpiresAt);
+        this.gateway.emitWindowUpdated(newContact._id.toString(), newContact.whatsappWindowExpiresAt!);
 
         this.logger.log(`Inbound from unknown number ${normalizedPhone} — auto-created ContactQuery ${newContact._id}, template sent`);
         logWhatsAppEvent('Service: Handled inbound from unknown (auto-created Contact)', { phone: normalizedPhone, contactId: newContact._id.toString() });

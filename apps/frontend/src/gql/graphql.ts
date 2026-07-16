@@ -363,6 +363,7 @@ export enum CartStatus {
 
 export enum CartStatusFilter {
   HasCart = 'HAS_CART',
+  HasCartAndAddress = 'HAS_CART_AND_ADDRESS',
   NoCart = 'NO_CART'
 }
 
@@ -543,6 +544,9 @@ export type Contact = {
   queryType?: Maybe<Scalars['String']['output']>;
   status: ContactStatus;
   updatedAt: Scalars['DateTime']['output'];
+  whatsappPhoneNumber?: Maybe<Scalars['String']['output']>;
+  whatsappTemplateSentAt?: Maybe<Scalars['DateTime']['output']>;
+  whatsappWindowExpiresAt?: Maybe<Scalars['DateTime']['output']>;
 };
 
 /** The status of the contact complaint */
@@ -554,6 +558,7 @@ export enum ContactStatus {
 
 export type ContactSubmissionResponse = {
   __typename?: 'ContactSubmissionResponse';
+  contactId?: Maybe<Scalars['String']['output']>;
   message: Scalars['String']['output'];
   success: Scalars['Boolean']['output'];
 };
@@ -1091,6 +1096,7 @@ export type EnrichedCustomer = {
   firebaseUid?: Maybe<Scalars['String']['output']>;
   firstAuthMethod?: Maybe<AuthMethod>;
   firstName?: Maybe<Scalars['String']['output']>;
+  hasAddress?: Maybe<Scalars['Boolean']['output']>;
   identityId: Scalars['String']['output'];
   ipAddress?: Maybe<Scalars['String']['output']>;
   isEmailVerified: Scalars['Boolean']['output'];
@@ -1238,6 +1244,7 @@ export type InitiatePaymentResponse = {
 };
 
 export enum InventoryAction {
+  AvailabilityOverride = 'AVAILABILITY_OVERRIDE',
   Inward = 'INWARD',
   ManualAdjustment = 'MANUAL_ADJUSTMENT',
   OrderPacked = 'ORDER_PACKED',
@@ -1252,11 +1259,21 @@ export type InventoryLog = {
   createdAt: Scalars['DateTime']['output'];
   newStock: Scalars['Int']['output'];
   notes?: Maybe<Scalars['String']['output']>;
+  overrideReason?: Maybe<Scalars['String']['output']>;
   performedBy?: Maybe<Scalars['String']['output']>;
   previousStock: Scalars['Int']['output'];
   productId: Scalars['ID']['output'];
   referenceId?: Maybe<Scalars['String']['output']>;
   sku: Scalars['String']['output'];
+  vendor?: Maybe<Scalars['String']['output']>;
+};
+
+export type InventorySnapshot = {
+  __typename?: 'InventorySnapshot';
+  availabilityStatus: Scalars['String']['output'];
+  recentLogs: Array<InventoryLog>;
+  sku: Scalars['String']['output'];
+  stockQuantity: Scalars['Int']['output'];
 };
 
 export type ItemDimensions = {
@@ -1413,12 +1430,14 @@ export type Mutation = {
   deleteProduct: Product;
   deleteRedirect: Scalars['Boolean']['output'];
   flagPackingError: ScanLog;
+  forceAvailabilityStatus: InventoryLog;
   initiateAdminRefund: RefundInitiateResponse;
   initiatePayment: InitiatePaymentResponse;
   logout: Scalars['String']['output'];
   markItemShort: PackingOrder;
   packerLogin: PackerLoginResponse;
   processRefund: RefundResponse;
+  recordStockInward: InventoryLog;
   removeAuthor: Author;
   removeCoupon: Cart;
   removeFromCart: Cart;
@@ -1755,6 +1774,14 @@ export type MutationFlagPackingErrorArgs = {
 };
 
 
+export type MutationForceAvailabilityStatusArgs = {
+  identifier: Scalars['String']['input'];
+  performedBy?: InputMaybe<Scalars['String']['input']>;
+  reason: Scalars['String']['input'];
+  status: Scalars['String']['input'];
+};
+
+
 export type MutationInitiateAdminRefundArgs = {
   input: InitiateAdminRefundInput;
 };
@@ -1780,6 +1807,16 @@ export type MutationPackerLoginArgs = {
 
 export type MutationProcessRefundArgs = {
   input: ProcessRefundInput;
+};
+
+
+export type MutationRecordStockInwardArgs = {
+  identifier: Scalars['String']['input'];
+  notes?: InputMaybe<Scalars['String']['input']>;
+  performedBy?: InputMaybe<Scalars['String']['input']>;
+  purchaseOrderRef?: InputMaybe<Scalars['String']['input']>;
+  quantityAdded: Scalars['Int']['input'];
+  vendor?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -3090,6 +3127,7 @@ export type Query = {
   address: Address;
   admins: Array<Admin>;
   allActiveRedirects: Array<RedirectType>;
+  allProductsUncached: Array<Product>;
   author: Author;
   authorBySlug: Author;
   authors: Array<Author>;
@@ -3163,6 +3201,7 @@ export type Query = {
   guestByGuestId?: Maybe<Guest>;
   hello: Scalars['String']['output'];
   inventoryLogs: Array<InventoryLog>;
+  inventorySnapshot?: Maybe<InventorySnapshot>;
   landingPage?: Maybe<LandingPage>;
   landingPageBySlug?: Maybe<LandingPage>;
   landingPages: Array<LandingPage>;
@@ -3209,6 +3248,12 @@ export type Query = {
 
 export type QueryAddressArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryAllProductsUncachedArgs = {
+  includeArchived?: Scalars['Boolean']['input'];
+  includeOutOfStock?: Scalars['Boolean']['input'];
 };
 
 
@@ -3492,7 +3537,15 @@ export type QueryGuestByGuestIdArgs = {
 
 
 export type QueryInventoryLogsArgs = {
+  actionType?: InputMaybe<InventoryAction>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
   sku: Scalars['String']['input'];
+};
+
+
+export type QueryInventorySnapshotArgs = {
+  identifier: Scalars['String']['input'];
 };
 
 
@@ -3565,7 +3618,7 @@ export type QueryProductVariantArgs = {
 export type QueryProductsArgs = {
   includeArchived?: Scalars['Boolean']['input'];
   includeOutOfStock?: Scalars['Boolean']['input'];
-  pagination?: PaginationInput;
+  pagination?: InputMaybe<PaginationInput>;
 };
 
 
