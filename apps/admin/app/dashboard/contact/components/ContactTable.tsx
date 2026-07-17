@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { io } from "socket.io-client";
-import { toast } from "sonner";
 import {
   Table,
   TableBody,
@@ -108,53 +106,58 @@ export default function ContactTable({
   onChat,
   selectedQueryId,
 }: ContactTableProps) {
+  const STORAGE_KEY = "support_unread_ids";
+
   const [selectedQuery, setSelectedQuery] = useState<ContactQuery | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [unreadIds, setUnreadIds] = useState<Set<string>>(new Set());
+  const [unreadIds, setUnreadIds] = useState<Set<string>>(() => {
+    // Rehydrate from localStorage on mount (written by GlobalSupportSocket)
+    if (typeof window === "undefined") return new Set();
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      return stored ? new Set<string>(JSON.parse(stored)) : new Set();
+    } catch {
+      return new Set();
+    }
+  });
 
+  // Re-sync from localStorage whenever the page becomes visible
+  // (handles the case where messages arrived while on another page)
   useEffect(() => {
-    const isDev = process.env.NODE_ENV !== "production";
-    const fallbackUrl = isDev ? "http://localhost:3000" : "https://apiv3.letstryfoods.com";
-    const baseUrl = process.env.NEXT_PUBLIC_WHATSAPP_API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL || fallbackUrl;
-    const socketUrl = baseUrl.replace(/\/api$/, "");
-
-    const socket = io(`${socketUrl}/support`, {
-      transports: ["websocket", "polling"],
-      auth: { token: typeof window !== "undefined" ? localStorage.getItem("token") : "" }
-    });
-
-    socket.on("connect_error", (err) => {
-      console.error("[Support Socket] connect_error:", err.message);
-    });
-
-    socket.on("new_global_message", (data: { contactQueryId: string; message: any }) => {
-      if (data.message?.direction === "INCOMING") {
-        setUnreadIds((prev) => {
-          const next = new Set(prev);
-          next.add(data.contactQueryId);
-          return next;
-        });
-        const msgPreview = data.message?.content
-          ? String(data.message.content).slice(0, 60)
-          : "New WhatsApp message";
-        toast("💬 New WhatsApp Message", {
-          description: msgPreview,
-          duration: 6000,
-        });
+    const syncFromStorage = () => {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        const ids = stored ? JSON.parse(stored) : [];
+        setUnreadIds(new Set<string>(ids));
+      } catch {
+        // ignore
       }
-    });
+    };
+
+    // Sync on mount
+    syncFromStorage();
+
+    // Sync when user switches back to this tab/page
+    window.addEventListener("focus", syncFromStorage);
+    document.addEventListener("visibilitychange", syncFromStorage);
 
     return () => {
-      socket.disconnect();
+      window.removeEventListener("focus", syncFromStorage);
+      document.removeEventListener("visibilitychange", syncFromStorage);
     };
   }, []);
 
-  const handleChatOpen = (query: ContactQuery) => {
+  const removeUnread = (id: string) => {
     setUnreadIds((prev) => {
       const next = new Set(prev);
-      next.delete(query._id);
+      next.delete(id);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify([...next]));
       return next;
     });
+  };
+
+  const handleChatOpen = (query: ContactQuery) => {
+    removeUnread(query._id);
     if (onChat) onChat(query);
   };
 
@@ -261,10 +264,10 @@ export default function ContactTable({
                           >
                             <span
                               className={`h-3 w-3 rounded-full inline-block ${!hasWa
-                                  ? "bg-gray-300"
-                                  : windowOpen
-                                    ? "bg-green-500 animate-pulse"
-                                    : "bg-amber-400"
+                                ? "bg-gray-300"
+                                : windowOpen
+                                  ? "bg-green-500 animate-pulse"
+                                  : "bg-amber-400"
                                 }`}
                             />
                             {unreadIds.has(query._id) && (
