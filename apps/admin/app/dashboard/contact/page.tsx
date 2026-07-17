@@ -378,6 +378,7 @@ export default function ContactPage() {
             onView={handleView}
             onReply={handleReply}
             onChat={handleChat}
+            selectedQueryId={showChatWindow ? selectedQuery?._id : undefined}
           />
 
           {/* Pagination */}

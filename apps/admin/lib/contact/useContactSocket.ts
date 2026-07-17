@@ -3,9 +3,10 @@
 import { useEffect, useRef, useCallback } from "react";
 import { io, Socket } from "socket.io-client";
 
-const SOCKET_URL =
-  process.env.NEXT_PUBLIC_WHATSAPP_API_BASE_URL?.replace("/api", "") ||
-  "http://localhost:3000";
+const isDev = process.env.NODE_ENV !== "production";
+const fallbackUrl = isDev ? "http://localhost:3000" : "https://apiv3.letstryfoods.com";
+const baseUrl = process.env.NEXT_PUBLIC_WHATSAPP_API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL || fallbackUrl;
+const SOCKET_URL = baseUrl.replace(/\/api$/, "");
 
 interface UseContactSocketOptions {
   contactQueryId: string | null;
