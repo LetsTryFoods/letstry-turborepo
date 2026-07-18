@@ -26,6 +26,19 @@ export class AdminService {
     return this.adminModel.findOne({ email }).exec();
   }
 
+  async findById(id: string): Promise<AdminDocument | null> {
+    return this.adminModel.findById(id).exec();
+  }
+
+  async updateRefreshToken(adminId: string, refreshToken: string | null): Promise<void> {
+    if (refreshToken) {
+      const hash = await bcrypt.hash(refreshToken, 10);
+      await this.adminModel.findByIdAndUpdate(adminId, { refreshToken: hash });
+    } else {
+      await this.adminModel.findByIdAndUpdate(adminId, { $unset: { refreshToken: 1 } });
+    }
+  }
+
   async findAll(): Promise<Admin[]> {
     return this.adminModel.find().exec();
   }

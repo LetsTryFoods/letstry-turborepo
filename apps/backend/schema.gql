@@ -2174,6 +2174,7 @@ type Mutation {
   adminLogin(email: String!, password: String!): String!
   createAdmin(email: String!, password: String!): String!
   adminLogout: String!
+  adminRefreshToken: String!
   updateUserActivity: Boolean!
   updateUser(input: UpdateUserInput!): User!
   createAddress(input: CreateAddressInput!): Address!

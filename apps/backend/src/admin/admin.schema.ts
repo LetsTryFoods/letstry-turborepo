@@ -17,6 +17,9 @@ export class Admin {
   @Prop({ required: true })
   password: string;
 
+  @Prop({ required: false })
+  refreshToken?: string;
+
   @Field()
   @Prop({ default: Date.now })
   createdAt: Date;
