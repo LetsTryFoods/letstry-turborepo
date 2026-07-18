@@ -10,7 +10,7 @@ export class AdminAuthService {
   constructor(
     private adminService: AdminService,
     private jwtService: JwtService,
-  ) {}
+  ) { }
 
   async validateAdmin(email: string, password: string): Promise<any> {
     const admin = await this.adminService.findByEmail(email);
@@ -39,13 +39,19 @@ export class AdminAuthService {
     // Prefix the admin ID so we can extract it later without a DB scan
     const randomHex = crypto.randomBytes(64).toString('hex');
     const refresh_token = `${admin._id.toString()}.${randomHex}`;
-    
+
     await this.adminService.updateRefreshToken(admin._id.toString(), refresh_token);
-    
+
     return {
       access_token,
       refresh_token,
     };
+  }
+
+  async generateAccessTokenOnly(admin: any) {
+    const payload = { email: admin.email, sub: admin._id, role: Role.ADMIN };
+    const access_token = this.jwtService.sign(payload);
+    return access_token;
   }
 
   async verifyRefreshToken(adminId: string, refreshToken: string) {
@@ -58,7 +64,7 @@ export class AdminAuthService {
     if (!isMatch) {
       throw new UnauthorizedException('Invalid refresh token');
     }
-    
+
     const adminObj = admin.toObject();
     return { ...adminObj, role: Role.ADMIN };
   }

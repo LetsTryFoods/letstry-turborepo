@@ -122,10 +122,10 @@ export class AdminResolver {
       throw e;
     }
 
-    const token = await this.authService.login(user);
+    const newAccessToken = await this.authService.generateAccessTokenOnly(user);
 
-    // Refresh both cookies
-    context.res.cookie('access_token', token.access_token, {
+    // Refresh both cookies (extend the refresh token expiration with the exact same value)
+    context.res.cookie('access_token', newAccessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
@@ -133,7 +133,7 @@ export class AdminResolver {
       domain: process.env.NODE_ENV === 'production' ? '.letstryfoods.com' : undefined,
     });
     
-    context.res.cookie('admin_refresh_token', token.refresh_token, {
+    context.res.cookie('admin_refresh_token', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
@@ -141,6 +141,6 @@ export class AdminResolver {
       domain: process.env.NODE_ENV === 'production' ? '.letstryfoods.com' : undefined,
     });
 
-    return token.access_token;
+    return newAccessToken;
   }
 }
