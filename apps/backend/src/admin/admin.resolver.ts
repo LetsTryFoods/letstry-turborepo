@@ -12,7 +12,7 @@ export class AdminResolver {
   constructor(
     private authService: AdminAuthService,
     private adminService: AdminService,
-  ) {}
+  ) { }
 
   @Query(() => [Admin])
   @Public()
@@ -39,7 +39,7 @@ export class AdminResolver {
       maxAge: 60 * 60 * 1000, // 1 hour
       domain: process.env.NODE_ENV === 'production' ? '.letstryfoods.com' : undefined,
     });
-    
+
     context.res.cookie('admin_refresh_token', token.refresh_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -47,7 +47,7 @@ export class AdminResolver {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       domain: process.env.NODE_ENV === 'production' ? '.letstryfoods.com' : undefined,
     });
-    
+
     return token.access_token;
   }
 
@@ -74,7 +74,7 @@ export class AdminResolver {
       };
       context.res.cookie('access_token', '', cookieOptions);
       context.res.cookie('admin_refresh_token', '', cookieOptions);
-      
+
       // Attempt to clear from DB if we can parse the admin ID from the refresh token
       const refreshToken = context.req?.cookies?.admin_refresh_token;
       if (refreshToken && refreshToken.includes('.')) {
@@ -108,7 +108,7 @@ export class AdminResolver {
     if (parts.length !== 2) {
       throw new UnauthorizedException('Malformed refresh token');
     }
-    
+
     const adminId = parts[0];
     let user;
     try {
@@ -132,7 +132,7 @@ export class AdminResolver {
       maxAge: 60 * 60 * 1000,
       domain: process.env.NODE_ENV === 'production' ? '.letstryfoods.com' : undefined,
     });
-    
+
     context.res.cookie('admin_refresh_token', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

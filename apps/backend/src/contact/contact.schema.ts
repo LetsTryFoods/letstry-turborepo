@@ -75,6 +75,20 @@ export class Contact extends Document {
   @Field({ nullable: true })
   whatsappTemplateSentAt?: Date; // when ack template was first fired
 
+  /** Timestamp of the most recent INCOMING WhatsApp message from the customer */
+  @Prop({ required: false })
+  @Field(() => Date, { nullable: true })
+  lastInboundAt?: Date;
+
+  /** When admin last opened this chat — used to compute hasUnread */
+  @Prop({ required: false })
+  @Field(() => Date, { nullable: true })
+  adminLastReadAt?: Date;
+
+  /** Computed at query time (not stored in DB): true if lastInboundAt > adminLastReadAt */
+  @Field(() => Boolean, { nullable: true })
+  hasUnread?: boolean;
+
   @Field()
   createdAt!: Date;
 
@@ -87,3 +101,5 @@ export const ContactSchema = SchemaFactory.createForClass(Contact);
 ContactSchema.index({ createdAt: -1 });
 ContactSchema.index({ status: 1 });
 ContactSchema.index({ whatsappPhoneNumber: 1 });
+ContactSchema.index({ lastInboundAt: -1 });
+

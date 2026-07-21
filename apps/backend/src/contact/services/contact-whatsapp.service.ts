@@ -142,10 +142,11 @@ export class ContactWhatsAppService {
         // Known customer — linked to a ContactQuery
         chat = await this.findOrCreateChat(normalizedPhone, contact._id.toString());
 
-        // Update 24h window on Contact
+        // Update 24h window on Contact + record last inbound timestamp
         const windowExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
         await this.contactModel.findByIdAndUpdate(contact._id, {
           whatsappWindowExpiresAt: windowExpiresAt,
+          lastInboundAt: payload.timestamp,
         });
 
         // Update window on Chat
@@ -402,6 +403,19 @@ export class ContactWhatsAppService {
       this.contactModel.countDocuments(filter),
     ]);
     return { data, total };
+  }
+
+  // ─── Admin: mark chat as read ────────────────────────────────────────────────
+
+  /**
+   * Called when admin opens a chat window.
+   * Saves adminLastReadAt = now() so hasUnread can be computed on the next
+   * getContactMessages call. Works across sessions and laptop restarts.
+   */
+  async markContactRead(contactId: string): Promise<void> {
+    await this.contactModel.findByIdAndUpdate(contactId, {
+      adminLastReadAt: new Date(),
+    });
   }
 
   // ─── Private helpers ──────────────────────────────────────────────────────────

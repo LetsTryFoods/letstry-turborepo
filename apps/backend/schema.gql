@@ -650,6 +650,9 @@ type Contact {
   whatsappPhoneNumber: String
   whatsappWindowExpiresAt: DateTime
   whatsappTemplateSentAt: DateTime
+  lastInboundAt: DateTime
+  adminLastReadAt: DateTime
+  hasUnread: Boolean
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -2243,6 +2246,7 @@ type Mutation {
   submitContactMessage(input: SubmitContactInput!): ContactSubmissionResponse!
   updateContactStatus(id: String!, status: String!): Contact!
   deleteContactMessage(id: String!): Boolean!
+  markContactRead(id: String!): Boolean!
   sendOtp(phoneNumber: String!): String!
   verifyWhatsAppOtp(phoneNumber: String!, otp: String!, input: CreateUserInput): String!
   verifyOtpAndLogin(idToken: String!, input: CreateUserInput): String!

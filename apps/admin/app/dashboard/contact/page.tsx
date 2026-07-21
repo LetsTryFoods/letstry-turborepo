@@ -26,6 +26,7 @@ import {
   XCircle,
   AlertTriangle,
   Loader2,
+  Zap,
 } from "lucide-react";
 import {
   useContactQueries,
@@ -79,11 +80,13 @@ export default function ContactPage() {
   const [priorityFilter, setPriorityFilter] = useState<ContactPriority | "ALL">(
     "ALL",
   );
+  // Show only contacts whose WhatsApp 24-hour window is still open
+  const [activeChatsOnly, setActiveChatsOnly] = useState(false);
 
   // Reset page when filters change
   useEffect(() => {
     setPage(1);
-  }, [statusFilter, typeFilter, priorityFilter, searchQuery]);
+  }, [statusFilter, typeFilter, priorityFilter, searchQuery, activeChatsOnly]);
 
   const { queries, total, loading, refetch } = useContactQueries(
     page,
@@ -128,13 +131,21 @@ export default function ContactPage() {
           return false;
         }
 
+        // Active chats filter — only show contacts with an open WhatsApp window
+        if (activeChatsOnly) {
+          const windowOpen =
+            !!query.whatsappWindowExpiresAt &&
+            new Date(query.whatsappWindowExpiresAt) > new Date();
+          if (!windowOpen) return false;
+        }
+
         return true;
       })
       .sort(
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       );
-  }, [queries, searchQuery, statusFilter, priorityFilter]);
+  }, [queries, searchQuery, statusFilter, priorityFilter, activeChatsOnly]);
 
   const handleView = (query: ContactQuery) => {
     setSelectedQuery(query);
@@ -369,6 +380,25 @@ export default function ContactPage() {
                 ))}
               </SelectContent>
             </Select>
+            {/* Active Chats Only toggle */}
+            <Button
+              variant={activeChatsOnly ? "default" : "outline"}
+              className={`gap-2 shrink-0 ${
+                activeChatsOnly
+                  ? "bg-green-600 hover:bg-green-700 text-white border-green-600"
+                  : ""
+              }`}
+              onClick={() => setActiveChatsOnly((v) => !v)}
+              title="Show only contacts with an active WhatsApp session (can send messages)"
+            >
+              <Zap className={`h-4 w-4 ${activeChatsOnly ? "fill-white" : ""}`} />
+              Active Chats
+              {activeChatsOnly && (
+                <span className="ml-1 bg-white/20 rounded-full px-1.5 py-0.5 text-xs font-bold">
+                  ON
+                </span>
+              )}
+            </Button>
           </div>
 
           {/* Table */}

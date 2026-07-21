@@ -17,6 +17,9 @@ export const GET_CONTACT_MESSAGES = gql`
         whatsappPhoneNumber
         whatsappWindowExpiresAt
         whatsappTemplateSentAt
+        lastInboundAt
+        adminLastReadAt
+        hasUnread
         createdAt
         updatedAt
       }
@@ -40,3 +43,10 @@ export const DELETE_CONTACT_MESSAGE = gql`
     deleteContactMessage(id: $id)
   }
 `;
+
+export const MARK_CONTACT_READ = gql`
+  mutation MarkContactRead($id: String!) {
+    markContactRead(id: $id)
+  }
+`;
+

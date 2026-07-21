@@ -81,7 +81,26 @@ export class ContactResolver {
       this.contactService.findAll(skip, limit, filter),
       this.contactService.countAll(filter),
     ]);
-    return { data, total };
+
+    // Compute hasUnread for each contact:
+    // A contact has unread messages if it has received an INCOMING message
+    // (lastInboundAt is set) AFTER the admin last opened the chat (adminLastReadAt).
+    // If adminLastReadAt is null the admin has never opened this chat — we don't
+    // flag it as unread so old chats don't suddenly appear noisy after deploy.
+    const dataWithUnread = data.map((contact) => {
+      const plain = contact.toObject ? contact.toObject() : { ...contact };
+      const lastInboundAt: Date | undefined = (contact as any).lastInboundAt;
+      const adminLastReadAt: Date | undefined = (contact as any).adminLastReadAt;
+
+      let hasUnread = false;
+      if (lastInboundAt && adminLastReadAt) {
+        hasUnread = new Date(lastInboundAt) > new Date(adminLastReadAt);
+      }
+
+      return { ...plain, hasUnread };
+    });
+
+    return { data: dataWithUnread as any, total };
   }
 
   @Mutation(() => Contact)
@@ -96,4 +115,16 @@ export class ContactResolver {
   async deleteContactMessage(@Args('id') id: string): Promise<boolean> {
     return this.contactService.delete(id);
   }
+
+  /**
+   * Called by the admin panel when the chat window is opened.
+   * Sets adminLastReadAt = now() in the DB so the unread badge
+   * clears and stays cleared even after a laptop restart.
+   */
+  @Mutation(() => Boolean)
+  async markContactRead(@Args('id') id: string): Promise<boolean> {
+    await this.contactWhatsAppService.markContactRead(id);
+    return true;
+  }
 }
+

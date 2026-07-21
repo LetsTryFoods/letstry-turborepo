@@ -3,6 +3,7 @@ import {
   GET_CONTACT_MESSAGES,
   UPDATE_CONTACT_STATUS,
   DELETE_CONTACT_MESSAGE,
+  MARK_CONTACT_READ,
 } from "../graphql/contact";
 
 // Types
@@ -41,6 +42,11 @@ export interface ContactQuery {
   whatsappPhoneNumber?: string;
   whatsappWindowExpiresAt?: string; // ISO date string
   whatsappTemplateSentAt?: string;  // ISO date string
+
+  // Unread tracking (persisted in DB)
+  lastInboundAt?: string;    // ISO — when customer last messaged us
+  adminLastReadAt?: string;  // ISO — when admin last opened this chat
+  hasUnread?: boolean;       // computed by server: lastInboundAt > adminLastReadAt
 }
 
 interface GetContactMessagesResponse {
@@ -178,3 +184,24 @@ export function useDeleteContact() {
   };
   return { deleteContact, loading };
 }
+
+/**
+ * Calls the markContactRead mutation on the backend.
+ * Sets adminLastReadAt = now() in MongoDB so the unread badge is cleared
+ * persistently — survives browser close, laptop restart, etc.
+ */
+export function useMarkContactRead() {
+  const [markContactReadMutation, { loading }] = useMutation(MARK_CONTACT_READ);
+
+  const markContactRead = async (id: string) => {
+    try {
+      await markContactReadMutation({ variables: { id } });
+      return true;
+    } catch (e) {
+      console.error("[markContactRead] failed:", e);
+      return false;
+    }
+  };
+  return { markContactRead, loading };
+}
+

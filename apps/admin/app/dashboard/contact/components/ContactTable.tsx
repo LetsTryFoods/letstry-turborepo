@@ -51,6 +51,7 @@ import {
   typeLabels,
   useUpdateContactStatus,
   useDeleteContact,
+  useMarkContactRead,
 } from "@/lib/contact/useContact";
 import { formatDistanceToNow } from "date-fns";
 
@@ -110,8 +111,14 @@ export default function ContactTable({
 
   const [selectedQuery, setSelectedQuery] = useState<ContactQuery | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [unreadIds, setUnreadIds] = useState<Set<string>>(() => {
-    // Rehydrate from localStorage on mount (written by GlobalSupportSocket)
+
+  /**
+   * liveUnreadIds: contacts where the GlobalSupportSocket received a new
+   * incoming message THIS session (before page refresh).
+   * This overlays the server-side hasUnread so the badge appears instantly
+   * without waiting for a full query refetch.
+   */
+  const [liveUnreadIds, setLiveUnreadIds] = useState<Set<string>>(() => {
     if (typeof window === "undefined") return new Set();
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -121,34 +128,26 @@ export default function ContactTable({
     }
   });
 
-  // Re-sync from localStorage whenever the page becomes visible
-  // (handles the case where messages arrived while on another page)
+  // Re-sync liveUnreadIds from localStorage when tab becomes visible
   useEffect(() => {
-    const syncFromStorage = () => {
+    const sync = () => {
       try {
         const stored = localStorage.getItem(STORAGE_KEY);
-        const ids = stored ? JSON.parse(stored) : [];
-        setUnreadIds(new Set<string>(ids));
-      } catch {
-        // ignore
-      }
+        setLiveUnreadIds(new Set<string>(stored ? JSON.parse(stored) : []));
+      } catch { /* ignore */ }
     };
-
-    // Sync on mount
-    syncFromStorage();
-
-    // Sync when user switches back to this tab/page
-    window.addEventListener("focus", syncFromStorage);
-    document.addEventListener("visibilitychange", syncFromStorage);
-
+    sync();
+    window.addEventListener("focus", sync);
+    document.addEventListener("visibilitychange", sync);
     return () => {
-      window.removeEventListener("focus", syncFromStorage);
-      document.removeEventListener("visibilitychange", syncFromStorage);
+      window.removeEventListener("focus", sync);
+      document.removeEventListener("visibilitychange", sync);
     };
   }, []);
 
-  const removeUnread = (id: string) => {
-    setUnreadIds((prev) => {
+  /** Remove contact from live unread set + localStorage */
+  const removeLiveUnread = (id: string) => {
+    setLiveUnreadIds((prev) => {
       const next = new Set(prev);
       next.delete(id);
       localStorage.setItem(STORAGE_KEY, JSON.stringify([...next]));
@@ -156,10 +155,24 @@ export default function ContactTable({
     });
   };
 
+  /**
+   * True if this contact has unread messages.
+   * Server source: query.hasUnread (DB: lastInboundAt > adminLastReadAt) — survives overnight.
+   * Live source: liveUnreadIds (socket messages received this session) — instant badge.
+   */
+  const isUnread = (query: ContactQuery): boolean =>
+    !!query.hasUnread || liveUnreadIds.has(query._id);
+
+  const { markContactRead } = useMarkContactRead();
+
   const handleChatOpen = (query: ContactQuery) => {
-    removeUnread(query._id);
+    // Optimistically clear live badge
+    removeLiveUnread(query._id);
+    // Persist to DB so it's cleared tomorrow too
+    markContactRead(query._id);
     if (onChat) onChat(query);
   };
+
 
   const { updateStatus } = useUpdateContactStatus();
   const { deleteContact } = useDeleteContact();
@@ -219,14 +232,28 @@ export default function ContactTable({
                 const priority = query.priority
                   ? priorityConfig[query.priority]
                   : priorityConfig["LOW"];
+                const unread = isUnread(query);
                 return (
                   <TableRow
                     key={query._id}
-                    className={query._id === selectedQueryId ? "bg-muted/50 border-l-4 border-l-primary" : ""}
+                    className={[
+                      query._id === selectedQueryId
+                        ? "bg-muted/50 border-l-4 border-l-primary"
+                        : unread
+                          ? "bg-amber-50 border-l-4 border-l-amber-400 hover:bg-amber-100/60"
+                          : "",
+                    ].join(" ")}
                   >
                     <TableCell>
                       <div>
-                        <p className="font-medium">{query.name}</p>
+                        <p className={`font-medium ${unread ? "font-semibold text-amber-900" : ""}`}>
+                          {query.name}
+                          {unread && (
+                            <span className="ml-2 inline-flex items-center gap-1 text-[10px] font-bold bg-amber-500 text-white px-1.5 py-0.5 rounded-full uppercase tracking-wide">
+                              New
+                            </span>
+                          )}
+                        </p>
                         <p className="text-sm text-muted-foreground">
                           {query.email}
                         </p>
@@ -242,41 +269,45 @@ export default function ContactTable({
                         )}
                       </div>
                     </TableCell>
-                    {/* WhatsApp session status dot */}
-                    {(() => {
-                      const hasWa = !!query.whatsappPhoneNumber;
-                      const windowOpen =
-                        hasWa &&
-                        !!query.whatsappWindowExpiresAt &&
-                        new Date(query.whatsappWindowExpiresAt) > new Date();
-                      return (
-                        <TableCell className="text-center">
-                          <button
-                            title={
-                              !hasWa
-                                ? "No WhatsApp session"
-                                : windowOpen
-                                  ? "Session active — click to chat"
-                                  : "Session expired — click to chat"
-                            }
-                            onClick={() => handleChatOpen(query)}
-                            className="inline-flex items-center justify-center relative"
-                          >
-                            <span
-                              className={`h-3 w-3 rounded-full inline-block ${!hasWa
-                                ? "bg-gray-300"
-                                : windowOpen
-                                  ? "bg-green-500 animate-pulse"
-                                  : "bg-amber-400"
+                      {/* WhatsApp session status dot */}
+                      {(() => {
+                        const hasWa = !!query.whatsappPhoneNumber;
+                        const windowOpen =
+                          hasWa &&
+                          !!query.whatsappWindowExpiresAt &&
+                          new Date(query.whatsappWindowExpiresAt) > new Date();
+                        return (
+                          <TableCell className="text-center">
+                            <button
+                              title={
+                                !hasWa
+                                  ? "No WhatsApp session"
+                                  : windowOpen
+                                    ? "Session active — click to chat"
+                                    : "Session expired — click to chat"
+                              }
+                              onClick={() => handleChatOpen(query)}
+                              className="inline-flex items-center justify-center relative"
+                            >
+                              <span
+                                className={`h-3 w-3 rounded-full inline-block ${
+                                  !hasWa
+                                    ? "bg-gray-300"
+                                    : windowOpen
+                                      ? "bg-green-500 animate-pulse"
+                                      : "bg-amber-400"
                                 }`}
-                            />
-                            {unreadIds.has(query._id) && (
-                              <span className="absolute -top-1 -right-1 h-2.5 w-2.5 bg-red-500 rounded-full border border-white animate-bounce" title="New Message!" />
-                            )}
-                          </button>
-                        </TableCell>
-                      );
-                    })()}
+                              />
+                              {unread && (
+                                <span
+                                  className="absolute -top-1 -right-1 h-2.5 w-2.5 bg-red-500 rounded-full border border-white animate-bounce"
+                                  title="New message received!"
+                                />
+                              )}
+                            </button>
+                          </TableCell>
+                        );
+                      })()}
                     <TableCell>
                       <div className="max-w-[250px]">
                         <p className="font-medium truncate">
