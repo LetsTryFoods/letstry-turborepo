@@ -533,9 +533,12 @@ export type CleanupResult = {
 export type Contact = {
   __typename?: 'Contact';
   _id: Scalars['ID']['output'];
+  adminLastReadAt?: Maybe<Scalars['DateTime']['output']>;
   createdAt: Scalars['DateTime']['output'];
   email?: Maybe<Scalars['String']['output']>;
+  hasUnread?: Maybe<Scalars['Boolean']['output']>;
   imageUrls?: Maybe<Array<Scalars['String']['output']>>;
+  lastInboundAt?: Maybe<Scalars['DateTime']['output']>;
   message: Scalars['String']['output'];
   name: Scalars['String']['output'];
   orderId?: Maybe<Scalars['String']['output']>;
@@ -1380,6 +1383,7 @@ export type Mutation = {
   adminLogin: Scalars['String']['output'];
   adminLogout: Scalars['String']['output'];
   adminPunchShipment: PackingOrder;
+  adminRefreshToken: Scalars['String']['output'];
   applyCoupon: Cart;
   archiveCategory: Category;
   archiveProduct: Product;
@@ -1434,6 +1438,7 @@ export type Mutation = {
   initiateAdminRefund: RefundInitiateResponse;
   initiatePayment: InitiatePaymentResponse;
   logout: Scalars['String']['output'];
+  markContactRead: Scalars['Boolean']['output'];
   markItemShort: PackingOrder;
   packerLogin: PackerLoginResponse;
   processRefund: RefundResponse;
@@ -1789,6 +1794,11 @@ export type MutationInitiateAdminRefundArgs = {
 
 export type MutationInitiatePaymentArgs = {
   input: InitiatePaymentInput;
+};
+
+
+export type MutationMarkContactReadArgs = {
+  id: Scalars['String']['input'];
 };
 
 
