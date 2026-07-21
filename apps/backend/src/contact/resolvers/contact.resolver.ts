@@ -75,8 +75,37 @@ export class ContactResolver {
     @Args('skip', { type: () => Int, defaultValue: 0 }) skip: number,
     @Args('limit', { type: () => Int, defaultValue: 50 }) limit: number,
     @Args('queryType', { nullable: true }) queryType?: string,
+    @Args('status', { nullable: true }) status?: string,
+    @Args('priority', { nullable: true }) priority?: string,
+    @Args('search', { nullable: true }) search?: string,
+    @Args('activeChatsOnly', { type: () => Boolean, nullable: true }) activeChatsOnly?: boolean,
   ): Promise<PaginatedContactsResponse> {
-    const filter = queryType ? { queryType } : {};
+    const filter: Record<string, any> = {};
+
+    if (queryType && queryType !== 'ALL') {
+      filter.queryType = queryType;
+    }
+    if (status && status !== 'ALL') {
+      filter.status = status;
+    }
+    if (priority && priority !== 'ALL') {
+      filter.priority = priority;
+    }
+    if (search && search.trim()) {
+      const searchRegex = { $regex: search.trim(), $options: 'i' };
+      filter.$or = [
+        { name: searchRegex },
+        { email: searchRegex },
+        { phone: searchRegex },
+        { subject: searchRegex },
+        { message: searchRegex },
+        { orderId: searchRegex },
+      ];
+    }
+    if (activeChatsOnly) {
+      filter.whatsappWindowExpiresAt = { $gt: new Date() };
+    }
+
     const [data, total] = await Promise.all([
       this.contactService.findAll(skip, limit, filter),
       this.contactService.countAll(filter),

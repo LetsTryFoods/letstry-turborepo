@@ -1,8 +1,24 @@
 import { gql } from "@apollo/client";
 
 export const GET_CONTACT_MESSAGES = gql`
-  query GetContactMessages($skip: Int, $limit: Int, $queryType: String) {
-    getContactMessages(skip: $skip, limit: $limit, queryType: $queryType) {
+  query GetContactMessages(
+    $skip: Int
+    $limit: Int
+    $queryType: String
+    $status: String
+    $priority: String
+    $search: String
+    $activeChatsOnly: Boolean
+  ) {
+    getContactMessages(
+      skip: $skip
+      limit: $limit
+      queryType: $queryType
+      status: $status
+      priority: $priority
+      search: $search
+      activeChatsOnly: $activeChatsOnly
+    ) {
       data {
         _id
         name

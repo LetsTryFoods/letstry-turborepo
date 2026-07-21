@@ -113,11 +113,15 @@ export function useContactQueries(
   page: number = 1,
   limit: number = 50,
   queryType?: string,
+  status?: string,
+  priority?: string,
+  search?: string,
+  activeChatsOnly?: boolean,
 ) {
   const skip = (page - 1) * limit;
   const { data, loading, error, refetch } =
     useQuery<GetContactMessagesResponse>(GET_CONTACT_MESSAGES, {
-      variables: { skip, limit, queryType },
+      variables: { skip, limit, queryType, status, priority, search, activeChatsOnly },
       fetchPolicy: "network-only",
       notifyOnNetworkStatusChange: true,
     });

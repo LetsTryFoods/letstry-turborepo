@@ -26,7 +26,6 @@ import {
   XCircle,
   AlertTriangle,
   Loader2,
-  Zap,
 } from "lucide-react";
 import {
   useContactQueries,
@@ -92,6 +91,10 @@ export default function ContactPage() {
     page,
     limit,
     typeFilter === "ALL" ? undefined : typeFilter,
+    statusFilter === "ALL" ? undefined : statusFilter,
+    priorityFilter === "ALL" ? undefined : priorityFilter,
+    searchQuery || undefined,
+    activeChatsOnly || undefined,
   );
 
   const [selectedQuery, setSelectedQuery] = useState<ContactQuery | null>(null);
@@ -104,48 +107,7 @@ export default function ContactPage() {
     return { ...s, totalServer: total };
   }, [queries, total]);
 
-  const filteredQueries = useMemo(() => {
-    return queries
-      .filter((query) => {
-        // Search filter
-        if (searchQuery) {
-          const search = searchQuery.toLowerCase();
-          if (
-            !query.name.toLowerCase().includes(search) &&
-            !query.email?.toLowerCase().includes(search) &&
-            !query.subject?.toLowerCase().includes(search) &&
-            !query.message.toLowerCase().includes(search) &&
-            !query.orderId?.toLowerCase().includes(search)
-          ) {
-            return false;
-          }
-        }
-
-        // Status filter
-        if (statusFilter !== "ALL" && query.status !== statusFilter) {
-          return false;
-        }
-
-        // Priority filter
-        if (priorityFilter !== "ALL" && query.priority !== priorityFilter) {
-          return false;
-        }
-
-        // Active chats filter — only show contacts with an open WhatsApp window
-        if (activeChatsOnly) {
-          const windowOpen =
-            !!query.whatsappWindowExpiresAt &&
-            new Date(query.whatsappWindowExpiresAt) > new Date();
-          if (!windowOpen) return false;
-        }
-
-        return true;
-      })
-      .sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-      );
-  }, [queries, searchQuery, statusFilter, priorityFilter, activeChatsOnly]);
+  const filteredQueries = queries;
 
   const handleView = (query: ContactQuery) => {
     setSelectedQuery(query);
@@ -383,11 +345,10 @@ export default function ContactPage() {
             {/* Active Chats Only toggle */}
             <Button
               variant={activeChatsOnly ? "default" : "outline"}
-              className={`gap-2 shrink-0 ${
-                activeChatsOnly
-                  ? "bg-green-600 hover:bg-green-700 text-white border-green-600"
-                  : ""
-              }`}
+              className={`gap-2 shrink-0 ${activeChatsOnly
+                ? "bg-green-600 hover:bg-green-700 text-white border-green-600"
+                : ""
+                }`}
               onClick={() => setActiveChatsOnly((v) => !v)}
               title="Show only contacts with an active WhatsApp session (can send messages)"
             >
