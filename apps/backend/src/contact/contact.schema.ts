@@ -102,4 +102,5 @@ ContactSchema.index({ createdAt: -1 });
 ContactSchema.index({ status: 1 });
 ContactSchema.index({ whatsappPhoneNumber: 1 });
 ContactSchema.index({ lastInboundAt: -1 });
+ContactSchema.index({ updatedAt: -1 });
 

@@ -23,14 +23,14 @@ export class ContactService {
   ): Promise<Contact[]> {
     return this.contactModel
       .find(filter)
-      .sort({ createdAt: -1 })
+      .sort({ updatedAt: -1 })
       .skip(skip)
       .limit(limit)
       .exec();
   }
 
   async findAllForExport(filter: Record<string, any> = {}): Promise<Contact[]> {
-    return this.contactModel.find(filter).sort({ createdAt: -1 }).exec();
+    return this.contactModel.find(filter).sort({ updatedAt: -1 }).exec();
   }
 
   async countAll(filter: Record<string, any> = {}): Promise<number> {
