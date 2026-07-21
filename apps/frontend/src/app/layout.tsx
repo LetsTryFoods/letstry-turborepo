@@ -20,6 +20,7 @@ import { SpinWheelContainer } from "@/components/spin-wheel/SpinWheelContainer";
 import { MetaPixel } from "@/components/analytics/meta-pixel";
 import { MixpanelProvider } from "@/components/analytics/mixpanel-provider";
 import Script from "next/script";
+import { createServerGraphQLClient } from "@/lib/graphql/server-client-factory";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -164,13 +165,30 @@ const websiteSchema = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const gtmId = process.env.NEXT_PUBLIC_GTM_ID;
   const gaId = process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID;
+
+  let freeDeliveryThreshold = 499;
+  try {
+    const client = createServerGraphQLClient();
+    const data = await client.request<any>(`
+      query GetCharges {
+        charges {
+          freeDeliveryThreshold
+        }
+      }
+    `);
+    if (data?.charges?.freeDeliveryThreshold) {
+      freeDeliveryThreshold = data.charges.freeDeliveryThreshold;
+    }
+  } catch (err) {
+    console.error("[RootLayout] failed to fetch charges:", err);
+  }
 
   return (
     <html lang="en">
@@ -217,7 +235,7 @@ export default function RootLayout({
               <MixpanelProvider />
               <WebVitalsTracker />
               {/* <SaleAnnouncementBar /> */}
-              <TopBanner />
+              <TopBanner freeDeliveryThreshold={freeDeliveryThreshold} />
               <Navbar />
               <SearchOverlay />
               <GuestSessionManager />
