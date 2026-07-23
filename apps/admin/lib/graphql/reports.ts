@@ -1,8 +1,16 @@
 import { gql } from "@apollo/client";
 
 export const GET_ORDER_REPORTS = gql`
-  query GetOrderReports($period: String!) {
-    getOrderReports(period: $period) {
+  query GetOrderReports(
+    $period: String!
+    $customStartDate: String
+    $customEndDate: String
+  ) {
+    getOrderReports(
+      period: $period
+      customStartDate: $customStartDate
+      customEndDate: $customEndDate
+    ) {
       summary {
         totalRevenue
         totalOrders
@@ -56,8 +64,16 @@ export const GET_SHIPPING_INSIGHTS = gql`
 `;
 
 export const GET_SALES_BY_STATE = gql`
-  query GetSalesByState($period: String!) {
-    getSalesByState(period: $period) {
+  query GetSalesByState(
+    $period: String!
+    $customStartDate: String
+    $customEndDate: String
+  ) {
+    getSalesByState(
+      period: $period
+      customStartDate: $customStartDate
+      customEndDate: $customEndDate
+    ) {
       state
       orders
       revenue

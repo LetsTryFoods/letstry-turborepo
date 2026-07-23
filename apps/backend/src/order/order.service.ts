@@ -49,8 +49,12 @@ export class OrderService {
     this.itemService = orderItemService;
   }
 
-  async getOrderReports(period: string): Promise<OrderReportResponse> {
-    return this.queryService.getOrderReports(period);
+  async getOrderReports(
+    period: string,
+    customStartDate?: string,
+    customEndDate?: string,
+  ): Promise<OrderReportResponse> {
+    return this.queryService.getOrderReports(period, customStartDate, customEndDate);
   }
 
   async getShippingInsights(): Promise<{
@@ -64,8 +68,10 @@ export class OrderService {
 
   async getSalesByState(
     period: string,
+    customStartDate?: string,
+    customEndDate?: string,
   ): Promise<{ state: string; orders: number; revenue: number }[]> {
-    return this.queryService.getSalesByState(period);
+    return this.queryService.getSalesByState(period, customStartDate, customEndDate);
   }
 
   async createOrder(params: {

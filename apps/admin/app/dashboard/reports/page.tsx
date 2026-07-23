@@ -105,13 +105,25 @@ const ChartTooltip = ({ active, payload, label, isCurrency }: any) => {
 export default function ReportsPage() {
   const [isMounted, setIsMounted] = useState(false);
   const [period, setPeriod] = useState<
-    "week" | "month" | "quarter" | "year" | "all"
+    "week" | "month" | "quarter" | "year" | "all" | "custom"
   >("month");
+  const [customStartDate, setCustomStartDate] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 30);
+    return d.toISOString().split("T")[0];
+  });
+  const [customEndDate, setCustomEndDate] = useState(() => {
+    return new Date().toISOString().split("T")[0];
+  });
   const [productSortBy, setProductSortBy] = useState<"quantity" | "revenue">(
     "quantity",
   );
 
-  const { data, loading } = useReports(period);
+  const { data, loading } = useReports(
+    period,
+    period === "custom" ? customStartDate : undefined,
+    period === "custom" ? customEndDate : undefined,
+  );
   const { summary, dailySales, topProducts, topCustomers, categorySales } =
     data;
 
@@ -119,7 +131,11 @@ export default function ReportsPage() {
   const { data: shippingData, loading: shippingLoading } =
     useShippingInsights();
   const { data: stateSalesData, loading: stateSalesLoading } =
-    useSalesByState(period);
+    useSalesByState(
+      period,
+      period === "custom" ? customStartDate : undefined,
+      period === "custom" ? customEndDate : undefined,
+    );
 
   useEffect(() => {
     setIsMounted(true);
@@ -200,21 +216,41 @@ export default function ReportsPage() {
           </p>
         </div>
         <div className="flex items-center gap-4">
-          <Select
-            value={period}
-            onValueChange={(v) => setPeriod(v as typeof period)}
-          >
-            <SelectTrigger className="w-[150px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="week">Last 7 Days</SelectItem>
-              <SelectItem value="month">Last 30 Days</SelectItem>
-              <SelectItem value="quarter">Last 90 Days</SelectItem>
-              <SelectItem value="year">Last Year</SelectItem>
-              <SelectItem value="all">All Time</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex flex-wrap items-center gap-3">
+            {period === "custom" && (
+              <div className="flex items-center gap-2">
+                <input
+                  type="date"
+                  value={customStartDate}
+                  onChange={(e) => setCustomStartDate(e.target.value)}
+                  className="flex h-9 w-[140px] rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring text-foreground"
+                />
+                <span className="text-muted-foreground text-xs font-medium">to</span>
+                <input
+                  type="date"
+                  value={customEndDate}
+                  onChange={(e) => setCustomEndDate(e.target.value)}
+                  className="flex h-9 w-[140px] rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring text-foreground"
+                />
+              </div>
+            )}
+            <Select
+              value={period}
+              onValueChange={(v) => setPeriod(v as typeof period)}
+            >
+              <SelectTrigger className="w-[150px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="week">Last 7 Days</SelectItem>
+                <SelectItem value="month">Last 30 Days</SelectItem>
+                <SelectItem value="quarter">Last 90 Days</SelectItem>
+                <SelectItem value="year">Last Year</SelectItem>
+                <SelectItem value="custom">Custom Range</SelectItem>
+                <SelectItem value="all">All Time</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <Button
             variant="outline"
             onClick={handleExport}

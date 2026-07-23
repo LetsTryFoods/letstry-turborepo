@@ -27,9 +27,13 @@ export class OrderQueryService {
     @InjectModel(Identity.name) private identityModel: Model<IdentityDocument>,
   ) {}
 
-  async getOrderReports(period: string): Promise<OrderReportResponse> {
+  async getOrderReports(
+    period: string,
+    customStartDate?: string,
+    customEndDate?: string,
+  ): Promise<OrderReportResponse> {
     const { startDate, endDate, prevStartDate, prevEndDate } =
-      this.getDateRange(period);
+      this.getDateRange(period, customStartDate, customEndDate);
 
     const [
       summary,
@@ -99,7 +103,30 @@ export class OrderQueryService {
     };
   }
 
-  private getDateRange(period: string) {
+  private getDateRange(
+    period: string,
+    customStartDate?: string,
+    customEndDate?: string,
+  ) {
+    if (customStartDate && customEndDate) {
+      const startDate = new Date(customStartDate);
+      const endDate = new Date(customEndDate);
+
+      if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
+        // Ensure the end date covers the full day up to 23:59:59.999
+        endDate.setHours(23, 59, 59, 999);
+
+        // Calculate duration in milliseconds
+        const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+
+        // Previous comparison period starts diffTime before customStartDate and ends right before it
+        const prevEndDate = new Date(startDate.getTime() - 1);
+        const prevStartDate = new Date(prevEndDate.getTime() - diffTime);
+
+        return { startDate, endDate, prevStartDate, prevEndDate };
+      }
+    }
+
     const endDate = new Date();
     const startDate = new Date();
     const prevEndDate = new Date();
@@ -340,8 +367,14 @@ export class OrderQueryService {
 
   async getSalesByState(
     period: string,
+    customStartDate?: string,
+    customEndDate?: string,
   ): Promise<{ state: string; orders: number; revenue: number }[]> {
-    const { startDate, endDate } = this.getDateRange(period);
+    const { startDate, endDate } = this.getDateRange(
+      period,
+      customStartDate,
+      customEndDate,
+    );
     return this.orderRepository.getSalesByState(startDate, endDate);
   }
 

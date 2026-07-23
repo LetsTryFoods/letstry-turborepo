@@ -85,8 +85,12 @@ export class OrderResolver {
   async getOrderReports(
     @Args('period', { type: () => String, defaultValue: 'month' })
     period: string,
+    @Args('customStartDate', { type: () => String, nullable: true })
+    customStartDate?: string,
+    @Args('customEndDate', { type: () => String, nullable: true })
+    customEndDate?: string,
   ): Promise<OrderReportResponse> {
-    return this.orderService.getOrderReports(period);
+    return this.orderService.getOrderReports(period, customStartDate, customEndDate);
   }
 
   @Query(() => ShippingInsightsType)
@@ -121,8 +125,12 @@ export class OrderResolver {
   async getSalesByState(
     @Args('period', { type: () => String, defaultValue: 'month' })
     period: string,
+    @Args('customStartDate', { type: () => String, nullable: true })
+    customStartDate?: string,
+    @Args('customEndDate', { type: () => String, nullable: true })
+    customEndDate?: string,
   ): Promise<StateSalesType[]> {
-    return this.orderService.getSalesByState(period);
+    return this.orderService.getSalesByState(period, customStartDate, customEndDate);
   }
 
   @Query(() => PaginatedOrdersResponse)

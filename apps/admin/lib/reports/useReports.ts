@@ -78,12 +78,14 @@ const emptyData: ReportsData = {
 
 // Hook to get reports data
 export const useReports = (
-  period: "week" | "month" | "quarter" | "year" | "all" = "month",
+  period: "week" | "month" | "quarter" | "year" | "all" | "custom" = "month",
+  customStartDate?: string,
+  customEndDate?: string,
 ) => {
   const { data, loading, error, refetch } = useQuery<{
     getOrderReports: ReportsData;
   }>(GET_ORDER_REPORTS, {
-    variables: { period },
+    variables: { period, customStartDate, customEndDate },
     notifyOnNetworkStatusChange: true,
   });
 
@@ -163,12 +165,14 @@ export interface StateSales {
 
 // Hook to get sales broken down by Indian state
 export const useSalesByState = (
-  period: "week" | "month" | "quarter" | "year" | "all" = "month",
+  period: "week" | "month" | "quarter" | "year" | "all" | "custom" = "month",
+  customStartDate?: string,
+  customEndDate?: string,
 ) => {
   const { data, loading, error, refetch } = useQuery<{
     getSalesByState: StateSales[];
   }>(GET_SALES_BY_STATE, {
-    variables: { period },
+    variables: { period, customStartDate, customEndDate },
     notifyOnNetworkStatusChange: true,
   });
 
