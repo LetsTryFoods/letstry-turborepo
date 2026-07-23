@@ -69,10 +69,7 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      const formattedPhone = phone
-        .replace(/^\+91/, "")
-        .replace(/^91/, "")
-        .slice(-10);
+      const formattedPhone = phone.replace(/\D/g, "").slice(-10);
 
       const { data } = await sendOtpMutation({
         variables: { phoneNumber: formattedPhone },
@@ -120,10 +117,7 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      const formattedPhone = phone
-        .replace(/^\+91/, "")
-        .replace(/^91/, "")
-        .slice(-10);
+      const formattedPhone = phone.replace(/\D/g, "").slice(-10);
       AuthLogger.step(1, "Attempting verification for:", formattedPhone);
 
       let token: string | null = null;

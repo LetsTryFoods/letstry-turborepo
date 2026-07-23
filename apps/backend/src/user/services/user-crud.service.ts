@@ -35,7 +35,7 @@ export class UserCrudService {
       status: IdentityStatus.REGISTERED,
       role: data.role || Role.USER,
       marketingSmsOptIn: data.marketingSmsOptIn ?? false,
-      isPhoneVerified: false,
+      isPhoneVerified: (data as any).isPhoneVerified ?? true,
       mergedGuestIds: [],
     });
     return this.mapToUser(identity);

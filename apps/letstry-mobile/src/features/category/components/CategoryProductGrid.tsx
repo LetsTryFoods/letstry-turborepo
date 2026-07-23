@@ -20,7 +20,7 @@ interface CategoryProductGridProps {
   isFetchingMore?: boolean;
   hasNextPage?: boolean;
   styleConfig?: any;
-  ListHeaderComponent?: React.ReactNode;
+  ListHeaderComponent?: React.ReactElement | null;
 }
 
 const CategoryProductGrid: React.FC<CategoryProductGridProps> = ({

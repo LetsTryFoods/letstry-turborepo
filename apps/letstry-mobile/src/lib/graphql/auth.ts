@@ -40,3 +40,5 @@ export const LOGOUT_MUTATION = gql`
     logout
   }
 `;
+
+export const LOGIN_MUTATION = VERIFY_WHATSAPP_OTP;

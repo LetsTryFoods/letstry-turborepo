@@ -15,6 +15,7 @@ interface Category {
 interface CategoriesGridProps {
   categories: Category[];
   title?: string;
+  numColumns?: number;
   showSeeAll?: boolean;
   marginTop?: number;
   marginBottom?: number;

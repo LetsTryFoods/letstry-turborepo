@@ -64,6 +64,9 @@ export class UserAuthService {
     );
 
     if (registered) {
+      await this.identityModel
+        .updateOne({ _id: registered._id }, { $set: { isPhoneVerified: true } })
+        .exec();
       await this.updateLoginTimestamp(
         registered._id.toString(),
         AuthMethod.WHATSAPP,
@@ -356,6 +359,7 @@ export class UserAuthService {
     const userData: any = {
       phoneNumber,
       role: Role.USER,
+      isPhoneVerified: true,
       firstAuthMethod: authMethod,
       lastAuthMethod: authMethod,
       lastLoginAt: new Date(),
@@ -383,9 +387,14 @@ export class UserAuthService {
   private async findAllIdentitiesByPhone(
     phoneNumber: string,
   ): Promise<IdentityDocument[]> {
+    const cleanPhone = phoneNumber.replace(/\D/g, '').slice(-10);
     return this.identityModel
       .find({
-        phoneNumber,
+        $or: [
+          { phoneNumber },
+          { phoneNumber: cleanPhone },
+          { phoneNumber: `+91${cleanPhone}` },
+        ],
         status: {
           $in: [
             IdentityStatus.GUEST,
