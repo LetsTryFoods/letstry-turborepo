@@ -94,6 +94,24 @@ export class WhatsAppService {
     return this.sendTemplate(payload);
   }
 
+  async sendDeliveryNotification(
+    phoneNumber: string,
+    orderDate: string,
+    awbNumber: string,
+  ): Promise<boolean> {
+    const payload: WhatsAppTemplatePayload = {
+      template: 'deliveryutilitymarch',
+      recipients: [
+        {
+          phone: phoneNumber,
+          variables: [orderDate, awbNumber],
+        },
+      ],
+    };
+
+    return this.sendTemplate(payload);
+  }
+
   async sendPaymentConfirmation(
     phoneNumber: string,
     orderId: string,

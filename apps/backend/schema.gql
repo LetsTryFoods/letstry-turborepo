@@ -1959,9 +1959,9 @@ type Query {
   getAdminPaymentsByOrder(orderId: String!): [PaymentListItemType!]!
   getMonthlyLogisticsAnalytics(month: Float!, year: Float!): LogisticsAnalyticsResponse!
   getMonthlyDiscountAnalytics(month: Float!, year: Float!): OrderDiscountAnalyticsResponse!
-  getOrderReports(period: String! = "month"): OrderReportResponse!
+  getOrderReports(period: String! = "month", customStartDate: String, customEndDate: String): OrderReportResponse!
   getShippingInsights: ShippingInsightsType!
-  getSalesByState(period: String! = "month"): [StateSalesType!]!
+  getSalesByState(period: String! = "month", customStartDate: String, customEndDate: String): [StateSalesType!]!
   getMyOrders(input: GetMyOrdersInput!): PaginatedOrdersResponse!
   getGuestOrders(input: GetMyOrdersInput!): PaginatedOrdersResponse!
   getGuestOrderById(orderId: String!): OrderType!
@@ -2004,7 +2004,7 @@ type Query {
   activeBlogCategories: [BlogCategory!]!
   blogCategory(id: ID!): BlogCategory
   getAllCorporateEnquiries: [CorporateEnquiry!]!
-  getContactMessages(skip: Int! = 0, limit: Int! = 50, queryType: String): PaginatedContactsResponse!
+  getContactMessages(skip: Int! = 0, limit: Int! = 50, queryType: String, status: String, priority: String, search: String, activeChatsOnly: Boolean): PaginatedContactsResponse!
   landingPages: [LandingPage!]!
   activeLandingPages: [LandingPage!]!
   landingPage(id: ID!): LandingPage

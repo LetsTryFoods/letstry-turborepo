@@ -37,6 +37,7 @@ import {
   PanelBottom,
   PenTool,
   RefreshCcw,
+  ScanBarcode,
   Search,
   Settings,
   ShoppingBag,
@@ -225,6 +226,11 @@ const navGroups: NavGroup[] = [
         title: "Logistics Analytics",
         url: "/dashboard/logistics",
         icon: BarChart3,
+      },
+      {
+        title: "Label Scanner",
+        url: "/dashboard/label-scanner",
+        icon: ScanBarcode,
       },
       {
         title: "WhatsApp",

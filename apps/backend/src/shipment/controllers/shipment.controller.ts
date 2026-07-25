@@ -2,18 +2,26 @@ import {
   Controller,
   Get,
   Post,
+  Body,
   Param,
   Query,
   HttpCode,
   HttpStatus,
   NotFoundException,
   BadRequestException,
+  InternalServerErrorException,
   Req,
   Res,
 } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import type { Request, Response } from 'express';
 import { TrackingCronService } from '../services/tracking-cron.service';
 import { ShipmentService } from '../services/shipment.service';
+import { WhatsAppService } from '../../whatsapp/whatsapp.service';
+import { MetaWhatsappService } from '../../whatsapp/services/meta-whatsapp.service';
+import { OrderRepository } from '../../order/services/order.repository';
+import { LabelScanLog } from '../entities/label-scan-log.entity';
 import { Public } from '../../common/decorators/public.decorator';
 import { Admin } from '../../common/decorators/admin.decorator';
 
@@ -22,6 +30,11 @@ export class ShipmentController {
   constructor(
     private readonly trackingCronService: TrackingCronService,
     private readonly shipmentService: ShipmentService,
+    private readonly whatsappService: WhatsAppService,
+    private readonly metaWhatsappService: MetaWhatsappService,
+    private readonly orderRepository: OrderRepository,
+    @InjectModel(LabelScanLog.name)
+    private readonly labelScanLogModel: Model<LabelScanLog>,
   ) {}
 
   @Public()
@@ -196,4 +209,151 @@ export class ShipmentController {
       limit: limit ? parseInt(limit) : 100,
     });
   }
+
+  /**
+   * POST /shipments/manual-awb-notify
+   * Admin scans a label photo → extracts AWB → links to order → sends WhatsApp.
+   * Body: { awbNumber, orderId, phoneNumber?, orderDate? }
+   */
+  @Admin()
+  @Post('manual-awb-notify')
+  @HttpCode(HttpStatus.OK)
+  async manualAwbNotify(
+    @Body()
+    body: {
+      awbNumber: string;
+      orderId: string;
+      phoneNumber?: string;
+      orderDate?: string;
+      scanType?: string;
+      allowDuplicate?: boolean;
+    },
+  ): Promise<{ success: boolean; message: string; phone?: string; logId?: string }> {
+    const { awbNumber, orderId, allowDuplicate } = body;
+
+    if (!awbNumber || !orderId) {
+      throw new BadRequestException('awbNumber and orderId are required');
+    }
+
+    // Protection: Prevent duplicate AWB or duplicate Order notifications
+    if (!allowDuplicate) {
+      const cleanAwb = awbNumber.trim();
+      const cleanOrderId = orderId.trim();
+      const existingLog = await this.labelScanLogModel.findOne({
+        $or: [{ awbNumber: cleanAwb }, { orderDisplayId: cleanOrderId }],
+        whatsappSent: true,
+      });
+
+      if (existingLog) {
+        if (existingLog.awbNumber === cleanAwb) {
+          throw new BadRequestException(
+            `Duplicate AWB: AWB ${cleanAwb} has already been processed for order ${existingLog.orderDisplayId}.`,
+          );
+        } else {
+          throw new BadRequestException(
+            `Duplicate Order: Order ${cleanOrderId} has already been processed with AWB ${existingLog.awbNumber}.`,
+          );
+        }
+      }
+    }
+
+    // Find order
+    let order: any = await this.orderRepository.findById(orderId);
+    if (!order) {
+      order = await this.orderRepository.findByInternalId(orderId);
+    }
+
+    if (!order) {
+      throw new NotFoundException(`Order not found: ${orderId}`);
+    }
+
+    let phone = body.phoneNumber;
+    let orderCreatedAt: string | null = null;
+
+    // Extract phone — shippingAddress.phone is most reliable on label
+    const shippingAddr = order.shippingAddressId;
+    phone =
+      phone ||
+      shippingAddr?.phone ||
+      order.recipientContact?.phone ||
+      null;
+
+    if (order.createdAt) {
+      const d = new Date(order.createdAt);
+      orderCreatedAt = d.toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      });
+    }
+
+    if (!phone) {
+      throw new BadRequestException(
+        'Could not determine customer phone number. Please provide phoneNumber in the request.',
+      );
+    }
+
+    // Clean phone — remove +91 prefix if present, keep 10 digits
+    const cleanPhone = phone.replace(/\D/g, '').slice(-10);
+
+    const orderDate = body.orderDate || orderCreatedAt || new Date().toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+    const sent = await this.metaWhatsappService.sendDeliveryNotification(
+      cleanPhone,
+      orderDate,
+      awbNumber,
+    );
+
+    if (!sent) {
+      throw new InternalServerErrorException('Failed to send WhatsApp notification');
+    }
+
+    // Save audit log entry in database
+    const scanLog = await this.labelScanLogModel.create({
+      orderId: order._id,
+      orderDisplayId: order.orderId || orderId,
+      awbNumber,
+      scanType: body.scanType || 'AUTO_BARCODE',
+      whatsappSent: true,
+      whatsappSentAt: new Date(),
+      recipientPhone: cleanPhone,
+      orderDate,
+    });
+
+    return {
+      success: true,
+      message: `WhatsApp sent to ${cleanPhone}`,
+      phone: cleanPhone,
+      logId: (scanLog as any)._id?.toString(),
+    };
+  }
+
+  /**
+   * GET /shipments/label-scan-logs
+   * Retrieve historical audit logs of scanned AWB links and WhatsApp notifications.
+   */
+  @Admin()
+  @Get('label-scan-logs')
+  async getLabelScanLogs(
+    @Query('page') pageStr?: string,
+    @Query('limit') limitStr?: string,
+  ) {
+    const page = Math.max(1, parseInt(pageStr || '1', 10));
+    const limit = Math.min(100, Math.max(1, parseInt(limitStr || '25', 10)));
+    const skip = (page - 1) * limit;
+
+    const [logs, totalCount] = await Promise.all([
+      this.labelScanLogModel
+        .find()
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean()
+        .exec(),
+      this.labelScanLogModel.countDocuments(),
+    ]);
+
+    return { logs, totalCount, page, limit };
+  }
 }
+

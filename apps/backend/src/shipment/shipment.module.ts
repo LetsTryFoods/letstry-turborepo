@@ -2,6 +2,10 @@ import {
   PickupLocation,
   PickupLocationSchema,
 } from './entities/pickup-location.entity';
+import {
+  LabelScanLog,
+  LabelScanLogSchema,
+} from './entities/label-scan-log.entity';
 import { DeliveryPartnerFactory } from './core/factories/delivery-partner.factory';
 import { DtdcAdapter } from './adapters/dtdc/dtdc.adapter';
 import { ShiprocketAdapter } from './adapters/shiprocket/shiprocket.adapter';
@@ -14,6 +18,9 @@ import { AppCacheModule } from '../cache/app-cache.module';
 
 import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { WhatsAppModule } from '../whatsapp/whatsapp.module';
+import { WhatsAppService } from '../whatsapp/whatsapp.service';
+import { MetaWhatsappService } from '../whatsapp/services/meta-whatsapp.service';
 import { OrderModule } from '../order/order.module';
 import { BullModule } from '@nestjs/bullmq';
 import { ConfigModule } from '@nestjs/config';
@@ -65,6 +72,7 @@ import { PickupLocationResolver } from './resolvers/pickup-location.resolver';
         schema: OrderTrackingAnalyticsSchema,
       },
       { name: PickupLocation.name, schema: PickupLocationSchema },
+      { name: LabelScanLog.name, schema: LabelScanLogSchema },
     ]),
     BullModule.registerQueue({
       name: 'shipment-webhook',
@@ -82,6 +90,7 @@ import { PickupLocationResolver } from './resolvers/pickup-location.resolver';
     }),
     ConfigModule,
     forwardRef(() => OrderModule),
+    forwardRef(() => WhatsAppModule),
     AppCacheModule,
   ],
   controllers: [
@@ -112,6 +121,8 @@ import { PickupLocationResolver } from './resolvers/pickup-location.resolver';
     TrackingCronService,
     TrackingProcessor,
     TrackingLoggerService,
+    WhatsAppService,
+    MetaWhatsappService,
   ],
   exports: [
     ShipmentService,

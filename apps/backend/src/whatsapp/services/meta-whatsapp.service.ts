@@ -263,6 +263,59 @@ export class MetaWhatsappService {
     }
   }
 
+  async sendDeliveryNotification(
+    phoneNumber: string,
+    orderDate: string,
+    awbNumber: string,
+  ): Promise<boolean> {
+    if (!this.phoneNumberId || !this.accessToken) {
+      this.logger.warn('Meta WhatsApp credentials missing. Skipping Meta send.', 'MetaWhatsappService');
+      return false;
+    }
+
+    try {
+      const response = await fetch(
+        `${this.baseUrl}/${this.phoneNumberId}/messages`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${this.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            messaging_product: 'whatsapp',
+            to: phoneNumber.startsWith('91') ? phoneNumber : `91${phoneNumber}`,
+            type: 'template',
+            template: {
+              name: 'deliveryutilitymarch',
+              language: { code: 'en' },
+              components: [
+                {
+                  type: 'body',
+                  parameters: [
+                    { type: 'text', text: orderDate },
+                    { type: 'text', text: awbNumber },
+                  ],
+                },
+              ],
+            },
+          }),
+        }
+      );
+
+      const data = await response.json();
+      if (data.error) {
+        this.logger.error(`WhatsApp API Error (deliveryutilitymarch): ${data.error.message}`, 'MetaWhatsappService', { data });
+        return false;
+      }
+      this.logger.log(`Meta WhatsApp delivery notification sent to ${phoneNumber} — AWB: ${awbNumber}`, 'MetaWhatsappService');
+      return true;
+    } catch (err) {
+      this.logger.error(`Failed to send Meta WhatsApp delivery notification: ${err.message}`, 'MetaWhatsappService');
+      return false;
+    }
+  }
+
   async sendGenericTemplate(
     phoneNumber: string,
     templateName: string,
