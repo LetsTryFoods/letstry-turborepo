@@ -128,6 +128,14 @@ export class OrderRepository {
         },
       },
       {
+        $lookup: {
+          from: 'addresses',
+          localField: 'shippingAddressId',
+          foreignField: '_id',
+          as: 'shippingAddress',
+        },
+      },
+      {
         $match: {
           $or: [
             { orderId: regex },
@@ -137,6 +145,10 @@ export class OrderRepository {
             { 'identity.phoneNumber': regex },
             { 'identity.firstName': regex },
             { 'identity.lastName': regex },
+            { 'shippingAddress.recipientPhone': regex },
+            { 'shippingAddress.phone': regex },
+            { 'shippingAddress.recipientName': regex },
+            { 'shippingAddress.fullName': regex },
             { 'items.name': regex },
             { 'items.sku': regex },
           ],

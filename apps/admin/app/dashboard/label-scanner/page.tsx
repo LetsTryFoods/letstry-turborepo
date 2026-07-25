@@ -304,11 +304,14 @@ function OrderSearchBox({ onSelect }: { onSelect: (order: any) => void }) {
         <div className="absolute z-50 top-full mt-1 w-full bg-background border rounded-md shadow-lg max-h-52 overflow-y-auto">
           {orders.map((order: any) => {
             const phone =
+              order.shippingAddress?.recipientPhone ||
               order.shippingAddress?.phone ||
+              order.recipientContact?.phone ||
               order.userInfo?.phoneNumber ||
               order.customer?.phone ||
               "—";
             const name =
+              order.shippingAddress?.recipientName ||
               order.shippingAddress?.fullName ||
               order.customer?.name ||
               `${order.userInfo?.firstName || ""} ${order.userInfo?.lastName || ""}`.trim() ||
@@ -786,12 +789,15 @@ export default function LabelScannerPage() {
   const handleLinkOrder = (id: string, order: any) => {
     const phone =
       order._resolvedPhone ||
+      order.shippingAddress?.recipientPhone ||
       order.shippingAddress?.phone ||
+      order.recipientContact?.phone ||
       order.userInfo?.phoneNumber ||
       order.customer?.phone ||
       null;
     const name =
       order._resolvedName ||
+      order.shippingAddress?.recipientName ||
       order.shippingAddress?.fullName ||
       order.customer?.name ||
       `${order.userInfo?.firstName || ""} ${order.userInfo?.lastName || ""}`.trim() ||
