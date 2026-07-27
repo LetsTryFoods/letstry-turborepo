@@ -6,6 +6,7 @@ import { Types } from 'mongoose';
 @Injectable()
 export class PaymentLoggerService implements LoggerService {
   private logger: winston.Logger;
+  private refundLogger: winston.Logger;
 
   constructor() {
     this.logger = winston.createLogger({
@@ -31,8 +32,33 @@ export class PaymentLoggerService implements LoggerService {
       ],
     });
 
+    this.refundLogger = winston.createLogger({
+      level: 'info',
+      format: winston.format.combine(
+        winston.format.timestamp({
+          format: 'YYYY-MM-DD HH:mm:ss',
+        }),
+        winston.format.json(),
+      ),
+      defaultMeta: { service: 'refund-service' },
+      transports: [
+        new winston.transports.File({
+          filename: path.join('logs', 'refund.log'),
+          level: 'info',
+        }),
+      ],
+    });
+
     if (process.env.NODE_ENV !== 'production') {
       this.logger.add(
+        new winston.transports.Console({
+          format: winston.format.combine(
+            winston.format.colorize(),
+            winston.format.simple(),
+          ),
+        }),
+      );
+      this.refundLogger.add(
         new winston.transports.Console({
           format: winston.format.combine(
             winston.format.colorize(),
@@ -112,8 +138,13 @@ export class PaymentLoggerService implements LoggerService {
     refundId: string;
     paymentOrderId: string;
     refundAmount: string;
+    reason?: string;
   }) {
     this.log('Refund Initiation', {
+      event: 'REFUND_INITIATED',
+      ...data,
+    });
+    this.refundLogger.info('REFUND_INITIATED', {
       event: 'REFUND_INITIATED',
       ...data,
     });
@@ -123,8 +154,14 @@ export class PaymentLoggerService implements LoggerService {
     refundId: string;
     pspRefundId: string;
     amount: string;
+    paymentOrderId?: string;
+    whatsappStatus?: string;
   }) {
     this.log('Refund Success', {
+      event: 'REFUND_SUCCESS',
+      ...data,
+    });
+    this.refundLogger.info('REFUND_SUCCESS', {
       event: 'REFUND_SUCCESS',
       ...data,
     });
@@ -134,8 +171,13 @@ export class PaymentLoggerService implements LoggerService {
     refundId: string;
     reason: string;
     pspResponseCode?: string;
+    paymentOrderId?: string;
   }) {
     this.error('Refund Failure', undefined, {
+      event: 'REFUND_FAILED',
+      ...data,
+    });
+    this.refundLogger.error('REFUND_FAILED', {
       event: 'REFUND_FAILED',
       ...data,
     });

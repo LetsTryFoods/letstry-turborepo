@@ -156,14 +156,24 @@ export class RefundService {
           refundId,
           pspRefundId: merchantRefId,
           amount: params.refundAmount,
+          paymentOrderId: params.paymentOrderId,
         });
       } else {
+        const respCode =
+          zaakpayResponse?.message?.code?.toString() ||
+          zaakpayResponse?.responseCode ||
+          'UNKNOWN';
+        const respMsg =
+          zaakpayResponse?.message?.text ||
+          zaakpayResponse?.responseDescription ||
+          'Refund Failed';
+
         await this.paymentRefundModel.findOneAndUpdate(
           { refundId },
           {
             refundStatus: PaymentStatus.FAILED,
-            pspResponseCode: zaakpayResponse.responseCode,
-            pspResponseMessage: zaakpayResponse.responseDescription,
+            pspResponseCode: respCode,
+            pspResponseMessage: respMsg,
             pspRawResponse: zaakpayResponse,
             processedAt: new Date(),
           },
@@ -171,8 +181,9 @@ export class RefundService {
 
         this.paymentLogger.logRefundFailure({
           refundId,
-          reason: zaakpayResponse.responseDescription,
-          pspResponseCode: zaakpayResponse.responseCode,
+          reason: respMsg,
+          pspResponseCode: respCode,
+          paymentOrderId: params.paymentOrderId,
         });
       }
 
