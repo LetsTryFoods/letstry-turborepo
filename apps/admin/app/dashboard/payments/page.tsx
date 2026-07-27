@@ -224,7 +224,7 @@ export default function PaymentsPage() {
             </div>
 
             <div className="flex gap-2 flex-wrap">
-              {["SUCCESS", "FAILED", "PENDING", "REFUNDED"].map((status) => (
+              {["SUCCESS", "FAILED", "PENDING", "REFUNDED", "PARTIALLY_REFUNDED"].map((status) => (
                 <Button
                   key={status}
                   variant={
