@@ -6,6 +6,8 @@ import {
   PaymentOrder,
   PaymentStatus,
 } from '../../entities/payment.schema';
+import { Order } from '../../../order/order.schema';
+import { Address } from '../../../address/address.schema';
 import { ZaakpayGatewayService } from '../../gateways/zaakpay/zaakpay-gateway.service';
 import { LedgerService } from './ledger.service';
 import { PaymentLoggerService } from '../../../common/services/payment-logger.service';
@@ -19,6 +21,10 @@ export class RefundService {
     private paymentRefundModel: Model<PaymentRefund>,
     @InjectModel(PaymentOrder.name)
     private paymentOrderModel: Model<PaymentOrder>,
+    @InjectModel(Order.name)
+    private orderModel: Model<Order>,
+    @InjectModel(Address.name)
+    private addressModel: Model<Address>,
     private zaakpayGateway: ZaakpayGatewayService,
     private ledgerService: LedgerService,
     private paymentLogger: PaymentLoggerService,
@@ -130,32 +136,53 @@ export class RefundService {
         );
 
         // Send WhatsApp Refund Notification
+        // Look up phone: PaymentOrder.paymentOrderId → Order.shippingAddressId → Address.recipientPhone
         try {
           if (this.metaWhatsappService) {
-            const rawOrder = paymentOrder as any;
-            const customerPhone =
-              rawOrder.placerContact?.phone ||
-              rawOrder.shippingAddress?.phone ||
-              rawOrder.buyerPhoneNumber ||
-              '';
-            const customerName =
-              rawOrder.placerContact?.name ||
-              rawOrder.shippingAddress?.fullName ||
-              rawOrder.buyerName ||
-              'Customer';
+            let customerPhone = '';
+            let customerName = 'Customer';
+
+            // 1. Find Order by paymentOrderId to get shippingAddressId
+            const order = await this.orderModel
+              .findOne({ paymentOrderId: params.paymentOrderId })
+              .lean();
+
+            if (order?.shippingAddressId) {
+              // 2. Find Address to get recipientPhone
+              const address = await this.addressModel
+                .findById(order.shippingAddressId)
+                .lean();
+
+              if (address?.recipientPhone && address.recipientPhone !== 'N/A') {
+                customerPhone = address.recipientPhone;
+                customerName = address.recipientName || 'Customer';
+              }
+            }
 
             if (customerPhone) {
               await this.metaWhatsappService.sendRefundNotification({
                 phoneNumber: customerPhone,
                 customerName,
-                refundAmount: `${params.refundAmount}rs`,
+                refundAmount: `₹${params.refundAmount}`,
                 orderId: params.paymentOrderId,
                 refundId: merchantRefId,
                 reason: params.reason || 'shortage of item',
               });
+            } else {
+              this.paymentLogger.error(
+                'WhatsApp refund notification skipped — no phone found',
+                undefined,
+                { paymentOrderId: params.paymentOrderId },
+              );
             }
           }
-        } catch {}
+        } catch (err: any) {
+          this.paymentLogger.error(
+            `WhatsApp refund notification failed: ${err.message}`,
+            err.stack,
+            { paymentOrderId: params.paymentOrderId },
+          );
+        }
 
         this.paymentLogger.logRefundSuccess({
           refundId,

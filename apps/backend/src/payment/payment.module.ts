@@ -12,6 +12,8 @@ import {
   PaymentReconciliationSchema,
 } from './entities/payment.schema';
 import { Identity, IdentitySchema } from '../common/schemas/identity.schema';
+import { Order, OrderSchema } from '../order/order.schema';
+import { Address, AddressSchema } from '../address/address.schema';
 import { PaymentService } from './services/core/payment.service';
 import { PaymentResolver } from './payment.resolver';
 import { AdminPaymentResolver } from './admin-payment.resolver';
@@ -60,6 +62,8 @@ import { WhatsAppModule } from '../whatsapp/whatsapp.module';
       { name: PaymentRefund.name, schema: PaymentRefundSchema },
       { name: PaymentReconciliation.name, schema: PaymentReconciliationSchema },
       { name: Identity.name, schema: IdentitySchema },
+      { name: Order.name, schema: OrderSchema },
+      { name: Address.name, schema: AddressSchema },
     ]),
   ],
   controllers: [PaymentController],
