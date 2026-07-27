@@ -30,18 +30,18 @@ export class ZaakpayRefundService {
     const amountNum = parseFloat(params.amount || '0');
     const amountInPaisa = Math.round(amountNum * 100);
 
+    // Zaakpay v1 API Specs:
+    // Always use refundType 'P' with amountInPaisa when refunding a specific amount (both partial and full),
+    // as Zaakpay validates 0 < refundAmount <= totalOrderAmount under 'P'.
     const bodyObj: any = {
       merchantIdentifier: this.merchantId,
       orderId: params.orderId,
-      refundType: params.isPartialRefund ? 'P' : 'F',
+      refundType: amountInPaisa > 0 ? 'P' : 'F',
       merchantRefundId: params.merchantRefId,
     };
 
-    // Zaakpay v1 API Specs:
-    // - For Partial Refund ('P'): refundAmount in paisa is required.
-    // - For Full Refund ('F'): refundAmount MUST NOT be included, otherwise Zaakpay returns Error Code 160 ("Transaction amount validation has failed").
-    if (params.isPartialRefund && amountInPaisa > 0) {
-      bodyObj.refundAmount = amountInPaisa.toString();
+    if (amountInPaisa > 0) {
+      bodyObj.refundAmount = amountInPaisa;
     }
 
     const dataString = JSON.stringify(bodyObj);
