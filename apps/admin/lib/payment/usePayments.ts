@@ -5,6 +5,7 @@ import {
   INITIATE_ADMIN_REFUND,
   GET_ADMIN_PAYMENTS_BY_IDENTITY,
   GET_ADMIN_PAYMENTS_BY_ORDER,
+  TRIGGER_REFUND_WHATSAPP_NOTIFICATION,
 } from "@/lib/graphql/payments";
 
 export const usePaymentsList = (input: any) => {
@@ -40,5 +41,10 @@ export const usePaymentsByOrder = (orderId: string) => {
 
 export const useInitiateRefund = () => {
   const [mutate, { loading, error }] = useMutation(INITIATE_ADMIN_REFUND);
+  return { mutate, loading, error };
+};
+
+export const useTriggerRefundWhatsApp = () => {
+  const [mutate, { loading, error }] = useMutation(TRIGGER_REFUND_WHATSAPP_NOTIFICATION);
   return { mutate, loading, error };
 };

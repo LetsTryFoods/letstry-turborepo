@@ -29,7 +29,7 @@ export class RefundService {
     private ledgerService: LedgerService,
     private paymentLogger: PaymentLoggerService,
     @Optional() private metaWhatsappService?: MetaWhatsappService,
-  ) {}
+  ) { }
 
   async initiateRefund(params: {
     paymentOrderId: string;
@@ -136,53 +136,13 @@ export class RefundService {
         );
 
         // Send WhatsApp Refund Notification
-        // Look up phone: PaymentOrder.paymentOrderId → Order.shippingAddressId → Address.recipientPhone
-        try {
-          if (this.metaWhatsappService) {
-            let customerPhone = '';
-            let customerName = 'Customer';
-
-            // 1. Find Order by paymentOrderId to get shippingAddressId
-            const order = await this.orderModel
-              .findOne({ paymentOrderId: params.paymentOrderId })
-              .lean();
-
-            if (order?.shippingAddressId) {
-              // 2. Find Address to get recipientPhone
-              const address = await this.addressModel
-                .findById(order.shippingAddressId)
-                .lean();
-
-              if (address?.recipientPhone && address.recipientPhone !== 'N/A') {
-                customerPhone = address.recipientPhone;
-                customerName = address.recipientName || 'Customer';
-              }
-            }
-
-            if (customerPhone) {
-              await this.metaWhatsappService.sendRefundNotification({
-                phoneNumber: customerPhone,
-                customerName,
-                refundAmount: `₹${params.refundAmount}`,
-                orderId: params.paymentOrderId,
-                refundId: merchantRefId,
-                reason: params.reason || 'shortage of item',
-              });
-            } else {
-              this.paymentLogger.error(
-                'WhatsApp refund notification skipped — no phone found',
-                undefined,
-                { paymentOrderId: params.paymentOrderId },
-              );
-            }
-          }
-        } catch (err: any) {
+        this.sendRefundNotificationWhatsApp(refundId).catch((err) => {
           this.paymentLogger.error(
-            `WhatsApp refund notification failed: ${err.message}`,
+            `WhatsApp refund notification failed during initiate: ${err.message}`,
             err.stack,
-            { paymentOrderId: params.paymentOrderId },
+            { paymentOrderId: params.paymentOrderId, refundId },
           );
-        }
+        });
 
         this.paymentLogger.logRefundSuccess({
           refundId,
@@ -323,5 +283,71 @@ export class RefundService {
     return this.paymentRefundModel
       .find({ paymentOrderId: { $in: paymentOrderIds } })
       .exec();
+  }
+
+  async sendRefundNotificationWhatsApp(refundId: string): Promise<{ success: boolean; message: string }> {
+    if (!this.metaWhatsappService) {
+      return { success: false, message: 'WhatsApp service not available' };
+    }
+
+    const refund = await this.paymentRefundModel.findOne({ refundId }).lean();
+    if (!refund) {
+      throw new Error('Refund not found');
+    }
+
+    const paymentOrder = await this.paymentOrderModel.findById(refund.paymentOrderId).lean();
+    if (!paymentOrder) {
+      throw new Error('PaymentOrder not found');
+    }
+
+    let customerPhone = '';
+    let customerName = 'Customer';
+
+    // 1. Find Order by paymentOrderId to get shippingAddressId
+    const order = await this.orderModel
+      .findOne({ paymentOrderId: paymentOrder.paymentOrderId })
+      .lean();
+
+    if (order?.shippingAddressId) {
+      // 2. Find Address to get recipientPhone
+      const address = await this.addressModel
+        .findById(order.shippingAddressId)
+        .lean();
+
+      if (address?.recipientPhone && address.recipientPhone !== 'N/A') {
+        customerPhone = address.recipientPhone;
+        customerName = address.recipientName || 'Customer';
+      }
+    }
+
+    if (!customerPhone) {
+      this.paymentLogger.error(
+        'WhatsApp refund notification skipped — no phone found',
+        undefined,
+        { paymentOrderId: paymentOrder.paymentOrderId },
+      );
+      return { success: false, message: 'No customer phone found' };
+    }
+
+    const merchantRefId = (refund as any).zaakpayRefundId || refund.pspRefundId || refundId;
+
+    try {
+      await this.metaWhatsappService.sendRefundNotification({
+        phoneNumber: customerPhone,
+        customerName,
+        refundAmount: `₹${refund.refundAmount}`,
+        orderId: paymentOrder.paymentOrderId,
+        refundId: merchantRefId,
+        reason: refund.reason || 'shortage of item',
+      });
+      return { success: true, message: 'WhatsApp notification sent successfully' };
+    } catch (err: any) {
+      this.paymentLogger.error(
+        `WhatsApp refund notification failed: ${err.message}`,
+        err.stack,
+        { paymentOrderId: paymentOrder.paymentOrderId, refundId },
+      );
+      throw err;
+    }
   }
 }

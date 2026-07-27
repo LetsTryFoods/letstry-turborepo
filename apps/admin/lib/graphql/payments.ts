@@ -129,6 +129,16 @@ export const INITIATE_ADMIN_REFUND = gql`
   }
 `;
 
+export const TRIGGER_REFUND_WHATSAPP_NOTIFICATION = gql`
+  mutation TriggerRefundWhatsAppNotification($refundId: String!) {
+    triggerRefundWhatsAppNotification(refundId: $refundId) {
+      success
+      refundId
+      message
+    }
+  }
+`;
+
 export const GET_ADMIN_PAYMENTS_BY_IDENTITY = gql`
   query GetAdminPaymentsByIdentity($identityId: String!) {
     getAdminPaymentsByIdentity(identityId: $identityId) {

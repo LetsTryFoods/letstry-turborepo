@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { usePaymentDetail, useInitiateRefund } from "@/lib/payment/usePayments";
+import { usePaymentDetail, useInitiateRefund, useTriggerRefundWhatsApp } from "@/lib/payment/usePayments";
 import {
   getStatusBadgeColor,
   formatCurrency,
@@ -34,6 +34,22 @@ export default function PaymentDetailPage() {
     useCustomerDetails(showCustomerDialog ? payment?.identityId : "");
 
   const refundMutation = useInitiateRefund();
+  const triggerWaMutation = useTriggerRefundWhatsApp();
+
+  const handleTriggerWA = async (refundId: string) => {
+    try {
+      const res = await triggerWaMutation.mutate({
+        variables: { refundId },
+      });
+      if (res.data?.triggerRefundWhatsAppNotification?.success) {
+        alert("WhatsApp notification sent successfully!");
+      } else {
+        alert("Failed to send WhatsApp notification: " + res.data?.triggerRefundWhatsAppNotification?.message);
+      }
+    } catch (err: any) {
+      alert("Error triggering WhatsApp notification: " + err.message);
+    }
+  };
 
   const handleRefundSubmit = async () => {
     if (!refundAmount || parseFloat(refundAmount) <= 0) {
@@ -444,11 +460,23 @@ export default function PaymentDetailPage() {
               <div key={refund._id} className="border rounded p-4 space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="font-mono text-sm">{refund.refundId}</span>
-                  <span
-                    className={`px-2 py-1 rounded text-xs font-medium ${getStatusBadgeColor(refund.refundStatus)}`}
-                  >
-                    {refund.refundStatus}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {refund.refundStatus === "SUCCESS" && (
+                      <button
+                        onClick={() => handleTriggerWA(refund.refundId)}
+                        disabled={triggerWaMutation.loading}
+                        className="px-2 py-1 bg-green-100 text-green-700 hover:bg-green-200 rounded text-xs font-medium transition-colors"
+                        title="Send WhatsApp Notification"
+                      >
+                        {triggerWaMutation.loading ? "Sending..." : "📱 Send WA"}
+                      </button>
+                    )}
+                    <span
+                      className={`px-2 py-1 rounded text-xs font-medium ${getStatusBadgeColor(refund.refundStatus)}`}
+                    >
+                      {refund.refundStatus}
+                    </span>
+                  </div>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Amount:</span>

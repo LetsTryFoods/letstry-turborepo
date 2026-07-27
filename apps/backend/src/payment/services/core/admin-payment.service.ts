@@ -245,6 +245,13 @@ export class AdminPaymentService {
     }));
   }
 
+  async triggerRefundWhatsAppNotification(
+    adminId: string,
+    refundId: string,
+  ): Promise<{ success: boolean; message: string }> {
+    return this.refundService.sendRefundNotificationWhatsApp(refundId);
+  }
+
   async getPaymentsByOrder(orderId: string): Promise<PaymentListItemType[]> {
     const payments = await this.paymentOrderModel
       .find({ orderId: new Types.ObjectId(orderId) })

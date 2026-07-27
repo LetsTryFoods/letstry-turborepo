@@ -90,4 +90,23 @@ export class AdminPaymentResolver {
 
     return this.adminPaymentService.initiateAdminRefund(user._id, input);
   }
+
+  @Mutation(() => RefundInitiateResponse)
+  @Roles(Role.ADMIN)
+  @UseGuards(DualAuthGuard, RolesGuard)
+  async triggerRefundWhatsAppNotification(
+    @Args('refundId') refundId: string,
+    @OptionalUser() user: any,
+  ): Promise<RefundInitiateResponse> {
+    if (!user?._id) {
+      throw new Error('Admin authentication required');
+    }
+
+    const result = await this.adminPaymentService.triggerRefundWhatsAppNotification(user._id, refundId);
+    return {
+      success: result.success,
+      refundId: refundId,
+      message: result.message,
+    };
+  }
 }
