@@ -19,6 +19,9 @@ import { WhatsAppSupportGateway } from '../../whatsapp/whatsapp-support.gateway'
 import { logWhatsAppEvent } from '../../whatsapp/logger/whatsapp-file.logger';
 
 
+import { UploadService } from '../../upload/upload.service';
+import * as crypto from 'crypto';
+
 @Injectable()
 export class ContactWhatsAppService {
   private readonly logger = new Logger(ContactWhatsAppService.name);
@@ -31,6 +34,7 @@ export class ContactWhatsAppService {
     private readonly metaService: MetaWhatsappService,
     private readonly gateway: WhatsAppSupportGateway,
     private readonly configService: ConfigService,
+    private readonly uploadService: UploadService,
   ) {
     this.slaHours = this.configService.get<number>('support.slaHours') ?? 4;
   }
@@ -290,6 +294,85 @@ export class ContactWhatsAppService {
     await chat.save();
 
     // Emit to any other admin tabs watching this contact
+    this.gateway.emitNewMessage(contactId, message);
+
+    return message;
+  }
+
+  /**
+   * Admin sends an image/media message within an active 24h window.
+   */
+  async sendMedia(
+    contactId: string,
+    file: Express.Multer.File,
+    caption?: string,
+  ): Promise<WhatsAppMessageDocument> {
+    const contact = await this.contactModel.findById(contactId);
+    if (!contact) throw new BadRequestException('Contact not found');
+
+    let phone = contact.whatsappPhoneNumber;
+    if (!phone) {
+      if (!contact.phone) throw new BadRequestException('Contact has no phone number');
+      let normalized = contact.phone.replace(/\D/g, '');
+      if (normalized.length === 10) normalized = `91${normalized}`;
+      phone = normalized;
+      contact.whatsappPhoneNumber = phone;
+      await contact.save();
+    }
+
+    // Check window
+    const windowOpen =
+      contact.whatsappWindowExpiresAt &&
+      contact.whatsappWindowExpiresAt > new Date();
+    if (!windowOpen) {
+      throw new BadRequestException(
+        'The 24-hour session window has expired. Please send a template message to re-open it.',
+      );
+    }
+
+    // 1. Upload file to CloudFront / S3
+    const uid = crypto.randomBytes(16).toString('hex');
+    const extension = file.originalname.includes('.')
+      ? file.originalname.substring(file.originalname.lastIndexOf('.'))
+      : '';
+    const key = `whatsapp/chat-outgoing/${uid}${extension}`;
+
+    await this.uploadService.uploadFile(key, file.buffer, file.originalname);
+
+    const finalKey =
+      this.uploadService.isImageFile(
+        this.uploadService.getContentTypeFromExtension(file.originalname),
+      ) && extension !== '.gif'
+        ? key.replace(/\.[^.]+$/, '.webp')
+        : key;
+
+    const mediaUrl = this.uploadService.getCloudFrontUrl(finalKey);
+
+    // 2. Send via Meta WhatsApp API
+    const isImage = file.mimetype.startsWith('image');
+    const messageType = isImage ? WhatsAppMessageType.IMAGE : WhatsAppMessageType.DOCUMENT;
+
+    const response = await this.metaService.sendImage(phone, mediaUrl, caption);
+    if (!response.success) {
+      throw new BadRequestException(`Meta API error: ${response.error}`);
+    }
+
+    // 3. Save to DB
+    const chat = await this.findOrCreateChat(phone, contactId);
+    const message = await this.messageModel.create({
+      chatId: chat._id,
+      messageId: response.messageId,
+      direction: WhatsAppMessageDirection.OUTGOING,
+      type: messageType,
+      content: caption || '',
+      mediaUrl,
+      timestamp: new Date(),
+    });
+
+    chat.lastMessageAt = new Date();
+    await chat.save();
+
+    // 4. Emit to WebSocket
     this.gateway.emitNewMessage(contactId, message);
 
     return message;

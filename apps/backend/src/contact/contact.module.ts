@@ -6,6 +6,7 @@ import { ContactWhatsAppService } from './services/contact-whatsapp.service';
 import { ContactResolver } from './resolvers/contact.resolver';
 import { ContactWhatsAppController } from './contact-whatsapp.controller';
 import { WhatsAppModule } from '../whatsapp/whatsapp.module';
+import { UploadModule } from '../upload/upload.module';
 import {
   WhatsAppChat,
   WhatsAppChatSchema,
@@ -23,6 +24,7 @@ import {
       { name: WhatsAppMessage.name, schema: WhatsAppMessageSchema },
     ]),
     forwardRef(() => WhatsAppModule),
+    UploadModule,
   ],
   controllers: [ContactWhatsAppController],
   providers: [ContactService, ContactWhatsAppService, ContactResolver],

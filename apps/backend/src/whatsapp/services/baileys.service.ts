@@ -354,9 +354,61 @@ export class BaileysService implements OnModuleInit, OnModuleDestroy, IWhatsAppP
         'BaileysService',
       );
       return { success: true };
-    } catch (err) {
+    } catch (err: any) {
       this.logger.error(
         `Baileys send failed: ${err.message}`,
+        'BaileysService',
+      );
+      return { success: false, error: err.message };
+    }
+  }
+
+  async sendMedia(
+    phoneNumber: string,
+    mediaBuffer: Buffer,
+    fileName: string,
+    caption?: string,
+    mimeType?: string,
+  ): Promise<{ success: boolean; error?: string; messageId?: string }> {
+    if (this.connectionStatus !== 'connected' || !this.sock) {
+      return { success: false, error: 'Baileys not connected' };
+    }
+
+    try {
+      const normalized = this.normalizePhoneNumber(phoneNumber);
+      const jid = `${normalized}@s.whatsapp.net`;
+      const isImage =
+        mimeType?.startsWith('image') ||
+        Boolean(fileName.match(/\.(jpg|jpeg|png|webp|gif)$/i));
+
+      let sentMsg: any;
+      if (isImage) {
+        sentMsg = await this.sock.sendMessage(jid, {
+          image: mediaBuffer,
+          caption: caption || '',
+        });
+      } else {
+        sentMsg = await this.sock.sendMessage(jid, {
+          document: mediaBuffer,
+          fileName,
+          mimetype: mimeType || 'application/octet-stream',
+          caption: caption || '',
+        });
+      }
+
+      await this.sessionModel.findOneAndUpdate(
+        { sessionId: 'default' },
+        { lastMessageAt: new Date() },
+      );
+
+      this.logger.log(
+        `Baileys media message (${isImage ? 'image' : 'document'}) sent to ${phoneNumber}`,
+        'BaileysService',
+      );
+      return { success: true, messageId: sentMsg?.key?.id };
+    } catch (err: any) {
+      this.logger.error(
+        `Baileys media send failed: ${err.message}`,
         'BaileysService',
       );
       return { success: false, error: err.message };

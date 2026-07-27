@@ -77,3 +77,27 @@ export async function sendAck(
   if (!res.ok) throw new Error(data.message || "Failed to send ack");
   return data;
 }
+
+export async function sendMedia(
+  contactId: string,
+  file: File,
+  caption?: string,
+): Promise<{ success: boolean; message: any }> {
+  const formData = new FormData();
+  formData.append("file", file);
+  if (caption) {
+    formData.append("caption", caption);
+  }
+
+  const res = await fetch(`${apiBase()}/contact-support/${contactId}/send-media`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+    },
+    body: formData,
+  });
+
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || "Failed to send image");
+  return data;
+}

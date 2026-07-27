@@ -7,7 +7,10 @@ import {
   Query,
   HttpException,
   HttpStatus,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ContactWhatsAppService } from './services/contact-whatsapp.service';
 
 /**
@@ -89,6 +92,34 @@ export class ContactWhatsAppController {
     }
     try {
       const message = await this.contactWhatsAppService.sendFreeText(id, text);
+      return { success: true, message };
+    } catch (err) {
+      const status = err.status || HttpStatus.BAD_REQUEST;
+      throw new HttpException(err.message, status);
+    }
+  }
+
+  /**
+   * POST /contact-support/:id/send-media
+   * Uploads an image/media file and sends it to the customer via WhatsApp.
+   * Only allowed when the 24h window is open.
+   */
+  @Post(':id/send-media')
+  @UseInterceptors(FileInterceptor('file'))
+  async sendMedia(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Body('caption') caption?: string,
+  ) {
+    if (!file) {
+      throw new HttpException('file is required', HttpStatus.BAD_REQUEST);
+    }
+    try {
+      const message = await this.contactWhatsAppService.sendMedia(
+        id,
+        file,
+        caption,
+      );
       return { success: true, message };
     } catch (err) {
       const status = err.status || HttpStatus.BAD_REQUEST;

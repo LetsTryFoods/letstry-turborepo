@@ -13,6 +13,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import {
   Send,
+  Paperclip,
   FileText,
   Loader2,
   RefreshCw,
@@ -37,6 +38,7 @@ import { useContactSocket } from "@/lib/contact/useContactSocket";
 import {
   getConversation,
   sendFreeText,
+  sendMedia,
   sendTemplate,
   sendAck,
 } from "@/lib/contact/contact-whatsapp-api";
@@ -178,6 +180,9 @@ export default function SupportChatWindow({
   const [windowOpen, setWindowOpen] = useState(false);
   const [windowExpiresAt, setWindowExpiresAt] = useState<string | null>(null);
   const [showTemplatePicker, setShowTemplatePicker] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [filePreview, setFilePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -247,11 +252,30 @@ export default function SupportChatWindow({
     setShowScrollBtn(el.scrollHeight - el.scrollTop - el.clientHeight > 200);
   };
 
-  // ─── Send free text ───────────────────────────────────────────────────────
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      if (file.type.startsWith("image/")) {
+        setFilePreview(URL.createObjectURL(file));
+      } else {
+        setFilePreview(null);
+      }
+    }
+  };
+
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+    if (filePreview) URL.revokeObjectURL(filePreview);
+    setFilePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  // ─── Send free text / media ───────────────────────────────────────────────
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!replyText.trim() || !query?._id) return;
+    if ((!replyText.trim() && !selectedFile) || !query?._id) return;
 
     if (!windowOpen) {
       // Window expired — show template picker instead
@@ -261,7 +285,13 @@ export default function SupportChatWindow({
 
     try {
       setSending(true);
-      const data = await sendFreeText(query._id, replyText);
+      let data: any;
+      if (selectedFile) {
+        data = await sendMedia(query._id, selectedFile, replyText);
+      } else {
+        data = await sendFreeText(query._id, replyText);
+      }
+
       if (data.success && data.message) {
         if (!messageIdsRef.current.has(data.message._id)) {
           messageIdsRef.current.add(data.message._id);
@@ -269,6 +299,7 @@ export default function SupportChatWindow({
           setTimeout(() => scrollToBottom(true), 50);
         }
         setReplyText("");
+        handleRemoveFile();
         setSendError(null);
       }
     } catch (err: any) {
@@ -620,7 +651,45 @@ export default function SupportChatWindow({
             </div>
           )}
 
+          {filePreview && (
+            <div className="mb-2 relative inline-flex items-center gap-2 border rounded-xl p-1.5 bg-white shadow-sm max-w-[240px]">
+              <img src={filePreview} alt="Selected preview" className="h-14 w-14 object-cover rounded-lg shrink-0" />
+              <div className="flex-1 min-w-0 pr-6">
+                <p className="text-xs font-medium text-gray-800 truncate">{selectedFile?.name}</p>
+                <p className="text-[10px] text-gray-500">{((selectedFile?.size || 0) / 1024).toFixed(1)} KB</p>
+              </div>
+              <button
+                type="button"
+                onClick={handleRemoveFile}
+                className="absolute top-1 right-1 h-5 w-5 bg-gray-200 hover:bg-red-500 hover:text-white text-gray-600 rounded-full flex items-center justify-center text-xs transition-colors"
+                title="Remove attachment"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
           <form onSubmit={handleSend} className="flex items-end gap-2">
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept="image/*,.pdf,.doc,.docx"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+            {windowOpen && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={sending}
+                className="rounded-full h-11 w-11 text-gray-500 hover:text-[#00a884] hover:bg-emerald-50 shrink-0 mb-0.5"
+                title="Attach Image or File"
+              >
+                <Paperclip className="h-5 w-5" />
+              </Button>
+            )}
             <textarea
               ref={textareaRef}
               id="support-chat-input"
@@ -648,7 +717,7 @@ export default function SupportChatWindow({
               <Button
                 type="submit"
                 size="icon"
-                disabled={sending || !replyText.trim()}
+                disabled={sending || (!replyText.trim() && !selectedFile)}
                 className="rounded-full h-11 w-11 bg-[#00a884] hover:bg-[#008f6f] text-white shrink-0 shadow-sm transition-colors mb-0.5"
               >
                 {sending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5 ml-1" />}

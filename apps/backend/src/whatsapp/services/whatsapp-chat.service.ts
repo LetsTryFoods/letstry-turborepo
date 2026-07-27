@@ -97,7 +97,14 @@ export class WhatsAppChatService implements OnModuleInit {
     return { chat, messages };
   }
 
-  async saveOutgoingMessage(phoneNumber: string, content: string, messageId?: string, type: any = 'TEXT', contactId?: string): Promise<WhatsAppMessageDocument> {
+  async saveOutgoingMessage(
+    phoneNumber: string,
+    content: string,
+    messageId?: string,
+    type: any = 'TEXT',
+    contactId?: string,
+    mediaUrl?: string,
+  ): Promise<WhatsAppMessageDocument> {
     let chat = await this.chatModel.findOne({
       phoneNumber,
       status: WhatsAppChatStatus.OPEN,
@@ -121,6 +128,7 @@ export class WhatsAppChatService implements OnModuleInit {
       direction: WhatsAppMessageDirection.OUTGOING,
       type,
       content,
+      mediaUrl,
       timestamp: new Date(),
     });
 

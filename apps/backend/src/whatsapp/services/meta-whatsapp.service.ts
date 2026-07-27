@@ -624,6 +624,76 @@ export class MetaWhatsappService {
   }
 
   /**
+   * Sends a media image message within a 24-hour customer service session window.
+   */
+  async sendImage(
+    phoneNumber: string,
+    imageUrl: string,
+    caption?: string,
+  ): Promise<{ success: boolean; messageId?: string; error?: string }> {
+    if (!this.phoneNumberId || !this.accessToken) {
+      this.logger.warn('Meta WhatsApp credentials missing. Skipping sendImage.', 'MetaWhatsappService');
+      return { success: false, error: 'Meta credentials not configured' };
+    }
+
+    try {
+      const to = phoneNumber.startsWith('91') ? phoneNumber : `91${phoneNumber}`;
+      const response = await fetch(
+        `${this.baseUrl}/${this.phoneNumberId}/messages`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${this.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            messaging_product: 'whatsapp',
+            recipient_type: 'individual',
+            to,
+            type: 'image',
+            image: {
+              link: imageUrl,
+              caption: caption || '',
+            },
+          }),
+        },
+      );
+
+      const data = await response.json();
+      if (data.error) {
+        const errMsg = `[${data.error.code}] ${data.error.message}`;
+        this.logger.error(`WhatsApp sendImage error to ${phoneNumber}: ${errMsg}`, 'MetaWhatsappService');
+        this.logWhatsappAudit({
+          templateName: 'image-message',
+          phoneNumber,
+          status: 'FAILED',
+          error: errMsg,
+        });
+        return { success: false, error: errMsg };
+      }
+
+      const messageId = data?.messages?.[0]?.id;
+      this.logger.log(`Image message sent to ${phoneNumber} — messageId: ${messageId}`, 'MetaWhatsappService');
+      this.logWhatsappAudit({
+        templateName: 'image-message',
+        phoneNumber,
+        status: 'SUCCESS',
+        messageId,
+      });
+      return { success: true, messageId };
+    } catch (err: any) {
+      this.logger.error(`Failed to send image to ${phoneNumber}: ${err.message}`, 'MetaWhatsappService');
+      this.logWhatsappAudit({
+        templateName: 'image-message',
+        phoneNumber,
+        status: 'FAILED',
+        error: err.message,
+      });
+      return { success: false, error: err.message };
+    }
+  }
+
+  /**
    * Sends order refund notification via Meta WhatsApp API using `refundnotificationtemplate` template.
    *
    * Body parameters:
