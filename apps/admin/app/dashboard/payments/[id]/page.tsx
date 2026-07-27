@@ -474,13 +474,60 @@ export default function PaymentDetailPage() {
 
       {showRefundModal && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md space-y-4">
-            <h2 className="text-xl font-semibold">Initiate Refund</h2>
+          <div className="bg-white rounded-lg p-6 w-full max-w-md space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold">Initiate Refund</h2>
+              <button
+                onClick={() => setShowRefundModal(false)}
+                className="text-gray-400 hover:text-gray-600 text-xl leading-none"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Refund Type Quick Select */}
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setRefundAmount(remainingAmount.toString())}
+                className={`flex flex-col items-center justify-center gap-1 rounded-lg border-2 px-4 py-3 text-sm font-medium transition-colors ${
+                  parseFloat(refundAmount) === remainingAmount
+                    ? "border-red-500 bg-red-50 text-red-700"
+                    : "border-gray-200 hover:border-gray-300 text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                <span className="text-base font-bold">Full Refund</span>
+                <span className="text-xs opacity-70">
+                  {formatCurrency(remainingAmount.toString(), payment.currency)}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setRefundAmount("")}
+                className={`flex flex-col items-center justify-center gap-1 rounded-lg border-2 px-4 py-3 text-sm font-medium transition-colors ${
+                  refundAmount !== "" && parseFloat(refundAmount) !== remainingAmount
+                    ? "border-blue-500 bg-blue-50 text-blue-700"
+                    : "border-gray-200 hover:border-gray-300 text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                <span className="text-base font-bold">Partial Refund</span>
+                <span className="text-xs opacity-70">Enter custom amount</span>
+              </button>
+            </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">
-                Refund Amount
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-medium">
+                  Refund Amount
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setRefundAmount(remainingAmount.toString())}
+                  className="text-xs text-blue-600 hover:underline"
+                >
+                  Use max ({formatCurrency(remainingAmount.toString(), payment.currency)})
+                </button>
+              </div>
               <input
                 type="number"
                 id="refund-amount"
@@ -489,52 +536,58 @@ export default function PaymentDetailPage() {
                 onChange={(e) => setRefundAmount(e.target.value)}
                 max={remainingAmount}
                 step="0.01"
-                className="w-full border rounded px-3 py-2"
-                placeholder={`Max: ${remainingAmount}`}
+                className="w-full border rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-400"
+                placeholder={`Max: ₹${remainingAmount}`}
               />
               <p className="text-xs text-gray-500 mt-1">
-                Remaining refundable amount:{" "}
-                {formatCurrency(remainingAmount.toString(), payment.currency)}
+                Remaining refundable:{" "}
+                <span className="font-medium text-gray-700">
+                  {formatCurrency(remainingAmount.toString(), payment.currency)}
+                </span>
               </p>
             </div>
 
             <div>
               <label className="block text-sm font-medium mb-1">
-                Reason (optional)
+                Reason <span className="text-gray-400 font-normal">(optional)</span>
               </label>
               <textarea
                 id="refund-reason"
                 name="refundReason"
                 value={refundReason}
                 onChange={(e) => setRefundReason(e.target.value)}
-                className="w-full border rounded px-3 py-2"
+                className="w-full border rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-400"
                 rows={3}
                 placeholder="Enter refund reason..."
               />
             </div>
 
-            <div className="flex gap-2 justify-end">
+            {refundMutation.error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-red-600 text-sm">
+                Error initiating refund. Please try again.
+              </div>
+            )}
+
+            <div className="flex gap-2 justify-end pt-1">
               <button
                 onClick={() => setShowRefundModal(false)}
-                className="px-4 py-2 border rounded hover:bg-gray-50"
+                className="px-4 py-2 border rounded-lg hover:bg-gray-50 text-sm font-medium"
                 disabled={refundMutation.loading}
               >
                 Cancel
               </button>
               <button
                 onClick={handleRefundSubmit}
-                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
-                disabled={refundMutation.loading}
+                className="px-5 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 text-sm font-medium"
+                disabled={refundMutation.loading || !refundAmount}
               >
-                {refundMutation.loading ? "Processing..." : "Submit Refund"}
+                {refundMutation.loading
+                  ? "Processing..."
+                  : parseFloat(refundAmount) === remainingAmount
+                  ? `Full Refund — ${formatCurrency(refundAmount, payment.currency)}`
+                  : "Submit Refund"}
               </button>
             </div>
-
-            {refundMutation.error && (
-              <div className="text-red-600 text-sm">
-                Error initiating refund. Please try again.
-              </div>
-            )}
           </div>
         </div>
       )}
