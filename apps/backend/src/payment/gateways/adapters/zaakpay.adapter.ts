@@ -76,14 +76,17 @@ export class ZaakpayAdapter implements PaymentGatewayProvider {
     });
 
     const success =
-      result.responseCode === '230' || result.responseCode === '245';
+      result?.status === true ||
+      result?.message?.code === 100 ||
+      result?.responseCode === '230' ||
+      result?.responseCode === '245';
 
     return {
       success,
       refundId: params.refundId,
       gatewayRefundId: merchantRefId,
-      responseCode: result.responseCode,
-      responseMessage: result.responseDescription,
+      responseCode: result?.message?.code?.toString() || result?.responseCode || '100',
+      responseMessage: result?.message?.text || result?.responseDescription || 'Success',
       rawResponse: result,
     };
   }

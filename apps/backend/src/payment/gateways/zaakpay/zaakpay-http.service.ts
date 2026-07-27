@@ -33,6 +33,19 @@ export class ZaakpayHttpService {
     );
   }
 
+  async makeJsonRequest(
+    endpoint: string,
+    bodyObj: any,
+    checksum: string,
+  ): Promise<any> {
+    return axios.post(`${this.baseUrl}${endpoint}`, bodyObj, {
+      headers: {
+        'Content-Type': 'application/json',
+        checksum: checksum,
+      },
+    });
+  }
+
   handleError(error: any, context: string, additionalInfo: any): never {
     this.paymentLogger.error(context, error.stack, {
       ...additionalInfo,

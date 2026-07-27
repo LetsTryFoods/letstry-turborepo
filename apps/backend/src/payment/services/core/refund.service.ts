@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import {
@@ -9,6 +9,7 @@ import {
 import { ZaakpayGatewayService } from '../../gateways/zaakpay/zaakpay-gateway.service';
 import { LedgerService } from './ledger.service';
 import { PaymentLoggerService } from '../../../common/services/payment-logger.service';
+import { MetaWhatsappService } from '../../../whatsapp/services/meta-whatsapp.service';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
@@ -21,6 +22,7 @@ export class RefundService {
     private zaakpayGateway: ZaakpayGatewayService,
     private ledgerService: LedgerService,
     private paymentLogger: PaymentLoggerService,
+    @Optional() private metaWhatsappService?: MetaWhatsappService,
   ) {}
 
   async initiateRefund(params: {
@@ -77,17 +79,29 @@ export class RefundService {
         isPartialRefund: params.isPartialRefund,
       });
 
-      if (
-        zaakpayResponse.responseCode === '230' ||
-        zaakpayResponse.responseCode === '245'
-      ) {
+      const isSuccess =
+        zaakpayResponse?.status === true ||
+        zaakpayResponse?.message?.code === 100 ||
+        zaakpayResponse?.responseCode === '230' ||
+        zaakpayResponse?.responseCode === '245';
+
+      if (isSuccess) {
+        const respCode =
+          zaakpayResponse?.message?.code?.toString() ||
+          zaakpayResponse?.responseCode ||
+          '100';
+        const respMsg =
+          zaakpayResponse?.message?.text ||
+          zaakpayResponse?.responseDescription ||
+          'Refund Processed';
+
         await this.paymentRefundModel.findOneAndUpdate(
           { refundId },
           {
             refundStatus: PaymentStatus.SUCCESS,
             zaakpayRefundId: merchantRefId,
-            pspResponseCode: zaakpayResponse.responseCode,
-            pspResponseMessage: zaakpayResponse.responseDescription,
+            pspResponseCode: respCode,
+            pspResponseMessage: respMsg,
             pspRawResponse: zaakpayResponse,
             processedAt: new Date(),
           },
@@ -109,6 +123,34 @@ export class RefundService {
           { paymentOrderId: params.paymentOrderId },
           { paymentOrderStatus: newStatus },
         );
+
+        // Send WhatsApp Refund Notification
+        try {
+          if (this.metaWhatsappService) {
+            const rawOrder = paymentOrder as any;
+            const customerPhone =
+              rawOrder.placerContact?.phone ||
+              rawOrder.shippingAddress?.phone ||
+              rawOrder.buyerPhoneNumber ||
+              '';
+            const customerName =
+              rawOrder.placerContact?.name ||
+              rawOrder.shippingAddress?.fullName ||
+              rawOrder.buyerName ||
+              'Customer';
+
+            if (customerPhone) {
+              await this.metaWhatsappService.sendRefundNotification({
+                phoneNumber: customerPhone,
+                customerName,
+                refundAmount: `${params.refundAmount}rs`,
+                orderId: params.paymentOrderId,
+                refundId: merchantRefId,
+                reason: params.reason || 'shortage of item',
+              });
+            }
+          }
+        } catch {}
 
         this.paymentLogger.logRefundSuccess({
           refundId,
