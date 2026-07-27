@@ -69,10 +69,10 @@ export class ZaakpayAdapter implements PaymentGatewayProvider {
 
     const result = await this.zaakpayGateway.initiateRefund({
       orderId: params.orderId,
-      amount: params.refundAmount,
+      amount: params.refundAmount,       // always pass — Zaakpay v1 requires refundAmount
       updateReason: params.reason || 'Customer refund request',
       merchantRefId,
-      isPartialRefund: false,
+      isPartialRefund: params.isPartialRefund ?? false,
     });
 
     const success =

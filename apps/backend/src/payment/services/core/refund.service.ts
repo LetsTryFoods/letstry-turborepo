@@ -71,12 +71,15 @@ export class RefundService {
     });
 
     try {
+      // Zaakpay v1 API always requires refundAmount (integer in paisa).
+      // Compute isPartialRefund from amounts to ensure correct refundType ('P'/'F').
+      const isActualPartial = refundAmount < orderAmount;
       const zaakpayResponse = await this.zaakpayGateway.initiateRefund({
         orderId: params.paymentOrderId,
-        amount: params.isPartialRefund ? params.refundAmount : undefined,
+        amount: params.refundAmount,   // always pass — required by Zaakpay v1
         updateReason: params.reason,
         merchantRefId,
-        isPartialRefund: params.isPartialRefund,
+        isPartialRefund: isActualPartial,
       });
 
       const isSuccess =

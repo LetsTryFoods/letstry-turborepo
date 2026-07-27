@@ -58,6 +58,7 @@ export interface InitiateRefundParams {
   refundAmount: string;
   refundId: string;
   reason?: string;
+  isPartialRefund?: boolean;
 }
 
 export interface RefundResponse {
