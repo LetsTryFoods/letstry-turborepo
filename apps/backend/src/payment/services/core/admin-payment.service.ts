@@ -7,6 +7,7 @@ import {
   InitiateAdminRefundInput,
 } from '../../dto/admin-payment.input';
 import { RefundService } from './refund.service';
+import { Order } from '../../../order/order.schema';
 import {
   PaymentsListResponse,
   PaymentListItemType,
@@ -19,6 +20,8 @@ export class AdminPaymentService {
     private paymentOrderModel: Model<PaymentOrder>,
     @InjectModel(PaymentRefund.name)
     private paymentRefundModel: Model<PaymentRefund>,
+    @InjectModel(Order.name)
+    private orderModel: Model<Order>,
     private readonly refundService: RefundService,
   ) { }
 
@@ -80,10 +83,20 @@ export class AdminPaymentService {
     }
 
     if (filters?.searchQuery) {
+      const orderMatch = await this.orderModel.find({
+        orderId: { $regex: filters.searchQuery, $options: 'i' }
+      }).select('_id').lean().exec();
+      
+      const matchedOrderObjectIds = orderMatch.map(o => o._id);
+
       query.$or = [
         { paymentOrderId: { $regex: filters.searchQuery, $options: 'i' } },
         { pspTxnId: { $regex: filters.searchQuery, $options: 'i' } },
       ];
+
+      if (matchedOrderObjectIds.length > 0) {
+        query.$or.push({ orderId: { $in: matchedOrderObjectIds } });
+      }
     }
 
     const [payments, total] = await Promise.all([
