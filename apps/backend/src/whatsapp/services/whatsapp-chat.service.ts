@@ -23,7 +23,8 @@ export class WhatsAppChatService implements OnModuleInit {
   ) {}
 
   onModuleInit() {
-    this.baileysService.onMessage(this.handleIncomingMessage.bind(this));
+    // Baileys disabled per user request
+    // this.baileysService.onMessage(this.handleIncomingMessage.bind(this));
   }
 
   async handleIncomingMessage(msg: IncomingWhatsAppMessage): Promise<void> {

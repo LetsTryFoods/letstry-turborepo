@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { WhatsAppChatService } from './services/whatsapp-chat.service';
-import { BaileysService } from './services/baileys.service';
+import { MetaWhatsappService } from './services/meta-whatsapp.service';
 import { UploadService } from '../upload/upload.service';
 import * as crypto from 'crypto';
 
@@ -22,11 +22,10 @@ function normalizePhone(phone: string): string {
 }
 
 @Controller('whatsapp-chat')
-// @UseGuards(AdminAuthGuard)
 export class WhatsAppChatController {
   constructor(
     private readonly chatService: WhatsAppChatService,
-    private readonly baileysService: BaileysService,
+    private readonly metaService: MetaWhatsappService,
     private readonly uploadService: UploadService,
   ) {}
 
@@ -45,7 +44,7 @@ export class WhatsAppChatController {
     @Body('contactId') contactId?: string,
   ) {
     const normalized = normalizePhone(phoneNumber);
-    const result = await this.baileysService.sendMessage(
+    const result = await this.metaService.sendFreeText(
       normalized,
       messageText,
     );
@@ -96,13 +95,11 @@ export class WhatsAppChatController {
 
     const mediaUrl = this.uploadService.getCloudFrontUrl(finalKey);
 
-    // 2. Send via WhatsApp Baileys
-    const result = await this.baileysService.sendMedia(
+    // 2. Send via Meta WhatsApp Service
+    const result = await this.metaService.sendImage(
       normalized,
-      file.buffer,
-      file.originalname,
+      mediaUrl,
       caption || '',
-      file.mimetype,
     );
 
     if (result.success) {

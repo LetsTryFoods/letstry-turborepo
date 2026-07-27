@@ -43,15 +43,8 @@ export class BaileysService implements OnModuleInit, OnModuleDestroy, IWhatsAppP
   ) { }
 
   async onModuleInit() {
-    // Auto-connect on startup if we have a saved session
-    const session = await this.sessionModel.findOne({ sessionId: 'default' });
-    if (session?.creds) {
-      this.logger.log('Saved Baileys session found — auto-connecting', 'BaileysService');
-      // Non-blocking connect so it doesn't freeze NestJS server startup
-      this.connect().catch(err => this.logger.error(`Auto-connect failed: ${err.message}`, 'BaileysService'));
-    } else {
-      this.logger.log('No Baileys session found — waiting for QR scan', 'BaileysService');
-    }
+    // Baileys auto-connect disabled per user request
+    this.logger.log('Baileys auto-connect disabled', 'BaileysService');
   }
 
   async onModuleDestroy() {
