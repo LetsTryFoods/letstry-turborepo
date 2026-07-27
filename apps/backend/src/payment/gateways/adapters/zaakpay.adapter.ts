@@ -65,7 +65,7 @@ export class ZaakpayAdapter implements PaymentGatewayProvider {
   }
 
   async initiateRefund(params: InitiateRefundParams): Promise<RefundResponse> {
-    const merchantRefId = `MREF_${Date.now()}_${uuidv4().substring(0, 8)}`;
+    const merchantRefId = `MREF${Date.now()}${uuidv4().replace(/-/g, '').substring(0, 8)}`;
 
     const result = await this.zaakpayGateway.initiateRefund({
       orderId: params.orderId,

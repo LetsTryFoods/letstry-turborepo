@@ -51,7 +51,7 @@ export class RefundService {
     }
 
     const refundId = `REF_${uuidv4()}`;
-    const merchantRefId = `MREF_${Date.now()}_${uuidv4().substring(0, 8)}`;
+    const merchantRefId = `MREF${Date.now()}${uuidv4().replace(/-/g, '').substring(0, 8)}`;
 
     const refund = new this.paymentRefundModel({
       refundId,
