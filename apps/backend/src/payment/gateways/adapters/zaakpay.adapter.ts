@@ -76,7 +76,9 @@ export class ZaakpayAdapter implements PaymentGatewayProvider {
     });
 
     const success =
+      result?.success === true ||
       result?.status === true ||
+      result?.message?.code === '100' ||
       result?.message?.code === 100 ||
       result?.responseCode === '230' ||
       result?.responseCode === '245';

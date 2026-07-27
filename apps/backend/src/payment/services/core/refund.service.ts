@@ -80,7 +80,9 @@ export class RefundService {
       });
 
       const isSuccess =
+        zaakpayResponse?.success === true ||
         zaakpayResponse?.status === true ||
+        zaakpayResponse?.message?.code === '100' ||
         zaakpayResponse?.message?.code === 100 ||
         zaakpayResponse?.responseCode === '230' ||
         zaakpayResponse?.responseCode === '245';
