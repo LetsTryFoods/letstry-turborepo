@@ -431,6 +431,10 @@ export class MetaWhatsappService {
    * Sends a free-form text message within a 24-hour customer service session window.
    * Only works if the customer has messaged us in the last 24 hours.
    */
+  /**
+   * Sends a free-form text message within a 24-hour customer service session window.
+   * Only works if the customer has messaged us in the last 24 hours.
+   */
   async sendFreeText(
     phoneNumber: string,
     text: string,
@@ -472,6 +476,91 @@ export class MetaWhatsappService {
       return { success: true, messageId };
     } catch (err) {
       this.logger.error(`Failed to send free-text to ${phoneNumber}: ${err.message}`, 'MetaWhatsappService');
+      return { success: false, error: err.message };
+    }
+  }
+
+  /**
+   * Sends order refund notification via Meta WhatsApp API using `refundnotificationtemplate` template.
+   *
+   * Body parameters:
+   * {{1}} - Customer Name (e.g. "Ayush")
+   * {{2}} - Refund Amount (e.g. "400rs" or "₹400")
+   * {{3}} - Order ID (e.g. "ORD_12345")
+   * {{4}} - Refund ID (e.g. "REF_1232131231232")
+   * {{5}} - Reason (e.g. "due to shortage of the item")
+   * {{6}} - SLA Business Days (e.g. "5-6")
+   */
+  async sendRefundNotification(params: {
+    phoneNumber: string;
+    customerName: string;
+    refundAmount: string;
+    orderId: string;
+    refundId: string;
+    reason: string;
+    businessDays?: string;
+  }): Promise<{ success: boolean; error?: string }> {
+    if (!this.phoneNumberId || !this.accessToken) {
+      this.logger.warn('Meta WhatsApp credentials missing. Skipping refund notification.', 'MetaWhatsappService');
+      return { success: false, error: 'Meta credentials not configured' };
+    }
+
+    const {
+      phoneNumber,
+      customerName,
+      refundAmount,
+      orderId,
+      refundId,
+      reason,
+      businessDays = '5-6',
+    } = params;
+
+    try {
+      const to = phoneNumber.startsWith('91') ? phoneNumber : `91${phoneNumber}`;
+      const response = await fetch(
+        `${this.baseUrl}/${this.phoneNumberId}/messages`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${this.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            messaging_product: 'whatsapp',
+            to,
+            type: 'template',
+            template: {
+              name: 'refundnotificationtemplate',
+              language: { code: 'en' },
+              components: [
+                {
+                  type: 'body',
+                  parameters: [
+                    { type: 'text', text: customerName || 'Customer' },
+                    { type: 'text', text: refundAmount },
+                    { type: 'text', text: orderId },
+                    { type: 'text', text: refundId },
+                    { type: 'text', text: reason },
+                    { type: 'text', text: businessDays },
+                  ],
+                },
+              ],
+            },
+          }),
+        },
+      );
+
+      const data = await response.json();
+      if (data.error) {
+        const errMsg = `[${data.error.code}] ${data.error.message}`;
+        this.logger.error(`WhatsApp Refund API Error: ${errMsg}`, 'MetaWhatsappService', { data });
+        return { success: false, error: errMsg };
+      }
+
+      this.logger.log(`Meta WhatsApp refund notification sent to ${phoneNumber} for order ${orderId}`, 'MetaWhatsappService');
+      return { success: true };
+    } catch (err: any) {
+      this.logger.error(`Failed to send Meta WhatsApp refund notification: ${err.message}`, 'MetaWhatsappService');
       return { success: false, error: err.message };
     }
   }
