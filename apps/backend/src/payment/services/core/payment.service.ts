@@ -222,10 +222,16 @@ export class PaymentService {
         isPartialRefund,
       });
 
+      if (refund.refundStatus === PaymentStatus.FAILED) {
+        throw new BadRequestException(
+          `Refund failed: ${refund.pspResponseMessage || 'Gateway rejected refund'}`,
+        );
+      }
+
       return {
         refundId: refund.refundId,
         status: refund.refundStatus,
-        message: refund.pspResponseMessage,
+        message: refund.pspResponseMessage || 'Refund processed successfully',
       };
     } catch (error) {
       throw new BadRequestException(`Refund failed: ${error.message}`);

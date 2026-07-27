@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { PaymentOrder, PaymentRefund } from '../../entities/payment.schema';
+import { PaymentOrder, PaymentRefund, PaymentStatus } from '../../entities/payment.schema';
 import {
   GetPaymentsListInput,
   InitiateAdminRefundInput,
@@ -216,10 +216,17 @@ export class AdminPaymentService {
       isPartialRefund,
     });
 
+    if (refund.refundStatus === PaymentStatus.FAILED) {
+      const failReason = refund.pspResponseMessage || 'Gateway rejected refund';
+      throw new Error(`Refund Failed: ${failReason}`);
+    }
+
     return {
       success: true,
       refundId: refund.refundId,
-      message: 'Refund initiated successfully',
+      gatewayRefundId: (refund as any).pspRefundId || refund.refundId,
+      refundStatus: refund.refundStatus,
+      message: refund.pspResponseMessage || 'Refund processed successfully',
     };
   }
 
