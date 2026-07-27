@@ -24,7 +24,7 @@ export default function PaymentsPage() {
   const [minAmount, setMinAmount] = useState("");
   const [maxAmountInput, setMaxAmountInput] = useState("");
   const [maxAmount, setMaxAmount] = useState("");
-  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>(["SUCCESS"]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
