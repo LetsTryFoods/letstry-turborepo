@@ -1,12 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { WinstonLoggerService } from '../../logger/logger.service';
+import * as winston from 'winston';
+import * as path from 'path';
 
 @Injectable()
 export class MetaWhatsappService {
   private readonly phoneNumberId: string;
   private readonly accessToken: string;
   private readonly baseUrl = 'https://graph.facebook.com/v21.0';
+  private readonly fileLogger: winston.Logger;
 
   constructor(
     private readonly configService: ConfigService,
@@ -14,6 +17,36 @@ export class MetaWhatsappService {
   ) {
     this.phoneNumberId = this.configService.get<string>('metaWhatsapp.phoneNumberId') || '';
     this.accessToken = this.configService.get<string>('metaWhatsapp.accessToken') || '';
+
+    this.fileLogger = winston.createLogger({
+      level: 'info',
+      format: winston.format.combine(
+        winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+        winston.format.json(),
+      ),
+      defaultMeta: { service: 'whatsapp-meta' },
+      transports: [
+        new winston.transports.File({
+          filename: path.join('logs', 'whatsapp.log'),
+          level: 'info',
+        }),
+      ],
+    });
+  }
+
+  private logWhatsappAudit(data: {
+    templateName: string;
+    phoneNumber: string;
+    status: 'SUCCESS' | 'FAILED';
+    params?: any;
+    messageId?: string;
+    error?: string;
+  }) {
+    if (data.status === 'SUCCESS') {
+      this.fileLogger.info('WHATSAPP_SENT', data);
+    } else {
+      this.fileLogger.error('WHATSAPP_FAILED', data);
+    }
   }
 
   async sendOtpTemplate(phoneNumber: string, otpCode: string): Promise<boolean> {
@@ -58,12 +91,30 @@ export class MetaWhatsappService {
       const data = await response.json();
       if (data.error) {
         this.logger.error(`WhatsApp API Error: ${data.error.message}`, 'MetaWhatsappService', { data });
+        this.logWhatsappAudit({
+          templateName: 'letstryotp',
+          phoneNumber,
+          status: 'FAILED',
+          error: data.error.message,
+        });
         return false;
       }
       this.logger.log(`Meta WhatsApp OTP sent successfully to ${phoneNumber}`, 'MetaWhatsappService');
+      this.logWhatsappAudit({
+        templateName: 'letstryotp',
+        phoneNumber,
+        status: 'SUCCESS',
+        messageId: data?.messages?.[0]?.id,
+      });
       return true;
-    } catch (err) {
+    } catch (err: any) {
       this.logger.error(`Failed to send Meta WhatsApp: ${err.message}`, 'MetaWhatsappService');
+      this.logWhatsappAudit({
+        templateName: 'letstryotp',
+        phoneNumber,
+        status: 'FAILED',
+        error: err.message,
+      });
       return false;
     }
   }
@@ -117,12 +168,33 @@ export class MetaWhatsappService {
       const data = await response.json();
       if (data.error) {
         this.logger.error(`WhatsApp API Error (paymentconfirm): ${data.error.message}`, 'MetaWhatsappService', { data });
+        this.logWhatsappAudit({
+          templateName: 'paymentconfirm',
+          phoneNumber,
+          status: 'FAILED',
+          params: { orderId, amountPaid, paymentMode, transactionId },
+          error: data.error.message,
+        });
         return false;
       }
       this.logger.log(`Meta WhatsApp payment confirmation sent successfully to ${phoneNumber}`, 'MetaWhatsappService');
+      this.logWhatsappAudit({
+        templateName: 'paymentconfirm',
+        phoneNumber,
+        status: 'SUCCESS',
+        params: { orderId, amountPaid, paymentMode, transactionId },
+        messageId: data?.messages?.[0]?.id,
+      });
       return true;
-    } catch (err) {
+    } catch (err: any) {
       this.logger.error(`Failed to send Meta WhatsApp payment confirmation: ${err.message}`, 'MetaWhatsappService');
+      this.logWhatsappAudit({
+        templateName: 'paymentconfirm',
+        phoneNumber,
+        status: 'FAILED',
+        params: { orderId, amountPaid, paymentMode, transactionId },
+        error: err.message,
+      });
       return false;
     }
   }
@@ -306,12 +378,33 @@ export class MetaWhatsappService {
       const data = await response.json();
       if (data.error) {
         this.logger.error(`WhatsApp API Error (deliveryutilitymarch): ${data.error.message}`, 'MetaWhatsappService', { data });
+        this.logWhatsappAudit({
+          templateName: 'deliveryutilitymarch',
+          phoneNumber,
+          status: 'FAILED',
+          params: { orderDate, awbNumber },
+          error: data.error.message,
+        });
         return false;
       }
       this.logger.log(`Meta WhatsApp delivery notification sent to ${phoneNumber} — AWB: ${awbNumber}`, 'MetaWhatsappService');
+      this.logWhatsappAudit({
+        templateName: 'deliveryutilitymarch',
+        phoneNumber,
+        status: 'SUCCESS',
+        params: { orderDate, awbNumber },
+        messageId: data?.messages?.[0]?.id,
+      });
       return true;
-    } catch (err) {
+    } catch (err: any) {
       this.logger.error(`Failed to send Meta WhatsApp delivery notification: ${err.message}`, 'MetaWhatsappService');
+      this.logWhatsappAudit({
+        templateName: 'deliveryutilitymarch',
+        phoneNumber,
+        status: 'FAILED',
+        params: { orderDate, awbNumber },
+        error: err.message,
+      });
       return false;
     }
   }
@@ -358,6 +451,12 @@ export class MetaWhatsappService {
           'MetaWhatsappService',
           { data },
         );
+        this.logWhatsappAudit({
+          templateName,
+          phoneNumber,
+          status: 'FAILED',
+          error: errMsg,
+        });
         return { success: false, error: errMsg };
       }
 
@@ -365,12 +464,24 @@ export class MetaWhatsappService {
         `Meta WhatsApp generic template "${templateName}" sent to ${phoneNumber}`,
         'MetaWhatsappService',
       );
+      this.logWhatsappAudit({
+        templateName,
+        phoneNumber,
+        status: 'SUCCESS',
+        messageId: data?.messages?.[0]?.id,
+      });
       return { success: true };
-    } catch (err) {
+    } catch (err: any) {
       this.logger.error(
         `Failed to send Meta WhatsApp generic template "${templateName}": ${err.message}`,
         'MetaWhatsappService',
       );
+      this.logWhatsappAudit({
+        templateName,
+        phoneNumber,
+        status: 'FAILED',
+        error: err.message,
+      });
       return { success: false, error: err.message };
     }
   }
@@ -417,20 +528,34 @@ export class MetaWhatsappService {
       if (data.error) {
         const errMsg = `[${data.error.code}] ${data.error.message}`;
         this.logger.error(`WhatsApp API Error (leftcustomer): ${errMsg}`, 'MetaWhatsappService', { data });
+        this.logWhatsappAudit({
+          templateName: 'leftcustomer',
+          phoneNumber,
+          status: 'FAILED',
+          error: errMsg,
+        });
         return { success: false, error: errMsg };
       }
       this.logger.log(`Meta WhatsApp promotional message (leftcustomer) sent to ${phoneNumber}`, 'MetaWhatsappService');
+      this.logWhatsappAudit({
+        templateName: 'leftcustomer',
+        phoneNumber,
+        status: 'SUCCESS',
+        messageId: data?.messages?.[0]?.id,
+      });
       return { success: true };
-    } catch (err) {
+    } catch (err: any) {
       this.logger.error(`Failed to send Meta WhatsApp leftcustomer template: ${err.message}`, 'MetaWhatsappService');
+      this.logWhatsappAudit({
+        templateName: 'leftcustomer',
+        phoneNumber,
+        status: 'FAILED',
+        error: err.message,
+      });
       return { success: false, error: err.message };
     }
   }
 
-  /**
-   * Sends a free-form text message within a 24-hour customer service session window.
-   * Only works if the customer has messaged us in the last 24 hours.
-   */
   /**
    * Sends a free-form text message within a 24-hour customer service session window.
    * Only works if the customer has messaged us in the last 24 hours.
@@ -468,14 +593,32 @@ export class MetaWhatsappService {
       if (data.error) {
         const errMsg = `[${data.error.code}] ${data.error.message}`;
         this.logger.error(`WhatsApp free-text error to ${phoneNumber}: ${errMsg}`, 'MetaWhatsappService');
+        this.logWhatsappAudit({
+          templateName: 'free-text',
+          phoneNumber,
+          status: 'FAILED',
+          error: errMsg,
+        });
         return { success: false, error: errMsg };
       }
 
       const messageId = data?.messages?.[0]?.id;
       this.logger.log(`Free-text sent to ${phoneNumber} — messageId: ${messageId}`, 'MetaWhatsappService');
+      this.logWhatsappAudit({
+        templateName: 'free-text',
+        phoneNumber,
+        status: 'SUCCESS',
+        messageId,
+      });
       return { success: true, messageId };
-    } catch (err) {
+    } catch (err: any) {
       this.logger.error(`Failed to send free-text to ${phoneNumber}: ${err.message}`, 'MetaWhatsappService');
+      this.logWhatsappAudit({
+        templateName: 'free-text',
+        phoneNumber,
+        status: 'FAILED',
+        error: err.message,
+      });
       return { success: false, error: err.message };
     }
   }
@@ -554,13 +697,34 @@ export class MetaWhatsappService {
       if (data.error) {
         const errMsg = `[${data.error.code}] ${data.error.message}`;
         this.logger.error(`WhatsApp Refund API Error: ${errMsg}`, 'MetaWhatsappService', { data });
+        this.logWhatsappAudit({
+          templateName: 'refundnotificationtemplate',
+          phoneNumber,
+          status: 'FAILED',
+          params: { customerName, refundAmount, orderId, refundId, reason },
+          error: errMsg,
+        });
         return { success: false, error: errMsg };
       }
 
       this.logger.log(`Meta WhatsApp refund notification sent to ${phoneNumber} for order ${orderId}`, 'MetaWhatsappService');
+      this.logWhatsappAudit({
+        templateName: 'refundnotificationtemplate',
+        phoneNumber,
+        status: 'SUCCESS',
+        params: { customerName, refundAmount, orderId, refundId, reason },
+        messageId: data?.messages?.[0]?.id,
+      });
       return { success: true };
     } catch (err: any) {
       this.logger.error(`Failed to send Meta WhatsApp refund notification: ${err.message}`, 'MetaWhatsappService');
+      this.logWhatsappAudit({
+        templateName: 'refundnotificationtemplate',
+        phoneNumber,
+        status: 'FAILED',
+        params: { customerName, refundAmount, orderId, refundId, reason },
+        error: err.message,
+      });
       return { success: false, error: err.message };
     }
   }
