@@ -2206,6 +2206,7 @@ type Mutation {
   initiatePayment(input: InitiatePaymentInput!): InitiatePaymentResponse!
   processRefund(input: ProcessRefundInput!): RefundResponse!
   initiateAdminRefund(input: InitiateAdminRefundInput!): RefundInitiateResponse!
+  triggerRefundWhatsAppNotification(refundId: String!): RefundInitiateResponse!
   cancelOrder(input: CancelOrderInput!): OrderType!
   updateOrderStatus(input: UpdateOrderStatusInput!): OrderType!
   assignBoxToOrder(input: AssignBoxToOrderInput!): OrderType!
