@@ -264,6 +264,28 @@ export default function SupportChatWindow({
     }
   };
 
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.type.indexOf("image") !== -1) {
+        e.preventDefault();
+        const file = item.getAsFile();
+        if (file) {
+          const ext = file.type.split("/")[1] || "png";
+          const pastedFile = new File([file], `pasted_image_${Date.now()}.${ext}`, {
+            type: file.type,
+          });
+          setSelectedFile(pastedFile);
+          setFilePreview(URL.createObjectURL(pastedFile));
+        }
+        break;
+      }
+    }
+  };
+
   const handleRemoveFile = () => {
     setSelectedFile(null);
     if (filePreview) URL.revokeObjectURL(filePreview);
@@ -421,7 +443,7 @@ export default function SupportChatWindow({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange} modal={false}>
-      <SheetContent className="w-full sm:w-[420px] md:w-[560px] flex flex-col p-0 gap-0 sm:max-w-none shadow-2xl pointer-events-auto">
+      <SheetContent onPaste={handlePaste} className="w-full sm:w-[420px] md:w-[560px] flex flex-col p-0 gap-0 sm:max-w-none shadow-2xl pointer-events-auto">
 
         <SheetHeader className="p-0 shrink-0 border-b border-gray-200">
           <div className="flex items-center gap-3 px-4 py-3 bg-[#f0f2f5] text-[#111b21]">
@@ -693,8 +715,9 @@ export default function SupportChatWindow({
             <textarea
               ref={textareaRef}
               id="support-chat-input"
-              placeholder={windowOpen ? "Type a message..." : "Session expired — use templates"}
+              placeholder={windowOpen ? "Type a message or paste an image..." : "Session expired — use templates"}
               value={replyText}
+              onPaste={handlePaste}
               onChange={(e) => {
                 setReplyText(e.target.value);
                 e.target.style.height = "auto";
