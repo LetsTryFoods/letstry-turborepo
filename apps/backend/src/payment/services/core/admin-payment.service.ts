@@ -118,7 +118,7 @@ export class AdminPaymentService {
 
     const refunds = await this.paymentRefundModel
       .find({
-        paymentOrderId: { $in: allPayments.map((p) => p._id) },
+        paymentOrderId: { $in: allPayments.map((p) => p.paymentOrderId) },
         refundStatus: 'SUCCESS',
       } as any)
       .lean()
@@ -154,7 +154,7 @@ export class AdminPaymentService {
     }
 
     const refunds = await this.paymentRefundModel
-      .find({ paymentOrderId: payment._id })
+      .find({ paymentOrderId: payment.paymentOrderId })
       .lean()
       .exec();
 
@@ -195,7 +195,7 @@ export class AdminPaymentService {
     }
 
     const existingRefunds = await this.paymentRefundModel.find({
-      paymentOrderId: payment._id,
+      paymentOrderId: payment.paymentOrderId,
     });
 
     const totalRefunded = existingRefunds.reduce(
