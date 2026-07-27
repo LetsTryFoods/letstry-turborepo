@@ -295,7 +295,7 @@ export class RefundService {
       throw new Error('Refund not found');
     }
 
-    const paymentOrder = await this.paymentOrderModel.findById(refund.paymentOrderId).lean();
+    const paymentOrder = await this.paymentOrderModel.findOne({ paymentOrderId: refund.paymentOrderId }).lean();
     if (!paymentOrder) {
       throw new Error('PaymentOrder not found');
     }
