@@ -20,7 +20,7 @@ export class AdminPaymentService {
     @InjectModel(PaymentRefund.name)
     private paymentRefundModel: Model<PaymentRefund>,
     private readonly refundService: RefundService,
-  ) {}
+  ) { }
 
   async getPaymentsList(input: GetPaymentsListInput): Promise<PaymentsListResponse> {
     const { page, limit, filters } = input;
@@ -97,36 +97,71 @@ export class AdminPaymentService {
       this.paymentOrderModel.countDocuments(query).exec(),
     ]);
 
-    const allPayments = await this.paymentOrderModel.find(query).lean().exec();
+    const [summaryResult] = await this.paymentOrderModel.aggregate([
+      { $match: query },
+      {
+        $group: {
+          _id: null,
+          totalAmount: {
+            $sum: {
+              $cond: [
+                { $eq: ['$paymentOrderStatus', 'SUCCESS'] },
+                { $toDouble: '$amount' },
+                0,
+              ],
+            },
+          },
+          successCount: {
+            $sum: {
+              $cond: [{ $eq: ['$paymentOrderStatus', 'SUCCESS'] }, 1, 0],
+            },
+          },
+          failedCount: {
+            $sum: {
+              $cond: [{ $eq: ['$paymentOrderStatus', 'FAILED'] }, 1, 0],
+            },
+          },
+          pendingCount: {
+            $sum: {
+              $cond: [{ $eq: ['$paymentOrderStatus', 'PENDING'] }, 1, 0],
+            },
+          },
+        },
+      },
+    ]);
 
     const summary = {
       totalPayments: total,
-      totalAmount: allPayments
-        .filter((p) => p.paymentOrderStatus === 'SUCCESS')
-        .reduce((sum, p) => sum + parseFloat(p.amount), 0)
-        .toFixed(2),
-      totalRefunded: '0',
-      successCount: allPayments.filter(
-        (p) => p.paymentOrderStatus === 'SUCCESS',
-      ).length,
-      failedCount: allPayments.filter((p) => p.paymentOrderStatus === 'FAILED')
-        .length,
-      pendingCount: allPayments.filter(
-        (p) => p.paymentOrderStatus === 'PENDING',
-      ).length,
+      totalAmount: (summaryResult?.totalAmount || 0).toFixed(2),
+      successCount: summaryResult?.successCount || 0,
+      failedCount: summaryResult?.failedCount || 0,
+      pendingCount: summaryResult?.pendingCount || 0,
+      totalRefunded: '0.00',
     };
 
-    const refunds = await this.paymentRefundModel
-      .find({
-        paymentOrderId: { $in: allPayments.map((p) => p.paymentOrderId) },
-        refundStatus: 'SUCCESS',
-      } as any)
+    const allPaymentIds = await this.paymentOrderModel
+      .find(query)
+      .select('paymentOrderId')
       .lean()
       .exec();
 
-    summary.totalRefunded = refunds
-      .reduce((sum, r) => sum + parseFloat(r.refundAmount), 0)
-      .toFixed(2);
+    if (allPaymentIds.length > 0) {
+      const [refundsSummary] = await this.paymentRefundModel.aggregate([
+        {
+          $match: {
+            paymentOrderId: { $in: allPaymentIds.map((p) => p.paymentOrderId) },
+            refundStatus: 'SUCCESS',
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalRefunded: { $sum: { $toDouble: '$refundAmount' } },
+          },
+        },
+      ]);
+      summary.totalRefunded = (refundsSummary?.totalRefunded || 0).toFixed(2);
+    }
 
     return {
       payments: payments.map((p) => ({
