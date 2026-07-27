@@ -41,10 +41,11 @@ export default function PaymentDetailPage() {
       const res = await triggerWaMutation.mutate({
         variables: { refundId },
       });
-      if (res.data?.triggerRefundWhatsAppNotification?.success) {
+      const data = res.data as any;
+      if (data?.triggerRefundWhatsAppNotification?.success) {
         alert("WhatsApp notification sent successfully!");
       } else {
-        alert("Failed to send WhatsApp notification: " + res.data?.triggerRefundWhatsAppNotification?.message);
+        alert("Failed to send WhatsApp notification: " + data?.triggerRefundWhatsAppNotification?.message);
       }
     } catch (err: any) {
       alert("Error triggering WhatsApp notification: " + err.message);
