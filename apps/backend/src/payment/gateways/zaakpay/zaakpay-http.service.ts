@@ -38,7 +38,9 @@ export class ZaakpayHttpService {
     bodyObj: any,
     checksum: string,
   ): Promise<any> {
-    return axios.post(`${this.baseUrl}${endpoint}`, bodyObj, {
+    // Serialize once here so the exact bytes sent match the checksum we calculated
+    const bodyString = typeof bodyObj === 'string' ? bodyObj : JSON.stringify(bodyObj);
+    return axios.post(`${this.baseUrl}${endpoint}`, bodyString, {
       headers: {
         'Content-Type': 'application/json',
         checksum: checksum,

@@ -26,31 +26,32 @@ export class ZaakpayRefundService {
     merchantRefId: string;
     isPartialRefund: boolean;
   }): Promise<any> {
-    // 1. Convert amount to paisa for Zaakpay v1 API
+    // Convert amount to paisa (integer) — required for both Full and Partial per Zaakpay v1 docs
     const amountNum = parseFloat(params.amount || '0');
     const amountInPaisa = Math.round(amountNum * 100);
 
-    // Zaakpay v1 API Specs:
-    // Always use refundType 'P' with amountInPaisa when refunding a specific amount (both partial and full),
-    // as Zaakpay validates 0 < refundAmount <= totalOrderAmount under 'P'.
-    const bodyObj: any = {
+    if (amountInPaisa <= 0) {
+      throw new Error('Refund amount must be greater than 0');
+    }
+
+    // Build payload with EXACTLY the same field order as what will be sent,
+    // so the checksum matches what Zaakpay receives on its end.
+    // Per official docs: merchantIdentifier, orderId, refundType, refundAmount, merchantRefundId
+    const bodyObj = {
       merchantIdentifier: this.merchantId,
       orderId: params.orderId,
-      refundType: amountInPaisa > 0 ? 'P' : 'F',
+      refundType: params.isPartialRefund ? 'P' : 'F',
+      refundAmount: amountInPaisa,          // integer in paisa — mandatory per docs
       merchantRefundId: params.merchantRefId,
     };
 
-    if (amountInPaisa > 0) {
-      bodyObj.refundAmount = amountInPaisa;
-    }
-
+    // Checksum MUST be computed from the exact string that will be sent as the body
     const dataString = JSON.stringify(bodyObj);
     const checksum = this.checksumService.generateChecksum(dataString);
 
     this.logRequest(dataString, checksum);
 
     try {
-      // Primary: Official Zaakpay v1 Refund API
       const response = await this.httpService.makeJsonRequest(
         '/api/payments/v1/refund',
         bodyObj,
