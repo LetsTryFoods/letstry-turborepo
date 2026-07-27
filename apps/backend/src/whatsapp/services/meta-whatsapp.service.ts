@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { WinstonLoggerService } from '../../logger/logger.service';
+import { BaileysMessageLogService } from './baileys-message-log.service';
 import * as winston from 'winston';
 import * as path from 'path';
 
@@ -14,6 +15,7 @@ export class MetaWhatsappService {
   constructor(
     private readonly configService: ConfigService,
     private readonly logger: WinstonLoggerService,
+    private readonly logService: BaileysMessageLogService,
   ) {
     this.phoneNumberId = this.configService.get<string>('metaWhatsapp.phoneNumberId') || '';
     this.accessToken = this.configService.get<string>('metaWhatsapp.accessToken') || '';
@@ -42,11 +44,33 @@ export class MetaWhatsappService {
     messageId?: string;
     error?: string;
   }) {
+    // 1. Write to file log
     if (data.status === 'SUCCESS') {
       this.fileLogger.info('WHATSAPP_SENT', data);
     } else {
       this.fileLogger.error('WHATSAPP_FAILED', data);
     }
+
+    // 2. Save to DB so admin WhatsApp logs page shows Meta template notifications
+    const orderId = data.params?.orderId || data.params?.order_id || undefined;
+    const recipientName = data.params?.customerName || data.params?.name || undefined;
+
+    this.logService.logMessage({
+      phoneNumber: data.phoneNumber,
+      recipientName,
+      orderId,
+      templateName: data.templateName,
+      channel: 'META',
+      status: data.status,
+      primaryAttempted: true,
+      primarySuccess: data.status === 'SUCCESS',
+      fallbackAttempted: false,
+      fallbackSuccess: false,
+      errorMessage: data.error,
+      payload: data.params || {},
+    }).catch((err) => {
+      this.logger.error(`Failed to save WhatsApp audit log to DB: ${err.message}`, 'MetaWhatsappService');
+    });
   }
 
   async sendOtpTemplate(phoneNumber: string, otpCode: string): Promise<boolean> {

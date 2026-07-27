@@ -39,6 +39,7 @@ export class BaileysMessageLogService {
       status?: string;
       channel?: string;
       orderId?: string;
+      templateName?: string;
       from?: Date;
       to?: Date;
     },
@@ -49,6 +50,7 @@ export class BaileysMessageLogService {
     if (filters.status) query.status = filters.status;
     if (filters.channel) query.channel = filters.channel;
     if (filters.orderId) query.orderId = filters.orderId;
+    if (filters.templateName) query.templateName = filters.templateName;
     if (filters.from || filters.to) {
       query.sentAt = {};
       if (filters.from) query.sentAt.$gte = filters.from;

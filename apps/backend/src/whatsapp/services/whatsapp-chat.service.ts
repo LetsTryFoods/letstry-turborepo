@@ -20,7 +20,7 @@ export class WhatsAppChatService implements OnModuleInit {
     private readonly messageModel: Model<WhatsAppMessageDocument>,
     private readonly uploadService: UploadService,
     private readonly baileysService: BaileysService,
-  ) {}
+  ) { }
 
   onModuleInit() {
     // Baileys disabled per user request
@@ -58,7 +58,7 @@ export class WhatsAppChatService implements OnModuleInit {
         const key = `whatsapp/${chat._id}/${uid}${extension}`;
 
         await this.uploadService.uploadFile(key, msg.mediaBuffer, msg.mediaFileName);
-        
+
         const finalKey = (this.uploadService.isImageFile(this.uploadService.getContentTypeFromExtension(msg.mediaFileName)) && extension !== '.gif')
           ? key.replace(/\.[^.]+$/, '.webp')
           : key;

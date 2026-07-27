@@ -99,6 +99,7 @@ export default function WhatsAppPage() {
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState('');
   const [channelFilter, setChannelFilter] = useState('');
+  const [templateFilter, setTemplateFilter] = useState('');
   const [loading, setLoading] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [editingLimit, setEditingLimit] = useState(false);
@@ -158,12 +159,13 @@ export default function WhatsAppPage() {
       const params = new URLSearchParams({ page: String(page), limit: '20' });
       if (statusFilter) params.set('status', statusFilter);
       if (channelFilter) params.set('channel', channelFilter);
+      if (templateFilter) params.set('templateName', templateFilter);
       const { data } = await api.get(`${WHATSAPP_API_BASE}/whatsapp/logs?${params}`);
       setLogs(data.logs || []);
       setLogsTotal(data.total || 0);
     } catch { /* silent */ }
     setLoading(false);
-  }, [page, statusFilter, channelFilter]);
+  }, [page, statusFilter, channelFilter, templateFilter]);
 
   // ── Init & polling ──────────────────────────────────────────────────────────
 
@@ -701,6 +703,27 @@ export default function WhatsAppPage() {
               <option value="BAILEYS">Baileys</option>
               <option value="NONE">None</option>
             </select>
+            <select
+              value={templateFilter}
+              onChange={(e) => { setTemplateFilter(e.target.value); setPage(1); }}
+              className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">All Templates</option>
+              <option value="refundnotificationtemplate">🔄 Refund Notification</option>
+              <option value="paymentconfirm">💳 Payment Confirm</option>
+              <option value="ordershipped">🚚 Order Shipped</option>
+              <option value="deliveryutilitymarch">📦 Delivery Utility</option>
+              <option value="letstryotp">🔑 OTP</option>
+              <option value="leftcustomer">👋 Left Customer</option>
+            </select>
+            {(statusFilter || channelFilter || templateFilter) && (
+              <button
+                onClick={() => { setStatusFilter(''); setChannelFilter(''); setTemplateFilter(''); setPage(1); }}
+                className="text-sm text-red-500 hover:text-red-700 border border-red-200 hover:border-red-400 rounded-lg px-3 py-1.5 transition-colors"
+              >
+                Clear Filters
+              </button>
+            )}
           </div>
         </div>
 

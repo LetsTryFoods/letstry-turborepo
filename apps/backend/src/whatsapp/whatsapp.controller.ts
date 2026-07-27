@@ -264,6 +264,7 @@ export class WhatsAppController {
     @Query('status') status?: string,
     @Query('channel') channel?: string,
     @Query('orderId') orderId?: string,
+    @Query('templateName') templateName?: string,
     @Query('from') from?: string,
     @Query('to') to?: string,
   ) {
@@ -272,6 +273,7 @@ export class WhatsAppController {
         status,
         channel,
         orderId,
+        templateName,
         from: from ? new Date(from) : undefined,
         to: to ? new Date(to) : undefined,
       },
