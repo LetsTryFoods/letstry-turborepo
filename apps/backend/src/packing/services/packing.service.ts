@@ -1333,7 +1333,7 @@ export class PackingService {
       const address = await this.addressModel.findById(order.shippingAddressId).exec();
       if (!address) return null;
 
-      const addressLine1 = address.buildingName + (address.floor ? `, Floor ${address.floor}` : '');
+      const addressLine1 = [address.floor, address.buildingName].filter(Boolean).join(', ');
       const addressLine2 = [address.streetArea, address.landmark].filter(Boolean).join(', ');
 
       return {

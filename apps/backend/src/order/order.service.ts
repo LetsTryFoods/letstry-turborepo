@@ -245,7 +245,7 @@ export class OrderService {
         fullName: address.recipientName,
         phone: address.recipientPhone,
         addressType: address.addressType,
-        addressLine1: address.buildingName,
+        addressLine1: [address.floor, address.buildingName].filter(Boolean).join(', '),
         addressLine2: address.streetArea,
         floor: address.floor,
         city: address.addressLocality,
