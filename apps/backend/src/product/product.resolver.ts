@@ -327,7 +327,7 @@ export class ProductResolver {
   async getAvailableVariants(
     @Parent() product: Product,
   ): Promise<ProductVariant[]> {
-    return product.variants.filter((v) => v.isActive && v.stockQuantity > 0);
+    return product.variants.filter((v) => v.isActive && v.availabilityStatus === 'in_stock');
   }
 
   @ResolveField(() => ProductSeo, { name: 'seo', nullable: true })

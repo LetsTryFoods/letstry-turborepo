@@ -26,6 +26,7 @@ export interface Product {
     price: number;
     mrp?: number;
     isOutOfStock?: boolean;
+    stockQuantity?: number;
   }[];
   badge?: {
     label: string;
@@ -82,6 +83,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     mrp: product.mrp,
     weight: product.variants[0]?.weight,
     isOutOfStock: product.variants[0]?.isOutOfStock,
+    stockQuantity: product.variants[0]?.stockQuantity,
   };
 
   const isOutOfStock = selectedVariant.isOutOfStock || false;
@@ -122,6 +124,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
   const handleIncrement = async () => {
     if (isLoading) return;
+    if (selectedVariant.stockQuantity !== undefined && quantityInCart >= selectedVariant.stockQuantity) {
+      toast.error(`Only ${selectedVariant.stockQuantity} piece(s) available.`);
+      return;
+    }
 
     setIsLoading(true);
     try {

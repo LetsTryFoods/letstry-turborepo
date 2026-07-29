@@ -46,6 +46,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
 import { SkuMasterModule } from './sku-master/sku-master.module';
 import { SampleInvoiceModule } from './sample-invoice/sample-invoice.module';
 import { PrometheusModule } from '@willsoto/nestjs-prometheus';
+import { StockBatchModule } from './stock-batch/stock-batch.module';
 
 @Module({
   imports: [
@@ -87,6 +88,7 @@ import { PrometheusModule } from '@willsoto/nestjs-prometheus';
     NewsletterModule,
     OrderModule,
     PackingModule,
+    StockBatchModule,
     BoxSizeModule,
     ShipmentModule,
     RedirectModule,

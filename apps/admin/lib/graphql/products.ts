@@ -384,6 +384,30 @@ export const SEARCH_PRODUCTS = gql`
   }
 `;
 
+// Inventory-specific search — includes full variants[] so the hub can show
+// all SKUs / stock levels per product (not just the defaultVariant).
+export const SEARCH_PRODUCTS_INVENTORY = gql`
+  query SearchProductsInventory($searchTerm: String!, $pagination: PaginationInput, $includeArchived: Boolean) {
+    searchProducts(searchTerm: $searchTerm, pagination: $pagination, includeArchived: $includeArchived) {
+      items {
+        _id
+        name
+        variants {
+          ${VARIANT_FIELDS}
+        }
+      }
+      meta {
+        totalCount
+        page
+        limit
+        totalPages
+        hasNextPage
+        hasPreviousPage
+      }
+    }
+  }
+`;
+
 export const CREATE_PRODUCT = gql`
   mutation CreateProduct($input: CreateProductInput!) {
     createProduct(input: $input) {

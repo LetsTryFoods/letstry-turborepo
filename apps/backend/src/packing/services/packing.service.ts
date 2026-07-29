@@ -4,6 +4,7 @@ import { Queue } from 'bullmq';
 import { OrderAssignmentService } from './domain/order-assignment.service';
 import { PackingQueueService } from './domain/packing-queue.service';
 import { SettingsService } from '../../settings/settings.service';
+import { StockBatchService } from '../../stock-batch/stock-batch.service';
 
 import { ScanLogCrudService } from './core/scan-log-crud.service';
 import { EvidenceCrudService } from './core/evidence-crud.service';
@@ -55,6 +56,7 @@ export class PackingService {
     @InjectModel(PackingEvidence.name)
     private readonly packingEvidenceModel: Model<PackingEvidence>,
     private readonly inventoryService: InventoryService,
+    private readonly stockBatchService: StockBatchService,
     private readonly settingsService: SettingsService,
     private readonly uploadService: UploadService,
   ) { }
@@ -507,6 +509,14 @@ export class PackingService {
         for (const item of packingOrder.items) {
           const qtyToDeduct = item.scannedCount || 0;
           if (qtyToDeduct > 0 && item.sku && item.sku !== 'UNKNOWN') {
+            // FEFO: update StockBatch quantityRemaining (nearest expiry first)
+            await this.stockBatchService.deductFEFO(
+              item.sku,
+              qtyToDeduct,
+              packingOrder.orderId,
+              packerId,
+            );
+
             await this.inventoryService.adjustStockByIdentifier(
               item.sku,
               -qtyToDeduct,
@@ -638,6 +648,14 @@ export class PackingService {
           // Admin punch has no scan count — use ordered quantity
           const qtyToDeduct = item.quantity || 0;
           if (qtyToDeduct > 0 && item.sku && item.sku !== 'UNKNOWN') {
+            // FEFO: update StockBatch quantityRemaining (nearest expiry first)
+            await this.stockBatchService.deductFEFO(
+              item.sku,
+              qtyToDeduct,
+              packingOrder.orderId,
+              'ADMIN_PUNCH',
+            );
+
             await this.inventoryService.adjustStockByIdentifier(
               item.sku,
               -qtyToDeduct,

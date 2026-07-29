@@ -23,8 +23,10 @@ import {
   FIND_PRODUCT_BY_IDENTIFIER,
   SET_INVENTORY,
   RECORD_STOCK_INWARD,
+  RECEIVE_STOCK_BATCH,
 } from '../graphql/mutations';
 import { getCdnUrl } from '../config/api';
+import ReceiveBillFlow from '../components/ReceiveBillFlow';
 
 /**
  * InventoryScreen — two operation modes:
@@ -291,7 +293,9 @@ const InventoryScreen = ({ navigation, route }) => {
         </TouchableOpacity>
       </View>
 
-      {/* ── Scan / Manual tabs ───────────────────────────────────────────── */}
+      {opMode === 'inward' ? <ReceiveBillFlow user={user} /> : (
+<>
+{/* ── Scan / Manual tabs ───────────────────────────────────────────── */}
       <View style={styles.headerTabs}>
         <TouchableOpacity
           style={[styles.tab, mode === 'scan' && styles.activeTab]}
@@ -564,6 +568,8 @@ const InventoryScreen = ({ navigation, route }) => {
           </View>
         </View>
       </Modal>
+</>
+)}
     </View>
   );
 };

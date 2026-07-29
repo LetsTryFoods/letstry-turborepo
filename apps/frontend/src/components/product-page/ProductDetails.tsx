@@ -102,6 +102,7 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
               name: product.name,
               price: selectedVariant?.price || 0,
               variantName: selectedVariant?.name,
+              stockQuantity: selectedVariant?.stockQuantity,
             }}
             isOutOfStock={isOutOfStock}
           />

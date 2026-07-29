@@ -54,6 +54,7 @@ import { ProductModule } from '../product/product.module';
 import { forwardRef } from '@nestjs/common';
 import { OrderModule } from '../order/order.module';
 import { ShipmentModule } from '../shipment/shipment.module';
+import { StockBatchModule } from '../stock-batch/stock-batch.module';
 
 @Module({
   imports: [
@@ -101,6 +102,7 @@ import { ShipmentModule } from '../shipment/shipment.module';
     forwardRef(() => OrderModule),
     forwardRef(() => ShipmentModule),
     UploadModule,
+    StockBatchModule,
   ],
   providers: [
     PackerCrudService,

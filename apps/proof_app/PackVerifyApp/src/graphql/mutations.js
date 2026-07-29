@@ -113,3 +113,32 @@ export const INVENTORY_SNAPSHOT = gql`
     }
   }
 `;
+
+export const RECEIVE_STOCK_BATCH = gql`
+  mutation ReceiveStockBatch($input: ReceiveBatchInput!) {
+    receiveStockBatch(input: $input) {
+      _id
+      batchNumber
+      sku
+      expiryDate
+      quantityReceived
+      quantityRemaining
+      purchaseOrderId
+      status
+      createdAt
+    }
+  }
+`;
+
+export const CREATE_PURCHASE_ORDER = gql`
+  mutation CreatePurchaseOrder($input: CreatePurchaseOrderInput!) {
+    createPurchaseOrder(input: $input) {
+      _id
+      billNumber
+      billDate
+      vendorName
+      totalAmount
+      status
+    }
+  }
+`;

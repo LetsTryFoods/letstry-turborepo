@@ -14,8 +14,9 @@ interface ActionButtonsProps {
     name: string;
     price: number;
     variantName?: string;
+    stockQuantity?: number;
     variants?: Array<{ id: string; price: number; weight?: string }>;
-    defaultVariant?: { id: string; price: number; weight?: string };
+    defaultVariant?: { id: string; price: number; weight?: string; stockQuantity?: number };
   };
   isOutOfStock?: boolean;
 }
@@ -34,6 +35,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
     id: product.id,
     price: product.price,
     weight: product.variantName,
+    stockQuantity: product.stockQuantity,
   };
   const variantId = variant.id;
   const cartItems = cartQuery.data?.myCart?.items || [];
@@ -67,7 +69,12 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
   };
 
   const handleIncrement = async () => {
-    if (isLoading) return;
+    if (isLoading || isOutOfStock) return;
+    if (variant.stockQuantity !== undefined && quantityInCart >= variant.stockQuantity) {
+      toast.error(`Only ${variant.stockQuantity} piece(s) available.`);
+      return;
+    }
+
     setIsLoading(true);
     try {
       await CartService.updateCartItem(variantId, quantityInCart + 1);

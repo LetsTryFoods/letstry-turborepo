@@ -684,6 +684,52 @@ type GlobalSettings {
   updatedAt: DateTime!
 }
 
+type StockBatch {
+  _id: ID!
+  purchaseOrderId: ID
+  sku: String!
+  batchNumber: String!
+  expiryDate: String!
+  manufactureDate: String
+  quantityReceived: Int!
+  quantityRemaining: Int!
+  perUnitCost: Float
+  status: BatchStatus!
+  isOnSale: Boolean!
+  nearExpiryAlertDays: Int!
+  receivedBy: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+enum BatchStatus {
+  ACTIVE
+  DEPLETED
+  EXPIRED
+  ON_SALE
+}
+
+type PurchaseOrder {
+  _id: ID!
+  billNumber: String!
+  billDate: String!
+  vendorName: String
+  vendorContact: String
+  vendorAddress: String
+  totalAmount: Float
+  billImageUrls: [String!]!
+  notes: String
+  receivedBy: String
+  status: PurchaseOrderStatus!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+enum PurchaseOrderStatus {
+  DRAFT
+  CONFIRMED
+}
+
 type PaymentOrderType {
   _id: String!
   paymentOrderId: String!
@@ -1990,6 +2036,11 @@ type Query {
   getShipmentLabel(awbNumber: String!): String
   getTrackingAnalytics(startDate: String, endDate: String, limit: Int): TrackingAnalyticsResponse!
   getPickupLocations: [PickupLocationType!]!
+  stockBatchesBySku(sku: String!): [StockBatch!]!
+  stockBatchesByPurchaseOrder(purchaseOrderId: ID!): [StockBatch!]!
+  purchaseOrders(page: Int! = 1, limit: Int! = 20): [PurchaseOrder!]!
+  purchaseOrder(id: ID!): PurchaseOrder
+  expiringBatches(withinDays: Int! = 30): [StockBatch!]!
   getAllNewsletterSubscriptions(isActive: Boolean): [NewsletterSubscription!]!
   getNewsletterSubscriptionCount(isActive: Boolean): Float!
   redirects(page: Int! = 1, limit: Int! = 20, search: String): PaginatedRedirects!
@@ -2232,6 +2283,9 @@ type Mutation {
   syncActiveShipments: Boolean!
   createPickupLocation(input: CreatePickupLocationInput!): PickupLocationType!
   removePickupLocation(id: String!): Boolean!
+  receiveStockBatch(input: ReceiveBatchInput!): StockBatch!
+  createPurchaseOrder(input: CreatePurchaseOrderInput!): PurchaseOrder!
+  runExpiryCheck: String!
   subscribeNewsletter(input: SubscribeNewsletterInput!): SubscribeNewsletterResponse!
   unsubscribeNewsletter(email: String!): SubscribeNewsletterResponse!
   createRedirect(input: CreateRedirectInput!): RedirectType!
@@ -2919,6 +2973,34 @@ input CreatePickupLocationInput {
   country: String
   isDefault: Boolean
   provider: String
+}
+
+input ReceiveBatchInput {
+  purchaseOrderId: ID
+  billNumber: String
+  billDate: String
+  vendorName: String
+  vendorContact: String
+  totalAmount: Float
+  billImageUrls: [String!]
+  sku: String!
+  quantityAdded: Int!
+  expiryDate: String!
+  manufactureDate: String
+  perUnitCost: Float
+  performedBy: String
+  notes: String
+}
+
+input CreatePurchaseOrderInput {
+  billNumber: String!
+  billDate: String
+  vendorName: String
+  vendorContact: String
+  totalAmount: Float
+  billImageUrls: [String!]
+  performedBy: String
+  notes: String
 }
 
 input SubscribeNewsletterInput {

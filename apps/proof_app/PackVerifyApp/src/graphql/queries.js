@@ -241,6 +241,9 @@ export const SEARCH_PRODUCTS = gql`
           stockQuantity
           availabilityStatus
           thumbnailUrl
+          mrp
+          weight
+          weightUnit
         }
       }
     }
@@ -335,6 +338,20 @@ export const ASSIGN_BOX_TO_ORDER = gql`
       volumetricWeight
       region
       logisticsCost
+    }
+  }
+`;
+
+export const GET_PURCHASE_ORDERS = gql`
+  query GetPurchaseOrders($page: Int, $limit: Int) {
+    purchaseOrders(page: $page, limit: $limit) {
+      _id
+      billNumber
+      billDate
+      vendorName
+      totalAmount
+      status
+      createdAt
     }
   }
 `;

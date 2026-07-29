@@ -24,6 +24,7 @@ function mapProductData(apiProduct: any): Product {
       price: v.price,
       mrp: v.mrp,
       isOutOfStock: v.availabilityStatus !== "in_stock",
+      stockQuantity: v.stockQuantity,
     })) || [];
 
   if (variants.length === 0 && defaultVariant) {
@@ -33,6 +34,7 @@ function mapProductData(apiProduct: any): Product {
       price: defaultVariant.price,
       mrp: defaultVariant.mrp,
       isOutOfStock: defaultVariant.availabilityStatus !== "in_stock",
+      stockQuantity: defaultVariant.stockQuantity,
     });
   }
 

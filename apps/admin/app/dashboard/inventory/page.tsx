@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   useProducts,
   useUpdateProductVariantStock,
   useZeroAllProductStock,
   Product,
-  ProductVariant,
 } from "@/lib/products/useProducts";
 import {
   Card,
@@ -38,12 +37,14 @@ import {
   RefreshCw,
   TrendingDown,
   Loader2,
+  X,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { getCdnUrl } from "@/lib/utils/image-utils";
 import { Pagination } from "@/app/dashboard/components/pagination";
 import { useQuery } from "@apollo/client/react";
 import { gql } from "@apollo/client";
+import { SEARCH_PRODUCTS_INVENTORY } from "@/lib/graphql/products";
 
 const GET_ALL_PRODUCTS_STOCK = gql`
   query GetAllProductsStock {
@@ -64,6 +65,7 @@ interface RowLoadingState {
 
 export default function InventoryPage() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<
     "ALL" | "OUT" | "LOW" | "IN"
   >("ALL");
@@ -74,16 +76,58 @@ export default function InventoryPage() {
   }>({});
   const [savingState, setSavingState] = useState<RowLoadingState>({});
 
-  // Fetch all products – network-only so we always get live data (no stale Apollo cache)
-  const { data, loading, error, refetch } = useProducts(
-    { page: currentPage, limit: pageSize },
-    true,
-    false,
-  );
-  const { updateVariantStock } = useUpdateProductVariantStock();
-  const { zeroAllStock, loading: zeroingStock } = useZeroAllProductStock();
+  // Debounce search input by 400ms — avoids firing a query on every keystroke
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setDebouncedSearch(searchTerm.trim());
+      setCurrentPage(1); // always reset to page 1 on new search
+    }, 400);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [searchTerm]);
 
-  // Fetch stock quantities for all products/variants to calculate overall stats
+  const isSearching = debouncedSearch.length > 0;
+
+  // ── Normal paginated fetch (no search term) ──────────────────────────────
+  const {
+    data: browseData,
+    loading: browseLoading,
+    error: browseError,
+    refetch: refetchBrowse,
+  } = useProducts({ page: currentPage, limit: pageSize }, true, false);
+
+  // ── Backend search (fires only when search term exists) ──────────────────
+  const {
+    data: searchData,
+    loading: searchLoading,
+    error: searchError,
+    refetch: refetchSearch,
+  } = useQuery(SEARCH_PRODUCTS_INVENTORY, {
+    variables: {
+      searchTerm: debouncedSearch,
+      pagination: { page: currentPage, limit: pageSize },
+      includeArchived: false,
+    },
+    skip: !isSearching,
+    fetchPolicy: "network-only",
+    nextFetchPolicy: "network-only",
+  });
+
+  // Pick the active dataset
+  const activeData = isSearching ? searchData : browseData;
+  const loading = isSearching ? searchLoading : browseLoading;
+  const error = isSearching ? searchError : browseError;
+
+  const refetch = () => {
+    if (isSearching) refetchSearch();
+    else refetchBrowse();
+    refetchStats();
+  };
+
+  // ── Overall stock stats (all products, uncached) ──────────────────────────
   const { data: statsData, refetch: refetchStats } = useQuery(
     GET_ALL_PRODUCTS_STOCK,
     {
@@ -92,13 +136,24 @@ export default function InventoryPage() {
     },
   );
 
-  const products: Product[] = (data as any)?.products?.items || [];
-  const meta = (data as any)?.products?.meta || {
-    totalCount: 0,
-    totalPages: 1,
-  };
+  const { updateVariantStock } = useUpdateProductVariantStock();
+  const { zeroAllStock, loading: zeroingStock } = useZeroAllProductStock();
 
-  // Create a map of the fresh stock values from the uncached query
+  // Resolve products from whichever query is active
+  const products: Product[] =
+    (isSearching
+      ? (searchData as any)?.searchProducts?.items
+      : (browseData as any)?.products?.items) || [];
+
+  const meta =
+    (isSearching
+      ? (searchData as any)?.searchProducts?.meta
+      : (browseData as any)?.products?.meta) || {
+      totalCount: 0,
+      totalPages: 1,
+    };
+
+  // Fresh stock map from the uncached stats query
   const freshStockMap: Record<string, number> = {};
   if ((statsData as any)?.allProductsUncached) {
     (statsData as any).allProductsUncached.forEach((p: any) => {
@@ -110,7 +165,7 @@ export default function InventoryPage() {
     });
   }
 
-  // Extract all variants from all products with parent context, merging in fresh stock
+  // Flatten products → variants with parent context, merging in fresh stock
   const allVariants = products.flatMap((product) =>
     (product.variants || [])
       .filter((variant) => !!variant._id)
@@ -122,38 +177,34 @@ export default function InventoryPage() {
           productId: product._id,
           productName: product.name,
           productImage: variant.thumbnailUrl || variant.images?.[0]?.url || "",
-          // OVERRIDE WITH FRESH STOCK IF AVAILABLE
-          stockQuantity: freshStockMap[_idStr] !== undefined ? freshStockMap[_idStr] : variant.stockQuantity,
+          stockQuantity:
+            freshStockMap[_idStr] !== undefined
+              ? freshStockMap[_idStr]
+              : variant.stockQuantity,
         };
       }),
   );
 
-  // Sync initial inputs when products load
+  // Status filter — applied client-side on the current page results
+  const filteredVariants = allVariants.filter((v) => {
+    const stock = v.stockQuantity;
+    if (statusFilter === "OUT") return stock === 0;
+    if (statusFilter === "LOW") return stock > 0 && stock < 10;
+    if (statusFilter === "IN") return stock >= 10;
+    return true;
+  });
+
+  // Sync stock inputs when data changes
   useEffect(() => {
     const inputs: { [variantId: string]: string } = {};
     allVariants.forEach((v) => {
       inputs[v._id] = String(v.stockQuantity);
     });
     setStockInputs(inputs);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [products]);
 
-  // Filter variants based on search and stock status
-  const filteredVariants = allVariants.filter((v) => {
-    const matchesSearch =
-      v.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      v.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      v.sku.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const stock = v.stockQuantity;
-    let matchesStatus = true;
-    if (statusFilter === "OUT") matchesStatus = stock === 0;
-    else if (statusFilter === "LOW") matchesStatus = stock > 0 && stock < 10;
-    else if (statusFilter === "IN") matchesStatus = stock >= 10;
-
-    return matchesSearch && matchesStatus;
-  });
-
-  // Handle absolute stock level update
+  // Handle absolute stock update
   const handleUpdateStock = async (
     productId: string,
     variantId: string,
@@ -163,13 +214,11 @@ export default function InventoryPage() {
       toast.error("Invalid stock quantity");
       return;
     }
-
     setSavingState((prev) => ({ ...prev, [variantId]: true }));
     try {
       await updateVariantStock(productId, variantId, value);
       toast.success("Stock level updated successfully!");
       refetch();
-      refetchStats();
     } catch (err: any) {
       toast.error(err.message || "Failed to update stock");
     } finally {
@@ -177,7 +226,7 @@ export default function InventoryPage() {
     }
   };
 
-  // Handle relative stock increment/decrement
+  // Handle relative increment / decrement
   const handleAdjustStock = async (
     productId: string,
     variantId: string,
@@ -189,7 +238,7 @@ export default function InventoryPage() {
     await handleUpdateStock(productId, variantId, newStock);
   };
 
-  // Stock status badge component
+  // Stock status badge
   const getStockBadge = (qty: number) => {
     if (qty === 0) {
       return (
@@ -221,34 +270,24 @@ export default function InventoryPage() {
     );
   };
 
-  // Calculate high-level overall stock insights from ALL products
+  // Overall stats from the full uncached dataset
   const allProductsForStats = (statsData as any)?.allProductsUncached || [];
   const allVariantsForStats = allProductsForStats.flatMap(
     (product: any) => product.variants || [],
   );
-
   const totals =
     allVariantsForStats.length > 0
       ? allVariantsForStats.reduce(
-        (acc: any, v: any) => {
-          acc.totalItems += 1;
-          if (v.stockQuantity === 0) acc.outOfStock += 1;
-          else if (v.stockQuantity < 10) acc.lowStock += 1;
-          else acc.inStock += 1;
-          return acc;
-        },
-        { totalItems: 0, outOfStock: 0, lowStock: 0, inStock: 0 },
-      )
-      : allVariants.reduce(
-        (acc, v) => {
-          acc.totalItems += 1;
-          if (v.stockQuantity === 0) acc.outOfStock += 1;
-          else if (v.stockQuantity < 10) acc.lowStock += 1;
-          else acc.inStock += 1;
-          return acc;
-        },
-        { totalItems: 0, outOfStock: 0, lowStock: 0, inStock: 0 },
-      );
+          (acc: any, v: any) => {
+            acc.totalItems += 1;
+            if (v.stockQuantity === 0) acc.outOfStock += 1;
+            else if (v.stockQuantity < 10) acc.lowStock += 1;
+            else acc.inStock += 1;
+            return acc;
+          },
+          { totalItems: 0, outOfStock: 0, lowStock: 0, inStock: 0 },
+        )
+      : { totalItems: 0, outOfStock: 0, lowStock: 0, inStock: 0 };
 
   return (
     <div className="p-6 space-y-6 mb-12">
@@ -266,7 +305,7 @@ export default function InventoryPage() {
         </div>
         <div className="flex flex-wrap gap-2 self-start sm:self-auto">
           <Button
-            onClick={() => { refetch(); refetchStats(); }}
+            onClick={refetch}
             variant="outline"
             size="sm"
             className="cursor-pointer"
@@ -280,12 +319,10 @@ export default function InventoryPage() {
                 "🚨 WARNING: Are you sure you want to reset the stock level of ALL variants across ALL products in the entire warehouse to 0? This action cannot be undone.",
               );
               if (!confirmed) return;
-
               try {
                 await zeroAllStock();
                 toast.success("All stock levels reset to 0 store-wide!");
                 refetch();
-                refetchStats();
               } catch (err: any) {
                 toast.error(err.message || "Failed to reset stock levels");
               }
@@ -385,15 +422,24 @@ export default function InventoryPage() {
       <Card className="shadow-sm border-gray-200">
         <CardContent className="pt-6">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-            {/* Search Input */}
+            {/* Search Input — triggers backend search via debounce */}
             <div className="relative w-full md:flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search inventory by product name, variant, or SKU..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 text-sm"
+                className="pl-10 pr-8 text-sm"
               />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  aria-label="Clear search"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
             </div>
 
             {/* Filter Pills */}
@@ -413,10 +459,11 @@ export default function InventoryPage() {
                 variant={statusFilter === "IN" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setStatusFilter("IN")}
-                className={`text-xs h-8 px-3 rounded-full cursor-pointer ${statusFilter === "IN"
+                className={`text-xs h-8 px-3 rounded-full cursor-pointer ${
+                  statusFilter === "IN"
                     ? ""
                     : "hover:border-green-300 hover:text-green-600"
-                  }`}
+                }`}
               >
                 In Stock ({totals.inStock})
               </Button>
@@ -424,10 +471,11 @@ export default function InventoryPage() {
                 variant={statusFilter === "LOW" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setStatusFilter("LOW")}
-                className={`text-xs h-8 px-3 rounded-full cursor-pointer ${statusFilter === "LOW"
+                className={`text-xs h-8 px-3 rounded-full cursor-pointer ${
+                  statusFilter === "LOW"
                     ? ""
                     : "hover:border-orange-300 hover:text-orange-600"
-                  }`}
+                }`}
               >
                 Low Stock ({totals.lowStock})
               </Button>
@@ -435,15 +483,24 @@ export default function InventoryPage() {
                 variant={statusFilter === "OUT" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setStatusFilter("OUT")}
-                className={`text-xs h-8 px-3 rounded-full cursor-pointer ${statusFilter === "OUT"
+                className={`text-xs h-8 px-3 rounded-full cursor-pointer ${
+                  statusFilter === "OUT"
                     ? ""
                     : "hover:border-red-300 hover:text-red-600"
-                  }`}
+                }`}
               >
                 Out of Stock ({totals.outOfStock})
               </Button>
             </div>
           </div>
+
+          {/* Search mode indicator */}
+          {isSearching && (
+            <p className="mt-3 text-xs text-indigo-600 font-medium">
+              🔍 Searching across <span className="font-bold">all products</span> in the catalog for &quot;{debouncedSearch}&quot;
+              {meta.totalCount > 0 && ` — ${meta.totalCount} result${meta.totalCount !== 1 ? "s" : ""} found`}
+            </p>
+          )}
         </CardContent>
       </Card>
 
@@ -454,7 +511,9 @@ export default function InventoryPage() {
             <div className="flex flex-col items-center justify-center py-20 gap-3">
               <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
               <p className="text-sm text-gray-500">
-                Loading catalog inventory data...
+                {isSearching
+                  ? `Searching catalog for "${debouncedSearch}"...`
+                  : "Loading catalog inventory data..."}
               </p>
             </div>
           ) : error ? (
@@ -464,7 +523,11 @@ export default function InventoryPage() {
           ) : filteredVariants.length === 0 ? (
             <div className="p-16 text-center text-gray-400 font-medium flex flex-col items-center gap-2">
               <Package className="h-10 w-10 text-gray-300" />
-              <span>No product variants match your filters.</span>
+              <span>
+                {isSearching
+                  ? `No products found matching "${debouncedSearch}".`
+                  : "No product variants match your filters."}
+              </span>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -564,10 +627,9 @@ export default function InventoryPage() {
                           {getStockBadge(variant.stockQuantity)}
                         </TableCell>
 
-                        {/* Stock Controls (Inline inputs and buttons) */}
+                        {/* Stock Controls */}
                         <TableCell className="py-2.5 px-3 text-center">
                           <div className="inline-flex items-center justify-center gap-1.5">
-                            {/* Decrement Button */}
                             <Button
                               variant="outline"
                               size="icon"
@@ -585,7 +647,6 @@ export default function InventoryPage() {
                               <Minus className="h-3 w-3" />
                             </Button>
 
-                            {/* Direct Text Input */}
                             <Input
                               type="number"
                               value={
@@ -628,7 +689,6 @@ export default function InventoryPage() {
                               disabled={isSaving}
                             />
 
-                            {/* Increment Button */}
                             <Button
                               variant="outline"
                               size="icon"
@@ -648,7 +708,7 @@ export default function InventoryPage() {
                           </div>
                         </TableCell>
 
-                        {/* Inline saving indicator / refresh */}
+                        {/* Save / Saving indicator */}
                         <TableCell className="py-2.5 px-3 text-right">
                           {isSaving ? (
                             <span className="flex items-center justify-end gap-1.5 text-[10px] font-semibold text-indigo-600">
