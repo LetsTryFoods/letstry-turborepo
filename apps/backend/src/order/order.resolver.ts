@@ -57,7 +57,7 @@ export class OrderResolver {
     private readonly shipmentService: ShipmentService,
     private readonly logisticsAnalyticsService: LogisticsAnalyticsService,
     private readonly boxSizeCrudService: BoxSizeCrudService,
-  ) {}
+  ) { }
 
   @Query(() => LogisticsAnalyticsResponse)
   @Roles(Role.ADMIN)
@@ -442,7 +442,7 @@ export class OrderWithUserInfoResolver {
     private readonly orderService: OrderService,
     private readonly packingService: PackingService,
     private readonly shipmentService: ShipmentService,
-  ) {}
+  ) { }
 
   @ResolveField(() => OrderPaymentType, { nullable: true })
   async payment(@Parent() order: any): Promise<OrderPaymentType | null> {

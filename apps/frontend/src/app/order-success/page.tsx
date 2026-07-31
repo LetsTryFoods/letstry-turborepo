@@ -55,31 +55,41 @@ function OrderSuccess() {
   const order = data?.getOrderById;
 
   useEffect(() => {
-    if (!order || !order.orderId) return;
-
-    const guardKey = `ga4_purchase_fired:${order.orderId}`;
+    if (!orderId) return;
     if (typeof window === "undefined") return;
+
+    const guardKey = `ga4_purchase_fired:${orderId}`;
     if (sessionStorage.getItem(guardKey)) return;
 
-    const value = Number(order.totalAmount) || 0;
-    if (value < 1) return;
+    // Try to get cart data from localStorage (saved before payment redirect)
+    try {
+      const raw = localStorage.getItem("pending_purchase_data");
+      if (!raw) return;
 
-    trackPurchase({
-      transactionId: order.orderId,
-      value,
-      shipping: Number(order.deliveryCharge) || 0,
-      paymentMethod: order.payment?.method ?? undefined,
-      items: order.items.map((item) => ({
-        id: item.variantId || item.sku || order.orderId,
-        name: item.name,
-        price: Number(item.price) || 0,
-        quantity: Number(item.quantity) || 1,
-        variant: item.variant,
-      })),
-    });
+      const purchaseData = JSON.parse(raw);
 
-    sessionStorage.setItem(guardKey, "1");
-  }, [order, trackPurchase]);
+      // Ignore stale data older than 2 hours
+      if (Date.now() - purchaseData.savedAt > 2 * 60 * 60 * 1000) {
+        localStorage.removeItem("pending_purchase_data");
+        return;
+      }
+
+      const value = Number(purchaseData.totalAmount) || 0;
+      if (value < 1) return;
+
+      trackPurchase({
+        transactionId: orderId,
+        value,
+        items: purchaseData.items,
+      });
+
+      sessionStorage.setItem(guardKey, "1");
+      // Clear after use
+      localStorage.removeItem("pending_purchase_data");
+    } catch (e) {
+      // localStorage unavailable or data corrupted
+    }
+  }, [orderId, trackPurchase]);
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-50 px-4">

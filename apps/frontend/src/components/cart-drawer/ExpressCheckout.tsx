@@ -79,6 +79,31 @@ export const ExpressCheckout: React.FC<ExpressCheckoutProps> = ({
             item.attributes?.weight,
         })),
       });
+
+      // Save cart data to localStorage so order-success page can fire purchase event
+      // without needing to fetch from backend (avoids auth issues for guest users)
+      try {
+        localStorage.setItem(
+          "pending_purchase_data",
+          JSON.stringify({
+            totalAmount: Number(amount) || 0,
+            items: cartItems.map((item: any) => ({
+              id: item.variantId || item.productId,
+              name: item.name,
+              price: item.unitPrice,
+              quantity: item.quantity,
+              variant:
+                item.packageSize ||
+                item.attributes?.size ||
+                item.attributes?.weight,
+              sku: item.sku,
+            })),
+            savedAt: Date.now(),
+          })
+        );
+      } catch (e) {
+        // localStorage unavailable, silently ignore
+      }
     }
     initiatePayment();
   };

@@ -2235,6 +2235,8 @@ export type OrderItemType = {
   totalPrice?: Maybe<Scalars['String']['output']>;
   variant?: Maybe<Scalars['String']['output']>;
   variantId?: Maybe<Scalars['String']['output']>;
+  weight?: Maybe<Scalars['Float']['output']>;
+  weightUnit?: Maybe<Scalars['String']['output']>;
 };
 
 export type OrderPaymentType = {

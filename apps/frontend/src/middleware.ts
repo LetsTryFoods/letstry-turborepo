@@ -91,30 +91,6 @@ export async function middleware(request: NextRequest) {
     needsRedirect = true;
   }
 
-  // Strip tracking params
-  const TRACKING_PARAMS = [
-    "utm_source",
-    "utm_medium",
-    "utm_campaign",
-    "utm_term",
-    "utm_content",
-    "utm_id",
-    "gclid",
-    "fbclid",
-    "mc_eid",
-    "mc_cid",
-    "msclkid",
-    "_ga",
-  ];
-  let strippedAny = false;
-  TRACKING_PARAMS.forEach((p) => {
-    if (url.searchParams.has(p)) {
-      url.searchParams.delete(p);
-      strippedAny = true;
-    }
-  });
-  if (strippedAny) needsRedirect = true;
-
   if (needsRedirect) {
     return NextResponse.redirect(url, 301);
   }

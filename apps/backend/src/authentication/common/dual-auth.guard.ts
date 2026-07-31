@@ -29,7 +29,7 @@ export class DualAuthGuard extends AuthGuard('jwt') {
       if (jwtResult && request.user) {
         return true;
       }
-    } catch (err) {}
+    } catch (err) { }
 
     let sessionId =
       request.cookies?.sessionId || request.headers['x-session-id'];
@@ -39,7 +39,7 @@ export class DualAuthGuard extends AuthGuard('jwt') {
         try {
           const parsed = JSON.parse(request.cookies.guest_session);
           sessionId = parsed.sessionId;
-        } catch (e) {}
+        } catch (e) { }
       } else if (typeof request.cookies.guest_session === 'object') {
         sessionId = request.cookies.guest_session.sessionId;
       }
