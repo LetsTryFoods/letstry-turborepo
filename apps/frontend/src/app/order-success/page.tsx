@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { useGraphQLQuery } from "@/lib/graphql/use-graphql-query";
 import { GET_ORDER_BY_ID } from "@/lib/queries/orders";
 import { useAnalytics } from "@/hooks/use-analytics";
+import { getSavedUtmParams } from "@/lib/analytics/utm-capture";
 
 type OrderItem = {
   variantId: string;
@@ -77,10 +78,21 @@ function OrderSuccess() {
       const value = Number(purchaseData.totalAmount) || 0;
       if (value < 1) return;
 
+      // Get saved UTM params from session (captured on landing)
+      const utmParams = getSavedUtmParams();
+
       trackPurchase({
         transactionId: orderId,
         value,
         items: purchaseData.items,
+        // Attach UTM so GA4 can attribute this purchase to the correct source
+        ...(utmParams?.utm_source && {
+          utm_source: utmParams.utm_source,
+          utm_medium: utmParams.utm_medium,
+          utm_campaign: utmParams.utm_campaign,
+          utm_term: utmParams.utm_term,
+          utm_content: utmParams.utm_content,
+        }),
       });
 
       sessionStorage.setItem(guardKey, "1");

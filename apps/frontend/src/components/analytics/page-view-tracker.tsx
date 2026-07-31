@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useAnalytics } from "@/hooks/use-analytics";
+import { captureUtmParams } from "@/lib/analytics/utm-capture";
 
 // Params that represent in-page filtering/search — not a new page visit.
 // Changes to these should NOT fire page_view (they have their own events).
@@ -21,6 +22,8 @@ export function PageViewTracker() {
 
   // Track the last pathname we fired page_view for so we can compare
   const lastPathnameRef = useRef<string | null>(null);
+  // Track first render to send full URL (with UTM) on initial load
+  const isFirstRender = useRef<boolean>(true);
 
   // Build a stable key from only the params we care about (excluding q, etc.)
   const filteredParamsKey = (() => {
@@ -36,13 +39,26 @@ export function PageViewTracker() {
     const isNewPage =
       lastPathnameRef.current === null || lastPathnameRef.current !== pathname;
 
+    // Capture UTM params on very first page load
+    if (isFirstRender.current) {
+      captureUtmParams();
+    }
+
     if (isNewPage) {
       lastPathnameRef.current = pathname;
       // Search page tracks itself via the `search` event — skip page_view there.
       if (pathname === "/search") return;
-      const cleanUrl =
-        pathname + (filteredParamsKey ? `?${filteredParamsKey}` : "");
-      trackPageView(cleanUrl);
+
+      // On the very first page load (isFirstRender), use the full URL (including UTM params)
+      // so GA4 can attribute the session source correctly.
+      // On subsequent navigations, use the clean path without UTM clutter.
+      const url =
+        isFirstRender.current && typeof window !== "undefined"
+          ? window.location.href
+          : pathname + (filteredParamsKey ? `?${filteredParamsKey}` : "");
+
+      isFirstRender.current = false;
+      trackPageView(url);
     }
     // filteredParamsKey intentionally included so non-search param changes still fire
     // eslint-disable-next-line react-hooks/exhaustive-deps

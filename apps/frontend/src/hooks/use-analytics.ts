@@ -222,9 +222,23 @@ export const useAnalytics = () => {
       }>;
       coupon?: string;
       paymentMethod?: string;
+      // UTM attribution params
+      utm_source?: string;
+      utm_medium?: string;
+      utm_campaign?: string;
+      utm_term?: string;
+      utm_content?: string;
     }) => {
       pushToDataLayer({
         event: "purchase",
+        // UTM params attached directly so GTM/GA4 can read them on this event
+        ...(orderData.utm_source && {
+          utm_source: orderData.utm_source,
+          utm_medium: orderData.utm_medium,
+          utm_campaign: orderData.utm_campaign,
+          utm_term: orderData.utm_term,
+          utm_content: orderData.utm_content,
+        }),
         ecommerce: {
           transaction_id: orderData.transactionId,
           currency: "INR",
