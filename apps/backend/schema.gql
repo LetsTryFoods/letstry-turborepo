@@ -1127,6 +1127,8 @@ type OrderItemType {
   sku: String
   variant: String
   image: String
+  weight: Float
+  weightUnit: String
 }
 
 type OrderUserInfo {

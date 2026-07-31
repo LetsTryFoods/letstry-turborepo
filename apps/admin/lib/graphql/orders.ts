@@ -23,6 +23,8 @@ export const GET_ALL_ORDERS = gql`
         items {
           name
           quantity
+          weight
+          weightUnit
         }
         payment {
           _id
@@ -100,6 +102,8 @@ export const GET_ORDER_BY_ID = gql`
         quantity
         price
         totalPrice
+        weight
+        weightUnit
       }
       shippingAddress {
         fullName

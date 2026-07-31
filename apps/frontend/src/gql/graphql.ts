@@ -171,6 +171,13 @@ export type BatchScanResult = {
   validations: Array<ProductValidation>;
 };
 
+export enum BatchStatus {
+  Active = 'ACTIVE',
+  Depleted = 'DEPLETED',
+  Expired = 'EXPIRED',
+  OnSale = 'ON_SALE'
+}
+
 export type Blog = {
   __typename?: 'Blog';
   _id: Scalars['ID']['output'];
@@ -920,6 +927,17 @@ export type CreateProductVariantInput = {
   weightUnit?: Scalars['String']['input'];
 };
 
+export type CreatePurchaseOrderInput = {
+  billDate?: InputMaybe<Scalars['String']['input']>;
+  billImageUrls?: InputMaybe<Array<Scalars['String']['input']>>;
+  billNumber: Scalars['String']['input'];
+  notes?: InputMaybe<Scalars['String']['input']>;
+  performedBy?: InputMaybe<Scalars['String']['input']>;
+  totalAmount?: InputMaybe<Scalars['Float']['input']>;
+  vendorContact?: InputMaybe<Scalars['String']['input']>;
+  vendorName?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type CreateRedirectInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   fromPath: Scalars['String']['input'];
@@ -1415,6 +1433,7 @@ export type Mutation = {
   createPolicy: Policy;
   createPressMention: PressMention;
   createProduct: Product;
+  createPurchaseOrder: PurchaseOrder;
   createRedirect: RedirectType;
   createSampleInvoice: SampleInvoice;
   createShipment: CreateShipmentResponse;
@@ -1442,6 +1461,7 @@ export type Mutation = {
   markItemShort: PackingOrder;
   packerLogin: PackerLoginResponse;
   processRefund: RefundResponse;
+  receiveStockBatch: StockBatch;
   recordStockInward: InventoryLog;
   removeAuthor: Author;
   removeCoupon: Cart;
@@ -1452,6 +1472,7 @@ export type Mutation = {
   removeProductVariant: Product;
   removeProductsFromCategory: Scalars['Boolean']['output'];
   reorderCategoryProducts: Scalars['Boolean']['output'];
+  runExpiryCheck: Scalars['String']['output'];
   sendOtp: Scalars['String']['output'];
   setDefaultProductVariant: Product;
   setInventory: InventoryLog;
@@ -1462,6 +1483,7 @@ export type Mutation = {
   subscribeNewsletter: SubscribeNewsletterResponse;
   syncActiveShipments: Scalars['Boolean']['output'];
   triggerReassignmentCycle: Scalars['Boolean']['output'];
+  triggerRefundWhatsAppNotification: RefundInitiateResponse;
   unarchiveCategory: Category;
   unarchiveProduct: Product;
   unsubscribeNewsletter: SubscribeNewsletterResponse;
@@ -1684,6 +1706,11 @@ export type MutationCreateProductArgs = {
 };
 
 
+export type MutationCreatePurchaseOrderArgs = {
+  input: CreatePurchaseOrderInput;
+};
+
+
 export type MutationCreateRedirectArgs = {
   input: CreateRedirectInput;
 };
@@ -1820,6 +1847,11 @@ export type MutationProcessRefundArgs = {
 };
 
 
+export type MutationReceiveStockBatchArgs = {
+  input: ReceiveBatchInput;
+};
+
+
 export type MutationRecordStockInwardArgs = {
   identifier: Scalars['String']['input'];
   notes?: InputMaybe<Scalars['String']['input']>;
@@ -1911,6 +1943,11 @@ export type MutationSubmitCorporateEnquiryArgs = {
 
 export type MutationSubscribeNewsletterArgs = {
   input: SubscribeNewsletterInput;
+};
+
+
+export type MutationTriggerRefundWhatsAppNotificationArgs = {
+  refundId: Scalars['String']['input'];
 };
 
 
@@ -3091,6 +3128,28 @@ export type ProductVariant = {
   weightUnit: Scalars['String']['output'];
 };
 
+export type PurchaseOrder = {
+  __typename?: 'PurchaseOrder';
+  _id: Scalars['ID']['output'];
+  billDate: Scalars['String']['output'];
+  billImageUrls: Array<Scalars['String']['output']>;
+  billNumber: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  notes?: Maybe<Scalars['String']['output']>;
+  receivedBy?: Maybe<Scalars['String']['output']>;
+  status: PurchaseOrderStatus;
+  totalAmount?: Maybe<Scalars['Float']['output']>;
+  updatedAt: Scalars['DateTime']['output'];
+  vendorAddress?: Maybe<Scalars['String']['output']>;
+  vendorContact?: Maybe<Scalars['String']['output']>;
+  vendorName?: Maybe<Scalars['String']['output']>;
+};
+
+export enum PurchaseOrderStatus {
+  Confirmed = 'CONFIRMED',
+  Draft = 'DRAFT'
+}
+
 export enum PurposeOfInquiry {
   CorporateGifting = 'CorporateGifting',
   EmployeeGifting = 'EmployeeGifting',
@@ -3160,6 +3219,7 @@ export type Query = {
   coupon: Coupon;
   coupons: Array<Coupon>;
   dashboardStats: DashboardStats;
+  expiringBatches: Array<StockBatch>;
   findProductByIdentifier?: Maybe<Product>;
   geocodeAddress: GoogleMapsAddressOutput;
   getActiveBoxSizes: Array<BoxSize>;
@@ -3237,6 +3297,8 @@ export type Query = {
   products: PaginatedProducts;
   productsByCategory: PaginatedProducts;
   productsBySlugList: Array<Product>;
+  purchaseOrder?: Maybe<PurchaseOrder>;
+  purchaseOrders: Array<PurchaseOrder>;
   qrAnalytics: QrAnalyticsSummary;
   redirect: RedirectType;
   redirectByPath?: Maybe<RedirectType>;
@@ -3252,6 +3314,8 @@ export type Query = {
   skuMasterById?: Maybe<SkuMaster>;
   skuMasterByMasterSku?: Maybe<SkuMaster>;
   skuMasters: Array<SkuMaster>;
+  stockBatchesByPurchaseOrder: Array<StockBatch>;
+  stockBatchesBySku: Array<StockBatch>;
   teamMembers: Array<Author>;
 };
 
@@ -3342,6 +3406,11 @@ export type QueryCouponArgs = {
 };
 
 
+export type QueryExpiringBatchesArgs = {
+  withinDays?: Scalars['Int']['input'];
+};
+
+
 export type QueryFindProductByIdentifierArgs = {
   identifier: Scalars['String']['input'];
 };
@@ -3404,9 +3473,13 @@ export type QueryGetBoxRecommendationArgs = {
 
 
 export type QueryGetContactMessagesArgs = {
+  activeChatsOnly?: InputMaybe<Scalars['Boolean']['input']>;
   limit?: Scalars['Int']['input'];
+  priority?: InputMaybe<Scalars['String']['input']>;
   queryType?: InputMaybe<Scalars['String']['input']>;
+  search?: InputMaybe<Scalars['String']['input']>;
   skip?: Scalars['Int']['input'];
+  status?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -3468,6 +3541,8 @@ export type QueryGetOrderByIdArgs = {
 
 
 export type QueryGetOrderReportsArgs = {
+  customEndDate?: InputMaybe<Scalars['String']['input']>;
+  customStartDate?: InputMaybe<Scalars['String']['input']>;
   period?: Scalars['String']['input'];
 };
 
@@ -3505,6 +3580,8 @@ export type QueryGetPlaceDetailsArgs = {
 
 
 export type QueryGetSalesByStateArgs = {
+  customEndDate?: InputMaybe<Scalars['String']['input']>;
+  customStartDate?: InputMaybe<Scalars['String']['input']>;
   period?: Scalars['String']['input'];
 };
 
@@ -3643,6 +3720,17 @@ export type QueryProductsBySlugListArgs = {
 };
 
 
+export type QueryPurchaseOrderArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryPurchaseOrdersArgs = {
+  limit?: Scalars['Int']['input'];
+  page?: Scalars['Int']['input'];
+};
+
+
 export type QueryRedirectArgs = {
   id: Scalars['String']['input'];
 };
@@ -3708,6 +3796,33 @@ export type QuerySkuMasterByIdArgs = {
 
 export type QuerySkuMasterByMasterSkuArgs = {
   masterSku: Scalars['Int']['input'];
+};
+
+
+export type QueryStockBatchesByPurchaseOrderArgs = {
+  purchaseOrderId: Scalars['ID']['input'];
+};
+
+
+export type QueryStockBatchesBySkuArgs = {
+  sku: Scalars['String']['input'];
+};
+
+export type ReceiveBatchInput = {
+  billDate?: InputMaybe<Scalars['String']['input']>;
+  billImageUrls?: InputMaybe<Array<Scalars['String']['input']>>;
+  billNumber?: InputMaybe<Scalars['String']['input']>;
+  expiryDate: Scalars['String']['input'];
+  manufactureDate?: InputMaybe<Scalars['String']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  perUnitCost?: InputMaybe<Scalars['Float']['input']>;
+  performedBy?: InputMaybe<Scalars['String']['input']>;
+  purchaseOrderId?: InputMaybe<Scalars['ID']['input']>;
+  quantityAdded: Scalars['Int']['input'];
+  sku: Scalars['String']['input'];
+  totalAmount?: InputMaybe<Scalars['Float']['input']>;
+  vendorContact?: InputMaybe<Scalars['String']['input']>;
+  vendorName?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type RecentSearch = {
@@ -4118,6 +4233,25 @@ export type StatusStats = {
   registered: Scalars['Int']['output'];
   suspended: Scalars['Int']['output'];
   verified: Scalars['Int']['output'];
+};
+
+export type StockBatch = {
+  __typename?: 'StockBatch';
+  _id: Scalars['ID']['output'];
+  batchNumber: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  expiryDate: Scalars['String']['output'];
+  isOnSale: Scalars['Boolean']['output'];
+  manufactureDate?: Maybe<Scalars['String']['output']>;
+  nearExpiryAlertDays: Scalars['Int']['output'];
+  perUnitCost?: Maybe<Scalars['Float']['output']>;
+  purchaseOrderId?: Maybe<Scalars['ID']['output']>;
+  quantityReceived: Scalars['Int']['output'];
+  quantityRemaining: Scalars['Int']['output'];
+  receivedBy?: Maybe<Scalars['String']['output']>;
+  sku: Scalars['String']['output'];
+  status: BatchStatus;
+  updatedAt: Scalars['DateTime']['output'];
 };
 
 export type SubmitContactInput = {

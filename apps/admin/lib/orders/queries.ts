@@ -95,6 +95,8 @@ export interface OrderItem {
   quantity: number;
   price: string;
   totalPrice: string;
+  weight?: number;
+  weightUnit?: string;
 }
 
 export interface ShippingAddress {

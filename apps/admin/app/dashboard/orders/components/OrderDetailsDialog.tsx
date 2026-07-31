@@ -316,6 +316,7 @@ export function OrderDetailsDialog({
                         <p className="text-sm text-muted-foreground">
                           {item.variant ? `Variant: ${item.variant} • ` : ""}
                           Qty: {item.quantity}
+                          {item.weight ? ` • ${item.weight}${item.weightUnit || "g"} × ${item.quantity} = ${item.weight * item.quantity}${item.weightUnit || "g"}` : ` • (Weight missing: ${item.weight})`}
                         </p>
                       </div>
                       <div className="text-right">

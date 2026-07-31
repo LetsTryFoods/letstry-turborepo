@@ -123,6 +123,12 @@ export class OrderItemType {
 
   @Field({ nullable: true })
   image?: string;
+
+  @Field(() => Float, { nullable: true })
+  weight?: number;
+
+  @Field({ nullable: true })
+  weightUnit?: string;
 }
 
 @ObjectType()
