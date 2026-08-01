@@ -213,6 +213,26 @@ export default async function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
+        {/* ── Google Consent Mode v2 ─────────────────────────────────────────
+            Must run BEFORE GTM so GA4 never sends events without consent signals.
+            Indian users: we grant all by default (no GDPR cookie banner needed).
+            This fixes the "(not set)" attribution issue in GA4.
+        ─────────────────────────────────────────────────────────────────── */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('consent', 'default', {
+                'ad_storage':          'granted',
+                'analytics_storage':   'granted',
+                'ad_user_data':        'granted',
+                'ad_personalization':  'granted',
+                'wait_for_update':     500
+              });
+            `,
+          }}
+        />
         {gtmId && <GoogleTagManager gtmId={gtmId} />}
         {!gtmId && gaId && <GoogleAnalytics gaId={gaId} />}
         {gaId && (
