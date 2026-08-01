@@ -96,6 +96,20 @@ export type AssignBoxToOrderInput = {
   orderId: Scalars['String']['input'];
 };
 
+export type AttributionAnalyticsResponse = {
+  __typename?: 'AttributionAnalyticsResponse';
+  sources: Array<AttributionSourceStat>;
+  totalAttributedOrders: Scalars['Int']['output'];
+  totalOrders: Scalars['Int']['output'];
+};
+
+export type AttributionSourceStat = {
+  __typename?: 'AttributionSourceStat';
+  orderCount: Scalars['Int']['output'];
+  sourceLabel: Scalars['String']['output'];
+  totalRevenue: Scalars['String']['output'];
+};
+
 export enum AuthMethod {
   Firebase = 'FIREBASE',
   Whatsapp = 'WHATSAPP'
@@ -3257,6 +3271,7 @@ export type Query = {
   getAllPackers: Array<Packer>;
   getAllPackingOrders: Array<PackingOrder>;
   getAssignedOrder: PackingOrder;
+  getAttributionAnalytics: AttributionAnalyticsResponse;
   getBoxRecommendation: BoxSize;
   getContactMessages: PaginatedContactsResponse;
   getCustomerDetails: CustomerDetails;
@@ -3486,6 +3501,11 @@ export type QueryGetAllPackersArgs = {
 export type QueryGetAllPackingOrdersArgs = {
   packerId?: InputMaybe<Scalars['String']['input']>;
   status?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryGetAttributionAnalyticsArgs = {
+  days?: InputMaybe<Scalars['Float']['input']>;
 };
 
 

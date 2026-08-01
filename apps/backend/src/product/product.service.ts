@@ -129,12 +129,14 @@ export class ProductService {
     limit = DEFAULT_LIMIT,
     includeOutOfStock = true,
     includeArchived = false,
+    stockFilter?: 'OUT' | 'LOW' | 'IN',
   ): Promise<PaginationResult<Product>> {
     return this.queryService.findAllPaginated(
       page,
       limit,
       includeOutOfStock,
       includeArchived,
+      stockFilter,
     );
   }
 

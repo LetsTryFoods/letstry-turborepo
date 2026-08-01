@@ -60,6 +60,8 @@ export class ProductResolver {
     includeOutOfStock?: boolean,
     @Args('includeArchived', { type: () => Boolean, defaultValue: false })
     includeArchived?: boolean,
+    @Args('stockFilter', { type: () => String, nullable: true })
+    stockFilter?: 'OUT' | 'LOW' | 'IN',
   ): Promise<PaginatedProducts> {
     const page = pagination?.page;
     const limit = pagination?.limit;
@@ -68,6 +70,7 @@ export class ProductResolver {
       limit,
       includeOutOfStock,
       includeArchived,
+      stockFilter,
     );
   }
 

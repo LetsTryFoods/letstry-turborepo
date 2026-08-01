@@ -97,7 +97,13 @@ export default function InventoryPage() {
     loading: browseLoading,
     error: browseError,
     refetch: refetchBrowse,
-  } = useProducts({ page: currentPage, limit: pageSize }, true, false);
+  } = useProducts(
+    { page: currentPage, limit: pageSize },
+    true,
+    false,
+    // Pass filter to backend — 'ALL' means no filter
+    statusFilter !== 'ALL' ? statusFilter as 'OUT' | 'LOW' | 'IN' : undefined,
+  );
 
   // ── Backend search (fires only when search term exists) ──────────────────
   const {
@@ -185,14 +191,8 @@ export default function InventoryPage() {
       }),
   );
 
-  // Status filter — applied client-side on the current page results
-  const filteredVariants = allVariants.filter((v) => {
-    const stock = v.stockQuantity;
-    if (statusFilter === "OUT") return stock === 0;
-    if (statusFilter === "LOW") return stock > 0 && stock < 10;
-    if (statusFilter === "IN") return stock >= 10;
-    return true;
-  });
+  // Status filter is now handled by backend — use allVariants directly
+  const filteredVariants = allVariants;
 
   // Sync stock inputs when data changes
   useEffect(() => {
@@ -450,7 +450,7 @@ export default function InventoryPage() {
               <Button
                 variant={statusFilter === "ALL" ? "default" : "outline"}
                 size="sm"
-                onClick={() => setStatusFilter("ALL")}
+                onClick={() => { setStatusFilter("ALL"); setCurrentPage(1); }}
                 className="text-xs h-8 px-3 rounded-full cursor-pointer"
               >
                 All
@@ -458,7 +458,7 @@ export default function InventoryPage() {
               <Button
                 variant={statusFilter === "IN" ? "default" : "outline"}
                 size="sm"
-                onClick={() => setStatusFilter("IN")}
+                onClick={() => { setStatusFilter("IN"); setCurrentPage(1); }}
                 className={`text-xs h-8 px-3 rounded-full cursor-pointer ${
                   statusFilter === "IN"
                     ? ""
@@ -470,7 +470,7 @@ export default function InventoryPage() {
               <Button
                 variant={statusFilter === "LOW" ? "default" : "outline"}
                 size="sm"
-                onClick={() => setStatusFilter("LOW")}
+                onClick={() => { setStatusFilter("LOW"); setCurrentPage(1); }}
                 className={`text-xs h-8 px-3 rounded-full cursor-pointer ${
                   statusFilter === "LOW"
                     ? ""
@@ -482,7 +482,7 @@ export default function InventoryPage() {
               <Button
                 variant={statusFilter === "OUT" ? "default" : "outline"}
                 size="sm"
-                onClick={() => setStatusFilter("OUT")}
+                onClick={() => { setStatusFilter("OUT"); setCurrentPage(1); }}
                 className={`text-xs h-8 px-3 rounded-full cursor-pointer ${
                   statusFilter === "OUT"
                     ? ""

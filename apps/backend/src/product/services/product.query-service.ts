@@ -89,17 +89,21 @@ export class ProductQueryService {
     limit: number,
     includeOutOfStock: boolean,
     includeArchived: boolean,
+    stockFilter?: 'OUT' | 'LOW' | 'IN',
   ): Promise<PaginationResult<Product>> {
     const filter = ProductQueryBuilder.forAll(
       includeOutOfStock,
       includeArchived,
+      stockFilter,
     );
-    const strategy = this.cacheStrategyFactory.createForGlobalList(
-      page,
-      limit,
-      includeOutOfStock,
-      includeArchived,
-    );
+    const strategy = stockFilter
+      ? this.cacheStrategyFactory.createNoCache<PaginationResult<Product>>()
+      : this.cacheStrategyFactory.createForGlobalList(
+          page,
+          limit,
+          includeOutOfStock,
+          includeArchived,
+        );
     return this.executor.executePaginated(filter, page, limit, strategy);
   }
 

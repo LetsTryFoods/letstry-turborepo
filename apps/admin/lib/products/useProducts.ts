@@ -277,9 +277,10 @@ export const useProducts = (
   pagination: PaginationInput = { page: 1, limit: 10 },
   includeOutOfStock: boolean = false,
   includeArchived: boolean = false,
+  stockFilter?: "OUT" | "LOW" | "IN",
 ) => {
   return useQuery(GET_PRODUCTS, {
-    variables: { pagination, includeOutOfStock, includeArchived },
+    variables: { pagination, includeOutOfStock, includeArchived, stockFilter },
     fetchPolicy: "network-only",
     nextFetchPolicy: "network-only",
   });

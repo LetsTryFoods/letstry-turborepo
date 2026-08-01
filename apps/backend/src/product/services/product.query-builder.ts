@@ -44,6 +44,30 @@ export class ProductQueryBuilder {
     return this;
   }
 
+  /**
+   * Backend stock filter for inventory page:
+   * - 'OUT' → all variants have stockQuantity === 0
+   * - 'LOW' → at least one variant has 0 < stockQuantity < 10
+   * - 'IN'  → at least one variant has stockQuantity >= 10
+   */
+  withStockFilter(stockFilter?: 'OUT' | 'LOW' | 'IN'): this {
+    if (!stockFilter || stockFilter === 'ALL' as any) return this;
+    if (stockFilter === 'OUT') {
+      this.filter.variants = {
+        $not: { $elemMatch: { stockQuantity: { $gt: 0 } } },
+      } as any;
+    } else if (stockFilter === 'LOW') {
+      this.filter.variants = {
+        $elemMatch: { stockQuantity: { $gt: 0, $lt: 10 } },
+      };
+    } else if (stockFilter === 'IN') {
+      this.filter.variants = {
+        $elemMatch: { stockQuantity: { $gte: 10 } },
+      };
+    }
+    return this;
+  }
+
   withSearch(searchTerm: string): this {
     if (!searchTerm) return this;
 
@@ -132,10 +156,12 @@ export class ProductQueryBuilder {
   static forAll(
     includeOutOfStock: boolean,
     includeArchived: boolean,
+    stockFilter?: 'OUT' | 'LOW' | 'IN',
   ): ProductFilter {
     return new ProductQueryBuilder()
       .withArchived(includeArchived)
       .withoutOutOfStock(includeOutOfStock)
+      .withStockFilter(stockFilter)
       .build();
   }
 

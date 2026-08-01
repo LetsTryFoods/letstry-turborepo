@@ -95,8 +95,8 @@ const RICH_CONTENT_FIELDS = `
 `;
 
 export const GET_PRODUCTS = gql`
-  query GetProducts($pagination: PaginationInput, $includeOutOfStock: Boolean, $includeArchived: Boolean) {
-    products(pagination: $pagination, includeOutOfStock: $includeOutOfStock, includeArchived: $includeArchived) {
+  query GetProducts($pagination: PaginationInput, $includeOutOfStock: Boolean, $includeArchived: Boolean, $stockFilter: String) {
+    products(pagination: $pagination, includeOutOfStock: $includeOutOfStock, includeArchived: $includeArchived, stockFilter: $stockFilter) {
       items {
         _id
         name
