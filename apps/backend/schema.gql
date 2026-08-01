@@ -1085,6 +1085,18 @@ type BoxSize {
   updatedAt: DateTime
 }
 
+type AttributionSourceStat {
+  sourceLabel: String!
+  orderCount: Int!
+  totalRevenue: String!
+}
+
+type AttributionAnalyticsResponse {
+  sources: [AttributionSourceStat!]!
+  totalAttributedOrders: Int!
+  totalOrders: Int!
+}
+
 type OrderPaymentType {
   _id: String!
   status: PaymentStatus!
@@ -2018,6 +2030,7 @@ type Query {
   getAdminPaymentsByIdentity(identityId: String!): [PaymentListItemType!]!
   getAdminPaymentsByOrder(orderId: String!): [PaymentListItemType!]!
   getMonthlyLogisticsAnalytics(month: Float!, year: Float!): LogisticsAnalyticsResponse!
+  getAttributionAnalytics(days: Float = 30): AttributionAnalyticsResponse!
   getMonthlyDiscountAnalytics(month: Float!, year: Float!): OrderDiscountAnalyticsResponse!
   getOrderReports(period: String! = "month", customStartDate: String, customEndDate: String): OrderReportResponse!
   getShippingInsights: ShippingInsightsType!

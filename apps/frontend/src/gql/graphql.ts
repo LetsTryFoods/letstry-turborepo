@@ -1256,6 +1256,13 @@ export type InitiateAdminRefundInput = {
 export type InitiatePaymentInput = {
   cartId: Scalars['String']['input'];
   idempotencyKey?: InputMaybe<Scalars['String']['input']>;
+  referrer?: InputMaybe<Scalars['String']['input']>;
+  sourceLabel?: InputMaybe<Scalars['String']['input']>;
+  utmCampaign?: InputMaybe<Scalars['String']['input']>;
+  utmContent?: InputMaybe<Scalars['String']['input']>;
+  utmMedium?: InputMaybe<Scalars['String']['input']>;
+  utmSource?: InputMaybe<Scalars['String']['input']>;
+  utmTerm?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type InitiatePaymentResponse = {
@@ -2165,6 +2172,17 @@ export type OsSplit = {
   windows: Scalars['Float']['output'];
 };
 
+export type OrderAttributionType = {
+  __typename?: 'OrderAttributionType';
+  referrer?: Maybe<Scalars['String']['output']>;
+  sourceLabel: Scalars['String']['output'];
+  utmCampaign?: Maybe<Scalars['String']['output']>;
+  utmContent?: Maybe<Scalars['String']['output']>;
+  utmMedium?: Maybe<Scalars['String']['output']>;
+  utmSource?: Maybe<Scalars['String']['output']>;
+  utmTerm?: Maybe<Scalars['String']['output']>;
+};
+
 export type OrderCustomerType = {
   __typename?: 'OrderCustomerType';
   _id: Scalars['String']['output'];
@@ -2299,6 +2317,7 @@ export type OrderStatusCount = {
 export type OrderType = {
   __typename?: 'OrderType';
   _id: Scalars['String']['output'];
+  attribution?: Maybe<OrderAttributionType>;
   box?: Maybe<BoxSize>;
   boxDimensions?: Maybe<BoxDimensionType>;
   boxId?: Maybe<Scalars['String']['output']>;
@@ -2345,6 +2364,7 @@ export type OrderUserInfo = {
 export type OrderWithUserInfo = {
   __typename?: 'OrderWithUserInfo';
   _id: Scalars['String']['output'];
+  attribution?: Maybe<OrderAttributionType>;
   box?: Maybe<BoxSize>;
   boxDimensions?: Maybe<BoxDimensionType>;
   boxId?: Maybe<Scalars['String']['output']>;

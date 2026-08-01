@@ -18,6 +18,30 @@ registerEnumType(OrderStatus, {
 });
 
 @ObjectType()
+export class AttributionSourceStat {
+  @Field()
+  sourceLabel: string;
+
+  @Field(() => Int)
+  orderCount: number;
+
+  @Field()
+  totalRevenue: string;
+}
+
+@ObjectType()
+export class AttributionAnalyticsResponse {
+  @Field(() => [AttributionSourceStat])
+  sources: AttributionSourceStat[];
+
+  @Field(() => Int)
+  totalAttributedOrders: number;
+
+  @Field(() => Int)
+  totalOrders: number;
+}
+
+@ObjectType()
 export class OrderPaymentType {
   @Field()
   _id: string;

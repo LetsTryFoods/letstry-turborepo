@@ -2,6 +2,7 @@
 
 import { useDashboardStats } from "@/lib/dashboard/useDashboardStats";
 import { useRouter } from "next/navigation";
+import { AttributionDashboard } from "@/components/attribution/AttributionDashboard";
 
 export default function DashboardPage() {
   const { stats, loading, error } = useDashboardStats();
@@ -87,6 +88,11 @@ export default function DashboardPage() {
           <h3 className="font-semibold">Total Admins</h3>
           <p className="text-2xl font-bold">{stats?.totalAdmins || 0}</p>
         </div>
+      </div>
+
+      {/* Attribution Analytics */}
+      <div className="grid gap-4 mt-6">
+        <AttributionDashboard />
       </div>
     </div>
   );

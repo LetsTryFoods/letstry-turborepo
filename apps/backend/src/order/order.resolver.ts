@@ -25,6 +25,7 @@ import {
   OrderCustomerType,
   OrderWithUserInfo,
   BoxDimensionType,
+  AttributionAnalyticsResponse,
 } from './order.graphql';
 import { LogisticsAnalyticsResponse } from './logistics-analytics.graphql';
 import { OrderDiscountAnalyticsResponse } from './discount-analytics.graphql';
@@ -73,6 +74,48 @@ export class OrderResolver {
     @Args('year', { type: () => Number }) year: number,
   ): Promise<LogisticsAnalyticsResponse> {
     return this.logisticsAnalyticsService.getMonthlyAnalytics(month, year);
+  }
+
+  @Query(() => AttributionAnalyticsResponse)
+  @Roles(Role.ADMIN)
+  @UseGuards(RolesGuard)
+  async getAttributionAnalytics(
+    @Args('days', { type: () => Number, nullable: true, defaultValue: 30 }) days: number,
+  ): Promise<AttributionAnalyticsResponse> {
+    const since = new Date();
+    since.setDate(since.getDate() - days);
+
+    // Get all attributions in date range
+    const attributions = await this.orderAttributionModel
+      .find({ createdAt: { $gte: since } })
+      .lean()
+      .exec();
+
+    // Get total attributed orders in same period
+    const totalOrders = attributions.length;
+
+    // Group by sourceLabel
+    const sourceMap = new Map<string, { count: number; revenue: number }>();
+    for (const attr of attributions) {
+      const key = (attr as any).sourceLabel || 'Direct';
+      const existing = sourceMap.get(key) || { count: 0, revenue: 0 };
+      existing.count++;
+      sourceMap.set(key, existing);
+    }
+
+    const sources = Array.from(sourceMap.entries())
+      .map(([sourceLabel, data]) => ({
+        sourceLabel,
+        orderCount: data.count,
+        totalRevenue: '0',
+      }))
+      .sort((a, b) => b.orderCount - a.orderCount);
+
+    return {
+      sources,
+      totalAttributedOrders: attributions.length,
+      totalOrders,
+    };
   }
 
   @Query(() => OrderDiscountAnalyticsResponse)

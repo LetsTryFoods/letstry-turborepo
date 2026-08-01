@@ -206,3 +206,17 @@ export const ADMIN_PUNCH_SHIPMENT = gql`
     }
   }
 `;
+
+export const GET_ATTRIBUTION_ANALYTICS = gql`
+  query GetAttributionAnalytics($days: Float) {
+    getAttributionAnalytics(days: $days) {
+      sources {
+        sourceLabel
+        orderCount
+        totalRevenue
+      }
+      totalAttributedOrders
+      totalOrders
+    }
+  }
+`;
