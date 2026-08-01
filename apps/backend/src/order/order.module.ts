@@ -2,6 +2,7 @@ import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Order, OrderSchema } from './order.schema';
 import { Identity, IdentitySchema } from '../common/schemas/identity.schema';
+import { OrderAttribution, OrderAttributionSchema } from './order-attribution.schema';
 import { OrderService } from './order.service';
 import { OrderResolver, OrderWithUserInfoResolver } from './order.resolver';
 import { OrderCartLoggerService } from './order-cart-logger.service';
@@ -33,6 +34,7 @@ import { BoxSizeModule } from '../box-size/box-size.module';
       { name: PaymentOrder.name, schema: PaymentOrderSchema },
       { name: PaymentEvent.name, schema: PaymentEventSchema },
       { name: Address.name, schema: AddressSchema },
+      { name: OrderAttribution.name, schema: OrderAttributionSchema },
     ]),
     ProductModule,
     forwardRef(() => PackingModule),

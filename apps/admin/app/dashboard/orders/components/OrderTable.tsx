@@ -329,26 +329,33 @@ export function OrderTable({
                 )}
               </TableCell>
               <TableCell className="py-2 px-2.5 h-auto">
-                {(() => {
-                  const isApp = order.userInfo?.deviceInfo
-                    ? isAppOrder(order.userInfo.deviceInfo)
-                    : false;
-                  return isApp ? (
-                    <Badge
-                      variant="outline"
-                      className="border-indigo-500 text-indigo-600 bg-indigo-50/50 text-[10px] px-1.5 py-0 h-5 font-semibold shrink-0"
-                    >
-                      <Smartphone className="h-3 w-3 mr-0.5" /> App
-                    </Badge>
-                  ) : (
-                    <Badge
-                      variant="outline"
-                      className="border-teal-500 text-teal-600 bg-teal-50/50 text-[10px] px-1.5 py-0 h-5 font-semibold shrink-0"
-                    >
-                      <Globe className="h-3 w-3 mr-0.5" /> Web
-                    </Badge>
-                  );
-                })()}
+                <div className="flex flex-col gap-0.5">
+                  {(() => {
+                    const isApp = order.userInfo?.deviceInfo
+                      ? isAppOrder(order.userInfo.deviceInfo)
+                      : false;
+                    return isApp ? (
+                      <Badge
+                        variant="outline"
+                        className="border-indigo-500 text-indigo-600 bg-indigo-50/50 text-[10px] px-1.5 py-0 h-5 font-semibold shrink-0 w-fit"
+                      >
+                        <Smartphone className="h-3 w-3 mr-0.5" /> App
+                      </Badge>
+                    ) : (
+                      <Badge
+                        variant="outline"
+                        className="border-teal-500 text-teal-600 bg-teal-50/50 text-[10px] px-1.5 py-0 h-5 font-semibold shrink-0 w-fit"
+                      >
+                        <Globe className="h-3 w-3 mr-0.5" /> Web
+                      </Badge>
+                    );
+                  })()}
+                  {order.attribution?.sourceLabel && (
+                    <span className="text-[10px] text-muted-foreground font-medium leading-tight max-w-[100px] truncate" title={order.attribution.sourceLabel}>
+                      {order.attribution.sourceLabel}
+                    </span>
+                  )}
+                </div>
               </TableCell>
               <TableCell className="py-2 px-2.5 h-auto">
                 <TooltipProvider>

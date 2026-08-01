@@ -97,6 +97,14 @@ export class PaymentService {
         amount,
         currency,
         idempotencyKey,
+        // UTM attribution from frontend
+        utmSource: input.utmSource,
+        utmMedium: input.utmMedium,
+        utmCampaign: input.utmCampaign,
+        utmTerm: input.utmTerm,
+        utmContent: input.utmContent,
+        sourceLabel: input.sourceLabel,
+        referrer: input.referrer,
       });
 
       let buyerName = 'Customer';
@@ -341,6 +349,13 @@ export class PaymentService {
     amount: string;
     currency: string;
     idempotencyKey?: string;
+    utmSource?: string;
+    utmMedium?: string;
+    utmCampaign?: string;
+    utmTerm?: string;
+    utmContent?: string;
+    sourceLabel?: string;
+    referrer?: string;
   }) {
     return this.paymentOrderModel.create({
       paymentOrderId: this.generatePaymentOrderId(),
@@ -354,6 +369,14 @@ export class PaymentService {
       idempotencyKeyExpiresAt: params.idempotencyKey
         ? new Date(Date.now() + 30 * 60 * 1000)
         : undefined,
+      // UTM attribution
+      utmSource: params.utmSource,
+      utmMedium: params.utmMedium,
+      utmCampaign: params.utmCampaign,
+      utmTerm: params.utmTerm,
+      utmContent: params.utmContent,
+      sourceLabel: params.sourceLabel,
+      referrer: params.referrer,
     });
   }
 

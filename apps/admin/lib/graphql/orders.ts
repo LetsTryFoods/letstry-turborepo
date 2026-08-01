@@ -53,6 +53,14 @@ export const GET_ALL_ORDERS = gql`
           pincode
           landmark
         }
+        attribution {
+          sourceLabel
+          utmSource
+          utmMedium
+          utmCampaign
+          utmTerm
+          referrer
+        }
       }
       meta {
         totalCount

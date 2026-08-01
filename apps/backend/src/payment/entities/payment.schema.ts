@@ -183,6 +183,28 @@ export class PaymentOrder extends Document {
   @Prop({ type: Object })
   pspRawResponse: Record<string, any>;
 
+  // UTM attribution — saved at payment initiation, used to create OrderAttribution after success
+  @Prop({ type: String })
+  utmSource?: string;
+
+  @Prop({ type: String })
+  utmMedium?: string;
+
+  @Prop({ type: String })
+  utmCampaign?: string;
+
+  @Prop({ type: String })
+  utmTerm?: string;
+
+  @Prop({ type: String })
+  utmContent?: string;
+
+  @Prop({ type: String })
+  sourceLabel?: string;
+
+  @Prop({ type: String })
+  referrer?: string;
+
   createdAt: Date;
   updatedAt: Date;
 }

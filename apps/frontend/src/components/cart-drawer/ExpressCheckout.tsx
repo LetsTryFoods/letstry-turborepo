@@ -10,6 +10,7 @@ import {
 } from "@/lib/utils/idempotency";
 import { useCart } from "@/lib/cart/use-cart";
 import { useAnalytics } from "@/hooks/use-analytics";
+import { getSavedUtmParams } from "@/lib/analytics/utm-capture";
 
 interface ExpressCheckoutProps {
   cartId: string;
@@ -34,10 +35,21 @@ export const ExpressCheckout: React.FC<ExpressCheckoutProps> = ({
   } = useMutation({
     mutationFn: async () => {
       const idempotencyKey = getOrCreateIdempotencyKey();
+      const utmParams = getSavedUtmParams();
       const response = await graphqlClient.request(INITIATE_PAYMENT, {
         input: {
           cartId,
           idempotencyKey,
+          // Send UTM attribution to backend so it gets saved with the order
+          ...(utmParams && {
+            utmSource: utmParams.utm_source,
+            utmMedium: utmParams.utm_medium,
+            utmCampaign: utmParams.utm_campaign,
+            utmTerm: utmParams.utm_term,
+            utmContent: utmParams.utm_content,
+            sourceLabel: utmParams.sourceLabel,
+            referrer: utmParams.referrer,
+          }),
         },
       });
       return response.initiatePayment;

@@ -163,6 +163,14 @@ export interface Order {
   region?: string;
   logisticsCost?: number;
   shipment?: Shipment;
+  attribution?: {
+    sourceLabel: string;
+    utmSource?: string;
+    utmMedium?: string;
+    utmCampaign?: string;
+    utmTerm?: string;
+    referrer?: string;
+  };
 }
 
 export interface OrdersSummary {

@@ -168,6 +168,30 @@ export class BoxDimensionType {
 }
 
 @ObjectType()
+export class OrderAttributionType {
+  @Field()
+  sourceLabel: string;
+
+  @Field({ nullable: true })
+  utmSource?: string;
+
+  @Field({ nullable: true })
+  utmMedium?: string;
+
+  @Field({ nullable: true })
+  utmCampaign?: string;
+
+  @Field({ nullable: true })
+  utmTerm?: string;
+
+  @Field({ nullable: true })
+  utmContent?: string;
+
+  @Field({ nullable: true })
+  referrer?: string;
+}
+
+@ObjectType()
 export class OrderType {
   @Field()
   _id: string;
@@ -255,6 +279,9 @@ export class OrderType {
 
   @Field(() => ShipmentResponse, { nullable: true })
   shipment?: ShipmentResponse;
+
+  @Field(() => OrderAttributionType, { nullable: true })
+  attribution?: OrderAttributionType;
 
   @Field()
   createdAt: Date;

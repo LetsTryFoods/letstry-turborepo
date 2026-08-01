@@ -15,6 +15,7 @@ import {
   Identity,
   IdentityDocument,
 } from '../../../common/schemas/identity.schema';
+import { OrderAttribution } from '../../../order/order-attribution.schema';
 
 @Injectable()
 export class PaymentExecutorService {
@@ -32,6 +33,8 @@ export class PaymentExecutorService {
     @InjectQueue('whatsapp-notification-queue')
     private whatsappQueue: Queue,
     private configService: ConfigService,
+    @InjectModel(OrderAttribution.name)
+    private orderAttributionModel: Model<OrderAttribution>,
   ) {}
 
   async executePaymentOrder(params: {
@@ -288,6 +291,26 @@ export class PaymentExecutorService {
         cart.items.length,
         paymentOrder.amount,
       );
+
+      // Save order attribution if UTM data exists
+      if (paymentOrder.utmSource || paymentOrder.sourceLabel) {
+        try {
+          await this.orderAttributionModel.create({
+            orderId: order._id,
+            orderRef: order.orderId,
+            utmSource: paymentOrder.utmSource,
+            utmMedium: paymentOrder.utmMedium,
+            utmCampaign: paymentOrder.utmCampaign,
+            utmTerm: paymentOrder.utmTerm,
+            utmContent: paymentOrder.utmContent,
+            sourceLabel: paymentOrder.sourceLabel || 'Direct',
+            referrer: paymentOrder.referrer,
+          });
+        } catch (e) {
+          // Non-critical — don't fail order creation if attribution save fails
+          this.paymentLogger.log('OrderAttribution save failed (non-critical)', { error: e?.message });
+        }
+      }
 
       this.orderCartLogger.logCartClearStart(
         paymentOrder.identityId.toString(),

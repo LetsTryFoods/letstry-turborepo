@@ -46,8 +46,12 @@ import {
 } from '../shipment/dto/shipment-response.dto';
 import { MobileAppGuard } from '../common/guards/mobile-app.guard';
 import { Public } from '../common/decorators/public.decorator';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { BoxSizeCrudService } from '../box-size/services/core/box-size-crud.service';
 import { BoxSize } from '../box-size/types/box-size.type';
+import { OrderAttribution } from './order-attribution.schema';
+import { OrderAttributionType } from './order.graphql';
 
 @Resolver(() => OrderType)
 export class OrderResolver {
@@ -57,6 +61,8 @@ export class OrderResolver {
     private readonly shipmentService: ShipmentService,
     private readonly logisticsAnalyticsService: LogisticsAnalyticsService,
     private readonly boxSizeCrudService: BoxSizeCrudService,
+    @InjectModel(OrderAttribution.name)
+    private readonly orderAttributionModel: Model<OrderAttribution>,
   ) { }
 
   @Query(() => LogisticsAnalyticsResponse)
@@ -442,6 +448,8 @@ export class OrderWithUserInfoResolver {
     private readonly orderService: OrderService,
     private readonly packingService: PackingService,
     private readonly shipmentService: ShipmentService,
+    @InjectModel(OrderAttribution.name)
+    private readonly orderAttributionModel: Model<OrderAttribution>,
   ) { }
 
   @ResolveField(() => OrderPaymentType, { nullable: true })
@@ -518,5 +526,14 @@ export class OrderWithUserInfoResolver {
     return shipments.length > 0
       ? (shipments[0] as any as ShipmentResponse)
       : null;
+  }
+
+  @ResolveField(() => OrderAttributionType, { nullable: true })
+  async attribution(@Parent() order: any): Promise<OrderAttributionType | null> {
+    const attr = await this.orderAttributionModel
+      .findOne({ orderId: order._id })
+      .lean()
+      .exec();
+    return attr as any || null;
   }
 }

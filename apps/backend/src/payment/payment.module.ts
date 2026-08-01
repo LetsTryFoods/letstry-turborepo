@@ -14,6 +14,10 @@ import {
 import { Identity, IdentitySchema } from '../common/schemas/identity.schema';
 import { Order, OrderSchema } from '../order/order.schema';
 import { Address, AddressSchema } from '../address/address.schema';
+import {
+  OrderAttribution,
+  OrderAttributionSchema,
+} from '../order/order-attribution.schema';
 import { PaymentService } from './services/core/payment.service';
 import { PaymentResolver } from './payment.resolver';
 import { AdminPaymentResolver } from './admin-payment.resolver';
@@ -64,6 +68,7 @@ import { WhatsAppModule } from '../whatsapp/whatsapp.module';
       { name: Identity.name, schema: IdentitySchema },
       { name: Order.name, schema: OrderSchema },
       { name: Address.name, schema: AddressSchema },
+      { name: OrderAttribution.name, schema: OrderAttributionSchema },
     ]),
   ],
   controllers: [PaymentController],

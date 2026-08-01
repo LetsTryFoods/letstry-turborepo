@@ -20,6 +20,42 @@ export class InitiatePaymentInput {
   @IsString()
   @Length(36, 36)
   idempotencyKey?: string;
+
+  // UTM / attribution fields — sent from frontend on checkout
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  utmSource?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  utmMedium?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  utmCampaign?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  utmTerm?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  utmContent?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  sourceLabel?: string; // e.g. "Affiliate / Paisatrail"
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  referrer?: string;
 }
 
 @InputType()
