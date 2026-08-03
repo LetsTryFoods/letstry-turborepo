@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   useProducts,
   useUpdateProductVariantStock,
@@ -38,13 +38,15 @@ import {
   TrendingDown,
   Loader2,
   X,
+  Download,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { getCdnUrl } from "@/lib/utils/image-utils";
 import { Pagination } from "@/app/dashboard/components/pagination";
-import { useQuery } from "@apollo/client/react";
+import { useQuery, useApolloClient } from "@apollo/client/react";
 import { gql } from "@apollo/client";
 import { SEARCH_PRODUCTS_INVENTORY } from "@/lib/graphql/products";
+import * as XLSX from "xlsx";
 
 const GET_ALL_PRODUCTS_STOCK = gql`
   query GetAllProductsStock {
@@ -54,6 +56,35 @@ const GET_ALL_PRODUCTS_STOCK = gql`
         _id
         sku
         stockQuantity
+      }
+    }
+  }
+`;
+
+// Used for export — fetches all products with a given stockFilter (no pagination cap)
+const GET_ALL_PRODUCTS_FOR_EXPORT = gql`
+  query GetAllProductsForExport($stockFilter: String) {
+    products(
+      pagination: { page: 1, limit: 9999 }
+      includeOutOfStock: true
+      includeArchived: false
+      stockFilter: $stockFilter
+    ) {
+      items {
+        _id
+        name
+        variants {
+          _id
+          sku
+          name
+          stockQuantity
+          availabilityStatus
+          price
+          mrp
+          discountPercent
+          weight
+          weightUnit
+        }
       }
     }
   }
@@ -71,6 +102,8 @@ export default function InventoryPage() {
   >("ALL");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(25);
+  const [exportLoading, setExportLoading] = useState(false);
+  const apolloClient = useApolloClient();
   const [stockInputs, setStockInputs] = useState<{
     [variantId: string]: string;
   }>({});
@@ -132,6 +165,75 @@ export default function InventoryPage() {
     else refetchBrowse();
     refetchStats();
   };
+
+  // ── Export to Excel ───────────────────────────────────────────────────────
+  const exportToExcel = useCallback(async () => {
+    setExportLoading(true);
+    try {
+      const { data } = await apolloClient.query({
+        query: GET_ALL_PRODUCTS_FOR_EXPORT,
+        variables: {
+          stockFilter: statusFilter !== "ALL" ? statusFilter : undefined,
+        },
+        fetchPolicy: "network-only",
+      });
+
+      const products = (data as any)?.products?.items || [];
+
+      // Flatten products → variant rows
+      const rows: Record<string, string | number>[] = [];
+      products.forEach((product: any) => {
+        (product.variants || []).forEach((variant: any) => {
+          const stock = variant.stockQuantity ?? 0;
+          let stockStatus = "In Stock";
+          if (stock === 0) stockStatus = "Out of Stock";
+          else if (stock < 10) stockStatus = "Low Stock";
+
+          rows.push({
+            "Product Name": product.name,
+            "Variant Name": variant.name || "-",
+            SKU: variant.sku || "-",
+            "Stock Qty": stock,
+            "Stock Status": stockStatus,
+            "Price (₹)": variant.price ?? "-",
+            "MRP (₹)": variant.mrp ?? "-",
+            "Discount (%)": variant.discountPercent ?? "-",
+            "Weight": `${variant.weight ?? ""} ${variant.weightUnit ?? ""}`.trim(),
+          });
+        });
+      });
+
+      if (rows.length === 0) {
+        toast.error("No products found for the selected filter");
+        return;
+      }
+
+      const worksheet = XLSX.utils.json_to_sheet(rows);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Inventory");
+
+      // Auto column widths
+      const colWidths = Object.keys(rows[0]).map((key) => ({
+        wch: Math.max(key.length + 2, 15),
+      }));
+      worksheet["!cols"] = colWidths;
+
+      const filterLabel =
+        statusFilter === "OUT" ? "OutOfStock"
+        : statusFilter === "LOW" ? "LowStock"
+        : statusFilter === "IN" ? "InStock"
+        : "AllStock";
+
+      const today = new Date().toISOString().split("T")[0];
+      XLSX.writeFile(workbook, `Inventory_${filterLabel}_${today}.xlsx`);
+      toast.success(`Downloaded ${rows.length} variants`);
+    } catch (err) {
+      console.error("Export failed:", err);
+      toast.error("Export failed. Please try again.");
+    } finally {
+      setExportLoading(false);
+    }
+  }, [apolloClient, statusFilter]);
 
   // ── Overall stock stats (all products, uncached) ──────────────────────────
   const { data: statsData, refetch: refetchStats } = useQuery(
@@ -312,6 +414,28 @@ export default function InventoryPage() {
           >
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh Stock
+          </Button>
+          <Button
+            onClick={exportToExcel}
+            variant="outline"
+            size="sm"
+            disabled={exportLoading}
+            className="cursor-pointer border-green-300 text-green-700 hover:bg-green-50"
+          >
+            {exportLoading ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Download className="h-4 w-4 mr-2" />
+            )}
+            {exportLoading
+              ? "Downloading..."
+              : statusFilter === "OUT"
+              ? "Export Out of Stock"
+              : statusFilter === "LOW"
+              ? "Export Low Stock"
+              : statusFilter === "IN"
+              ? "Export In Stock"
+              : "Export All"}
           </Button>
           <Button
             onClick={async () => {
