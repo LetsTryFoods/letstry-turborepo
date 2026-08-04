@@ -13,6 +13,7 @@ import {
   StatusBar,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   Vibration,
   View,
@@ -21,7 +22,7 @@ import {
 } from 'react-native';
 
 import { useMutation, useQuery } from '@apollo/client';
-import { BATCH_SCAN_ITEMS, COMPLETE_PACKING, UPLOAD_EVIDENCE, GET_GLOBAL_SETTINGS, MARK_ITEM_SHORT, GET_ACTIVE_BOX_SIZES, ASSIGN_BOX_TO_ORDER } from '../graphql/queries';
+import { BATCH_SCAN_ITEMS, COMPLETE_PACKING, UPLOAD_EVIDENCE, GET_GLOBAL_SETTINGS, MARK_ITEM_SHORT, GET_ACTIVE_BOX_SIZES, ASSIGN_BOX_TO_ORDER, INITIATE_ADMIN_REFUND } from '../graphql/queries';
 import { COLORS } from '../constants/theme';
 import { API_URL } from '../config/api';
 
@@ -67,6 +68,21 @@ const CameraScreen = ({ navigation, route }) => {
 
   const [showBoxModal, setShowBoxModal] = useState(false);
   const [selectedBoxId, setSelectedBoxId] = useState(null);
+
+  // Missing item resolution modal
+  const [missingItem, setMissingItem] = useState(null);
+  const [showResolutionModal, setShowResolutionModal] = useState(false);
+  const [resolutionLoading, setResolutionLoading] = useState(false);
+  const [resolutionDone, setResolutionDone] = useState(null);   // 'replacement' | 'refund' | null
+  const [resolutionStep, setResolutionStep] = useState('choice'); // 'choice' | 'search' | 'done'
+  const [replacementSearch, setReplacementSearch] = useState('');
+  const [replacementResults, setReplacementResults] = useState([]);
+  const [selectedReplacement, setSelectedReplacement] = useState(null);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const searchDebounce = useRef(null);
+
+  const REST_BASE = API_URL.replace('/graphql', '');
+  const [initiateRefundMutation] = useMutation(INITIATE_ADMIN_REFUND);
 
   const getNeeded = (item) => {
     const nonShorted = item.quantity - (item.shortQty || 0);
@@ -296,10 +312,216 @@ const CameraScreen = ({ navigation, route }) => {
           }
           return i;
         }));
-        Alert.alert('Marked', `${shortQty} ${isComponent ? 'component(s)' : 'item(s)'} marked as missing.`);
+
+        // Delay opening the Modal slightly to ensure the Alert has fully dismissed (iOS issue)
+        setTimeout(() => {
+          setMissingItem({ item, shortQty, isComponent });
+          setResolutionDone(null);
+          setResolutionStep('choice');
+          setReplacementSearch('');
+          setReplacementResults([]);
+          setSelectedReplacement(null);
+          setShowResolutionModal(true);
+        }, 300);
+      } else {
+        Alert.alert('Error', 'Failed to mark item missing on the server.');
       }
     } catch (err) {
-      Alert.alert('Error', err.message);
+      Alert.alert('Error', err.message || 'Network error');
+    }
+  };
+
+  /* ── Quick Done (manual mark complete without scanning) ─────────── */
+  const handleQuickDone = (item) => {
+    const needed = getNeeded(item);
+    const remaining = needed - item.scannedQty;
+    if (remaining <= 0) return;
+
+    const itemLabel = item.isCombo
+      ? `${item.name} (Combo ×${item.quantity})`
+      : item.quantity > 1
+        ? `${item.name} ×${remaining}`
+        : item.name;
+
+    Alert.alert(
+      '⚡ Quick Done',
+      `Mark ${remaining} remaining ${item.isCombo ? 'combo scan(s)' : 'item(s)'} of "${itemLabel}" as packed?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Mark Done',
+          style: 'default',
+          onPress: async () => {
+            // Build the full EAN array for the remaining needed scans
+            let eans = [];
+            if (item.isCombo) {
+              // For a combo, repeat the comboEans pattern for each remaining full unit
+              const scannedFullUnits = Math.floor(item.scannedQty / item.comboEans.length);
+              const remainingUnits = item.quantity - (item.shortQty || 0) - scannedFullUnits;
+              for (let u = 0; u < remainingUnits; u++) {
+                eans.push(...item.comboEans);
+              }
+            } else {
+              // Regular item — repeat single EAN × remaining count
+              for (let n = 0; n < remaining; n++) {
+                eans.push(item.ean);
+              }
+            }
+
+            if (!eans.length) return;
+
+            try {
+              const response = await batchScanMutation({
+                variables: {
+                  input: {
+                    packingOrderId: order.id,
+                    items: [{ productId: item.productId, eans }],
+                  },
+                },
+                errorPolicy: 'all',
+              });
+
+              if (response.errors?.length) {
+                Alert.alert('Error', response.errors[0].message);
+                return;
+              }
+
+              const validation = response?.data?.batchScanItems?.validations?.[0];
+              if (validation && !validation.isValid) {
+                Alert.alert('Failed', validation.errorMessage || 'Quick done failed');
+                return;
+              }
+
+              // Update local state to reflect fully scanned
+              pendingScans.current[item.productId] = eans;
+              setItems(prev =>
+                prev.map(i =>
+                  i.productId === item.productId ? { ...i, scannedQty: needed } : i
+                )
+              );
+              Speech.speak('Done');
+            } catch (err) {
+              Alert.alert('Network Error', err.message);
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  /* ── Missing resolution handlers ─────────────────────────────────── */
+
+  const getCustomerPhone = () =>
+    order?.shippingInfo?.recipientPhone ||
+    order?.customer?.phone ||
+    null;
+
+  const getCustomerFirstName = () => {
+    const full = order?.shippingInfo?.recipientName || order?.customer?.name || 'Customer';
+    return full.split(' ')[0];
+  };
+
+  // Live product search with debounce
+  const handleReplacementSearch = (text) => {
+    setReplacementSearch(text);
+    setSelectedReplacement(null);
+    if (searchDebounce.current) clearTimeout(searchDebounce.current);
+    if (!text.trim()) { setReplacementResults([]); return; }
+    searchDebounce.current = setTimeout(async () => {
+      setSearchLoading(true);
+      try {
+        const res = await fetch(REST_BASE + '/graphql', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query: `query SearchProducts($searchTerm: String!) {
+              searchProducts(searchTerm: $searchTerm, pagination: { page: 1, limit: 10 }) {
+                items { _id name variants { _id mrp } }
+              }
+            }`,
+            variables: { searchTerm: text },
+          }),
+        });
+        const json = await res.json();
+        setReplacementResults(json?.data?.searchProducts?.items || []);
+      } catch { setReplacementResults([]); }
+      setSearchLoading(false);
+    }, 400);
+  };
+
+  const handleConfirmReplacement = async () => {
+    if (!selectedReplacement) return;
+    setResolutionLoading(true);
+    try {
+      const phone = getCustomerPhone();
+      if (!phone) throw new Error('No customer phone found');
+      const firstName = getCustomerFirstName();
+      const orderId = order.orderId || order.orderNumber || order.id;
+      const missingItemName = missingItem?.item?.name || 'an item';
+      const replacementName = selectedReplacement.name;
+
+      await fetch(`${REST_BASE}/whatsapp/meta/send-template`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phoneNumber: phone,
+          templateName: 'missing_item_replacement',
+          languageCode: 'en',
+          components: [{
+            type: 'body',
+            parameters: [
+              { type: 'text', text: firstName },
+              { type: 'text', text: missingItemName },
+              { type: 'text', text: orderId },
+              { type: 'text', text: replacementName },
+            ],
+          }],
+        }),
+      });
+      setResolutionDone('replacement');
+      setResolutionStep('done');
+    } catch (err) {
+      Alert.alert('WhatsApp Error', err.message || 'Failed to send message');
+    } finally {
+      setResolutionLoading(false);
+    }
+  };
+
+  const handleProcessRefund = async () => {
+    setResolutionLoading(true);
+    try {
+      const orderId = order.orderId || order.orderNumber || order.id;
+      const missingItemName = missingItem?.item?.name || 'an item';
+
+      // Calculate refund amount: unit price × missing qty
+      const unitPrice = parseFloat(missingItem?.item?.unitPrice || '0');
+      const qty = missingItem?.shortQty || 1;
+      const refundAmount = (unitPrice * qty).toFixed(2);
+
+      // Initiate refund via GraphQL.
+      // Backend automatically sends refundnotificationtemplate WhatsApp on success.
+      const refundRes = await initiateRefundMutation({
+        variables: {
+          input: {
+            paymentOrderId: orderId,
+            refundAmount: String(refundAmount),
+            reason: `Item unavailable during packing: ${missingItemName}`,
+          },
+        },
+      });
+
+      const refundData = refundRes?.data?.initiateAdminRefund;
+      if (!refundData?.success) {
+        throw new Error(refundData?.message || 'Refund initiation failed');
+      }
+
+      // WhatsApp is sent automatically by the backend on refund success.
+      setResolutionDone('refund');
+      setResolutionStep('done');
+    } catch (err) {
+      Alert.alert('Refund Error', err.message || 'Failed to process refund');
+    } finally {
+      setResolutionLoading(false);
     }
   };
 
@@ -559,9 +781,22 @@ const CameraScreen = ({ navigation, route }) => {
                 )}
               </View>
               {!done && (
-                <TouchableOpacity onPress={() => handleMarkShort(item)} style={{ marginRight: 12, paddingHorizontal: 6, paddingVertical: 2, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 4 }}>
-                  <Text style={{ color: '#f87171', fontSize: 10 }}>Mark Missing</Text>
-                </TouchableOpacity>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginRight: 8 }}>
+                  {/* ⚡ Quick Done — tap to manually mark all remaining as packed */}
+                  <TouchableOpacity
+                    onPress={() => handleQuickDone(item)}
+                    style={styles.quickDoneBtn}
+                  >
+                    <Text style={styles.quickDoneBtnText}>⚡ Done</Text>
+                  </TouchableOpacity>
+                  {/* Mark Missing */}
+                  <TouchableOpacity
+                    onPress={() => handleMarkShort(item)}
+                    style={styles.markMissingBtn}
+                  >
+                    <Text style={styles.markMissingBtnText}>✕ Missing</Text>
+                  </TouchableOpacity>
+                </View>
               )}
               <Text style={[styles.itemCount, done && (hasShort ? { color: '#f97316' } : styles.itemCountDone)]}>
                 {item.scannedQty}/{needed}
@@ -578,6 +813,194 @@ const CameraScreen = ({ navigation, route }) => {
           {items.reduce((s, i) => s + Math.min(i.scannedQty, getNeeded(i)), 0)} / {items.reduce((s, i) => s + getNeeded(i), 0)} scanned
         </Text>
       </View>
+
+      {/* ── Missing Item Resolution Modal ─────────────────────────── */}
+      <Modal
+        visible={showResolutionModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => {
+          if (!resolutionLoading) {
+            setShowResolutionModal(false);
+            setResolutionStep('choice');
+          }
+        }}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+
+            {/* ── STEP: DONE ── */}
+            {resolutionStep === 'done' ? (
+              <View style={styles.resolutionSuccess}>
+                <Text style={{ fontSize: 44, textAlign: 'center', marginBottom: 10 }}>
+                  {resolutionDone === 'refund' ? '✅' : '🎁'}
+                </Text>
+                <Text style={styles.resolutionSuccessText}>
+                  {resolutionDone === 'refund'
+                    ? 'Refund initiated!\nWhatsApp sent to customer.'
+                    : `Replacement confirmed!\n"${selectedReplacement?.name}" — WhatsApp sent to customer.`}
+                </Text>
+                <TouchableOpacity
+                  style={[styles.confirmBtn, { marginTop: 20, flex: 0, paddingHorizontal: 40 }]}
+                  onPress={() => { setShowResolutionModal(false); setResolutionStep('choice'); }}
+                >
+                  <Text style={styles.confirmBtnText}>Done ✓</Text>
+                </TouchableOpacity>
+              </View>
+
+            ) : resolutionStep === 'search' ? (
+              /* ── STEP: SEARCH REPLACEMENT PRODUCT ── */
+              <View>
+                {/* Back + title */}
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+                  <TouchableOpacity onPress={() => setResolutionStep('choice')} style={{ marginRight: 10, padding: 6 }}>
+                    <Text style={{ color: '#94a3b8', fontSize: 20 }}>←</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.modalTitle}>Pick Replacement</Text>
+                </View>
+                <Text style={styles.modalSubtitle}>
+                  Missing: <Text style={{ color: '#f97316', fontWeight: 'bold' }}>{missingItem?.item?.name}</Text>
+                </Text>
+
+                {/* Search input */}
+                <View style={styles.searchInputWrap}>
+                  <Text style={styles.searchIcon}>🔍</Text>
+                  <TextInput
+                    style={styles.searchInput}
+                    placeholder="Type product name to search..."
+                    placeholderTextColor="#64748b"
+                    value={replacementSearch}
+                    onChangeText={handleReplacementSearch}
+                    autoFocus
+                  />
+                  {searchLoading && <ActivityIndicator size="small" color={COLORS.primary} />}
+                </View>
+
+                {/* Results */}
+                {replacementResults.length > 0 && (
+                  <FlatList
+                    data={replacementResults}
+                    keyExtractor={p => p._id}
+                    style={{ maxHeight: 200, marginTop: 8 }}
+                    keyboardShouldPersistTaps="handled"
+                    renderItem={({ item: product }) => (
+                      <TouchableOpacity
+                        style={[
+                          styles.searchResultRow,
+                          selectedReplacement?._id === product._id && styles.searchResultSelected,
+                        ]}
+                        onPress={() => setSelectedReplacement(product)}
+                      >
+                        <Text style={styles.searchResultName} numberOfLines={1}>{product.name}</Text>
+                        {product.variants?.[0]?.mrp ? (
+                          <Text style={styles.searchResultPrice}>₹{product.variants[0].mrp}</Text>
+                        ) : null}
+                        {selectedReplacement?._id === product._id && (
+                          <Text style={{ color: '#4ade80', marginLeft: 8, fontWeight: 'bold', fontSize: 16 }}>✓</Text>
+                        )}
+                      </TouchableOpacity>
+                    )}
+                  />
+                )}
+                {!searchLoading && replacementSearch.trim() !== '' && replacementResults.length === 0 && (
+                  <Text style={{ color: '#64748b', textAlign: 'center', marginTop: 12, fontSize: 13 }}>
+                    No products found for "{replacementSearch}"
+                  </Text>
+                )}
+
+                {/* Confirm */}
+                <TouchableOpacity
+                  style={[
+                    styles.resolutionBtn,
+                    { backgroundColor: selectedReplacement ? '#1d4ed8' : '#334155', marginTop: 14 },
+                  ]}
+                  onPress={handleConfirmReplacement}
+                  disabled={!selectedReplacement || resolutionLoading}
+                >
+                  {resolutionLoading ? (
+                    <ActivityIndicator color="#fff" />
+                  ) : (
+                    <View style={{ alignItems: 'center' }}>
+                      <Text style={styles.resolutionBtnTitle}>
+                        {selectedReplacement
+                          ? `✅  Confirm "${selectedReplacement.name}"`
+                          : 'Select a product above'}
+                      </Text>
+                      <Text style={styles.resolutionBtnSub}>WhatsApp will be sent to customer</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              </View>
+
+            ) : (
+              /* ── STEP: CHOICE ── */
+              <View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                  <Text style={{ fontSize: 22, marginRight: 8 }}>⚠️</Text>
+                  <Text style={styles.modalTitle}>Item Marked Missing</Text>
+                </View>
+                <Text style={styles.modalSubtitle}>
+                  {missingItem?.shortQty} × {missingItem?.item?.name}{missingItem?.isComponent ? ' (component)' : ''} could not be packed.
+                </Text>
+
+                {/* Amount pill */}
+                {(() => {
+                  const unitPrice = parseFloat(missingItem?.item?.unitPrice || '0');
+                  const qty = missingItem?.shortQty || 1;
+                  const amt = (unitPrice * qty).toFixed(2);
+                  return unitPrice > 0 ? (
+                    <View style={styles.resolutionAmountBox}>
+                      <Text style={styles.resolutionAmountLabel}>Item Value</Text>
+                      <Text style={styles.resolutionAmountValue}>₹{amt}</Text>
+                    </View>
+                  ) : null;
+                })()}
+
+                <View style={{ gap: 12, marginTop: 10 }}>
+                  {/* Replacement */}
+                  <TouchableOpacity
+                    style={[styles.resolutionBtn, { backgroundColor: '#1d4ed8' }]}
+                    onPress={() => setResolutionStep('search')}
+                    disabled={resolutionLoading}
+                  >
+                    <View style={{ alignItems: 'center' }}>
+                      <Text style={styles.resolutionBtnTitle}>🎁  Send Replacement</Text>
+                      <Text style={styles.resolutionBtnSub}>Search & pick a replacement product</Text>
+                    </View>
+                  </TouchableOpacity>
+
+                  {/* Refund */}
+                  <TouchableOpacity
+                    style={[styles.resolutionBtn, { backgroundColor: '#15803d' }]}
+                    onPress={handleProcessRefund}
+                    disabled={resolutionLoading}
+                  >
+                    {resolutionLoading ? (
+                      <ActivityIndicator color="#fff" />
+                    ) : (
+                      <View style={{ alignItems: 'center' }}>
+                        <Text style={styles.resolutionBtnTitle}>💰  Process Refund</Text>
+                        <Text style={styles.resolutionBtnSub}>Auto-refund + WhatsApp instantly</Text>
+                      </View>
+                    )}
+                  </TouchableOpacity>
+
+                  {/* Later */}
+                  <TouchableOpacity
+                    style={styles.cancelBtn}
+                    onPress={() => { setShowResolutionModal(false); setResolutionStep('choice'); }}
+                    disabled={resolutionLoading}
+                  >
+                    <Text style={styles.cancelBtnText}>Decide Later</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+
+          </View>
+        </View>
+      </Modal>
+
     </View>
   );
 };
@@ -655,6 +1078,55 @@ const styles = StyleSheet.create({
   confirmBtn: { flex: 2, padding: 14, backgroundColor: COLORS.primary, borderRadius: 10, alignItems: 'center' },
   confirmBtnDisabled: { opacity: 0.5 },
   confirmBtnText: { color: '#fff', fontWeight: 'bold' },
+
+  // Missing resolution modal
+  resolutionAmountBox: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.07)', borderRadius: 10,
+    paddingHorizontal: 16, paddingVertical: 10, marginBottom: 16,
+  },
+  resolutionAmountLabel: { color: '#94a3b8', fontSize: 13 },
+  resolutionAmountValue: { color: '#4ade80', fontSize: 18, fontWeight: 'bold' },
+  resolutionBtn: {
+    borderRadius: 14, paddingVertical: 16, paddingHorizontal: 20,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  resolutionBtnTitle: { color: '#fff', fontWeight: 'bold', fontSize: 16, marginBottom: 3 },
+  resolutionBtnSub: { color: 'rgba(255,255,255,0.7)', fontSize: 12 },
+  resolutionSuccess: { alignItems: 'center', paddingVertical: 16 },
+  resolutionSuccessText: { color: '#4ade80', fontSize: 15, fontWeight: '600', textAlign: 'center', lineHeight: 22 },
+
+  // Product search styles
+  searchInputWrap: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: '#0f172a', borderRadius: 10, borderWidth: 1, borderColor: '#334155',
+    paddingHorizontal: 12, paddingVertical: 4, marginTop: 10,
+  },
+  searchIcon: { fontSize: 16, marginRight: 8 },
+  searchInput: { flex: 1, color: '#e2e8f0', fontSize: 14, height: 40 },
+  searchResultRow: {
+    flexDirection: 'row', alignItems: 'center',
+    paddingVertical: 10, paddingHorizontal: 12,
+    backgroundColor: '#334155', borderRadius: 8, marginBottom: 6,
+    borderWidth: 1, borderColor: 'transparent',
+  },
+  searchResultSelected: { borderColor: '#4ade80', backgroundColor: 'rgba(74, 222, 128, 0.1)' },
+  searchResultName: { flex: 1, color: '#e2e8f0', fontSize: 13 },
+  searchResultPrice: { color: '#94a3b8', fontSize: 12, marginLeft: 8 },
+
+  // Per-item action buttons
+  quickDoneBtn: {
+    paddingHorizontal: 7, paddingVertical: 3,
+    backgroundColor: 'rgba(74, 222, 128, 0.18)',
+    borderRadius: 4, borderWidth: 1, borderColor: 'rgba(74, 222, 128, 0.5)',
+  },
+  quickDoneBtnText: { color: '#4ade80', fontSize: 10, fontWeight: '700' },
+  markMissingBtn: {
+    paddingHorizontal: 7, paddingVertical: 3,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderRadius: 4, borderWidth: 1, borderColor: 'rgba(248,113,113,0.4)',
+  },
+  markMissingBtnText: { color: '#f87171', fontSize: 10, fontWeight: '600' },
 });
 
 export default CameraScreen;

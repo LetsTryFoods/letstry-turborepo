@@ -355,3 +355,13 @@ export const GET_PURCHASE_ORDERS = gql`
     }
   }
 `;
+
+export const INITIATE_ADMIN_REFUND = gql`
+  mutation InitiateAdminRefund($input: InitiateAdminRefundInput!) {
+    initiateAdminRefund(input: $input) {
+      success
+      refundId
+      message
+    }
+  }
+`;

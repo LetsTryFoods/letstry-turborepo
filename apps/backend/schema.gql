@@ -1978,7 +1978,7 @@ input BoxDimensionsInput {
 
 type Query {
   hello: String!
-  products(pagination: PaginationInput, includeOutOfStock: Boolean! = true, includeArchived: Boolean! = false): PaginatedProducts!
+  products(pagination: PaginationInput, includeOutOfStock: Boolean! = true, includeArchived: Boolean! = false, stockFilter: String): PaginatedProducts!
   allProductsUncached(includeOutOfStock: Boolean! = true, includeArchived: Boolean! = false): [Product!]!
   product(id: ID!): Product
   productBySlug(slug: String!): Product

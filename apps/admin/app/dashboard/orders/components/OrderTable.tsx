@@ -26,6 +26,8 @@ import {
   FileImage,
   Smartphone,
   Globe,
+  MessageCircle,
+  AlertTriangle,
 } from "lucide-react";
 import { isAppOrder } from "@/app/dashboard/customers/utils/customerUtils";
 import {
@@ -70,6 +72,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
+import {
+  WhatsAppNotifyDialog,
+  WhatsAppTemplateType,
+} from "./WhatsAppNotifyDialog";
 
 interface OrderTableProps {
   orders: Order[];
@@ -90,6 +96,17 @@ export function OrderTable({
   const { downloadLabel, loading: downloadingLabel } = useShipmentLabel();
   const { pickupLocations, loading: locationsLoading } = usePickupLocations();
   const [downloadingAll, setDownloadingAll] = useState<string | null>(null);
+
+  // WhatsApp notify dialog state
+  const [waDialogOrder, setWaDialogOrder] = useState<Order | null>(null);
+  const [waTemplateType, setWaTemplateType] = useState<WhatsAppTemplateType>("delay");
+  const [waDialogOpen, setWaDialogOpen] = useState(false);
+
+  const openWhatsAppDialog = (order: Order, type: WhatsAppTemplateType) => {
+    setWaDialogOrder(order);
+    setWaTemplateType(type);
+    setWaDialogOpen(true);
+  };
 
   const handlePunchShipment = async (
     order: Order,
@@ -584,6 +601,27 @@ export function OrderTable({
                         <FileImage className="h-4 w-4 mr-2 text-indigo-600" />
                         Download Custom Label
                       </DropdownMenuItem>
+
+                      {/* WhatsApp Notify */}
+                      <DropdownMenuSeparator />
+                      <DropdownMenuLabel className="flex items-center gap-1.5 text-green-700">
+                        <MessageCircle className="h-3.5 w-3.5" />
+                        WhatsApp Notify
+                      </DropdownMenuLabel>
+                      <DropdownMenuItem
+                        onClick={() => openWhatsAppDialog(order, "unavailable")}
+                        className="text-amber-700 focus:text-amber-800 focus:bg-amber-50"
+                      >
+                        <AlertTriangle className="h-4 w-4 mr-2 text-amber-500" />
+                        Item Unavailable
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => openWhatsAppDialog(order, "delay")}
+                        className="text-green-700 focus:text-green-800 focus:bg-green-50"
+                      >
+                        <MessageCircle className="h-4 w-4 mr-2 text-green-600" />
+                        Order Delayed
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
@@ -592,6 +630,14 @@ export function OrderTable({
           ))}
         </TableBody>
       </Table>
+
+      {/* WhatsApp Notify Dialog */}
+      <WhatsAppNotifyDialog
+        order={waDialogOrder}
+        templateType={waTemplateType}
+        open={waDialogOpen}
+        onClose={() => setWaDialogOpen(false)}
+      />
     </div>
   );
 }

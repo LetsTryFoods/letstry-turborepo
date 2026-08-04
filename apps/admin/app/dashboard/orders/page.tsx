@@ -12,6 +12,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import {
   useAllOrders,
   useUpdateOrderStatus,
   getOrderStats,
@@ -34,8 +42,18 @@ import {
   ShoppingBag,
   Globe,
   Smartphone,
+  MessageCircle,
+  Loader2,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "react-hot-toast";
+import api from "@/lib/axios";
+import { DELAY_REASONS } from "./components/WhatsAppNotifyDialog";
+
+const WHATSAPP_API_BASE =
+  process.env.NEXT_PUBLIC_WHATSAPP_API_BASE_URL ||
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  "https://apiv3.letstryfoods.com";
 
 export default function OrdersPage() {
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
@@ -46,6 +64,12 @@ export default function OrdersPage() {
   const [limit, setLimit] = useState(10);
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
+  // Bulk WhatsApp delay state
+  const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
+  const [bulkReason, setBulkReason] = useState<string>(DELAY_REASONS[0].value);
+  const [bulkSending, setBulkSending] = useState(false);
+  const [bulkResult, setBulkResult] = useState<{ sent: number; failed: number } | null>(null);
+
   // Debounce search term
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -54,6 +78,83 @@ export default function OrdersPage() {
     }, 500);
     return () => clearTimeout(timer);
   }, [searchTerm]);
+
+  // Bulk WhatsApp delay sender
+  const handleBulkDelaySend = async () => {
+    setBulkSending(true);
+    setBulkResult(null);
+    let sent = 0;
+    let failed = 0;
+
+    try {
+      // Fetch ALL confirmed orders (no pagination limit)
+      const { data } = await api.get(
+        `${WHATSAPP_API_BASE}/whatsapp/meta/send-template`,
+        { params: {} }
+      );
+    } catch { /* will use GraphQL route below */ }
+
+    // We'll use the existing Apollo query but with a large limit to get all confirmed
+    try {
+      const res = await api.post(
+        process.env.NEXT_PUBLIC_GRAPHQL_URL || "https://apiv3.letstryfoods.com/graphql",
+        {
+          query: `query GetConfirmedOrders { getAllOrders(input: { status: "CONFIRMED", page: 1, limit: 9999 }) { orders { orderId customer { name phone } userInfo { phoneNumber } shippingAddress { phone fullName } } } }`,
+        }
+      );
+      const confirmedOrders: Order[] = res.data?.data?.getAllOrders?.orders || [];
+
+      if (confirmedOrders.length === 0) {
+        toast.error("No confirmed orders found.");
+        setBulkSending(false);
+        return;
+      }
+
+      const toastId = toast.loading(`Sending 0/${confirmedOrders.length}…`);
+
+      for (let i = 0; i < confirmedOrders.length; i++) {
+        const order = confirmedOrders[i];
+        const phone =
+          order.customer?.phone ||
+          order.userInfo?.phoneNumber ||
+          order.shippingAddress?.phone;
+        const firstName = (order.customer?.name || order.shippingAddress?.fullName || "Customer").split(" ")[0];
+
+        if (!phone) { failed++; continue; }
+
+        try {
+          await api.post(`${WHATSAPP_API_BASE}/whatsapp/meta/send-template`, {
+            phoneNumber: phone,
+            templateName: "order_delivery_delay",
+            languageCode: "en",
+            components: [
+              {
+                type: "body",
+                parameters: [
+                  { type: "text", text: firstName },
+                  { type: "text", text: order.orderId },
+                  { type: "text", text: bulkReason },
+                ],
+              },
+            ],
+          });
+          sent++;
+        } catch {
+          failed++;
+        }
+
+        toast.loading(`Sending ${i + 1}/${confirmedOrders.length}…`, { id: toastId });
+      }
+
+      toast.dismiss(toastId);
+      setBulkResult({ sent, failed });
+      toast.success(`Done! Sent: ${sent}, Failed: ${failed}`);
+    } catch (err: any) {
+      toast.error(`Bulk send failed: ${err?.message || "Unknown error"}`);
+    } finally {
+      setBulkSending(false);
+    }
+  };
 
   const { orders, summary, meta, loading, error, refetch } = useAllOrders({
     status: statusFilter !== "ALL" ? (statusFilter as OrderStatus) : undefined,
@@ -132,12 +233,22 @@ export default function OrdersPage() {
             Manage and track customer orders
           </p>
         </div>
-        <Button onClick={() => refetch()} variant="outline" size="sm">
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Refresh
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={() => setBulkDialogOpen(true)}
+            variant="outline"
+            size="sm"
+            className="border-green-500 text-green-700 hover:bg-green-50 hover:text-green-800"
+          >
+            <MessageCircle className="h-4 w-4 mr-2" />
+            Notify All Confirmed
+          </Button>
+          <Button onClick={() => refetch()} variant="outline" size="sm">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+        </div>
       </div>
-
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
@@ -365,6 +476,70 @@ export default function OrdersPage() {
         open={isDetailsOpen}
         onOpenChange={setIsDetailsOpen}
       />
+
+      {/* Bulk WhatsApp Delay Dialog */}
+      <Dialog open={bulkDialogOpen} onOpenChange={(o) => { if (!bulkSending) { setBulkDialogOpen(o); if (!o) setBulkResult(null); } }}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <MessageCircle className="h-5 w-5 text-green-600" />
+              Notify All Confirmed Orders
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <p className="text-sm text-muted-foreground">
+              This will send the <span className="font-semibold text-foreground">Order Delay</span> WhatsApp template to <span className="font-semibold text-foreground">all confirmed orders</span> in the system.
+            </p>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium">Reason for delay</Label>
+              <Select value={bulkReason} onValueChange={setBulkReason} disabled={bulkSending}>
+                <SelectTrigger className="h-9 text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {DELAY_REASONS.map((r) => (
+                    <SelectItem key={r.value} value={r.value}>
+                      {r.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {bulkResult && (
+              <div className="flex items-center gap-4 p-3 rounded-lg bg-muted border text-sm">
+                <span className="text-green-700 font-semibold">✓ Sent: {bulkResult.sent}</span>
+                {bulkResult.failed > 0 && (
+                  <span className="text-red-600 font-semibold">✗ Failed: {bulkResult.failed}</span>
+                )}
+              </div>
+            )}
+          </div>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => { setBulkDialogOpen(false); setBulkResult(null); }}
+              disabled={bulkSending}
+            >
+              {bulkResult ? "Close" : "Cancel"}
+            </Button>
+            {!bulkResult && (
+              <Button
+                size="sm"
+                onClick={handleBulkDelaySend}
+                disabled={bulkSending}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                {bulkSending ? (
+                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Sending…</>
+                ) : (
+                  <><MessageCircle className="h-4 w-4 mr-2" />Send to All Confirmed</>
+                )}
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
