@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useSearchStore } from "@/stores/search-store";
 import Image from "next/image";
 import { getCdnUrl } from "@/lib/image-utils";
+import { formatPackageSize } from "@/lib/utils";
 
 const POPULAR_SEARCHES = ["Bhujia", "Murukku"];
 
@@ -139,7 +140,7 @@ export const SearchOverlay = () => {
                       </p>
                       <div className="relative">
                         <select className="w-full h-8 pl-2 pr-8 text-xs font-medium border border-gray-200 rounded bg-white appearance-none">
-                          <option>{product.weight}</option>
+                          <option>{formatPackageSize(product.weight)}</option>
                         </select>
                         <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
                           <svg

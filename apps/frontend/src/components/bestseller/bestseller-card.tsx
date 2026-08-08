@@ -10,6 +10,7 @@ import { useCart } from "@/lib/cart/use-cart";
 import { useClickSpark } from "@/hooks/use-click-spark";
 import { DiscountBadge } from "@/components/ui/discount-badge";
 import { getCdnUrl } from "@/lib/image-utils";
+import { formatPackageSize } from "@/lib/utils";
 
 type ProductVariant = {
   _id: string;
@@ -168,8 +169,8 @@ export const BestsellerCard = ({ product, position }: BestsellerCardProps) => {
       </Link>
 
       <div className="p-2 sm:p-4 md:p-5 lg:p-6 flex flex-col flex-grow">
-        <div className="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-          {variant.packageSize}
+        <div className="text-[10px] sm:text-xs font-semibold text-gray-500 tracking-wider mb-2">
+          {formatPackageSize(variant.packageSize)}
         </div>
 
         <div className="mb-2 lg:mb-[10px]">

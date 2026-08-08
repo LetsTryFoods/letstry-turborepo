@@ -11,6 +11,7 @@ import { ProductRichContent } from "@/components/product-page/ProductRichContent
 import { ProductTrustRow } from "@/components/product-page/ProductTrustRow";
 import { PincodeDeliveryEstimator } from "@/components/product-page/PincodeDeliveryEstimator";
 import { getCdnUrl } from "@/lib/image-utils";
+import { formatPackageSize } from "@/lib/utils";
 import { getProductOverride } from "@/lib/seo/overrides";
 import { buildProductFaqs } from "@/lib/seo/product-faqs";
 import { ProductDetailFAQ } from "@/components/product-page/ProductDetailFAQ";
@@ -247,9 +248,10 @@ export default async function ProductDetailPage({
     { label: "Description", value: product.description || "" },
     {
       label: "Unit",
-      value:
+      value: formatPackageSize(
         product.defaultVariant?.packageSize ||
-        `${product.defaultVariant?.weight} ${product.defaultVariant?.weightUnit || ""}`,
+          `${product.defaultVariant?.weight} ${product.defaultVariant?.weightUnit || ""}`
+      ),
     },
     { label: "Shelf life", value: product.shelfLife || "" },
     {

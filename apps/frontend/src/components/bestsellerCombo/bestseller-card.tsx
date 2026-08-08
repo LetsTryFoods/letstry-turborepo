@@ -9,6 +9,7 @@ import { useCart } from "@/lib/cart/use-cart";
 import { useAnalytics } from "@/hooks/use-analytics";
 import { DiscountBadge } from "@/components/ui/discount-badge";
 import { getCdnUrl } from "@/lib/image-utils";
+import { formatPackageSize } from "@/lib/utils";
 
 type ProductVariant = {
   _id: string;
@@ -146,7 +147,7 @@ export const BestsellerCard = ({ product }: BestsellerCardProps) => {
           {product.name}
         </h3>
         <h4 className="text-sm pb-1 text-center bg-[#F3EEEA] text-gray-600">
-          {variant.packageSize}
+          {formatPackageSize(variant.packageSize)}
         </h4>
       </Link>
       <div className="flex flex-col items-center justify-center bg-[#F3EEEA] py-2 gap-1">

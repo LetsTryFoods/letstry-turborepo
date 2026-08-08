@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import Image from "next/image";
 import Link from "next/link";
 import { getCdnUrl } from "@/lib/image-utils";
+import { formatPackageSize } from "@/lib/utils";
 import { CartService } from "@/lib/cart/cart-service";
 import { useCart } from "@/lib/cart/use-cart";
 import { useAnalytics } from "@/hooks/use-analytics";
@@ -130,8 +131,8 @@ export const CategoryProductCard: React.FC<CategoryProductCardProps> = ({
         <h3 className="text-[13px] sm:text-sm md:text-base font-semibold text-gray-800 text-center line-clamp-2 leading-snug min-h-[2.5rem] mt-1 sm:mt-2 px-1">
           {product.name}
         </h3>
-        <div className="text-[10px] sm:text-xs font-semibold text-center text-gray-500 uppercase tracking-wider mt-1 mb-2">
-          {variant.packageSize}
+        <div className="text-[10px] sm:text-xs font-semibold text-center text-gray-500 tracking-wider mt-1 mb-2">
+          {formatPackageSize(variant.packageSize)}
         </div>
       </Link>
       <div className="flex flex-col items-center justify-center sm:mb-2 mb-1 gap-0.5 mt-1 sm:mt-2">
