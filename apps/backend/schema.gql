@@ -1178,6 +1178,7 @@ type OrderType {
   totalAmount: String!
   subtotal: String!
   discount: String!
+  couponCode: String
   deliveryCharge: String!
   handlingCharge: String
   currency: String!
@@ -1222,6 +1223,7 @@ type OrderWithUserInfo {
   totalAmount: String!
   subtotal: String!
   discount: String!
+  couponCode: String
   deliveryCharge: String!
   handlingCharge: String
   currency: String!

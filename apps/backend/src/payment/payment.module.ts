@@ -39,6 +39,7 @@ import { CartModule } from '../cart/cart.module';
 import { WebhookLoggerService } from './services/domain/webhook-logger.service';
 import { OrderModule } from '../order/order.module';
 import { WhatsAppModule } from '../whatsapp/whatsapp.module';
+import { CouponModule } from '../coupon/coupon.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { WhatsAppModule } from '../whatsapp/whatsapp.module';
     CartModule,
     OrderModule,
     WhatsAppModule,
+    CouponModule,
     EventEmitterModule.forRoot(),
     BullModule.registerQueue({
       name: 'whatsapp-notification-queue',

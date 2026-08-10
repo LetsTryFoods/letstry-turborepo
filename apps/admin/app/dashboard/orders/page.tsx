@@ -48,6 +48,8 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "react-hot-toast";
 import api from "@/lib/axios";
+import { client } from "@/lib/apollo-client";
+import { GET_ALL_ORDERS } from "@/lib/graphql/orders";
 import { DELAY_REASONS } from "./components/WhatsAppNotifyDialog";
 
 const WHATSAPP_API_BASE =
@@ -86,23 +88,14 @@ export default function OrdersPage() {
     let sent = 0;
     let failed = 0;
 
+    // Use Apollo client (has auth token automatically) to fetch all confirmed orders
     try {
-      // Fetch ALL confirmed orders (no pagination limit)
-      const { data } = await api.get(
-        `${WHATSAPP_API_BASE}/whatsapp/meta/send-template`,
-        { params: {} }
-      );
-    } catch { /* will use GraphQL route below */ }
-
-    // We'll use the existing Apollo query but with a large limit to get all confirmed
-    try {
-      const res = await api.post(
-        process.env.NEXT_PUBLIC_GRAPHQL_URL || "https://apiv3.letstryfoods.com/graphql",
-        {
-          query: `query GetConfirmedOrders { getAllOrders(input: { status: "CONFIRMED", page: 1, limit: 9999 }) { orders { orderId customer { name phone } userInfo { phoneNumber } shippingAddress { phone fullName } } } }`,
-        }
-      );
-      const confirmedOrders: Order[] = res.data?.data?.getAllOrders?.orders || [];
+      const res = await client.query<{ getAllOrders: { orders: Order[] } }>({
+        query: GET_ALL_ORDERS,
+        variables: { input: { status: "CONFIRMED", page: 1, limit: 9999 } },
+        fetchPolicy: "network-only",
+      });
+      const confirmedOrders: Order[] = res.data?.getAllOrders?.orders || [];
 
       if (confirmedOrders.length === 0) {
         toast.error("No confirmed orders found.");

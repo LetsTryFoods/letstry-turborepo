@@ -58,6 +58,7 @@ export class OrderCommandService {
       variant?: string;
       image?: string;
     }>;
+    couponCode?: string;
   }): Promise<Order> {
     const orderId = `ORD_${Date.now()}_${uuidv4().substring(0, 8)}`;
 
@@ -105,6 +106,7 @@ export class OrderCommandService {
       placerContact: params.placerContact,
       recipientContact: params.recipientContact,
       items: itemsMap,
+      couponCode: params.couponCode,
     });
 
     this.paymentLogger.log('Order Persisted to DB', {

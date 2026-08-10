@@ -241,6 +241,9 @@ export class OrderType {
   @Field()
   discount: string;
 
+  @Field({ nullable: true })
+  couponCode?: string;
+
   @Field()
   deliveryCharge: string;
 

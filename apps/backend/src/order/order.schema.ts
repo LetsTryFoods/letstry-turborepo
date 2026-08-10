@@ -87,6 +87,9 @@ export class Order extends Document {
   @Prop({ default: '0' })
   discount: string;
 
+  @Prop()
+  couponCode?: string;
+
   @Prop({ default: '0' })
   deliveryCharge: string;
 

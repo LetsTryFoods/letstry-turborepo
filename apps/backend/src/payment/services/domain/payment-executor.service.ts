@@ -16,6 +16,7 @@ import {
   IdentityDocument,
 } from '../../../common/schemas/identity.schema';
 import { OrderAttribution } from '../../../order/order-attribution.schema';
+import { CouponService } from '../../../coupon/coupon.service';
 
 @Injectable()
 export class PaymentExecutorService {
@@ -35,6 +36,7 @@ export class PaymentExecutorService {
     private configService: ConfigService,
     @InjectModel(OrderAttribution.name)
     private orderAttributionModel: Model<OrderAttribution>,
+    private couponService: CouponService,
   ) {}
 
   async executePaymentOrder(params: {
@@ -258,6 +260,7 @@ export class PaymentExecutorService {
           variant: item.attributes?.variantName || null,
           image: item.imageUrl || null,
         })),
+        couponCode: cart.couponCode || undefined,
       };
 
       this.paymentLogger.log('Constructed Order Payload', {
@@ -291,6 +294,23 @@ export class PaymentExecutorService {
         cart.items.length,
         paymentOrder.amount,
       );
+
+      // Increment coupon usage count if a coupon was applied
+      if (cart.couponCode) {
+        try {
+          await this.couponService.incrementUsageCount(cart.couponCode);
+          this.paymentLogger.log('Coupon usage incremented', {
+            couponCode: cart.couponCode,
+            orderId: order.orderId,
+          });
+        } catch (couponError) {
+          // Non-critical — don't fail order if usage count update fails
+          this.paymentLogger.log('Coupon usage increment failed (non-critical)', {
+            couponCode: cart.couponCode,
+            error: couponError?.message,
+          });
+        }
+      }
 
       // Save order attribution if UTM data exists
       if (paymentOrder.utmSource || paymentOrder.sourceLabel) {
