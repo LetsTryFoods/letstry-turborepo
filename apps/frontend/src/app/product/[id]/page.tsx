@@ -265,12 +265,12 @@ export default async function ProductDetailPage({
     },
   ];
 
-  if (product.ingredients) {
-    productInfo.splice(1, 0, {
-      label: "Ingredients",
-      value: product.ingredients,
-    });
-  }
+  // if (product.ingredients) {
+  //   productInfo.splice(1, 0, {
+  //     label: "Ingredients",
+  //     value: product.ingredients,
+  //   });
+  // }
 
   const categories = await getCategoriesByIds(product.categoryIds);
   const primaryCategory = categories[0];
