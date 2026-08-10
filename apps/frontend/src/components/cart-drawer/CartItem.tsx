@@ -2,6 +2,7 @@ import React from "react";
 import Image from "next/image";
 import { Minus, Plus } from "lucide-react";
 import { getCdnUrl } from "@/lib/image-utils";
+import { formatPackageSize } from "@/lib/utils";
 
 interface CartItemProps {
   id: string;
@@ -42,7 +43,9 @@ export const CartItem: React.FC<CartItemProps> = ({
           <h3 className="text-base font-bold text-black line-clamp-1">
             {title}
           </h3>
-          <p className="text-sm text-gray-600">Size: {size}</p>
+          <p className="text-sm text-gray-600">
+            Size: {formatPackageSize(size)}
+          </p>
         </div>
 
         <div className="mt-auto">

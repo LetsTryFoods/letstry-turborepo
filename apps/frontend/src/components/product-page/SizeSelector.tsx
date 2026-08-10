@@ -1,4 +1,5 @@
 import React from "react";
+import { formatPackageSize } from "@/lib/utils";
 
 interface Variant {
   _id: string;
@@ -28,8 +29,9 @@ export const SizeSelector: React.FC<SizeSelectorProps> = ({
       <div className="pl-4 flex flex-wrap gap-3">
         {variants.map((variant) => {
           const isSelected = variant._id === selectedVariantId;
-          const label =
-            variant.packageSize || `${variant.weight}${variant.weightUnit}`;
+          const label = formatPackageSize(
+            variant.packageSize || `${variant.weight}${variant.weightUnit}`
+          );
           const isOutOfStock = false; // Keep options enabled regardless of stock
 
           return (
