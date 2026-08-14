@@ -2338,6 +2338,7 @@ export type OrderType = {
   cancellationReason?: Maybe<Scalars['String']['output']>;
   cancelledAt?: Maybe<Scalars['DateTime']['output']>;
   cartId: Scalars['String']['output'];
+  couponCode?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   currency: Scalars['String']['output'];
   customer?: Maybe<OrderCustomerType>;
@@ -2385,6 +2386,7 @@ export type OrderWithUserInfo = {
   cancellationReason?: Maybe<Scalars['String']['output']>;
   cancelledAt?: Maybe<Scalars['DateTime']['output']>;
   cartId: Scalars['String']['output'];
+  couponCode?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   currency: Scalars['String']['output'];
   customer?: Maybe<OrderCustomerType>;
@@ -3748,6 +3750,7 @@ export type QueryProductsArgs = {
   includeArchived?: Scalars['Boolean']['input'];
   includeOutOfStock?: Scalars['Boolean']['input'];
   pagination?: InputMaybe<PaginationInput>;
+  stockFilter?: InputMaybe<Scalars['String']['input']>;
 };
 
 

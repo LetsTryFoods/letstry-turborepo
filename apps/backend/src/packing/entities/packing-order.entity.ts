@@ -84,6 +84,21 @@ export class PackingOrder extends Document {
    *  and adminPunchShipment are called for the same order. */
   @Prop({ default: false })
   inventoryDeducted: boolean;
+
+  /** Present only for manual/ad-hoc packs (samples, influencer tasting, etc.) */
+  @Prop({ type: Object })
+  manualPack?: {
+    senderName: string;
+    senderPhone?: string;
+    recipientName: string;
+    recipientPhone: string;
+    addressLine1: string;
+    addressLine2?: string;
+    city: string;
+    state: string;
+    pincode: string;
+    boxId: string;
+  };
 }
 
 export const PackingOrderSchema = SchemaFactory.createForClass(PackingOrder);

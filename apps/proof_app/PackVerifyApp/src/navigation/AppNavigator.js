@@ -10,6 +10,7 @@ import OrderDetailsScreen from '../screens/OrderDetailsScreen';
 import InventoryScreen from '../screens/InventoryScreen';
 import PackedOrderDetailScreen from '../screens/PackedOrderDetailScreen';
 import NetworkLogsScreen from '../screens/NetworkLogsScreen';
+import ManualPackScreen from '../screens/ManualPackScreen';
 
 const Stack = createStackNavigator();
 
@@ -65,6 +66,11 @@ const MainStackNavigator = () => {
       <Stack.Screen 
         name="NetworkLogs" 
         component={NetworkLogsScreen} 
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen 
+        name="ManualPack" 
+        component={ManualPackScreen} 
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

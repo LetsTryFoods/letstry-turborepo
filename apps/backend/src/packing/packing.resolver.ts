@@ -28,6 +28,7 @@ import { Role } from '../common/enums/role.enum';
 import { UploadEvidenceInput } from './dto/upload-evidence.input';
 import { BatchScanInput } from './dto/batch-scan.input';
 import { AdminPunchShipmentInput } from './dto/admin-punch-shipment.input';
+import { CreateManualPackInput } from './dto/create-manual-pack.input';
 import { BatchScanResult } from './dto/batch-scan.result';
 import { PackingOrder, ShippingInfo, ShipmentInfo } from './types/packing-order.type';
 import { ScanLog } from './types/scan-log.type';
@@ -88,6 +89,17 @@ export class PackingResolver {
 
   @ResolveField(() => ShippingInfo, { nullable: true })
   async shippingInfo(@Parent() packingOrder: any): Promise<any> {
+    if (packingOrder.manualPack) {
+      return {
+        recipientName: packingOrder.manualPack.recipientName,
+        recipientPhone: packingOrder.manualPack.recipientPhone,
+        addressLine1: packingOrder.manualPack.addressLine1,
+        addressLine2: packingOrder.manualPack.addressLine2,
+        city: packingOrder.manualPack.city,
+        pincode: packingOrder.manualPack.pincode,
+        state: packingOrder.manualPack.state,
+      };
+    }
     return this.packingService.getShippingInfo(packingOrder.orderId);
   }
 
@@ -115,6 +127,9 @@ export class PackingResolver {
 
   @ResolveField(() => String, { nullable: true })
   async boxId(@Parent() packingOrder: any): Promise<string | null> {
+    if (packingOrder.manualPack?.boxId) {
+      return packingOrder.manualPack.boxId;
+    }
     const order = await this.findLinkedOrder(packingOrder);
     return order?.boxId?.toString() || null;
   }
@@ -242,6 +257,17 @@ export class PackingResolver {
     @Args('input') input: AdminPunchShipmentInput,
   ): Promise<any> {
     return this.packingService.adminPunchShipment(input);
+  }
+
+  @Mutation(() => PackingOrder)
+  @UseGuards(PackerAuthGuard, RolesGuard)
+  @Roles(Role.PACKER)
+  async createManualPack(
+    @Args('input', { type: () => CreateManualPackInput })
+    input: CreateManualPackInput,
+    @Context() ctx,
+  ): Promise<any> {
+    return this.packingService.createManualPack(ctx.req.user.packerId, input);
   }
 
   @Query(() => [PackingOrder])

@@ -1503,6 +1503,19 @@ type ShipmentInfo {
   provider: String
 }
 
+type ManualPackInfo {
+  senderName: String!
+  senderPhone: String
+  recipientName: String!
+  recipientPhone: String!
+  addressLine1: String!
+  addressLine2: String
+  city: String!
+  state: String!
+  pincode: String!
+  boxId: String!
+}
+
 type PackingOrder {
   id: ID!
   orderId: String!
@@ -1526,6 +1539,7 @@ type PackingOrder {
   volumetricWeight: Float
   region: String
   logisticsCost: Float
+  manualPack: ManualPackInfo
 }
 
 type ScanLog {
@@ -2296,6 +2310,7 @@ type Mutation {
   uploadEvidence(input: UploadEvidenceInput!): PackingOrder!
   completePacking(packingOrderId: String!, provider: String, serviceType: String): PackingOrder!
   adminPunchShipment(input: AdminPunchShipmentInput!): PackingOrder!
+  createManualPack(input: CreateManualPackInput!): PackingOrder!
   cleanupOrphanedJobs: CleanupResult!
   triggerReassignmentCycle: Boolean!
   createPacker(input: CreatePackerInput!): CreatePackerResponse!
@@ -2866,6 +2881,27 @@ input AdminPunchShipmentInput {
   serviceType: String
   provider: String
   pickupLocationName: String
+}
+
+input CreateManualPackInput {
+  senderName: String!
+  senderPhone: String
+  recipientName: String!
+  recipientPhone: String!
+  addressLine1: String!
+  addressLine2: String
+  city: String!
+  state: String!
+  pincode: String!
+  boxId: String!
+  note: String
+  items: [ManualPackItemInput!]!
+  prePackImages: [String!]
+}
+
+input ManualPackItemInput {
+  variantId: String!
+  quantity: Int!
 }
 
 input CreatePackerInput {

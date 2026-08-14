@@ -23,7 +23,7 @@ import { ShipmentService } from '../../shipment/services/shipment.service';
 import { ShipmentLoggerService } from '../../shipment/services/shipment-logger.service';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Address } from '../../address/address.schema';
 import { PackingOrder, PackingStatus } from '../entities/packing-order.entity';
 import { PackingEvidence } from '../entities/packing-evidence.entity';
@@ -691,6 +691,156 @@ export class PackingService {
     );
 
     return this.packingOrderCrud.findById(packingOrderId);
+  }
+
+  /**
+   * Creates a manual packing order for non-storefront shipments (samples,
+   * influencer tasting, internal transfers). These bypass the normal order
+   * queue and scan-based verification, but still deduct inventory and create
+   * a PackingOrder + PackingEvidence record for auditability.
+   */
+  async createManualPack(
+    packerId: string,
+    input: {
+      senderName: string;
+      senderPhone?: string;
+      recipientName: string;
+      recipientPhone: string;
+      addressLine1: string;
+      addressLine2?: string;
+      city: string;
+      state: string;
+      pincode: string;
+      boxId: string;
+      note?: string;
+      items: { variantId: string; quantity: number }[];
+      prePackImages?: string[];
+    },
+  ): Promise<any> {
+    const packingOrderNumber = this.generateManualPackNumber();
+
+    // Resolve and normalize each line item from the catalog variant.
+    const items = await Promise.all(
+      input.items.map(async (line) => {
+        const product = await this.packingOrderCreator.resolveProductByVariantId(
+          line.variantId,
+        );
+        if (!product) {
+          throw new Error(`Product variant not found: ${line.variantId}`);
+        }
+
+        const variant = product.variants.find(
+          (v) => v._id?.toString() === line.variantId.toString(),
+        );
+        if (!variant) {
+          throw new Error(`Product variant not found: ${line.variantId}`);
+        }
+
+        const ean = variant.sku || 'UNKNOWN';
+
+        return {
+          productId: product._id.toString(),
+          sku: variant.sku,
+          ean,
+          name: product.name,
+          quantity: line.quantity,
+          scannedCount: line.quantity,
+          shortCount: 0,
+          shortComponentCount: 0,
+          unitPrice: parseFloat(String(variant.mrp || variant.price || 0)),
+          dimensions: {
+            length: variant.length || 0,
+            width: variant.breadth || 0,
+            height: variant.height || 0,
+            weight: variant.weight || 0,
+            unit: 'cm',
+          },
+          isFragile: false,
+          imageUrl: variant.thumbnailUrl || variant.images?.[0]?.url || '',
+        };
+      }),
+    );
+
+    const packingOrder = await this.packingOrderCrud.create({
+      orderId: new Types.ObjectId().toString(),
+      orderNumber: `MANUAL-${packingOrderNumber}`,
+      status: PackingStatus.COMPLETED,
+      priority: 1,
+      assignedTo: packerId,
+      assignedAt: new Date(),
+      items,
+      hasErrors: false,
+      isExpress: false,
+      specialInstructions: input.note,
+      packingStartedAt: new Date(),
+      packingCompletedAt: new Date(),
+      inventoryDeducted: true,
+      manualPack: {
+        senderName: input.senderName,
+        senderPhone: input.senderPhone,
+        recipientName: input.recipientName,
+        recipientPhone: input.recipientPhone,
+        addressLine1: input.addressLine1,
+        addressLine2: input.addressLine2,
+        city: input.city,
+        state: input.state,
+        pincode: input.pincode,
+        boxId: input.boxId,
+      },
+    } as any);
+
+    const packingOrderId = packingOrder._id.toString();
+
+    // Create evidence record if photos are provided.
+    if (input.prePackImages?.length) {
+      await this.evidenceCrud.create({
+        packingOrderId,
+        packerId,
+        prePackImages: input.prePackImages,
+        postPackImages: [],
+        actualBox: { code: input.boxId, dimensions: { l: 0, w: 0, h: 0 } },
+        uploadedAt: new Date(),
+      });
+    }
+
+    // Deduct stock for each item. Batch + product totals stay in sync.
+    for (const item of items) {
+      if (item.sku && item.sku !== 'UNKNOWN') {
+        await this.stockBatchService.deductFEFO(
+          item.sku,
+          item.quantity,
+          packingOrderId,
+          packerId,
+        );
+
+        await this.inventoryService.adjustStockByIdentifier(
+          item.sku,
+          -item.quantity,
+          InventoryAction.ORDER_PACKED,
+          {
+            referenceId: packingOrderId,
+            performedBy: packerId,
+            notes: `Manual pack ${packingOrderNumber}`,
+          },
+        );
+      }
+    }
+
+    this.packingLogger.logInfo('Manual pack created', {
+      packingOrderId,
+      packingOrderNumber,
+      packerId,
+      itemCount: items.length,
+    });
+
+    return this.packingOrderCrud.findById(packingOrderId);
+  }
+
+  private generateManualPackNumber(): string {
+    const now = new Date();
+    const datePart = now.toISOString().slice(0, 10).replace(/-/g, '');
+    const random = Math.random().toString(36).slice(2, 7).toUpperCase();
+    return `${datePart}-${random}`;
   }
 
   async syncTerminalOrderStatus(

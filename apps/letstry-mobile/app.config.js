@@ -16,7 +16,14 @@ module.exports = {
     plugins: [
       ...(appJson.expo.plugins || []),
       // Step 1: use_frameworks! :linkage => :static — needed for Firebase Swift pods
-      ['expo-build-properties', { ios: { useFrameworks: 'static' } }],
+      ['expo-build-properties', {
+        ios: { useFrameworks: 'static' },
+        android: {
+          // Target Android 16 (API 36) — required by Google Play from Aug 31, 2026
+          compileSdkVersion: 36,
+          targetSdkVersion: 36,
+        },
+      }],
       // Step 2: post_install hook — fixes RNFBApp conflict with use_frameworks!
       withModularHeaders,
     ],

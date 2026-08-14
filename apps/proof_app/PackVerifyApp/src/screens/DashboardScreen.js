@@ -260,6 +260,9 @@ const DashboardScreen = ({ navigation, route }) => {
             <TouchableOpacity onPress={() => navigation.navigate('NetworkLogs')} style={styles.profileBtn}>
               <Ionicons name="bug-outline" size={30} color="white" />
             </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('ManualPack', { user })} style={styles.profileBtn}>
+              <Ionicons name="add-circle-outline" size={30} color="white" />
+            </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate('Inventory', { user })} style={styles.profileBtn}>
               <Ionicons name="cube-outline" size={30} color="white" />
             </TouchableOpacity>

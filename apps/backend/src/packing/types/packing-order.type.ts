@@ -92,6 +92,39 @@ export class ShipmentInfo {
 }
 
 @ObjectType()
+export class ManualPackInfo {
+  @Field()
+  senderName: string;
+
+  @Field({ nullable: true })
+  senderPhone?: string;
+
+  @Field()
+  recipientName: string;
+
+  @Field()
+  recipientPhone: string;
+
+  @Field()
+  addressLine1: string;
+
+  @Field({ nullable: true })
+  addressLine2?: string;
+
+  @Field()
+  city: string;
+
+  @Field()
+  state: string;
+
+  @Field()
+  pincode: string;
+
+  @Field()
+  boxId: string;
+}
+
+@ObjectType()
 export class PackingOrder {
   @Field(() => ID)
   id: string;
@@ -158,5 +191,8 @@ export class PackingOrder {
 
   @Field(() => Float, { nullable: true })
   logisticsCost?: number;
+
+  @Field(() => ManualPackInfo, { nullable: true })
+  manualPack?: ManualPackInfo;
 }
 

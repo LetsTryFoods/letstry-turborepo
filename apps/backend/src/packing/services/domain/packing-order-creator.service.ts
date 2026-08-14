@@ -41,6 +41,10 @@ export class PackingOrderCreatorService {
     }
   }
 
+  async resolveProductByVariantId(variantId: string): Promise<any | null> {
+    return this.productService.findByVariantId(variantId);
+  }
+
   async extractItemsForOrder(order: Order): Promise<any[]> {
     const items = await Promise.all(
       order.items.map(async (item) => {

@@ -342,6 +342,44 @@ export const ASSIGN_BOX_TO_ORDER = gql`
   }
 `;
 
+export const CREATE_MANUAL_PACK = gql`
+  mutation CreateManualPack($input: CreateManualPackInput!) {
+    createManualPack(input: $input) {
+      id
+      orderNumber
+      status
+      items {
+        productId
+        sku
+        ean
+        name
+        quantity
+        scannedCount
+      }
+    }
+  }
+`;
+
+export const SEARCH_PRODUCTS_FOR_MANUAL_PACK = gql`
+  query SearchProductsForManualPack($searchTerm: String!) {
+    searchProducts(searchTerm: $searchTerm, pagination: { page: 1, limit: 20 }) {
+      items {
+        _id
+        name
+        variants {
+          _id
+          sku
+          name
+          mrp
+          stockQuantity
+          availabilityStatus
+          thumbnailUrl
+        }
+      }
+    }
+  }
+`;
+
 export const GET_PURCHASE_ORDERS = gql`
   query GetPurchaseOrders($page: Int, $limit: Int) {
     purchaseOrders(page: $page, limit: $limit) {
