@@ -108,12 +108,12 @@ export const ProductDetails: React.FC<ProductDetailsProps> = ({
           />
         </div>
 
-        <ProductTrustRow
+        {/* <ProductTrustRow
           isVegetarian={product.isVegetarian}
           isGlutenFree={product.isGlutenFree}
           primaryCategorySlug={primaryCategorySlug}
           occasions={occasions}
-        />
+        /> */}
         <PincodeDeliveryEstimator deliveryLeadTime={deliveryLeadTime} />
       </div>
     </div>

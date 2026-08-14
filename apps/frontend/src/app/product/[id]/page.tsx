@@ -641,7 +641,7 @@ export default async function ProductDetailPage({
         <ProductAccordion title="Product Info">
           <InfoTable data={productInfo} />
         </ProductAccordion>
-        <ProductDetailFAQ faqs={productFaqs} />
+        {/* <ProductDetailFAQ faqs={productFaqs} /> */}
         <CategoryProductsSections categoryIds={product.categoryIds} />
       </ProductPageContainer>
     </>
