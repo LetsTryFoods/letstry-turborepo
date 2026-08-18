@@ -16,7 +16,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { categoryFormSchema } from "@/lib/validations/category.schema";
-import { ImageUpload } from "@/components/custom/image-upload";
+import {
+  ImageUpload,
+  IMAGE_FILE_TYPES,
+} from "@/components/custom/image-upload";
 import { getCdnUrl, extractKeyFromUrl } from "@/lib/image-utils";
 
 interface CategoryFormProps {
@@ -331,7 +334,7 @@ export function CategoryForm({
                   : []
               }
               maxFiles={1}
-              allowedFileTypes={["image/webp"]}
+              allowedFileTypes={IMAGE_FILE_TYPES}
             />
             <input type="hidden" {...form.register("imageUrl")} />
           </div>
@@ -362,7 +365,7 @@ export function CategoryForm({
                     : []
                 }
                 maxFiles={1}
-                allowedFileTypes={["image/webp"]}
+                allowedFileTypes={IMAGE_FILE_TYPES}
               />
             </div>
             <input type="hidden" {...form.register("mobileImageUrl")} />

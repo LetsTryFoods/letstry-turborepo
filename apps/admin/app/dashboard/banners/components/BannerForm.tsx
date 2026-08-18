@@ -18,7 +18,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { bannerFormSchema } from "@/lib/validations/banner.schema";
 import { z } from "zod";
-import { ImageUpload } from "@/components/custom/image-upload";
+import {
+  ImageUpload,
+  IMAGE_FILE_TYPES_WITH_GIF,
+} from "@/components/custom/image-upload";
 import { getCdnUrl, extractKeyFromUrl } from "@/lib/image-utils";
 
 type BannerFormValues = z.infer<typeof bannerFormSchema>;
@@ -318,7 +321,7 @@ export function BannerForm({
                   : []
               }
               maxFiles={1}
-              allowedFileTypes={["image/webp", "image/gif"]}
+              allowedFileTypes={IMAGE_FILE_TYPES_WITH_GIF}
               disableCompression={true}
             />
             <input type="hidden" {...form.register("imageUrl")} />
@@ -338,7 +341,7 @@ export function BannerForm({
                   : []
               }
               maxFiles={1}
-              allowedFileTypes={["image/webp", "image/gif"]}
+              allowedFileTypes={IMAGE_FILE_TYPES_WITH_GIF}
               disableCompression={true}
             />
             <input type="hidden" {...form.register("mobileImageUrl")} />
