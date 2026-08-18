@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Trash2, CheckCircle2 } from "lucide-react";
+import { Trash2, CheckCircle2, FileText } from "lucide-react";
 import Uppy from "@uppy/core";
 import Dashboard from "@uppy/dashboard";
 import Compressor from "@uppy/compressor";
@@ -36,11 +36,35 @@ interface UploadedImageWithId extends UploadedFile {
   id: string;
 }
 
+const PDF_MIME = "application/pdf";
+
+// Shared so every form allows the same image formats; extend these instead of
+// hand-writing the array at each call site.
+export const IMAGE_FILE_TYPES = ["image/webp", "image/png", "image/jpeg"];
+export const IMAGE_FILE_TYPES_WITH_GIF = [...IMAGE_FILE_TYPES, "image/gif"];
+export const IMAGE_AND_PDF_FILE_TYPES = [...IMAGE_FILE_TYPES, PDF_MIME];
+
+// PDFs can arrive as a freshly picked File, as a base64 preview produced by
+// useFileUpload, or as an already-stored URL from initialImages.
+const isPdfFile = (image: UploadedImageWithId) =>
+  image.file?.type === PDF_MIME ||
+  /^data:application\/pdf/i.test(image.preview || "") ||
+  /\.pdf(\?|#|$)/i.test(image.preview || "");
+
+// initialImages carry a synthetic "existing-*" file name, so fall back to the
+// stored object key for anything that did not come from the file picker.
+const fileLabel = (image: UploadedImageWithId) => {
+  const name = image.file?.name;
+  if (name && !name.startsWith("existing-")) return name;
+  const fromUrl = (image.preview || "").split("/").pop()?.split("?")[0];
+  return fromUrl ? decodeURIComponent(fromUrl) : "Document";
+};
+
 export function ImageUpload({
   onImagesChange,
   initialImages = [],
   maxFiles = 10,
-  allowedFileTypes = ["image/webp"],
+  allowedFileTypes = IMAGE_AND_PDF_FILE_TYPES,
   disableCompression = false,
 }: ImageUploadProps) {
   const dashboardRef = useRef<HTMLDivElement>(null);
@@ -337,7 +361,7 @@ export function ImageUpload({
 
       {uploadedImages.length > 0 && (
         <div className="space-y-4">
-          <h4 className="font-medium">Uploaded Images & Alt Text</h4>
+          <h4 className="font-medium">Uploaded Files & Alt Text</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {uploadedImages.map((image, index) => (
               <div
@@ -373,17 +397,33 @@ export function ImageUpload({
                       <CheckCircle2 className="h-4 w-4 text-white" />
                     </div>
                   )}
-                  <img
-                    src={getCdnUrl(image.preview)}
-                    alt={`Preview ${index + 1}`}
-                    className="w-full h-32 object-cover rounded"
-                  />
+                  {isPdfFile(image) ? (
+                    <a
+                      href={getCdnUrl(image.finalUrl || image.preview)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex h-32 w-full flex-col items-center justify-center gap-2 rounded border bg-gray-50 text-gray-600 transition-colors hover:bg-gray-100"
+                    >
+                      <FileText className="h-10 w-10" />
+                      <span className="max-w-full truncate px-2 text-xs">
+                        {fileLabel(image)}
+                      </span>
+                    </a>
+                  ) : (
+                    <img
+                      src={getCdnUrl(image.preview)}
+                      alt={`Preview ${index + 1}`}
+                      className="w-full h-32 object-cover rounded"
+                    />
+                  )}
                 </div>
                 <input
                   type="text"
                   id={`alt-text-${image.id}`}
                   name={`alt-text-${image.id}`}
-                  placeholder="Alt text for image"
+                  placeholder={
+                    isPdfFile(image) ? "Label for PDF" : "Alt text for image"
+                  }
                   value={altTexts[image.id] || image.alt || ""}
                   onChange={(e) =>
                     handleAltTextChange(image.id, e.target.value)

@@ -23,7 +23,10 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { blogFormSchema, BlogFormValues } from "@/lib/validations/blog.schema";
-import { ImageUpload } from "@/components/custom/image-upload";
+import {
+  ImageUpload,
+  IMAGE_FILE_TYPES_WITH_GIF,
+} from "@/components/custom/image-upload";
 import { WysiwygEditor } from "@/components/custom/wysiwyg-editor";
 import { useActiveBlogCategories } from "@/lib/blog-categories/useBlogCategories";
 import { getCdnUrl, extractKeyFromUrl } from "@/lib/image-utils";
@@ -309,12 +312,7 @@ export function BlogForm({
                         : []
                     }
                     maxFiles={1}
-                    allowedFileTypes={[
-                      "image/webp",
-                      "image/gif",
-                      "image/jpeg",
-                      "image/png",
-                    ]}
+                    allowedFileTypes={IMAGE_FILE_TYPES_WITH_GIF}
                     disableCompression={true}
                   />
                 </FormControl>
