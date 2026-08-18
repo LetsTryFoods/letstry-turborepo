@@ -76,11 +76,15 @@ import {
   WhatsAppNotifyDialog,
   WhatsAppTemplateType,
 } from "./WhatsAppNotifyDialog";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface OrderTableProps {
   orders: Order[];
   onViewDetails: (order: Order) => void;
   onUpdateStatus: (orderId: string, status: OrderStatus) => void;
+  selectedOrderIds?: string[];
+  onToggleSelectOrder?: (orderId: string) => void;
+  onToggleSelectAll?: (selectAll: boolean) => void;
 }
 
 const API_BASE_URL =
@@ -91,6 +95,9 @@ export function OrderTable({
   orders,
   onViewDetails,
   onUpdateStatus,
+  selectedOrderIds = [],
+  onToggleSelectOrder,
+  onToggleSelectAll,
 }: OrderTableProps) {
   const { punchShipment, loading: punching } = useAdminPunchShipment();
   const { downloadLabel, loading: downloadingLabel } = useShipmentLabel();
@@ -285,6 +292,13 @@ export function OrderTable({
       <Table>
         <TableHeader>
           <TableRow className="hover:bg-transparent">
+            <TableHead className="w-10 px-2.5 py-2">
+              <Checkbox
+                checked={orders.length > 0 && selectedOrderIds.length === orders.length}
+                onCheckedChange={(checked) => onToggleSelectAll?.(!!checked)}
+                aria-label="Select all"
+              />
+            </TableHead>
             <TableHead className="text-[11px] font-bold uppercase tracking-wider py-2 px-2.5 h-auto">
               Order #
             </TableHead>
@@ -317,6 +331,13 @@ export function OrderTable({
         <TableBody>
           {orders.map((order) => (
             <TableRow key={order._id} className="hover:bg-muted/40 h-auto">
+              <TableCell className="py-2 px-2.5 h-auto">
+                <Checkbox
+                  checked={selectedOrderIds.includes(order.orderId)}
+                  onCheckedChange={() => onToggleSelectOrder?.(order.orderId)}
+                  aria-label={`Select order ${order.orderId}`}
+                />
+              </TableCell>
               <TableCell className="py-2 px-2.5 h-auto">
                 <span
                   className="font-mono text-[11px] font-bold text-foreground hover:text-indigo-600 hover:underline cursor-pointer active:text-indigo-800 transition-colors select-all"

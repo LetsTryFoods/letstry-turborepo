@@ -18,6 +18,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import {
   useAllOrders,
@@ -44,6 +50,7 @@ import {
   Smartphone,
   MessageCircle,
   Loader2,
+  ChevronDown,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "react-hot-toast";
@@ -71,6 +78,44 @@ export default function OrdersPage() {
   const [bulkReason, setBulkReason] = useState<string>(DELAY_REASONS[0].value);
   const [bulkSending, setBulkSending] = useState(false);
   const [bulkResult, setBulkResult] = useState<{ sent: number; failed: number } | null>(null);
+
+  // Bulk status update state
+  const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
+  const [isBulkUpdating, setIsBulkUpdating] = useState(false);
+
+  const handleToggleSelectOrder = (orderId: string) => {
+    setSelectedOrderIds((prev) =>
+      prev.includes(orderId) ? prev.filter((id) => id !== orderId) : [...prev, orderId]
+    );
+  };
+
+  const handleToggleSelectAll = (selectAll: boolean) => {
+    if (selectAll && orders) {
+      setSelectedOrderIds(orders.map((o) => o.orderId));
+    } else {
+      setSelectedOrderIds([]);
+    }
+  };
+
+  const handleBulkUpdateStatus = async (status: OrderStatus) => {
+    if (selectedOrderIds.length === 0) return;
+    setIsBulkUpdating(true);
+    const toastId = toast.loading(`Updating ${selectedOrderIds.length} orders to ${status}...`);
+    try {
+      await Promise.all(
+        selectedOrderIds.map((orderId) => updateStatus({ orderId, status }))
+      );
+      toast.success(`Successfully updated ${selectedOrderIds.length} orders`);
+      setSelectedOrderIds([]);
+      refetch();
+    } catch (error) {
+      console.error("Failed to bulk update orders:", error);
+      toast.error("Failed to update some orders");
+    } finally {
+      setIsBulkUpdating(false);
+      toast.dismiss(toastId);
+    }
+  };
 
   // Debounce search term
   useEffect(() => {
@@ -423,6 +468,24 @@ export default function OrdersPage() {
                 <SelectItem value="SHIPMENT_FAILED">Failed</SelectItem>
               </SelectContent>
             </Select>
+
+            {selectedOrderIds.length > 0 && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="w-full sm:w-auto border-blue-500 text-blue-700 hover:bg-blue-50" disabled={isBulkUpdating}>
+                    {isBulkUpdating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+                    Update {selectedOrderIds.length} Selected <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => handleBulkUpdateStatus("CONFIRMED")}>Mark as Confirmed</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleBulkUpdateStatus("PACKED")}>Mark as Packed</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleBulkUpdateStatus("SHIPPED")}>Mark as Shipped</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleBulkUpdateStatus("IN_TRANSIT")}>Mark as In Transit</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleBulkUpdateStatus("DELIVERED")}>Mark as Delivered</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -448,6 +511,9 @@ export default function OrdersPage() {
             orders={orders}
             onViewDetails={handleViewDetails}
             onUpdateStatus={handleUpdateStatus}
+            selectedOrderIds={selectedOrderIds}
+            onToggleSelectOrder={handleToggleSelectOrder}
+            onToggleSelectAll={handleToggleSelectAll}
           />
           <div className="flex items-center justify-between pt-4 border-t">
             <p className="text-sm text-muted-foreground">

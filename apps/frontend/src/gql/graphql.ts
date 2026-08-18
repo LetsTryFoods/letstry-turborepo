@@ -809,6 +809,22 @@ export type CreateLandingPageInput = {
   title: Scalars['String']['input'];
 };
 
+export type CreateManualPackInput = {
+  addressLine1: Scalars['String']['input'];
+  addressLine2?: InputMaybe<Scalars['String']['input']>;
+  boxId: Scalars['String']['input'];
+  city: Scalars['String']['input'];
+  items: Array<ManualPackItemInput>;
+  note?: InputMaybe<Scalars['String']['input']>;
+  pincode: Scalars['String']['input'];
+  prePackImages?: InputMaybe<Array<Scalars['String']['input']>>;
+  recipientName: Scalars['String']['input'];
+  recipientPhone: Scalars['String']['input'];
+  senderName: Scalars['String']['input'];
+  senderPhone?: InputMaybe<Scalars['String']['input']>;
+  state: Scalars['String']['input'];
+};
+
 export type CreatePackerInput = {
   email?: InputMaybe<Scalars['String']['input']>;
   employeeId: Scalars['String']['input'];
@@ -1413,6 +1429,25 @@ export type LogisticsAnalyticsResponse = {
   year: Scalars['Int']['output'];
 };
 
+export type ManualPackInfo = {
+  __typename?: 'ManualPackInfo';
+  addressLine1: Scalars['String']['output'];
+  addressLine2?: Maybe<Scalars['String']['output']>;
+  boxId: Scalars['String']['output'];
+  city: Scalars['String']['output'];
+  pincode: Scalars['String']['output'];
+  recipientName: Scalars['String']['output'];
+  recipientPhone: Scalars['String']['output'];
+  senderName: Scalars['String']['output'];
+  senderPhone?: Maybe<Scalars['String']['output']>;
+  state: Scalars['String']['output'];
+};
+
+export type ManualPackItemInput = {
+  quantity: Scalars['Int']['input'];
+  variantId: Scalars['String']['input'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   addProductVariant: Product;
@@ -1447,6 +1482,7 @@ export type Mutation = {
   createCoupon: Coupon;
   createGuest: Guest;
   createLandingPage: LandingPage;
+  createManualPack: PackingOrder;
   createOrUpdateCharges: Charges;
   createPacker: CreatePackerResponse;
   createPickupLocation: PickupLocationType;
@@ -1689,6 +1725,11 @@ export type MutationCreateGuestArgs = {
 
 export type MutationCreateLandingPageArgs = {
   input: CreateLandingPageInput;
+};
+
+
+export type MutationCreateManualPackArgs = {
+  input: CreateManualPackInput;
 };
 
 
@@ -2506,6 +2547,7 @@ export type PackingOrder = {
   isExpress: Scalars['Boolean']['output'];
   items: Array<PackingItem>;
   logisticsCost?: Maybe<Scalars['Float']['output']>;
+  manualPack?: Maybe<ManualPackInfo>;
   orderId: Scalars['String']['output'];
   orderNumber: Scalars['String']['output'];
   packerName?: Maybe<Scalars['String']['output']>;
